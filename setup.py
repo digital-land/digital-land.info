@@ -4,7 +4,7 @@ setup(
     name="digital-land web",
     version="0.1",
     long_description=__doc__,
-    packages=["dl_web", "dl_web.resource"],
+    packages=["dl_web", "dl_web.routers"],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
