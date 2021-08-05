@@ -1,0 +1,12 @@
+{% macro horizontalBar(params) %}
+<div class="govuk-grid-row chart-bar__row {% if params.classes %}{{params.classes}}{% endif %}">
+    <div class="govuk-grid-column-one-quarter">
+        <h4 class="govuk-heading-s chart-bar__label{% if params.label_classes %} {{params.label_classes}}{% endif %}">{{ params.label }}</h4>
+    </div>
+    <div class="govuk-grid-column-three-quarters chart-bar">
+        {% set bar_width = '{:.0%}'.format(params.value / params.total) %}
+        <div class="chart-bar__part" style="width: {{ '1px' if bar_width == '0%' and params.value > 0 else bar_width }};"></div>
+        <span class="govuk-!-font-weight-bold data-item chart-bar__value">{{ params.value }}</span>
+    </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,31 @@
+{% macro listComparedToStandard(expected, found) %}
+<ul class="govuk-list field-list {{ ' field-list--columns' if expected|length > 4 else '' }}">
+    {% for header in expected %}
+    <li class="field-list__item{% if not header in found %} error{% endif %}">
+      {{ header }}
+      <span class="govuk-tag{% if not header in found %} govuk-tag--error{% endif %}">{{ "Found" if header in found else "Missing" }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endmacro %}
+
+
+{% macro listHeaderItem(params) %}
+<li class="field-list__item">
+    {{ params.header }}
+    <span class="govuk-tag{% if params.classes %} {{ params.classes }}{% endif %}">{{ params.tag|default("Found") }}</span>
+</li>
+{% endmacro %}
+
+
+{% macro listDeprecatedHeaders(headers) %}
+<ul class="govuk-list field-list{{ ' field-list--columns' if headers|length > 4 else ' ' }}">
+{%- for header in headers -%}
+    {{- listHeaderItem({
+        "header": header,
+        "tag": "Deprecated",
+        "classes": "govuk-tag--warning"
+    }) -}}
+{%- endfor -%}
+</ul>
+{% endmacro %}

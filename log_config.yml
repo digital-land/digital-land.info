@@ -1,0 +1,35 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    datefmt: "%Y-%m-%d %H:%M:%S"
+    format: "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: standard
+    level: INFO
+    stream: ext://sys.stdout
+
+  # file:
+  #   class: logging.handlers.WatchedFileHandler
+  #   formatter: standard
+  #   filename: mylog.log
+  #   level: INFO
+
+
+loggers:
+  uvicorn:
+    error:
+      propagate: true
+  uvicorn:
+    access:
+      propogate: true
+
+root:
+  level: INFO
+  # handlers: [console, file]
+  handlers: [console]
+  propagate: no

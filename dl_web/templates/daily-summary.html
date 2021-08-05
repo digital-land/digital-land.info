@@ -1,0 +1,66 @@
+{% extends "digital-land-frontend/dlf-base.html" %}
+
+{%- block beforeContent -%}
+    {{ super() }}
+
+    {{- govukBreadcrumbs({
+    "items": [
+        {
+        "text": "Digital Land",
+        "href": "/"
+        },
+        {
+        "text": "Log"
+        },
+        {
+        "text": daystr
+        }
+    ]
+    }) -}}
+{%- endblock -%}
+
+{% block pageTitle %}{{ daystr }} | Log | Digital Land{% endblock %}
+
+{% block content %}
+<span class="govuk-caption-xl">Daily log</span>
+<h1 class="govuk-heading-xl">{{ daystr }}</h1>
+
+<p class="govuk-body-l">The collector attempted to collect resources from {{ summary['fetch_attempts'] }} urls.</p>
+
+<h2 class="govuk-heading-m">Statuses</h2>
+<ul class="govuk-list">
+    {% for status in summary['statuses'] %}
+    <li>{{ summary['statuses'][status]['key']|length }} {{status}}</li>
+    {% endfor %}
+</ul>
+
+{%- if "404" in summary["statuses"].keys() -%}
+    {% if summary["statuses"]["404"]["key"]|length > 0 %}
+    <h2 class="govuk-heading-m">Links 404-ing are:</h2>
+    <ul class="govuk-list govuk-list--bullet">
+    {% for k in summary["statuses"]["404"]["key"] %}
+        <li><a href="{{ ind.get_key_url(k) }}" class="govuk-link">{{ ind.get_key_url(k) }}</a></li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+{%- endif -%}
+
+<h2 class="govuk-heading-l">Resources</h2>
+{% if new_resources.keys()|length > 0 %}
+{% set new_resource_count = new_resources.keys()|length %}
+<p class="govuk-body">The {{"resource"|pluralise("", "s", new_resource_count)}} at the end of {{new_resource_count}} {{"link"|pluralise("", "s", new_resource_count)}} {{"has"|pluralise("s", "ve", new_resource_count)}} changed.</p>
+<ol class="govuk-list govuk-list--number">
+{% for k in new_resources.keys() %}
+    <li class="govuk-!-margin-bottom-3">
+        For <a href="{{ ind.get_key_url(k) }}" class="govuk-link">{{ ind.get_key_url(k) }}</a>
+        <div><span class="govuk-!-font-weight-bold govuk-!-margin-right-2">Old resource</span> <a href="/resource/{{new_resources[k][0]}}.html" class="govuk-link">{{new_resources[k][0]}}</a></div>
+        <div><span class="govuk-!-font-weight-bold govuk-!-margin-right-2">New resource</span> <a href="/resource/{{new_resources[k][1]}}.html" class="govuk-link">{{new_resources[k][1]}}</a></div>
+    </li>
+{% endfor %}
+</ol>
+{% else %}
+<p class="govuk-body">There were no new resources published.</p>
+{% endif %}
+
+
+{% endblock %}

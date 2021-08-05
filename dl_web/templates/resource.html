@@ -1,0 +1,1582 @@
+{% extends "digital-land-frontend/dlf-base.html" %}
+{% block page_title %}Resource page template{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <!-- local generated css -->
+    <link rel="stylesheet" href="/static/gen/css/main.css">
+{% endblock  %}
+
+{% block content %}
+
+<main id="content" role="main">
+
+    <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <span class="govuk-caption-xl">{{ resource.dataset|capitalize }}</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-7">View the data</h1>
+        <p class="govuk-body-l govuk-!-margin-bottom-9">Explore the resource data on this page, which has been collected and processed by MHCLG.</p>
+    </div>
+    </div>
+
+    <hr class="govuk-section-break govuk-section-break--s">
+
+    {% if resource.summary %}
+    {%- set summary = resource.summary -%}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-l">What this data told us</h2>
+            <p class="govuk-body">The following information has been extracted from this resource.</p>
+            <p class="govuk-body">The data references <span class="govuk-!-font-weight-bold">{{ summary.organisations|length }}</span> {{ "organisation" if summary.organisations|length == 1 else "organisations" }}.</p>
+            <p class="govuk-body">It reports <span class="govuk-!-font-weight-bold">{{ summary.records.total }} {{ "brownfield sites" if resource.dataset == "brownfield-land" else "records" }}</span>. <span class="govuk-!-font-weight-bold">{{ summary.records['end-date'] }}</span> of these have an <a href="https://digital-land.github.io/guidance/data-principles/#end-dates">end date</a> and are {{ "no longer considered brownfield land" if resource.dataset == "brownfield-land" else "classed as historical" }}.</p>
+            {% if resource.dataset == "brownfield-land" %}
+            <p class="govuk-body">Not including sites with an end date, there are:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>
+                    <span class="govuk-!-font-weight-bold">{{ summary.stats.hectares }}
+                    hectares</span> of brownfield land
+                </li><li>between <span class="govuk-!-font-weight-bold">{{ summary.stats.dwellings.min }}</span> and <span class="govuk-!-font-weight-bold">{{ summary.stats.dwellings.max }}</span> potential dwellings that could be built
+                </li>
+                <li><span class="govuk-!-font-weight-bold">{{ summary.stats.permissioned_in_principle }}
+                    </span> sites have <a href="https://www.gov.uk/guidance/permission-in-principle">permission in principle</a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <hr class="govuk-section-break govuk-section-break--l">
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <h2 class="govuk-heading-l">Where this data is from</h2>
+
+            <details class="govuk-details" data-module="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                        What does this mean?
+                    </span>
+                </summary>
+                <div class="govuk-details__text">
+                    <p class="govuk-body">We collected this data from the places on the internet which are known as a data 'end point'. Each endpoint has a unique address on the internet called a URL.</p>
+                </div>
+            </details>
+
+            {% for endpoint in resource.endpoints %}
+            <dl class="govuk-summary-list dl-summary-list--data">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Endpoint URL
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <a href="{{ endpoint.endpoint }}" class="dl-link">{{ endpoint.endpoint }}</a>
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        <div>Published</div>
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ endpoint.start_date }} {# need to add readable_date filter #}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Last collected
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ endpoint.last_collected }} {# need to add readable_date filter #}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        From
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {%- for organisation in endpoint.organisations -%}
+                        <a href="/organisation/{{ organisation.id }}">{{ organisation.name }}</a>
+                        {%- if not loop.last -%}
+                        ,
+                        {%- endif -%}
+                        {%- endfor -%}
+                    </dd>
+                </div>
+            </dl>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr class="govuk-section-break govuk-section-break--m">
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 class="govuk-heading-l" id="#how-we-proccessed-this-data">How we proccessed this data</h2>
+        <p class="govuk-body govuk-!-margin-bottom-6">Software developed by MHCLG downloads the data from the URL of the resource, it then automatically identifies and fixes common errors that do not align with the <a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data">data standard</a>.</p>
+        <h3 class="govuk-heading-m" id="download-data">Download this data</h3>
+        <p class="govuk-body govuk-!-margin-bottom-6">You can download a snapshot of the data for this resource from each key stage of our data proccess. Read more about <a href="https://digital-land.github.io/guidance/pipeline/">how we collect and process data</a></p>
+
+        {% for file in resource.files %}
+        <section class="dl-attachment">
+            <div class="dl-attachment__thumbnail">
+              <a class="govuk-link" target="_self" tabindex="-1" aria-hidden="true" href="#">
+                <svg class="dl-attachment__thumbnail-image" version="1.1" viewBox="0 0 99 140" width="99" height="140" aria-hidden="true" preserveAspectRatio="none">
+                  <path d="M12 12h75v27H12zm0 47h18.75v63H12zm55 2v59H51V61h16m2-2H49v63h20V59z" stroke-width="0"></path>
+                  <path d="M49 61.05V120H32.8V61.05H49m2-2H30.75v63H51V59zm34 2V120H69.05V61.05H85m2-2H67v63h20V59z" stroke-width="0"></path>
+                  <path d="M30 68.5h56.5M30 77.34h56.5M30 112.7h56.5M30 95.02h56.5M30 86.18h56.5M30 103.86h56.5" fill="none" stroke-miterlimit="10" stroke-width="2"></path>
+                </svg>
+              </a>
+            </div>
+            <div class="dl-attachment__details">
+              <h3 class="dl-attachment__title">
+                <a href="#" class="govuk-link dl-attachment__link">{{ file.name }} data</a>
+              </h3>
+              <p class="dl-attachment__metadata">
+                  {# need filter to map file types to proper titles #}
+                <span class="dl-attachment__attribute"><abbr title="Comma-separated Values" class="dl-attachment__abbr">{{ file.format }}</abbr></span>, 
+                <span class="dl-attachment__attribute">{{ file.size }}</span>
+              </p>
+              {%- if "Collected" in file.name %}
+              <p class="govuk-body">This file contains a copy of data as it was collected on {{ resource.endpoints[0].last_collected }}{# if more than 1 endpoint, which to use? #}.</p>
+              {% endif %}
+              {%- if "Harmonised" in file.name %}
+              <p class="govuk-body">This file contains the data after our pipeline software has harmonised it.</p>
+              {% endif %}
+              {%- if "Transformed" in file.name %}
+              <p class="govuk-body">This file contains the data after our pipeline has harmonised and then transformed it into the Digital Land data model.</p>
+              {% endif %}
+            </div>
+        </section>
+        {% endfor %}
+
+        <hr class="govuk-section-break govuk-section-break--m">
+    </div>
+  </div>
+
+  <hr class="govuk-section-break govuk-section-break--m">
+
+  <h2 class="govuk-heading-l">Explore this data</h2>
+
+  <h3 class="govuk-heading-m govuk-!-margin-top-6">Site locations</h3>
+  <p class="govuk-body">Click on each plotted site to see further information.</p>
+
+  <div class="map-wrapper govuk-!-margin-bottom-9">
+      <div id="map" style="width: 100%; height: 640px;"></div>
+      <div class="map__site-count">
+          All 10 sites plotted.</div>
+      <div class="bfs-hectares-key dl-map__panel-bottom-left">
+          <h3 class="govuk-heading-s govuk-visually-hidden">Key</h3>
+          <h4 class="bfs-hectares-key__title">Site size in hectares</h4>
+          <div class="bfs-hectares-key__container">
+              <div class="bfs-hectare"/></div>
+              <div class="bfs-hectare bfs-hectare--lg"></div>
+          </div>
+      </div>
+  </div>
+
+    <h3 class="govuk-heading-m">Records</h3>
+    <p class="govuk-body">There are <strong>10</strong> records after harmonising the data in this resource.</p>
+
+    <div class="data-table__wrapper" data-module="data-table data-linkable-table">
+    <div class="data-table-left-shadow"></div>
+    <div class="wide-table">
+    <table class="data-table">
+    <thead>
+        <tr>
+        <th scope="col" aria-sort="none">SiteReference</th>
+        <th scope="col" aria-sort="none">SiteNameAddress</th>
+        <th scope="col">GeoX</th>
+        <th scope="col">GeoY</th>
+        <th scope="col" aria-sort="none">Hectares</th>
+        <th scope="col" aria-sort="none">NetDwellingsRangeFrom</th>
+        <th scope="col" aria-sort="none">NetDwellingsRangeTo</th>
+        <th scope="col">FirstAddedDate</th>
+        <th scope="col">LastUpdatedDate</th>
+        <th scope="col">Deliverable</th>
+        <th scope="col">HazardousSubstances</th>
+        <th scope="col">OrganisationURI</th>
+        <th scope="col">OwnershipStatus</th>
+        <th scope="col">PermissionDate</th>
+        <th scope="col">PermissionType</th>
+        <th scope="col">PlanningHistory</th>
+        <th scope="col">PlanningStatus</th>
+        <th scope="col">SiteplanURL</th>
+        <th scope="col">Notes</th>
+        <th scope="col">EndDate</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr id="row1">
+        <td data-sort-value="BR/03/001">BR/03/001</td>
+        <td
+        data-sort-value="Former Bere Regis primary school, Rye Hill, Bere Regis"
+        class="data-table__cell--max-width"
+        >
+        Former Bere Regis primary school, Rye Hill, Bere Regis
+        </td>
+        <td>-2.218153</td>
+        <td>50.747808</td>
+        <td data-sort-value="0.3">0.3</td>
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="9"
+        >
+        9
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>9
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="9"
+        >
+        9
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>9
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>owned by a public authority</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>not permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">
+            Only part of site brownfield - school building SHLAA 6/03/1336
+        </div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row2">
+        <td data-sort-value="BR/11/002">BR/11/002</td>
+
+        <td
+        data-sort-value="Binnegar Hall, East Stoke, Wareham"
+        class="data-table__cell--max-width"
+        >
+        Binnegar Hall, East Stoke, Wareham
+        </td>
+
+        <td>-2.165649</td>
+
+        <td>50.683987</td>
+
+        <td data-sort-value="1.66">1.66</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="50"
+        >
+        50
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >50
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="50"
+        >
+        50
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >50
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td>2016-07-01</td>
+        <td>full planning permission</td>
+        <td>
+        <a
+        href="https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43598"
+        class="govuk-link"
+        >https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43598</a
+        >
+        </td>
+        <td>permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">
+            SHLAA 6/11/1337. Alterations, extensions and changes of use of existing
+            buildings to Class C3 residential use - 23 dwellings - 9 houses and 14
+            flats/maisonettes
+        </div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row3">
+        <td data-sort-value="BR/11/003">BR/11/003</td>
+
+        <td
+        data-sort-value="Kemps Country House Hotel, East Stoke, Wareham"
+        class="data-table__cell--max-width"
+        >
+        Kemps Country House Hotel, East Stoke, Wareham
+        </td>
+
+        <td>-2.171199</td>
+
+        <td>50.683471</td>
+
+        <td data-sort-value="0.1">0.1</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td>2015-09-03</td>
+        <td>full planning permission</td>
+        <td>
+        <a
+        href="https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43391"
+        class="govuk-link"
+        >https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43391</a
+        >
+        </td>
+        <td>permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">
+            Other application number 6/2015/0005. Change of use of Kemps Country
+            House to 6 dwellings with associated alteration works, extension to the
+            coach house, parking and landscaping.
+        </div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row4">
+        <td data-sort-value="BR/15/004">BR/15/004</td>
+
+        <td
+        data-sort-value="Bere Farm, Lytchett Minster"
+        class="data-table__cell--max-width"
+        >
+        Bere Farm, Lytchett Minster
+        </td>
+
+        <td>-2.083202</td>
+
+        <td>50.740534</td>
+
+        <td data-sort-value="0.51">0.51</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="15"
+        >
+        15
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >15
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="15"
+        >
+        15
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >15
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>not permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">SHLAA 6/15/1373</div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row5">
+        <td data-sort-value="BR/15/005">BR/15/005</td>
+
+        <td
+        data-sort-value="32 Poole Road, Upton"
+        class="data-table__cell--max-width"
+        >
+        32 Poole Road, Upton
+        </td>
+
+        <td>-2.023549</td>
+
+        <td>50.737322</td>
+
+        <td data-sort-value="0.06">0.06</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td>2016-07-28</td>
+        <td>full planning permission</td>
+        <td>
+        <a
+        href="https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=44577"
+        class="govuk-link"
+        >https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=44577</a
+        >
+        </td>
+        <td>permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">
+            Only part of site brownfield|whole site includes garden development.
+            Demolish existing buildings and erect 3 flats and 7 seven town houses
+            with associated parking; alter existing vehicular access. Part of site
+            brownfield.
+        </div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row6">
+        <td data-sort-value="BR/20/006">BR/20/006</td>
+
+        <td
+        data-sort-value="Former Police Station Premises, Argyle Road and Kings Road West, Swanage"
+        class="data-table__cell--max-width"
+        >
+        Former Police Station Premises, Argyle Road and Kings Road West, Swanage
+        </td>
+
+        <td>-1.964994</td>
+
+        <td>50.609202</td>
+
+        <td data-sort-value="0.03">0.03</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td>2016-12-22</td>
+        <td></td>
+        <td>
+        <a
+        href="https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=45183"
+        class="govuk-link"
+        >https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=45183</a
+        >
+        </td>
+        <td>permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">
+            Alterations and extensions to former police station to facilitate
+            conversion to 6 dwellings
+        </div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row7">
+        <td data-sort-value="BR/20/007">BR/20/007</td>
+
+        <td
+        data-sort-value="Cauldron Barn caravan site, Swanage"
+        class="data-table__cell--max-width"
+        >
+        Cauldron Barn caravan site, Swanage
+        </td>
+
+        <td>-1.966571</td>
+
+        <td>50.616507</td>
+
+        <td data-sort-value="0.39">0.39</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="6"
+        >
+        6
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>6
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>not permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">SHLAA 6/20/1332</div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row8">
+        <td data-sort-value="BR/20/008">BR/20/008</td>
+
+        <td
+        data-sort-value="former grammar school, Northbrook Road, Swanage"
+        class="data-table__cell--max-width"
+        >
+        former grammar school, Northbrook Road, Swanage
+        </td>
+
+        <td>-1.964128</td>
+
+        <td>50.620479</td>
+
+        <td data-sort-value="0.93">0.93</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="40"
+        >
+        40
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >40
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="40"
+        >
+        40
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >40
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">
+            Only part of the former school site is brownfield -the majority is that
+            which was orginally set aside as a site for Swanage School.
+        </div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row9" class="data-table__row--bottom">
+        <td data-sort-value="BR/20/009">BR/20/009</td>
+
+        <td
+        data-sort-value="1 The Pier Head, High St, Swanage"
+        class="data-table__cell--max-width"
+        >
+        1 The Pier Head, High St, Swanage
+        </td>
+
+        <td>-1.953617</td>
+
+        <td>50.607528</td>
+
+        <td data-sort-value="0.16">0.16</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="8"
+        >
+        8
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>8
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="8"
+        >
+        8
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span>8
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td>2015-07-31</td>
+        <td>full planning permission</td>
+        <td>
+        <a
+        href="https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43215"
+        class="govuk-link"
+        >https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43215</a
+        >
+        </td>
+        <td>permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;">
+        <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">See notes</span>
+        </summary>
+        <div class="govuk-details__text">
+            Other application numbers 6/2014/0166|6/2011/0812. Demolition Pier Head
+            Building and associated out buildings, erect two new buildings to form
+            eight flats, restaurant, pizza oven, ice cream parlour and gallery.
+            Landscape site and form new vehicular parking in basement
+        </div>
+        </details>
+        </td>
+        <td></td>
+        </tr>
+
+        <tr id="row10" class="data-table__row--bottom">
+        <td data-sort-value="BR/23/010">BR/23/010</td>
+
+        <td
+        data-sort-value="Wareham Autopoint, North Street, Wareham"
+        class="data-table__cell--max-width"
+        >
+        Wareham Autopoint, North Street, Wareham
+        </td>
+
+        <td>-2.112478</td>
+
+        <td>50.689402</td>
+
+        <td data-sort-value="0.12">0.12</td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="10"
+        >
+        10
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >10
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeFrom. Using value from
+            deprecated MinNetDwellings column.</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td
+        tabindex="0"
+        class="data-table__issue data-table__issue--wide"
+        data-sort-value="10"
+        >
+        10
+
+        <span class="data-table__issue__item">
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">original &rarr;</span
+            ><span></span>
+        </div>
+        <div class="data-table__issue__item__text issue__part">
+            <span class="secondary-text issue__part__label">processed &rarr;</span
+            >10
+        </div>
+
+        <div class="data-table__issue__info">
+            <strong class="govuk-tag govuk-!-margin-right-1">amended</strong>
+            <span
+            >No value provided for NetDwellingsRangeTo. Setting to
+            NetDwellingsRangeFrom</span
+            >
+        </div>
+        </span>
+        </td>
+
+        <td>2017-12-31</td>
+
+        <td>2017-12-31</td>
+
+        <td>yes</td>
+        <td></td>
+
+        <td>
+        <a
+        href="http://opendatacommunities.org/id/district-council/purbeck"
+        class="govuk-link"
+        >http://opendatacommunities.org/id/district-council/purbeck</a
+        >
+        </td>
+
+        <td>not owned by a public authority</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>not permissioned</td>
+
+        <td>
+        <a
+        href="https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck"
+        class="govuk-link"
+        >https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck</a
+        >
+        </td>
+
+        <td class="data-table__notes-cell" style="min-width: 200px;"></td>
+        <td></td>
+        </tr>
+    </tbody>
+    </table>
+    </div>
+    <div class="data-table-right-shadow"></div>
+    </div>
+
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+    <div class="feedback-panel">
+        <h3 class="feedback-panel__heading">Help improve this data</h3>
+        <p>If you are not responsible for editing and publishing this data, but you have found errors, please email corrections or questions to <a href="mailto:DigitalLand@communities.gov.uk">DigitalLand@communities.gov.uk</a>.</p>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block bodyEnd %}
+
+{{ super() }}
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+
+    <script async src='https://www.google-analytics.com/analytics.js'></script>
+    <!-- end google analytics -->
+    <script src="https://digital-land.github.io/javascripts/vendor/jquery-3.4.1.min.js"></script>
+    
+
+    <script src="https://digital-land.github.io/javascripts/govuk/govuk-frontend.min.js"></script>
+    <script>
+        // initiate all GOVUK components
+        window.GOVUKFrontend.initAll();
+    </script>
+
+<script src="https://digital-land.github.io/javascripts/vendor/MOJFrontend.SortableTable.js"></script>
+<script src="https://digital-land.github.io/javascripts/dl-frontend.js"></script>
+<script>
+    // Initialise data tables component
+    var $data_tables = document.querySelectorAll('[data-module*="data-table"]')
+    $data_tables.forEach(function(data_table) {
+        new window.DLFrontend.ScrollableTables(data_table).init()
+    })
+</script>
+
+<script>
+(function($) {
+    $(function() {
+        var sTable = new MOJFrontend.SortableTable({
+            table: $('table')[0],
+            statusVisible: true,
+            tableWrapperSelector: ".data-table__wrapper"
+        });
+    });
+}(jQuery));
+</script>
+
+<script>
+var $linkable_tables = document.querySelectorAll('[data-module*="data-linkable-table"]')
+$linkable_tables.forEach(function(linkable_table) {
+    new window.DLFrontend.LinkableTable(linkable_table).init()
+})
+</script>
+
+<script>
+    const bfs_data = [{"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -2.218153, "GeoY": 50.747808, "HazardousSubstances": null, "Hectares": 0.3, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 9, "NetDwellingsRangeFrom": 9, "NetDwellingsRangeTo": 9, "Notes": "Only part of site brownfield - school building SHLAA 6/03/1336", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "owned by a public authority", "PermissionDate": null, "PermissionType": null, "PlanningHistory": null, "PlanningStatus": "not permissioned", "SiteNameAddress": "Former Bere Regis primary school, Rye Hill, Bere Regis", "SiteReference": "BR/03/001", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -2.165649, "GeoY": 50.683987, "HazardousSubstances": null, "Hectares": 1.66, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 50, "NetDwellingsRangeFrom": 50, "NetDwellingsRangeTo": 50, "Notes": "SHLAA 6/11/1337. Alterations, extensions and changes of use of existing buildings to Class C3 residential use - 23 dwellings - 9 houses and 14 flats/maisonettes", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": "2016-07-01", "PermissionType": "full planning permission", "PlanningHistory": "https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43598", "PlanningStatus": "permissioned", "SiteNameAddress": "Binnegar Hall, East Stoke, Wareham", "SiteReference": "BR/11/002", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -2.171199, "GeoY": 50.683471, "HazardousSubstances": null, "Hectares": 0.1, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 6, "NetDwellingsRangeFrom": 6, "NetDwellingsRangeTo": 6, "Notes": "Other application number 6/2015/0005. Change of use of Kemps Country House to 6 dwellings with associated alteration works, extension to the coach house, parking and landscaping.", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": "2015-09-03", "PermissionType": "full planning permission", "PlanningHistory": "https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43391", "PlanningStatus": "permissioned", "SiteNameAddress": "Kemps Country House Hotel, East Stoke, Wareham", "SiteReference": "BR/11/003", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -2.083202, "GeoY": 50.740534, "HazardousSubstances": null, "Hectares": 0.51, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 15, "NetDwellingsRangeFrom": 15, "NetDwellingsRangeTo": 15, "Notes": "SHLAA 6/15/1373", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": null, "PermissionType": null, "PlanningHistory": null, "PlanningStatus": "not permissioned", "SiteNameAddress": "Bere Farm, Lytchett Minster", "SiteReference": "BR/15/004", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -2.023549, "GeoY": 50.737322, "HazardousSubstances": null, "Hectares": 0.06, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 6, "NetDwellingsRangeFrom": 6, "NetDwellingsRangeTo": 6, "Notes": "Only part of site brownfield|whole site includes garden development. Demolish existing buildings and erect 3 flats and 7 seven town houses with associated parking; alter existing vehicular access. Part of site brownfield.", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": "2016-07-28", "PermissionType": "full planning permission", "PlanningHistory": "https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=44577", "PlanningStatus": "permissioned", "SiteNameAddress": "32 Poole Road, Upton", "SiteReference": "BR/15/005", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -1.964994, "GeoY": 50.609202, "HazardousSubstances": null, "Hectares": 0.03, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 6, "NetDwellingsRangeFrom": 6, "NetDwellingsRangeTo": 6, "Notes": "Alterations and extensions to former police station to facilitate conversion to 6 dwellings", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": "2016-12-22", "PermissionType": null, "PlanningHistory": "https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=45183", "PlanningStatus": "permissioned", "SiteNameAddress": "Former Police Station Premises, Argyle Road and Kings Road West, Swanage", "SiteReference": "BR/20/006", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -1.966571, "GeoY": 50.616507, "HazardousSubstances": null, "Hectares": 0.39, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 6, "NetDwellingsRangeFrom": 6, "NetDwellingsRangeTo": 6, "Notes": "SHLAA 6/20/1332", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": null, "PermissionType": null, "PlanningHistory": null, "PlanningStatus": "not permissioned", "SiteNameAddress": "Cauldron Barn caravan site, Swanage", "SiteReference": "BR/20/007", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -1.964128, "GeoY": 50.620479, "HazardousSubstances": null, "Hectares": 0.93, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 40, "NetDwellingsRangeFrom": 40, "NetDwellingsRangeTo": 40, "Notes": "Only part of the former school site is brownfield -the majority is that which was orginally set aside as a site for Swanage School.", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": null, "PermissionType": null, "PlanningHistory": null, "PlanningStatus": "permissioned", "SiteNameAddress": "former grammar school, Northbrook Road, Swanage", "SiteReference": "BR/20/008", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -1.953617, "GeoY": 50.607528, "HazardousSubstances": null, "Hectares": 0.16, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 8, "NetDwellingsRangeFrom": 8, "NetDwellingsRangeTo": 8, "Notes": "Other application numbers 6/2014/0166|6/2011/0812. Demolition Pier Head Building and associated out buildings, erect two new buildings to form eight flats, restaurant, pizza oven, ice cream parlour and gallery. Landscape site and form new vehicular parking in basement", "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": "2015-07-31", "PermissionType": "full planning permission", "PlanningHistory": "https://planningsearch.purbeck-dc.gov.uk/PlanAppDisp.aspx?recno=43215", "PlanningStatus": "permissioned", "SiteNameAddress": "1 The Pier Head, High St, Swanage", "SiteReference": "BR/20/009", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}, {"Deliverable": "yes", "EndDate": null, "FirstAddedDate": "2017-12-31", "GeoX": -2.112478, "GeoY": 50.689402, "HazardousSubstances": null, "Hectares": 0.12, "LastUpdatedDate": "2017-12-31", "MinNetDwellings": 10, "NetDwellingsRangeFrom": 10, "NetDwellingsRangeTo": 10, "Notes": null, "OrganisationLabel": "Purbeck District Council", "OrganisationURI": "http://opendatacommunities.org/id/district-council/purbeck", "OwnershipStatus": "not owned by a public authority", "PermissionDate": null, "PermissionType": null, "PlanningHistory": null, "PlanningStatus": "not permissioned", "SiteNameAddress": "Wareham Autopoint, North Street, Wareham", "SiteReference": "BR/23/010", "SiteplanURL": "https://www.dorsetforyou.gov.uk/article/408863/Current-plans-and-strategies-in-Purbeck", "point": null}];
+    var bbox = [-2.232307973805941, -1.939462026194059, 50.598544843418594, 50.75679115658141];
+    // handle error with the bounding box
+    if (isNaN(bbox[0])) {
+        bbox = [-10.855, 2.0215, 49.824, 59.479] // (min_lng, max_lng, min_lat, max_lat)
+        console.log("using default bounding box for uk");
+    }
+
+    const brownfieldSiteStyle = {
+        color: "#745729",
+        fillColor: "#745729",
+        fillOpacity: 0.5
+    };
+
+    const brownfield = L.layerGroup();
+
+    var tooltipTemplate =
+        '<div class="bfs">' +
+        '{hasEndDate}' +
+        '<div class="bfs__header">' +
+        '<span class="govuk-caption-s">{siteRef}</span>' +
+        '<h3 class="govuk-heading-s bfs__addr">{address}</h3>' +
+        '</div>' +
+        '<div class="govuk-grid-row bfs__key-data">' +
+        '<dl class="govuk-grid-column-one-half">' +
+        '<dt>Hectare</dt>' +
+        '<dd>{hectares}</dd>' +
+        '</dl>' +
+        '<dl class="govuk-grid-column-one-half">' +
+        '<dt>Dwellings</dt>' +
+        '<dd>{isRange}</dd>' +
+        '</dl>' +
+        '</div>' +
+        '<div class="bfs__meta">' +
+        '<dl>' +
+        '<dt>Latitude</dt>' +
+        '<dd>{latitude}</dd>' +
+        '</dl>' +
+        '<dl>' +
+        '<dt>Longitude</dt>' +
+        '<dd>{longitude}</dd>' +
+        '</dl>' +
+        '{differentDates}' +
+        '</div>' +
+        '<div class="bfs__footer">' +
+        '<a href="#row{rowNumber}" class="govuk-link">See all site properties</a>' +
+        '</div>' +
+        '</div>';
+
+    function hasEndDate(data) {
+        if(data['endDate']) {
+            return '<span class="bfs__end-banner">End date: ' + data['endDate'] + '</span>';
+        }
+        return "";
+    }
+
+    function isRange(data) {
+        var str = data['minDwell'];
+        if(data['minDwell'] != null) {
+            if(parseInt(data['minDwell']) !== parseInt(data['maxDwell']) || parseInt(data['maxDwell']) === 0 ) {
+                str = data['minDwell'] + "-" + data['maxDwell'];
+            }
+            return str;
+        }
+        return ""
+    }
+
+    function differentDates(data) {
+        var str = '<dl>' +
+        '<dt>Date added</dt>' +
+        '<dd>' + data['startDate'] + '</dd>' +
+        '</dl>';
+        if(data['startDate'] != data['updatedDate']) {
+            return str + '<dl>' +
+                '<dt>Last updated</dt>' +
+                '<dd>' + data['updatedDate'] + '</dd>' +
+                '</dl>';
+        }
+        return str;
+    }
+
+    function createPopup2(row) {
+        processed_row_data = {
+            'address': row['SiteNameAddress'],
+            'siteRef': row['SiteReference'],
+            'endDate': row['EndDate'],
+            'hectares': row['Hectares'],
+            'minDwell': row['NetDwellingsRangeFrom'],
+            'maxDwell': row['NetDwellingsRangeTo'],
+            'latitude': row['GeoY'],
+            'longitude': row['GeoX'],
+            'startDate': row['FirstAddedDate'],
+            'updatedDate': row['LastUpdatedDate'],
+            'rowNumber': row['row_number'],
+            'isRange': isRange,
+            'hasEndDate': hasEndDate,
+            'differentDates': differentDates
+        }
+        return L.Util.template(tooltipTemplate, processed_row_data); 
+    }
+
+    function createPopup(data) {
+        var datastring = data['SiteNameAddress'].length ? (data['SiteNameAddress'] + '<hr>') : ''
+
+        Object.keys(data).forEach(function (key) {
+            var append = ''
+
+            if (key === 'Resource') {
+                append = '<a href="https://digital-land.github.io/resource/' + data[key] + '">Full resource</a>'
+            } else if (key === 'SiteplanURL') {
+                append = '<a href="' + data[key] + '">View siteplan</a>'
+            } else if (key === 'Organisation') {
+                append = '<a href="https://digital-land.github.io/organisation/' + data[key].replace(':', '/') + '">' + data.name + '</a>'
+            } else if (key === 'name') {
+                return
+            } else {
+                append = data[key];
+                if (append == null) {
+                    append = "";
+                }
+            }
+
+            datastring = datastring + '<strong>' + key + '</strong>: ' + append + '<br>'
+        })
+
+        return datastring
+    }
+
+    function siteSize(hectares) {
+        if (isNaN(hectares)) {
+            return 100;
+        } else {
+            return (Math.sqrt((hectares * 10000) / Math.PI))
+        }
+    }
+
+    bfs_data.forEach(function(row, idx) {
+        if (row['GeoY'] && row['GeoX']) {
+            row['row_number'] = idx+1;
+            var size = siteSize(row['Hectares']);
+            brownfieldSiteStyle.radius = size.toFixed(2);
+            L.circle([row['GeoY'], row['GeoX']], brownfieldSiteStyle).addTo(brownfield).bindPopup(createPopup2(row), {
+                minWidth: "270",
+                maxWidth: "270",
+                className: "bfs-popup"
+            });
+        } else {
+            console.log("row " + idx+1 + " no coords");
+        }
+    })
+
+    // grey-scale tiles
+    const base = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        id: 'base',
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 18
+    });
+
+    // standard tiles
+    // const base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //     id: 'base',
+    //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // })
+
+    const map = L.map('map', { preferCanvas: true, renderer: L.canvas({ padding: 0.5 }), layers: [base, brownfield] })
+        .fitBounds([[bbox[2], bbox[0]], [bbox[3], bbox[1]]]);
+
+</script>
+<style>
+    .data-table__cell--max-width {
+        white-space: pre-wrap !important;
+    }
+</style>
+
+{% endblock bodyEnd %}

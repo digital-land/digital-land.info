@@ -1,0 +1,53 @@
+{% extends "digital-land-frontend/dlf-base.html" %}
+
+{% block head %}
+{{ super() }}
+<meta name="generated-date" content="{{ now }}" />
+{% endblock head %}
+
+{%- block beforeContent -%}
+    {{ super() }}
+
+    {{- govukBreadcrumbs({
+    "items": [
+        {
+        "text": "Digital Land",
+        "href": "/"
+        },
+        {
+        "text": "Resources"
+        }
+    ]
+    }) -}}
+{%- endblock -%}
+
+{% block pageTitle %}Resources | Digital Land{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-xl">Resources</h1>
+
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <!-- <p class="govuk-body-l">Collected {{ resource_count }} brownfield land resources.</p> -->
+        <p class="govuk-body-l">Collected {{ collection.resource.records|length }} resources.</p>
+    </div>
+</div>
+
+
+<ul class="govuk-list">
+    {% for r in resources %}
+        <li>
+            <h3 class="govuk-heading-s" style="word-break: break-all;"><a href="{{ r['resource'] }}">{{ r['resource'] }}</a></h3>
+            <ul class="govuk-list">
+                <li><span>Organisation(s):</span>{% for organisation in r['organisations']|split_to_list %}
+                    <a href="{{ organisation|organisation_id_to_url }}" class="govuk-link">{{ organisation|organisation_id_to_name }}</a>
+                {% endfor %}</li>
+                <li><span>First collected on</span> {{ r['start-date'] }}</li>
+                <li><span>Last collected on</span> {{ r['end-date'] }}</li>
+                <li><span>Endpoints</span> {{ r['endpoints']|split_to_list|length }}</li>
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
