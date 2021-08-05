@@ -1,8 +1,6 @@
 import csv
-import io
 import logging
 import pathlib
-import re
 import shutil
 from pathlib import Path
 
