@@ -149,4 +149,6 @@ aws-vault exec dl-dev -- aws ecs update-service --force-new-deployment --service
 
 # Logging
 
+The containers are configured to send their logs to AWS Cloudwatch. The log group is called `/ecs/dl-web`.
+
 Logging configuration can be found in `log_config.yml`. Here you can change log level of each of the loggers independently, change the log format, or redirect specific/all logs to file.
