@@ -4,7 +4,7 @@ import os
 import uvicorn
 import yaml
 from digital_land.specification import Specification
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.exception_handlers import http_exception_handler
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -37,7 +37,9 @@ app.include_router(resource.router)
 async def custom_exception_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 404:
         return templates.TemplateResponse(
-            "404.html", {"request": request}, status_code=404
+            "404.html",
+            {"request": request},
+            status_code=404,
         )
     else:
         # Just use FastAPI's built-in handler for other errors
@@ -46,7 +48,7 @@ async def custom_exception_handler(request: Request, exc: StarletteHTTPException
 
 @app.route("/health")
 def health(request: Request):
-    return "OK"
+    return Response(content="OK", media_type="text/plain")
 
 
 # Development mode: `python -m dl_web.app`
