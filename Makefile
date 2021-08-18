@@ -9,7 +9,8 @@ $(CACHE_DIR)organisation.csv:
 
 server: $(CACHE_DIR)organisation.csv
 	# python -m dl_web.app
-	uvicorn dl_web.app:app --reload --workers 10
+	# uvicorn dl_web.app:app --reload --workers 10
+	gunicorn -w 2 -k uvicorn.workers.UvicornWorker dl_web.app:app --preload
 
 build:
 	docker build -t $(DOCKER_IMAGE_URL) .
