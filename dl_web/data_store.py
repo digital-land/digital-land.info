@@ -7,6 +7,7 @@ import time
 from collections import Counter
 from pathlib import Path
 
+import aiofiles
 import aiohttp
 from digital_land.collection import Collection
 from digital_land.organisation import Organisation
@@ -46,13 +47,16 @@ class DataStore:
             async with client.get(url) as response:
                 logger.warn("%s [%s]", url, response.status)
                 if response.status == 200:
-                    return True
+                    f = await aiofiles.open(str(path), mode="wb")
+                    await f.write(await response.read())
+                    await f.close()
                 else:
                     # The object does not exist.
                     if path.parent.exists():
                         logger.warn("removing dir %s", str(path.parent))
                         shutil.rmtree(str(path.parent))
                     return False
+        return True
 
         # All collections files have been fetched successfully
         return True
