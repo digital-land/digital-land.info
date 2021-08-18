@@ -8,7 +8,8 @@ $(CACHE_DIR)organisation.csv:
 	curl -qfs "https://raw.githubusercontent.com/digital-land/organisation-dataset/main/collection/organisation.csv" > $(CACHE_DIR)organisation.csv
 
 server: $(CACHE_DIR)organisation.csv
-	python -m dl_web.app
+	# python -m dl_web.app
+	uvicorn dl_web.app:app --reload --workers 10
 
 build:
 	docker build -t $(DOCKER_IMAGE_URL) .
