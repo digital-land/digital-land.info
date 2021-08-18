@@ -1,0 +1,388 @@
+{%- extends "digital-land-frontend/dlf-base.html" %}
+{% set templateName = "page-per-thing/record.html" %}
+
+{%- from "govuk-jinja-components/components/details/macro.jinja" import govukDetails %}
+{%- from "digital-land-frontend/components/map/macro.html" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/data-record/macro.html" import dlDataRecordPanel %}
+{%- from "digital-land-frontend/components/data-reference-cell/macro.html" import dlDataReferenceCell %}
+{%- from "digital-land-frontend/components/data-table/macro.html" import dlDataTableWrapper %}
+
+{# set at the top level, not in a block. Should this variable be passed to the template? #}
+{% set references = row[key_field]|reference_mapper(pipeline_name) if enable_x_ref else {} %}
+
+{%- set row_name = row['name'] if row['name'] else row['slug'] %}
+{% set geometry_url = row|get_geometry_url %}
+{% if geometry_url %}
+    {% set includesMap = true %}
+{% endif %}
+
+{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
+
+{%- block beforeContent -%}
+    {{ super() }}
+
+    {{- govukBreadcrumbs({
+    "items": [
+        {
+        "text": "Digital Land",
+        "href": "/"
+        } ] + breadcrumb
+    }) -}}
+{%- endblock -%}
+
+{%- block content %}
+
+{% block recordHead %}
+    {% block recordTitle -%}
+    <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
+    <h1 class="govuk-heading-xl">{{ row_name }}</h1>
+    {%- endblock recordTitle %}
+{% endblock recordHead %}
+
+<div class="govuk-tabs" data-module="dlf-subnav">
+    <h2 class="govuk-tabs__title">
+      Contents
+    </h2>
+    <nav class="dlf-subnav" aria-label="Sub navigation">
+        <ul class="dlf-subnav__list">
+            <li class="dlf-subnav__list-item dlf-subnav__list-item--selected">
+                <a class="dlf-subnav__list-item__link" href="#record" data-module-sub-nav="tab">
+                Record
+                </a>
+            </li>
+            <li class="dlf-subnav__list-item">
+                <a class="dlf-subnav__list-item__link" href="#history" data-module-sub-nav="tab">
+                History
+                </a>
+            </li>
+            {%- if provenance %}
+            <li class="dlf-subnav__list-item">
+                <a class="dlf-subnav__list-item__link" href="#provenance" data-module-sub-nav="tab">
+                Provenance
+                </a>
+            </li>
+            {% endif -%}
+            <li class="dlf-subnav__list-item">
+                <a class="dlf-subnav__list-item__link" href="#referenced-by" data-module-sub-nav="tab">
+                {{ references|total_items }} Reference{{ "" if references|total_items == 1 else "s" }}
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+    KEYS: {{ row.keys() }}
+
+<div id="record">
+{% block recordTableContainer %}
+<div class="govuk-grid-row">
+
+    {%- block recordTable %}
+    <div class="{{ recordPanelContainerClass|default('govuk-grid-column-two-thirds') }}">
+        {%- set areaproperties %}
+        {%- for field in row.keys() %}
+        field: {{ field }}
+        {%- if field not in ["id", "resource", "geometry", "point", "geometry_url", "slug", "href"] %}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+            {{- field }}
+            </dt>
+            <dd class="govuk-summary-list__value">
+            {%- if field == pipeline_name %}
+                {# never translate the reference field #}
+                <span class="dl-select-all">{{ row[field] }}</span>
+            {%- elif field == "organisation" %}
+                {{- dlDataReferenceCell({
+                    "identifier": row[field],
+                    "type": "Organisation",
+                    "display_name": row[field]|organisation_id_to_name or org, 
+                    "url": row[field]|organisation_id_to_url or None,
+                }) -}}
+            {%- elif field == "organisations" %}
+                <ul class="govuk-list">
+                {% for org in row[field].split(';')  %}
+                    <li>{{- dlDataReferenceCell({
+                        "identifier": org,
+                        "type": "Organisation",
+                        "display_name": org|organisation_id_to_name or org, 
+                        "url": row[field]|organisation_id_to_url or None,
+                    }) -}}</li>
+                {% endfor %}
+                </ul>
+            {%- elif field in ["geographies", "statistical-geography"] %}
+                {%- set geography_url = row[field]|geography_to_url -%}
+                {%- set geography_name = row[field]|geography_to_name or row[field] -%}
+                {{- dlDataReferenceCell({
+                    "identifier": row[field],
+                    "type": "Geography",
+                    "display_name": geography_name, 
+                    "url": geography_url
+                }) -}}
+            {%- elif field == "development-policies" %}
+                {%- if row[field] -%}
+                {%- set policyHTML -%}
+                <ul class="govuk-list">
+                    {%- for policy in row[field].split(';')  %}
+                    <li>
+                    {% if policy|policy_mapper %}
+                        {{- dlDataReferenceCell({
+                            "identifier": policy,
+                            "type": "Policy",
+                            "display_name": policy|policy_mapper, 
+                            "url": policy|policy_mapper("url")
+                        }) -}}
+                    {% else %}
+                    {{ policy }}
+                    {% endif %}
+                    </li>
+                    {% endfor -%}
+                </ul>
+                {%- endset -%}
+                {% set policycount = row[field].split(';')|length %}
+                {{ govukDetails({
+                    "summaryText": policycount|string + " polic" + "ies" if policycount != 1 else "y",
+                    "html": policyHTML
+                }) }}
+                {%- endif -%}
+            {%- elif field in ["development-policy-categories", "developer-agreement-type", "development-plan-types", "contribution-purpose", "contribution-funding-status", "document-types"] %}
+                {%- for category in row[field].split(';')  %}
+                    {%- set category_url = category|dl_category_mapper(field, "url") -%}
+                    {%- set category_name = category|dl_category_mapper(field) -%}
+                    <div>
+                    {{- dlDataReferenceCell({
+                        "identifier": category,
+                        "type": field,
+                        "display_name": category_name, 
+                        "url": category_url
+                    }) -}}
+                    </div>
+                {% endfor %}
+            {%- elif field == "developer-agreement" %}
+                {%- set mapped_url = row[field]|developer_agreement_mapper("url") -%}
+                {{- dlDataReferenceCell({
+                    "identifier": row[field],
+                    "type": "Agreement type",
+                    "display_name": row[field],
+                    "url": mapped_url
+                }) -}}
+            {%- elif field == "developer-agreement-contribution" %}
+                {%- set mapped_url = row[field]|developer_agreement_contribution_mapper("url") -%}
+                {{- dlDataReferenceCell({
+                    "identifier": row[field],
+                    "type": "Agreement type",
+                    "display_name": row[field],
+                    "url": mapped_url
+                }) -}}
+            {%- else %}
+                {{ row[field]|make_link }}
+            {%- endif %}
+            </dd>
+        </div>
+        {%- endif %}
+        {%- endfor %}
+        {%- endset %}
+
+        {%- if row['resource'] -%}
+        {{ dlDataRecordPanel({
+            "classes": "govuk-!-margin-bottom-6",
+            "identifier": row['site'] if row['site'] else row['slug'],
+            "resource": {
+                "identifier": row['resource'],
+                "url": "https://github.com/digital-land/" + pipeline_name + "-collection/tree/main/transformed/" + pipeline_name + "/" + row['resource'] + ".csv"
+            },
+            "html": areaproperties
+        }) }}
+        {%- else -%}
+        {{ dlDataRecordPanel({
+            "classes": "govuk-!-margin-bottom-6",
+            "identifier": row['site'] if row['site'] else row['slug'],
+            "html": areaproperties
+        }) }}
+        {%- endif -%}
+    </div>
+            
+    {% endblock recordTable -%}
+</div>
+{% endblock recordTableContainer %}
+
+{% block recordGeometry -%}
+    {%- if geometry_url %}
+    <h2 class="govuk-heading-m">Geographical area</h2>
+
+    <div class="dl-map__wrapper">
+        {{- dlLeafletMap({
+            "id": "dlMap",
+            "classes": "govuk-!-margin-top-4",
+            "attributes": {
+                "data-geojson-urls": geometry_url
+            },
+            "height": "460"
+        }) -}}
+
+        <div class="dl-map__note-panel">
+            <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
+        </div>
+    </div>
+
+    <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+        <a class="dl-page-action-button" href="{{geometry_url}}">Download geojson</a>
+    </div>
+    {%- endif %}
+{%- endblock recordGeometry %}
+
+{% block recordAssociatedInfo %}
+<h3 class="govuk-heading-m">Associated information</h3>
+
+<ul class="govuk-list govuk-list--bullet">
+    <li><a href="https://digital-land.github.io/specification/schema/{{ schema }}/">View the {{ schema }} schema</a></li>
+    {%- if typology == "category" %}
+    <li>This record is <a href="#referenced-by">referenced by {{ references|length }} other planning related data record{{ "" if references|length == 1 else "s" }}</a></li>
+    {% endif -%}
+</ul>
+{% endblock recordAssociatedInfo %}
+
+</div>
+{{ aodhgoasdghod }}
+
+{%- if entity is not none %}
+<div id="history">
+{%- block entryHistory %}
+<h2 class="govuk-heading-m dlf-subnav__heading">History</h2>
+{% set fields = entity.all_fields() %}
+{% set tableHTML -%}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>entry-date</th>
+            <th>resource</th>
+            <th>line</th>
+            {% for f in fields %}
+            <th>{{ f }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {%- for entry in entity.change_history() %}
+        {%- set resource_url = "https://github.com/digital-land/" + pipeline_name + "-collection/tree/main/transformed/" + pipeline_name + "/" + entry.resource + ".csv#L" + entry.line_num|github_line_num %}
+        <tr>
+            <td>{{ entry.entry_date.isoformat() }}</td>
+            <td><a href="{{ resource_url }}">{{ entry.resource|truncate(15) }}</a></td>
+            <td>{{ entry.line_num }}</td>
+            {% for f in fields %}
+            {% if entry.data[f] %}
+                {% if f == "geometry" %}
+                <td class="data-table__notes-cell data-table__cell--min-width-4">
+                    {{ govukDetails({
+                        "summaryText": "See WKT",
+                        "text": entry.data[f]
+                    }) }}
+                </td>
+                {% else %}
+                <td>{{ entry.data[f] }}</td> 
+                {% endif %}
+            {% else %}
+            <td></td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {%- endfor %}
+    </tbody>
+</table>
+{% endset -%}
+{{ dlDataTableWrapper({
+    "tableHTML": tableHTML
+}) }}
+{%- endblock entryHistory %}
+</div>
+{%- endif %}
+
+{%- if provenance %}
+<div id="provenance">
+    <h2 class="govuk-heading-m dlf-subnav__heading">Provenance</h2>
+</div>
+{% endif -%}
+
+{% block recordReferences -%}
+<div id="referenced-by">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m dlf-subnav__heading">Referenced by</h2>
+            <p class="govuk-body">This record is referenced by {{ references|total_items }} other planning related data record{{ "" if references|total_items == 1 else "s" }}.</p>
+            {% if references|length > 0 -%}
+            {% for type, refs in references.items() %}
+            <h3 class="govuk-heading-s">{{ type|capitalize }}</h3>
+            <ul class="govuk-list govuk-list--bullet">
+                {%- for ref in refs %}
+                <li>
+                    <a href=/slug{{ ref["href"] }}>{{ ref["text"] }}</a>
+                    <span class="secondary-text data-reference">({{ ref["id"] }})</span>
+                </li>
+                {% endfor -%}
+            </ul>
+            {% endfor %}
+            {% endif -%}
+        </div>
+    </div>
+</div>
+{% endblock recordReferences -%}
+
+{%- endblock content %}
+
+{% block recordEnd %}{% endblock recordEnd %}
+
+{% block feedbackPrompt %}
+    {%- from "digital-land-frontend/components/feedback/macro.html" import dlFeedback %}
+    {% set subject = "Feedback on (" + key_field + ") " + row_name + " -- " + pipeline_name  %}
+    {{ dlFeedback({
+        "text": "Spotted an issue? Let us know so we can improve the data.",
+        "action": {
+            "text": "There is something wrong with the data",
+            "href": "mailto:digitalLand@communities.gov.uk?subject=" + subject
+        },
+        "container": true
+        })
+    }}
+{% endblock %}
+
+{%- block bodyEnd %}
+{{ super() }}
+
+{%- block initMapBlock %}
+<script>
+    const datasetName = "{{ pipeline_name }}"
+    const $mapElement = document.querySelector('[data-module="boundary-map"]')
+    const $nationalMapLink = document.querySelector('.dl-link-national-map')
+    const mapComponent = new DLMaps.Map($mapElement).init({
+        initZoomCallback: function (featureGroup) {
+            console.log("initial load completed")
+            // do we need to check there isn't more than one shape?
+            const center = featureGroup.getBounds().getCenter()
+            const zoom = mapComponent.map.getZoom()
+            let url = `http://digital-land.github.io/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
+            console.log(url)
+            if ($nationalMapLink) {
+                // only show this for the datasets we've added to the national map
+                $nationalMapLink.href = url
+                $nationalMapLink.classList.remove("js-hidden")
+            }
+        }
+    })
+</script>
+{% endblock -%}
+
+{% block initDataTables %}
+<script>
+    // Initialise back to top
+    var $data_tables = document.querySelectorAll('[data-module*="data-table"]')
+    $data_tables.forEach(data_table => {
+        new window.DLFrontend.ScrollableTables(data_table).init()
+    })
+</script>
+{% endblock initDataTables %}
+
+<script>
+    const $subNavTabs = document.querySelector('[data-module="dlf-subnav"]')
+    const subNavTabsComponent = new DLFrontend.SubNavTabs($subNavTabs).init({})
+</script>
+
+{%- endblock %}
