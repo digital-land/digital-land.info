@@ -1,3 +1,5 @@
+TODO:
+ - preload collection
 # AWS Authentication
 
 Throughout this guide, [aws-vault](https://github.com/99designs/aws-vault) is used in order to assume the correct role for accessing our AWS environment. It is recommended to set something like this up, but you can get by with manual authentication or other tooling. Just ensure that the various AWS env vars are setup such that you can use the aws cli as the `developer` role. You can check this with the following command:

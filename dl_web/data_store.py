@@ -1,50 +1,58 @@
+import asyncio
 import csv
 import logging
 import pathlib
 import shutil
+import time
+from collections import Counter
 from pathlib import Path
 
-import boto3
-import botocore
+import aiohttp
 from digital_land.collection import Collection
 from digital_land.organisation import Organisation
 
 logger = logging.getLogger(__name__)
 
 collection_files = ["resource", "log", "source", "endpoint"]
+base_url = "https://collection-dataset.s3.eu-west-2.amazonaws.com/"
 organisation = Organisation("var/cache/organisation.csv")
 
 
 class DataStore:
     def __init__(self):
-        self.s3 = boto3.resource("s3")
-        self.collection_bucket = self.s3.Bucket("collection-dataset")
         self.collections = set()
         self._collection = Collection(None, "var/cache")
         self.loaded = False
 
-    def fetch_collections(self, schema_field, collections):
-        for c in collections:
-            if self.fetch_collection(c):
-                self.collections.add(c)
+    async def fetch_collections(self, schema_field, collections):
+        tasks = []
+        start_time = time.time()
+        async with aiohttp.ClientSession() as client:
+            for c in collections:
+                tasks.append(self.fetch_collection(client, c))
+            results = await asyncio.gather(*tasks)
+        logger.warning("collections fetched in %s seconds", time.time() - start_time)
+        counter = Counter(results)
+        logger.warning("%s successful, %s failed", counter[True], counter[False])
         self.merge_collections(schema_field)
 
-    def fetch_collection(self, name, use_cache=False):
+    async def fetch_collection(self, client, name, use_cache=False):
         for file in collection_files:
-            try:
-                key = f"{name}-collection/collection/{file}.csv"
-                path = pathlib.Path(f"var/cache/collection/{name}/{file}.csv")
-                path.parent.mkdir(parents=True, exist_ok=True)
-                self.s3.meta.client.download_file("collection-dataset", key, str(path))
-            except botocore.exceptions.ClientError as e:
-                if e.response["Error"]["Code"] == "404":
+            key = f"{name}-collection/collection/{file}.csv"
+            url = f"{base_url}{key}"
+            path = pathlib.Path(f"var/cache/collection/{name}/{file}.csv")
+            path.parent.mkdir(parents=True, exist_ok=True)
+
+            async with client.get(url) as response:
+                logger.warn("%s [%s]", url, response.status)
+                if response.status == 200:
+                    return True
+                else:
                     # The object does not exist.
                     if path.parent.exists():
                         logger.warn("removing dir %s", str(path.parent))
                         shutil.rmtree(str(path.parent))
                     return False
-                else:
-                    raise e
 
         # All collections files have been fetched successfully
         return True
@@ -71,8 +79,7 @@ class DataStore:
         self._collection.load()
         self.loaded = True
 
-    @property
-    def collection(self):
+    def get_collection(self):
         if not self.loaded:
             self.load_collection()
         return self._collection

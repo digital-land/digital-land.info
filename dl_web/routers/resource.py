@@ -3,26 +3,32 @@ import logging
 from collections import defaultdict
 from datetime import date, datetime
 
-from fastapi import APIRouter, HTTPException, Request
+from digital_land.collection import Collection
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
 from ..data_store import datastore, organisation
 from ..resources import templates
 
-router = APIRouter(prefix="/resource")
+router = APIRouter()
 logger = logging.getLogger(__name__)
-collection = datastore.collection
 
 
 @router.get("/", response_class=HTMLResponse)
-def resource_index(request: Request):
+def resource_index(
+    request: Request, collection: Collection = Depends(datastore.get_collection)
+):
     return templates.TemplateResponse(
         "index.html", {"request": request, "collection": collection}
     )
 
 
 @router.get("/{resource_hash}", response_class=HTMLResponse)
-def resource(request: Request, resource_hash: str):
+def resource(
+    request: Request,
+    resource_hash: str,
+    collection: Collection = Depends(datastore.get_collection),
+):
     payload = {}
 
     try:

@@ -8,7 +8,6 @@ $(CACHE_DIR)organisation.csv:
 	curl -qfs "https://raw.githubusercontent.com/digital-land/organisation-dataset/main/collection/organisation.csv" > $(CACHE_DIR)organisation.csv
 
 server: $(CACHE_DIR)organisation.csv
-	# FLASK_APP=dl_web/app.py python -m flask run
 	python -m dl_web.app
 
 build:
@@ -21,7 +20,14 @@ login:
 	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(DOCKER_IMAGE_URL)
 
 plan:
-	cd tf; terraform plan -out=tfplan
+	cd tf/app; terraform plan -out=tfplan
 
 apply:
-	cd tf; terraform apply tfplan
+	cd tf/app; terraform apply tfplan
+
+test:
+	python -m pytest -sv
+
+lint:
+	black --check .
+	flake8 .

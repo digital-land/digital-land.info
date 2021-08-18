@@ -11,9 +11,15 @@ setup(
         "digital_land @ git+https://github.com/digital-land/digital-land-python.git#egg=digital-land",
         "digital_land_frontend @ git+https://github.com/digital-land/frontend.git#egg=digital_land_frontend",
         "fastapi",
+        "aiofiles",
         "uvicorn",
         "jinja2",
-        "boto3",
+        "aiohttp[speedups]",
         "PyYAML",
     ],
+    extras_require={
+        "testing": [
+            "pytest",
+        ]
+    },
 )
