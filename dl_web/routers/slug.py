@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 
 from digital_land.view_model import ViewModel
+from digital_land_frontend.render import slug_to_breadcrumb
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 
@@ -21,8 +22,8 @@ def fetch_entity(
     typology: str = Depends(get_typology),
     view_model: ViewModel = Depends(get_view_model),
 ):
+    slug = f"/{type_}/{key}"
     try:
-        slug = f"/{type_}/{key}"
         entity_snapshot = view_model.get_typology_entity_by_slug(typology, slug)
     except (AssertionError, KeyError):
         raise HTTPException(status_code=404, detail="entity not found")
@@ -52,7 +53,7 @@ def geojson_download(
 
 
 @router.get("/{type_}/{key:path}", response_class=HTMLResponse)
-def slug(
+def get_slug(
     request: Request,
     type_: str,
     key: str,
@@ -72,6 +73,8 @@ def slug(
     if format:
         raise HTTPException(status_code=404, detail="unsupported format")
 
+    slug = f"/{type_}/{key}"
+
     return templates.TemplateResponse(
         "row.html",
         {
@@ -79,7 +82,7 @@ def slug(
             "row": entity_snapshot,
             "entity": None,
             "pipeline_name": type_,
-            "breadcrumb": [],
+            "breadcrumb": slug_to_breadcrumb(slug),
             "schema": specification.pipeline[type_]["schema"],
             "typology": typology,
             "key_field": specification.key_field(typology),
