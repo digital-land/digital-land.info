@@ -32,9 +32,10 @@ class DataStore:
             for c in collections:
                 tasks.append(self.fetch_collection(client, c))
             results = await asyncio.gather(*tasks)
-        logger.warning("collections fetched in %s seconds", time.time() - start_time)
+        logger.info("collections fetched in %s seconds", time.time() - start_time)
         counter = Counter(results)
-        logger.warning("%s successful, %s failed", counter[True], counter[False])
+        logger.info("%s successful, %s failed", counter[True], counter[False])
+        logger.info("%s in self.collections", len(self.collections))
         self.merge_collections(schema_field)
 
     async def fetch_collection(self, client, name, use_cache=False):
@@ -56,13 +57,15 @@ class DataStore:
                         logger.warn("removing dir %s", str(path.parent))
                         shutil.rmtree(str(path.parent))
                     return False
-        return True
 
         # All collections files have been fetched successfully
+        self.collections.add(name)
         return True
 
     def merge_collections(self, schema_field):
+        logger.info("merging collections")
         for filename in collection_files:
+            logger.info("merging %s", filename)
             file = pathlib.Path(f"var/cache/{filename}.csv")
             if file.exists():
                 file.unlink()
