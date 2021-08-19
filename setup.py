@@ -13,6 +13,7 @@ setup(
         "fastapi",
         "aiofiles",
         "uvicorn",
+        "gunicorn",
         "jinja2",
         "aiohttp[speedups]",
         "PyYAML",
