@@ -4,6 +4,7 @@ import logging.config
 import os
 import time
 
+import uvicorn
 import yaml
 from fastapi import BackgroundTasks, Depends, FastAPI, Request, Response
 from fastapi.exception_handlers import http_exception_handler
@@ -11,7 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from dl_web.data_store import datastore
+from dl_web.data_store import get_datastore
 
 from .resources import get_view_model, specification, templates
 from .routers import resource, slug
@@ -23,25 +24,41 @@ with open("log_config.yml") as f:
 logger = logging.getLogger(__name__)
 
 
-async def refresh_data():
-    global last_refresh
-    last_refresh = time.time()
-    await datastore.fetch_collections(
-        specification.schema_field, set(specification.pipeline.keys())
-    )
+async def refresh_collection(fetch):
+    datastore = await get_datastore()
+    if fetch:
+        global last_refresh
+        last_refresh = time.time()
+        await datastore.fetch_collections(
+            specification.schema_field, set(specification.pipeline.keys())
+        )
+    await datastore.close_connection()
 
 
-async def on_starting():
-    logger.debug("Running on_starting")
+async def core_startup():
+    logger.debug("core startup")
     fetch = os.getenv("FETCH", "True").lower() not in ["0", "false", "f", "n", "no"]
     logger.info(f'Fetch is {"enabled" if fetch else "disabled"}')
-    if fetch:
-        await refresh_data()
+    await refresh_collection(fetch)
+
+
+async def worker_startup():
+    logger.debug("worker startup")
+    datastore = await get_datastore()
+    # reinitialise the aiohttp.ClientSession so it uses the fastapi event loop
+    await datastore._async_init()
+    datastore.load_collection()
 
 
 def create_app():
-    app = FastAPI(dependencies=[Depends(get_view_model)])
-    asyncio.run(on_starting())
+    app = FastAPI(
+        title="Digital-Land Data API",
+        description="API and website for Digital-Land data",
+        version="0.9",
+        dependencies=[Depends(get_view_model)],
+        on_startup=[worker_startup],
+    )
+    asyncio.run(core_startup())
     return app
 
 
@@ -56,6 +73,20 @@ app.mount(
     StaticFiles(directory="static"),
     name="static",
 )
+
+# the base templates expect images to be served at /images
+app.mount(
+    "/images",
+    StaticFiles(directory="static/govuk/assets/images"),
+    name="images",
+)
+
+
+# @app.on_event("shutdown")
+# def on_stopping():
+#     # I don't think this is actually firing. Needs investigation
+#     datastore = get_datastore()
+#     datastore.close_connections()
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -81,7 +112,7 @@ def refresh(request: Request, background_tasks: BackgroundTasks):
     if last_refresh and time.time() - last_refresh < 60:
         return Response(status_code=403, content="too soon")
 
-    background_tasks.add_task(refresh_data)
+    background_tasks.add_task(refresh_collection(True))
     return Response(status_code=202, content="refreshing data", media_type="text/plain")
 
 
@@ -96,3 +127,7 @@ def status(request: Request):
         status_code=200,
         content={"last_refresh": human_readable_refreshed},
     )
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
