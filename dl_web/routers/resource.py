@@ -3,11 +3,10 @@ import logging
 from collections import defaultdict
 from datetime import date, datetime
 
-from digital_land.collection import Collection
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
-from ..data_store import datastore, organisation
+from ..data_store import DataStore, get_datastore, organisation
 from ..resources import templates
 
 router = APIRouter()
@@ -15,21 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_class=HTMLResponse)
-def resource_index(
-    request: Request, collection: Collection = Depends(datastore.get_collection)
-):
+def resource_index(request: Request, datastore: DataStore = Depends(get_datastore)):
     return templates.TemplateResponse(
-        "index.html", {"request": request, "collection": collection}
+        "index.html", {"request": request, "collection": datastore.get_collection()}
     )
 
 
 @router.get("/{resource_hash}", response_class=HTMLResponse)
-def resource(
+async def resource(
     request: Request,
     resource_hash: str,
-    collection: Collection = Depends(datastore.get_collection),
+    datastore: DataStore = Depends(get_datastore),
 ):
     payload = {}
+    collection = datastore.get_collection()
 
     try:
         resource_endpoints = collection.resource_endpoints(resource_hash)
@@ -43,25 +41,43 @@ def resource(
     collection_name = collection.source.records[resource_endpoints[0]][0]["collection"]
     payload["collection"] = collection_name
 
-    transformed = datastore.fetch(collection_name, resource_hash, "transformed")
-    reader = csv.DictReader(transformed.open())
+    transformed = await datastore.fetch(collection_name, resource_hash, "transformed")
+    harmonised = None
+    data_table_source = transformed
+    end_date_field = "end-date"
+    org_field = "organisation"
+
+    # BFL is an anomaly and needs to show the harmonised file in data table
+    if collection_name in ("brownfield-land"):
+        harmonised = await datastore.fetch(collection_name, resource_hash, "harmonised")
+        data_table_source = harmonised
+        end_date_field = "EndDate"
+        org_field = "OrganisationLabel"
+
+    reader = csv.DictReader(data_table_source.open())
     count = 0
     ended_count = 0
     organisations = []
     organisations_seen = set()
     data = []
+    data_fields = reader.fieldnames
     for row in reader:
         count += 1
-        if row["end-date"]:
-            end_date = date.fromisoformat(row["end-date"])
+        if row[end_date_field]:
+            end_date = date.fromisoformat(row[end_date_field])
             if end_date <= date.today():
                 ended_count += 1
 
-        org = row.get("organisation", None)
+        org = row.get(org_field, None)
         if org and org not in organisations_seen:
             organisations_seen.add(org)
             organisations.append(
-                {"name": organisation.organisation[org]["name"], "id": org}
+                {
+                    "name": organisation.organisation[org]["name"]
+                    if org_field == "organisation"
+                    else org,
+                    "id": org,
+                }
             )
 
         data.append(row)
@@ -72,17 +88,10 @@ def resource(
     }
 
     # Issue
-    issue = datastore.fetch(collection_name, resource_hash, "issue")
-    issues = defaultdict(
-        lambda: {"rows": list(), "issues": list(), "total": 0, "samples": list()}
-    )
+    issue = await datastore.fetch(collection_name, resource_hash, "issue")
+    issues = defaultdict(lambda: defaultdict(list))
     for i in csv.DictReader(issue.open()):
-        issues[i["issue-type"]]["issues"].append(i)
-        row_number = int(i["row-number"])
-        issues[i["issue-type"]]["rows"].append(row_number)
-        issues[i["issue-type"]]["total"] += 1
-        if issues[i["issue-type"]]["total"] < 10:
-            issues[i["issue-type"]]["samples"].append(data[row_number - 1])
+        issues[i["row-number"]][i["field"]].append(i)
 
     payload["issues"] = issues
 
@@ -129,6 +138,17 @@ def resource(
         }
     )
 
+    # Harmonised
+    if harmonised:
+        files.append(
+            {
+                "name": "Harmonised",
+                "format": "CSV",
+                "size": "{:,.2f} KB".format(harmonised.stat().st_size / 1024),
+                "href": resource_url(collection_name, resource_hash, "harmonised"),
+            }
+        )
+
     # Transformed
     files.append(
         {
@@ -142,12 +162,13 @@ def resource(
     payload["files"] = files
 
     return templates.TemplateResponse(
-        "resource-no-table.html",
+        "resource.html",
         {
             "request": request,
             "resource": payload,
             "data": data,
-            "issues": issues,
+            "data_fields": data_fields,
+            "issues": dict(issues),
             "collection": collection,
         },
     )
@@ -158,8 +179,8 @@ def format_date(value):
 
 
 def resource_url(collection, resource_hash, stage):
-    if stage == "transformed":
-        return f"https://collection-dataset.s3.eu-west-2.amazonaws.com/{collection}-collection/transformed/{collection}/{resource_hash}.csv"
+    if stage in ("transformed", "harmonised"):
+        return f"https://collection-dataset.s3.eu-west-2.amazonaws.com/{collection}-collection/{stage}/{collection}/{resource_hash}.csv"
     elif stage == "collected":
         return f"https://collection-dataset.s3.eu-west-2.amazonaws.com/{collection}-collection/collection/resource/{resource_hash}"
     else:
