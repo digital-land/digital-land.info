@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import logging
 import logging.config
 import os
 import time
@@ -8,14 +9,14 @@ import uvicorn
 import yaml
 from fastapi import BackgroundTasks, Depends, FastAPI, Request, Response
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from dl_web.data_store import get_datastore
 
 from .resources import get_view_model, specification, templates
-from .routers import resource, slug
+from .routers import entity, resource
 
 with open("log_config.yml") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -67,7 +68,7 @@ last_refresh = None
 
 
 app.include_router(resource.router, prefix="/resource")
-app.include_router(slug.router, prefix="/slug")
+app.include_router(entity.router, prefix="/entity")
 app.mount(
     "/static",
     StaticFiles(directory="static"),
@@ -89,6 +90,7 @@ app.mount(
 #     datastore.close_connections()
 
 
+# Show the standard page for 404
 @app.exception_handler(StarletteHTTPException)
 async def custom_exception_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 404:
@@ -102,31 +104,35 @@ async def custom_exception_handler(request: Request, exc: StarletteHTTPException
         return await http_exception_handler(request, exc)
 
 
-@app.get("/health")
+@app.get("/health", response_class=PlainTextResponse)
 def health(request: Request):
-    return Response(content="OK", media_type="text/plain")
+    return "OK"
 
 
-@app.get("/refresh")
-def refresh(request: Request, background_tasks: BackgroundTasks):
-    if last_refresh and time.time() - last_refresh < 60:
-        return Response(status_code=403, content="too soon")
+# My attempt at allowing refresh via http. Just get rid and use the DB!
+#
+# @app.get("/refresh")
+# def refresh(request: Request, background_tasks: BackgroundTasks):
+#     if last_refresh and time.time() - last_refresh < 60:
+#         return Response(status_code=403, content="too soon")
 
-    background_tasks.add_task(refresh_collection(True))
-    return Response(status_code=202, content="refreshing data", media_type="text/plain")
+#     background_tasks.add_task(refresh_collection(True))
+#     return Response(status_code=202, content="refreshing data", media_type="text/plain")
 
 
-@app.get("/status")
-def status(request: Request):
-    human_readable_refreshed = (
-        datetime.datetime.fromtimestamp(last_refresh).isoformat()
-        if last_refresh
-        else None
-    )
-    return JSONResponse(
-        status_code=200,
-        content={"last_refresh": human_readable_refreshed},
-    )
+# A route to return status info about the server. Not used for now.
+#
+# @app.get("/status")
+# def status(request: Request):
+#     human_readable_refreshed = (
+#         datetime.datetime.fromtimestamp(last_refresh).isoformat()
+#         if last_refresh
+#         else None
+#     )
+#     return JSONResponse(
+#         status_code=200,
+#         content={"last_refresh": human_readable_refreshed},
+#     )
 
 
 if __name__ == "__main__":

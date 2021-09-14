@@ -1,1 +1,3 @@
 specification
+var/
+.cache/
