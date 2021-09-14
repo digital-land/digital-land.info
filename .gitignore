@@ -1,3 +1,5 @@
 specification
 var/
 .cache/
+tf/*/.terraform*
+tf/**/tfplan
