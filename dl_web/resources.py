@@ -9,7 +9,9 @@ from fastapi.templating import Jinja2Templates
 
 
 def get_view_model():
-    return ViewModelJsonQuery(url_base="http://datasetteawsentityv2-env.eba-gbrdriub.eu-west-2.elasticbeanstalk.com/view_model/")
+    return ViewModelJsonQuery(
+        url_base="http://datasetteawsentityv2-env.eba-gbrdriub.eu-west-2.elasticbeanstalk.com/view_model/"
+    )
 
 
 specification = Specification("specification/")
@@ -34,7 +36,7 @@ templates.env.loader = jinja2.ChoiceLoader(
 # templates.env.globals["staticPath"] = "https://digital-land.github.io"
 templates.env.globals["staticPath"] = "/static"
 templates.env.globals["ASSET_PATH"] = "/static"
-templates.env.globals["enable_x_ref"] = False # disabled for now
+templates.env.globals["enable_x_ref"] = False  # disabled for now
 
 register_basic_filters(templates.env, specification)
 register_mapper_filters(templates.env, get_view_model(), specification)

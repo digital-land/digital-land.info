@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import logging
 import logging.config
 import os
@@ -7,9 +6,9 @@ import time
 
 import uvicorn
 import yaml
-from fastapi import BackgroundTasks, Depends, FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 

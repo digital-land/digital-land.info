@@ -13,19 +13,14 @@ jobs:
       with:
         fetch-depth: 0
 
-#     - name: Set up Python
-#       uses: actions/setup-python@v2
-#       with:
-#         python-version: 3.8
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
 
     - name: Make Init
       run: |
         make init
-
-    # - name: Lint, Test, Coverage
-    #   run: |
-    #     make test
-    #     make lint
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -38,13 +33,28 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Lint
+      run: |
+        make lint
+
+    - name: Build and tag
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: dl-web
         IMAGE_TAG: latest
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+    - name: Test
+      run: |
+        make test-acceptance
+
+    - name: Push the Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: dl-web
+        IMAGE_TAG: latest
+      run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     - name: Restart dl-web-service

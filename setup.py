@@ -21,6 +21,7 @@ setup(
     extras_require={
         "testing": [
             "pytest",
+            "flake8",
         ]
     },
 )

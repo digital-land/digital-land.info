@@ -119,13 +119,16 @@ class DataStore:
                 logger.error(
                     "fetch of %s failed with status code %s", url, response.status
                 )
-                raise Exception("fetch of %s failed with status code %s" % (url, response.status))
+                raise Exception(
+                    "fetch of %s failed with status code %s" % (url, response.status)
+                )
         return path
 
     # def fetch_resource(self, collection, resource_hash, use_cache=True):
     #     path = Path(f"var/cache/transformed/{resource_hash}.csv")
     #     key = f"{collection}-collection/transformed/{collection}/{resource_hash}.csv"
     #     return self.fetch(path, key, use_cache)
+
 
 #     def fetch_issue(self, collection, resource_hash, use_cache=True):
 #         path = Path(f"var/cache/issue/{resource_hash}.csv")

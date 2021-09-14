@@ -13,6 +13,9 @@ ifeq ($(UNAME), Darwin)
 server: export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 endif
 
+init::
+	pip install -e .[testing]
+
 server: $(CACHE_DIR)organisation.csv
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker dl_web.app:app --preload
@@ -32,8 +35,11 @@ plan:
 apply:
 	cd tf/app; terraform apply tfplan
 
-test:
-	python -m pytest -sv
+test-acceptance:
+	python -m pytest -sv tests/acceptance
+
+test-unit:
+	python -m pytest -sv tests/unit
 
 lint:
 	black --check .
