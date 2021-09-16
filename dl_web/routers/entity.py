@@ -79,7 +79,7 @@ def entity_template_response(
             "schema": schema,
             "typology": entity_metadata["typology"],
             "key_field": specification.key_field(entity_metadata["typology"]),
-            "entity_prefix": "/slug",
+            "entity_prefix": "",
             "geojson_features": "[%s]" % entity_snapshot.pop("geojson-full")
             if "geojson-full" in entity_snapshot
             else None,
