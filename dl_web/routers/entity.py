@@ -62,6 +62,11 @@ def geojson_download(
 def entity_template_response(
     request: Request, entity_snapshot: dict, entity_metadata: dict
 ):
+    if entity_metadata["dataset"] in specification.typology:
+        schema = entity_metadata["dataset"]
+    else:
+        schema = specification.pipeline[entity_metadata["dataset"]]["schema"]
+
     return templates.TemplateResponse(
         "row.html",
         {
@@ -71,7 +76,7 @@ def entity_template_response(
             "pipeline_name": entity_metadata["dataset"],
             # "breadcrumb": slug_to_breadcrumb(slug),
             "breadcrumb": [],
-            "schema": specification.pipeline[entity_metadata["dataset"]]["schema"],
+            "schema": schema,
             "typology": entity_metadata["typology"],
             "key_field": specification.key_field(entity_metadata["typology"]),
             "entity_prefix": "/slug",
