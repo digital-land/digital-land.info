@@ -1,10 +1,10 @@
 import logging
 
 import aiohttp
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from ..resources import get_view_model, specification, templates
+from ..resources import templates
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -32,4 +32,5 @@ async def get_index(request: Request):
 
 @router.get("/{dataset}", response_class=HTMLResponse)
 def get_dataset_index(request: Request, dataset: str):
+    logger.info("dataset: %s", dataset)
     return templates.TemplateResponse("dataset.html", {"request": request})
