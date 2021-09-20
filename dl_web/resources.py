@@ -10,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 
 def get_view_model():
     return ViewModelJsonQuery(
-        url_base="http://datasetteawsentityv2-env.eba-gbrdriub.eu-west-2.elasticbeanstalk.com/view_model/"
+        url_base="http://datasetteawsentityv2-ecr-env.eba-gbrdriub.eu-west-2.elasticbeanstalk.com/view_model/"
     )
 
 
