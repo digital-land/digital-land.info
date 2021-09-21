@@ -41,7 +41,7 @@
 <ul class="govuk-list">
     {% for e in entities %}
         <li>
-            <h3 class="govuk-heading-s" style="word-break: break-all;"><a href=/entity/{{ e['entity'] }}>{{ e['name'] }}</a></h3>
+            <h3 class="govuk-heading-s" style="word-break: break-all;"><a href=/entity/{{ e['entity'] }}>{{ e['name'] if e['name'] else e[key_field] }}</a></h3>
             <!-- <ul class="govuk-list"> -->
             <!--     <li><span>{ d["description"] }}</span></li> -->
             <!-- </ul> -->

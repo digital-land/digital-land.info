@@ -11,6 +11,7 @@ function MapController($layerControlsList, $zoomControls) {
 MapController.prototype.init = function (params) {
   // check maplibregl is available
   // if not return
+  console.log("init ->", params)
   this.setupOptions(params); // create the maplibre map
 
   this.map = this.createMap(); // perform setup once map is loaded
@@ -152,6 +153,7 @@ MapController.prototype.getMap = function () {
 };
 
 MapController.prototype.setupOptions = function (params) {
+    console.log("params", params)
   params = params || {};
   this.mapId = params.mapId || 'mapid';
   this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
@@ -160,7 +162,7 @@ MapController.prototype.setupOptions = function (params) {
   this.minMapZoom = params.minMapZoom || 5;
   this.maxMapZoom = params.maxMapZoom || 15;
   this.baseURL = params.baseURL || 'https://digital-land.github.io';
-  this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tile.json';
+  this.baseTileStyleFilePath = params.baseTileStyleFilePath || '/static/base-tile.json';
   this.popupWidth = params.popupWidth || '260px';
   this.popupMaxListLength = params.popupMaxListLength || 10;
 };

@@ -12,6 +12,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 # base_url = "http://127.0.0.1/digital-land/"
+# base_url = "http://127.0.0.1:8001/digital-land/"
 base_url = "http://datasetteawsentityv2-env.eba-gbrdriub.eu-west-2.elasticbeanstalk.com/digital-land/"
 
 
@@ -52,5 +53,10 @@ async def get_dataset_index(
     entities = view_model.list_entities(typology, dataset)
     return templates.TemplateResponse(
         "dataset.html",
-        {"request": request, "dataset": _dataset[dataset], "entities": entities},
+        {
+            "request": request,
+            "dataset": _dataset[dataset],
+            "entities": entities,
+            "key_field": specification.key_field(typology),
+        },
     )

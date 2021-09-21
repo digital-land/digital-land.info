@@ -1,0 +1,93 @@
+{% extends "digital-land-frontend/dlf-base--full-width.html" %}
+
+{% set includesMap = true %}
+{% block pageTitle %}National map of planning data | Digital Land{% endblock %}
+
+{%- block dlHead %}
+<script src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet" />
+{% endblock -%}
+
+{% block content %}
+<div class="govuk-grid-row">
+	<div class="govuk-grid-column-full">
+  	<h1 class="govuk-heading-xl">National map of planning data</h1>
+    </div>
+</div>
+
+<p id="aria-label-national-map" class="govuk-body-l">National map of the planning data collected and collated by Digital Land.</p>
+
+<div class="dl-map__wrapper" style="min-height: 700px;">
+
+  <div class="zoom-controls" data-module="zoom-controls">
+    <button class="zoom-controls__btn" data-zoom-control="in">
+      <span class="govuk-visually-hidden">Zoom in</span>
+      <span>+</span>
+    </button>
+    <span class="zoom-controls__count-container" aria-live="polite">
+      <span class="govuk-visually-hidden">The map is at zoom level </span>
+      <span class="zoom-controls__count">6</span>
+    </span>
+    <button class="zoom-controls__btn" data-zoom-control="out">
+      <span class="govuk-visually-hidden">Zoom out</span>
+      <span>-</span>
+    </button>
+  </div>
+
+  {% macro layerControlItem(layer) %}
+  <li class="dl-map__layer-item govuk-!-margin-bottom-2" data-layer-control="{{ layer.dataset }}" 
+  {% if layer.type %}data-layer-data-type={{layer.type}}{% endif %} 
+  {% if layer.paint_options %}data-style-options="{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}"{% endif %}>
+    <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="{{ layer.dataset }}" name="{{ layer.dataset }}" type="checkbox" value="{{ layer.dataset }}" {{ "checked='checked'" if layer.checked }}>
+      <label class="govuk-label govuk-checkboxes__label" for="{{ layer.dataset }}">
+        <span class="dl-label__key">
+          <span class="dl-label__key__symbol{{ ' dl-label__key__symbol--circle' if layer.type and layer.type == 'point' }}"
+          style="border-color: {{layer.paint_options.colour|default('#003078')}}; background: rgba({{layer.paint_options.colour|default('#003078')|hex_to_rgb}},{{ layer.paint_options.opacity|default('0.5') }});"></span>
+          {{ layer.label }}
+        </span>
+      </label>
+    </div>
+  </li>
+  {% endmacro %}
+
+  <div id="mapid" class="dl-map" aria-labelledby="aria-label-national-map"></div>
+  <div class="dl-map__side-panel dl-map__side-panel--full js-hidden" tabindex="-1" role="dialog" aria-hidden="false" open="true" aria-modal="true">
+    <div class="dl-map__side-panel__heading">
+      <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Data layers</h3>
+    </div>
+    <div class="dl-map__side-panel__content">
+      <ul class="govuk-list govuk-!-margin-bottom-0" data-module="layer-controls">
+        {% for layer in layers %}
+        {{ layerControlItem(layer) }}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block feedbackPrompt %}
+    {%- from "digital-land-frontend/components/feedback/macro.html" import dlFeedback %}
+    {{ dlFeedback({
+        "text": "Spotted an issue? Let us know so we can improve the map.",
+        "action": {
+            "text": "There is something wrong with the map",
+            "href": "mailto:DigitalLand@communities.gov.uk"
+        },
+        "container": true
+        })
+    }}
+{% endblock %}
+
+{% block bodyEnd %}
+{{ super() }}
+<script src="/static/javascripts/dl-national-map-controller.js"></script>
+<script>
+  // grab html elements
+  const $controlsList = document.querySelector('[data-module="layer-controls"]')
+  const $zoomMod = document.querySelector('[data-module="zoom-controls"]')
+  // init national map
+  const mapController = new MapController($controlsList, $zoomMod).init({})
+</script>
+{% endblock %}

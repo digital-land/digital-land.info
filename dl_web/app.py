@@ -15,7 +15,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from dl_web.data_store import get_datastore
 
 from .resources import get_view_model, specification, templates
-from .routers import entity, resource, dataset
+from .routers import entity, resource, dataset, map_
 
 with open("log_config.yml") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -69,6 +69,7 @@ last_refresh = None
 app.include_router(resource.router, prefix="/resource")
 app.include_router(entity.router, prefix="/entity")
 app.include_router(dataset.router, prefix="/dataset")
+app.include_router(map_.router, prefix="/map")
 app.mount(
     "/static",
     StaticFiles(directory="static"),
