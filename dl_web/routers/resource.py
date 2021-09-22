@@ -20,6 +20,10 @@ def resource_index(request: Request, datastore: DataStore = Depends(get_datastor
     )
 
 
+#
+# TODO: This whole thing should be changed to get its data from the new
+#       digital-land database, rather than pulling the files from S3.
+#
 @router.get("/{resource_hash}", response_class=HTMLResponse)
 async def resource(
     request: Request,
