@@ -18,7 +18,6 @@ specification = Specification("specification/")
 
 templates = Jinja2Templates("dl_web/templates")
 
-# app.jinja_loader = jinja2.ChoiceLoader(
 templates.env.loader = jinja2.ChoiceLoader(
     [
         jinja2.FileSystemLoader(searchpath=["dl_web/templates"]),
