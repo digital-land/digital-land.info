@@ -8,7 +8,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        "digital_land @ git+https://github.com/digital-land/digital-land-python.git@view-model-client-cleanup#egg=digital-land",
+        "digital_land @ git+https://github.com/digital-land/digital-land-python.git#egg=digital-land",
         "digital_land_frontend @ git+https://github.com/digital-land/frontend.git#egg=digital_land_frontend",
         "fastapi",
         "aiofiles",
