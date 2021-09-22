@@ -107,7 +107,7 @@ MapController.prototype.createFeaturesPopup = function (features) {
     var featureType = capitalizeFirstLetter(feature.sourceLayer).replaceAll('-', ' ');
     var fillColour = that.getFillColour(feature);
       console.log("feature.properties:", feature.properties)
-    var itemHTML = ["<li class=\"dl-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"), "<p class=\"secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"), '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">', "<a href=\"".concat(that.baseURL ? that.baseURL : '').concat(feature.properties.slug, "\">").concat(feature.properties.name, "</a>"), '</p>', '</li>'];
+    var itemHTML = ["<li class=\"dl-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"), "<p class=\"secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"), '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">', "<a href=\"".concat(that.baseURL ? that.baseURL : '', '/entity/', feature.properties.entity, "\">", feature.properties.name, "</a>"), '</p>', '</li>'];
     itemsHTML = itemsHTML + itemHTML.join('\n');
   });
   itemsHTML = headingHTML + itemsHTML + '</ul>';
@@ -159,7 +159,7 @@ MapController.prototype.setupOptions = function (params) {
   this.mapId = params.mapId || 'mapid';
   this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
   this.sourceName = params.sourceName || 'dl-vectors';
-  this.vectorSource = params.vectorSource || 'https://datasettetileserverv2env-env.eba-tprdth83.eu-west-2.elasticbeanstalk.com/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf';
+  this.vectorSource = params.vectorSource || 'https://datasette-tiles.digital-land.info/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf';
   this.minMapZoom = params.minMapZoom || 5;
   this.maxMapZoom = params.maxMapZoom || 15;
   this.baseURL = params.baseURL || 'https://www.digital-land.info';
