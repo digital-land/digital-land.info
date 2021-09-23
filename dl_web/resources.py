@@ -1,3 +1,4 @@
+import aiohttp
 import jinja2
 from digital_land.specification import Specification
 from digital_land.view_model import ViewModelJsonQuery
@@ -6,6 +7,12 @@ from digital_land_frontend.filters import (
     register_mapper_filters,
 )
 from fastapi.templating import Jinja2Templates
+
+
+async def fetch(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            return await resp.json()
 
 
 def get_view_model():
