@@ -8,13 +8,13 @@ import uvicorn
 import yaml
 from fastapi import Depends, FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from dl_web.data_store import get_datastore
 
-from .resources import get_view_model, specification, templates
+from .resources import get_view_model, proxy, specification, templates
 from .routers import entity, resource, dataset, map_
 
 with open("log_config.yml") as f:
@@ -108,6 +108,11 @@ async def custom_exception_handler(request: Request, exc: StarletteHTTPException
 @app.get("/health", response_class=PlainTextResponse)
 def health(request: Request):
     return "OK"
+
+
+@app.get("/{something:path}/")
+async def proxy_guidance(request: Request, something: str, response_class=HTMLResponse):
+    return HTMLResponse(await proxy(f"http://digital-land.github.io/{something}/"))
 
 
 # My attempt at allowing refresh via http. Just get rid and use the DB!
