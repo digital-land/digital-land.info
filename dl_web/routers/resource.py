@@ -30,19 +30,19 @@ async def resource(
     datastore: DataStore = Depends(get_datastore),
 ):
     payload = {}
-    collection = datastore.get_collection()
-
-    try:
-        resource_endpoints = collection.resource_endpoints(resource_hash)
-    except KeyError:
+    resource_data = datastore.fetch_resource_info(resource_hash)
+    if len(resource_data["rows"]) == 0:
         raise HTTPException(status_code=404, detail="Resource not found")
+
+    resource_data = [dict(zip(resource_data["columns"], values)) for values in resource_data["rows"]]
 
     payload["resource"] = resource_hash
 
     # TODO Sanity check this logic... taking arbitrary items from a list makes me nervous
     #      Maybe we should return a list of collections?
-    collection_name = collection.source.records[resource_endpoints[0]][0]["collection"]
-    payload["collection"] = collection_name
+    # collection_name = collection.source.records[resource_endpoints[0]][0]["collection"]
+    payload["collections"] = [endpoint["collections"] for endpoint in resource_data]
+    collection_name = payload["collections"][0]
 
     transformed = await datastore.fetch(collection_name, resource_hash, "transformed")
     harmonised = None
@@ -99,30 +99,22 @@ async def resource(
     payload["issues"] = issues
 
     endpoints = []
-    for e in resource_endpoints:
-        endpoint_record = collection.endpoint.records[e][-1]
+    for e in resource_data:
         organisations = []
         orgs_seen = set()
-        for source in collection.source.records[e]:
-            org = source["organisation"]
+        for org in e["organisations"].split(","):
             if not org or org in orgs_seen:
                 continue
             organisations.append(
                 {"name": organisation.organisation[org]["name"], "id": org}
             )
 
-        success_logs = list(
-            filter(lambda x: x["status"] == "200", collection.log.records[e])
-        )
-        first = success_logs[0]
-        last = success_logs[-1]
-
         endpoints.append(
             {
-                "endpoint_url": endpoint_record["endpoint-url"],
+                "endpoint_url": e["endpoint_url"],
                 "organisations": organisations,
-                "start_date": format_date(first["entry-date"]),
-                "last_collected": format_date(last["entry-date"]),
+                "start_date": format_date(e["first_collection_date"]),
+                "last_collected": format_date(e["last_collection_date"]),
             }
         )
 
@@ -135,7 +127,7 @@ async def resource(
             "name": "Collected",
             "format": "UNKNOWN",
             "size": "{:,.2f} KB".format(
-                int(collection.resource.records[resource_hash][-1]["bytes"]) / 1024
+                int(resource_data[0]["bytes"]) / 1024
             ),
             "href": resource_url(collection_name, resource_hash, "collected"),
         }
@@ -171,8 +163,7 @@ async def resource(
             "resource": payload,
             "data": data,
             "data_fields": data_fields,
-            "issues": dict(issues),
-            "collection": collection,
+            "issues": dict(issues)
         },
     )
 

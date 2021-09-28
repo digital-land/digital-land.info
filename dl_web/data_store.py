@@ -9,6 +9,7 @@ from pathlib import Path
 
 import aiofiles
 import aiohttp
+import requests
 from digital_land.collection import Collection
 from digital_land.organisation import Organisation
 
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 collection_files = ["resource", "log", "source", "endpoint"]
 base_url = "https://collection-dataset.s3.eu-west-2.amazonaws.com/"
+resource_info_url= "https://datasette.digital-land.info/digital-land/resource_view_data.json?resource={resource_hash}"
 organisation = Organisation("var/cache/organisation.csv")
 datastore = None
 
@@ -97,6 +99,10 @@ class DataStore:
         if not self.loaded:
             self.load_collection()
         return self._collection
+
+    def fetch_resource_info(self, resource_hash):
+        with requests.get(resource_info_url.format(resource_hash=resource_hash)) as resp:
+            return resp.json()
 
     async def fetch(self, collection_name, resource_hash, type_, use_cache=True):
         path = Path(f"var/cache/{type_}/{resource_hash}.csv")
