@@ -6,6 +6,8 @@ from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
+from digital_land.view_model import DigitalLandModelJsonQuery
+
 from ..data_store import DataStore, get_datastore, organisation
 from ..resources import templates
 
@@ -16,7 +18,7 @@ logger = logging.getLogger(__name__)
 @router.get("/", response_class=HTMLResponse)
 def resource_index(request: Request, datastore: DataStore = Depends(get_datastore)):
     return templates.TemplateResponse(
-        "index.html", {"request": request, "collection": datastore.get_collection()}
+        "index.html", {"request": request, "collection": {}}
     )
 
 
@@ -30,11 +32,9 @@ async def resource(
     datastore: DataStore = Depends(get_datastore),
 ):
     payload = {}
-    resource_data = datastore.fetch_resource_info(resource_hash)
-    if len(resource_data["rows"]) == 0:
+    resource_data = DigitalLandModelJsonQuery().fetch_resource_info(resource_hash)["rows"]
+    if len(resource_data) == 0:
         raise HTTPException(status_code=404, detail="Resource not found")
-
-    resource_data = [dict(zip(resource_data["columns"], values)) for values in resource_data["rows"]]
 
     payload["resource"] = resource_hash
 

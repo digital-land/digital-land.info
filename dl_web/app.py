@@ -24,41 +24,13 @@ with open("log_config.yml") as f:
 logger = logging.getLogger(__name__)
 
 
-async def refresh_collection(fetch):
-    datastore = await get_datastore()
-    if fetch:
-        global last_refresh
-        last_refresh = time.time()
-        await datastore.fetch_collections(
-            specification.schema_field, set(specification.pipeline.keys())
-        )
-    await datastore.close_connection()
-
-
-async def core_startup():
-    logger.debug("core startup")
-    fetch = os.getenv("FETCH", "True").lower() not in ["0", "false", "f", "n", "no"]
-    logger.info(f'Fetch is {"enabled" if fetch else "disabled"}')
-    await refresh_collection(fetch)
-
-
-async def worker_startup():
-    logger.debug("worker startup")
-    datastore = await get_datastore()
-    # reinitialise the aiohttp.ClientSession so it uses the fastapi event loop
-    await datastore._async_init()
-    datastore.load_collection()
-
-
 def create_app():
     app = FastAPI(
         title="Digital-Land Data API",
         description="API and website for Digital-Land data",
         version="0.9",
-        dependencies=[Depends(get_view_model)],
-        on_startup=[worker_startup],
+        dependencies=[Depends(get_view_model)]
     )
-    asyncio.run(core_startup())
     return app
 
 
