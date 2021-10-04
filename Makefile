@@ -4,6 +4,7 @@ CACHE_DIR=var/cache/
 DOCKER_IMAGE_URL=955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
 UNAME := $(shell uname)
 
+all::	lint
 
 $(CACHE_DIR)organisation.csv:
 	mkdir -p $(CACHE_DIR)
@@ -41,6 +42,14 @@ test-acceptance:
 test-unit:
 	python -m pytest -sv tests/unit
 
-lint:
+lint:	black-check flake8
+
+black:
+	black .
+
+black-check:
 	black --check .
+
+flake8:
 	flake8 .
+

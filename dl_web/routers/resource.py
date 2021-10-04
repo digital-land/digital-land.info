@@ -32,7 +32,9 @@ async def resource(
     datastore: DataStore = Depends(get_datastore),
 ):
     payload = {}
-    resource_data = DigitalLandModelJsonQuery().fetch_resource_info(resource_hash)["rows"]
+    resource_data = DigitalLandModelJsonQuery().fetch_resource_info(resource_hash)[
+        "rows"
+    ]
     if len(resource_data) == 0:
         raise HTTPException(status_code=404, detail="Resource not found")
 
@@ -126,9 +128,7 @@ async def resource(
         {
             "name": "Collected",
             "format": "UNKNOWN",
-            "size": "{:,.2f} KB".format(
-                int(resource_data[0]["bytes"]) / 1024
-            ),
+            "size": "{:,.2f} KB".format(int(resource_data[0]["bytes"]) / 1024),
             "href": resource_url(collection_name, resource_hash, "collected"),
         }
     )
@@ -163,7 +163,7 @@ async def resource(
             "resource": payload,
             "data": data,
             "data_fields": data_fields,
-            "issues": dict(issues)
+            "issues": dict(issues),
         },
     )
 

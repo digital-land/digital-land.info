@@ -29,7 +29,7 @@ def create_app():
         title="Digital-Land Data API",
         description="API and website for Digital-Land data",
         version="0.9",
-        dependencies=[Depends(get_view_model)]
+        dependencies=[Depends(get_view_model)],
     )
     return app
 
