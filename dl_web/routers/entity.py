@@ -97,6 +97,24 @@ def lookup_entity(slug: str) -> int:
     return entity
 
 
+@router.get("/{entity}/field/{field}/provenance", response_class=HTMLResponse)
+def get_entity_field_provenance_as_html(
+    request: Request,
+    entity: int,
+    field: str,
+    view_model: ViewModel = Depends(get_view_model),
+):
+    return templates.TemplateResponse(
+        "field_provenance.html",
+        {
+            "request": request,
+            "entity": entity,
+            "field": field,
+            "breadcrumb": [],
+        },
+    )
+
+
 # The order of the router methods is important! This needs to go ahead of /{entity}
 @router.get("/{entity}.geojson", response_class=JSONResponse)
 def get_entity_as_geojson(
