@@ -1,8 +1,5 @@
-import asyncio
 import logging
 import logging.config
-import os
-import time
 
 import uvicorn
 import yaml
@@ -12,9 +9,7 @@ from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from dl_web.data_store import get_datastore
-
-from .resources import get_view_model, specification, templates
+from .resources import get_view_model, templates
 from .routers import entity, resource, dataset, map_
 
 with open("log_config.yml") as f:
