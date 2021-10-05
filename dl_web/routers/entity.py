@@ -60,7 +60,10 @@ def geojson_download(
 
 
 def entity_template_response(
-    request: Request, entity_snapshot: dict, entity_metadata: dict, entity_references: dict
+    request: Request,
+    entity_snapshot: dict,
+    entity_metadata: dict,
+    entity_references: dict,
 ):
     if entity_metadata["dataset"] in specification.typology:
         schema = entity_metadata["dataset"]
@@ -146,7 +149,9 @@ def get_entity_as_html(
                 "text": reference["name"],
             }
         )
-    return entity_template_response(request, entity_snapshot, entity_metadata, entity_references)
+    return entity_template_response(
+        request, entity_snapshot, entity_metadata, entity_references
+    )
 
 
 @router.get("/", response_class=RedirectResponse)
