@@ -1,3 +1,4 @@
+import json
 import logging
 
 from digital_land.entity_lookup import lookup_by_slug
@@ -6,7 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from starlette.responses import JSONResponse
 
-from ..resources import get_view_model, specification, templates
+from dl_web.queries import ViewModelGeoQuery
+from dl_web.resources import get_view_model, specification, templates
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -163,3 +165,15 @@ def get_entity_by_slug(
     return RedirectResponse(
         status_code=301, url=request.url_for("get_entity_as_html", entity=entity)
     )
+
+
+@router.get(".geojson", response_class=JSONResponse)
+def get_entity_by_long_lat(
+        longitude: float,
+        latitude: float,
+):
+    data = ViewModelGeoQuery().execute(latitude, longitude)
+    results = []
+    for row in data["rows"]:
+        results.append({"geojson": json.loads(row["geojson"])})
+    return results
