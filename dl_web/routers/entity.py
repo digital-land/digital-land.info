@@ -169,8 +169,8 @@ def get_entity_by_slug(
 
 @router.get(".geojson", response_class=JSONResponse)
 def get_entity_by_long_lat(
-        longitude: float,
-        latitude: float,
+    longitude: float,
+    latitude: float,
 ):
     data = ViewModelGeoQuery().execute(latitude, longitude)
     results = []
