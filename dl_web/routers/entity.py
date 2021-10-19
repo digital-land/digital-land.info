@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Optional
 
 from digital_land.entity_lookup import lookup_by_slug
 from digital_land.view_model import ViewModel
@@ -120,7 +121,6 @@ def get_entity_field_provenance_as_html(
         },
     )
 
-
 # The order of the router methods is important! This needs to go ahead of /{entity}
 @router.get("/{entity}.geojson", response_class=JSONResponse)
 def get_entity_as_geojson(
@@ -156,15 +156,16 @@ def get_entity_as_html(
     )
 
 
-@router.get("/", response_class=RedirectResponse)
-def get_entity_by_slug(
-    request: Request,
-    slug: str,
+@router.get("/", response_class=HTMLResponse)
+def search_entity(
+        request: Request,
+        longitude: Optional[float] = None,
+        latitude: Optional[float] = None,
 ):
-    entity = lookup_entity(slug)
-    return RedirectResponse(
-        status_code=301, url=request.url_for("get_entity_as_html", entity=entity)
-    )
+    data = []
+    if longitude and latitude:
+        data = _do_geo_query(longitude, latitude)
+    return templates.TemplateResponse("search.html", {"request": request, "data": data})
 
 
 @router.get(".geojson", response_class=JSONResponse)
@@ -172,8 +173,12 @@ def get_entity_by_long_lat(
     longitude: float,
     latitude: float,
 ):
-    data = ViewModelGeoQuery().execute(latitude, longitude)
+    return _do_geo_query(longitude, latitude)
+
+
+def _do_geo_query(longitude: float, latitude: float):
+    data = ViewModelGeoQuery().execute(longitude, latitude)
     results = []
-    for row in data["rows"]:
+    for row in data.get("rows", []):
         results.append({"geojson": json.loads(row["geojson"])})
     return results

@@ -1,0 +1,32 @@
+{% extends "leaflet-base.html" %}
+
+{% block content %}
+  <h1>
+    Search for entity
+  </h1>
+
+  <form action="/entity", method="get">
+    <label for="latitude">Latitude</label>
+    <input type="text" name="latitude">
+    <label for="longitude">Longitude</label>
+    <input type="text" name="longitude">
+    <input type="submit">
+  </form>
+
+  {% if data %}
+    <ul>
+      {%  for row in data %}
+        {%  set properties = row["geojson"]["properties"] %}
+        <li>
+          <p>id: {{ properties["entity"] }}</p>
+          <p>name: {{ properties["name"] }}</p>
+          <p>type: {{ properties["type"] }}</p>
+          <p>organisation: {{ properties["organisation"] }}</p>
+          <p>entry-date: {{ properties["entry-date"] }}</p>
+        <!-- Paul S - It's been a long while since I've used leaflet so you might have to just assume some div with I guess
+        an id something like "map-{entity id}" while I work out how to do it again and  fill that bit in later :) -->
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
