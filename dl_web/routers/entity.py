@@ -5,7 +5,7 @@ from typing import Optional
 from digital_land.entity_lookup import lookup_by_slug
 from digital_land.view_model import ViewModel
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse
 
 from dl_web.queries import ViewModelGeoQuery
@@ -121,6 +121,7 @@ def get_entity_field_provenance_as_html(
         },
     )
 
+
 # The order of the router methods is important! This needs to go ahead of /{entity}
 @router.get("/{entity}.geojson", response_class=JSONResponse)
 def get_entity_as_geojson(
@@ -158,9 +159,9 @@ def get_entity_as_html(
 
 @router.get("/", response_class=HTMLResponse)
 def search_entity(
-        request: Request,
-        longitude: Optional[float] = None,
-        latitude: Optional[float] = None,
+    request: Request,
+    longitude: Optional[float] = None,
+    latitude: Optional[float] = None,
 ):
     data = []
     if longitude and latitude:
