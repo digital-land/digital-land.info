@@ -5,10 +5,9 @@ import uvicorn
 import yaml
 from fastapi import Depends, FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response, PlainTextResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
 from .resources import get_view_model, templates
 from .routers import entity, resource, dataset, map_
 
@@ -37,11 +36,6 @@ app.include_router(resource.router, prefix="/resource")
 app.include_router(entity.router, prefix="/entity")
 app.include_router(dataset.router, prefix="/dataset")
 app.include_router(map_.router, prefix="/map")
-app.mount(
-    "/static",
-    StaticFiles(directory="static"),
-    name="static",
-)
 
 # the base templates expect images to be served at /images
 app.mount(
@@ -49,6 +43,15 @@ app.mount(
     StaticFiles(directory="static/govuk/assets/images"),
     name="images",
 )
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse(
+        "homepage.html",
+        {
+            "request": request
+        },
+    )
 
 
 # @app.on_event("shutdown")
@@ -71,6 +74,13 @@ async def custom_exception_handler(request: Request, exc: StarletteHTTPException
         # Just use FastAPI's built-in handler for other errors
         return await http_exception_handler(request, exc)
 
+app.mount(
+  "/static",
+  StaticFiles(
+    directory="static"
+  ),
+  name="static"
+)
 
 @app.get("/health", response_class=PlainTextResponse)
 def health(request: Request):

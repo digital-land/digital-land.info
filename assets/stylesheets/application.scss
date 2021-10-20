@@ -1,0 +1,17 @@
+// Override the govuk-frontend font stack
+$govuk-font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+
+// import all govuk frontend scss
+@import "node_modules/govuk-frontend/govuk/all";
+
+// digital-land.info specific styles
+// --------------------------------------------------------
+// ITCSS levels
+@import "base";
+@import "utilities/layout";
+@import "utilities/typography";
+
+// digital-land.info components
+// --------------------------------------------------------
+// components
+@import "component/hero";

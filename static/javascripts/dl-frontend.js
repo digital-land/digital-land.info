@@ -2856,7 +2856,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
   SubNavTabs.prototype.init = function (params) {
     this.setupOptions(params);
     this.$tabs = this.$module.querySelectorAll(this.subNavTabsSelector);
-    console.log(this.$tabs);
 
     if (typeof window.matchMedia === 'function') {
       this.setupResponsiveChecks();
@@ -3015,7 +3014,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
     e.preventDefault();
     var $newTab = e.target;
     var $currentTab = this.getCurrentTab();
-    console.log('current', $currentTab);
     this.hideTab($currentTab);
     this.showTab($newTab);
     this.createHistoryEntry($newTab);
@@ -3087,18 +3085,15 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
   SubNavTabs.prototype.showPanel = function ($tab) {
     var $panel = this.getPanel($tab);
-    console.log('show', $panel);
     $panel.classList.remove(this.jsHiddenClass);
   };
 
   SubNavTabs.prototype.hidePanel = function (tab) {
     var $panel = this.getPanel(tab);
-    console.log('hide', $panel);
     $panel.classList.add(this.jsHiddenClass);
   };
 
   SubNavTabs.prototype.unhighlightTab = function ($tab) {
-    console.log('unhighlight', $tab);
     $tab.setAttribute('aria-selected', 'false');
     $tab.parentNode.classList.remove(this.subNavTabSelectedClass);
     $tab.setAttribute('tabindex', '-1');

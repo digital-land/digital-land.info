@@ -1,0 +1,48 @@
+{
+  "name": "digital-land.info",
+  "version": "1.0.0",
+  "description": "Planning and Housing Data Platform",
+  "config": {
+    "assets": {
+      "sourceDir": "assets",
+      "distDir": "static"
+    }
+  },
+  "scripts": {
+    "build:javascripts": "rollup --config etc/rollup.config.js",
+    "build:styles": "node-sass assets/stylesheets -o static/stylesheets --include-path node_modules/govuk-frontend --include-path assets",
+		"build:images": "rsync -ar assets/images/ static/images",
+    "build": "npm-run-all --serial prebuild build:*",
+    "watch:javascripts": "rollup --config etc/rollup.config.js --watch",
+    "watch:styles": "node-sass assets/stylesheets -o static/stylesheets --include-path node_modules/govuk-frontend --watch",
+    "watch": "npm-run-all --parallel watch:*",
+    "dev": "npm run watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digital-land/digital-land.info.git"
+  },
+  "keywords": [
+    "Data",
+    "digital",
+    "land",
+    "python",
+    "open",
+    "jinja",
+    "FastAPI"
+  ],
+  "author": "Digital Land Team - DLUHC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/digital-land/digital-land.info/issues"
+  },
+  "homepage": "https://github.com/digital-land/digital-land.info#readme",
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.5",
+    "govuk-frontend": "^3.14.0",
+    "node-sass": "^6.0.1",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^2.58.0"
+  }
+}
