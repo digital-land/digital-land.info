@@ -1,12 +1,15 @@
+import json
 import logging
+from typing import Optional
 
 from digital_land.entity_lookup import lookup_by_slug
 from digital_land.view_model import ViewModel
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse
 
-from ..resources import get_view_model, specification, templates
+from dl_web.queries import ViewModelGeoQuery
+from dl_web.resources import get_view_model, specification, templates
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -154,12 +157,29 @@ def get_entity_as_html(
     )
 
 
-@router.get("/", response_class=RedirectResponse)
-def get_entity_by_slug(
+@router.get("/", response_class=HTMLResponse)
+def search_entity(
     request: Request,
-    slug: str,
+    longitude: Optional[float] = None,
+    latitude: Optional[float] = None,
 ):
-    entity = lookup_entity(slug)
-    return RedirectResponse(
-        status_code=301, url=request.url_for("get_entity_as_html", entity=entity)
-    )
+    data = []
+    if longitude and latitude:
+        data = _do_geo_query(longitude, latitude)
+    return templates.TemplateResponse("search.html", {"request": request, "data": data})
+
+
+@router.get(".geojson", response_class=JSONResponse)
+def get_entity_by_long_lat(
+    longitude: float,
+    latitude: float,
+):
+    return _do_geo_query(longitude, latitude)
+
+
+def _do_geo_query(longitude: float, latitude: float):
+    data = ViewModelGeoQuery().execute(longitude, latitude)
+    results = []
+    for row in data.get("rows", []):
+        results.append({"geojson": json.loads(row["geojson"])})
+    return results

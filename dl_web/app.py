@@ -8,8 +8,9 @@ from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import HTMLResponse, RedirectResponse, Response, PlainTextResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from .resources import get_view_model, templates
-from .routers import entity, resource, dataset, map_
+
+from dl_web.resources import get_view_model, templates
+from dl_web.routers import resource, entity, dataset, map_
 
 with open("log_config.yml") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -36,6 +37,12 @@ app.include_router(resource.router, prefix="/resource")
 app.include_router(entity.router, prefix="/entity")
 app.include_router(dataset.router, prefix="/dataset")
 app.include_router(map_.router, prefix="/map")
+
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static",
+)
 
 # the base templates expect images to be served at /images
 app.mount(
