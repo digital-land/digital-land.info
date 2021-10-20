@@ -13,7 +13,7 @@
                     <p class="govuk-body-l">A platform to help you create services to inform planning and housing decisions in England.</p>
                 </div>
                 <div class="govuk-grid-column-one-third">
-                    <img src="{{staticPath}}/images/proposition-image.png" srcset="{{staticPath}}/images/proposition-image.svg" alt="" class="app-hero__image">
+                    <img src="{{url_for("static", path="/images/proposition-image.png")}}" alt="{{url_for("static", path="/images/proposition-image.png")}}" class="app-hero__image">
                 </div>
             </div>
 		</div>
@@ -29,7 +29,7 @@
             </div>
             <!-- /.govuk-grid-column-one-half -->
             <div class="govuk-grid-column-one-half">
-                <img src="{{ staticPath }}/images/explore.png" srcset="{{ staticPath }}/images/explore.svg" alt="" class="app-max-width--100">
+                <img src="{{url_for("static", path="/images/explore.png")}}" srcset="{{url_for("static", path="/images/explore.png")}}" alt="" class="app-max-width--100">
             </div>
             <!-- /.govuk-grid-column-one-half -->
         </div>
@@ -43,7 +43,7 @@
             </div>
             <!-- /.govuk-grid-column-one-half -->
             <div class="govuk-grid-column-one-half">
-                <img src="{{ staticPath }}/images/search.png" srcset="{{ staticPath }}/images/search.svg" alt="" class="app-max-width--100">
+                <img src="{{url_for("static", path="/images/search.png")}}" srcset="{{url_for("static", path="/images/search.png")}}" alt="" class="app-max-width--100">
             </div>
             <!-- /.govuk-grid-column-one-half -->
         </div>
@@ -61,13 +61,13 @@
         <div class="govuk-grid-row govuk-!-margin-bottom-8">
             <div class="govuk-grid-column-one-half">
                 <p class="govuk-body">Know where and who information came from by tracing the provenance of data.</p>
-                <p class="govuk-body"><img src="{{ staticPath }}/images/provenance.png" srcset="{{ staticPath }}/images/provenance.svg" alt="" class="app-max-width--100"></p>
+                <p class="govuk-body"><img src="{{url_for("static", path="/images/provenance.png")}}" srcset="{{url_for("static", path="/images/provenance.png")}}" alt="" class="app-max-width--100"></p>
                 <p class="govuk-body"><a href="#" class="govuk-link">Read our guide to understanding land data</a></p>
             </div>
             <!-- /.govuk-grid-column-one-half -->
             <div class="govuk-grid-column-one-half">
                 <p class="govuk-body">Integrate the Digital Land API with your web application or back office system.</p>
-                <p class="govuk-body"><img src="{{ staticPath }}/images/api.png" srcset="{{ staticPath }}/images/api.svg" alt="" class="app-max-width--100"></p>
+                <p class="govuk-body"><img src="{{url_for("static", path="/images/api.png")}}" srcset="{{url_for("static", path="/images/api.png")}}" alt="" class="app-max-width--100"></p>
                 <p class="govuk-body"><a href="#" class="govuk-link">View the API documentation</a></p>
             </div>
         </div>
