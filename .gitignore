@@ -20,3 +20,5 @@ tf/**/tfplan
 
 /.python-version
 .idea
+
+node_modules
