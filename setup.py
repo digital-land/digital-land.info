@@ -18,10 +18,5 @@ setup(
         "aiohttp[speedups]",
         "PyYAML",
     ],
-    extras_require={
-        "testing": [
-            "pytest",
-            "flake8",
-        ]
-    },
+    extras_require={"testing": ["pytest", "flake8", "pre-commit"]},
 )
