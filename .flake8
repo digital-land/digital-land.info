@@ -1,2 +1,5 @@
 [flake8]
 ignore = W291, E203
+exclude =
+    __pycache__
+    node_modules
