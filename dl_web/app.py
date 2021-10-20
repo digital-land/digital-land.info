@@ -44,6 +44,7 @@ app.mount(
     name="static",
 )
 
+
 # the base templates expect images to be served at /images
 app.mount(
     "/images",
@@ -81,13 +82,6 @@ async def custom_exception_handler(request: Request, exc: StarletteHTTPException
         # Just use FastAPI's built-in handler for other errors
         return await http_exception_handler(request, exc)
 
-app.mount(
-  "/static",
-  StaticFiles(
-    directory="static"
-  ),
-  name="static"
-)
 
 @app.get("/health", response_class=PlainTextResponse)
 def health(request: Request):
