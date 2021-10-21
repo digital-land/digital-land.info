@@ -1,5 +1,6 @@
 // Override the govuk-frontend font stack
 $govuk-font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+$govuk-assets-path: "/static/govuk/assets/";
 
 // import all govuk frontend scss
 @import "node_modules/govuk-frontend/govuk/all";
@@ -15,3 +16,5 @@ $govuk-font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", san
 // --------------------------------------------------------
 // components
 @import "component/hero";
+@import "component/attachment";
+@import "component/summary-list";

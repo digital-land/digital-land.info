@@ -44,15 +44,6 @@ app.mount(
     name="static",
 )
 
-
-# the base templates expect images to be served at /images
-app.mount(
-    "/images",
-    StaticFiles(directory="static/govuk/assets/images"),
-    name="images",
-)
-
-
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse(
