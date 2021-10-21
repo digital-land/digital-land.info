@@ -1,3 +1,96 @@
+.govuk-button-group {
+  margin-bottom: 5px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-button-group {
+    margin-bottom: 15px;
+  }
+}
+
+.govuk-button-group .govuk-link {
+  font-family: "GDS Transport", arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 16px;
+  font-size: 1rem;
+  line-height: 1.1875;
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/*! Copyright (c) 2011 by Margaret Calvert & Henrik Kubel. All rights reserved. The font has been customised for exclusive use on gov.uk. This cut is not commercially available. */
+/* stylelint-disable-line scss/comment-no-loud  */
+@font-face {
+  font-family: "GDS Transport";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/static/govuk/assets/fonts/light-94a07e06a1-v2.woff2") format("woff2"), url("/static/govuk/assets/fonts/light-f591b13f7d-v2.woff") format("woff");
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "GDS Transport";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/static/govuk/assets/fonts/bold-b542beb274-v2.woff2") format("woff2"), url("/static/govuk/assets/fonts/bold-affa96571d-v2.woff") format("woff");
+  font-display: fallback;
+}
+
+@media print {
+  .govuk-button-group .govuk-link {
+    font-family: sans-serif;
+  }
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-button-group .govuk-link {
+    font-size: 19px;
+    font-size: 1.1875rem;
+    line-height: 1;
+  }
+}
+
+@media print {
+  .govuk-button-group .govuk-link {
+    font-size: 14pt;
+    line-height: 19px;
+  }
+}
+
+.govuk-button-group .govuk-button {
+  margin-bottom: 17px;
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-button-group {
+    margin-right: -15px;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -ms-flex-align: baseline;
+    align-items: baseline;
+  }
+  .govuk-button-group .govuk-button,
+  .govuk-button-group .govuk-link {
+    margin-right: 15px;
+  }
+  .govuk-button-group .govuk-link {
+    text-align: left;
+  }
+}
+
 .govuk-form-group {
   margin-bottom: 20px;
 }
@@ -390,17 +483,13 @@ Original highlight.js style (c) Ivan Sagalaev <maniac@softwaremaniacs.org>
 
 @media (min-width: 40.0625em) {
   .app-nav {
-    display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     background-color: #f8f8f8;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-flex: 1;
-        -ms-flex: 1 0 auto;
-            flex: 1 0 auto;
+    -ms-flex-direction: column;
+        flex-direction: column;
+    -ms-flex: 1 0 auto;
+        flex: 1 0 auto;
   }
 }
 
@@ -414,24 +503,6 @@ Original highlight.js style (c) Ivan Sagalaev <maniac@softwaremaniacs.org>
   font-size: 1rem;
   line-height: 1.25;
   width: 100%;
-}
-
-/*! Copyright (c) 2011 by Margaret Calvert & Henrik Kubel. All rights reserved. The font has been customised for exclusive use on gov.uk. This cut is not commercially available. */
-/* stylelint-disable-line scss/comment-no-loud  */
-@font-face {
-  font-family: "GDS Transport";
-  font-style: normal;
-  font-weight: normal;
-  src: url("/static/govuk/assets/fonts/light-94a07e06a1-v2.woff2") format("woff2"), url("/static/govuk/assets/fonts/light-f591b13f7d-v2.woff") format("woff");
-  font-display: fallback;
-}
-
-@font-face {
-  font-family: "GDS Transport";
-  font-style: normal;
-  font-weight: bold;
-  src: url("/static/govuk/assets/fonts/bold-b542beb274-v2.woff2") format("woff2"), url("/static/govuk/assets/fonts/bold-affa96571d-v2.woff") format("woff");
-  font-display: fallback;
 }
 
 @media print {
@@ -515,7 +586,6 @@ Original highlight.js style (c) Ivan Sagalaev <maniac@softwaremaniacs.org>
 
 @media (min-width: 40.0625em) {
   .app-nav__body {
-    display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     position: relative;
@@ -533,9 +603,8 @@ Original highlight.js style (c) Ivan Sagalaev <maniac@softwaremaniacs.org>
 @media (min-width: 40.0625em) {
   .app-nav__subnav {
     width: 210px;
-    -webkit-box-flex: 0;
-        -ms-flex: 0 0 auto;
-            flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+        flex: 0 0 auto;
   }
 }
 
@@ -547,17 +616,13 @@ Original highlight.js style (c) Ivan Sagalaev <maniac@softwaremaniacs.org>
 
 @media (min-width: 40.0625em) {
   .app-nav__content {
-    display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     min-width: 0;
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 100%;
-            flex: 1 1 100%;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
+    -ms-flex: 1 1 100%;
+        flex: 1 1 100%;
+    -ms-flex-direction: column;
+        flex-direction: column;
   }
 }
 

@@ -11,7 +11,6 @@ function MapController($layerControlsList, $zoomControls) {
 MapController.prototype.init = function (params) {
   // check maplibregl is available
   // if not return
-  console.log("init ->", params)
   this.setupOptions(params); // create the maplibre map
 
   this.map = this.createMap(); // perform setup once map is loaded
@@ -106,8 +105,7 @@ MapController.prototype.createFeaturesPopup = function (features) {
   features.forEach(function (feature) {
     var featureType = capitalizeFirstLetter(feature.sourceLayer).replaceAll('-', ' ');
     var fillColour = that.getFillColour(feature);
-      console.log("feature.properties:", feature.properties)
-    var itemHTML = ["<li class=\"dl-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"), "<p class=\"secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"), '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">', "<a href=\"".concat(that.baseURL ? that.baseURL : '', '/entity/', feature.properties.entity, "\">", feature.properties.name, "</a>"), '</p>', '</li>'];
+    var itemHTML = ["<li class=\"dl-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"), "<p class=\"secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"), '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">', "<a href=\"".concat(that.baseURL ? that.baseURL : '').concat(feature.properties.slug, "\">").concat(feature.properties.name, "</a>"), '</p>', '</li>'];
     itemsHTML = itemsHTML + itemHTML.join('\n');
   });
   itemsHTML = headingHTML + itemsHTML + '</ul>';
@@ -154,7 +152,6 @@ MapController.prototype.getMap = function () {
 };
 
 MapController.prototype.setupOptions = function (params) {
-    console.log("params", params)
   params = params || {};
   this.mapId = params.mapId || 'mapid';
   this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
@@ -162,8 +159,8 @@ MapController.prototype.setupOptions = function (params) {
   this.vectorSource = params.vectorSource || 'https://datasette-tiles.digital-land.info/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf';
   this.minMapZoom = params.minMapZoom || 5;
   this.maxMapZoom = params.maxMapZoom || 15;
-  this.baseURL = params.baseURL || 'https://www.digital-land.info';
-  this.baseTileStyleFilePath = params.baseTileStyleFilePath || '/static/base-tile.json';
+  this.baseURL = params.baseURL || 'https://digital-land.github.io';
+  this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tile.json';
   this.popupWidth = params.popupWidth || '260px';
   this.popupMaxListLength = params.popupMaxListLength || 10;
 };

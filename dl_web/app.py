@@ -5,7 +5,7 @@ import uvicorn
 import yaml
 from fastapi import Depends, FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -44,12 +44,13 @@ app.mount(
     name="static",
 )
 
-# the base templates expect images to be served at /images
-app.mount(
-    "/images",
-    StaticFiles(directory="static/govuk/assets/images"),
-    name="images",
-)
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse(
+        "homepage.html",
+        {"request": request},
+    )
 
 
 # @app.on_event("shutdown")

@@ -4,7 +4,7 @@
 {% block head %}
     {{ super() }}
     <!-- local generated css -->
-    <link rel="stylesheet" href="/static/gen/css/main.css">
+    <link rel="stylesheet" href="/static/stylesheets/application.css">
 {% endblock  %}
 
 {% block content %}
@@ -27,7 +27,7 @@
   text-align: center;
   padding: 5px 0;
   border-radius: 6px;
- 
+
   /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
@@ -162,7 +162,7 @@
               </h3>
               <p class="dl-attachment__metadata">
                   {# need filter to map file types to proper titles #}
-                <span class="dl-attachment__attribute"><abbr title="Comma-separated Values" class="dl-attachment__abbr">{{ file.format }}</abbr></span>, 
+                <span class="dl-attachment__attribute"><abbr title="Comma-separated Values" class="dl-attachment__abbr">{{ file.format }}</abbr></span>,
                 <span class="dl-attachment__attribute">{{ file.size }}</span>
               </p>
               {%- if "Collected" in file.name %}
@@ -1409,7 +1409,7 @@
     <script async src='https://www.google-analytics.com/analytics.js'></script>
     <!-- end google analytics -->
     <script src="https://digital-land.github.io/javascripts/vendor/jquery-3.4.1.min.js"></script>
-    
+
 
     <script src="https://digital-land.github.io/javascripts/govuk/govuk-frontend.min.js"></script>
     <script>
@@ -1545,7 +1545,7 @@ $linkable_tables.forEach(function(linkable_table) {
             'hasEndDate': hasEndDate,
             'differentDates': differentDates
         }
-        return L.Util.template(tooltipTemplate, processed_row_data); 
+        return L.Util.template(tooltipTemplate, processed_row_data);
     }
 
     function createPopup(data) {

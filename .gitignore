@@ -22,3 +22,4 @@ tf/**/tfplan
 .idea
 
 node_modules
+.editorconfig

@@ -1,0 +1,156 @@
+{% extends "digital-land-frontend/dlf-base.html" %}
+{% block page_title %}Homepage prototype{% endblock %}
+{%- from "digital-land-frontend/components/feedback-panel/macro.html" import dlFeedbackPanel %}
+
+{% block head %}
+    {{ super() }}
+    <!-- local generated css -->
+    <link rel="stylesheet" href="/static/stylesheets/application.css">
+{% endblock  %}
+
+{% block main %}
+<main id="content" role="main">
+
+    <section class="app-hero" id="intro">
+        <div class="app-hero__content govuk-width-container">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Find planning and housing data that is easy to understand, use and trust</h1>
+                    <p class="govuk-body-l">A platform to help you create services to inform planning and housing decisions in England.</p>
+                </div>
+                <div class="govuk-grid-column-one-third">
+                    <img src="{{url_for("static", path="/images/proposition-image.png")}}" alt="{{url_for("static", path="/images/proposition-image.png")}}" class="app-hero__image">
+                </div>
+            </div>
+				</div>
+    </section>
+
+    <section id="feature-list" class="govuk-width-container">
+
+        <div class="govuk-grid-row govuk-!-margin-bottom-8" id="explore">
+            <div class="govuk-grid-column-one-half">
+                <h2 class="govuk-heading-l">Explore data on a map</h2>
+                <p class="govuk-body">View planning and housing datasets with geographic location data on an interactive map.</p>
+                <p class="govuk-body"><a href="/map" class="govuk-link" class="govuk-link">Explore the national map of planning</a></p>
+            </div>
+            <!-- /.govuk-grid-column-one-half -->
+            <div class="govuk-grid-column-one-half">
+                <img src="{{url_for("static", path="/images/explore.png")}}" srcset="{{url_for("static", path="/images/explore.png")}}" alt="An illustration depicting the national map of planning" class="app-max-width--100">
+            </div>
+            <!-- /.govuk-grid-column-one-half -->
+        </div>
+        <!-- /#explore.govuk-grid-row -->
+
+        <div class="govuk-grid-row govuk-!-margin-bottom-8" id="search">
+            <div class="govuk-grid-column-one-half">
+                <h2 class="govuk-heading-l">Search and filter data</h2>
+                <p class="govuk-body">Filter the data to include what you need and remove what you don't.</p>
+                <p class="govuk-body"><a href="#" class="govuk-link">Search housing and planning data</a></p>
+            </div>
+            <!-- /.govuk-grid-column-one-half -->
+            <div class="govuk-grid-column-one-half">
+                <img src="{{url_for("static", path="/images/search.png")}}" srcset="{{url_for("static", path="/images/search.png")}}" alt="" class="app-max-width--100">
+            </div>
+            <!-- /.govuk-grid-column-one-half -->
+        </div>
+        <!-- /#search.govuk-grid-row -->
+
+    </section>
+    <!-- /#feature-list -->
+
+    <hr class="govuk-section-break govuk-width-container govuk-section-break--visible govuk-section-break--xl">
+
+    <section id="other-features" class="govuk-width-container">
+
+        <h2 class="govuk-heading-l" id="api">Build services with data you can trust</h2>
+
+        <div class="govuk-grid-row govuk-!-margin-bottom-8">
+            <div class="govuk-grid-column-one-half">
+                <p class="govuk-body">Know where and who information came from by tracing the provenance of data.</p>
+                <p class="govuk-body"><img src="{{url_for("static", path="/images/provenance.png")}}" srcset="{{url_for("static", path="/images/provenance.png")}}" alt="" class="app-max-width--100"></p>
+                <p class="govuk-body"><a href="#" class="govuk-link">Read our guide to understanding land data</a></p>
+            </div>
+            <!-- /.govuk-grid-column-one-half -->
+            <div class="govuk-grid-column-one-half">
+                <p class="govuk-body">Integrate the Digital Land API with your web application or back office system.</p>
+                <p class="govuk-body"><img src="{{url_for("static", path="/images/api.png")}}" srcset="{{url_for("static", path="/images/api.png")}}" alt="" class="app-max-width--100"></p>
+                <p class="govuk-body"><a href="#" class="govuk-link">View the API documentation</a></p>
+            </div>
+        </div>
+        <!-- /#search.govuk-grid-row -->
+
+    </section>
+
+</main>
+{% endblock %}
+
+{% block footer %}
+    {% set github_url = "https://github.com/digital-land/design-system" %}
+    {% set licence_url = licence_url | default(github_url + '/blob/master/LICENSE') %}
+    {{ govukFooter({
+        "classes": "app-footer app-footer--full",
+        "containerClasses" : "app-width-container",
+        "navigation": [
+        {
+            "title": "Using this service",
+            "columns": 1,
+            "items": [
+            {
+                "href": "#",
+                "text": "System Status"
+            }
+            ]
+        },
+        {
+            "title": "For data providers",
+            "columns": 1,
+            "items": [
+            {
+                "href": "#",
+                "text": "Guidance for Local Authorities"
+            },
+            {
+                "href": "#",
+                "text": "Feedback and Support"
+            }
+            ]
+        },
+        {
+            "title": "About the the team",
+            "columns": 1,
+            "items": [
+            {
+                "href": "#",
+                "text": "Team"
+            },
+            {
+                "href": "#",
+                "text": "Projects"
+            },
+            {
+                "href": "#",
+                "text": "Blog"
+            }
+            ]
+        }
+        ],
+        "meta": {
+        "items": [
+            {
+            "href": "/cookies",
+            "text": "Cookies"
+            },
+            {
+            "href": "/accessibility-statement",
+            "text": "Accessibility statement"
+            },
+        ],
+        "html": ''
+        }
+    }) }}
+{% endblock %}
+
+{% block bodyEnd %}
+{{ super() }}
+{#<script src="{{ staticPath }}/javascripts/test.js"></script>#}
+{% endblock bodyEnd %}
