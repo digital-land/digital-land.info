@@ -17,6 +17,7 @@ endif
 init::
 	pip install -e .[testing]
 	npm install
+	npm run build
 
 server: $(CACHE_DIR)organisation.csv
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
@@ -46,7 +47,7 @@ test-unit:
 lint:	black-check flake8
 
 generate-assets::
-	npm run dev;
+	npm run build
 
 black:
 	black .
