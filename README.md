@@ -20,15 +20,20 @@ If everything is configured correctly this should return the details of the `dev
 
 # Running locally
 
-You can run the server locally, however you will still need to be [authenticated with AWS](#aws-authentication). By default the app will go to s3 to fetch all of the collection logs on startup (stored in `var/cache`). For development you probably don't want to do that every time; this behaviour can be switched off by setting the environment variable `FETCH=False`.
+Create a virtualenv then
 
-```bash
-aws-vault exec dl-dev -- make server
+```
+make init
 ```
 
-```bash
-FETCH=False aws-vault exec dl-dev -- make server
+That will install all dependencies and then you can...
+
 ```
+make server
+```
+
+to run the app
+
 
 # Building the infrastructure
 
