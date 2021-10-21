@@ -1,6 +1,12 @@
-{% extends "layouts/layout.html" %}
+{% extends "digital-land-frontend/dlf-base.html" %}
 {% block page_title %}Homepage prototype{% endblock %}
 {%- from "digital-land-frontend/components/feedback-panel/macro.html" import dlFeedbackPanel %}
+
+{% block head %}
+    {{ super() }}
+    <!-- local generated css -->
+    <link rel="stylesheet" href="/static/stylesheets/application.css">
+{% endblock  %}
 
 {% block main %}
 <main id="content" role="main">
