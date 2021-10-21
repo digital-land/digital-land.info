@@ -18,8 +18,6 @@ var/
 tf/*/.terraform*
 tf/**/tfplan
 
-node_modules/
-
 /.python-version
 .idea
 
