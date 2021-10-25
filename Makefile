@@ -48,6 +48,7 @@ lint:	black-check flake8
 
 generate-assets::
 	npm run build
+	npm run dev
 
 black:
 	black .

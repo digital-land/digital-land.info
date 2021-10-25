@@ -1,32 +1,94 @@
-{% extends "leaflet-base.html" %}
+{% extends "digital-land-frontend/dlf-base.html" %}
+{% block page_title %}Homepage prototype{% endblock %}
+{%- from "digital-land-frontend/components/feedback-panel/macro.html" import dlFeedbackPanel %}
+{%- from "govuk-jinja-components/components/input/macro.jinja" import govukInput %}
+{%- from "govuk-jinja-components/components/fieldset/macro.jinja" import govukFieldset %}
+{%- from "govuk-jinja-components/components/button/macro.jinja" import govukButton %}
 
-{% block content %}
-  <h1>
-    Search for entity
-  </h1>
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/stylesheets/application.css">
+{% endblock  %}
 
-  <form action="/entity", method="get">
-    <label for="latitude">Latitude</label>
-    <input type="text" name="latitude">
-    <label for="longitude">Longitude</label>
-    <input type="text" name="longitude">
-    <input type="submit">
-  </form>
+{% block main %}
+<main id="content" role="main">
 
-  {% if data %}
-    <ul>
-      {%  for row in data %}
-        {%  set properties = row["geojson"]["properties"] %}
-        <li>
-          <p>id: {{ properties["entity"] }}</p>
-          <p>name: {{ properties["name"] }}</p>
-          <p>type: {{ properties["type"] }}</p>
-          <p>organisation: {{ properties["organisation"] }}</p>
-          <p>entry-date: {{ properties["entry-date"] }}</p>
-        <!-- Paul S - It's been a long while since I've used leaflet so you might have to just assume some div with I guess
-        an id something like "map-{entity id}" while I work out how to do it again and  fill that bit in later :) -->
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+    <section class="govuk-width-container govuk-!-padding-top-6 govuk-!-padding-bottom-6">
+
+				{% call govukFieldset({
+					"legend": {
+						"text": "Search for planning and housing data",
+						"classes": "govuk-fieldset__legend--l govuk-!-margin-bottom-8",
+						"isPageHeading": true
+					}
+				}) %}
+
+					<div class="govuk-grid-row">
+							<div class="govuk-grid-column-one-third">
+
+								<form action="/entity", method="get" class="app-search">
+
+									{{
+										govukInput({
+											"label": {
+													"text": "Latitude",
+												},
+												"id": "latitude",
+												"name": "latitude"
+										})
+									}}
+
+									{{
+										govukInput({
+											"label": {
+													"text": "Longitude",
+												},
+												"id": "longitude",
+												"name": "longitude"
+										})
+									}}
+
+									{{ govukButton({
+										"text": "Search",
+										"classes": "govuk-!-margin-bottom-0"
+									}) }}
+
+								</form>
+
+							</div>
+							<!-- /.govuk-grid-column-one-half -->
+							<div class="govuk-grid-column-two-thirds">
+
+								{% if data %}
+									<ul class="govuk-list">
+										{%  for row in data %}
+											{%  set properties = row["geojson"]["properties"] %}
+											<li>
+												<article class="app-search-card govuk-!-margin-bottom-9">
+													<p>id: {{ properties["entity"] }}</p>
+													<p>name: {{ properties["name"] }}</p>
+													<p>type: {{ properties["type"] }}</p>
+													<p>organisation: {{ properties["organisation"] }}</p>
+													<p>entry-date: {{ properties["entry-date"] }}</p>
+												</article>
+											<!-- Paul S - It's been a long while since I've used leaflet so you might have to just assume some div with I guess
+											an id something like "map-{entity id}" while I work out how to do it again and fill that bit in later :) -->
+											</li>
+										{% endfor %}
+									</ul>
+								{% endif %}
+
+							</div>
+					</div>
+					<!-- /#search.govuk-grid-row -->
+
+				{% endcall %}
+
+    </section>
+
+</main>
 {% endblock %}
+
+{% block bodyEnd %}
+{{ super() }}
+{% endblock bodyEnd %}

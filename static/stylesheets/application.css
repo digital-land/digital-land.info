@@ -5101,3 +5101,10 @@ abbr {
   .dl-summary-list--data {
     font-size: 14pt;
     line-height: 1.15; } }
+
+.app-search {
+  background: #f3f2f1;
+  padding: 15px; }
+  @media (min-width: 40.0625em) {
+    .app-search {
+      padding: 20px; } }

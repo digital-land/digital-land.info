@@ -1,0 +1,4 @@
+.app-search {
+	background: govuk-colour("light-grey");
+	@include govuk-responsive-padding(4);
+}
