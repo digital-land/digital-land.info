@@ -93,13 +93,52 @@
 									<ul class="app-results-list">
 										{% for row in data %}
 											{% set properties = row["geojson"]["properties"] %}
+											{% set propertiesArr = [
+												{
+													"key": "Entity id",
+													"value": properties["entity"]
+												},
+												{
+													"key": "Name",
+													"value": properties["name"]
+												},
+												{
+													"key": "Type",
+													"value": properties["type"]
+												},
+												{
+													"key": "Organisation",
+													"value": properties["organisation"]
+												},
+												{
+													"key": "Entry-date",
+													"value": properties["entry-date"]
+												},
+											]  %}
 											<li class="app-results-list__item">
 												<article class="app-card app-card--result">
-													<p>id: {{ properties["entity"] }}</p>
-													<p>name: {{ properties["name"] }}</p>
-													<p>type: {{ properties["type"] }}</p>
-													<p>organisation: {{ properties["organisation"] }}</p>
-													<p>entry-date: {{ properties["entry-date"] }}</p>
+
+													<div class="govuk-grid-row">
+														<div class="govuk-grid-column-three-quarters">
+
+															<dl class="govuk-summary-list govuk-!-margin-bottom-0">
+																{% for property in propertiesArr %}
+																	<div class="govuk-summary-list__row">
+																		<dt class="govuk-summary-list__key">
+																			{{ property.key }}
+																		</dt>
+																		<dd class="govuk-summary-list__value">
+																			{{ property.value }}
+																		</dd>
+																	</div>
+																{% endfor %}
+															</dl>
+
+														</div>
+														<!-- /.govuk-grid-column-three-quarters -->
+													</div>
+													<!-- /.govuk-grid-row -->
+
 												</article>
 												<!-- /.app-card -->
 											</li>

@@ -5200,4 +5200,8 @@ abbr {
   border-radius: 0.15em; }
 
 .app-card--result {
-  position: relative; }
+  position: relative;
+  padding: 15px; }
+  @media (min-width: 40.0625em) {
+    .app-card--result {
+      padding: 20px; } }

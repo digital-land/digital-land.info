@@ -5,4 +5,5 @@
 
 .app-card--result {
 	position: relative;
+	@include govuk-responsive-padding(4);
 }
