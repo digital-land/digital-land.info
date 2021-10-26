@@ -88,6 +88,8 @@
   const $controlsList = document.querySelector('[data-module="layer-controls"]')
   const $zoomMod = document.querySelector('[data-module="zoom-controls"]')
   // init national map
-  const mapController = new MapController($controlsList, $zoomMod).init({})
+  const mapController = new MapController($controlsList, $zoomMod).init({
+    baseTileStyleFilePath: "/static/base-tile.json"
+  })
 </script>
 {% endblock %}
