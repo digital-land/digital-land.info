@@ -182,4 +182,9 @@ def _do_geo_query(longitude: float, latitude: float):
     results = []
     for row in data.get("rows", []):
         results.append({"geojson": json.loads(row["geojson"])})
-    return results
+    resp = {
+        "query": {"longitude": longitude, "latitude": latitude},
+        "count": len(results),
+        "results": results,
+    }
+    return resp

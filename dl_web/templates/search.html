@@ -59,11 +59,11 @@
 							<!-- /.govuk-grid-column-one-third -->
 							<div class="govuk-grid-column-two-thirds">
 
-								{% if data %}
+								{% if data and data.count > 0 %}
 
 									<div class="app-results-summary">
 
-										<h2 class="app-results-summary__title">5 Results</h2>
+										<h2 class="app-results-summary__title">{{ data.count }} Result{%  if data.count > 1 %}s{% endif %}</h2>
 
 										<ul class="app-facets-summary">
 											<li class="app-facets-summary-item">
@@ -91,7 +91,7 @@
 									<!-- /.app-results-summary -->
 
 									<ul class="app-results-list">
-										{% for row in data %}
+										{% for row in data.results %}
 											{% set properties = row["geojson"]["properties"] %}
 											{% set propertiesArr = [
 												{
