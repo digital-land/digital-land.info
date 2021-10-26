@@ -4978,7 +4978,8 @@ abbr {
 .app-max-width--100 {
   max-width: 100%; }
 
-.dl-link--mono {
+.dl-link--mono,
+.u-font-mono {
   font-family: monospace; }
 
 .app-hero {
@@ -5112,10 +5113,14 @@ abbr {
 
 .app-search {
   background: #f3f2f1;
-  padding: 15px; }
+  padding: 15px;
+  margin-bottom: 15px; }
   @media (min-width: 40.0625em) {
     .app-search {
       padding: 20px; } }
+  @media (min-width: 40.0625em) {
+    .app-search {
+      margin-bottom: 20px; } }
 
 .app-results-summary {
   margin-bottom: 15px;
@@ -5126,8 +5131,58 @@ abbr {
 
 .app-facets-summary {
   list-style-type: none;
-  margin: 0;
+  margin: -1em 0 0 0;
   padding: 0; }
+
+.app-facets-summary-item {
+  display: flex;
+  align-items: baseline;
+  align-content: flex-start;
+  gap: 1em;
+  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding: 10px; }
+  @media (min-width: 40.0625em) {
+    .app-facets-summary-item {
+      padding-top: 20px; } }
+  @media (min-width: 40.0625em) {
+    .app-facets-summary-item {
+      padding-bottom: 20px; } }
+  @media (min-width: 40.0625em) {
+    .app-facets-summary-item {
+      padding: 10px; } }
+  .app-facets-summary-item:nth-child(odd) {
+    background: #f3f2f1; }
+
+.app-facets-summary-item__title {
+  font-weight: bold; }
+
+.app-facet-tag {
+  border: 1px solid #b1b4b6;
+  background-color: #f3f2f1;
+  border-radius: 0.5em;
+  padding: 10px; }
+  @media (min-width: 40.0625em) {
+    .app-facet-tag {
+      padding: 10px; } }
+  .app-facet-tag:active, .app-facet-tag:focus {
+    box-shadow: inset 0 0 0 2px;
+    border: solid 1px #0b0c0c;
+    outline: 3px solid #fd0;
+    color: #000; }
+
+.app-facet-tag__icon {
+  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+  display: inline-block;
+  vertical-align: middle;
+  font-weight: bold;
+  width: 1em;
+  height: auto;
+  margin-right: 0.25em; }
+  .app-facet-tag__icon svg, .app-facet-tag__icon img {
+    width: 100%;
+    height: 100%; }
 
 .app-results-list {
   list-style-type: none;
