@@ -1,4 +1,36 @@
+// search
+// --------------------------------------------------------
+
 .app-search {
 	background: govuk-colour("light-grey");
 	@include govuk-responsive-padding(4);
+}
+
+// results
+// --------------------------------------------------------
+
+.app-results-summary {
+	@include govuk-responsive-margin(4, "bottom");
+	border-bottom: 1px solid #000;
+	&__title {
+		@extend %govuk-heading-s;
+	}
+}
+
+.app-facets-summary {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+// results list
+
+.app-results-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.app-results-list__item {
+	@include govuk-responsive-margin(4, "bottom");
 }

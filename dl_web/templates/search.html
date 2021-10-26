@@ -60,11 +60,21 @@
 							<div class="govuk-grid-column-two-thirds">
 
 								{% if data %}
-									<ul class="govuk-list">
-										{%  for row in data %}
-											{%  set properties = row["geojson"]["properties"] %}
-											<li>
-												<article class="app-search-card govuk-!-margin-bottom-9">
+
+									<div class="app-results-summary">
+										<h2 class="app-results-summary__title">5 Results</h2>
+										<ul class="app-facets-summary">
+											<li class="app-facets-summary__item">
+												sjkskjs
+											</li>
+										</ul>
+									</div>
+
+									<ul class="app-results-list">
+										{% for row in data %}
+											{% set properties = row["geojson"]["properties"] %}
+											<li class="app-results-list__item">
+												<article class="app-card app-card--result">
 													<p>id: {{ properties["entity"] }}</p>
 													<p>name: {{ properties["name"] }}</p>
 													<p>type: {{ properties["type"] }}</p>
