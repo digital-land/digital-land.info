@@ -4,6 +4,7 @@
 {%- from "govuk-jinja-components/components/input/macro.jinja" import govukInput %}
 {%- from "govuk-jinja-components/components/fieldset/macro.jinja" import govukFieldset %}
 {%- from "govuk-jinja-components/components/button/macro.jinja" import govukButton %}
+{%- from "govuk-jinja-components/components/tag/macro.jinja" import govukTag -%}
 
 {% block head %}
     {{ super() }}
@@ -80,7 +81,7 @@
 																		</g>
 																</svg>
 														</span>
-														<span class="app-facet-tag__label u-font-mono">{{ lat | d('lat') }},{{ long | d('long') }}</span>
+														<span class="app-facet-tag__label u-font-mono">{{ data.query.latitude | d('Latitude') }},{{ data.query.longitude | d('longitude') }}</span>
 													</button>
 												</div>
 											</li>
@@ -95,14 +96,6 @@
 											{% set properties = row["geojson"]["properties"] %}
 											{% set propertiesArr = [
 												{
-													"key": "Entity id",
-													"value": properties["entity"]
-												},
-												{
-													"key": "Name",
-													"value": properties["name"]
-												},
-												{
 													"key": "Type",
 													"value": properties["type"]
 												},
@@ -116,29 +109,54 @@
 												},
 											]  %}
 											<li class="app-results-list__item">
+
+
 												<article class="app-card app-card--result">
 
-													<div class="govuk-grid-row">
-														<div class="govuk-grid-column-three-quarters">
-
-															<dl class="govuk-summary-list govuk-!-margin-bottom-0">
-																{% for property in propertiesArr %}
-																	<div class="govuk-summary-list__row">
-																		<dt class="govuk-summary-list__key">
-																			{{ property.key }}
-																		</dt>
-																		<dd class="govuk-summary-list__value">
-																			{{ property.value }}
-																		</dd>
-																	</div>
-																{% endfor %}
-															</dl>
-
+													<div class="app-card__header">
+														<div class="app-card__header__primary">
+															<h3 class="app-card__title">{{ properties['name'] }}</h3>
 														</div>
-														<!-- /.govuk-grid-column-three-quarters -->
+														<div class="app-card__header__secondary">
+															{{ govukTag({ "text": "Geography"  }) }}
+															<dl class="app-card__datalist">
+																<div class="app-card__datalist__row">
+																	<dt class="app-card__datalist__key">Id:</dt>
+																	<dd class="app-card__datalist__value">{{ properties["entity"] }}</dd>
+																</div>
+															</dl>
+														</div>
 													</div>
-													<!-- /.govuk-grid-row -->
 
+													{# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
+													<div class="app-card__media">
+														<img src="https://plchldr.co/i/640x480?&bg=cccccc&fc=333333&text=Map or Image Here">
+													</div>
+
+													<div class="app-card__body">
+
+														<div class="app-card__description">
+															<p class="govuk-body">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officia, totam consequatur laudantium assumenda exercitationem doloribus, facilis ipsam beatae temporibus dolore eaque illo debitis animi, placeat tenetur iure voluptates quibusdam deleniti!</p>
+														</div>
+
+														<div class="app-card__row">
+															<div class="app-card__properties">
+																<dl class="govuk-summary-list govuk-!-margin-bottom-0">
+																	{% for property in propertiesArr %}
+																		<div class="govuk-summary-list__row">
+																			<dt class="govuk-summary-list__key">
+																				{{ property.key }}
+																			</dt>
+																			<dd class="govuk-summary-list__value">
+																				{{ property.value }}
+																			</dd>
+																		</div>
+																	{% endfor %}
+																</dl>
+															</div>
+														</div>
+
+													</div>
 												</article>
 												<!-- /.app-card -->
 											</li>
