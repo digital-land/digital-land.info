@@ -39,17 +39,27 @@ async def get_index(request: Request):
 async def get_dataset_index(
     request: Request, dataset: str, view_model: ViewModel = Depends(get_view_model)
 ):
-    _dataset = await get_dataset(dataset)
-    typology = specification.field_typology(
-        dataset
-    )  # replace this with typology from dataset
-    entities = view_model.list_entities(typology, dataset)
-    return templates.TemplateResponse(
-        "dataset.html",
-        {
-            "request": request,
-            "dataset": _dataset[dataset],
-            "entities": entities,
-            "key_field": specification.key_field(typology),
-        },
-    )
+    try:
+        _dataset = await get_dataset(dataset)
+        typology = specification.field_typology(
+            dataset
+        )  # replace this with typology from dataset
+        entities = view_model.list_entities(typology, dataset)
+        return templates.TemplateResponse(
+            "dataset.html",
+            {
+                "request": request,
+                "dataset": _dataset[dataset],
+                "entities": entities,
+                "key_field": specification.key_field(typology),
+            },
+        )
+    except KeyError as e:
+        logger.exception(e)
+        return templates.TemplateResponse(
+            "dataset-backlog.html",
+            {
+                "request": request,
+                "name": dataset.replace("-", " ").capitalize(),
+            },
+        )
