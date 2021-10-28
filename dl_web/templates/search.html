@@ -1,5 +1,6 @@
-{% extends "leaflet-base.html" %}
+{%- extends "digital-land-frontend/dlf-base.html" %}
 {% block page_title %}Entity search prototype{% endblock %}
+{% set includesMap = true %}
 {%- from "digital-land-frontend/components/feedback-panel/macro.html" import dlFeedbackPanel %}
 {%- from "govuk-jinja-components/components/input/macro.jinja" import govukInput %}
 {%- from "govuk-jinja-components/components/fieldset/macro.jinja" import govukFieldset %}
@@ -134,7 +135,7 @@
 
                             <img src="https://plchldr.co/i/640x480?&bg=cccccc&fc=333333&text=Map or Image Here">
 
-                            {%  set mapId = properties["entity"] %}
+                            {%  set mapId = properties["entity"] ~ "-map" %}
                             {{ dlMap({
                               "id": mapId,
                               "classes": "govuk-!-margin-top-3"
@@ -189,10 +190,16 @@
 {% block bodyEnd %}
 {{ super() }}
 <script>
-    const $mapElements = document.querySelectorAll('[data-module="boundary-map"]')
-    $mapElements.forEach(function($map){
-        const map = new DLMaps.Map($mapElement).init({})
-        //map.map.addLayer(???)
-    })
+	const results = {{ data.results|tojson }};
+	console.log('Results', results)
+	results.forEach(function(result) {
+		const mapElementId = result.geojson.entity + "-map"
+		const $mapElement = document.getElementById(mapElementId)
+		const dlmap = new DLMaps.Map($mapElement).init({})
+		// create a named map layer so we can use that to fitbounds
+		var mapLayer = L.geoJSON().addTo(dlmap.map);
+		mapLayer.addData(result.geojson);
+		dlmap.map.fitBounds(mapLayer.getBounds())
+	})
 </script>
 {% endblock bodyEnd %}
