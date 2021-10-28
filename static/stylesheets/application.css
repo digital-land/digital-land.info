@@ -5208,10 +5208,15 @@ abbr {
   display: flex;
   justify-content: space-between;
   flex-direction: column-reverse; }
-  .app-card__header__primary, .app-card__header__secondary {
+  .app-card__header__primary {
     padding: 15px; }
     @media (min-width: 40.0625em) {
-      .app-card__header__primary, .app-card__header__secondary {
+      .app-card__header__primary {
+        padding: 25px; } }
+  .app-card__header__secondary {
+    padding: 15px; }
+    @media (min-width: 40.0625em) {
+      .app-card__header__secondary {
         padding: 15px; } }
   .app-card__header__secondary {
     display: flex;
@@ -5251,7 +5256,7 @@ abbr {
   @media (min-width: 40.0625em) {
     .app-card__footer,
     .app-card__body {
-      padding: 15px; } }
+      padding: 25px; } }
 
 .app-card__title {
   margin: 0; }

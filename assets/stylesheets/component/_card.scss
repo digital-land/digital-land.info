@@ -9,7 +9,10 @@
 	justify-content: space-between;
 	flex-direction: column-reverse;
 
-	&__primary,
+	&__primary{
+		@include govuk-responsive-padding(5);
+	}
+
 	&__secondary {
 		@include govuk-responsive-padding(3);
 	}
@@ -60,7 +63,7 @@
 
 .app-card__footer,
 .app-card__body {
-	@include govuk-responsive-padding(3);
+	@include govuk-responsive-padding(5);
 }
 
 .app-card__title {

@@ -123,8 +123,7 @@
 															{{ govukTag({ "text": "Geography"  }) }}
 															<dl class="app-card__datalist">
 																<div class="app-card__datalist__row">
-																	<dt class="app-card__datalist__key">Id:</dt>
-																	<dd class="app-card__datalist__value">{{ properties["entity"] }}</dd>
+																	<dd class="app-card__datalist__value"><a href="/{{ properties["entity"] }}" class="govuk-link">{{ properties["entity"] }}</a></dd>
 																</div>
 															</dl>
 														</div>
