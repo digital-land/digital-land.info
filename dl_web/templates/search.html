@@ -133,8 +133,6 @@
 													{# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
 													<div class="app-card__media">
 
-                            <img src="https://plchldr.co/i/640x480?&bg=cccccc&fc=333333&text=Map or Image Here">
-
                             {%  set mapId = properties["entity"] ~ "-map" %}
                             {{ dlMap({
                               "id": mapId,
@@ -146,9 +144,8 @@
 													<div class="app-card__body">
 
 														<div class="app-card__description">
-															<p class="govuk-body">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officia, totam consequatur laudantium assumenda exercitationem doloribus, facilis ipsam beatae temporibus dolore eaque illo debitis animi, placeat tenetur iure voluptates quibusdam deleniti!</p>
-														</div>
-
+                              {# <p class="govuk-body"></p> #}
+                            </div>
 														<div class="app-card__row">
 															<div class="app-card__properties">
 																<dl class="govuk-summary-list govuk-!-margin-bottom-0">
