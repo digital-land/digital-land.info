@@ -179,11 +179,7 @@ MapController.prototype.debug = function () {
 
     return 0;
   }
-
   this.map.on('moveend', function (e) {
-    console.log('moveend');
-    console.log('Brownfield', countFeatures('brownfieldland'));
-    console.log('LA boundaries', countFeatures('ladFill'));
-    console.log('conservation area', countFeatures('conservationareaFill'));
+    // debug
   });
 };
