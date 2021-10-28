@@ -142,9 +142,11 @@
 
 													<div class="app-card__body">
 
-														<div class="app-card__description">
-                              {# <p class="govuk-body"></p> #}
-                            </div>
+														{% if properties["description"] %}
+															<div class="app-card__description">
+																<p class="govuk-body">{{ properties["description"] }}</p>
+															</div>
+														{% endif %}
 														<div class="app-card__row">
 															<div class="app-card__properties">
 																<dl class="govuk-summary-list govuk-!-margin-bottom-0">
