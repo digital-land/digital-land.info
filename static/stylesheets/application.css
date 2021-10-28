@@ -5223,6 +5223,10 @@ abbr {
   .app-card__header + .app-card__body {
     padding-top: 0; }
 
+.app-card__map-container {
+  border-top: 1px solid #b1b4b6;
+  border-bottom: 1px solid #b1b4b6; }
+
 .app-card__datalist {
   margin: 0;
   font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;

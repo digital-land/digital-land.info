@@ -23,11 +23,16 @@
 		background: govuk-colour('light-grey');
 	}
 
+	// if header is immediately followed by app-card__body remove it's padding top.
 	+ .app-card__body {
-		// margin-top: -(govuk-spacing(4));
 		padding-top: 0;
 	}
 
+}
+
+.app-card__map-container {
+	border-top: 1px solid $govuk-border-colour;
+	border-bottom: 1px solid $govuk-border-colour;
 }
 
 .app-card__datalist {
