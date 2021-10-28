@@ -1,0 +1,76 @@
+.app-card {
+	border: 1px solid $govuk-border-colour;
+	border-bottom-width: 2px;
+	border-radius: 0.15em;
+}
+
+.app-card__header {
+	display: flex;
+	justify-content: space-between;
+	flex-direction: column-reverse;
+
+	&__primary{
+		@include govuk-responsive-padding(5);
+	}
+
+	&__secondary {
+		@include govuk-responsive-padding(3);
+	}
+
+	&__secondary {
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid $govuk-border-colour;
+		background: govuk-colour('light-grey');
+	}
+
+	// if header is immediately followed by app-card__body remove it's padding top.
+	+ .app-card__body {
+		padding-top: 0;
+	}
+
+}
+
+.app-card__map-container {
+	border-top: 1px solid $govuk-border-colour;
+	border-bottom: 1px solid $govuk-border-colour;
+}
+
+.app-card__datalist {
+	margin: 0;
+	font-family: $govuk-font-family;
+	color: govuk-colour('dark-grey');
+	&__row {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: .25em;
+	}
+	.app-card__datalist__key,
+	.app-card__datalist__value {
+		margin: 0;
+	}
+}
+
+.app-card__media {
+	overflow: hidden;
+	> img, > svg {
+		max-width: 100%;
+	}
+}
+
+.app-card__footer,
+.app-card__body {
+	@include govuk-responsive-padding(5);
+}
+
+.app-card__title {
+	margin: 0;
+	@extend %govuk-heading-m;
+}
+
+.app-card--result {
+	position: relative;
+}
