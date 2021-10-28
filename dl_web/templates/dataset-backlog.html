@@ -1,0 +1,39 @@
+{% extends "digital-land-frontend/dlf-base.html" %}
+
+{% block head %}
+  {{ super() }}
+  <meta name="generated-date" content="{{ now }}" />
+{% endblock head %}
+
+{%- block beforeContent -%}
+  {{ super() }}
+
+  {{- govukBreadcrumbs({
+    "items": [
+        {
+        "text": "Digital Land",
+        "href": "/"
+        },
+        {
+        "text": "Datasets",
+        "href": "/dataset/"
+        },
+        {
+        "text": name
+        }
+    ]
+    }) -}}
+{%- endblock -%}
+
+{% block pageTitle %}{{ name }} dataset | Digital Land{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-l">{{ name }}</h1>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <p class="govuk-body-m">This dataset is on our backlog but not collected and processed yet.</p>
+    </div>
+  </div>
+
+{% endblock %}

@@ -105,7 +105,7 @@ MapController.prototype.createFeaturesPopup = function (features) {
   features.forEach(function (feature) {
     var featureType = capitalizeFirstLetter(feature.sourceLayer).replaceAll('-', ' ');
     var fillColour = that.getFillColour(feature);
-    var itemHTML = ["<li class=\"dl-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"), "<p class=\"secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"), '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">', "<a href=\"".concat(that.baseURL ? that.baseURL : '').concat(feature.properties.slug, "\">").concat(feature.properties.name, "</a>"), '</p>', '</li>'];
+    var itemHTML = ["<li class=\"dl-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"), "<p class=\"secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"), '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">', "<a href=\"/entity/".concat(feature.properties.entity, "\">").concat(feature.properties.name, "</a>"), '</p>', '</li>'];
     itemsHTML = itemsHTML + itemHTML.join('\n');
   });
   itemsHTML = headingHTML + itemsHTML + '</ul>';
