@@ -1,10 +1,11 @@
-{% extends "digital-land-frontend/dlf-base.html" %}
-{% block page_title %}Homepage prototype{% endblock %}
+{% extends "leaflet-base.html" %}
+{% block page_title %}Entity search prototype{% endblock %}
 {%- from "digital-land-frontend/components/feedback-panel/macro.html" import dlFeedbackPanel %}
 {%- from "govuk-jinja-components/components/input/macro.jinja" import govukInput %}
 {%- from "govuk-jinja-components/components/fieldset/macro.jinja" import govukFieldset %}
 {%- from "govuk-jinja-components/components/button/macro.jinja" import govukButton %}
 {%- from "govuk-jinja-components/components/tag/macro.jinja" import govukTag -%}
+{%- from "digital-land-frontend/components/map/macro.html" import dlMap %}
 
 {% block head %}
     {{ super() }}
@@ -130,8 +131,16 @@
 
 													{# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
 													<div class="app-card__media">
-														<img src="https://plchldr.co/i/640x480?&bg=cccccc&fc=333333&text=Map or Image Here">
-													</div>
+
+                            <img src="https://plchldr.co/i/640x480?&bg=cccccc&fc=333333&text=Map or Image Here">
+
+                            {%  set mapId = properties["entity"] %}
+                            {{ dlMap({
+                              "id": mapId,
+                              "classes": "govuk-!-margin-top-3"
+                            }) }}
+
+                          </div>
 
 													<div class="app-card__body">
 
@@ -179,4 +188,11 @@
 
 {% block bodyEnd %}
 {{ super() }}
+<script>
+    const $mapElements = document.querySelectorAll('[data-module="boundary-map"]')
+    $mapElements.forEach(function($map){
+        const map = new DLMaps.Map($mapElement).init({})
+        //map.map.addLayer(???)
+    })
+</script>
 {% endblock bodyEnd %}
