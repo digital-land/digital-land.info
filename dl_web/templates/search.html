@@ -187,17 +187,18 @@
 
 {% block bodyEnd %}
 {{ super() }}
-<script>
-	const results = {{ data.results|tojson }};
-	console.log('Results', results)
-	results.forEach(function(result) {
-		const mapElementId = result.geojson.entity + "-map"
-		const $mapElement = document.getElementById(mapElementId)
-		const dlmap = new DLMaps.Map($mapElement).init({})
-		// create a named map layer so we can use that to fitbounds
-		var mapLayer = L.geoJSON().addTo(dlmap.map);
-		mapLayer.addData(result.geojson);
-		dlmap.map.fitBounds(mapLayer.getBounds())
-	})
-</script>
+  {% if data and data.count > 0 %}
+    <script>
+        const results = {{ data.results|tojson }};
+        results.forEach(function (result) {
+            const mapElementId = result.geojson.entity + "-map"
+            const $mapElement = document.getElementById(mapElementId)
+            const dlmap = new DLMaps.Map($mapElement).init({})
+            // create a named map layer so we can use that to fitbounds
+            var mapLayer = L.geoJSON().addTo(dlmap.map);
+            mapLayer.addData(result.geojson);
+            dlmap.map.fitBounds(mapLayer.getBounds())
+        })
+     </script>
+  {%  endif %}
 {% endblock bodyEnd %}
