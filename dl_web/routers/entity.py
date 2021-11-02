@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse
 
-from dl_web.queries import ViewModelGeoQuery
+from dl_web.queries import EntityGeoQuery
 from dl_web.resources import get_view_model, specification, templates
 
 router = APIRouter()
@@ -177,11 +177,32 @@ def get_entity_by_long_lat(
     return _do_geo_query(longitude, latitude)
 
 
+class EntityJson:
+    @staticmethod
+    def to_json(data):
+        fields = [
+            "dataset",
+            "entry_date",
+            "reference",
+            "entity",
+            "reference",
+            "name",
+            "geojson",
+            "typology",
+        ]
+        data_dict = {}
+        for key, val in data.items():
+            if key in fields:
+                v = json.loads(val) if key == "geojson" else val
+                data_dict[key] = v
+        return data_dict
+
+
 def _do_geo_query(longitude: float, latitude: float):
-    data = ViewModelGeoQuery().execute(longitude, latitude)
+    data = EntityGeoQuery().execute(longitude, latitude)
     results = []
     for row in data.get("rows", []):
-        results.append({"geojson": json.loads(row["geojson"])})
+        results.append(EntityJson.to_json(row))
     resp = {
         "query": {"longitude": longitude, "latitude": latitude},
         "count": len(results),
