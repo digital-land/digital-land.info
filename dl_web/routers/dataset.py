@@ -40,17 +40,17 @@ async def get_dataset(dataset):
 async def get_index(request: Request):
     response = await get_datasets_with_theme()
     results = [create_dict(response["columns"], row) for row in response["rows"]]
-    datasets = [d for d in results if d['dataset_active']]
+    datasets = [d for d in results if d["dataset_active"]]
     themes = {}
     for d in datasets:
-        dataset_themes = d['dataset_themes'].split(";")
+        dataset_themes = d["dataset_themes"].split(";")
         for theme in dataset_themes:
-            themes.setdefault(theme, {'dataset': []})
-            themes[theme]['dataset'].append(d)
-
+            themes.setdefault(theme, {"dataset": []})
+            themes[theme]["dataset"].append(d)
 
     return templates.TemplateResponse(
-        "dataset_index.html", {"request": request, "datasets": datasets, "themes": themes}
+        "dataset_index.html",
+        {"request": request, "datasets": datasets, "themes": themes},
     )
 
 
