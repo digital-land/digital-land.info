@@ -17,7 +17,8 @@
     "watch:javascripts": "rollup --config etc/rollup.config.js --watch",
     "watch:styles": "node-sass assets/stylesheets -o static/stylesheets --include-path node_modules/govuk-frontend --watch",
     "watch": "npm-run-all --parallel watch:*",
-    "dev": "npm run watch"
+    "dev": "npm run watch",
+		"serve": "browser-sync start --proxy 'localhost:8000' --files '.'"
   },
   "repository": {
     "type": "git",
