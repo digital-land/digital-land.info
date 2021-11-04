@@ -1,8 +1,9 @@
 {% extends "digital-land-frontend/dlf-base.html" %}
 
 {% block head %}
-{{ super() }}
-<meta name="generated-date" content="{{ now }}" />
+	{{ super() }}
+	<meta name="generated-date" content="{{ now }}" />
+	<link rel="stylesheet" href="/static/stylesheets/application.css">
 {% endblock head %}
 
 {%- block beforeContent -%}
@@ -24,35 +25,62 @@
 {% block pageTitle %}Datasets | Digital Land{% endblock %}
 
 {% block content %}
-<h1 class="govuk-heading-xl">Datasets</h1>
-
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <!-- <p class="govuk-body-l">Collected { resource_count }} brownfield land resources.</p> -->
-        <!-- <p class="govuk-body-l">Collected { collection.resource.records|length }} resources.</p> -->
-    </div>
+	<div class="govuk-grid-column-full">
+
+		<h1 class="govuk-heading-xl">Datasets</h1>
+
+    <p class="govuk-body">Contents</p>
+    <ul class="govuk-list govuk-list--bullet">
+		{% for theme in themes.keys() %}
+			<li><a href="#{{ theme }}">{{ theme | capitalize }}</a></li>
+		{% endfor %}
+    </ul>
+
+	</div>
 </div>
 
-{% for theme in themes.keys() %}
-    {{ theme }} - datatsets = {{ themes[theme]['dataset']|length }}<br />
-{% endfor %}
+<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
-<ul class="govuk-list">
-    {% for d in datasets %}
-        <li>
-            <h3 class="govuk-heading-s" style="word-break: break-all;"><a href=/dataset/{{ d['dataset'] }}>{{ d['name'] }}</a></h3>
-            <ul class="govuk-list">
-                <li><span>{{ d["description"] }}</span></li>
-            </ul>
-            <!--     <li><span>Organisation(s):</span>{ for organisation in r['organisations']|split_to_list %} -->
-            <!--         <a href="{ organisation|organisation_id_to_url }}" class="govuk-link">{ organisation|organisation_id_to_name }}</a> -->
-            <!--     { endfor %}</li> -->
-            <!--     <li><span>First collected on</span> { r['start-date'] }}</li> -->
-            <!--     <li><span>Last collected on</span> { r['end-date'] }}</li> -->
-            <!--     <li><span>Endpoints</span> { r['endpoints']|split_to_list|length }}</li> -->
-        </li>
+<form class="filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-filter="form">
+  <label class="filter-list__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
+  <input class="filter-list__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Harrogate Borough Council">
+</form>
+
+
+{% for theme in themes.keys() %}
+
+<div class="govuk-grid-row org-count">
+  <div class="govuk-grid-column-one-third">
+		{% set plural = theme | capitalize %}
+   {% if themes[theme]['dataset']|length == 1 %}
+     {% set are = "is" %}
+   {% else %}
+     {% set are = "are" %}
+   {% endif %}
+    <h2 class="govuk-heading-m org-count__name" id="{{tag}}">{{plural}}</h2>
+    <div class="org-count__wrapper">
+      <p class="govuk-visually-hidden">There {{are}}
+        <span class="js-accessible-list-count">{{ themes[theme]['dataset']|length }}</span>
+        {{plural}}
+      </p>
+      <span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-count" aria-hidden="true">{{ themes[theme]['dataset']|length }}</span>
+    </div>
+  </div>
+
+	<div class="govuk-grid-column-two-thirds">
+    <ol class="org-list" data-filter="list">
+		{% for dataset in themes[theme]['dataset']|sort(attribute='name')  %}
+      <li class="org-list__item" data-filter="item">
+        <a href="#" class="govuk-link org-list__item-title">{{ dataset.name }}</a>
+      </li>
     {% endfor %}
-</ul>
+    </ol>
+  </div>
+
+</div>
+
+{% endfor %}
 
 {% endblock %}
