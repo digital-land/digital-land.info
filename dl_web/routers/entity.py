@@ -11,8 +11,21 @@ from starlette.responses import JSONResponse
 from dl_web.queries import EntityGeoQuery
 from dl_web.resources import get_view_model, specification, templates
 
+from ..resources import fetch
+
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+datasette_url = "https://datasette.digital-land.info/"
+
+def create_dict(keys_list, values_list):
+    zip_iterator = zip(keys_list, values_list)
+    return dict(zip_iterator)
+
+async def get_typologies():
+    url = f"{datasette_url}digital-land/typology.json"
+    logger.info("get_typologies: %s", url)
+    return await fetch(url)
 
 
 def fetch_entity_metadata(
@@ -158,15 +171,20 @@ def get_entity_as_html(
 
 
 @router.get("/", response_class=HTMLResponse)
-def search_entity(
+async def search_entity(
     request: Request,
     longitude: Optional[float] = None,
     latitude: Optional[float] = None,
 ):
+    response = await get_typologies()
+    typologies = [create_dict(response["columns"], row) for row in response["rows"]]
     data = []
+    print(request.query_params['test'])
+    for param, v in request.query_params.items():
+        print("param", param)
     if longitude and latitude:
         data = _do_geo_query(longitude, latitude)
-    return templates.TemplateResponse("search.html", {"request": request, "data": data})
+    return templates.TemplateResponse("search.html", {"request": request, "data": data, "typologies": typologies})
 
 
 @router.get(".geojson", response_class=JSONResponse)

@@ -7,6 +7,7 @@
 {%- from "govuk-jinja-components/components/button/macro.jinja" import govukButton %}
 {%- from "govuk-jinja-components/components/tag/macro.jinja" import govukTag -%}
 {%- from "digital-land-frontend/components/map/macro.html" import dlMap %}
+{%- from "digital-land-frontend/components/filter-group/macro.html" import dlFilterGroup %}
 
 {% block head %}
   {{ super() }}
@@ -27,6 +28,27 @@
 
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-one-third">
+            <form action="">
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Typology",
+                  "is_open": False,
+                  "selected": 0
+                }) %}
+                <div class="govuk-checkboxes">
+                  {% for typology in typologies %}
+                  <div class="govuk-checkboxes__item">
+                    <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="type" type="checkbox" value="{{ typology['typology'] }}">
+                    <label class="govuk-label govuk-checkboxes__label" for="typology-{{loop.index}}">
+                      {{ typology['name'] }}
+                    </label>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endcall %}
+              </div>
+            </form>
+
             <form action="/entity" method="get" class="app-search">
 
               {{ govukInput({
@@ -55,6 +77,8 @@
           </div>
           <!-- /.govuk-grid-column-one-third -->
           <div class="govuk-grid-column-two-thirds">
+
+            {{ request.query_params }}
 
             {% if data and data.count > 0 %}
               <div class="app-results-summary">
@@ -194,4 +218,17 @@
         })
     </script>
   {% endif %}
+  <script>
+    // Initialise back to top
+    var $filters = document.querySelectorAll('[data-module="selected-counter"]')
+    $filters.forEach(filter => {
+      new window.DLFrontend.SelectedCounter(filter).init()
+    })
+    
+    var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
+    $filterCheckboxes.forEach(el => {
+      new window.DLFrontend.FilterCheckboxes(el).init()
+    })
+    
+    </script>
 {% endblock bodyEnd %}
