@@ -73,7 +73,7 @@
 			<ol class="org-list" data-filter="list">
 			{% for dataset in themes[theme]['dataset']|sort(attribute='name')  %}
 				<li class="org-list__item" data-filter="item">
-					<a href="#" class="govuk-link org-list__item-title">{{ dataset.name }}</a>
+					<a href="{{ dataset.dataset }}" class="govuk-link org-list__item-title">{{ dataset.name }}</a>
 				</li>
 			{% endfor %}
 			</ol>
