@@ -231,7 +231,7 @@ async def search_entity(
     if longitude and latitude:
         data = _do_geo_query(longitude, latitude)
     return templates.TemplateResponse(
-        "search.html",
+        "search-facets.html",
         {
             "request": request,
             "data": data,
