@@ -5284,3 +5284,6 @@ abbr {
 
 .filter-group__heading {
   margin-bottom: 0; }
+
+.filter-group__auto-filter__input {
+  padding-left: 30px; }

@@ -18,13 +18,21 @@ logger = logging.getLogger(__name__)
 
 datasette_url = "https://datasette.digital-land.info/"
 
+
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)
     return dict(zip_iterator)
 
+
 async def get_typologies():
     url = f"{datasette_url}digital-land/typology.json"
     logger.info("get_typologies: %s", url)
+    return await fetch(url)
+
+
+async def get_datasets_with_theme():
+    url = f"{datasette_url}digital-land.json?sql=SELECT%0D%0A++DISTINCT+dataset.dataset%2C%0D%0A++dataset.name%2C%0D%0A++dataset.plural%2C%0D%0A++dataset.typology%2C%0D%0A++%28%0D%0A++++CASE%0D%0A++++++WHEN+pipeline.pipeline+IS+NOT+NULL+THEN+1%0D%0A++++++WHEN+pipeline.pipeline+IS+NULL+THEN+0%0D%0A++++END%0D%0A++%29+AS+dataset_active%2C%0D%0A++GROUP_CONCAT%28dataset_theme.theme%2C+%22%3B%22%29+AS+dataset_themes%0D%0AFROM%0D%0A++dataset%0D%0A++LEFT+JOIN+pipeline+ON+dataset.dataset+%3D+pipeline.pipeline%0D%0A++INNER+JOIN+dataset_theme+ON+dataset.dataset+%3D+dataset_theme.dataset%0D%0Agroup+by%0D%0A++dataset.dataset%0D%0Aorder+by%0D%0Adataset.name+ASC"
+    logger.info("get_datasets_with_themes: %s", url)
     return await fetch(url)
 
 
@@ -176,15 +184,30 @@ async def search_entity(
     longitude: Optional[float] = None,
     latitude: Optional[float] = None,
 ):
+    # typology facet
     response = await get_typologies()
     typologies = [create_dict(response["columns"], row) for row in response["rows"]]
+    # dataset facet
+    response = await get_datasets_with_theme()
+    dataset_results = [
+        create_dict(response["columns"], row) for row in response["rows"]
+    ]
+    datasets = [d for d in dataset_results if d["dataset_active"]]
     data = []
-    print(request.query_params['test'])
+    print(request.query_params["test"])
     for param, v in request.query_params.items():
         print("param", param)
     if longitude and latitude:
         data = _do_geo_query(longitude, latitude)
-    return templates.TemplateResponse("search.html", {"request": request, "data": data, "typologies": typologies})
+    return templates.TemplateResponse(
+        "search.html",
+        {
+            "request": request,
+            "data": data,
+            "typologies": typologies,
+            "datasets": datasets,
+        },
+    )
 
 
 @router.get(".geojson", response_class=JSONResponse)

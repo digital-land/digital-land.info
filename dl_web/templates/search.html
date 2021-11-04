@@ -47,6 +47,37 @@
                 </div>
                 {% endcall %}
               </div>
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Dataset",
+                  "is_open": False,
+                  "selected": 0
+                }) %}
+                <div class="govuk-checkboxes" data-module="filter-checkboxes">
+                  <div class="filter-group__auto-filter">
+                    <label for="input-f3852fb8" class="govuk-label govuk-visually-hidden">
+                    Filter Show only
+                    </label>
+                    <input name="option-select-filter" id="input-f3852fb8" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
+                  </div>
+
+                  <div role="group">
+                    <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
+                  
+                    <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
+                      {% for dataset in datasets %}
+                      <div class="govuk-checkboxes__item">
+                        <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="type" type="checkbox" value="{{ dataset['dataset'] }}">
+                        <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
+                          {{ dataset['name'] }}
+                        </label>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                {% endcall %}
+              </div>
             </form>
 
             <form action="/entity" method="get" class="app-search">
