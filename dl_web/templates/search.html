@@ -118,6 +118,44 @@
                 {% endcall %}
               </div>
 
+              <!-- filter by entry type -->
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Entry",
+                  "is_open": False,
+                  "selected": 0
+                }) %}
+                <fieldset class="govuk-fieldset">
+                  <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                    <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                      Which type of entries do you want to see?
+                    </h1>
+                  </legend>
+                  <div class="govuk-radios">
+                    <div class="govuk-radios__item">
+                      <input class="govuk-radios__input" id="entry" name="entry" type="radio" value="all" checked=checked>
+                      <label class="govuk-label govuk-radios__label" for="entry">
+                        All
+                      </label>
+                    </div>
+                    <div class="govuk-radios__item">
+                      <input class="govuk-radios__input" id="entry-2" name="entry" type="radio" value="current">
+                      <label class="govuk-label govuk-radios__label" for="entry-2">
+                        Current
+                      </label>
+                    </div>
+                    <div class="govuk-radios__item">
+                      <input class="govuk-radios__input" id="entry-3" name="entry" type="radio" value="historical">
+                      <label class="govuk-label govuk-radios__label" for="entry-3">
+                        Historical
+                      </label>
+                    </div>
+                  </div>
+              
+                </fieldset>
+                {% endcall %}
+              </div>
+
             </form>
 
             <form action="/entity" method="get" class="app-search">
