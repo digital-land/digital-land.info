@@ -184,7 +184,7 @@ def get_entity_as_html(
     )
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("-search", response_class=HTMLResponse)
 async def search_entity(
     request: Request,
     longitude: Optional[float] = None,
@@ -204,12 +204,8 @@ async def search_entity(
     local_authorities = [
         create_dict(response["columns"], row) for row in response["rows"]
     ]
-    print("local authority districts: ", len(local_authorities))
 
     data = []
-    print(request.query_params["test"])
-    for param, v in request.query_params.items():
-        print("param", param)
     if longitude and latitude:
         data = _do_geo_query(longitude, latitude)
     return templates.TemplateResponse(
