@@ -1,4 +1,11 @@
+import logging
+import urllib
+
 from digital_land.view_model import JSONQueryHelper
+
+from dl_web.resources import fetch
+
+logger = logging.getLogger(__name__)
 
 
 class EntityGeoQuery:
@@ -27,3 +34,17 @@ class EntityGeoQuery:
             f"{self.url_base}.json", params={"sql": sql}
         )
         return JSONQueryHelper.get(query_url).json()
+
+
+class EntityQuery:
+    def __init__(self, url_base="https://datasette.digital-land.info/entity"):
+        self.url_base = url_base
+
+    async def get_entity(self, **params):
+        q = {}
+        for key, val in params.items():
+            q[f"{key}__exact"] = val
+        q = urllib.parse.urlencode(q)
+        url = f"{self.url_base}/entity.json?_shape=objects&{q}"
+        logger.info(f"get_entity: {url}")
+        return await fetch(url)
