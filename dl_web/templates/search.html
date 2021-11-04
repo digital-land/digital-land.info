@@ -8,6 +8,7 @@
 {%- from "govuk-jinja-components/components/tag/macro.jinja" import govukTag -%}
 {%- from "digital-land-frontend/components/map/macro.html" import dlMap %}
 {%- from "digital-land-frontend/components/filter-group/macro.html" import dlFilterGroup %}
+{%- from "digital-land-frontend/components/dl-helpers.html" import random_int %}
 
 {% block head %}
   {{ super() }}
@@ -29,6 +30,7 @@
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-one-third">
             <form action="">
+              <!-- typology facet -->
               <div class="govuk-form-group">
                 {% call dlFilterGroup({
                   "title": "Typology",
@@ -38,7 +40,7 @@
                 <div class="govuk-checkboxes">
                   {% for typology in typologies %}
                   <div class="govuk-checkboxes__item">
-                    <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="type" type="checkbox" value="{{ typology['typology'] }}">
+                    <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="typology" type="checkbox" value="{{ typology['typology'] }}">
                     <label class="govuk-label govuk-checkboxes__label" for="typology-{{loop.index}}">
                       {{ typology['name'] }}
                     </label>
@@ -47,6 +49,8 @@
                 </div>
                 {% endcall %}
               </div>
+
+              <!-- dataset facet -->
               <div class="govuk-form-group">
                 {% call dlFilterGroup({
                   "title": "Dataset",
@@ -54,11 +58,12 @@
                   "selected": 0
                 }) %}
                 <div class="govuk-checkboxes" data-module="filter-checkboxes">
+                  {%- set randomID_input = random_int(5) %}
                   <div class="filter-group__auto-filter">
-                    <label for="input-f3852fb8" class="govuk-label govuk-visually-hidden">
+                    <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
                     Filter Show only
                     </label>
-                    <input name="option-select-filter" id="input-f3852fb8" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
+                    <input name="option-select-filter" id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
                   </div>
 
                   <div role="group">
@@ -67,7 +72,7 @@
                     <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
                       {% for dataset in datasets %}
                       <div class="govuk-checkboxes__item">
-                        <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="type" type="checkbox" value="{{ dataset['dataset'] }}">
+                        <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}">
                         <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
                           {{ dataset['name'] }}
                         </label>
@@ -78,6 +83,41 @@
                 </div>
                 {% endcall %}
               </div>
+
+              <!-- local authority district facet -->
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Location",
+                  "is_open": False,
+                  "selected": 0
+                }) %}
+                <div class="govuk-checkboxes" data-module="filter-checkboxes">
+                  {%- set randomID_input = random_int(5) %}
+                  <div class="filter-group__auto-filter">
+                    <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
+                    Filter Show only
+                    </label>
+                    <input name="option-select-filter" id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
+                  </div>
+
+                  <div role="group">
+                    <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
+                  
+                    <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
+                      {% for district in local_authorities %}
+                      <div class="govuk-checkboxes__item">
+                        <input class="govuk-checkboxes__input" id="geography-{{loop.index}}" name="geography" type="checkbox" value="{{ district['statistical_geography'] }}">
+                        <label class="govuk-label govuk-checkboxes__label" for="geography-{{loop.index}}">
+                          {{ district['name'] }} district
+                        </label>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                {% endcall %}
+              </div>
+
             </form>
 
             <form action="/entity" method="get" class="app-search">

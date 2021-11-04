@@ -36,6 +36,12 @@ async def get_datasets_with_theme():
     return await fetch(url)
 
 
+async def get_local_authorities():
+    url = f"{datasette_url}digital-land.json?sql=select%0D%0A++addressbase_custodian%2C%0D%0A++billing_authority%2C%0D%0A++census_area%2C%0D%0A++combined_authority%2C%0D%0A++company%2C%0D%0A++end_date%2C%0D%0A++entity%2C%0D%0A++entry_date%2C%0D%0A++esd_inventory%2C%0D%0A++local_authority_type%2C%0D%0A++local_resilience_forum%2C%0D%0A++name%2C%0D%0A++official_name%2C%0D%0A++opendatacommunities_area%2C%0D%0A++opendatacommunities_organisation%2C%0D%0A++organisation%2C%0D%0A++region%2C%0D%0A++shielding_hub%2C%0D%0A++start_date%2C%0D%0A++statistical_geography%2C%0D%0A++twitter%2C%0D%0A++website%2C%0D%0A++wikidata%2C%0D%0A++wikipedia%0D%0Afrom%0D%0A++organisation%0D%0Awhere%0D%0A++%22organisation%22+like+%22%25local-authority-eng%25%22%0D%0Aorder+by%0D%0A++organisation%0D%0A&p0=%25local-authority-eng%25"
+    logger.info("get_local_authorities: %s", url)
+    return await fetch(url)
+
+
 def fetch_entity_metadata(
     view_model: ViewModel,
     entity: int,
@@ -193,6 +199,13 @@ async def search_entity(
         create_dict(response["columns"], row) for row in response["rows"]
     ]
     datasets = [d for d in dataset_results if d["dataset_active"]]
+    # local-authority-district facet
+    response = await get_local_authorities()
+    local_authorities = [
+        create_dict(response["columns"], row) for row in response["rows"]
+    ]
+    print("local authority districts: ", len(local_authorities))
+
     data = []
     print(request.query_params["test"])
     for param, v in request.query_params.items():
@@ -204,8 +217,9 @@ async def search_entity(
         {
             "request": request,
             "data": data,
-            "typologies": typologies,
             "datasets": datasets,
+            "local_authorities": local_authorities,
+            "typologies": typologies,
         },
     )
 
