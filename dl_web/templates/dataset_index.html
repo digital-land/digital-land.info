@@ -34,8 +34,12 @@
     </div>
 </div>
 
+{% for theme in themes.keys() %}
+    {{ theme }} - datatsets = {{ themes[theme]['dataset']|length }}<br />
+{% endfor %}
+
 <ul class="govuk-list">
-    {% for d in datasets.values() %}
+    {% for d in datasets %}
         <li>
             <h3 class="govuk-heading-s" style="word-break: break-all;"><a href=/dataset/{{ d['dataset'] }}>{{ d['name'] }}</a></h3>
             <ul class="govuk-list">
