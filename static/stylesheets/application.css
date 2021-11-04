@@ -5287,3 +5287,19 @@ abbr {
 
 .filter-group__auto-filter__input {
   padding-left: 30px; }
+
+.filter-group > .filter-group__heading {
+  padding: 5px 10px 10px; }
+
+.filter-group > .filter-group__body {
+  padding: 10px; }
+
+.filter-group__body {
+  background: #ffffff; }
+  .filter-group__body .govuk-form-group {
+    margin-bottom: 15px; }
+    @media (min-width: 40.0625em) {
+      .filter-group__body .govuk-form-group {
+        margin-bottom: 15px; } }
+  .filter-group__body .govuk-form-group:last-child {
+    margin-bottom: 0; }

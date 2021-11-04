@@ -15,3 +15,25 @@
 .filter-group__auto-filter__input {
   padding-left: 30px;
 }
+
+.filter-group {
+  & > .filter-group__heading {
+    padding: 5px 10px 10px;
+  }
+
+  & > .filter-group__body {
+    padding: 10px;
+  }
+}
+
+.filter-group__body {
+  background: govuk-colour('white');
+
+  .govuk-form-group {
+    @include govuk-responsive-margin(3, 'bottom');
+  }
+
+  .govuk-form-group:last-child {
+    margin-bottom: 0;
+  }
+}

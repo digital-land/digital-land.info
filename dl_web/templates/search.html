@@ -29,7 +29,7 @@
 
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-one-third">
-            <form action="">
+            <form action="/entity" method="get">
               <!-- typology facet -->
               <div class="govuk-form-group">
                 {% call dlFilterGroup({
@@ -155,6 +155,81 @@
                 </fieldset>
                 {% endcall %}
               </div>
+
+              <!-- filter by entry date -->
+              <div class="filter-group govuk-!-margin-bottom-6">
+                <h3 class="filter-group__heading govuk-heading-s">Entry date</h3>
+                <div class="filter-group__body">
+
+                  <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" role="group" aria-describedby="entry-date-hint">
+                      <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                          Which date are you interested in?
+                        </h1>
+                      </legend>
+                      <div id="entry-date-hint" class="govuk-hint">
+                        For example, 27 3 2021
+                      </div>
+                      <div class="govuk-date-input" id="entry-date">
+                        <div class="govuk-date-input__item">
+                          <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="entry-date-day">
+                              Day
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-day" name="entry-date-day" type="text" pattern="[0-9]*" inputmode="numeric">
+                          </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                          <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="entry-date-month">
+                              Month
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-month" name="entry-date-month" type="text" pattern="[0-9]*" inputmode="numeric">
+                          </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                          <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="entry-date-year">
+                              Year
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="entry-date-year" name="entry-date-year" type="text" pattern="[0-9]*" inputmode="numeric">
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+                    
+                  <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                      <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                          Do you want to see entries since the date or after the date?
+                        </h1>
+                      </legend>
+                      <div class="govuk-radios">
+                        <div class="govuk-radios__item">
+                          <input class="govuk-radios__input" id="entry-date_period" name="entry-date_period" type="radio" value="since">
+                          <label class="govuk-label govuk-radios__label" for="entry-date_period">
+                            Since
+                          </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                          <input class="govuk-radios__input" id="entry-date_period-2" name="entry-date_period" type="radio" value="before">
+                          <label class="govuk-label govuk-radios__label" for="entry-date_period-2">
+                            Before
+                          </label>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+
+                </div>
+              </div>
+
+              {{ govukButton({
+                "text": "Search"
+              }) }}
 
             </form>
 
