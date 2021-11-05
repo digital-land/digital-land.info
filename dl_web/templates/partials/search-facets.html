@@ -1,0 +1,210 @@
+<form action="{{ search_form_url }}" method="get">
+
+  {%- if typologies %}
+  <!-- typology facet -->
+  <div class="govuk-form-group">
+    {% call dlFilterGroup({
+      "title": "Typology",
+      "is_open": True,
+      "selected": 0
+    }) %}
+    <div class="govuk-checkboxes">
+      {% for typology in typologies %}
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="typology" type="checkbox" value="{{ typology['typology'] }}">
+        <label class="govuk-label govuk-checkboxes__label" for="typology-{{loop.index}}">
+          {{ typology['name'] }}
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+    {% endcall %}
+  </div>
+  {% endif -%}
+
+  {%- if datasets %}
+  <!-- dataset facet -->
+  <div class="govuk-form-group">
+    {% call dlFilterGroup({
+      "title": "Dataset",
+      "is_open": True,
+      "selected": 0
+    }) %}
+    <div class="govuk-checkboxes" data-module="filter-checkboxes">
+      {%- set randomID_input = random_int(5) %}
+      <div class="filter-group__auto-filter">
+        <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
+        Filter Show only
+        </label>
+        <input id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
+      </div>
+
+      <div role="group">
+        <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
+      
+        <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
+          {% for dataset in datasets %}
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}">
+            <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
+              {{ dataset['name'] }}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endcall %}
+  </div>
+  {% endif -%}
+
+  {%- if local_authorities %}
+  <!-- local authority district facet -->
+  <div class="govuk-form-group">
+    {% call dlFilterGroup({
+      "title": "Location",
+      "is_open": False,
+      "selected": 0
+    }) %}
+    <div class="govuk-checkboxes" data-module="filter-checkboxes">
+      {%- set randomID_input = random_int(5) %}
+      <div class="filter-group__auto-filter">
+        <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
+        Filter Show only
+        </label>
+        <input id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
+      </div>
+
+      <div role="group">
+        <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
+      
+        <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
+          {% for district in local_authorities %}
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="geography-{{loop.index}}" name="geography" type="checkbox" value="{{ district['statistical_geography'] }}">
+            <label class="govuk-label govuk-checkboxes__label" for="geography-{{loop.index}}">
+              {{ district['name'] }} district
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endcall %}
+  </div>
+  {% endif -%}
+
+  <!-- filter by entry type -->
+  <div class="govuk-form-group">
+    {% call dlFilterGroup({
+      "title": "Entry",
+      "is_open": False,
+      "selected": 1
+    }) %}
+    <fieldset class="govuk-fieldset">
+      <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+          Which type of entries do you want to see?
+        </h1>
+      </legend>
+      <div class="govuk-radios">
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="entry" name="entry" type="radio" value="all" checked=checked>
+          <label class="govuk-label govuk-radios__label" for="entry">
+            All
+          </label>
+        </div>
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="entry-2" name="entry" type="radio" value="current">
+          <label class="govuk-label govuk-radios__label" for="entry-2">
+            Current
+          </label>
+        </div>
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="entry-3" name="entry" type="radio" value="historical">
+          <label class="govuk-label govuk-radios__label" for="entry-3">
+            Historical
+          </label>
+        </div>
+      </div>
+  
+    </fieldset>
+    {% endcall %}
+  </div>
+
+  <!-- filter by entry date -->
+  <div class="filter-group govuk-!-margin-bottom-6">
+    <h3 class="filter-group__heading govuk-heading-s">Entry date</h3>
+    <div class="filter-group__body">
+
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset" role="group" aria-describedby="entry-date-hint">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+            <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+              Which date are you interested in?
+            </h1>
+          </legend>
+          <div id="entry-date-hint" class="govuk-hint">
+            For example, 27 3 2021
+          </div>
+          <div class="govuk-date-input" id="entry-date">
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="entry-date-day">
+                  Day
+                </label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-day" name="entry-date-day" type="text" pattern="[0-9]*" inputmode="numeric">
+              </div>
+            </div>
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="entry-date-month">
+                  Month
+                </label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-month" name="entry-date-month" type="text" pattern="[0-9]*" inputmode="numeric">
+              </div>
+            </div>
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="entry-date-year">
+                  Year
+                </label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="entry-date-year" name="entry-date-year" type="text" pattern="[0-9]*" inputmode="numeric">
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+        
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+            <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+              Do you want to see entries since the date or after the date?
+            </h1>
+          </legend>
+          <div class="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="entry-date_period" name="entry-date_period" type="radio" value="since">
+              <label class="govuk-label govuk-radios__label" for="entry-date_period">
+                Since
+              </label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="entry-date_period-2" name="entry-date_period" type="radio" value="before">
+              <label class="govuk-label govuk-radios__label" for="entry-date_period-2">
+                Before
+              </label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+    </div>
+  </div>
+
+  {{ govukButton({
+    "text": "Search"
+  }) }}
+
+</form>

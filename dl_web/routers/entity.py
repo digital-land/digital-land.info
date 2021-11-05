@@ -205,7 +205,7 @@ def get_entity_as_html(
     },
     response_class=HTMLResponse,
 )
-def search(
+async def search(
     request: Request,
     # filter entries
     theme: Optional[List[str]] = Query(None),
@@ -294,8 +294,32 @@ def search(
     if accept == "text/json" or suffix == "json":
         return JSONResponse(data)
 
+    # typology facet
+    response = await get_typologies()
+    typologies = [create_dict(response["columns"], row) for row in response["rows"]]
+    # dataset facet
+    response = await get_datasets_with_theme()
+    dataset_results = [
+        create_dict(response["columns"], row) for row in response["rows"]
+    ]
+    datasets = [d for d in dataset_results if d["dataset_active"]]
+    # local-authority-district facet
+    response = await get_local_authorities()
+    local_authorities = [
+        create_dict(response["columns"], row) for row in response["rows"]
+    ]
+
     # default is HTML
-    return templates.TemplateResponse("search.html", {"request": request, "data": data})
+    return templates.TemplateResponse(
+        "search.html",
+        {
+            "request": request,
+            "data": data,
+            "datasets": datasets,
+            "local_authorities": local_authorities,
+            "typologies": typologies,
+        },
+    )
 
 
 @router.get("-search", response_class=HTMLResponse)
