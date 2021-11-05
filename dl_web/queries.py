@@ -171,6 +171,9 @@ class EntityQuery:
             sql += where + geospatial
             where = " AND "
 
+        if p.get("next_entity", ""):
+            sql += where + " entity.entity > %s" % (sqlescape(str(p["next_entity"])))
+
         sql += " ORDER BY entity.entity"
         sql += " LIMIT %s" % (sqlescape(str(p.get("limit", 10))))
         print(sql)
