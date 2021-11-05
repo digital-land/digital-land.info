@@ -1,0 +1,418 @@
+{%- extends "digital-land-frontend/dlf-base.html" %}
+{% block page_title %}Entity search prototype{% endblock %}
+{% set includesMap = true %}
+{%- from "digital-land-frontend/components/feedback-panel/macro.html" import dlFeedbackPanel %}
+{%- from "govuk-jinja-components/components/input/macro.jinja" import govukInput %}
+{%- from "govuk-jinja-components/components/fieldset/macro.jinja" import govukFieldset %}
+{%- from "govuk-jinja-components/components/button/macro.jinja" import govukButton %}
+{%- from "govuk-jinja-components/components/tag/macro.jinja" import govukTag -%}
+{%- from "digital-land-frontend/components/map/macro.html" import dlMap %}
+{%- from "digital-land-frontend/components/filter-group/macro.html" import dlFilterGroup %}
+{%- from "digital-land-frontend/components/dl-helpers.html" import random_int %}
+
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/stylesheets/application.css">
+{% endblock %}
+
+{% block main %}
+  <main id="content" role="main">
+    <section class="govuk-width-container govuk-!-padding-top-6 govuk-!-padding-bottom-6">
+
+      {% call govukFieldset({
+					"legend": {
+						"text": "Search for planning and housing data",
+						"classes": "govuk-fieldset__legend--l govuk-!-margin-bottom-8",
+						"isPageHeading": true
+					}
+				}) %}
+
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-one-third">
+            <form action="/entity-search" method="get">
+              <!-- typology facet -->
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Typology",
+                  "is_open": True,
+                  "selected": 0
+                }) %}
+                <div class="govuk-checkboxes">
+                  {% for typology in typologies %}
+                  <div class="govuk-checkboxes__item">
+                    <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="typology" type="checkbox" value="{{ typology['typology'] }}">
+                    <label class="govuk-label govuk-checkboxes__label" for="typology-{{loop.index}}">
+                      {{ typology['name'] }}
+                    </label>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endcall %}
+              </div>
+
+              <!-- dataset facet -->
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Dataset",
+                  "is_open": True,
+                  "selected": 0
+                }) %}
+                <div class="govuk-checkboxes" data-module="filter-checkboxes">
+                  {%- set randomID_input = random_int(5) %}
+                  <div class="filter-group__auto-filter">
+                    <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
+                    Filter Show only
+                    </label>
+                    <input id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
+                  </div>
+
+                  <div role="group">
+                    <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
+                  
+                    <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
+                      {% for dataset in datasets %}
+                      <div class="govuk-checkboxes__item">
+                        <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}">
+                        <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
+                          {{ dataset['name'] }}
+                        </label>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                {% endcall %}
+              </div>
+
+              <!-- local authority district facet -->
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Location",
+                  "is_open": False,
+                  "selected": 0
+                }) %}
+                <div class="govuk-checkboxes" data-module="filter-checkboxes">
+                  {%- set randomID_input = random_int(5) %}
+                  <div class="filter-group__auto-filter">
+                    <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
+                    Filter Show only
+                    </label>
+                    <input id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
+                  </div>
+
+                  <div role="group">
+                    <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
+                  
+                    <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
+                      {% for district in local_authorities %}
+                      <div class="govuk-checkboxes__item">
+                        <input class="govuk-checkboxes__input" id="geography-{{loop.index}}" name="geography" type="checkbox" value="{{ district['statistical_geography'] }}">
+                        <label class="govuk-label govuk-checkboxes__label" for="geography-{{loop.index}}">
+                          {{ district['name'] }} district
+                        </label>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                {% endcall %}
+              </div>
+
+              <!-- filter by entry type -->
+              <div class="govuk-form-group">
+                {% call dlFilterGroup({
+                  "title": "Entry",
+                  "is_open": False,
+                  "selected": 1
+                }) %}
+                <fieldset class="govuk-fieldset">
+                  <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                    <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                      Which type of entries do you want to see?
+                    </h1>
+                  </legend>
+                  <div class="govuk-radios">
+                    <div class="govuk-radios__item">
+                      <input class="govuk-radios__input" id="entry" name="entry" type="radio" value="all" checked=checked>
+                      <label class="govuk-label govuk-radios__label" for="entry">
+                        All
+                      </label>
+                    </div>
+                    <div class="govuk-radios__item">
+                      <input class="govuk-radios__input" id="entry-2" name="entry" type="radio" value="current">
+                      <label class="govuk-label govuk-radios__label" for="entry-2">
+                        Current
+                      </label>
+                    </div>
+                    <div class="govuk-radios__item">
+                      <input class="govuk-radios__input" id="entry-3" name="entry" type="radio" value="historical">
+                      <label class="govuk-label govuk-radios__label" for="entry-3">
+                        Historical
+                      </label>
+                    </div>
+                  </div>
+              
+                </fieldset>
+                {% endcall %}
+              </div>
+
+              <!-- filter by entry date -->
+              <div class="filter-group govuk-!-margin-bottom-6">
+                <h3 class="filter-group__heading govuk-heading-s">Entry date</h3>
+                <div class="filter-group__body">
+
+                  <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" role="group" aria-describedby="entry-date-hint">
+                      <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                          Which date are you interested in?
+                        </h1>
+                      </legend>
+                      <div id="entry-date-hint" class="govuk-hint">
+                        For example, 27 3 2021
+                      </div>
+                      <div class="govuk-date-input" id="entry-date">
+                        <div class="govuk-date-input__item">
+                          <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="entry-date-day">
+                              Day
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-day" name="entry-date-day" type="text" pattern="[0-9]*" inputmode="numeric">
+                          </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                          <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="entry-date-month">
+                              Month
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-month" name="entry-date-month" type="text" pattern="[0-9]*" inputmode="numeric">
+                          </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                          <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="entry-date-year">
+                              Year
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="entry-date-year" name="entry-date-year" type="text" pattern="[0-9]*" inputmode="numeric">
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+                    
+                  <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                      <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                          Do you want to see entries since the date or after the date?
+                        </h1>
+                      </legend>
+                      <div class="govuk-radios">
+                        <div class="govuk-radios__item">
+                          <input class="govuk-radios__input" id="entry-date_period" name="entry-date_period" type="radio" value="since">
+                          <label class="govuk-label govuk-radios__label" for="entry-date_period">
+                            Since
+                          </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                          <input class="govuk-radios__input" id="entry-date_period-2" name="entry-date_period" type="radio" value="before">
+                          <label class="govuk-label govuk-radios__label" for="entry-date_period-2">
+                            Before
+                          </label>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+
+                </div>
+              </div>
+
+              {{ govukButton({
+                "text": "Search"
+              }) }}
+
+            </form>
+
+            <form action="/entity-search" method="get" class="app-search">
+
+              {{ govukInput({
+											"label": {
+													"text": "Latitude",
+												},
+												"id": "latitude",
+												"name": "latitude"
+										}) }}
+
+              {{ govukInput({
+											"label": {
+													"text": "Longitude",
+												},
+												"id": "longitude",
+												"name": "longitude"
+										}) }}
+
+              {{ govukButton({
+										"text": "Search",
+										"classes": "govuk-!-margin-bottom-0"
+									}) }}
+
+            </form>
+
+          </div>
+          <!-- /.govuk-grid-column-one-third -->
+          <div class="govuk-grid-column-two-thirds">
+
+            {{ request.query_params }}
+
+            {% if data and data.count > 0 %}
+              <div class="app-results-summary">
+                <h2 class="app-results-summary__title">{{ data.count }} Result{% if data.count > 1 %}s{% endif %}</h2>
+                <ul class="app-facets-summary">
+                  <li class="app-facets-summary-item">
+                    <div class="app-facets-summary-item__title">Location</div>
+                    <div class="app-facets-summary-item__content">
+                      <button class="app-facet-tag" arial-label="Remove filter for Latitude and Longitude">
+														<span class="app-facet-tag__icon" aria-hidden="true">
+																<svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1"
+                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+																		<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+																				<g id="Group" fill="#000000" fill-rule="nonzero">
+																						<path
+                                              d="M2.84386208,29.6395923 C2.1083442,29.6823572 1.38499138,29.4378396 0.826334681,28.9576007 C-0.275444894,27.8492707 -0.275444894,26.0592298 0.826334681,24.9508998 L24.9516952,0.825445695 C26.0976433,-0.246857017 27.8958254,-0.187248253 28.9681281,0.958699821 C29.9377765,1.99497526 29.9942972,3.58775513 29.1004465,4.69009616 L4.83294196,28.9576007 C4.28149071,29.4309149 3.56974148,29.6749646 2.84386208,29.6395923 Z"
+                                              id="Path"></path>
+																						<path
+                                              d="M26.9408687,29.6395923 C26.1954316,29.6364107 25.4809686,29.3405191 24.9516952,28.8155503 L0.8262411,4.69000258 C-0.194500497,3.49801446 -0.0557253049,1.70413689 1.13626282,0.683301721 C2.20014357,-0.22776724 3.76915479,-0.22776724 4.83294196,0.683301721 L29.1004465,24.8087558 C30.2461138,25.8813393 30.3053483,27.679615 29.2327649,28.8252824 C29.1900936,28.8708545 29.1460187,28.9149294 29.1004465,28.9576007 C28.5062304,29.4743348 27.7242046,29.7212854 26.9408687,29.6395923 L26.9408687,29.6395923 Z"
+                                              id="Path"></path>
+																				</g>
+																		</g>
+																</svg>
+														</span>
+                        <span
+                          class="app-facet-tag__label u-font-mono">{{ data.query.latitude | d('Latitude') }},{{ data.query.longitude | d('longitude') }}</span>
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+                <!-- /.app-facets-summary -->
+
+              </div>
+              <!-- /.app-results-summary -->
+
+              <ul class="app-results-list">
+                {% for row in data.results %}
+                  {% set propertiesArr = [
+												{
+													"key": "Dataset",
+													"value": row["dataset"]
+												},
+												{
+													"key": "Name",
+													"value": row["name"]
+												},
+												{
+													"key": "Entry-date",
+													"value": row["entry_date"]
+												},
+												{
+													"key": "Reference",
+													"value": row["reference"]
+												},
+											]  %}
+                  <li class="app-results-list__item">
+                    <article class="app-card app-card--result">
+                      <div class="app-card__header">
+                        <div class="app-card__header__primary">
+                          <h3 class="app-card__title">{{ row["name"] }}</h3>
+                        </div>
+                        <div class="app-card__header__secondary">
+                          {{ govukTag({ "text": row["typology"] }) }}
+                          <dl class="app-card__datalist">
+                            <div class="app-card__datalist__row">
+                              <dd class="app-card__datalist__value"><a href="{{ row["entity"] }}/"
+                                                                       class="govuk-link">{{ row["entity"] }}</a></dd>
+                            </div>
+                          </dl>
+                        </div>
+                      </div>
+
+                      {# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
+                      <div class="app-card__media">
+
+                        {% set mapId = row["entity"] ~ "-map" %}
+                        {{ dlMap({
+                              "id": mapId,
+															"wrapper_classes": "app-card__map-container"
+                            }) }}
+
+                      </div>
+                      <div class="app-card__body">
+
+                        {% if row["description"] %}
+                          <div class="app-card__description">
+                            <p class="govuk-body">{{ row["description"] }}</p>
+                          </div>
+                        {% endif %}
+
+                        <div class="app-card__row">
+                          <div class="app-card__properties">
+                            <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                              {% for property in propertiesArr %}
+                                <div class="govuk-summary-list__row">
+                                  <dt class="govuk-summary-list__key">
+                                    {{ property.key }}
+                                  </dt>
+                                  <dd class="govuk-summary-list__value">
+                                    {{ property.value }}
+                                  </dd>
+                                </div>
+                              {% endfor %}
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                    <!-- /.app-card -->
+                  </li>
+                {% endfor %}
+              </ul>
+              <!-- /.app-results-list -->
+            {% endif %}
+          </div>
+          <!-- /.govuk-grid-column-two-thirds -->
+        </div>
+        <!-- /#search.govuk-grid-row -->
+      {% endcall %}
+    </section>
+  </main>
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  {% if data and data.count > 0 %}
+    <script>
+        const results = {{ data.results|tojson }};
+        results.forEach(function (result) {
+            const mapElementId = result.entity + "-map"
+            const $mapElement = document.getElementById(mapElementId)
+            const dlmap = new DLMaps.Map($mapElement).init({})
+            // create a named map layer so we can use that to fitbounds
+            var mapLayer = L.geoJSON().addTo(dlmap.map);
+            mapLayer.addData(result.geojson);
+            dlmap.map.fitBounds(mapLayer.getBounds())
+        })
+    </script>
+  {% endif %}
+  <script>
+    // Initialise back to top
+    var $filters = document.querySelectorAll('[data-module="selected-counter"]')
+    $filters.forEach(filter => {
+      new window.DLFrontend.SelectedCounter(filter).init()
+    })
+    
+    var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
+    $filterCheckboxes.forEach(el => {
+      new window.DLFrontend.FilterCheckboxes(el).init()
+    })
+    
+    </script>
+{% endblock bodyEnd %}
