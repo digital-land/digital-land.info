@@ -90,6 +90,20 @@
               {% endfor %}
             </div>
             {% endif %}
+            {% if query.params and query.params.get('entries') %}
+            <div class="app-applied-filter__group">
+              <span class="app-applied-filter__name govuk-!-font-weight-bold">Entry:</span>
+              <span class="app-applied-filter__item">
+                {{ removeFilterButton({
+                  "filter": {
+                    "name": "entries",
+                    "value": query.params.get('entries')|replace('EntriesOption.', '')
+                  },
+                  "url": "#"
+                }) }}
+              </span>
+            </div>
+            {% endif %}
           </div>
           {% endif %}
           <!-- /.app-facets-summary -->
