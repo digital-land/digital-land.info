@@ -5156,6 +5156,7 @@ abbr {
     position: sticky;
     bottom: 0px;
     background: #fff;
+    z-index: 1000;
     padding-top: 15px;
     padding-bottom: 15px; }
     @media (min-width: 40.0625em) {

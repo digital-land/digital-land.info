@@ -37,6 +37,7 @@
 		position: sticky;
 		bottom: 0px;
 		background: #fff;
+		z-index: 1000;
 		// border-top: 1px solid $govuk-border-colour;
 		@include govuk-responsive-padding(4, "top");
 		@include govuk-responsive-padding(4, "bottom");
