@@ -20,6 +20,8 @@ class GeometryMatch(str, Enum):
     overlaps = "overlaps"
     crosses = "crosses"
     touches = "touches"
+    equals = "equals"
+    disjoint = "disjoint"
 
 
 class EntriesOption(str, Enum):
