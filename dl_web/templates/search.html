@@ -6,6 +6,8 @@
 {%- from "govuk-jinja-components/components/button/macro.jinja" import govukButton %}
 {%- from "govuk-jinja-components/components/tag/macro.jinja" import govukTag -%}
 {%- from "digital-land-frontend/components/map/macro.html" import dlMap %}
+{%- from "digital-land-frontend/components/filter-group/macro.html" import dlFilterGroup %}
+{%- from "digital-land-frontend/components/dl-helpers.html" import random_int %}
 
 {% block head %}
   {{ super() }}
@@ -19,10 +21,13 @@
 
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-third">
-        <form action="/entity" method="get" class="app-search">
+        {% set search_form_url = "/entity" %}
+        {% include 'partials/search-facets.html' %}
+
+        <!--<form action="/entity" method="get" class="app-search">
           {{ govukInput({ "label": { "text": "Latitude", }, "id": "latitude", "name": "latitude" }) }} {{ govukInput({ "label": { "text": "Longitude", }, "id": "longitude", "name": "longitude" }) }}
           {{ govukButton({ "text": "Search", "classes": "govuk-!-margin-bottom-0" }) }}
-        </form>
+        </form>-->
       </div>
       <!-- /.govuk-grid-column-one-third -->
       <div class="govuk-grid-column-two-thirds">
