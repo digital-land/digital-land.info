@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 datasette_url = "https://datasette.digital-land.info/"
 
 
+
+
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)
     return dict(zip_iterator)
@@ -213,6 +215,8 @@ async def search(
     dataset: Optional[List[str]] = Query(None),
     organisation: Optional[List[str]] = Query(None),
     entity: Optional[List[str]] = Query(None),
+    curie: Optional[List[str]] = Query(None),
+    prefix: Optional[List[str]] = Query(None),
     reference: Optional[List[str]] = Query(None),
     # filter by entry date
     entries: Optional[str] = None,  # all* | current | historical
@@ -266,6 +270,8 @@ async def search(
             "dataset": dataset,
             "organisation": organisation,
             "entity": entity,
+            "curie": curie,
+            "prefix": prefix,
             "reference": reference,
             "entries": entries,
             "entry_start_date": entry_start_date,

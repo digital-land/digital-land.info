@@ -94,11 +94,23 @@ def _do_geo_query(longitude: float, latitude: float):
 
 
 class EntityQuery:
+    lists = ["typology", "dataset", "entity", "prefix", "reference"]
+
     def __init__(
         self, url_base="https://datasette.digital-land.info/entity", params={}
     ):
         self.url_base = url_base
-        self.params = params
+        self.params = self.normalised_params(params)
+
+    def normalised_params(self, params):
+        # remove empty parameters
+        params = {k: v for k, v in params.items() if v is not None}
+
+        # sort/unique list parameters
+        for l in self.lists:
+            if l in params:
+                params[l] = sorted(set(params[l]))
+        return params
 
     async def get_entity(self, **params):
         print(params)
@@ -112,13 +124,13 @@ class EntityQuery:
 
     def point(self):
         p = self.params
-        if p["point"]:
+        if "point" in p and p["point"]:
             return p["point"]
 
         for field in ["longitude", "latitude"]:
             try:
                 p[field] = "%.6f" % round(Decimal(p[field]), 6)
-            except TypeError:
+            except (KeyError, TypeError):
                 return ""
 
         return "POINT(%s %s)" % (p["longitude"], p["latitude"])
@@ -151,7 +163,7 @@ class EntityQuery:
         )
         where = " WHERE "
 
-        for col in ["typology", "dataset", "entity"]:
+        for col in ["typology", "dataset", "entity", "prefix", "reference"]:
             if col in p and p[col]:
                 sql += (
                     where
@@ -165,6 +177,23 @@ class EntityQuery:
                     + ")"
                 )
                 where = " AND "
+
+        # split CURIE values
+        if "curie" in p and p["curie"]:
+            sql += (
+                where
+                + "("
+                + " OR ".join(
+                    [
+                        "(entity.prefix = '{c[0]}' AND entity.reference = '{c[1]}')".format(
+                            c=c.split(":") + ['', '']
+                        )
+                        for c in p["curie"]
+                    ]
+                )
+                + ")"
+            )
+            where = " AND "
 
         geospatial = self.geospatial()
         if geospatial:
@@ -187,11 +216,8 @@ class EntityQuery:
         for row in data.get("rows", []):
             results.append(EntityJson.to_json(row))
 
-        # remove empty parameters
-        params = {k: v for k, v in self.params.items() if v is not None}
-
         response = {
-            "query": params,
+            "query": self.params,
             "count": count,
             "results": results,
         }
