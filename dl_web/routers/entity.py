@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from digital_land.entity_lookup import lookup_by_slug
 from digital_land.view_model import ViewModel
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
 from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse
 
@@ -101,24 +101,6 @@ def lookup_entity(slug: str) -> int:
         raise HTTPException(status_code=404, detail="slug lookup failed")
 
     return entity
-
-
-@router.get("/{entity}/field/{field}/provenance", response_class=HTMLResponse)
-def get_entity_field_provenance_as_html(
-    request: Request,
-    entity: int,
-    field: str,
-    view_model: ViewModel = Depends(get_view_model),
-):
-    return templates.TemplateResponse(
-        "field_provenance.html",
-        {
-            "request": request,
-            "entity": entity,
-            "field": field,
-            "breadcrumb": [],
-        },
-    )
 
 
 # The order of the router methods is important! This needs to go ahead of /{entity}
@@ -223,6 +205,7 @@ def search_entity(
     next_entity: Optional[int] = Query(
         None, description="paginate results from this entity"
     ),
+    accept: Optional[str] = Header(None, description="accepted content-type for results"),
     suffix: Optional[str] = Query(None, description="file format of the results"),
 ):
     query = EntityQuery(
@@ -257,7 +240,7 @@ def search_entity(
     )
     data = query.execute()
 
-    if suffix == "json":
+    if accept == "text/json" or suffix == "json":
         return JSONResponse(data)
 
     # default is HTML
@@ -269,4 +252,5 @@ def get_entity_by_long_lat(
     longitude: float,
     latitude: float,
 ):
+    # TBD: redirect or call search
     return _do_geo_query(longitude, latitude)
