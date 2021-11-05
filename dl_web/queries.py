@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # TBD: replace string concatenation with sqlite3 ? expressions ..
 def sqlescape(s):
-    if s == None:
+    if s is None:
         return ""
     return s.translate(
         s.maketrans(
@@ -152,7 +152,17 @@ class EntityQuery:
 
         for col in ["typology", "dataset", "entity"]:
             if col in p and p[col]:
-                sql += where + "(" + " OR ".join([ "entity.%s = '%s'" % (col, sqlescape(value)) for value in p[col]]) + ")"
+                sql += (
+                    where
+                    + "("
+                    + " OR ".join(
+                        [
+                            "entity.%s = '%s'" % (col, sqlescape(value))
+                            for value in p[col]
+                        ]
+                    )
+                    + ")"
+                )
                 where = " AND "
 
         geospatial = self.geospatial()
@@ -176,7 +186,7 @@ class EntityQuery:
             results.append(EntityJson.to_json(row))
 
         # prune None parameters
-        self.params = {k: v for k, v in self.params.items() if v != None}
+        self.params = {k: v for k, v in self.params.items() if v is None}
 
         response = {
             "query": self.params,

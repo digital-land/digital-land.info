@@ -214,8 +214,12 @@ def search_entity(
     geometry_match: Optional[
         str
     ] = None,  # intersects | within | contains | overlaps | etc
-    related_entity: Optional[List[str]] = Query(None, description="filter by related entity"),
-    limit: Optional[int] = Query(10, description="limit for the number of results", ge=1),
+    related_entity: Optional[List[str]] = Query(
+        None, description="filter by related entity"
+    ),
+    limit: Optional[int] = Query(
+        10, description="limit for the number of results", ge=1
+    ),
     next_entity: Optional[int] = Query(
         None, description="paginate results from this entity"
     ),
@@ -253,7 +257,7 @@ def search_entity(
     )
     data = query.execute()
 
-    if (suffix == "json"):
+    if suffix == "json":
         return JSONResponse(data)
 
     # default is HTML
