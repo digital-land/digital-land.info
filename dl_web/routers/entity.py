@@ -18,8 +18,6 @@ logger = logging.getLogger(__name__)
 datasette_url = "https://datasette.digital-land.info/"
 
 
-
-
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)
     return dict(zip_iterator)

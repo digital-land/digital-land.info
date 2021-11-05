@@ -107,9 +107,9 @@ class EntityQuery:
         params = {k: v for k, v in params.items() if v is not None}
 
         # sort/unique list parameters
-        for l in self.lists:
-            if l in params:
-                params[l] = sorted(set(params[l]))
+        for lst in self.lists:
+            if lst in params:
+                params[lst] = sorted(set(params[lst]))
         return params
 
     async def get_entity(self, **params):
@@ -186,7 +186,7 @@ class EntityQuery:
                 + " OR ".join(
                     [
                         "(entity.prefix = '{c[0]}' AND entity.reference = '{c[1]}')".format(
-                            c=c.split(":") + ['', '']
+                            c=c.split(":") + ["", ""]
                         )
                         for c in p["curie"]
                     ]
