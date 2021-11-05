@@ -68,7 +68,7 @@
                     "name": "typology",
                     "value": filter
                   },
-                  "url": "#"
+                  "url": filter|make_query_str('typology', request.query_params)
                 }) }}
               </span>
               {% endfor %}

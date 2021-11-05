@@ -7,6 +7,7 @@ from digital_land_frontend.filters import (
     register_mapper_filters,
 )
 from fastapi.templating import Jinja2Templates
+from .filters import generate_query_param_str
 
 
 async def fetch(url):
@@ -43,6 +44,8 @@ templates.env.loader = jinja2.ChoiceLoader(
 templates.env.globals["staticPath"] = "/static"
 templates.env.globals["ASSET_PATH"] = "/static"
 templates.env.globals["enable_x_ref"] = True
+
+templates.env.filters["make_query_str"] = generate_query_param_str
 
 register_basic_filters(templates.env, specification)
 register_mapper_filters(templates.env, get_view_model(), specification)
