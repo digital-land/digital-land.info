@@ -20,6 +20,54 @@
 	}
 }
 
+// layout of results
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.app-results-body {
+	position: relative;
+}
+
+.app-results-footer {
+	width: 100%;
+	display: block;
+}
+
+@supports (position: sticky) {
+	.app-results-footer {
+		position: sticky;
+		bottom: 0px;
+		background: #fff;
+		// border-top: 1px solid $govuk-border-colour;
+		@include govuk-responsive-padding(4, "top");
+		@include govuk-responsive-padding(4, "bottom");
+		&:after {
+			content: '';
+			display: block;
+			// background: #f00;
+			height: 3em;
+			position: absolute;
+			bottom: 100%;
+			left: 0;
+			width: 100%;
+			background: rgb(255,255,255);
+			background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+			border-bottom: 1px solid $govuk-border-colour;
+		}
+  }
+}
+
+.app-results-actions__row {
+	display: flex;
+	width: 100%;
+	gap: 1em;
+	align-items: flex-start;
+	flex: 0 0 100%;
+}
+
+.app-results-actions__row-content {
+	flex: 1;
+}
+
 // results active facets
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

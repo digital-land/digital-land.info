@@ -59,5 +59,5 @@ black-check:
 flake8:
 	flake8 .
 
-dev:
-	make -j 2 server-dev generate-assets
+server-dev:
+	make -j 2 server generate-assets

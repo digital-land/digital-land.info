@@ -1,0 +1,14 @@
+.app-list--files {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-evenly;
+  list-style-type: none;
+  width: 100%;
+  .app-list {
+    &__item {
+      margin: 0;
+      padding: 0;
+    }
+  }
+}

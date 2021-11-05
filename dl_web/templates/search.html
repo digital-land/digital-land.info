@@ -64,55 +64,88 @@
         </div>
         <!-- /.app-results-summary -->
 
-        <ul class="app-results-list">
-          {% for row in data.results %} {% set propertiesArr = [ { "key": "Dataset", "value": row["dataset"] }, { "key": "Name", "value": row["name"] }, { "key": "Entry-date", "value":
-          row["entry_date"] }, { "key": "Reference", "value": row["reference"] }, ] %}
-          <li class="app-results-list__item">
-            <article class="app-card app-card--result">
-              <div class="app-card__header">
-                <div class="app-card__header__primary">
-                  <h3 class="app-card__title">{{ row["name"] }}</h3>
-                </div>
-                <div class="app-card__header__secondary">
-                  {{ govukTag({ "text": row["typology"] }) }}
-                  <dl class="app-card__datalist">
-                    <div class="app-card__datalist__row">
-                      <dd class="app-card__datalist__value"><a href="{{ row['entity'] }}/" class="govuk-link">{{ row["entity"] }}</a></dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
+        <div class="app-results-body">
 
-              {# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
-              {% if "geometry" in row["geojson"] %}
-              <div class="app-card__media">{% set mapId = row["entity"] ~ "-map" %} {{ dlMap({ "id": mapId, "wrapper_classes": "app-card__map-container" }) }}</div>
-              {% endif %}
-              <div class="app-card__body">
-                {% if row["description"] %}
-                <div class="app-card__description">
-                  <p class="govuk-body">{{ row["description"] }}</p>
-                </div>
-                {% endif %}
-
-                <div class="app-card__row">
-                  <div class="app-card__properties">
-                    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-                      {% for property in propertiesArr %}
-                      <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                        <dd class="govuk-summary-list__value">{{ property.value }}</dd>
+          <ul class="app-results-list">
+            {% for row in data.results %}
+            {% set propertiesArr = [
+              { "key": "Dataset", "value": row["dataset"] },
+              { "key": "Name", "value": row["name"] },
+              { "key": "Entry-date", "value": row["entry_date"] },
+              { "key": "Reference", "value": row["reference"] },
+            ] %}
+            <li class="app-results-list__item">
+              <article class="app-card app-card--result">
+                <div class="app-card__header">
+                  <div class="app-card__header__primary">
+                    <h3 class="app-card__title">{{ row["name"] }}</h3>
+                  </div>
+                  <div class="app-card__header__secondary">
+                    {{ govukTag({ "text": row["typology"] }) }}
+                    <dl class="app-card__datalist">
+                      <div class="app-card__datalist__row">
+                        <dd class="app-card__datalist__value"><a href="{{ row['entity'] }}/" class="govuk-link">{{ row["entity"] }}</a></dd>
                       </div>
-                      {% endfor %}
                     </dl>
                   </div>
                 </div>
+
+                {# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
+                {% if "geometry" in row["geojson"] %}
+                <div class="app-card__media">{% set mapId = row["entity"] ~ "-map" %} {{ dlMap({ "id": mapId, "wrapper_classes": "app-card__map-container" }) }}</div>
+                {% endif %}
+                <div class="app-card__body">
+                  {% if row["description"] %}
+                  <div class="app-card__description">
+                    <p class="govuk-body">{{ row["description"] }}</p>
+                  </div>
+                  {% endif %}
+
+                  <div class="app-card__row">
+                    <div class="app-card__properties">
+                      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+                        {% for property in propertiesArr %}
+                        <div class="govuk-summary-list__row">
+                          <dt class="govuk-summary-list__key">{{ property.key }}</dt>
+                          <dd class="govuk-summary-list__value">{{ property.value }}</dd>
+                        </div>
+                        {% endfor %}
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <!-- /.app-card -->
+            </li>
+            {% endfor %}
+          </ul>
+          <!-- /.app-results-list -->
+
+          {# Anything within this div becomes 'sticky' to the bottom upon scroll #}
+          <div class="app-results-footer">
+
+            <div class="app-results-actions">
+              <h3 class="app-results-actions__title govuk-heading-s">Download these results</h3>
+              <div class="app-results-actions__row">
+                <div class="app-results-actions__row-title">
+                  <p class="govuk-body">Format:</p>
+                </div>
+                <div class="app-results-actions__row-content">
+                  <ul class="app-list app-list--files">
+                    <li class="app-list__item"><a href="#" class="govuk-link">CSV File</a></li>
+                    <li class="app-list__item"><a href="#" class="govuk-link">JSON</a></li>
+                    <li class="app-list__item"><a href="#" class="govuk-link">geoJSON</a></li>
+                  </ul>
+                </div>
               </div>
-            </article>
-            <!-- /.app-card -->
-          </li>
-          {% endfor %}
-        </ul>
-        <!-- /.app-results-list -->
+            </div>
+
+          </div>
+          <!-- /.app-results-footer -->
+
+        </div>
+        <!-- /.app-results-body -->
+
         {% endif %}
       </div>
       <!-- /.govuk-grid-column-two-thirds -->
