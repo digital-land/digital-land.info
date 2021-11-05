@@ -6,6 +6,7 @@ from digital_land.view_model import ViewModel
 from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
 from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse
+import datetime
 
 from dl_web.queries import EntityQuery, _do_geo_query
 
@@ -229,11 +230,11 @@ async def search(
     entries: Optional[EntriesOption] = Query(
         None, description="Results to include current, or all entries"
     ),
-    entry_start_date: Optional[str] = None,
-    entry_end_date: Optional[str] = None,
-    entry_entry_date: Optional[str] = None,
+    entry_start_date: Optional[datetime.date] = None,
     entry_start_date_match: Optional[DateOption] = None,
+    entry_end_date: Optional[datetime.date] = None,
     entry_end_date_match: Optional[DateOption] = None,
+    entry_entry_date: Optional[datetime.date] = None,
     entry_entry_date_match: Optional[DateOption] = None,
     # find from a geospatial point
     point_entity: Optional[str] = Query(
@@ -285,9 +286,9 @@ async def search(
             "prefix": prefix,
             "reference": reference,
             "entries": entries,
-            "entry_start_date": entry_start_date,
-            "entry_end_date": entry_end_date,
-            "entry_entry_date": entry_entry_date,
+            "entry_start_date": str(entry_start_date),
+            "entry_end_date": str(entry_end_date),
+            "entry_entry_date": str(entry_entry_date),
             "entry_start_date_match": entry_start_date_match,
             "entry_end_date_match": entry_end_date_match,
             "entry_entry_date_match": entry_entry_date_match,
