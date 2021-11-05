@@ -6,12 +6,12 @@
     {% call dlFilterGroup({
       "title": "Typology",
       "is_open": True,
-      "selected": 0
+      "selected": query.params.get('typology')|length if query.params.get('typology') else 0
     }) %}
     <div class="govuk-checkboxes">
       {% for typology in typologies %}
       <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="typology" type="checkbox" value="{{ typology['typology'] }}">
+        <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="typology" type="checkbox" value="{{ typology['typology'] }}" {% if query.params.get('typology') and typology['typology'] in query.params.get('typology') %}checked="checked"{% endif %}>
         <label class="govuk-label govuk-checkboxes__label" for="typology-{{loop.index}}">
           {{ typology['name'] }}
         </label>
@@ -28,7 +28,7 @@
     {% call dlFilterGroup({
       "title": "Dataset",
       "is_open": True,
-      "selected": 0
+      "selected": query.params.get('dataset')|length if query.params.get('dataset') else 0
     }) %}
     <div class="govuk-checkboxes" data-module="filter-checkboxes">
       {%- set randomID_input = random_int(5) %}
@@ -45,7 +45,7 @@
         <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
           {% for dataset in datasets %}
           <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}">
+            <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}" {% if query.params.get('dataset') and dataset['dataset'] in query.params.get('dataset') %}checked="checked"{% endif %}>
             <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
               {{ dataset['name'] }}
             </label>
