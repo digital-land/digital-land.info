@@ -139,16 +139,15 @@ class EntityQuery:
                 point
             )
 
-    def sql(self):
+    def sql(self, count=False):
         p = self.params
-        sql = """
-            SELECT DISTINCT
-                entity.*, geometry.geojson
-            FROM entity
-            LEFT OUTER JOIN geometry on entity.entity = geometry.entity
-            """
+        if count:
+            sql = "SELECT DISTINCT COUNT(*) as _count"
+        else:
+            sql = "SELECT entity.*, geometry.geojson"
 
-        where = "WHERE "
+        sql += " FROM entity LEFT OUTER JOIN geometry on entity.entity = geometry.entity"
+        where = " WHERE "
 
         for col in ["typology", "dataset", "entity"]:
             if col in p and p[col]:
@@ -175,12 +174,12 @@ class EntityQuery:
         print(sql)
         return sql
 
-    def url(self):
+    def url(self, sql):
         return JSONQueryHelper.make_url(
-            self.url_base + ".json", params={"sql": self.sql()}
+            self.url_base + ".json", params={"sql": sql}
         )
 
-    def response(self, data):
+    def response(self, data, count):
         results = []
         for row in data.get("rows", []):
             results.append(EntityJson.to_json(row))
@@ -190,11 +189,12 @@ class EntityQuery:
 
         response = {
             "query": params,
-            "count": len(results),
+            "count": count,
             "results": results,
         }
         return response
 
     def execute(self):
-        data = JSONQueryHelper.get(self.url()).json()
-        return self.response(data)
+        count = JSONQueryHelper.get(self.url(self.sql(count=True))).json()["rows"][0]["_count"]
+        data = JSONQueryHelper.get(self.url(self.sql())).json()
+        return self.response(data, count)
