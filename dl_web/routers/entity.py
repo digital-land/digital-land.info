@@ -205,7 +205,9 @@ def search_entity(
     next_entity: Optional[int] = Query(
         None, description="paginate results from this entity"
     ),
-    accept: Optional[str] = Header(None, description="accepted content-type for results"),
+    accept: Optional[str] = Header(
+        None, description="accepted content-type for results"
+    ),
     suffix: Optional[str] = Query(None, description="file format of the results"),
 ):
     query = EntityQuery(

@@ -146,7 +146,9 @@ class EntityQuery:
         else:
             sql = "SELECT entity.*, geometry.geojson"
 
-        sql += " FROM entity LEFT OUTER JOIN geometry on entity.entity = geometry.entity"
+        sql += (
+            " FROM entity LEFT OUTER JOIN geometry on entity.entity = geometry.entity"
+        )
         where = " WHERE "
 
         for col in ["typology", "dataset", "entity"]:
@@ -175,9 +177,7 @@ class EntityQuery:
         return sql
 
     def url(self, sql):
-        return JSONQueryHelper.make_url(
-            self.url_base + ".json", params={"sql": sql}
-        )
+        return JSONQueryHelper.make_url(self.url_base + ".json", params={"sql": sql})
 
     def response(self, data, count):
         results = []
@@ -195,6 +195,8 @@ class EntityQuery:
         return response
 
     def execute(self):
-        count = JSONQueryHelper.get(self.url(self.sql(count=True))).json()["rows"][0]["_count"]
+        count = JSONQueryHelper.get(self.url(self.sql(count=True))).json()["rows"][0][
+            "_count"
+        ]
         data = JSONQueryHelper.get(self.url(self.sql())).json()
         return self.response(data, count)
