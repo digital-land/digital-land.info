@@ -151,26 +151,26 @@
           <div class="govuk-date-input" id="entry-date">
             <div class="govuk-date-input__item">
               <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label" for="entry-date-day">
+                <label class="govuk-label govuk-date-input__label" for="entry_entry_date_day">
                   Day
                 </label>
-                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-day" name="entry-date-day" type="text" pattern="[0-9]*" inputmode="numeric">
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry_entry_date_day" name="entry_entry_date_day" type="text" pattern="[0-9]*" inputmode="numeric"{% if query.params.get('entry_entry_date_day') %} value={{ query.params.get('entry_entry_date_day') }}{% endif %}>
               </div>
             </div>
             <div class="govuk-date-input__item">
               <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label" for="entry-date-month">
+                <label class="govuk-label govuk-date-input__label" for="entry_entry_date_month">
                   Month
                 </label>
-                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry-date-month" name="entry-date-month" type="text" pattern="[0-9]*" inputmode="numeric">
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry_entry_date_month" name="entry_entry_date_month" type="text" pattern="[0-9]*" inputmode="numeric"{% if query.params.get('entry_entry_date_month') %} value={{ query.params.get('entry_entry_date_month') }}{% endif %}>
               </div>
             </div>
             <div class="govuk-date-input__item">
               <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label" for="entry-date-year">
+                <label class="govuk-label govuk-date-input__label" for="entry_entry_date_year">
                   Year
                 </label>
-                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="entry-date-year" name="entry-date-year" type="text" pattern="[0-9]*" inputmode="numeric">
+                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="entry_entry_date_year" name="entry_entry_date_year" type="text" pattern="[0-9]*" inputmode="numeric"{% if query.params.get('entry_entry_date_year') %} value={{ query.params.get('entry_entry_date_year') }}{% endif %}>
               </div>
             </div>
           </div>
@@ -186,14 +186,14 @@
           </legend>
           <div class="govuk-radios">
             <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="entry-date_period" name="entry-date_period" type="radio" value="since">
-              <label class="govuk-label govuk-radios__label" for="entry-date_period">
+              <input class="govuk-radios__input" id="entry_entry_date_match" name="entry_entry_date_match" type="radio" value="since" {% if query.params.get('entry_entry_date_match') and 'since' in query.params.get('entry_entry_date_match') %}checked=checked{% endif %}>
+              <label class="govuk-label govuk-radios__label" for="entry_entry_date_match">
                 Since
               </label>
             </div>
             <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="entry-date_period-2" name="entry-date_period" type="radio" value="before">
-              <label class="govuk-label govuk-radios__label" for="entry-date_period-2">
+              <input class="govuk-radios__input" id="entry_entry_date_match-2" name="entry_entry_date_match" type="radio" value="before" {% if query.params.get('entry_entry_date_match') and 'before' in query.params.get('entry_entry_date_match') %}checked=checked{% endif %}>
+              <label class="govuk-label govuk-radios__label" for="entry_entry_date_match-2">
                 Before
               </label>
             </div>
