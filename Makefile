@@ -23,10 +23,6 @@ server: $(CACHE_DIR)organisation.csv
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker dl_web.app:app --preload --forwarded-allow-ips="*"
 
-server-dev: $(CACHE_DIR)organisation.csv
-	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
-	gunicorn -w 2 -k uvicorn.workers.UvicornWorker dl_web.app:app --preload --forwarded-allow-ips="*" --reload
-
 build:
 	docker build -t $(DOCKER_IMAGE_URL) .
 
