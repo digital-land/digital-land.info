@@ -1,5 +1,6 @@
 import logging
 from typing import Optional, List
+from enum import Enum
 
 from digital_land.entity_lookup import lookup_by_slug
 from digital_land.view_model import ViewModel
@@ -18,6 +19,40 @@ logger = logging.getLogger(__name__)
 datasette_url = "https://datasette.digital-land.info/"
 
 
+class Suffix(str, Enum):
+    json = "json"
+    html = "html"
+    xlsx = "xlsx"
+    zip = "zip"
+    csv = "csv"
+    ttl = "ttl"
+
+
+class PointMatch(str, Enum):
+    within = "within"
+
+
+class GeometryMatch(str, Enum):
+    intersets = "intersects"
+    contains = "contains"
+    overlaps = "overlaps"
+    crosses = "crosses"
+    touches = "touches"
+
+
+class EntriesOption(str, Enum):
+    all = "all"
+    current = "current"
+    historical = "historical"
+
+
+class DateOption(str, Enum):
+    match = "match"
+    before = "before"
+    since = "since"
+
+
+>>>>>>> Added Enum parameters
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)
     return dict(zip_iterator)
@@ -216,15 +251,16 @@ async def search(
     curie: Optional[List[str]] = Query(None),
     prefix: Optional[List[str]] = Query(None),
     reference: Optional[List[str]] = Query(None),
-    # filter by entry date
-    entries: Optional[str] = None,  # all* | current | historical
-    # fine-grained dates
+    # filter by date
+    entries: Optional[EntriesOption] = Query(
+        None, description="Results to include current, or all entries"
+    ),
     entry_start_date: Optional[str] = None,
     entry_end_date: Optional[str] = None,
     entry_entry_date: Optional[str] = None,
-    entry_start_date_match: Optional[str] = None,  # match* | before | after
-    entry_end_date_match: Optional[str] = None,  # match* | before | after
-    entry_entry_date_match: Optional[str] = None,  # match* | before | after
+    entry_start_date_match: Optional[DateOption] = None,
+    entry_end_date_match: Optional[DateOption] = None,
+    entry_entry_date_match: Optional[DateOption] = None,
     # find from a geospatial point
     point_entity: Optional[str] = Query(
         None, description="point from this entity's geometry"
@@ -232,21 +268,21 @@ async def search(
     point_reference: Optional[str] = Query(
         None, description="point from the entity with this reference"
     ),
+    point: Optional[str] = Query(None, description="point in WKT format"),
     longitude: Optional[float] = Query(
         None, description="construct a point with this longitude"
     ),
     latitude: Optional[float] = Query(
         None, description="construct a point with this latitude"
     ),
-    point: Optional[str] = Query(None, descrition="point as WKT"),
-    point_match: Optional[str] = Query(None),  # within* |
+    point_match: Optional[PointMatch] = Query(None),
     # find from a geospatial multipolygon
-    geometry_reference: Optional[str] = None,  # entity to take MULTIPOLYGON from
-    geometry_entity: Optional[str] = None,  # entity to take MULTIPOLYGON from
-    geometry: Optional[str] = None,  # WKT multipolygon
+    geometry_entity: Optional[str] = Query(None, description="take the geometry from this geography entity"),
+    geometry_reference: Optional[str] = Query(None, description="take the geometry from the geography with this reference"),
+    geometry: Optional[str] = Query(None, description="a geometry in WKT format"),
     geometry_match: Optional[
-        str
-    ] = None,  # intersects | within | contains | overlaps | etc
+        GeometryMatch
+    ] = None,
     related_entity: Optional[List[str]] = Query(
         None, description="filter by related entity"
     ),
@@ -259,7 +295,7 @@ async def search(
     accept: Optional[str] = Header(
         None, description="accepted content-type for results"
     ),
-    suffix: Optional[str] = Query(None, description="file format of the results"),
+    suffix: Optional[Suffix] = Query(None, description="file format for the results"),
 ):
     query = EntityQuery(
         params={
