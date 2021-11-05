@@ -5,6 +5,7 @@ import urllib
 from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
 from dl_web.resources import fetch
+from dl_web.enum import EntriesOption
 
 logger = logging.getLogger(__name__)
 
@@ -194,6 +195,14 @@ class EntityQuery:
                 + ")"
             )
             where = " AND "
+
+        if "entries" in p:
+            if p["entries"] == EntriesOption.current:
+                sql += where + " entity.end_date is ''"
+                where = " AND "
+            elif p["entries"] == EntriesOption.historical:
+                sql += where + " entity.end_date is not ''"
+                where = " AND "
 
         geospatial = self.geospatial()
         if geospatial:

@@ -1,6 +1,5 @@
 import logging
 from typing import Optional, List
-from enum import Enum
 
 from digital_land.entity_lookup import lookup_by_slug
 from digital_land.view_model import ViewModel
@@ -9,6 +8,15 @@ from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse
 
 from dl_web.queries import EntityQuery, _do_geo_query
+
+from dl_web.enum import (
+    Suffix,
+    PointMatch,
+    GeometryMatch,
+    EntriesOption,
+    DateOption,
+)
+
 from dl_web.resources import get_view_model, specification, templates
 
 from ..resources import fetch
@@ -17,39 +25,6 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 datasette_url = "https://datasette.digital-land.info/"
-
-
-class Suffix(str, Enum):
-    json = "json"
-    html = "html"
-    xlsx = "xlsx"
-    zip = "zip"
-    csv = "csv"
-    ttl = "ttl"
-
-
-class PointMatch(str, Enum):
-    within = "within"
-
-
-class GeometryMatch(str, Enum):
-    intersets = "intersects"
-    contains = "contains"
-    overlaps = "overlaps"
-    crosses = "crosses"
-    touches = "touches"
-
-
-class EntriesOption(str, Enum):
-    all = "all"
-    current = "current"
-    historical = "historical"
-
-
-class DateOption(str, Enum):
-    match = "match"
-    before = "before"
-    since = "since"
 
 
 def create_dict(keys_list, values_list):
@@ -298,6 +273,7 @@ async def search(
     ),
     suffix: Optional[Suffix] = Query(None, description="file format for the results"),
 ):
+    print(entries)
     query = EntityQuery(
         params={
             "theme": theme,
