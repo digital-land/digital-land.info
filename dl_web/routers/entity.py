@@ -52,7 +52,6 @@ class DateOption(str, Enum):
     since = "since"
 
 
->>>>>>> Added Enum parameters
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)
     return dict(zip_iterator)
@@ -277,12 +276,14 @@ async def search(
     ),
     point_match: Optional[PointMatch] = Query(None),
     # find from a geospatial multipolygon
-    geometry_entity: Optional[str] = Query(None, description="take the geometry from this geography entity"),
-    geometry_reference: Optional[str] = Query(None, description="take the geometry from the geography with this reference"),
+    geometry_entity: Optional[str] = Query(
+        None, description="take the geometry from this geography entity"
+    ),
+    geometry_reference: Optional[str] = Query(
+        None, description="take the geometry from the geography with this reference"
+    ),
     geometry: Optional[str] = Query(None, description="a geometry in WKT format"),
-    geometry_match: Optional[
-        GeometryMatch
-    ] = None,
+    geometry_match: Optional[GeometryMatch] = None,
     related_entity: Optional[List[str]] = Query(
         None, description="filter by related entity"
     ),
