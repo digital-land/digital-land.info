@@ -90,6 +90,34 @@
               {% endfor %}
             </div>
             {% endif %}
+            {% if query.params and query.params.get('geometry_reference') %}
+            <div class="app-applied-filter__group">
+              <span class="app-applied-filter__name govuk-!-font-weight-bold">Local authority district:</span>
+              {% if query.params.get('geometry_reference')|is_list %}
+                {% for filter in query.params.get('geometry_reference') %}
+                <span class="app-applied-filter__item">
+                  {{ removeFilterButton({
+                    "filter": {
+                      "name": "geometry_reference",
+                      "value": filter
+                    },
+                    "url": filter|make_query_str('geometry_reference', request.query_params)
+                  }) }}
+                </span>
+                {% endfor %}
+              {% else %}
+              <span class="app-applied-filter__item">
+                {{ removeFilterButton({
+                  "filter": {
+                    "name": "geometry_reference",
+                    "value": query.params.get('geometry_reference')
+                  },
+                  "url": query.params.get('geometry_reference')|make_query_str('geometry_reference', request.query_params)
+                }) }}
+              </span>
+              {% endif %}
+            </div>
+            {% endif %}
             {% if query.params and query.params.get('entries') %}
             <div class="app-applied-filter__group">
               <span class="app-applied-filter__name govuk-!-font-weight-bold">Entry:</span>

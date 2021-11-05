@@ -60,11 +60,12 @@
 
   {%- if local_authorities %}
   <!-- local authority district facet -->
+  {# this is messy until geometry_reference accepts a list #}
   <div class="govuk-form-group">
     {% call dlFilterGroup({
       "title": "Location",
-      "is_open": False,
-      "selected": query.params.get('geometry')|length if query.params.get('geometry') else 0
+      "is_open": True if query.params.get('geometry_reference') else False,
+      "selected": query.params.get('geometry_reference')|geometry_reference_count if query.params.get('geometry_reference') else 0
     }) %}
     <div class="govuk-checkboxes" data-module="filter-checkboxes">
       {%- set randomID_input = random_int(5) %}
