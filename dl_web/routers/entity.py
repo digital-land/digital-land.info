@@ -1,14 +1,13 @@
-import json
 import logging
-from typing import Optional
+from typing import Optional, List
 
 from digital_land.entity_lookup import lookup_by_slug
 from digital_land.view_model import ViewModel
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse
 
-from dl_web.queries import EntityGeoQuery
+from dl_web.queries import EntityQuery, _do_geo_query
 from dl_web.resources import get_view_model, specification, templates
 
 router = APIRouter()
@@ -157,15 +156,107 @@ def get_entity_as_html(
     )
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get(
+    "/",
+    responses={
+        200: {
+            "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {},
+                "application/zip": {},
+                "application/x-qgis-project": {},
+                "application/geo+json": {},
+                "text/json": {},
+                "text/csv": {},
+                "text/turtle": {},
+            },
+            "description": "List of entities in one of a number of different formats.",
+        }
+    },
+    response_class=HTMLResponse,
+)
 def search_entity(
     request: Request,
-    longitude: Optional[float] = None,
-    latitude: Optional[float] = None,
+    # filter entries
+    theme: Optional[List[str]] = Query(None),
+    typology: Optional[List[str]] = Query(None),
+    dataset: Optional[List[str]] = Query(None),
+    organisation: Optional[List[str]] = Query(None),
+    entity: Optional[List[str]] = Query(None),
+    reference: Optional[List[str]] = Query(None),
+    # filter by entry date
+    entries: Optional[str] = None,  # all* | current | historical
+    # fine-grained dates
+    entry_start_date: Optional[str] = None,
+    entry_end_date: Optional[str] = None,
+    entry_entry_date: Optional[str] = None,
+    entry_start_date_match: Optional[str] = None,  # match* | before | after
+    entry_end_date_match: Optional[str] = None,  # match* | before | after
+    entry_entry_date_match: Optional[str] = None,  # match* | before | after
+    # find from a geospatial point
+    point_entity: Optional[str] = Query(
+        None, description="point from this entity's geometry"
+    ),
+    point_reference: Optional[str] = Query(
+        None, description="point from the entity with this reference"
+    ),
+    longitude: Optional[float] = Query(
+        None, description="construct a point with this longitude"
+    ),
+    latitude: Optional[float] = Query(
+        None, description="construct a point with this latitude"
+    ),
+    point: Optional[str] = Query(None, descrition="point as WKT"),
+    point_match: Optional[str] = Query(None),  # within* |
+    # find from a geospatial multipolygon
+    geometry_reference: Optional[str] = None,  # entity to take MULTIPOLYGON from
+    geometry_entity: Optional[str] = None,  # entity to take MULTIPOLYGON from
+    geometry: Optional[str] = None,  # WKT multipolygon
+    geometry_match: Optional[
+        str
+    ] = None,  # intersects | within | contains | overlaps | etc
+    related_entity: Optional[List[str]] = Query(None, description="filter by related entity"),
+    limit: Optional[int] = Query(10, description="limit for the number of results", ge=1),
+    next_entity: Optional[int] = Query(
+        None, description="paginate results from this entity"
+    ),
+    suffix: Optional[str] = Query(None, description="file format of the results"),
 ):
-    data = []
-    if longitude and latitude:
-        data = _do_geo_query(longitude, latitude)
+    query = EntityQuery(
+        params={
+            "theme": theme,
+            "typology": typology,
+            "dataset": dataset,
+            "organisation": organisation,
+            "entity": entity,
+            "reference": reference,
+            "entries": entries,
+            "entry_start_date": entry_start_date,
+            "entry_end_date": entry_end_date,
+            "entry_entry_date": entry_entry_date,
+            "entry_start_date_match": entry_start_date_match,
+            "entry_end_date_match": entry_end_date_match,
+            "entry_entry_date_match": entry_entry_date_match,
+            "point_entity": point_entity,
+            "point_reference": point_reference,
+            "point": point,
+            "point_match": point_match,
+            "longitude": longitude,
+            "latitude": latitude,
+            "geometry_entity": geometry_entity,
+            "geometry_reference": geometry_reference,
+            "geometry": geometry,
+            "geometry_match": geometry_match,
+            "related_entity": related_entity,
+            "next_entity": next_entity,
+            "limit": limit,
+        }
+    )
+    data = query.execute()
+
+    if (suffix == "json"):
+        return JSONResponse(data)
+
+    # default is HTML
     return templates.TemplateResponse("search.html", {"request": request, "data": data})
 
 
@@ -175,37 +266,3 @@ def get_entity_by_long_lat(
     latitude: float,
 ):
     return _do_geo_query(longitude, latitude)
-
-
-class EntityJson:
-    @staticmethod
-    def to_json(data):
-        fields = [
-            "dataset",
-            "entry_date",
-            "reference",
-            "entity",
-            "reference",
-            "name",
-            "geojson",
-            "typology",
-        ]
-        data_dict = {}
-        for key, val in data.items():
-            if key in fields:
-                v = json.loads(val) if key == "geojson" else val
-                data_dict[key] = v
-        return data_dict
-
-
-def _do_geo_query(longitude: float, latitude: float):
-    data = EntityGeoQuery().execute(longitude, latitude)
-    results = []
-    for row in data.get("rows", []):
-        results.append(EntityJson.to_json(row))
-    resp = {
-        "query": {"longitude": longitude, "latitude": latitude},
-        "count": len(results),
-        "results": results,
-    }
-    return resp
