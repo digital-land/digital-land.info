@@ -56,9 +56,7 @@
             <span class="app-facet-tag__label u-font-mono">{{ params.filter.value }}</span>
           </a>
           {% endmacro %}
-
           {% if active_filters|length > 0 %}
-          {{ active_filters }}
           <div class="app-applied-filters">
             {% if query.params and query.params.get('typology') %}
             <div class="app-applied-filter__group">
@@ -172,4 +170,16 @@
       dlmap.map.fitBounds(mapLayer.getBounds())
   })
 </script>
-{% endif %} {% endblock bodyEnd %}
+{% endif %}
+<script>
+  var $filters = document.querySelectorAll('[data-module="selected-counter"]')
+  $filters.forEach(filter => {
+    new window.DLFrontend.SelectedCounter(filter).init()
+  })
+  
+  var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
+  $filterCheckboxes.forEach(el => {
+    new window.DLFrontend.FilterCheckboxes(el).init()
+  })
+</script>
+{% endblock bodyEnd %}
