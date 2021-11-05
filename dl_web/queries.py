@@ -185,11 +185,11 @@ class EntityQuery:
         for row in data.get("rows", []):
             results.append(EntityJson.to_json(row))
 
-        # prune None parameters
-        self.params = {k: v for k, v in self.params.items() if v is None}
+        # remove empty parameters
+        params = {k: v for k, v in self.params.items() if v is not None}
 
         response = {
-            "query": self.params,
+            "query": params,
             "count": len(results),
             "results": results,
         }
