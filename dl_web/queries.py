@@ -112,7 +112,6 @@ class EntityQuery:
                 params[l] = sorted(set(params[l]))
         return params
 
-
     async def get_entity(self, **params):
         print(params)
         q = {}
@@ -178,6 +177,23 @@ class EntityQuery:
                     + ")"
                 )
                 where = " AND "
+
+        # split CURIE values
+        if "curie" in p and p["curie"]:
+            sql += (
+                where
+                + "("
+                + " OR ".join(
+                    [
+                        "(entity.prefix = '{c[0]}' AND entity.reference = '{c[1]}')".format(
+                            c=c.split(":") + ['', '']
+                        )
+                        for c in p["curie"]
+                    ]
+                )
+                + ")"
+            )
+            where = " AND "
 
         geospatial = self.geospatial()
         if geospatial:
