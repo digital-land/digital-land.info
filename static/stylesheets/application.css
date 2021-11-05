@@ -5167,7 +5167,7 @@ abbr {
     .app-results-footer:after {
       content: '';
       display: block;
-      height: 3em;
+      height: 2em;
       position: absolute;
       bottom: 100%;
       left: 0;

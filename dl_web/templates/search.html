@@ -73,7 +73,7 @@
               </span>
               {% endfor %}
             </div>
-            {% endif %}  
+            {% endif %}
             {% if query.params and query.params.get('dataset') %}
             <div class="app-applied-filter__group">
               <span class="app-applied-filter__name govuk-!-font-weight-bold">Dataset:</span>
@@ -89,7 +89,7 @@
               </span>
               {% endfor %}
             </div>
-            {% endif %}   
+            {% endif %}
           </div>
           {% endif %}
           <!-- /.app-facets-summary -->
@@ -164,9 +164,21 @@
                 </div>
                 <div class="app-results-actions__row-content">
                   <ul class="app-list app-list--files">
-                    <li class="app-list__item"><a href="#" class="govuk-link">CSV File</a></li>
-                    <li class="app-list__item"><a href="#" class="govuk-link">JSON</a></li>
-                    <li class="app-list__item"><a href="#" class="govuk-link">geoJSON</a></li>
+                    <li class="app-list__item">
+                      <a href="#" class="govuk-link">Excel</a>
+                    </li>
+                    <li class="app-list__item">
+                      <a href="#" class="govuk-link">JSON</a>
+                    </li>
+                    <li class="app-list__item">
+                      <a href="#" class="govuk-link">geoJSON</a>
+                    </li>
+                    <li class="app-list__item">
+                      <a href="#" class="govuk-link">CSV</a>
+                    </li>
+                    <li class="app-list__item">
+                      <a href="#" class="govuk-link">Turtle</a>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -209,7 +221,7 @@
   $filters.forEach(filter => {
     new window.DLFrontend.SelectedCounter(filter).init()
   })
-  
+
   var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
   $filterCheckboxes.forEach(el => {
     new window.DLFrontend.FilterCheckboxes(el).init()
