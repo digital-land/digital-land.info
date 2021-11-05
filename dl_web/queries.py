@@ -141,8 +141,6 @@ class EntityQuery:
 
     def sql(self):
         p = self.params
-        geospatial = self.geospatial()
-
         sql = """
             SELECT DISTINCT
                 entity.*, geometry.geojson
@@ -157,7 +155,8 @@ class EntityQuery:
                 sql += where + "(" + " OR ".join([ "entity.%s = '%s'" % (col, sqlescape(value)) for value in p[col]]) + ")"
                 where = " AND "
 
-        if p["point"]:
+        geospatial = self.geospatial()
+        if geospatial:
             sql += where + geospatial
             where = " AND "
 
