@@ -111,6 +111,22 @@ class EntityQuery:
         for lst in self.lists:
             if lst in params:
                 params[lst] = sorted(set(params[lst]))
+
+        # split dates into individual parts
+        for c in ["start", "end", "entry"]:
+            param = "entry_" + c + "_date"
+            year = params.get(param + "_year", None)
+            if year:
+                month = params.setdefault(param + "_month", 1)
+                day = params.setdefault(param + "_day", 1)
+                params[param] = "%04d-%02d-%02d" % (year, month, day)
+            elif param in params:
+                d = params[param]
+                params[param + "_year"] = d.year
+                params[param + "_month"] = d.month
+                params[param + "_day"] = d.day
+
+        print(params)
         return params
 
     async def get_entity(self, **params):

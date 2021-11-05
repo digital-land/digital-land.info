@@ -227,10 +227,19 @@ async def search(
         None, description="Results to include current, or all entries"
     ),
     entry_start_date: Optional[datetime.date] = None,
+    entry_start_date_year: Optional[int] = None,
+    entry_start_date_month: Optional[int] = None,
+    entry_start_date_day: Optional[int] = None,
     entry_start_date_match: Optional[DateOption] = None,
     entry_end_date: Optional[datetime.date] = None,
+    entry_end_date_year: Optional[int] = None,
+    entry_end_date_month: Optional[int] = None,
+    entry_end_date_day: Optional[int] = None,
     entry_end_date_match: Optional[DateOption] = None,
     entry_entry_date: Optional[datetime.date] = None,
+    entry_entry_date_year: Optional[int] = None,
+    entry_entry_date_month: Optional[int] = None,
+    entry_entry_date_day: Optional[int] = None,
     entry_entry_date_match: Optional[DateOption] = None,
     # find from a geospatial point
     point_entity: Optional[str] = Query(
@@ -270,7 +279,6 @@ async def search(
     ),
     suffix: Optional[Suffix] = Query(None, description="file format for the results"),
 ):
-    print(entries)
     query = EntityQuery(
         params={
             "theme": theme,
@@ -282,11 +290,20 @@ async def search(
             "prefix": prefix,
             "reference": reference,
             "entries": entries,
-            "entry_start_date": str(entry_start_date),
-            "entry_end_date": str(entry_end_date),
-            "entry_entry_date": str(entry_entry_date),
+            "entry_start_date": entry_start_date,
+            "entry_start_date_year": entry_start_date_year,
+            "entry_start_date_month": entry_start_date_month,
+            "entry_start_date_day": entry_start_date_day,
             "entry_start_date_match": entry_start_date_match,
+            "entry_end_date": entry_end_date,
+            "entry_end_date_year": entry_end_date_year,
+            "entry_end_date_month": entry_end_date_month,
+            "entry_end_date_day": entry_end_date_day,
             "entry_end_date_match": entry_end_date_match,
+            "entry_entry_date": entry_entry_date,
+            "entry_entry_date_year": entry_entry_date_year,
+            "entry_entry_date_month": entry_entry_date_month,
+            "entry_entry_date_day": entry_entry_date_day,
             "entry_entry_date_match": entry_entry_date_match,
             "point_entity": point_entity,
             "point_reference": point_reference,
