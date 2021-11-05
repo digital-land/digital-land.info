@@ -79,7 +79,9 @@
               </div>
 
               {# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
+              {% if "geometry" in row["geojson"] %}
               <div class="app-card__media">{% set mapId = row["entity"] ~ "-map" %} {{ dlMap({ "id": mapId, "wrapper_classes": "app-card__map-container" }) }}</div>
+              {% endif %}
               <div class="app-card__body">
                 {% if row["description"] %}
                 <div class="app-card__description">
@@ -118,6 +120,10 @@
 <script>
   const results = {{ data.results|tojson }};
   results.forEach(function (result) {
+      console.log(result);
+      if (!result.geojson.hasOwnProperty("geometry")) {
+        return;
+      }
       const mapElementId = result.entity + "-map"
       const $mapElement = document.getElementById(mapElementId)
       const dlmap = new DLMaps.Map($mapElement).init({})
