@@ -32,3 +32,4 @@ class DateOption(str, Enum):
     match = "match"
     before = "before"
     since = "since"
+    empty = "empty"

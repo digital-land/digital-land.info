@@ -5,7 +5,7 @@ import urllib
 from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
 from dl_web.resources import fetch
-from dl_web.enum import EntriesOption
+from dl_web.enum import EntriesOption, DateOption
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +164,7 @@ class EntityQuery:
         )
         where = " WHERE "
 
+        # faceting
         for col in ["typology", "dataset", "entity", "prefix", "reference"]:
             if col in p and p[col]:
                 sql += (
@@ -179,7 +180,7 @@ class EntityQuery:
                 )
                 where = " AND "
 
-        # split CURIE values
+        # CURIE values
         if "curie" in p and p["curie"]:
             sql += (
                 where
@@ -196,6 +197,7 @@ class EntityQuery:
             )
             where = " AND "
 
+        # current or historical entries
         if "entries" in p:
             if p["entries"] == EntriesOption.current:
                 sql += where + " entity.end_date is ''"
@@ -204,16 +206,41 @@ class EntityQuery:
                 sql += where + " entity.end_date is not ''"
                 where = " AND "
 
+        # fine-grained date searching on the entity (maybe should be entity?)
+        for col in ["start_date", "end_date", "entry_date"]:
+            param = "entry_" + col
+            value = p.get(param, "")
+            match = p.get(param + "_match", "")
+            if match:
+                if match == DateOption.empty:
+                    sql += where + " entity.%s = ''" % col
+                    where = " AND "
+                elif value:
+                    operator = {
+                        DateOption.match: "=",
+                        DateOption.before: "<",
+                        DateOption.since: ">=",
+                    }[match]
+                    sql += where + "(entity.%s != '' AND entity.%s %s '%s') " % (
+                        col,
+                        col,
+                        operator,
+                        sqlescape(value),
+                    )
+                    where = " AND "
+
+        # geospatial searching
         geospatial = self.geospatial()
         if geospatial:
             sql += where + geospatial
             where = " AND "
 
+        # pagination
         if p.get("next_entity", ""):
             sql += where + " entity.entity > %s" % (sqlescape(str(p["next_entity"])))
-
         sql += " ORDER BY entity.entity"
         sql += " LIMIT %s" % (sqlescape(str(p.get("limit", 10))))
+
         print(sql)
         return sql
 
