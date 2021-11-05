@@ -156,7 +156,7 @@ def get_entity_as_html(
     },
     response_class=HTMLResponse,
 )
-def search_entity(
+def search(
     request: Request,
     # filter entries
     theme: Optional[List[str]] = Query(None),
