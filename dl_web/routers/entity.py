@@ -21,16 +21,12 @@ from dl_web.enum import (
 from dl_web.resources import get_view_model, specification, templates
 
 from ..resources import fetch
+from ..utils import create_dict
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 datasette_url = "https://datasette.digital-land.info/"
-
-
-def create_dict(keys_list, values_list):
-    zip_iterator = zip(keys_list, values_list)
-    return dict(zip_iterator)
 
 
 async def get_typologies():
