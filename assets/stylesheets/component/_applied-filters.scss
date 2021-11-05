@@ -1,0 +1,40 @@
+.app-applied-filters {
+  @include govuk-typography-common;
+  @include govuk-text-colour;
+  @include govuk-font($size: 16);
+  margin-bottom: $govuk-gutter-half;
+  padding-bottom: 5px;
+  border-bottom: 1px solid $govuk-text-colour;
+}
+
+.app-applied-filter__group {
+  padding: 5px;
+
+  &:nth-child(odd) {
+    background: govuk-colour("light-grey");
+  }
+}
+
+.app-applied-filter__name {
+  display: inline-block;
+}
+
+.app-applied-filter__item {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 5px 8px;
+  border: 1px solid govuk-colour("mid-grey");
+  border-radius: 4px;
+  background: govuk-colour("light-grey");
+  @include govuk-font($size: 14);
+}
+
+.app-applied-filter__button {
+  font-family: monospace;
+  line-height: 1em;
+  text-decoration: none;
+
+  .app-facet-tag__icon {
+    font-size: 12px;
+  }
+}

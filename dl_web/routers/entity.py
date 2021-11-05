@@ -318,6 +318,12 @@ async def search(
             "datasets": datasets,
             "local_authorities": local_authorities,
             "typologies": typologies,
+            "query": query,
+            "active_filters": [
+                filter_name
+                for filter_name, values in query.params.items()
+                if filter_name != "limit" and values is not None
+            ],
         },
     )
 

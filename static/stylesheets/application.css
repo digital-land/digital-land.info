@@ -5303,3 +5303,79 @@ abbr {
         margin-bottom: 15px; } }
   .filter-group__body .govuk-form-group:last-child {
     margin-bottom: 0; }
+
+.app-applied-filters {
+  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #0b0c0c;
+  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 14px;
+  font-size: 0.875rem;
+  line-height: 1.14286;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #0b0c0c; }
+  @media print {
+    .app-applied-filters {
+      font-family: sans-serif; } }
+  @media print {
+    .app-applied-filters {
+      color: #000000; } }
+  @media print {
+    .app-applied-filters {
+      font-family: sans-serif; } }
+  @media (min-width: 40.0625em) {
+    .app-applied-filters {
+      font-size: 16px;
+      font-size: 1rem;
+      line-height: 1.25; } }
+  @media print {
+    .app-applied-filters {
+      font-size: 14pt;
+      line-height: 1.2; } }
+
+.app-applied-filter__group {
+  padding: 5px; }
+  .app-applied-filter__group:nth-child(odd) {
+    background: #f3f2f1; }
+
+.app-applied-filter__name {
+  display: inline-block; }
+
+.app-applied-filter__item {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 5px 8px;
+  border: 1px solid #b1b4b6;
+  border-radius: 4px;
+  background: #f3f2f1;
+  font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  font-size: 12px;
+  font-size: 0.75rem;
+  line-height: 1.25; }
+  @media print {
+    .app-applied-filter__item {
+      font-family: sans-serif; } }
+  @media (min-width: 40.0625em) {
+    .app-applied-filter__item {
+      font-size: 14px;
+      font-size: 0.875rem;
+      line-height: 1.42857; } }
+  @media print {
+    .app-applied-filter__item {
+      font-size: 12pt;
+      line-height: 1.2; } }
+
+.app-applied-filter__button {
+  font-family: monospace;
+  line-height: 1em;
+  text-decoration: none; }
+  .app-applied-filter__button .app-facet-tag__icon {
+    font-size: 12px; }
