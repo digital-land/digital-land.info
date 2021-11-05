@@ -33,7 +33,7 @@
 }
 
 @supports (position: sticky) {
-	.app-results-footer {
+	.app-results-footer--sticky {
 		position: sticky;
 		bottom: 0px;
 		background: #fff;

@@ -5152,19 +5152,19 @@ abbr {
   display: block; }
 
 @supports (position: sticky) {
-  .app-results-footer {
+  .app-results-footer--sticky {
     position: sticky;
     bottom: 0px;
     background: #fff;
     padding-top: 15px;
     padding-bottom: 15px; }
     @media (min-width: 40.0625em) {
-      .app-results-footer {
+      .app-results-footer--sticky {
         padding-top: 20px; } }
     @media (min-width: 40.0625em) {
-      .app-results-footer {
+      .app-results-footer--sticky {
         padding-bottom: 20px; } }
-    .app-results-footer:after {
+    .app-results-footer--sticky:after {
       content: '';
       display: block;
       height: 2em;
