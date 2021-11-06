@@ -120,7 +120,9 @@ class EntityQuery:
             if year:
                 month = params.setdefault(param + "_month", 1)
                 day = params.setdefault(param + "_day", 1)
-                params[param] = "%04d-%02d-%02d" % (year, month, day)
+                # TODO work out how to get the query bind to handle empty values
+                # so that types sorted from query string params
+                params[param] = "%04d-%02d-%02d" % (int(year), int(month), int(day))
             elif param in params:
                 d = params[param]
                 params[param + "_year"] = d.year
