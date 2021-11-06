@@ -20,7 +20,7 @@ from dl_web.enum import (
 
 from dl_web.resources import get_view_model, specification, templates
 from dl_web.resources import fetch
-from dl_web.settings import Settings, get_settings
+from dl_web.settings import get_settings
 from dl_web.utils import create_dict
 
 router = APIRouter()
@@ -215,7 +215,6 @@ def get_entity_as_html(
 )
 async def search(
     request: Request,
-    settings: Settings = Depends(get_settings),
     # filter entries
     theme: Optional[List[str]] = Query(None),
     typology: Optional[List[str]] = Query(None),
@@ -230,10 +229,19 @@ async def search(
         None, description="Results to include current, or all entries"
     ),
     entry_start_date: Optional[datetime.date] = None,
+    entry_start_date_year: Optional[int] = None,
+    entry_start_date_month: Optional[int] = None,
+    entry_start_date_day: Optional[int] = None,
     entry_start_date_match: Optional[DateOption] = None,
     entry_end_date: Optional[datetime.date] = None,
+    entry_end_date_year: Optional[int] = None,
+    entry_end_date_month: Optional[int] = None,
+    entry_end_date_day: Optional[int] = None,
     entry_end_date_match: Optional[DateOption] = None,
     entry_entry_date: Optional[datetime.date] = None,
+    entry_entry_date_year: Optional[int] = None,
+    entry_entry_date_month: Optional[int] = None,
+    entry_entry_date_day: Optional[int] = None,
     entry_entry_date_match: Optional[DateOption] = None,
     # find from a geospatial point
     point_entity: Optional[str] = Query(
@@ -273,7 +281,6 @@ async def search(
     ),
     suffix: Optional[Suffix] = Query(None, description="file format for the results"),
 ):
-
     query = EntityQuery(
         params={
             "theme": theme,
@@ -285,11 +292,20 @@ async def search(
             "prefix": prefix,
             "reference": reference,
             "entries": entries,
-            "entry_start_date": str(entry_start_date),
-            "entry_end_date": str(entry_end_date),
-            "entry_entry_date": str(entry_entry_date),
+            "entry_start_date": entry_start_date,
+            "entry_start_date_year": entry_start_date_year,
+            "entry_start_date_month": entry_start_date_month,
+            "entry_start_date_day": entry_start_date_day,
             "entry_start_date_match": entry_start_date_match,
+            "entry_end_date": entry_end_date,
+            "entry_end_date_year": entry_end_date_year,
+            "entry_end_date_month": entry_end_date_month,
+            "entry_end_date_day": entry_end_date_day,
             "entry_end_date_match": entry_end_date_match,
+            "entry_entry_date": entry_entry_date,
+            "entry_entry_date_year": entry_entry_date_year,
+            "entry_entry_date_month": entry_entry_date_month,
+            "entry_entry_date_day": entry_entry_date_day,
             "entry_entry_date_match": entry_entry_date_match,
             "point_entity": point_entity,
             "point_reference": point_reference,
@@ -350,10 +366,9 @@ async def search_entity(
     request: Request,
     longitude: Optional[float] = None,
     latitude: Optional[float] = None,
-    settings: Settings = Depends(get_settings),
 ):
     # typology facet
-    response = await get_typologies(settings.DATASETTE_URL)
+    response = await get_typologies()
     typologies = [create_dict(response["columns"], row) for row in response["rows"]]
     # dataset facet
     response = await get_datasets_with_theme()
@@ -383,8 +398,6 @@ async def search_entity(
 
 
 @router.get(".geojson", response_class=JSONResponse)
-def get_entity_by_long_lat(
-    longitude: float, latitude: float, settings: Settings = Depends(get_settings)
-):
+def get_entity_by_long_lat(longitude: float, latitude: float):
     # TBD: redirect or call search
-    return _do_geo_query(longitude, latitude, settings.DATASETTE_URL)
+    return _do_geo_query(longitude, latitude)
