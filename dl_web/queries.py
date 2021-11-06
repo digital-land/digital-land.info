@@ -6,6 +6,7 @@ from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
 from dl_web.resources import fetch
 from dl_web.enum import EntriesOption, DateOption
+from dl_web.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,9 @@ def sqlescape(s):
 
 
 class EntityGeoQuery:
-    def __init__(self, url_base="https://datasette.digital-land.info/entity"):
-        self.url_base = url_base
+    def __init__(self):
+        datasette_url = get_settings().DATASETTE_URL
+        self.entity_url = f"{datasette_url}/entity"
 
     def execute(self, longitude, latitude):
         sql = f"""
@@ -55,7 +57,7 @@ class EntityGeoQuery:
               e.entity
       """
         query_url = JSONQueryHelper.make_url(
-            f"{self.url_base}.json", params={"sql": sql}
+            f"{self.entity_url}.json", params={"sql": sql}
         )
         return JSONQueryHelper.get(query_url).json()
 
@@ -97,10 +99,9 @@ def _do_geo_query(longitude: float, latitude: float):
 class EntityQuery:
     lists = ["typology", "dataset", "entity", "prefix", "reference"]
 
-    def __init__(
-        self, url_base="https://datasette.digital-land.info/entity", params={}
-    ):
-        self.url_base = url_base
+    def __init__(self, params: dict = {}):
+        datasette_url = get_settings().DATASETTE_URL
+        self.url_base = f"{datasette_url}/entity"
         self.params = self.normalised_params(params)
 
     def normalised_params(self, params):

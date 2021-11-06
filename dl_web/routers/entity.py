@@ -19,26 +19,27 @@ from dl_web.enum import (
 )
 
 from dl_web.resources import get_view_model, specification, templates
-
-from ..resources import fetch
-from ..utils import create_dict
+from dl_web.resources import fetch
+from dl_web.settings import Settings, get_settings
+from dl_web.utils import create_dict
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-datasette_url = "https://datasette.digital-land.info/"
 
-
+# TODO - move queries
 async def get_typologies():
-    url = f"{datasette_url}digital-land/typology.json"
+    datasette_url = get_settings().DATASETTE_URL
+    url = f"{datasette_url}/digital-land/typology.json"
     logger.info("get_typologies: %s", url)
     return await fetch(url)
 
 
 async def get_datasets_with_theme():
+    datasette_url = get_settings().DATASETTE_URL
     url = "".join(
         (
-            f"{datasette_url}digital-land.json?sql=SELECT%0D%0A++DISTINCT+",
+            f"{datasette_url}/digital-land.json?sql=SELECT%0D%0A++DISTINCT+",
             "dataset.dataset%2C%0D%0A++dataset.name%2C%0D%0A++dataset.plural%2C%0D%0A++dataset.typology",
             "%2C%0D%0A++%28%0D%0A++++CASE%0D%0A++++++WHEN+pipeline.pipeline+IS+NOT+NULL+THEN+1%0D%0A++++++",
             "WHEN+pipeline.pipeline+IS+NULL+THEN+0%0D%0A++++END%0D%0A++%29+AS+dataset_active%2C%0D%0A++GROUP_CONCAT",
@@ -52,9 +53,10 @@ async def get_datasets_with_theme():
 
 
 async def get_local_authorities():
+    datasette_url = get_settings().DATASETTE_URL
     url = "".join(
         (
-            f"{datasette_url}digital-land.json?sql=select%0D%0A++addressbase_custodian%2C%0D%0A++billing_authority",
+            f"{datasette_url}/digital-land.json?sql=select%0D%0A++addressbase_custodian%2C%0D%0A++billing_authority",
             "%2C%0D%0A++census_area%2C%0D%0A++combined_authority%2C%0D%0A++company%2C%0D%0A++end_date%2C%0D%0A++entity",
             "%2C%0D%0A++entry_date%2C%0D%0A++esd_inventory%2C%0D%0A++local_authority_type%2C%0D%0A++",
             "local_resilience_forum%2C%0D%0A++name%2C%0D%0A++official_name%2C%0D%0A++opendatacommunities_area",
@@ -213,6 +215,7 @@ def get_entity_as_html(
 )
 async def search(
     request: Request,
+    settings: Settings = Depends(get_settings),
     # filter entries
     theme: Optional[List[str]] = Query(None),
     typology: Optional[List[str]] = Query(None),
@@ -270,7 +273,7 @@ async def search(
     ),
     suffix: Optional[Suffix] = Query(None, description="file format for the results"),
 ):
-    print(entries)
+
     query = EntityQuery(
         params={
             "theme": theme,
@@ -347,9 +350,10 @@ async def search_entity(
     request: Request,
     longitude: Optional[float] = None,
     latitude: Optional[float] = None,
+    settings: Settings = Depends(get_settings),
 ):
     # typology facet
-    response = await get_typologies()
+    response = await get_typologies(settings.DATASETTE_URL)
     typologies = [create_dict(response["columns"], row) for row in response["rows"]]
     # dataset facet
     response = await get_datasets_with_theme()
@@ -380,8 +384,7 @@ async def search_entity(
 
 @router.get(".geojson", response_class=JSONResponse)
 def get_entity_by_long_lat(
-    longitude: float,
-    latitude: float,
+    longitude: float, latitude: float, settings: Settings = Depends(get_settings)
 ):
     # TBD: redirect or call search
-    return _do_geo_query(longitude, latitude)
+    return _do_geo_query(longitude, latitude, settings.DATASETTE_URL)

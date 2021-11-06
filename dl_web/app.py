@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from dl_web.resources import get_view_model, templates
-from dl_web.routers import resource, entity, dataset, map_
+from dl_web.routers import entity, dataset, map_
 
 with open("log_config.yml") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -33,7 +33,8 @@ app = create_app()
 last_refresh = None
 
 
-app.include_router(resource.router, prefix="/resource")
+# remove resource until we get to in and decide what's needed
+# app.include_router(resource.router, prefix="/resource")
 app.include_router(entity.router, prefix="/entity")
 app.include_router(dataset.router, prefix="/dataset")
 app.include_router(map_.router, prefix="/map")

@@ -1,31 +1,38 @@
 import logging
 import urllib.parse
 
-from digital_land.view_model import ViewModel
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from ..queries import EntityQuery
-from ..resources import fetch, get_view_model, specification, templates
-from ..utils import create_dict
+from dl_web.queries import EntityQuery
+from dl_web.resources import fetch, specification, templates
+from dl_web.settings import get_settings
+from dl_web.utils import create_dict
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-datasette_url = "https://datasette.digital-land.info/"
-base_url = f"{datasette_url}digital-land/"
 
-
+# TODO - move queries
 async def get_datasets():
-    url = f"{base_url}dataset.json?_shape=object"
+    dataset_url = get_settings().DATASETTE_URL
+    url = f"{dataset_url}/digital-land/dataset.json?_shape=object"
     logger.info("get_datasets: %s", url)
     return await fetch(url)
 
 
+async def get_dataset(dataset):
+    dataset_url = get_settings().DATASETTE_URL
+    url = f"{dataset_url}/digital-land/dataset.json?_shape=object&dataset={urllib.parse.quote(dataset)}"
+    logger.info("get_dataset: %s", url)
+    return await fetch(url)
+
+
 async def get_datasets_with_theme():
+    dataset_url = get_settings().DATASETTE_URL
     url = "".join(
         [
-            f"{datasette_url}digital-land.json?sql=SELECT%0D%0A++DISTINCT+dataset.dataset%2C%0D%0A++",
+            f"{dataset_url}/digital-land.json?sql=SELECT%0D%0A++DISTINCT+dataset.dataset%2C%0D%0A++",
             "dataset.name%2C%0D%0A++dataset.plural%2C%0D%0A++dataset.typology%2C%0D%0A++%28%0D%0A++++CASE%0D%0A++++",
             "++WHEN+pipeline.pipeline+IS+NOT+NULL+THEN+1%0D%0A++++++WHEN+pipeline.pipeline+IS+NULL+THEN+0%0D%0A++++",
             "END%0D%0A++%29+AS+dataset_active%2C%0D%0A++GROUP_CONCAT%28dataset_theme.theme%2C+%22%3B%22%29+AS+dataset_themes",
@@ -35,12 +42,6 @@ async def get_datasets_with_theme():
         ]
     )
     logger.info("get_datasets_with_themes: %s", url)
-    return await fetch(url)
-
-
-async def get_dataset(dataset):
-    url = f"{base_url}dataset.json?_shape=object&dataset={urllib.parse.quote(dataset)}"
-    logger.info("get_dataset: %s", url)
     return await fetch(url)
 
 
@@ -63,9 +64,7 @@ async def get_index(request: Request):
 
 
 @router.get("/{dataset}", response_class=HTMLResponse)
-async def get_dataset_index(
-    request: Request, dataset: str, view_model: ViewModel = Depends(get_view_model)
-):
+async def get_dataset_index(request: Request, dataset: str):
     try:
         _dataset = await get_dataset(dataset)
         typology = specification.field_typology(dataset)
