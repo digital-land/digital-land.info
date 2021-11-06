@@ -7,11 +7,17 @@ import requests
 from digital_land.collection import Collection
 from digital_land.organisation import Organisation
 
+from dl_web.settings import get_settings
+
 logger = logging.getLogger(__name__)
 
+settings = get_settings()
+
 collection_files = ["resource", "log", "source", "endpoint"]
-base_url = "https://collection-dataset.s3.eu-west-2.amazonaws.com/"
-resource_info_url = "https://datasette.digital-land.info/digital-land/resource_view_data.json?resource={resource_hash}"
+base_url = f"{settings.S3_COLLECTION_BUCKET}"
+resource_info_url = (
+    "{datasette_url}/digital-land/resource_view_data.json?resource={resource_hash}"
+)
 organisation = Organisation("var/cache/organisation.csv")
 datastore = None
 
@@ -31,7 +37,9 @@ class DataStore:
 
     def fetch_resource_info(self, resource_hash):
         with requests.get(
-            resource_info_url.format(resource_hash=resource_hash)
+            resource_info_url.format(
+                datasette_url=settings.DATASETTE_URL, resource_hash=resource_hash
+            )
         ) as resp:
             return resp.json()
 
@@ -44,7 +52,7 @@ class DataStore:
 
         logger.info("writing to %s", str(path))
         path.parent.mkdir(exist_ok=True)
-        url = f"{base_url}{key}"
+        url = f"{base_url}/{key}"
         logger.info("fetching %s", url)
         async with self.client.get(url) as response:
             logger.info("%s [%s]", url, response.status)
