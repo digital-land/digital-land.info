@@ -59,8 +59,10 @@ def get_entity_as_geojson(
 @router.get("/{entity}", response_class=HTMLResponse)
 async def get_entity_as_html(request: Request, entity: int):
     result = await EntityQuery().get_entity(entity=entity)
+
     if result["rows"]:
         e = result["rows"][0]
+        # TODO - update template - no longer fully works
         return templates.TemplateResponse(
             "row.html",
             {
