@@ -45,38 +45,6 @@ def geojson_download(
     return response
 
 
-def entity_template_response(
-    request: Request,
-    entity_snapshot: dict,
-    entity_metadata: dict,
-    entity_references: dict,
-):
-    if entity_metadata["dataset"] in specification.typology:
-        schema = entity_metadata["dataset"]
-    else:
-        schema = specification.pipeline[entity_metadata["dataset"]]["schema"]
-
-    return templates.TemplateResponse(
-        "row.html",
-        {
-            "request": request,
-            "row": entity_snapshot,
-            "entity": None,
-            "pipeline_name": entity_metadata["dataset"],
-            "references": entity_references,
-            # "breadcrumb": slug_to_breadcrumb(slug),
-            "breadcrumb": [],
-            "schema": schema,
-            "typology": entity_metadata["typology"],
-            "key_field": specification.key_field(entity_metadata["typology"]),
-            "entity_prefix": "",
-            "geojson_features": "[%s]" % entity_snapshot.pop("geojson-full")
-            if "geojson-full" in entity_snapshot
-            else None,
-        },
-    )
-
-
 # The order of the router methods is important! This needs to go ahead of /{entity}
 @router.get("/{entity}.geojson", response_class=JSONResponse)
 def get_entity_as_geojson(
@@ -89,27 +57,29 @@ def get_entity_as_geojson(
 
 
 @router.get("/{entity}", response_class=HTMLResponse)
-def get_entity_as_html(
-    request: Request,
-    entity: int,
-    view_model: ViewModel = Depends(get_view_model),
-):
-    entity_metadata: dict = fetch_entity_metadata(view_model, entity)
-    entity_snapshot: dict = fetch_entity(view_model, entity, entity_metadata)
-    entity_references = {}
-
-    for reference in view_model.get_references(entity_metadata["typology"], entity):
-        entity_references.setdefault(reference["type"], []).append(
+async def get_entity_as_html(request: Request, entity: int):
+    result = await EntityQuery().get_entity(entity=entity)
+    if result["rows"]:
+        e = result["rows"][0]
+        return templates.TemplateResponse(
+            "row.html",
             {
-                "entity": reference["entity"],
-                "reference": reference["reference"],
-                "href": f"/entity/{reference['entity']}",
-                "text": reference["name"],
-            }
+                "request": request,
+                "row": e,
+                "entity": None,
+                "pipeline_name": e["dataset"],
+                "references": [],
+                # "breadcrumb": slug_to_breadcrumb(slug),
+                "breadcrumb": [],
+                "schema": None,
+                "typology": e["typology"],
+                "key_field": specification.key_field(e["typology"]),
+                "entity_prefix": "",
+                "geojson_features": None,
+            },
         )
-    return entity_template_response(
-        request, entity_snapshot, entity_metadata, entity_references
-    )
+    else:
+        raise HTTPException(status_code=404, detail="entity not found")
 
 
 @router.get(
