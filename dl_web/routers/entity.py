@@ -1,10 +1,11 @@
 import logging
+import urllib
 from typing import Optional, List
 
 from digital_land.view_model import ViewModel
 from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
 from fastapi.responses import HTMLResponse, Response
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 import datetime
 
 from dl_web.data_access.digital_land_queries import (
@@ -290,7 +291,11 @@ async def search_entity(
     )
 
 
+# TODO - find better way of doing this
 @router.get(".geojson", response_class=JSONResponse)
-def get_entity_by_long_lat(longitude: float, latitude: float):
-    # TBD: redirect or call search
-    return _do_geo_query(longitude, latitude)
+async def get_entity_geojson(longitude: float, latitude: float):
+    query = urllib.parse.urlencode(
+        {"longitude": longitude, "latitude": latitude, "suffix": "json"}
+    )
+    url = f"/entity?{query}"
+    return RedirectResponse(url=url)

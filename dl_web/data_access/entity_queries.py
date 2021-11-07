@@ -33,6 +33,7 @@ def sqlescape(s):
     )
 
 
+# TODO - remove this
 class EntityGeoQuery:
     def __init__(self):
         datasette_url = get_settings().DATASETTE_URL
@@ -83,6 +84,7 @@ class EntityJson:
         return data_dict
 
 
+# TODO - remove this
 def _do_geo_query(longitude: float, latitude: float):
     data = EntityGeoQuery().execute(longitude, latitude)
     results = []
