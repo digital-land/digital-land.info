@@ -4,7 +4,7 @@ import urllib
 
 from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
-from dl_web.resources import fetch
+from dl_web.utils import fetch
 from dl_web.enum import EntriesOption, DateOption
 from dl_web.settings import get_settings
 

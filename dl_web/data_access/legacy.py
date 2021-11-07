@@ -1,8 +1,10 @@
 import logging
 
 from digital_land.entity_lookup import lookup_by_slug
-from digital_land.view_model import ViewModel
+from digital_land.view_model import ViewModel, ViewModelJsonQuery
 from fastapi import HTTPException
+
+from dl_web.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -47,3 +49,8 @@ def lookup_entity(slug: str) -> int:
         raise HTTPException(status_code=404, detail="slug lookup failed")
 
     return entity
+
+
+def get_view_model():
+    datasette_url = get_settings().DATASETTE_URL
+    return ViewModelJsonQuery(url_base=f"{datasette_url}/view_model/")

@@ -13,7 +13,11 @@ from dl_web.data_access.digital_land_queries import (
     get_local_authorities,
 )
 from dl_web.data_access.entity_queries import EntityQuery, _do_geo_query
-from dl_web.data_access.legacy import fetch_entity_metadata, fetch_entity
+from dl_web.data_access.legacy import (
+    fetch_entity_metadata,
+    fetch_entity,
+    get_view_model,
+)
 
 from dl_web.enum import (
     Suffix,
@@ -23,7 +27,7 @@ from dl_web.enum import (
     DateOption,
 )
 
-from dl_web.resources import get_view_model, specification, templates
+from dl_web.resources import specification, templates
 from dl_web.utils import create_dict
 
 router = APIRouter()
