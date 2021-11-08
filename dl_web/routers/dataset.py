@@ -31,19 +31,23 @@ async def get_index(request: Request):
 
 
 @router.get("/{dataset}", response_class=HTMLResponse)
-async def get_dataset_index(request: Request, dataset: str):
+async def get_dataset_index(request: Request, dataset: str, limit: int = 50):
     try:
         _dataset = await get_dataset(dataset)
         typology = specification.field_typology(dataset)
-        entities = await EntityQuery().get_entity(
-            typology=_dataset[dataset]["typology"], dataset=dataset
-        )
+        params = {
+            "typology": [_dataset[dataset]["typology"]],
+            "dataset": [dataset],
+            "limit": limit,
+        }
+        query = EntityQuery(params=params)
+        entities = query.execute()
         return templates.TemplateResponse(
             "dataset.html",
             {
                 "request": request,
                 "dataset": _dataset[dataset],
-                "entities": entities["rows"],
+                "entities": entities["results"],
                 "key_field": specification.key_field(typology),
             },
         )

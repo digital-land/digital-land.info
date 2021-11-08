@@ -1,6 +1,5 @@
 import json
 import logging
-import urllib
 
 from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
@@ -33,36 +32,6 @@ def sqlescape(s):
     )
 
 
-# TODO - remove this
-class EntityGeoQuery:
-    def __init__(self):
-        datasette_url = get_settings().DATASETTE_URL
-        self.entity_url = f"{datasette_url}/entity"
-
-    def execute(self, longitude, latitude):
-        sql = f"""
-            SELECT
-              e.*,
-              g.geojson
-            FROM
-              entity e,
-              geometry g
-            WHERE
-              e.entity = g.entity
-              and g.geometry_geom IS NOT NULL
-              and WITHIN(
-                GeomFromText('POINT({longitude} {latitude})'),
-                g.geometry_geom
-              )
-            ORDER BY
-              e.entity
-      """
-        query_url = JSONQueryHelper.make_url(
-            f"{self.entity_url}.json", params={"sql": sql}
-        )
-        return JSONQueryHelper.get(query_url).json()
-
-
 class EntityJson:
     @staticmethod
     def to_json(data):
@@ -82,20 +51,6 @@ class EntityJson:
                 val = json.loads(val or "{}") if key == "geojson" else val
                 data_dict[key] = val
         return data_dict
-
-
-# TODO - remove this
-def _do_geo_query(longitude: float, latitude: float):
-    data = EntityGeoQuery().execute(longitude, latitude)
-    results = []
-    for row in data.get("rows", []):
-        results.append(EntityJson.to_json(row))
-    resp = {
-        "query": {"longitude": longitude, "latitude": latitude},
-        "count": len(results),
-        "results": results,
-    }
-    return resp
 
 
 class EntityQuery:
@@ -312,12 +267,15 @@ class EntityQuery:
         return self.response(data, count)
 
     # TBD: remove, doesn't belong here ..
-    async def get_entity(self, **params):
-        print(params)
-        q = {}
-        for key, val in params.items():
-            q[f"{key}__exact"] = val
-        q = urllib.parse.urlencode(q)
-        url = f"{self.url_base}/entity.json?_shape=objects&{q}"
+    # I think it could belong here. It's a bit like the sqlalchemy api
+    # where the Model.get(id) returns the thing by primary key which you get for free
+    async def get(self, entity_id: int):
+        sql = f"SELECT * FROM entity e LEFT OUTER JOIN geometry g on e.entity = g.entity WHERE (e.entity = {entity_id})"
+        url = JSONQueryHelper.make_url(f"{self.url_base}.json", params={"sql": sql})
         logger.info(f"get_entity: {url}")
-        return await fetch(url)
+        resp = await fetch(url)
+        if resp["rows"]:
+            e = resp["rows"][0]
+            return EntityJson.to_json(e)
+        else:
+            return None
