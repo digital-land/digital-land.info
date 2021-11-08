@@ -39,7 +39,7 @@ def geojson_download(entity):
 @router.get("/{entity}.geojson", response_class=JSONResponse)
 async def get_entity_as_geojson(entity: int):
     e = await EntityQuery().get(entity)
-    if e is not None and entity.get("geojson") is not None:
+    if e is not None and e.get("geojson") is not None:
         return geojson_download(e)
     else:
         raise HTTPException(status_code=404, detail="entity not found")
@@ -64,7 +64,7 @@ async def get_entity_as_html(request: Request, entity: int):
                 "typology": e["typology"],
                 "key_field": specification.key_field(e["typology"]),
                 "entity_prefix": "",
-                "geojson_features": e["geojson"]
+                "geojson_features": e.get("geojson")
                 if e.get("geojson") is not None
                 else None,
             },
