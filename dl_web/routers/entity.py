@@ -22,8 +22,7 @@ from dl_web.data_access.legacy import (
 
 from dl_web.enum import (
     Suffix,
-    PointMatch,
-    GeometryMatch,
+    GeometryRelation,
     EntriesOption,
     DateOption,
 )
@@ -118,6 +117,9 @@ async def search(
     curie: Optional[List[str]] = Query(None),
     prefix: Optional[List[str]] = Query(None),
     reference: Optional[List[str]] = Query(None),
+    related_entity: Optional[List[str]] = Query(
+        None, description="filter by related entity"
+    ),
     # filter by date
     entries: Optional[EntriesOption] = Query(
         None, description="Results to include current, or all entries"
@@ -137,39 +139,33 @@ async def search(
     entry_entry_date_month: Optional[str] = None,
     entry_entry_date_day: Optional[str] = None,
     entry_entry_date_match: Optional[DateOption] = None,
-    # find from a geospatial point
-    point_entity: Optional[str] = Query(
-        None, description="point from this entity's geometry"
-    ),
-    point_reference: Optional[str] = Query(
-        None, description="point from the entity with this reference"
-    ),
-    point: Optional[str] = Query(None, description="point in WKT format"),
+    # geospatial query
     longitude: Optional[float] = Query(
         None, description="construct a point with this longitude"
     ),
     latitude: Optional[float] = Query(
         None, description="construct a point with this latitude"
     ),
-    point_match: Optional[PointMatch] = Query(None),
-    # find from a geospatial multipolygon
-    geometry_entity: Optional[str] = Query(
-        None, description="take the geometry from this geography entity"
+    geometry: Optional[List[str]] = Query(
+        None, description="one or more geometries in WKT format"
     ),
-    geometry_reference: Optional[str] = Query(
-        None, description="take the geometry from the geography with this reference"
+    geometry_entity: Optional[List[str]] = Query(
+        None, description="take the geometry from each of these entities"
     ),
-    geometry: Optional[str] = Query(None, description="a geometry in WKT format"),
-    geometry_match: Optional[GeometryMatch] = None,
-    related_entity: Optional[List[str]] = Query(
-        None, description="filter by related entity"
+    geometry_reference: Optional[List[str]] = Query(
+        None, description="take the geometry from the entities with these references"
     ),
+    geometry_relation: Optional[GeometryRelation] = Query(
+        None, description="DE-9IM spatial relationship, default is 'within'"
+    ),
+    # pagination
     limit: Optional[int] = Query(
         10, description="limit for the number of results", ge=1
     ),
     next_entity: Optional[int] = Query(
         None, description="paginate results from this entity"
     ),
+    # response format
     accept: Optional[str] = Header(
         None, description="accepted content-type for results"
     ),
@@ -201,16 +197,12 @@ async def search(
             "entry_entry_date_month": entry_entry_date_month,
             "entry_entry_date_day": entry_entry_date_day,
             "entry_entry_date_match": entry_entry_date_match,
-            "point_entity": point_entity,
-            "point_reference": point_reference,
-            "point": point,
-            "point_match": point_match,
+            "geometry": geometry,
             "longitude": longitude,
             "latitude": latitude,
             "geometry_entity": geometry_entity,
             "geometry_reference": geometry_reference,
-            "geometry": geometry,
-            "geometry_match": geometry_match,
+            "geometry_relation": geometry_relation,
             "related_entity": related_entity,
             "next_entity": next_entity,
             "limit": limit,
