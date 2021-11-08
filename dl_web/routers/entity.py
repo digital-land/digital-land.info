@@ -1,30 +1,30 @@
 import logging
 import urllib
-from typing import Optional, List
+from dataclasses import asdict
 
 from digital_land.view_model import ViewModel
-from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 from starlette.responses import JSONResponse, RedirectResponse
-import datetime
 
 from dl_web.data_access.digital_land_queries import (
     get_typologies,
     get_datasets_with_theme,
     get_local_authorities,
 )
-from dl_web.data_access.entity_queries import EntityQuery, _do_geo_query
+from dl_web.data_access.entity_queries import EntityQuery
 from dl_web.data_access.legacy import (
     fetch_entity_metadata,
     fetch_entity,
     get_view_model,
 )
 
-from dl_web.enum import (
-    Suffix,
-    GeometryRelation,
-    EntriesOption,
-    DateOption,
+from dl_web.search.filters import (
+    BaseFilters,
+    DateFilters,
+    SpatialFilters,
+    PaginationFilters,
+    FormatFilters,
 )
 
 from dl_web.resources import specification, templates
@@ -109,108 +109,31 @@ async def get_entity_as_html(request: Request, entity: int):
 async def search(
     request: Request,
     # filter entries
-    theme: Optional[List[str]] = Query(None),
-    typology: Optional[List[str]] = Query(None),
-    dataset: Optional[List[str]] = Query(None),
-    organisation: Optional[List[str]] = Query(None),
-    entity: Optional[List[str]] = Query(None),
-    curie: Optional[List[str]] = Query(None),
-    prefix: Optional[List[str]] = Query(None),
-    reference: Optional[List[str]] = Query(None),
-    related_entity: Optional[List[str]] = Query(
-        None, description="filter by related entity"
-    ),
-    # filter by date
-    entries: Optional[EntriesOption] = Query(
-        None, description="Results to include current, or all entries"
-    ),
-    entry_start_date: Optional[datetime.date] = None,
-    entry_start_date_year: Optional[str] = None,
-    entry_start_date_month: Optional[str] = None,
-    entry_start_date_day: Optional[str] = None,
-    entry_start_date_match: Optional[DateOption] = None,
-    entry_end_date: Optional[datetime.date] = None,
-    entry_end_date_year: Optional[str] = None,
-    entry_end_date_month: Optional[str] = None,
-    entry_end_date_day: Optional[str] = None,
-    entry_end_date_match: Optional[DateOption] = None,
-    entry_entry_date: Optional[datetime.date] = None,
-    entry_entry_date_year: Optional[str] = None,
-    entry_entry_date_month: Optional[str] = None,
-    entry_entry_date_day: Optional[str] = None,
-    entry_entry_date_match: Optional[DateOption] = None,
-    # geospatial query
-    longitude: Optional[float] = Query(
-        None, description="construct a point with this longitude"
-    ),
-    latitude: Optional[float] = Query(
-        None, description="construct a point with this latitude"
-    ),
-    geometry: Optional[List[str]] = Query(
-        None, description="one or more geometries in WKT format"
-    ),
-    geometry_entity: Optional[List[str]] = Query(
-        None, description="take the geometry from each of these entities"
-    ),
-    geometry_reference: Optional[List[str]] = Query(
-        None, description="take the geometry from the entities with these references"
-    ),
-    geometry_relation: Optional[GeometryRelation] = Query(
-        None, description="DE-9IM spatial relationship, default is 'within'"
-    ),
-    # pagination
-    limit: Optional[int] = Query(
-        10, description="limit for the number of results", ge=1
-    ),
-    next_entity: Optional[int] = Query(
-        None, description="paginate results from this entity"
-    ),
-    # response format
-    accept: Optional[str] = Header(
-        None, description="accepted content-type for results"
-    ),
-    suffix: Optional[Suffix] = Query(None, description="file format for the results"),
+    base_filters: BaseFilters = Depends(BaseFilters),
+    date_filters: DateFilters = Depends(DateFilters),
+    spatial_filters: SpatialFilters = Depends(SpatialFilters),
+    pagination_filters: PaginationFilters = Depends(PaginationFilters),
+    format_filters: FormatFilters = Depends(FormatFilters),
 ):
-    query = EntityQuery(
-        params={
-            "theme": theme,
-            "typology": typology,
-            "dataset": dataset,
-            "organisation": organisation,
-            "entity": entity,
-            "curie": curie,
-            "prefix": prefix,
-            "reference": reference,
-            "entries": entries,
-            "entry_start_date": entry_start_date,
-            "entry_start_date_year": entry_start_date_year,
-            "entry_start_date_month": entry_start_date_month,
-            "entry_start_date_day": entry_start_date_day,
-            "entry_start_date_match": entry_start_date_match,
-            "entry_end_date": entry_end_date,
-            "entry_end_date_year": entry_end_date_year,
-            "entry_end_date_month": entry_end_date_month,
-            "entry_end_date_day": entry_end_date_day,
-            "entry_end_date_match": entry_end_date_match,
-            "entry_entry_date": entry_entry_date,
-            "entry_entry_date_year": entry_entry_date_year,
-            "entry_entry_date_month": entry_entry_date_month,
-            "entry_entry_date_day": entry_entry_date_day,
-            "entry_entry_date_match": entry_entry_date_match,
-            "geometry": geometry,
-            "longitude": longitude,
-            "latitude": latitude,
-            "geometry_entity": geometry_entity,
-            "geometry_reference": geometry_reference,
-            "geometry_relation": geometry_relation,
-            "related_entity": related_entity,
-            "next_entity": next_entity,
-            "limit": limit,
-        }
-    )
+    base_params = asdict(base_filters)
+    date_params = asdict(date_filters)
+    spatial_params = asdict(spatial_filters)
+    pagination_params = asdict(pagination_filters)
+    format_params = asdict(format_filters)
+
+    params = {
+        **base_params,
+        **date_params,
+        **spatial_params,
+        **pagination_params,
+        **format_params,
+    }
+
+    query = EntityQuery(params=params)
+
     data = query.execute()
 
-    if accept == "text/json" or suffix == "json":
+    if format_filters.accept == "text/json" or format_filters.suffix == "json":
         return JSONResponse(data)
 
     # typology facet
@@ -243,42 +166,6 @@ async def search(
                 for filter_name, values in query.params.items()
                 if filter_name != "limit" and values is not None
             ],
-        },
-    )
-
-
-@router.get("-search", response_class=HTMLResponse)
-async def search_entity(
-    request: Request,
-    longitude: Optional[float] = None,
-    latitude: Optional[float] = None,
-):
-    # typology facet
-    response = await get_typologies()
-    typologies = [create_dict(response["columns"], row) for row in response["rows"]]
-    # dataset facet
-    response = await get_datasets_with_theme()
-    dataset_results = [
-        create_dict(response["columns"], row) for row in response["rows"]
-    ]
-    datasets = [d for d in dataset_results if d["dataset_active"]]
-    # local-authority-district facet
-    response = await get_local_authorities()
-    local_authorities = [
-        create_dict(response["columns"], row) for row in response["rows"]
-    ]
-
-    data = []
-    if longitude and latitude:
-        data = _do_geo_query(longitude, latitude)
-    return templates.TemplateResponse(
-        "search-facets.html",
-        {
-            "request": request,
-            "data": data,
-            "datasets": datasets,
-            "local_authorities": local_authorities,
-            "typologies": typologies,
         },
     )
 
