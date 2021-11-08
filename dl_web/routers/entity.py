@@ -64,7 +64,9 @@ async def get_entity_as_html(request: Request, entity: int):
                 "typology": e["typology"],
                 "key_field": specification.key_field(e["typology"]),
                 "entity_prefix": "",
-                "geojson_features": None,
+                "geojson_features": e["geojson"]
+                if e.get("geojson") is not None
+                else None,
             },
         )
     else:
