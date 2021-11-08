@@ -17,6 +17,7 @@ setup(
         "jinja2",
         "aiohttp[speedups]",
         "PyYAML",
+        "python-dotenv",
     ],
     extras_require={"testing": ["pytest", "flake8", "pre-commit"]},
 )
