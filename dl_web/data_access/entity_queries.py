@@ -42,14 +42,20 @@ class EntityJson:
             "entity",
             "reference",
             "name",
-            "geojson",
             "typology",
         ]
         data_dict = {}
         for key, val in data.items():
             if key in fields:
-                val = json.loads(val or "{}") if key == "geojson" else val
                 data_dict[key] = val
+        if "geojson" in data:
+            geojson = json.loads(data["geojson"])
+            properties = {}
+            for field in fields:
+                if field in data:
+                    properties[field] = data[field]
+            geojson["properties"] = properties
+            data_dict["geojson"] = geojson
         return data_dict
 
 
