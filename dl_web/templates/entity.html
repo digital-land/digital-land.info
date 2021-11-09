@@ -98,7 +98,7 @@
                 {{- dlDataReferenceCell({
                     "identifier": row[field],
                     "type": "Organisation",
-                    "display_name": row[field]|organisation_id_to_name or org, 
+                    "display_name": row[field]|organisation_id_to_name or org,
                     "url": row[field]|organisation_id_to_url or None,
                 }) -}}
             {%- elif field == "organisations" %}
@@ -107,7 +107,7 @@
                     <li>{{- dlDataReferenceCell({
                         "identifier": org,
                         "type": "Organisation",
-                        "display_name": org|organisation_id_to_name or org, 
+                        "display_name": org|organisation_id_to_name or org,
                         "url": row[field]|organisation_id_to_url or None,
                     }) -}}</li>
                 {% endfor %}
@@ -118,7 +118,7 @@
                 {{- dlDataReferenceCell({
                     "identifier": row[field],
                     "type": "Geography",
-                    "display_name": geography_name, 
+                    "display_name": geography_name,
                     "url": geography_url
                 }) -}}
             {%- elif field == "development-policies" %}
@@ -131,7 +131,7 @@
                         {{- dlDataReferenceCell({
                             "identifier": policy,
                             "type": "Policy",
-                            "display_name": policy|policy_mapper, 
+                            "display_name": policy|policy_mapper,
                             "url": policy|policy_mapper("url")
                         }) -}}
                     {% else %}
@@ -155,7 +155,7 @@
                     {{- dlDataReferenceCell({
                         "identifier": category,
                         "type": field,
-                        "display_name": category_name, 
+                        "display_name": category_name,
                         "url": category_url
                     }) -}}
                     </div>
@@ -203,7 +203,7 @@
         }) }}
         {%- endif -%}
     </div>
-            
+
     {% endblock recordTable -%}
 </div>
 {% endblock recordTableContainer %}
@@ -229,7 +229,7 @@
     }) -}}
 
     <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
-        <a class="dl-page-action-button" href="{{geometry_url}}">Download geojson</a>
+        <a class="dl-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
     </div>
     {%- endif %}
 {%- endblock recordGeometry %}
@@ -270,7 +270,7 @@
                     }) }}
                 </td>
                 {% else %}
-                <td>{{ entry.data[f] }}</td> 
+                <td>{{ entry.data[f] }}</td>
                 {% endif %}
             {% else %}
             <td></td>
