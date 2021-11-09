@@ -365,7 +365,7 @@
 {% if geometry_url %}
     mapParams.geojsonURLs = ["{{ geometry_url }}"]
 {% elif geojson_features %}
-    mapParams.geojsonFeatures = {{ geojson_features|safe }}
+    mapParams.geojsonFeatures = [{{ geojson_features|safe }}]
 {% endif %}
 
     const mapComponent = new DLMaps.Map($mapElement).init(mapParams)
