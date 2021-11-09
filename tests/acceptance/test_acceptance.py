@@ -1,38 +1,50 @@
-import pytest
-import os
 import time
-import subprocess
-import requests
 
-image = "955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web"
+import pytest
+import uvicorn
+from multiprocessing.context import Process
+
+from dl_web.app import app
+
+HOST = "0.0.0.0"
+PORT = 9000
+BASE_URL = f"http://{HOST}:{PORT}"
 
 
-@pytest.fixture()
-def running_instance():
-    proc = subprocess.run(
-        ["docker", "run", "-d", "-p", "80:80", image],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        preexec_fn=os.setsid,
+def run_server():
+    uvicorn.run(app, host=HOST, port=PORT)
+
+
+@pytest.fixture
+def server_process():
+    proc = Process(target=run_server, args=(), daemon=True)
+    proc.start()
+    time.sleep(10)
+    yield proc
+    proc.kill()
+
+
+def test_acceptance(server_process, page):
+
+    assert server_process.is_alive()
+
+    page.goto(f"{BASE_URL}")
+    page.click("text=Datasets")
+    assert page.url == f"{BASE_URL}/dataset/"
+    page.click("text=Brownfield site")
+    assert page.url == f"{BASE_URL}/dataset/brownfield-site"
+    page.click('h1:has-text("Brownfield site")')
+    page.click("text=Datasets")
+    assert page.url == f"{BASE_URL}/dataset/"
+
+    page.goto(f"{BASE_URL}/entity/")
+    assert page.inner_text("h1") == "Search for planning and housing data"
+    page.click("text=Ancient woodland")
+    page.click('button:has-text("Search")')
+    assert (
+        page.url
+        == f"{BASE_URL}/entity/?dataset=ancient-woodland&entries=all&entry_entry_date_day=&entry_entry_date_month=&entry_entry_date_year="
     )
-    assert proc.stderr == b""
-    container_id = proc.stdout.decode("utf-8").strip()
-    time.sleep(30)  # wait for container to start fully
 
-    yield container_id
-
-    # kill the instance once tests are done
-    subprocess.run(["docker", "kill", container_id])
-
-
-def test_acceptance(running_instance):
-    # in case you want to assert the container output...
-    #
-    # logs_proc = subprocess.run(
-    #     ["docker", "logs", running_instance], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    # )
-
-    resp = requests.get("http://127.0.0.1/health")
-
-    assert resp.status_code == 200
-    assert resp.text == "OK"
+    page.click("text=11345")
+    assert page.url == f"{BASE_URL}/entity/11345"

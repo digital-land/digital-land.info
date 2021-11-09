@@ -19,5 +19,7 @@ setup(
         "PyYAML",
         "python-dotenv",
     ],
-    extras_require={"testing": ["pytest", "flake8", "pre-commit"]},
+    extras_require={
+        "testing": ["pytest", "flake8", "pre-commit", "playwright", "pytest-playwright"]
+    },
 )

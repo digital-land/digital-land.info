@@ -37,6 +37,10 @@ jobs:
       run: |
         make lint
 
+    - name: Test
+      run: |
+        make test-acceptance
+
     - name: Build and tag
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -44,10 +48,6 @@ jobs:
         IMAGE_TAG: latest
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-
-    - name: Test
-      run: |
-        make test-acceptance
 
     - name: Push the Amazon ECR
       if: ${{ github.ref == 'refs/heads/main' }}

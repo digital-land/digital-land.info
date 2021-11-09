@@ -39,7 +39,8 @@ apply:
 	cd tf/app; terraform apply tfplan
 
 test-acceptance:
-	python -m pytest -sv tests/acceptance
+	python -m playwright install chromium
+	python -m pytest -p no:warnings -sv tests/acceptance
 
 test-unit:
 	python -m pytest -sv tests/unit
