@@ -29,10 +29,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DL_WEB }}
         aws-region: eu-west-2
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
     - name: Lint
       run: |
         make lint
@@ -40,6 +36,10 @@ jobs:
     - name: Test
       run: |
         make test-acceptance
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build and tag
       env:
