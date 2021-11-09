@@ -33,26 +33,33 @@ def sqlescape(s):
 
 
 class EntityJson:
+
+    fields = [
+        "entity",
+        "name",
+        "reference",
+        "dataset",
+        "organisation_entity",
+        "prefix",
+        "json",
+        "entry_date",
+        "start_date",
+        "end_date",
+        "typology",
+    ]
+
     @staticmethod
     def to_json(data):
-        fields = [
-            "dataset",
-            "entry_date",
-            "reference",
-            "entity",
-            "reference",
-            "name",
-            "typology",
-        ]
         data_dict = {}
         for key, val in data.items():
-            if key in fields:
+            if key in __class__.fields and val is not None:
                 data_dict[key] = val
         if "geojson" in data:
             geojson = json.loads(data["geojson"])
             properties = {}
-            for field in fields:
-                if field in data:
+            for field in __class__.fields:
+                if field in data and field != "json" and data.get(field) is not None:
+                    # TODO - skipping the json for now, but hould we unpack all the json as properties?
                     properties[field] = data[field]
             geojson["properties"] = properties
             data_dict["geojson"] = geojson
@@ -278,7 +285,7 @@ class EntityQuery:
     async def get(self, entity_id: int):
         sql = f"SELECT * FROM entity e LEFT OUTER JOIN geometry g on e.entity = g.entity WHERE (e.entity = {entity_id})"
         url = JSONQueryHelper.make_url(f"{self.url_base}.json", params={"sql": sql})
-        logger.info(f"get_entity: {url}")
+        logger.info(f"get entity: {url}")
         resp = await fetch(url)
         if len(resp["rows"]) > 0:
             e = resp["rows"][0]
