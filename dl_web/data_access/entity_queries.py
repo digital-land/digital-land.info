@@ -54,7 +54,7 @@ class EntityJson:
         for key, val in data.items():
             if key in __class__.fields and val is not None:
                 data_dict[key] = val
-        if "geojson" in data:
+        if "geojson" in data and data.get("geojson") is not None:
             geojson = json.loads(data["geojson"])
             properties = {}
             for field in __class__.fields:
