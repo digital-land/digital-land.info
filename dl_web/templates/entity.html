@@ -1,5 +1,5 @@
 {%- extends "digital-land-frontend/dlf-base.html" %}
-{% set templateName = "page-per-thing/record.html" %}
+{% set templateName = "dl-info/entity.html" %}
 
 {%- from "govuk-jinja-components/components/details/macro.jinja" import govukDetails %}
 {%- from "digital-land-frontend/components/map/macro.html" import dlLeafletMap %}
@@ -7,12 +7,9 @@
 {%- from "digital-land-frontend/components/data-reference-cell/macro.html" import dlDataReferenceCell %}
 {%- from "digital-land-frontend/components/data-table/macro.html" import dlDataTableWrapper %}
 
-{# set at the top level, not in a block. Should this variable be passed to the template? #}
-{% set references = row[key_field]|reference_mapper(pipeline_name) if enable_x_ref else {} %}
-
-{%- set row_name = row['name'] if row['name'] else row['slug'] %}
+{%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
 {% set geometry_url = row|get_geometry_url %}
-{% if geometry_url %}
+{% if geometry_url or geojson_features %}
     {% set includesMap = true %}
 {% endif %}
 
@@ -39,6 +36,8 @@
     {%- endblock recordTitle %}
 {% endblock recordHead %}
 
+{%- set history_enabled = true if entity else false %}
+
 <div class="govuk-tabs" data-module="dlf-subnav">
     <h2 class="govuk-tabs__title">
       Contents
@@ -50,11 +49,13 @@
                 Record
                 </a>
             </li>
+            {%- if history_enabled %}
             <li class="dlf-subnav__list-item">
                 <a class="dlf-subnav__list-item__link" href="#history" data-module-sub-nav="tab">
                 History
                 </a>
             </li>
+            {%- endif %}
             {%- if provenance %}
             <li class="dlf-subnav__list-item">
                 <a class="dlf-subnav__list-item__link" href="#provenance" data-module-sub-nav="tab">
@@ -62,16 +63,15 @@
                 </a>
             </li>
             {% endif -%}
+            {% if references %}
             <li class="dlf-subnav__list-item">
                 <a class="dlf-subnav__list-item__link" href="#referenced-by" data-module-sub-nav="tab">
                 {{ references|total_items }} Reference{{ "" if references|total_items == 1 else "s" }}
                 </a>
             </li>
+            {% endif %}
         </ul>
     </nav>
-
-
-    KEYS: {{ row.keys() }}
 
 <div id="record">
 {% block recordTableContainer %}
@@ -80,12 +80,15 @@
     {%- block recordTable %}
     <div class="{{ recordPanelContainerClass|default('govuk-grid-column-two-thirds') }}">
         {%- set areaproperties %}
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Name</dt>
+          <dd class="govuk-summary-list__value">{{ row['name'] }}</dd>
+        </div>
         {%- for field in row.keys() %}
-        field: {{ field }}
-        {%- if field not in ["id", "resource", "geometry", "point", "geometry_url", "slug", "href"] %}
+        {%- if field not in ["id", "resource", "geometry", "point", "geometry_url", "slug", "slug-id", "href", "name"] %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-            {{- field }}
+            {{- field|field_name }}
             </dt>
             <dd class="govuk-summary-list__value">
             {%- if field == pipeline_name %}
@@ -95,7 +98,7 @@
                 {{- dlDataReferenceCell({
                     "identifier": row[field],
                     "type": "Organisation",
-                    "display_name": row[field]|organisation_id_to_name or org, 
+                    "display_name": row[field]|organisation_id_to_name or org,
                     "url": row[field]|organisation_id_to_url or None,
                 }) -}}
             {%- elif field == "organisations" %}
@@ -104,7 +107,7 @@
                     <li>{{- dlDataReferenceCell({
                         "identifier": org,
                         "type": "Organisation",
-                        "display_name": org|organisation_id_to_name or org, 
+                        "display_name": org|organisation_id_to_name or org,
                         "url": row[field]|organisation_id_to_url or None,
                     }) -}}</li>
                 {% endfor %}
@@ -115,7 +118,7 @@
                 {{- dlDataReferenceCell({
                     "identifier": row[field],
                     "type": "Geography",
-                    "display_name": geography_name, 
+                    "display_name": geography_name,
                     "url": geography_url
                 }) -}}
             {%- elif field == "development-policies" %}
@@ -128,7 +131,7 @@
                         {{- dlDataReferenceCell({
                             "identifier": policy,
                             "type": "Policy",
-                            "display_name": policy|policy_mapper, 
+                            "display_name": policy|policy_mapper,
                             "url": policy|policy_mapper("url")
                         }) -}}
                     {% else %}
@@ -152,7 +155,7 @@
                     {{- dlDataReferenceCell({
                         "identifier": category,
                         "type": field,
-                        "display_name": category_name, 
+                        "display_name": category_name,
                         "url": category_url
                     }) -}}
                     </div>
@@ -195,56 +198,45 @@
         {%- else -%}
         {{ dlDataRecordPanel({
             "classes": "govuk-!-margin-bottom-6",
-            "identifier": row['site'] if row['site'] else row['slug'],
+            "identifier": row['entity'],
             "html": areaproperties
         }) }}
         {%- endif -%}
     </div>
-            
+
     {% endblock recordTable -%}
 </div>
 {% endblock recordTableContainer %}
 
 {% block recordGeometry -%}
-    {%- if geometry_url %}
+    {%- if includesMap %}
     <h2 class="govuk-heading-m">Geographical area</h2>
 
-    <div class="dl-map__wrapper">
-        {{- dlLeafletMap({
-            "id": "dlMap",
-            "classes": "govuk-!-margin-top-4",
-            "attributes": {
-                "data-geojson-urls": geometry_url
-            },
-            "height": "460"
-        }) -}}
+    {% set noteHTML %}
+    <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
+    {% endset %}
 
-        <div class="dl-map__note-panel">
-            <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
-        </div>
-    </div>
+    {{- dlLeafletMap({
+        "id": "dlMap",
+        "wrapper_classes": "govuk-!-margin-top-4",
+        "attributes": {
+            "data-geojson-urls": geometry_url
+        },
+        "height": "460",
+        "notePanel": {
+            "html": noteHTML
+        }
+    }) -}}
 
     <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
-        <a class="dl-page-action-button" href="{{geometry_url}}">Download geojson</a>
+        <a class="dl-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
     </div>
     {%- endif %}
 {%- endblock recordGeometry %}
 
-{% block recordAssociatedInfo %}
-<h3 class="govuk-heading-m">Associated information</h3>
-
-<ul class="govuk-list govuk-list--bullet">
-    <li><a href="https://digital-land.github.io/specification/schema/{{ schema }}/">View the {{ schema }} schema</a></li>
-    {%- if typology == "category" %}
-    <li>This record is <a href="#referenced-by">referenced by {{ references|length }} other planning related data record{{ "" if references|length == 1 else "s" }}</a></li>
-    {% endif -%}
-</ul>
-{% endblock recordAssociatedInfo %}
-
 </div>
-{{ aodhgoasdghod }}
 
-{%- if entity is not none %}
+{%- if history_enabled %}
 <div id="history">
 {%- block entryHistory %}
 <h2 class="govuk-heading-m dlf-subnav__heading">History</h2>
@@ -278,7 +270,7 @@
                     }) }}
                 </td>
                 {% else %}
-                <td>{{ entry.data[f] }}</td> 
+                <td>{{ entry.data[f] }}</td>
                 {% endif %}
             {% else %}
             <td></td>
@@ -303,6 +295,7 @@
 {% endif -%}
 
 {% block recordReferences -%}
+{% if references %}
 <div id="referenced-by">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -314,7 +307,7 @@
             <ul class="govuk-list govuk-list--bullet">
                 {%- for ref in refs %}
                 <li>
-                    <a href=/slug{{ ref["href"] }}>{{ ref["text"] }}</a>
+                    <a href={{ entity_prefix|default('') }}{{ ref["href"] }}>{{ ref["text"] }}</a>
                     <span class="secondary-text data-reference">({{ ref["id"] }})</span>
                 </li>
                 {% endfor -%}
@@ -324,6 +317,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock recordReferences -%}
 
 {%- endblock content %}
@@ -352,21 +346,29 @@
     const datasetName = "{{ pipeline_name }}"
     const $mapElement = document.querySelector('[data-module="boundary-map"]')
     const $nationalMapLink = document.querySelector('.dl-link-national-map')
-    const mapComponent = new DLMaps.Map($mapElement).init({
-        initZoomCallback: function (featureGroup) {
-            console.log("initial load completed")
-            // do we need to check there isn't more than one shape?
-            const center = featureGroup.getBounds().getCenter()
-            const zoom = mapComponent.map.getZoom()
-            let url = `http://digital-land.github.io/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
-            console.log(url)
-            if ($nationalMapLink) {
-                // only show this for the datasets we've added to the national map
-                $nationalMapLink.href = url
-                $nationalMapLink.classList.remove("js-hidden")
-            }
-        }
-    })
+    const mapParams = {
+    initZoomCallback: function (featureGroup, map) {
+          console.log("initial load completed")
+          // do we need to check there isn't more than one shape?
+          const center = featureGroup.getBounds().getCenter()
+          const zoom = map.getZoom()
+          let url = `http://digital-land.github.io/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
+          console.log(url)
+          if ($nationalMapLink) {
+              // only show this for the datasets we've added to the national map
+              $nationalMapLink.href = url
+              $nationalMapLink.classList.remove("js-hidden")
+          }
+      }
+    }
+
+{% if geometry_url %}
+    mapParams.geojsonURLs = ["{{ geometry_url }}"]
+{% elif geojson_features %}
+    mapParams.geojsonFeatures = [{{ geojson_features|safe }}]
+{% endif %}
+
+    const mapComponent = new DLMaps.Map($mapElement).init(mapParams)
 </script>
 {% endblock -%}
 

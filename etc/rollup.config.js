@@ -16,7 +16,7 @@ module.exports = [
   {
     input: "node_modules/govuk-frontend/govuk/all.js",
     output: {
-      file: `${assets.distDir}/javascripts/govuk-frontend.js`,
+      file: `${assets.distDir}/javascripts/govuk/govuk-frontend.min.js`,
     },
     context: "window",
   },
