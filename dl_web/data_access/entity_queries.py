@@ -274,7 +274,7 @@ class EntityQuery:
         url = JSONQueryHelper.make_url(f"{self.url_base}.json", params={"sql": sql})
         logger.info(f"get_entity: {url}")
         resp = await fetch(url)
-        if resp["rows"]:
+        if len(resp["rows"]) > 0:
             e = resp["rows"][0]
             return EntityJson.to_json(e)
         else:
