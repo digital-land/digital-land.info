@@ -51,7 +51,7 @@ async def get_entity_as_html(request: Request, entity: int):
     if e is not None:
         # TODO - update template - no longer fully works
         return templates.TemplateResponse(
-            "row.html",
+            "entity.html",
             {
                 "request": request,
                 "row": e,
