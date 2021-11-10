@@ -326,7 +326,7 @@
 
 {% block feedbackPrompt %}
     {%- from "digital-land-frontend/components/feedback/macro.html" import dlFeedback %}
-    {% set subject = "Feedback on (" + key_field + ") " + row_name + " -- " + pipeline_name  %}
+    {% set subject = "Feedback on " + row_name + " -- " + pipeline_name  %}
     {{ dlFeedback({
         "text": "Spotted an issue? Let us know so we can improve the data.",
         "action": {

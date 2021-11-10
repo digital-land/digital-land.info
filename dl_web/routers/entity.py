@@ -21,8 +21,8 @@ from dl_web.search.filters import (
     FormatFilters,
 )
 
-from dl_web.resources import specification, templates
-from dl_web.utils import create_dict
+from dl_web.core.resources import templates
+from dl_web.core.utils import create_dict
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -56,13 +56,11 @@ async def get_entity_as_html(request: Request, entity: int):
                 "request": request,
                 "row": e,
                 "entity": None,
-                "pipeline_name": e["dataset"],
+                "pipeline_name": e.get("dataset"),
                 "references": [],
-                # "breadcrumb": slug_to_breadcrumb(slug),
                 "breadcrumb": [],
                 "schema": None,
-                "typology": e["typology"],
-                "key_field": specification.key_field(e["typology"]),
+                "typology": e.get("typology"),
                 "entity_prefix": "",
                 "geojson_features": e.get("geojson")
                 if e.get("geojson") is not None

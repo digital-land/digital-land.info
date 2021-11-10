@@ -3,7 +3,7 @@ import logging
 
 from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
-from dl_web.utils import fetch
+from dl_web.core.utils import fetch
 from dl_web.search.enum import EntriesOption, DateOption, GeometryRelation
 from dl_web.settings import get_settings
 

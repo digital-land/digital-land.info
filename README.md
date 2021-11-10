@@ -28,6 +28,21 @@ make init
 
 That will install all dependencies and then you can...
 
+Run the acceptance tests
+
+```
+make test-acceptance
+```
+
+This is basic test that visits key urls in app. If you want to see tests in action run the following:
+
+```
+playwright install chromium
+pytest tests/accpetance  --headed --slowmo 1000
+```
+
+headed opens browser and slowmo slows down interactions by number of milliseconds
+
 ```
 make server
 ```

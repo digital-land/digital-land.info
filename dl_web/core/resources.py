@@ -8,7 +8,7 @@ from digital_land_frontend.filters import (
     register_mapper_filters,
 )
 
-from dl_web.filters import (
+from dl_web.core.filters import (
     generate_query_param_str,
     is_list,
     geometry_reference_count,

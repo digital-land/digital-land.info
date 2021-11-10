@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from dl_web.resources import templates
+from dl_web.core.resources import templates
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
