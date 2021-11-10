@@ -34,13 +34,15 @@ def sqlescape(s):
 
 class EntityJson:
 
+    # TODO add the following?
+    # "organisation_entity",
+    # "prefix",
+
     fields = [
         "entity",
         "name",
         "reference",
         "dataset",
-        "organisation_entity",
-        "prefix",
         "json",
         "entry_date",
         "start_date",
@@ -52,7 +54,7 @@ class EntityJson:
     def to_json(data):
         data_dict = {}
         for key, val in data.items():
-            if key in __class__.fields and val is not None:
+            if key in __class__.fields and val:
                 data_dict[key] = val
         if "geojson" in data and data.get("geojson") is not None:
             geojson = json.loads(data["geojson"])
