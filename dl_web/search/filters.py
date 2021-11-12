@@ -62,7 +62,7 @@ class SpatialFilters:
         None, description="take the geometry from the entities with these references"
     )
     geometry_relation: Optional[GeometryRelation] = Query(
-        None, description="DE-9IM spatial relationship, default is 'within'"
+        None, description="DE-9IM spatial relationship, default is 'intersects'"
     )
 
 

@@ -212,7 +212,7 @@ class EntityQuery:
 
         sql = ""
         where = "entity.entity = geometry.entity AND ("
-        match = params.get("geometry_match", GeometryRelation.within).value
+        match = params.get("geometry_relation", GeometryRelation.intersects).value
         for value in values:
             sql += (
                 where

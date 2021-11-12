@@ -19,7 +19,7 @@ class GeometryRelation(str, Enum):
     within = "within"  # our default
     equals = "equals"
     disjoint = "disjoint"
-    intersets = "intersects"
+    intersects = "intersects"
     touches = "touches"
     contains = "contains"
     covers = "covers"
