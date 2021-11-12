@@ -1,17 +1,19 @@
-import json
 import logging
 from dataclasses import asdict
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, Response
-from starlette.responses import JSONResponse
+from fastapi.responses import HTMLResponse
+from starlette.responses import JSONResponse, Response
 
+from dl_web.core.models import GeoJSON, Entity
 from dl_web.data_access.digital_land_queries import (
     get_typologies,
     get_datasets_with_theme,
     get_local_authorities,
 )
 from dl_web.data_access.entity_queries import EntityQuery
+from dl_web.search.enum import Suffix
 
 from dl_web.search.filters import (
     BaseFilters,
@@ -28,67 +30,50 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def geojson_download(entity):
-    response = Response(json.dumps(entity["geojson"]))
-    filename = f"{entity['entity']}.geojson"
+def geojson_download(geojson: GeoJSON):
+    response = Response(geojson.json())
+    filename = f"{geojson.properties['entity']}.geojson"
     response.headers["Content-Disposition"] = f"attachment; filename={filename}"
     return response
 
 
 # The order of the router methods is important! This needs to go ahead of /{entity}
-@router.get("/{entity}.geojson", response_class=JSONResponse)
+@router.get("/{entity}.geojson")
 async def get_entity_as_geojson(entity: int):
     e = await EntityQuery().get(entity)
-    if e is not None and e.get("geojson") is not None:
-        return geojson_download(e)
+    if e is not None and e.geojson is not None:
+        return geojson_download(e.geojson)
     else:
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-@router.get("/{entity}", response_class=HTMLResponse)
-async def get_entity_as_html(request: Request, entity: int):
+async def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
     e = await EntityQuery().get(entity)
     if e is not None:
+
+        if extension is not None and extension.value == "json":
+            return e
+
         # TODO - update template - no longer fully works
         return templates.TemplateResponse(
             "entity.html",
             {
                 "request": request,
-                "row": e,
+                "row": e.dict(by_alias=True, exclude={"geojson"}),
                 "entity": None,
-                "pipeline_name": e.get("dataset"),
+                "pipeline_name": e.dataset,
                 "references": [],
                 "breadcrumb": [],
                 "schema": None,
-                "typology": e.get("typology"),
+                "typology": e.typology,
                 "entity_prefix": "",
-                "geojson_features": e.get("geojson")
-                if e.get("geojson") is not None
-                else None,
+                "geojson_features": e.geojson if e.geojson is not None else None,
             },
         )
     else:
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-@router.get(
-    "/",
-    responses={
-        200: {
-            "content": {
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {},
-                "application/zip": {},
-                "application/x-qgis-project": {},
-                "application/geo+json": {},
-                "text/json": {},
-                "text/csv": {},
-                "text/turtle": {},
-            },
-            "description": "List of entities in one of a number of different formats.",
-        }
-    },
-    response_class=HTMLResponse,
-)
 async def search(
     request: Request,
     # filter entries
@@ -97,6 +82,7 @@ async def search(
     spatial_filters: SpatialFilters = Depends(SpatialFilters),
     pagination_filters: PaginationFilters = Depends(PaginationFilters),
     format_filters: FormatFilters = Depends(FormatFilters),
+    extension: Optional[Suffix] = None,
 ):
     base_params = asdict(base_filters)
     date_params = asdict(date_filters)
@@ -116,8 +102,8 @@ async def search(
 
     data = query.execute()
 
-    if format_filters.accept == "text/json" or format_filters.suffix == "json":
-        return JSONResponse(data)
+    if extension is not None and extension.value == "json":
+        return data
 
     # typology facet
     response = await get_typologies()
@@ -151,3 +137,40 @@ async def search(
             ],
         },
     )
+
+
+# Route ordering in important. Match routes with extensions first
+router.add_api_route(".{extension}", endpoint=search, response_class=JSONResponse)
+router.add_api_route(
+    "/",
+    endpoint=search,
+    responses={
+        200: {
+            "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {},
+                "application/zip": {},
+                "application/x-qgis-project": {},
+                "application/geo+json": {},
+                "text/json": {},
+                "text/csv": {},
+                "text/turtle": {},
+            },
+            "description": "List of entities in one of a number of different formats.",
+        }
+    },
+    response_class=HTMLResponse,
+    include_in_schema=False,
+)
+
+router.add_api_route(
+    "/{entity}.{extension}",
+    get_entity,
+    response_class=JSONResponse,
+    response_model=Entity,
+)
+router.add_api_route(
+    "/{entity}",
+    endpoint=get_entity,
+    response_class=HTMLResponse,
+    include_in_schema=False,
+)

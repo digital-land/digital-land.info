@@ -9,8 +9,8 @@ from typing import Optional
 
 from digital_land.view_model import DigitalLandModelJsonQuery
 
-from ..data_store import DataStore, get_datastore, organisation
-from ..resources import templates
+from dl_web.core.resources import templates
+from dl_web.data_access.data_store import DataStore, get_datastore, organisation
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

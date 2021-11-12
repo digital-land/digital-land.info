@@ -15,6 +15,7 @@ from dl_web.core.filters import (
     hex_to_rgb_string,
 )
 
+from dl_web.core.utils import model_dumps
 from dl_web.data_access.legacy import get_view_model
 
 specification = Specification("specification/")
@@ -34,6 +35,9 @@ templates.env.loader = jinja2.ChoiceLoader(
         ),
     ]
 )
+
+# Used to customize jinja tojson filter
+templates.env.policies["json.dumps_function"] = model_dumps
 
 templates.env.globals["staticPath"] = "/static"
 templates.env.globals["ASSET_PATH"] = "/static"

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse
 
+from dl_web.core.models import Dataset
 from dl_web.data_access.digital_land_queries import get_dataset, get_datasets_with_theme
 from dl_web.data_access.entity_queries import EntityQuery
 from dl_web.core.resources import specification, templates
@@ -36,28 +37,33 @@ async def get_index(request: Request, extension: Optional[Suffix] = None):
 
 
 async def get_dataset_index(
-    request: Request, dataset: str, limit: int = 50, extension: Optional[Suffix] = None
+    request: Request,
+    dataset: str,
+    limit: int = 50,
+    extension: Optional[Suffix] = None,
 ):
     try:
         _dataset = await get_dataset(dataset)
         typology = specification.field_typology(dataset)
         params = {
-            "typology": [_dataset[dataset]["typology"]],
+            "typology": [_dataset.typology],
             "dataset": [dataset],
             "limit": limit,
         }
         query = EntityQuery(params=params)
         entities = query.execute()
-        data = {
-            "dataset": _dataset[dataset],
-            "entities": entities["results"],
-            "key_field": specification.key_field(typology),
-        }
         if extension is not None and extension.value == "json":
-            return JSONResponse(data)
+            _dataset.entities = entities["results"]
+            return _dataset
         else:
             return templates.TemplateResponse(
-                "dataset.html", {"request": request, **data}
+                "dataset.html",
+                {
+                    "request": request,
+                    "dataset": _dataset,
+                    "entities": entities["results"],
+                    "key_field": specification.key_field(typology),
+                },
             )
     except KeyError as e:
         logger.exception(e)
@@ -70,12 +76,25 @@ async def get_dataset_index(
         )
 
 
-router.add_api_route(".{extension}", endpoint=get_index, response_class=JSONResponse)
-router.add_api_route("/", endpoint=get_index, response_class=HTMLResponse)
-
 router.add_api_route(
-    "/{dataset}.{extension}", endpoint=get_dataset_index, response_class=JSONResponse
+    ".{extension}",
+    endpoint=get_index,
+    response_class=JSONResponse,
+    response_model=Dataset,
 )
 router.add_api_route(
-    "/{dataset}", endpoint=get_dataset_index, response_class=HTMLResponse
+    "/", endpoint=get_index, response_class=HTMLResponse, include_in_schema=False
+)
+
+router.add_api_route(
+    "/{dataset}.{extension}",
+    endpoint=get_dataset_index,
+    response_class=JSONResponse,
+    response_model=Dataset,
+)
+router.add_api_route(
+    "/{dataset}",
+    endpoint=get_dataset_index,
+    response_class=HTMLResponse,
+    include_in_schema=False,
 )

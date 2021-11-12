@@ -3,6 +3,8 @@ import logging
 
 from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
+
+from dl_web.core.models import entity_factory
 from dl_web.core.utils import fetch
 from dl_web.search.enum import EntriesOption, DateOption, GeometryRelation
 from dl_web.settings import get_settings
@@ -30,42 +32,6 @@ def sqlescape(s):
             }
         )
     )
-
-
-class EntityJson:
-
-    # TODO add the following?
-    # "organisation_entity",
-    # "prefix",
-
-    fields = [
-        "entity",
-        "name",
-        "reference",
-        "dataset",
-        "json",
-        "entry_date",
-        "start_date",
-        "end_date",
-        "typology",
-    ]
-
-    @staticmethod
-    def to_json(data):
-        data_dict = {}
-        for key, val in data.items():
-            if key in __class__.fields and val:
-                data_dict[key] = val
-        if "geojson" in data and data.get("geojson") is not None:
-            geojson = json.loads(data["geojson"])
-            properties = {}
-            for field in __class__.fields:
-                if field in data and field != "json" and data.get(field) is not None:
-                    # TODO - skipping the json for now, but hould we unpack all the json as properties?
-                    properties[field] = data[field]
-            geojson["properties"] = properties
-            data_dict["geojson"] = geojson
-        return data_dict
 
 
 class EntityQuery:
@@ -263,7 +229,14 @@ class EntityQuery:
     def response(self, data, count):
         results = []
         for row in data.get("rows", []):
-            results.append(EntityJson.to_json(row))
+            # TODO see if there's a way to handle this conversion of string
+            # geojson to json in pydantic
+            for key, val in row.items():
+                if key == "geojson" and row.get("geojson") is not None:
+                    row["geojson"] = json.loads(row["geojson"])
+                if isinstance(val, str) and not val:
+                    row[key] = None
+            results.append(entity_factory(row))
 
         response = {
             "query": self.params,
@@ -291,6 +264,11 @@ class EntityQuery:
         resp = await fetch(url)
         if len(resp["rows"]) > 0:
             e = resp["rows"][0]
-            return EntityJson.to_json(e)
+            for key, val in e.items():
+                if key == "geojson" and e.get(key) is not None:
+                    e["geojson"] = json.loads(e["geojson"])
+                if isinstance(val, str) and not val:
+                    e[key] = None
+            return entity_factory(e)
         else:
             return None

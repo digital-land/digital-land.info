@@ -2,6 +2,7 @@ import logging
 import urllib.parse
 
 from dl_web.core.utils import fetch
+from dl_web.core.models import Dataset
 from dl_web.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,11 @@ async def get_dataset(dataset):
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/dataset.json?_shape=object&dataset={urllib.parse.quote(dataset)}"
     logger.info("get_dataset: %s", url)
-    return await fetch(url)
+    data = await fetch(url)
+    for key, val in data[dataset].items():
+        if isinstance(val, str) and not val:
+            data[dataset][key] = None
+    return Dataset(**data[dataset])
 
 
 async def get_datasets_with_theme():
