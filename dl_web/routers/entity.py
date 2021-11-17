@@ -37,6 +37,11 @@ def geojson_download(geojson: GeoJSON):
     return response
 
 
+def _get_geojson(data):
+    results = [item.geojson for item in data["results"]]
+    return results
+
+
 # The order of the router methods is important! This needs to go ahead of /{entity}
 @router.get("/{entity}.geojson")
 async def get_entity_as_geojson(entity: int):
@@ -104,6 +109,9 @@ async def search(
 
     if extension is not None and extension.value == "json":
         return data
+
+    if extension is not None and extension.value == "geojson":
+        return _get_geojson(data)
 
     # typology facet
     response = await get_typologies()

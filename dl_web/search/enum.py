@@ -8,6 +8,7 @@ class Suffix(str, Enum):
     zip = "zip"
     csv = "csv"
     ttl = "ttl"
+    geojson = "geojson"
 
 
 class PointMatch(str, Enum):
