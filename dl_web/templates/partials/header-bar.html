@@ -1,0 +1,18 @@
+{% from "digital-land-frontend/components/dl-header-bar/macro.html" import dlHeaderBar %}
+{{ dlHeaderBar({
+    "fullWidth": fullWidthHeader,
+    "items": [
+        {
+            "href": "/dataset",
+            "text": "Datasets"
+        },
+        {
+            "href": "/map",
+            "text": "Map"
+        },
+        {
+            "href": "/entity",
+            "text": "Search"
+        }
+    ]
+}) }}

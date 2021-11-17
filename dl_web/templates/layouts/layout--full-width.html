@@ -1,13 +1,14 @@
-{% extends "digital-land-frontend/dlf-base.html" %}
+{% extends "digital-land-frontend/dlf-base--full-width.html" %}
 
 {% block head %}
-    {{ super() }}
-    <!-- local generated css -->
+  {{ super() }}
+  <!-- local generated css -->
   <link href="{{ staticPath }}/stylesheets/application.css" rel="stylesheet" />
 {% endblock %}
 
 {% block header %}
 {% include 'digital-land-frontend/partials/dl-cookie-banner.html' %}
+{% set fullWidthHeader = true %}
 {% include 'partials/header-bar.html' %}
 {% endblock header %}
 

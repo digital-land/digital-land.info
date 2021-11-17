@@ -1,11 +1,5 @@
-{% extends "digital-land-frontend/dlf-base.html" %}
+{% extends "layouts/layout.html" %}
 {% block page_title %}Homepage prototype{% endblock %}
-
-{% block head %}
-    {{ super() }}
-    <!-- local generated css -->
-    <link rel="stylesheet" href="/static/stylesheets/application.css">
-{% endblock  %}
 
 {% block main %}
 <main id="content" role="main">
@@ -162,6 +156,3 @@
     }) }}
 {% endblock %}
 
-{% block bodyEnd %}
-{{ super() }}
-{% endblock bodyEnd %}
