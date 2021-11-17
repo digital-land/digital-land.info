@@ -204,8 +204,11 @@
     </div>
   </div>
 
-  {{ govukButton({
-    "text": "Search"
-  }) }}
+    <div class="govuk-button-group">
+      {{ govukButton({
+        "text": "Search"
+      }) }}
+      <a href="{{ search_form_url }}" class="govuk-link">Clear</a>
+    </div>
 
 </form>
