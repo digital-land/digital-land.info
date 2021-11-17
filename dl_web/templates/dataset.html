@@ -31,29 +31,40 @@
 <span class="govuk-caption-xl">Dataset</span>
 <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
 
-
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <!-- <p class="govuk-body-l">Collected { resource_count }} brownfield land resources.</p> -->
-        <!-- <p class="govuk-body-l">Collected { collection.resource.records|length }} resources.</p> -->
-    </div>
+  <div class="govuk-grid-column-full">
+    <h2 class="govuk-heading-m" id="national-dataset-map">View the data</h2>
+    <p class="govuk-body">
+        You can view and explore this data <a href="/entity?dataset={{dataset["dataset"]}}">as a list</a>
+        and <a href="/map?layer={{dataset["dataset"]}}">on a map</a>
+    </p>
+
+    <h2 class="govuk-heading-m" id="national-dataset-map">Download the data</h2>
+    <p class="govuk-body">
+        Download a copy of this dataset as <a href="https://collection-dataset.s3.eu-west-2.amazonaws.com/{{dataset["dataset"]}}-collection/dataset/{{ dataset["dataset"] }}.csv">CSV</a>
+    </p>
+</div>
+</div>
+<div class="govuk-warning-text govuk-!-margin-top-6">
+  <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+  <strong class="govuk-warning-text__text">
+    <span class="govuk-warning-text__assistive">Warning</span>
+    Our download links are likely to change.
+  </strong>
+</div>
+  </div>
 </div>
 
-<ul class="govuk-list">
-    {% for e in entities %}
-        <li>
-            <h3 class="govuk-heading-s" style="word-break: break-all;"><a href=/entity/{{ e['entity'] }}>{{ e['name'] if e['name'] else e[key_field] }}</a></h3>
-            <!-- <ul class="govuk-list"> -->
-            <!--     <li><span>{ d["description"] }}</span></li> -->
-            <!-- </ul> -->
-            <!--     <li><span>Organisation(s):</span>{ for organisation in r['organisations']|split_to_list %} -->
-            <!--         <a href="{ organisation|organisation_id_to_url }}" class="govuk-link">{ organisation|organisation_id_to_name }}</a> -->
-            <!--     { endfor %}</li> -->
-            <!--     <li><span>First collected on</span> { r['start-date'] }}</li> -->
-            <!--     <li><span>Last collected on</span> { r['end-date'] }}</li> -->
-            <!--     <li><span>Endpoints</span> { r['endpoints']|split_to_list|length }}</li> -->
-        </li>
-    {% endfor %}
-</ul>
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+<div class="feedback-panel">
+  <h3 class="feedback-panel__heading">Help improve this data</h3>
+  <p>If you are not responsible for editing and publishing this data, but you have found errors, please complete <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOTmyAeKH5m0Xy3pXAYNcNApPdx0_Eioj-toHCOMZWiEdU8g/viewform?usp=sf_link">this form</a> or email corrections or questions to
+      <a href="mailto:DigitalLand@communities.gov.uk">DigitalLand@communities.gov.uk</a>.</p>
+</div>
+</div>
+</div>
 
 {% endblock %}
