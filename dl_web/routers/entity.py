@@ -30,7 +30,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def geojson_download(geojson: GeoJSON):
+def _geojson_download(geojson: GeoJSON):
     response = Response(geojson.json())
     filename = f"{geojson.properties['entity']}.geojson"
     response.headers["Content-Disposition"] = f"attachment; filename={filename}"
@@ -47,7 +47,7 @@ def _get_geojson(data):
 async def get_entity_as_geojson(entity: int):
     e = await EntityQuery().get(entity)
     if e is not None and e.geojson is not None:
-        return geojson_download(e.geojson)
+        return _geojson_download(e.geojson)
     else:
         raise HTTPException(status_code=404, detail="entity not found")
 
