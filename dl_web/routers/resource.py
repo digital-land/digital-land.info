@@ -31,7 +31,7 @@ def resource_index(request: Request, page: Optional[int] = 1):
     resources = resp["rows"]
 
     return templates.TemplateResponse(
-        "index.html",
+        "resource_index.html",
         {
             "request": request,
             "collection": {},
