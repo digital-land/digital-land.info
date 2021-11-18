@@ -36,8 +36,6 @@
   {%- endblock recordTitle %}
 {% endblock recordHead %}
 
-{%- set history_enabled = true if entity else false %}
-
 <div class="govuk-tabs" data-module="dlf-subnav">
   <h2 class="govuk-tabs__title">
     Contents
@@ -49,7 +47,7 @@
           Record
         </a>
       </li>
-      {%- if history_enabled %}
+      {%- if history %}
         <li class="dlf-subnav__list-item">
           <a class="dlf-subnav__list-item__link" href="#history" data-module-sub-nav="tab">
             History
