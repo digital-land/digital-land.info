@@ -258,7 +258,7 @@ class EntityQuery:
     # where the Model.get(id) returns the thing by primary key which you get for free
     async def get(self, entity_id: int):
         sql = f"""
-            SELECT e.*, g.geojson, g.geometry, g.point
+            SELECT e.*, g.geojson
             FROM entity e LEFT OUTER JOIN geometry g on e.entity = g.entity
             WHERE (e.entity = {entity_id})
             """
