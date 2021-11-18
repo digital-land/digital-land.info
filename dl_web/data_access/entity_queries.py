@@ -257,7 +257,11 @@ class EntityQuery:
     # I think it could belong here. It's a bit like the sqlalchemy api
     # where the Model.get(id) returns the thing by primary key which you get for free
     async def get(self, entity_id: int):
-        sql = f"SELECT * FROM entity e LEFT OUTER JOIN geometry g on e.entity = g.entity WHERE (e.entity = {entity_id})"
+        sql = f"""
+            SELECT e.*, g.geojson, g.geometry, g.point
+            FROM entity e LEFT OUTER JOIN geometry g on e.entity = g.entity
+            WHERE (e.entity = {entity_id})
+            """
         url = make_url(f"{self.url_base}.json", params={"sql": sql})
         logger.info(f"get entity: {url}")
         resp = await fetch(url)
