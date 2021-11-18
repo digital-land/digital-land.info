@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse, Response
 
-from dl_web.core.models import GeoJSON, Entity
+from dl_web.core.models import GeoJSON
 from dl_web.data_access.digital_land_queries import (
     fetch_typologies,
     fetch_datasets_with_theme,
@@ -43,13 +43,13 @@ def _get_geojson(data):
 
 
 # The order of the router methods is important! This needs to go ahead of /{entity}
-@router.get("/{entity}.geojson", include_in_schema=False)
-async def get_entity_as_geojson(entity: int):
-    e = await EntityQuery().get(entity)
-    if e is not None and e.geojson is not None:
-        return _geojson_download(e.geojson)
-    else:
-        raise HTTPException(status_code=404, detail="entity not found")
+# @router.get("/{entity}.geojson", include_in_schema=False)
+# async def get_entity_as_geojson(entity: int):
+#     e = await EntityQuery().get(entity)
+#     if e is not None and e.geojson is not None:
+#         return _geojson_download(e.geojson)
+#     else:
+#         raise HTTPException(status_code=404, detail="entity not found")
 
 
 async def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
@@ -59,13 +59,16 @@ async def get_entity(request: Request, entity: int, extension: Optional[Suffix] 
         if extension is not None and extension.value == "json":
             return e
 
+        if extension is not None and extension.value == "geojson":
+            return e.geojson
+
         # TODO - update template - no longer fully works
         return templates.TemplateResponse(
             "entity.html",
             {
                 "request": request,
                 "row": e.dict(by_alias=True, exclude={"geojson"}),
-                "entity": None,
+                "entity": e.dict(by_alias=True, exclude={"geojson"}),
                 "pipeline_name": e.dataset,
                 "references": [],
                 "breadcrumb": [],
@@ -179,7 +182,6 @@ router.add_api_route(
     "/{entity}.{extension}",
     get_entity,
     response_class=JSONResponse,
-    response_model=Entity,
     tags=["Get entity"],
 )
 router.add_api_route(

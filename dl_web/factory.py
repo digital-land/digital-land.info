@@ -81,8 +81,6 @@ def add_base_routes(app):
 
 
 def add_routers(app):
-    # remove resource until we get to in and decide what's needed
-    # app.include_router(resource.router, prefix="/resource")
 
     app.include_router(entity.router, prefix="/entity")
     app.include_router(dataset.router, prefix="/dataset")

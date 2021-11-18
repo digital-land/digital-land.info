@@ -16,7 +16,6 @@ from dl_web.core.filters import (
 )
 
 from dl_web.core.utils import model_dumps
-from dl_web.data_access.legacy import get_view_model
 
 specification = Specification("specification/")
 
@@ -50,4 +49,4 @@ templates.env.filters["make_query_str"] = generate_query_param_str
 templates.env.filters["hex_to_rgb"] = hex_to_rgb_string
 
 register_basic_filters(templates.env, specification)
-register_mapper_filters(templates.env, get_view_model(), specification)
+register_mapper_filters(templates.env, specification)

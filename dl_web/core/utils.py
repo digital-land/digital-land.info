@@ -1,6 +1,8 @@
+import urllib
 from typing import List
 
 import aiohttp
+import requests
 from pydantic import BaseModel
 from datetime import date
 
@@ -31,3 +33,22 @@ def model_dumps(obj, *args, **kwargs):
         return json.dumps(obj.__str__(), *args, **kwargs)
     else:
         return json.dumps(obj, *args, **kwargs)
+
+
+def make_url(url: str, params: dict) -> str:
+    _params = ["_shape=objects"]
+    for k, v in params.items():
+        k = urllib.parse.quote(k)
+        if isinstance(v, str):
+            v = urllib.parse.quote(v)
+        _params.append(f"{k}={v}")
+    url = f"{url}?{'&'.join(_params)}"
+    return url
+
+
+def get(url: str) -> requests.Response:
+    try:
+        response = requests.get(url)
+    except ConnectionRefusedError:
+        raise ConnectionError("failed to connect at %s" % url)
+    return response

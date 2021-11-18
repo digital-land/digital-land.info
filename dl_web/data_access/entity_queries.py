@@ -1,11 +1,10 @@
 import json
 import logging
 
-from digital_land.view_model import JSONQueryHelper
 from decimal import Decimal
 
 from dl_web.core.models import entity_factory
-from dl_web.core.utils import fetch
+from dl_web.core.utils import fetch, make_url, get
 from dl_web.search.enum import EntriesOption, DateOption, GeometryRelation
 from dl_web.settings import get_settings
 
@@ -224,7 +223,7 @@ class EntityQuery:
         return sql
 
     def url(self, sql):
-        return JSONQueryHelper.make_url(self.url_base + ".json", params={"sql": sql})
+        return make_url(self.url_base + ".json", params={"sql": sql})
 
     def response(self, data, count):
         results = []
@@ -246,12 +245,12 @@ class EntityQuery:
         return response
 
     def execute(self):
-        r = JSONQueryHelper.get(self.url(self.sql(count=True))).json()
+        r = get(self.url(self.sql(count=True))).json()
         if "rows" not in r or not len(r["rows"]):
             count = 0
         else:
             count = r["rows"][0]["_count"]
-        data = JSONQueryHelper.get(self.url(self.sql())).json()
+        data = get(self.url(self.sql())).json()
         return self.response(data, count)
 
     # TBD: remove, doesn't belong here ..
@@ -259,7 +258,7 @@ class EntityQuery:
     # where the Model.get(id) returns the thing by primary key which you get for free
     async def get(self, entity_id: int):
         sql = f"SELECT * FROM entity e LEFT OUTER JOIN geometry g on e.entity = g.entity WHERE (e.entity = {entity_id})"
-        url = JSONQueryHelper.make_url(f"{self.url_base}.json", params={"sql": sql})
+        url = make_url(f"{self.url_base}.json", params={"sql": sql})
         logger.info(f"get entity: {url}")
         resp = await fetch(url)
         if len(resp["rows"]) > 0:

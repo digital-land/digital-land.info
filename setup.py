@@ -18,6 +18,7 @@ setup(
         "aiohttp[speedups]",
         "PyYAML",
         "python-dotenv",
+        "requests",
     ],
     extras_require={
         "testing": ["pytest", "flake8", "pre-commit", "playwright", "pytest-playwright"]
