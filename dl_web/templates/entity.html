@@ -102,7 +102,7 @@
             {%- if row['resource'] -%}
                 {{ dlDataRecordPanel({
                     "classes": "govuk-!-margin-bottom-6",
-                    "identifier": row['site'] if row['site'] else row['slug'],
+                    "identifier": row['entity'] if row['entity'] else "missing entity number",
                     "resource": {
                         "identifier": row['resource'],
                         "url": "https://github.com/digital-land/" + pipeline_name + "-collection/tree/main/transformed/" + pipeline_name + "/" + row['resource'] + ".csv"
@@ -112,7 +112,7 @@
             {%- else -%}
                 {{ dlDataRecordPanel({
                     "classes": "govuk-!-margin-bottom-6",
-                    "identifier": row['entity'],
+                    "identifier": row['entity'] if row['entity'] else "missing entity number",
                     "html": areaproperties
                 }) }}
             {%- endif -%}
