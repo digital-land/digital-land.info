@@ -8,14 +8,14 @@ from dl_web.settings import get_settings
 logger = logging.getLogger(__name__)
 
 
-async def get_datasets():
+async def fetch_datasets():
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/dataset.json?_shape=object"
     logger.info("get_datasets: %s", url)
     return await fetch(url)
 
 
-async def get_dataset(dataset):
+async def fetch_dataset(dataset):
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/dataset.json?_shape=object&dataset={urllib.parse.quote(dataset)}"
     logger.info("get_dataset: %s", url)
@@ -26,7 +26,7 @@ async def get_dataset(dataset):
     return Dataset(**data[dataset])
 
 
-async def get_datasets_with_theme():
+async def fetch_datasets_with_theme():
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
         "SELECT DISTINCT dataset.dataset, dataset.name, dataset.plural, dataset.typology,",
@@ -44,14 +44,14 @@ async def get_datasets_with_theme():
     return await fetch(url)
 
 
-async def get_typologies():
+async def fetch_typologies():
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/typology.json"
     logger.info("get_typologies: %s", url)
     return await fetch(url)
 
 
-async def get_local_authorities():
+async def fetch_local_authorities():
     datasette_url = get_settings().DATASETTE_URL
     query_str = """select * from organisation where organisation like '%local-authority-eng%' order by organisation"""
     query = urllib.parse.quote(query_str)

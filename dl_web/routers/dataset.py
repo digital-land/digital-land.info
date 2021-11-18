@@ -6,7 +6,10 @@ from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse
 
 from dl_web.core.models import Dataset
-from dl_web.data_access.digital_land_queries import get_dataset, get_datasets_with_theme
+from dl_web.data_access.digital_land_queries import (
+    fetch_dataset,
+    fetch_datasets_with_theme,
+)
 from dl_web.data_access.entity_queries import EntityQuery
 from dl_web.core.resources import specification, templates
 from dl_web.core.utils import create_dict
@@ -17,8 +20,8 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-async def get_index(request: Request, extension: Optional[Suffix] = None):
-    response = await get_datasets_with_theme()
+async def list_datasets(request: Request, extension: Optional[Suffix] = None):
+    response = await fetch_datasets_with_theme()
     results = [create_dict(response["columns"], row) for row in response["rows"]]
     datasets = [d for d in results if d["dataset_active"]]
     themes = {}
@@ -37,7 +40,7 @@ async def get_index(request: Request, extension: Optional[Suffix] = None):
         )
 
 
-async def get_dataset_index(
+async def get_dataset(
     request: Request,
     dataset: str,
     limit: int = 50,
@@ -46,13 +49,15 @@ async def get_dataset_index(
 ):
     collection_bucket = settings.S3_COLLECTION_BUCKET
     try:
-        _dataset = await get_dataset(dataset)
+        _dataset = await fetch_dataset(dataset)
         typology = specification.field_typology(dataset)
         params = {
             "typology": [_dataset.typology],
             "dataset": [dataset],
             "limit": limit,
         }
+        # TODO I don't think this page needs anything more than an entity count
+        # now - and if so, note the limit param above if we try to do a count
         query = EntityQuery(params=params)
         entities = query.execute()
         if extension is not None and extension.value == "json":
@@ -82,23 +87,25 @@ async def get_dataset_index(
 
 router.add_api_route(
     ".{extension}",
-    endpoint=get_index,
+    endpoint=list_datasets,
     response_class=JSONResponse,
     response_model=Dataset,
+    tags=["List datasets"],
 )
 router.add_api_route(
-    "/", endpoint=get_index, response_class=HTMLResponse, include_in_schema=False
+    "/", endpoint=list_datasets, response_class=HTMLResponse, include_in_schema=False
 )
 
 router.add_api_route(
     "/{dataset}.{extension}",
-    endpoint=get_dataset_index,
+    endpoint=get_dataset,
     response_class=JSONResponse,
     response_model=Dataset,
+    tags=["Get dataset"],
 )
 router.add_api_route(
     "/{dataset}",
-    endpoint=get_dataset_index,
+    endpoint=get_dataset,
     response_class=HTMLResponse,
     include_in_schema=False,
 )

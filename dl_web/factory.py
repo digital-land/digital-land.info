@@ -8,14 +8,49 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
+# Add markdown here
+description = """
+## About this API
+"""
+
+tags_metadata = [
+    {
+        "name": "Search entity",
+        "description": "find entities by location, type or date",
+    },
+    {
+        "name": "Get entity",
+        "description": "get entity by id",
+    },
+    {
+        "name": "List datasets",
+        "description": "list all datasets",
+    },
+    {
+        "name": "Get dataset",
+        "description": "get dataset by id",
+    },
+]
+
+
 def create_app():
     app = FastAPI(
-        title="Digital-Land Data API",
-        description="API and website for Digital-Land data",
-        version="0.9",
+        title="Digital land API",
+        description=description,
+        version="0.1.0",
+        contact={
+            "name": "Digital land team",
+            "email": "#",
+        },
+        license_info={
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT",
+        },
+        openapi_tags=tags_metadata,
     )
     add_base_routes(app)
     add_routers(app)
+    add_static(app)
     add_static(app)
     return app
 
@@ -28,7 +63,7 @@ def add_base_routes(app):
             {"request": request},
         )
 
-    @app.get("/health", response_class=PlainTextResponse)
+    @app.get("/health", response_class=PlainTextResponse, include_in_schema=False)
     def health(request: Request):
         return "OK"
 

@@ -8,9 +8,9 @@ from starlette.responses import JSONResponse, Response
 
 from dl_web.core.models import GeoJSON, Entity
 from dl_web.data_access.digital_land_queries import (
-    get_typologies,
-    get_datasets_with_theme,
-    get_local_authorities,
+    fetch_typologies,
+    fetch_datasets_with_theme,
+    fetch_local_authorities,
 )
 from dl_web.data_access.entity_queries import EntityQuery
 from dl_web.search.enum import Suffix
@@ -43,7 +43,7 @@ def _get_geojson(data):
 
 
 # The order of the router methods is important! This needs to go ahead of /{entity}
-@router.get("/{entity}.geojson")
+@router.get("/{entity}.geojson", include_in_schema=False)
 async def get_entity_as_geojson(entity: int):
     e = await EntityQuery().get(entity)
     if e is not None and e.geojson is not None:
@@ -79,7 +79,7 @@ async def get_entity(request: Request, entity: int, extension: Optional[Suffix] 
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-async def search(
+async def search_entities(
     request: Request,
     # filter entries
     base_filters: BaseFilters = Depends(BaseFilters),
@@ -114,16 +114,16 @@ async def search(
         return _get_geojson(data)
 
     # typology facet
-    response = await get_typologies()
+    response = await fetch_typologies()
     typologies = [create_dict(response["columns"], row) for row in response["rows"]]
     # dataset facet
-    response = await get_datasets_with_theme()
+    response = await fetch_datasets_with_theme()
     dataset_results = [
         create_dict(response["columns"], row) for row in response["rows"]
     ]
     datasets = [d for d in dataset_results if d["dataset_active"]]
     # local-authority-district facet
-    response = await get_local_authorities()
+    response = await fetch_local_authorities()
     local_authorities = [
         create_dict(response["columns"], row) for row in response["rows"]
     ]
@@ -148,10 +148,15 @@ async def search(
 
 
 # Route ordering in important. Match routes with extensions first
-router.add_api_route(".{extension}", endpoint=search, response_class=JSONResponse)
+router.add_api_route(
+    ".{extension}",
+    endpoint=search_entities,
+    response_class=JSONResponse,
+    tags=["Search entity"],
+)
 router.add_api_route(
     "/",
-    endpoint=search,
+    endpoint=search_entities,
     responses={
         200: {
             "content": {
@@ -175,6 +180,7 @@ router.add_api_route(
     get_entity,
     response_class=JSONResponse,
     response_model=Entity,
+    tags=["Get entity"],
 )
 router.add_api_route(
     "/{entity}",
