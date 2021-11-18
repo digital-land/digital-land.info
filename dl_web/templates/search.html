@@ -196,10 +196,10 @@
                     <div class="app-card__properties">
                       <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                         {% for property in propertiesArr %}
-                        <div class="govuk-summary-list__row">
-                          <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                          <dd class="govuk-summary-list__value">{{ property.value }}</dd>
-                        </div>
+                            <div class="govuk-summary-list__row">
+                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
+                              <dd class="govuk-summary-list__value"> {%  if property.value %}{{ property.value }} {%  endif %}</dd>
+                            </div>
                         {% endfor %}
                       </dl>
                     </div>
