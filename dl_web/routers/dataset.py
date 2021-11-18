@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse
 
@@ -11,6 +11,7 @@ from dl_web.data_access.entity_queries import EntityQuery
 from dl_web.core.resources import specification, templates
 from dl_web.core.utils import create_dict
 from dl_web.search.enum import Suffix
+from dl_web.settings import get_settings, Settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -41,7 +42,9 @@ async def get_dataset_index(
     dataset: str,
     limit: int = 50,
     extension: Optional[Suffix] = None,
+    settings: Settings = Depends(get_settings),
 ):
+    collection_bucket = settings.S3_COLLECTION_BUCKET
     try:
         _dataset = await get_dataset(dataset)
         typology = specification.field_typology(dataset)
@@ -63,6 +66,7 @@ async def get_dataset_index(
                     "dataset": _dataset,
                     "entities": entities["results"],
                     "key_field": specification.key_field(typology),
+                    "collection_bucket": collection_bucket,
                 },
             )
     except KeyError as e:

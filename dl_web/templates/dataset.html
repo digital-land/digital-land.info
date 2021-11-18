@@ -41,7 +41,7 @@
 
     <h2 class="govuk-heading-m" id="national-dataset-map">Download the data</h2>
     <p class="govuk-body">
-        Download a copy of this dataset as <a href="https://collection-dataset.s3.eu-west-2.amazonaws.com/{{dataset["dataset"]}}-collection/dataset/{{ dataset["dataset"] }}.csv">CSV</a>
+        Download a copy of this dataset as <a href="{{ collection_bucket }}/{{dataset["dataset"]}}-collection/dataset/{{ dataset["dataset"] }}.csv">CSV</a>
     </p>
 
     <div class="govuk-warning-text govuk-!-margin-top-6">
