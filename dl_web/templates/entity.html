@@ -8,7 +8,7 @@
 {%- from "digital-land-frontend/components/data-table/macro.html" import dlDataTableWrapper %}
 
 {%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
-{% set geometry_url = "/entity/{{ row['entity'] }}.geojson" if row['typology'] == "geography" else None %}
+{% set geometry_url = "/entity/"+ row["entity"] + ".geojson" if row['typology'] == "geography" else None %}
 {% if geometry_url or geojson_features %}
   {% set includesMap = true %}
 {% endif %}
