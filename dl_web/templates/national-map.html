@@ -3,9 +3,10 @@
 {% set includesMap = true %}
 {% block pageTitle %}National map of planning data | Digital Land{% endblock %}
 
-{%- block dlHead %}
+{%- block mapAssets %}
 <script src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"></script>
 <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet" />
+{{ super() }}
 {% endblock -%}
 
 {% block content %}
