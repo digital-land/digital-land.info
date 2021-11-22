@@ -9,6 +9,7 @@ $govuk-assets-path: "/static/govuk/assets/";
 // --------------------------------------------------------
 // ITCSS levels
 @import "base";
+@import "utilities/buttons";
 @import "utilities/layout";
 @import "utilities/typography";
 @import "utilities/list";
