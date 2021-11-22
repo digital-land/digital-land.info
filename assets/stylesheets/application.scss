@@ -3,7 +3,7 @@ $govuk-font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", san
 $govuk-assets-path: "/static/govuk/assets/";
 
 // import all govuk frontend scss
-@import "node_modules/govuk-frontend/govuk/all";
+@import "node_modules/digital-land-frontend/digital-land-frontend/dl-frontend";
 
 // digital-land.info specific styles
 // --------------------------------------------------------
