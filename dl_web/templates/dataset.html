@@ -1,13 +1,12 @@
 {% extends "layouts/layout.html" %}
 
-{% block head %}
-{{ super() }}
+{% block pageTitle %}{{ dataset["name"] }} Dataset | Digital Land{% endblock %}
+
+{% block headStart %}
 <meta name="generated-date" content="{{ now }}" />
-{% endblock head %}
+{% endblock headStart %}
 
-{%- block beforeContent -%}
-    {{ super() }}
-
+{%- block breadcrumbs -%}
     {{- govukBreadcrumbs({
     "items": [
         {
@@ -25,8 +24,6 @@
     }) -}}
 {%- endblock -%}
 
-{% block pageTitle %}{{ dataset["name"] }} Dataset | Digital Land{% endblock %}
-
 {% block content %}
 <span class="govuk-caption-xl">Dataset</span>
 <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
@@ -35,13 +32,13 @@
   <div class="govuk-grid-column-full">
     <h2 class="govuk-heading-m" id="national-dataset-map">View the data</h2>
     <p class="govuk-body">
-        You can view and explore this data <a href="/entity?dataset={{dataset["dataset"]}}">as a list</a>
-        and <a href="/map?layer={{dataset["dataset"]}}">on a map</a>
+        You can view and explore this data <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">as a list</a>
+        and <a class="govuk-link" href='/map?layer={{dataset["dataset"]}}'>on a map</a>
     </p>
 
     <h2 class="govuk-heading-m" id="national-dataset-map">Download the data</h2>
     <p class="govuk-body">
-        Download a copy of this dataset as <a href="{{ collection_bucket }}/{{dataset["dataset"]}}-collection/dataset/{{ dataset["dataset"] }}.csv">CSV</a>
+        Download a copy of this dataset as <a class="govuk-link" href="{{ collection_bucket }}/{{dataset["dataset"]}}-collection/dataset/{{ dataset["dataset"] }}.csv">CSV</a>
     </p>
 
     <div class="govuk-warning-text govuk-!-margin-top-6">
