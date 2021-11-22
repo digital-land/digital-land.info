@@ -21,6 +21,13 @@ setup(
         "requests",
     ],
     extras_require={
-        "testing": ["pytest", "flake8", "pre-commit", "playwright", "pytest-playwright", "black"]
+        "testing": [
+            "pytest",
+            "flake8",
+            "pre-commit",
+            "playwright",
+            "pytest-playwright",
+            "black",
+        ]
     },
 )
