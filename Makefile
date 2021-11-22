@@ -47,9 +47,9 @@ test-unit:
 
 lint:	black-check flake8
 
-generate-assets::
-	npm run build
-	npm run dev
+frontend:
+	npm run nps build.stylesheets
+	npm run nps copy.javascripts
 
 black:
 	black .
