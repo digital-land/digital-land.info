@@ -50,6 +50,7 @@ lint:	black-check flake8
 frontend:
 	npm run nps build.stylesheets
 	npm run nps copy.javascripts
+	npm run nps copy.json
 
 black:
 	black .
