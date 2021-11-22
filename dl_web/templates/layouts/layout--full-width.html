@@ -1,14 +1,11 @@
-{% extends "digital-land-frontend/dlf-base--full-width.html" %}
+{% extends "digital-land-frontend/base--full-width.jinja" %}
 
-{% block head %}
-  {{ super() }}
-  <!-- local generated css -->
-  <link href="{{ staticPath }}/stylesheets/application.css" rel="stylesheet" />
+{% block stylesheets %}
+    <!-- local generated css -->
+  <link href="{{ assetPath }}/stylesheets/application.css" rel="stylesheet" />
 {% endblock %}
 
-{% block header %}
-{% include 'digital-land-frontend/partials/dl-cookie-banner.html' %}
+{% block mastHead %}
 {% set fullWidthHeader = true %}
-{% include 'partials/header-bar.html' %}
-{% endblock header %}
-
+{% include 'partials/hmast-head.html' %}
+{% endblock mastHead %}

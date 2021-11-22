@@ -31,8 +31,7 @@ templates.env.loader = jinja2.ChoiceLoader(
 # Used to customize jinja tojson filter
 templates.env.policies["json.dumps_function"] = model_dumps
 
-templates.env.globals["staticPath"] = "/static"
-templates.env.globals["ASSET_PATH"] = "/static"
+templates.env.globals["assetPath"] = "/static"
 templates.env.globals["enable_x_ref"] = True
 templates.env.globals["includeAutocomplete"] = True
 
