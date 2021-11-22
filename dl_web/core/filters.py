@@ -1,3 +1,6 @@
+from digital_land_frontend.filters import is_list_filter
+
+
 def generate_query_param_str(v, filter_name, current_str):
     query_str = str(current_str)
     if f"{filter_name}={v}" in query_str:
@@ -6,17 +9,7 @@ def generate_query_param_str(v, filter_name, current_str):
     return "?" + query_str
 
 
-def is_list(value):
-    return isinstance(value, list)
-
-
 def geometry_reference_count(v):
-    if is_list(v):
+    if is_list_filter(v):
         return len(v)
     return 1
-
-
-def hex_to_rgb_string(hex):
-    h = hex.lstrip("#")
-    rgb = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
-    return f"{rgb[0]},{rgb[1]},{rgb[2]}"
