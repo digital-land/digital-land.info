@@ -189,10 +189,19 @@
                     <div class="app-card__properties">
                       <dl class="govuk-summary-list govuk-!-margin-bottom-0">
                         {% for property in propertiesArr %}
+                            {% if property.key == "Dataset" %}
+                            <div class="govuk-summary-list__row">
+                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
+                              <dd class="govuk-summary-list__value">
+                              {%  if property.value %}<a class="govuk-link" href="/dataset/{{ property.value }}">{{ property.value|replace("-", " ")|capitalize }}</a> {%  endif %}
+                              </dd>
+                            </div>
+                            {% else %}
                             <div class="govuk-summary-list__row">
                               <dt class="govuk-summary-list__key">{{ property.key }}</dt>
                               <dd class="govuk-summary-list__value"> {%  if property.value %}{{ property.value }} {%  endif %}</dd>
                             </div>
+                            {% endif %}
                         {% endfor %}
                       </dl>
                     </div>
