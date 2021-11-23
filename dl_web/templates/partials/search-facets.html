@@ -1,3 +1,4 @@
+{% from 'digital-land-frontend/components/dl-filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
 <form action="{{ search_form_url }}" method="get">
 
   {%- if typologies %}
@@ -25,35 +26,26 @@
   {%- if datasets %}
   <!-- dataset facet -->
   <div class="govuk-form-group">
+    {% set checkboxesHTML %}
+      {% for dataset in datasets %}
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}" {% if query.params.get('dataset') and dataset['dataset'] in query.params.get('dataset') %}checked="checked"{% endif %}>
+        <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
+          {{ dataset['name'] }}
+        </label>
+      </div>
+      {% endfor %}
+    {% endset %}
+
     {% call dlFilterGroup({
       "title": "Dataset",
       "is_open": True,
       "selected": query.params.get('dataset')|length if query.params.get('dataset') else 0
     }) %}
-    <div class="govuk-checkboxes" data-module="filter-checkboxes">
-      {%- set randomID_input = random_int(5) %}
-      <div class="filter-group__auto-filter">
-        <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
-        Filter Show only
-        </label>
-        <input id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
-      </div>
-
-      <div role="group">
-        <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
-      
-        <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
-          {% for dataset in datasets %}
-          <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}" {% if query.params.get('dataset') and dataset['dataset'] in query.params.get('dataset') %}checked="checked"{% endif %}>
-            <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
-              {{ dataset['name'] }}
-            </label>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
+    {{ dlFilterCheckboxes({
+      "uniqueID": random_int(5),
+      "checkboxesHTML": checkboxesHTML
+    }) }}
     {% endcall %}
   </div>
   {% endif -%}
@@ -61,36 +53,27 @@
   {%- if local_authorities %}
   <!-- local authority district facet -->
   {# this is messy until geometry_reference accepts a list #}
+  {% set checkboxesHTML %}
+    {% for district in local_authorities %}
+    <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="geometry-{{loop.index}}" name="geometry_reference" type="checkbox" value="{{ district['statistical_geography'] }}">
+      <label class="govuk-label govuk-checkboxes__label" for="geometry-{{loop.index}}">
+        {{ district['name'] }} district
+      </label>
+    </div>
+    {% endfor %}
+  {% endset %}
+
   <div class="govuk-form-group">
     {% call dlFilterGroup({
       "title": "Location",
       "is_open": True if query.params.get('geometry_reference') else False,
       "selected": query.params.get('geometry_reference')|geometry_reference_count if query.params.get('geometry_reference') else 0
     }) %}
-    <div class="govuk-checkboxes" data-module="filter-checkboxes">
-      {%- set randomID_input = random_int(5) %}
-      <div class="filter-group__auto-filter">
-        <label for="input-{{ randomID_input }}" class="govuk-label govuk-visually-hidden">
-        Filter Show only
-        </label>
-        <input id="input-{{ randomID_input }}" class="govuk-input filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ randomID_filter }}" aria-controls="checkboxes-{{ randomID_list }}">
-      </div>
-
-      <div role="group">
-        <span id="checkbox-filter-{{ randomID_filter }}" class="filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
-      
-        <div id="checkboxes-{{ randomID_list }}" class="checkbox-list">
-          {% for district in local_authorities %}
-          <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="geometry-{{loop.index}}" name="geometry_reference" type="checkbox" value="{{ district['statistical_geography'] }}">
-            <label class="govuk-label govuk-checkboxes__label" for="geometry-{{loop.index}}">
-              {{ district['name'] }} district
-            </label>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
+    {{ dlFilterCheckboxes({
+      "uniqueID": random_int(5),
+      "checkboxesHTML": checkboxesHTML
+    }) }}
     {% endcall %}
   </div>
   {% endif -%}
@@ -128,7 +111,7 @@
           </label>
         </div>
       </div>
-  
+
     </fieldset>
     {% endcall %}
   </div>
@@ -176,7 +159,7 @@
           </div>
         </fieldset>
       </div>
-        
+
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
