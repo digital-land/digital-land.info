@@ -41,7 +41,7 @@ This is basic test that visits key urls in app. If you want to see tests in acti
 
 ```
 playwright install chromium
-pytest tests/accpetance  --headed --slowmo 1000
+pytest tests/acceptance  --headed --slowmo 1000
 ```
 
 headed opens browser and slowmo slows down interactions by number of milliseconds
