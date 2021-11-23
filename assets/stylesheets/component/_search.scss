@@ -14,7 +14,7 @@
 
 .app-results-summary {
 	@include govuk-responsive-margin(4, "bottom");
-	border-bottom: 1px solid #000;
+
 	&__title {
 		@extend %govuk-heading-s;
 	}

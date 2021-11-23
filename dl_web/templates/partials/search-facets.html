@@ -56,7 +56,7 @@
   {% set checkboxesHTML %}
     {% for district in local_authorities %}
     <div class="govuk-checkboxes__item">
-      <input class="govuk-checkboxes__input" id="geometry-{{loop.index}}" name="geometry_reference" type="checkbox" value="{{ district['statistical_geography'] }}">
+      <input class="govuk-checkboxes__input" id="geometry-{{loop.index}}" name="geometry_reference" type="checkbox" value="{{ district['statistical_geography'] }}" {% if query.params.get('geometry_reference') and district['statistical_geography'] in query.params.get('geometry_reference') %}checked="checked"{% endif %}>
       <label class="govuk-label govuk-checkboxes__label" for="geometry-{{loop.index}}">
         {{ district['name'] }} district
       </label>
