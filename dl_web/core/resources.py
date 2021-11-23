@@ -7,6 +7,7 @@ from digital_land_frontend.filters import (
     is_list_filter,
     hex_to_rgb_string_filter,
     make_link_filter,
+    commanum_filter,
 )
 from digital_land_frontend.globals import random_int
 
@@ -43,6 +44,7 @@ templates.env.globals["includeAutocomplete"] = True
 templates.env.globals["random_int"] = random_int
 
 templates.env.filters["is_list"] = is_list_filter
+templates.env.filters["commanum"] = commanum_filter
 templates.env.filters["make_link"] = make_link_filter
 templates.env.filters["geometry_reference_count"] = geometry_reference_count
 templates.env.filters["make_query_str"] = generate_query_param_str
