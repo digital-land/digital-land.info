@@ -31,6 +31,14 @@ make init
 
 That will install all dependencies and then you can...
 
+
+Install pre-commit hooks. When you try to commit any local changes the pre commit hooks will lint and run black 
+and abort commit on failure. This will save you lots of broken builds and subsequent "lint fix" commit messages.
+
+```
+pre-commit install
+```
+
 Run the acceptance tests
 
 ```
