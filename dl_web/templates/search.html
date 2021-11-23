@@ -1,19 +1,12 @@
 {% extends "layouts/layout.html" %}
 {% block page_title %}Entity search prototype{% endblock %}
 {% set includesMap = true %}
-{%- from "digital-land-frontend/components/feedback-panel/macro.html" import dlFeedbackPanel %}
-{%- from "govuk-jinja-components/components/input/macro.jinja" import govukInput %}
-{%- from "govuk-jinja-components/components/fieldset/macro.jinja" import govukFieldset %}
-{%- from "govuk-jinja-components/components/button/macro.jinja" import govukButton %}
-{%- from "govuk-jinja-components/components/tag/macro.jinja" import govukTag -%}
-{%- from "digital-land-frontend/components/map/macro.html" import dlMap %}
-{%- from "digital-land-frontend/components/filter-group/macro.html" import dlFilterGroup %}
-{%- from "digital-land-frontend/components/dl-helpers.html" import random_int %}
-
-{% block head %}
-  {{ super() }}
-  <link rel="stylesheet" href="/static/stylesheets/application.css" />
-{% endblock %}
+{%- from "govuk_frontend_jinja/components/input/macro.html" import govukInput %}
+{%- from "govuk_frontend_jinja/components/fieldset/macro.html" import govukFieldset %}
+{%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton %}
+{%- from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
+{%- from "digital-land-frontend/components/dl-map/macro.jinja" import dlMap %}
+{%- from "digital-land-frontend/components/dl-filter-group/macro.jinja" import dlFilterGroup %}
 
 {% block main %}
 <main id="content" role="main">
@@ -260,12 +253,15 @@
     {% endcall %}
   </section>
 </main>
-{% endblock %} {% block bodyEnd %} {{ super() }} {% if data and data.count > 0 %}
+{% endblock %}
+
+{% block pageScripts %}
+{% if data and data.count > 0 %}
 <script>
   const results = {{ data.results|tojson }};
   results.forEach(function (result) {
       console.log(result);
-      if (!result.geojson.hasOwnProperty("geometry")) {
+      if (!result.geojson || !result.geojson.hasOwnProperty("geometry")) {
         return;
       }
       const mapElementId = result.entity + "-map"
@@ -281,7 +277,7 @@
 <script>
   var $filters = document.querySelectorAll('[data-module="selected-counter"]')
   $filters.forEach(filter => {
-    new window.DLFrontend.SelectedCounter(filter).init()
+    new window.DLFrontend.FilterGroupSelectedCounter(filter).init()
   })
 
   var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
@@ -289,4 +285,4 @@
     new window.DLFrontend.FilterCheckboxes(el).init()
   })
 </script>
-{% endblock bodyEnd %}
+{% endblock pageScripts %}

@@ -9,7 +9,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "digital_land @ git+https://github.com/digital-land/digital-land-python.git#egg=digital-land",
-        "digital_land_frontend @ git+https://github.com/digital-land/frontend.git#egg=digital_land_frontend",
+        "digital_land_frontend @ git+https://github.com/digital-land/digital-land-frontend.git#egg=digital_land_frontend",
         "fastapi",
         "aiofiles",
         "uvicorn",
@@ -21,6 +21,13 @@ setup(
         "requests",
     ],
     extras_require={
-        "testing": ["pytest", "flake8", "pre-commit", "playwright", "pytest-playwright"]
+        "testing": [
+            "pytest",
+            "flake8",
+            "pre-commit",
+            "playwright",
+            "pytest-playwright",
+            "black",
+        ]
     },
 )

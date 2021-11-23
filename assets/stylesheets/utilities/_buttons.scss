@@ -1,0 +1,20 @@
+.app-page-action-button {
+  @extend %govuk-body-s;
+  display: inline-block;
+  margin: govuk-spacing(0);
+  padding: govuk-spacing(2);
+  border: 1px solid $govuk-border-colour;
+  color: $govuk-link-colour;
+  background-color: govuk-colour("white");
+  cursor: pointer;
+
+  &:hover {
+    background-color: govuk-colour("light-grey");
+  }
+
+  &:focus {
+    @include govuk-focused-text;
+    border-color: transparent;
+    background-color: $govuk-focus-colour;
+  }
+}

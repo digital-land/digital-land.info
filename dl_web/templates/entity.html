@@ -1,11 +1,11 @@
 {% extends "layouts/layout.html" %}
 {% set templateName = "dl-info/entity.html" %}
 
-{%- from "govuk-jinja-components/components/details/macro.jinja" import govukDetails %}
-{%- from "digital-land-frontend/components/map/macro.html" import dlLeafletMap %}
-{%- from "digital-land-frontend/components/data-record/macro.html" import dlDataRecordPanel %}
-{%- from "digital-land-frontend/components/data-reference-cell/macro.html" import dlDataReferenceCell %}
-{%- from "digital-land-frontend/components/data-table/macro.html" import dlDataTableWrapper %}
+{%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
+{%- from "digital-land-frontend/components/dl-map/macro.jinja" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/dl-data-record/macro.jinja" import dlDataRecordPanel %}
+{%- from "digital-land-frontend/components/dl-data-reference-cell/macro.jinja" import dlDataReferenceCell %}
+{%- from "digital-land-frontend/components/dl-data-table/macro.jinja" import dlDataTableWrapper %}
 
 {%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
 {% set geometry_url = "/entity/"+ row["entity"] + ".geojson" if row['typology'] == "geography" else None %}
@@ -15,9 +15,7 @@
 
 {%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
 
-{%- block beforeContent -%}
-  {{ super() }}
-
+{%- block breadcrumbs -%}
   {{- govukBreadcrumbs({
     "items": [
         {
@@ -29,51 +27,51 @@
 
 {%- block content %}
 
-{% block recordHead %}
-  {% block recordTitle -%}
-    <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
-    <h1 class="govuk-heading-xl">{{ row_name }}</h1>
-  {%- endblock recordTitle %}
-{% endblock recordHead %}
+  {% block recordHead %}
+    {% block recordTitle -%}
+      <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
+      <h1 class="govuk-heading-xl">{{ row_name }}</h1>
+    {%- endblock recordTitle %}
+  {% endblock recordHead %}
 
-<div class="govuk-tabs" data-module="dlf-subnav">
-  <h2 class="govuk-tabs__title">
-    Contents
-  </h2>
-  <nav class="dlf-subnav" aria-label="Sub navigation">
-    <ul class="dlf-subnav__list">
-      <li class="dlf-subnav__list-item dlf-subnav__list-item--selected">
-        <a class="dlf-subnav__list-item__link" href="#record" data-module-sub-nav="tab">
-          Record
-        </a>
-      </li>
-      {%- if history %}
-        <li class="dlf-subnav__list-item">
-          <a class="dlf-subnav__list-item__link" href="#history" data-module-sub-nav="tab">
-            History
+  <div class="govuk-tabs" data-module="dl-subnav">
+    <h2 class="govuk-tabs__title">
+      Contents
+    </h2>
+    <nav class="dl-subnav" aria-label="Sub navigation">
+      <ul class="dl-subnav__list">
+        <li class="dl-subnav__list-item dl-subnav__list-item--selected">
+          <a class="dl-subnav__list-item__link" href="#record" data-module-sub-nav="tab">
+            Record
           </a>
         </li>
-      {%- endif %}
-      {%- if provenance %}
-        <li class="dlf-subnav__list-item">
-          <a class="dlf-subnav__list-item__link" href="#provenance" data-module-sub-nav="tab">
-            Provenance
-          </a>
-        </li>
-      {% endif -%}
-      {% if references %}
-        <li class="dlf-subnav__list-item">
-          <a class="dlf-subnav__list-item__link" href="#referenced-by" data-module-sub-nav="tab">
-            {{ references|total_items }} Reference{{ "" if references|total_items == 1 else "s" }}
-          </a>
-        </li>
-      {% endif %}
-    </ul>
-  </nav>
+        {%- if history %}
+          <li class="dl-subnav__list-item">
+            <a class="dl-subnav__list-item__link" href="#history" data-module-sub-nav="tab">
+              History
+            </a>
+          </li>
+        {%- endif %}
+        {%- if provenance %}
+          <li class="dl-subnav__list-item">
+            <a class="dl-subnav__list-item__link" href="#provenance" data-module-sub-nav="tab">
+              Provenance
+            </a>
+          </li>
+        {% endif -%}
+        {% if references %}
+          <li class="dl-subnav__list-item">
+            <a class="dl-subnav__list-item__link" href="#referenced-by" data-module-sub-nav="tab">
+              {{ references|total_items }} Reference{{ "" if references|total_items == 1 else "s" }}
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
 
-  <div id="record">
-    {% block recordTableContainer %}
-    <div class="govuk-grid-row">
+    <div id="record">
+      {% block recordTableContainer %}
+      <div class="govuk-grid-row">
 
         {%- block recordTable %}
         <div class="{{ recordPanelContainerClass|default('govuk-grid-column-two-thirds') }}">
@@ -86,7 +84,8 @@
                 {%- if field not in ["name"] %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                {{- field|field_name }}
+                {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
+                {{ field }}
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {% if row[field] is not none %}
@@ -117,127 +116,82 @@
         </div>
 
         {% endblock recordTable -%}
+      </div>
+      {% endblock recordTableContainer %}
+
+      {% block recordGeometry -%}
+      {%- if includesMap %}
+      <h2 class="govuk-heading-m">Geographical area</h2>
+
+      {% set noteHTML %}
+      <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
+      {% endset %}
+
+      {{- dlLeafletMap({
+          "id": "dlMap",
+          "wrapper_classes": "govuk-!-margin-top-4",
+          "attributes": {
+              "data-geojson-urls": geometry_url
+          },
+          "height": "460",
+          "notePanel": {
+              "html": noteHTML
+          }
+      }) -}}
+
+      <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+        <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
+      </div>
+      {%- endif %}
+      {%- endblock recordGeometry %}
+
     </div>
-    {% endblock recordTableContainer %}
 
-    {% block recordGeometry -%}
-    {%- if includesMap %}
-    <h2 class="govuk-heading-m">Geographical area</h2>
-
-    {% set noteHTML %}
-    <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
-    {% endset %}
-
-    {{- dlLeafletMap({
-        "id": "dlMap",
-        "wrapper_classes": "govuk-!-margin-top-4",
-        "attributes": {
-            "data-geojson-urls": geometry_url
-        },
-        "height": "460",
-        "notePanel": {
-            "html": noteHTML
-        }
-    }) -}}
-
-    <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
-      <a download class="dl-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
-    </div>
+    {%- if history_enabled %}
+      <div id="history">
+        {#{%- block entryHistory %}#}
+        {#{%- endblock entryHistory %}#}
+      </div>
     {%- endif %}
-    {%- endblock recordGeometry %}
 
-  </div>
+    {%- if provenance %}
+      <div id="provenance">
+        <h2 class="govuk-heading-m dl-subnav__heading">Provenance</h2>
+      </div>
+    {% endif -%}
 
-  {%- if history_enabled %}
-    <div id="history">
-      {#{%- block entryHistory %}#}
-      {#<h2 class="govuk-heading-m dlf-subnav__heading">History</h2>#}
-      {#{% set fields = entity.all_fields() %}#}
-      {#{% set tableHTML -%}#}
-      {#<table class="data-table">#}
-      {#    <thead>#}
-      {#        <tr>#}
-      {#            <th>entry-date</th>#}
-      {#            <th>resource</th>#}
-      {#            <th>line</th>#}
-      {#            {% for f in fields %}#}
-      {#            <th>{{ f }}</th>#}
-      {#            {% endfor %}#}
-      {#        </tr>#}
-      {#    </thead>#}
-      {#    <tbody>#}
-      {#        {%- for entry in entity.change_history() %}#}
-      {#        {%- set resource_url = "https://github.com/digital-land/" + pipeline_name + "-collection/tree/main/transformed/" + pipeline_name + "/" + entry.resource + ".csv#L" + entry.line_num|github_line_num %}#}
-      {#        <tr>#}
-      {#            <td>{{ entry.entry_date.isoformat() }}</td>#}
-      {#            <td><a href="{{ resource_url }}">{{ entry.resource|truncate(15) }}</a></td>#}
-      {#            <td>{{ entry.line_num }}</td>#}
-      {#            {% for f in fields %}#}
-      {#            {% if entry.data[f] %}#}
-      {#                {% if f == "geometry" %}#}
-      {#                <td class="data-table__notes-cell data-table__cell--min-width-4">#}
-      {#                    {{ govukDetails({#}
-      {#                        "summaryText": "See WKT",#}
-      {#                        "text": entry.data[f]#}
-      {#                    }) }}#}
-      {#                </td>#}
-      {#                {% else %}#}
-      {#                <td>{{ entry.data[f] }}</td>#}
-      {#                {% endif %}#}
-      {#            {% else %}#}
-      {#            <td></td>#}
-      {#            {% endif %}#}
-      {#            {% endfor %}#}
-      {#        </tr>#}
-      {#        {%- endfor %}#}
-      {#    </tbody>#}
-      {#</table>#}
-      {#{% endset -%}#}
-      {#{{ dlDataTableWrapper({#}
-      {#    "tableHTML": tableHTML#}
-      {#}) }}#}
-      {#{%- endblock entryHistory %}#}
-    </div>
-  {%- endif %}
-
-  {%- if provenance %}
-    <div id="provenance">
-      <h2 class="govuk-heading-m dlf-subnav__heading">Provenance</h2>
-    </div>
-  {% endif -%}
-
-  {% block recordReferences -%}
-    {% if references %}
-      <div id="referenced-by">
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m dlf-subnav__heading">Referenced by</h2>
-            <p class="govuk-body">This record is referenced by {{ references|total_items }} other planning related data record{{ "" if references|total_items == 1 else "s" }}.</p>
-            {% if references|length > 0 -%}
-              {% for type, refs in references.items() %}
-                <h3 class="govuk-heading-s">{{ type|capitalize }}</h3>
-                <ul class="govuk-list govuk-list--bullet">
-                  {%- for ref in refs %}
-                    <li>
-                      <a href={{ entity_prefix|default('') }}{{ ref["href"] }}>{{ ref["text"] }}</a>
-                      <span class="secondary-text data-reference">({{ ref["id"] }})</span>
-                    </li>
-                  {% endfor -%}
-                </ul>
-              {% endfor %}
-            {% endif -%}
+    {% block recordReferences -%}
+      {% if references %}
+        <div id="referenced-by">
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+              <h2 class="govuk-heading-m dl-subnav__heading">Referenced by</h2>
+              <p class="govuk-body">This record is referenced by {{ references|total_items }} other planning related data record{{ "" if references|total_items == 1 else "s" }}.</p>
+              {% if references|length > 0 -%}
+                {% for type, refs in references.items() %}
+                  <h3 class="govuk-heading-s">{{ type|capitalize }}</h3>
+                  <ul class="govuk-list govuk-list--bullet">
+                    {%- for ref in refs %}
+                      <li>
+                        <a href={{ entity_prefix|default('') }}{{ ref["href"] }}>{{ ref["text"] }}</a>
+                        <span class="secondary-text data-reference">({{ ref["id"] }})</span>
+                      </li>
+                    {% endfor -%}
+                  </ul>
+                {% endfor %}
+              {% endif -%}
+            </div>
           </div>
         </div>
-      </div>
-    {% endif %}
-  {% endblock recordReferences -%}
+      {% endif %}
+    {% endblock recordReferences -%}
 
-  {%- endblock content %}
+{%- endblock content %}
 
   {% block recordEnd %}{% endblock recordEnd %}
 
-  {% block feedbackPrompt %}
-    {%- from "digital-land-frontend/components/feedback/macro.html" import dlFeedback %}
+  {% block footerStart %}
+    {%- from "digital-land-frontend/components/dl-feedback/macro.jinja" import dlFeedback %}
     {% set subject = "Feedback on " + row_name + " -- " + pipeline_name  %}
     {{ dlFeedback({
         "text": "Spotted an issue? Let us know so we can improve the data.",
@@ -248,55 +202,48 @@
         "container": true
         })
       }}
-  {% endblock %}
+  {% endblock footerStart %}
 
-  {%- block bodyEnd %}
-    {{ super() }}
-
-    {%- block initMapBlock %}
-      <script>
-          const datasetName = "{{ pipeline_name }}"
-          const $mapElement = document.querySelector('[data-module="boundary-map"]')
-          const $nationalMapLink = document.querySelector('.dl-link-national-map')
-          const mapParams = {
-              initZoomCallback: function (featureGroup, map) {
-                  console.log("initial load completed")
-                  // do we need to check there isn't more than one shape?
-                  const center = featureGroup.getBounds().getCenter()
-                  const zoom = map.getZoom()
-                  let url = `http://digital-land.github.io/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
-                  console.log(url)
-                  if ($nationalMapLink) {
-                      // only show this for the datasets we've added to the national map
-                      $nationalMapLink.href = url
-                      $nationalMapLink.classList.remove("js-hidden")
-                  }
+  {%- block pageScripts %}
+  <script>
+      const datasetName = "{{ pipeline_name }}"
+      const $mapElement = document.querySelector('[data-module="boundary-map"]')
+      const $nationalMapLink = document.querySelector('.dl-link-national-map')
+      const mapParams = {
+          initZoomCallback: function (featureGroup, map) {
+              console.log("initial load completed")
+              // do we need to check there isn't more than one shape?
+              const center = featureGroup.getBounds().getCenter()
+              const zoom = map.getZoom()
+              let url = `http://digital-land.github.io/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
+              console.log(url)
+              if ($nationalMapLink) {
+                  // only show this for the datasets we've added to the national map
+                  $nationalMapLink.href = url
+                  $nationalMapLink.classList.remove("js-hidden")
               }
           }
+      }
 
-          {% if geometry_url %}
-              mapParams.geojsonURLs = ["{{ geometry_url }}"]
-          {% elif geojson_features %}
-              mapParams.geojsonFeatures = [{{ geojson_features|tojson }}]
-          {% endif %}
+      {% if geometry_url %}
+          mapParams.geojsonURLs = ["{{ geometry_url }}"]
+      {% elif geojson_features %}
+          mapParams.geojsonFeatures = [{{ geojson_features|tojson }}]
+      {% endif %}
 
-          const mapComponent = new DLMaps.Map($mapElement).init(mapParams)
-      </script>
-    {% endblock -%}
+      const mapComponent = new DLMaps.Map($mapElement).init(mapParams)
+  </script>
 
-    {% block initDataTables %}
-      <script>
-          // Initialise back to top
-          var $data_tables = document.querySelectorAll('[data-module*="data-table"]')
-          $data_tables.forEach(data_table => {
-              new window.DLFrontend.ScrollableTables(data_table).init()
-          })
-      </script>
-    {% endblock initDataTables %}
+  <script>
+      var $data_tables = document.querySelectorAll('[data-module*="data-table"]')
+      $data_tables.forEach(data_table => {
+          new window.DLFrontend.ScrollableTables(data_table).init()
+      })
+  </script>
 
-    <script>
-        const $subNavTabs = document.querySelector('[data-module="dlf-subnav"]')
-        const subNavTabsComponent = new DLFrontend.SubNavTabs($subNavTabs).init({})
-    </script>
+  <script>
+      const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')
+      const subNavTabsComponent = new DLFrontend.SubNavTabs($subNavTabs).init({})
+  </script>
 
-  {%- endblock %}
+{%- endblock %}

@@ -1,0 +1,32 @@
+.feedback-panel {
+  margin-bottom: 10px;
+  padding: 20px 30px;
+  color: govuk-colour("white");
+  background: govuk-colour("blue");
+  @include govuk-font($size: 19, $line-height: 24px);
+
+  .feedback-panel__heading {
+    @include govuk-font($size: 24, $weight: bold);
+    margin-top: 0;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  a {
+    &:link,
+    &:hover {
+      color: $govuk-body-background-colour;
+    }
+
+    &:visited {
+      color: darken($govuk-body-background-colour, 5);
+    }
+
+    &:active,
+    &:focus {
+      @include govuk-focused-text;
+    }
+  }
+}

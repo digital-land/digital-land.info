@@ -1,13 +1,10 @@
-{% extends "digital-land-frontend/dlf-base.html" %}
+{% extends "digital-land-frontend/base.jinja" %}
 
-{% block head %}
-    {{ super() }}
+{% block stylesheets %}
     <!-- local generated css -->
-  <link href="{{ staticPath }}/stylesheets/application.css" rel="stylesheet" />
+  <link href="{{ assetPath }}/stylesheets/application.css" rel="stylesheet" />
 {% endblock %}
 
-{% block header %}
-{% include 'digital-land-frontend/partials/dl-cookie-banner.html' %}
-{% include 'partials/header-bar.html' %}
-{% endblock header %}
-
+{% block mastHead %}
+{% include 'partials/mast-head.html' %}
+{% endblock mastHead %}

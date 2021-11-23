@@ -31,26 +31,26 @@
 
 		<h1 class="govuk-heading-xl">Datasets</h1>
 
-    <p class="govuk-body">Contents</p>
-    <ul class="govuk-list govuk-list--bullet">
+    	<p class="govuk-body">Contents</p>
+		<ul class="govuk-list govuk-list--bullet">
 		{% for theme in themes.keys() %}
-			<li><a href="#{{ theme }}">{{ theme | capitalize }}</a></li>
+			<li><a class="govuk-link" href="#{{ theme }}">{{ theme | capitalize }}</a></li>
 		{% endfor %}
-    </ul>
+		</ul>
 
 	</div>
 </div>
 
 	<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
-	<form class="filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-filter="form">
-		<label class="filter-list__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
-		<input class="filter-list__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Ramsar site">
+	<form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-filter="form">
+		<label class="dl-filter-list__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
+		<input class="dl-filter-list__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Ramsar site">
 	</form>
 
 	{% for theme in themes.keys() %}
 
-	<div class="govuk-grid-row org-count">
+	<div class="govuk-grid-row list-filter__count">
 		<div class="govuk-grid-column-one-third">
 			{% set plural = theme | capitalize %}
 		{% if themes[theme]['dataset']|length == 1 %}
@@ -58,22 +58,22 @@
 		{% else %}
 			{% set are = "are" %}
 		{% endif %}
-			<h2 class="govuk-heading-m org-count__name" id="{{theme}}">{{plural}}</h2>
-			<div class="org-count__wrapper">
+			<h2 class="govuk-heading-m list-filter__count__name" id="{{theme}}">{{plural}}</h2>
+			<div class="list-filter__count__wrapper">
 				<p class="govuk-visually-hidden">There {{are}}
-					<span class="js-accessible-list-count">{{ themes[theme]['dataset']|length }}</span>
+					<span class="js-accessible-list-filter__count">{{ themes[theme]['dataset']|length }}</span>
 					{{plural}}
 				</p>
-				<span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-count" aria-hidden="true">{{ themes[theme]['dataset']|length }}</span>
+				<span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-filter__count" aria-hidden="true">{{ themes[theme]['dataset']|length }}</span>
 			</div>
 		</div>
 
 		<div class="govuk-grid-column-two-thirds">
 
-			<ol class="org-list" data-filter="list">
+			<ol class="list-filter__list" data-filter="list">
 			{% for dataset in themes[theme]['dataset']|sort(attribute='name')  %}
-				<li class="org-list__item" data-filter="item">
-					<a href="{{ dataset.dataset }}" class="govuk-link org-list__item-title">{{ dataset.name }}</a>
+				<li class="list-filter__item" data-filter="item">
+					<a href="{{ dataset.dataset }}" class="govuk-link list-filter__item-title">{{ dataset.name }}</a>
 				</li>
 			{% endfor %}
 			</ol>
@@ -82,7 +82,7 @@
 	</div>
 	{% endfor %}
 
-	<p class="organisations__no-filter-match js-no-filter-list-matches">No dataset matches that filter.</p>
+	<p class="js-no-list-filter-matches">No dataset matches that filter.</p>
 
 {% endblock %}
 
@@ -91,9 +91,6 @@
 <script>
   // initialise list filter
   const $form = document.querySelector('[data-filter="form"]');
-  new window.DLFrontend.FilterList($form).init({
-      list_section_selector: '.org-count',
-      count_wrapper_selector: '.org-count__wrapper'
-  })
+  new window.DLFrontend.ListFilter($form).init()
 </script>
 {% endblock %}
