@@ -48,20 +48,6 @@
         </div>
         <!-- /#search.govuk-grid-row -->
 
-        <div class="govuk-grid-row govuk-!-margin-bottom-8" id="search">
-            <div class="govuk-grid-column-one-half">
-                <h2 class="govuk-heading-l">Understand the data</h2>
-                <p class="govuk-body">Read about how the data is created and collected.</p>
-                <p class="govuk-body"><a href="/dataset/" class="govuk-link">Find planning and housing datasets</a></p>
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
-            <div class="govuk-grid-column-one-half">
-              <img src="{{url_for("static", path="/images/datasets.png")}}" srcset="/static/images/datasets.svg" alt="" class="app-max-width--100">
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
-        </div>
-        <!-- /#search.govuk-grid-row -->
-
     </section>
     <!-- /#feature-list -->
 
@@ -69,16 +55,16 @@
 
     <section id="other-features" class="govuk-width-container">
 
-        <h2 class="govuk-heading-l" id="api">Build services with data you can trust</h2>
-
         <div class="govuk-grid-row govuk-!-margin-bottom-8">
             <div class="govuk-grid-column-one-half">
-                <p class="govuk-body">Know where and who information came from by tracing the provenance of data.</p>
-                <p class="govuk-body"><img src="{{url_for("static", path="/images/provenance.png")}}" srcset="/static/images/provenance.svg" alt="An illustration depicting provenance" class="app-max-width--100"></p>
-                <p class="govuk-body"><a href="#" class="govuk-link">Read our guide to understanding land data</a></p>
+                <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Understand the data</h2>
+                <p class="govuk-body">Read about why data is important to planning and housing and how the data is created.</p>
+                <p class="govuk-body"><img src="{{url_for("static", path="/images/datasets.png")}}" srcset="/static/images/datasets.svg" alt="" class="app-max-width--100"></p>
+                <p class="govuk-body"><a href="/dataset/" class="govuk-link">Find planning and housing datasets</a></p>
             </div>
             <!-- /.govuk-grid-column-one-half -->
             <div class="govuk-grid-column-one-half">
+                <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Use the data</h2>
                 <p class="govuk-body">Integrate the Digital Land API with your web application or back office system.</p>
                 <p class="govuk-body"><img src="{{url_for("static", path="/images/api.png")}}" srcset="/static/images/api.svg" alt="An illustration depicting an API, showing a terminal command prompt" class="app-max-width--100"></p>
                 <p class="govuk-body"><a href="/docs" class="govuk-link">View the API documentation</a></p>
