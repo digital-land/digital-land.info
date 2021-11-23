@@ -136,6 +136,7 @@ async def search_entities(
                         for param in request.query_params._list
                     ]
                 ),
+                "list": request.query_params._list,
             },
         },
     )

@@ -30,7 +30,7 @@
           <h2 class="app-results-summary__title">{{ data.count|commanum }} result{% if data.count > 1 %}s{% endif %}</h2>
 
           {% macro removeFilterButton(params) %}
-          <a href="{{ params.url }}" class="app-applied-filter__button" arial-label="Remove filter for {{ params.filter.name }}">
+          <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
             <span class="app-facet-tag__icon" aria-hidden="true">
               <svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -62,7 +62,7 @@
                     "name": "typology",
                     "value": filter
                   },
-                  "url": filter|make_query_str('typology', request.query_params)
+                  "url": "?" + filter|make_param_str('typology', url_query_params.list)
                 }) }}
               </span>
               {% endfor %}
@@ -78,7 +78,7 @@
                     "name": "dataset",
                     "value": filter
                   },
-                  "url": "#"
+                  "url": "?" + filter|make_param_str("dataset", url_query_params.list)
                 }) }}
               </span>
               {% endfor %}
@@ -95,7 +95,7 @@
                       "name": "geometry_reference",
                       "value": filter
                     },
-                    "url": filter|make_query_str('geometry_reference', request.query_params)
+                    "url": "?" + filter|make_param_str('geometry_reference', url_query_params.list)
                   }) }}
                 </span>
                 {% endfor %}
@@ -106,7 +106,7 @@
                     "name": "geometry_reference",
                     "value": query.params.get('geometry_reference')
                   },
-                  "url": query.params.get('geometry_reference')|make_query_str('geometry_reference', request.query_params)
+                  "url": "?" + query.params.get('geometry_reference')|make_param_str('geometry_reference', url_query_params.list)
                 }) }}
               </span>
               {% endif %}

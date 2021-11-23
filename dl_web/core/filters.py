@@ -13,3 +13,13 @@ def geometry_reference_count(v):
     if is_list_filter(v):
         return len(v)
     return 1
+
+
+def make_param_str_filter(exclude_value, exclude_param, all):
+    return "&".join(
+        [
+            "{}={}".format(param[0], param[1])
+            for param in all
+            if exclude_param != param[0] or exclude_value != param[1]
+        ]
+    )
