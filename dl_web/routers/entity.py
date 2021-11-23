@@ -129,6 +129,14 @@ async def search_entities(
                 for filter_name, values in query.params.items()
                 if filter_name != "limit" and values is not None
             ],
+            "url_query_params": {
+                "str": ("&").join(
+                    [
+                        "{}={}".format(param[0], param[1])
+                        for param in request.query_params._list
+                    ]
+                ),
+            },
         },
     )
 

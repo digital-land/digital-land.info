@@ -226,22 +226,18 @@
                 <div class="app-results-actions__row-content">
                   <ul class="app-list app-list--files">
                     <li class="app-list__item">
-                      <a href="#" class="govuk-link">Excel</a>
+                      {% if url_query_params.str == "" %}
+                      <a href="/entity.json" class="govuk-link">JSON</a>
+                      {% else %}
+                      <a href="/entity.json?{{ url_query_params.str }}&limit={{ data.count }}" class="govuk-link">JSON</a>
+                      {% endif %}
                     </li>
                     <li class="app-list__item">
-                      <a href="#" class="govuk-link">Zip</a>
-                    </li>
-                    <li class="app-list__item">
-                      <a href="#" class="govuk-link">CSV</a>
-                    </li>
-                    <li class="app-list__item">
-                      <a href=".json" class="govuk-link">JSON</a>
-                    </li>
-                    <li class="app-list__item">
-                      <a href="#" class="govuk-link">GeoJSON</a>
-                    </li>
-                    <li class="app-list__item">
-                      <a href="#" class="govuk-link">RDF/Turtle</a>
+                      {% if url_query_params.str == "" %}
+                      <a href="/entity.geojson" class="govuk-link">JSON</a>
+                      {% else %}
+                      <a href="/entity.geojson?{{ url_query_params.str }}&limit={{ data.count }}" class="govuk-link">GeoJSON</a>
+                      {% endif %}
                     </li>
                   </ul>
                 </div>
