@@ -21,10 +21,6 @@ jobs:
     - name: Make Init
       run: |
         make init
-    
-    - name: Build frontend
-      run: |
-        make frontend
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
