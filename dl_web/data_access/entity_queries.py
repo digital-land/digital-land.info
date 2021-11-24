@@ -191,7 +191,9 @@ class EntityQuery:
     def pagination(self, where, params):
         sql = ""
         if params.get("next_entity", ""):
-            sql += where + " entity.entity > %s" % (sqlescape(str(params["next_entity"])))
+            sql += where + " entity.entity > %s" % (
+                sqlescape(str(params["next_entity"]))
+            )
         sql += " ORDER BY entity.entity"
         sql += " LIMIT %s" % (sqlescape(str(params.get("limit", 10))))
         return sql
