@@ -1,6 +1,7 @@
+import json
 from datetime import date
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 def to_kebab(string: str) -> str:
@@ -32,6 +33,7 @@ class Entity(DigitalLandBase):
     prefix: str = None
     organisation_entity: str = None
     geojson: GeoJSON = None
+    json_: dict = Field(None, alias="json")
 
 
 class Dataset(DigitalLandBase):
@@ -49,7 +51,18 @@ class Dataset(DigitalLandBase):
 
 
 def entity_factory(data):
+
+    # a bit hacky but json in data is stringified. Need to work out how to tell
+    # pydantic to just take care of it and not had to json.loads it manually
+    if "json" in data.keys():
+        json_blob = data.pop("json")
+
     e = Entity(**data)
+
+    if json_blob:
+        e.json_ = json.loads(json_blob)
+
     if e.geojson is not None:
         e.geojson.properties = e.dict(exclude={"geojson"}, by_alias=True)
+
     return e
