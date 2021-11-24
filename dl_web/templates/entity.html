@@ -205,6 +205,7 @@
   {% endblock footerStart %}
 
   {%- block pageScripts %}
+  {%- if includesMap %}
   <script>
       const datasetName = "{{ pipeline_name }}"
       const $mapElement = document.querySelector('[data-module="boundary-map"]')
@@ -233,13 +234,7 @@
 
       const mapComponent = new DLMaps.Map($mapElement).init(mapParams)
   </script>
-
-  <script>
-      var $data_tables = document.querySelectorAll('[data-module*="data-table"]')
-      $data_tables.forEach(data_table => {
-          new window.DLFrontend.ScrollableTables(data_table).init()
-      })
-  </script>
+  {% endif %}
 
   <script>
       const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')
