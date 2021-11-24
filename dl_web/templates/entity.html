@@ -19,9 +19,17 @@
   {{- govukBreadcrumbs({
     "items": [
         {
-        "text": "Digital Land",
-        "href": "/"
-        } ] + breadcrumb
+          "text": "Digital Land",
+          "href": "/"
+        },
+        {
+          "text": "Entity",
+          "href": "/entity"
+        },
+        {
+          "text": row["entity"]
+        }
+      ]
     }) -}}
 {%- endblock -%}
 
@@ -81,7 +89,7 @@
                 <dd class="govuk-summary-list__value">{{ row['name'] }}</dd>
             </div>
             {%- for field in row.keys() %}
-                {%- if field not in ["name"] %}
+            {%- if field not in ["name", "json"] %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                 {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
@@ -89,13 +97,30 @@
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {% if row[field] is not none %}
+                    {% if field == "dataset" %}
+                    <a class="govuk-link" href="/dataset/{{ row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
+                    {% else %}
                     {{ row[field]|make_link }}
+                    {%- endif %}
                     {% endif %}
                 </dd>
             </div>
-            {%- endif %}
+            {% endif %}
+            {% if field == "json" and row[field] is not none %}
+              {% for attr, val in row[field].items() %}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                {{ attr }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                  {{ val|make_link }}
+                </dd>
+              </div>
+              {% endfor %}
+            {% endif %}
             {%- endfor %}
             {%- endset %}
+
             {%- if row['resource'] -%}
                 {{ dlDataRecordPanel({
                     "classes": "govuk-!-margin-bottom-6",
@@ -205,6 +230,7 @@
   {% endblock footerStart %}
 
   {%- block pageScripts %}
+  {%- if includesMap %}
   <script>
       const datasetName = "{{ pipeline_name }}"
       const $mapElement = document.querySelector('[data-module="boundary-map"]')
@@ -233,13 +259,7 @@
 
       const mapComponent = new DLMaps.Map($mapElement).init(mapParams)
   </script>
-
-  <script>
-      var $data_tables = document.querySelectorAll('[data-module*="data-table"]')
-      $data_tables.forEach(data_table => {
-          new window.DLFrontend.ScrollableTables(data_table).init()
-      })
-  </script>
+  {% endif %}
 
   <script>
       const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')

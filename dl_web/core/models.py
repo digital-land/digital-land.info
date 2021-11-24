@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, Json
 
 
 def to_kebab(string: str) -> str:
@@ -32,6 +32,7 @@ class Entity(DigitalLandBase):
     prefix: str = None
     organisation_entity: str = None
     geojson: GeoJSON = None
+    json_: Json = Field(None, alias="json")
 
 
 class Dataset(DigitalLandBase):

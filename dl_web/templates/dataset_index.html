@@ -34,7 +34,9 @@
     	<p class="govuk-body">Contents</p>
 		<ul class="govuk-list govuk-list--bullet">
 		{% for theme in themes.keys() %}
+			{% if theme != "" %}
 			<li><a class="govuk-link" href="#{{ theme }}">{{ theme | capitalize }}</a></li>
+			{% endif %}
 		{% endfor %}
 		</ul>
 
@@ -44,23 +46,18 @@
 	<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
 	<form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-filter="form">
-		<label class="dl-filter-list__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
-		<input class="dl-filter-list__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Ramsar site">
+		<label class="dl-list-filter__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
+		<input class="dl-list-filter__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Ramsar site">
 	</form>
 
 	{% for theme in themes.keys() %}
-
-	<div class="govuk-grid-row list-filter__count">
+	{% if theme != "" %}
+	<div class="govuk-grid-row dl-list-filter__count">
 		<div class="govuk-grid-column-one-third">
-			{% set plural = theme | capitalize %}
-		{% if themes[theme]['dataset']|length == 1 %}
-			{% set are = "is" %}
-		{% else %}
-			{% set are = "are" %}
-		{% endif %}
+		{% set plural = theme | capitalize %}
 			<h2 class="govuk-heading-m list-filter__count__name" id="{{theme}}">{{plural}}</h2>
-			<div class="list-filter__count__wrapper">
-				<p class="govuk-visually-hidden">There {{are}}
+			<div class="dl-list-filter__count__wrapper">
+				<p class="govuk-visually-hidden">There {{"is" if themes[theme]['dataset']|length == 1 else "are"}}
 					<span class="js-accessible-list-filter__count">{{ themes[theme]['dataset']|length }}</span>
 					{{plural}}
 				</p>
@@ -70,19 +67,20 @@
 
 		<div class="govuk-grid-column-two-thirds">
 
-			<ol class="list-filter__list" data-filter="list">
+			<ol class="dl-list-filter__list" data-filter="list">
 			{% for dataset in themes[theme]['dataset']|sort(attribute='name')  %}
-				<li class="list-filter__item" data-filter="item">
-					<a href="{{ dataset.dataset }}" class="govuk-link list-filter__item-title">{{ dataset.name }}</a>
+				<li class="dl-list-filter__item" data-filter="item">
+					<a href="{{ dataset.dataset }}" class="govuk-link dl-list-filter__item-title">{{ dataset.name }}</a>
 				</li>
 			{% endfor %}
 			</ol>
 		</div>
 
 	</div>
+	{% endif %}
 	{% endfor %}
 
-	<p class="js-no-list-filter-matches">No dataset matches that filter.</p>
+	<p class="dl-list-filter__no-filter-match">No dataset matches that filter.</p>
 
 {% endblock %}
 
