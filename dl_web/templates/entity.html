@@ -89,7 +89,7 @@
                 <dd class="govuk-summary-list__value">{{ row['name'] }}</dd>
             </div>
             {%- for field in row.keys() %}
-                {%- if field not in ["name"] %}
+            {%- if field not in ["name"] %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                 {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
@@ -97,13 +97,18 @@
                 </dt>
                 <dd class="govuk-summary-list__value">
                     {% if row[field] is not none %}
+                    {% if field == "dataset" %}
+                    <a class="govuk-link" href="/dataset/{{ row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
+                    {% else %}
                     {{ row[field]|make_link }}
+                    {%- endif %}
                     {% endif %}
                 </dd>
             </div>
-            {%- endif %}
+            {% endif %}
             {%- endfor %}
             {%- endset %}
+
             {%- if row['resource'] -%}
                 {{ dlDataRecordPanel({
                     "classes": "govuk-!-margin-bottom-6",
