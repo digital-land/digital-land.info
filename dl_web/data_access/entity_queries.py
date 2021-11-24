@@ -188,10 +188,12 @@ class EntityQuery:
             sql += where + "%s(geometry.point_geom, %s)" % (match, value)
         return sql + ")"
 
-    def pagination(self, params):
+    def pagination(self, where, params):
         sql = ""
         if params.get("next_entity", ""):
-            sql += " entity.entity > %s" % (sqlescape(str(params["next_entity"])))
+            sql += where + " entity.entity > %s" % (
+                sqlescape(str(params["next_entity"]))
+            )
         sql += " ORDER BY entity.entity"
         sql += " LIMIT %s" % (sqlescape(str(params.get("limit", 10))))
         return sql
@@ -218,7 +220,8 @@ class EntityQuery:
                 sql += where + clause
                 where = " AND "
 
-        sql += where + self.pagination(self.params)
+        sql += self.pagination(where, self.params)
+
         print(sql)
         return sql
 
