@@ -218,7 +218,7 @@ class EntityQuery:
                 sql += where + clause
                 where = " AND "
 
-        sql += self.pagination(self.params)
+        sql += where + self.pagination(self.params)
         print(sql)
         return sql
 
