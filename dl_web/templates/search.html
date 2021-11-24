@@ -8,10 +8,25 @@
 {%- from "digital-land-frontend/components/dl-map/macro.jinja" import dlMap %}
 {%- from "digital-land-frontend/components/dl-filter-group/macro.jinja" import dlFilterGroup %}
 
-{% block main %}
+{% block breadcrumbs %}
+  {{- govukBreadcrumbs({
+    "items": [
+        {
+          "text": "Digital Land",
+          "href": "/"
+        },
+        {
+          "text": "Search"
+        }
+      ]
+  }) -}}
+{% endblock breadcrumbs %}
+
+{% block content %}
 <main id="content" role="main">
-  <section class="govuk-width-container govuk-!-padding-top-6 govuk-!-padding-bottom-6">
-    {% call govukFieldset({ "legend": { "text": "Search for planning and housing data", "classes": "govuk-fieldset__legend--l govuk-!-margin-bottom-8", "isPageHeading": true } }) %}
+  <section class="govuk-width-container govuk-!-padding-bottom-6">
+
+    <h1 class="govuk-heading-xl">Search for planning and housing data</h1>
 
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-third">
@@ -256,7 +271,6 @@
       <!-- /.govuk-grid-column-two-thirds -->
     </div>
     <!-- /#search.govuk-grid-row -->
-    {% endcall %}
   </section>
 </main>
 {% endblock %}
