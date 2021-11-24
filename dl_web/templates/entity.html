@@ -19,9 +19,17 @@
   {{- govukBreadcrumbs({
     "items": [
         {
-        "text": "Digital Land",
-        "href": "/"
-        } ] + breadcrumb
+          "text": "Digital Land",
+          "href": "/"
+        },
+        {
+          "text": "Entity",
+          "href": "/entity"
+        },
+        {
+          "text": row["entity"]
+        }
+      ]
     }) -}}
 {%- endblock -%}
 
