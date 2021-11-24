@@ -1,0 +1,32 @@
+{% macro appPagination(params) %}
+<nav class="app-pagination" role="navigation" aria-label="Pagination">
+    {% if params.next %}
+    <div class="app-pagination__button app-pagination__button--next">
+        <a href="{{ params.next.href }}" class="app-pagination__link" rel="next">
+            <span class="app-pagination__link-title">
+                <span class="app-pagination__link-label">
+                    {{ params.next.label|default('Next') }}<span class="govuk-visually-hidden">{{ params.next.labelVisuallyHidden|default(' set of results') }}</span>
+                </span>
+            </span>
+            {% if params.next.text %}
+            <span class="app-pagination__link-text">{{ params.next.text }}</span>
+            {% endif %}
+        </a>
+    </div>
+    {% endif %}
+    {% if params.prev %}
+    <div class="app-pagination__button app-pagination__button--previous">
+        <a href="{{ params.prev.href }}" class="app-pagination__link" rel="prev">
+            <span class="app-pagination__link-title">
+                <span class="app-pagination__link-label">
+                    {{ params.prev.label|default('Previous') }}<span class="govuk-visually-hidden">{{ params.prev.labelVisuallyHidden|default(' set of results') }}</span>
+                </span>
+            </span>
+            {% if params.prev.text %}
+            <span class="app-pagination__link-text">{{ params.prev.text }}</span>
+            {% endif %}
+        </a>
+    </div>
+    {% endif %}
+</nav>
+{% endmacro %}

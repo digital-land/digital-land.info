@@ -7,6 +7,7 @@
 {%- from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
 {%- from "digital-land-frontend/components/dl-map/macro.jinja" import dlMap %}
 {%- from "digital-land-frontend/components/dl-filter-group/macro.jinja" import dlFilterGroup %}
+{% from 'components/pagination/macro.jinja' import appPagination %}
 
 {% block breadcrumbs %}
   {{- govukBreadcrumbs({
