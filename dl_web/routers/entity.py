@@ -65,6 +65,17 @@ async def get_entity(request: Request, entity: int, extension: Optional[Suffix] 
         raise HTTPException(status_code=404, detail="entity not found")
 
 
+def make_pagination_link(query_params, last_entity):
+    url = "?" + "&".join(
+        [
+            "{}={}".format(param[0], param[1])
+            for param in query_params
+            if param[0] != "next_entity"
+        ]
+    )
+    return url + "&next_entity={}".format(last_entity)
+
+
 async def search_entities(
     request: Request,
     # filter entries
@@ -138,6 +149,7 @@ async def search_entities(
                 ),
                 "list": request.query_params._list,
             },
+            "next_url": make_pagination_link(request.query_params._list, data['results'][-1].dict().get('entity')) 
         },
     )
 

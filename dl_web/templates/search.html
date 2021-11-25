@@ -231,6 +231,16 @@
           </ul>
           <!-- /.app-results-list -->
 
+          <div class="app-pagination__wrapper govuk-!-margin-bottom-7">
+          {{ appPagination({
+            "next": {
+              "href": next_url,
+              "text": "Show next 10 entities" 
+            }
+          }) }}
+          </div>
+          <!-- /.app-pagination__wrapper -->
+
           {# Anything within this div becomes 'sticky' to the bottom upon scroll #}
           <div class="app-results-footer app-results-footer--sticky">
 
