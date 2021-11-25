@@ -251,7 +251,7 @@
                     </li>
                     <li class="app-list__item">
                       {% if url_query_params.str == "" %}
-                      <a href="/entity.geojson" class="govuk-link">JSON</a>
+                      <a href="/entity.geojson" class="govuk-link">GeoJSON</a>
                       {% else %}
                       <a href="/entity.geojson?{{ url_query_params.str }}&limit={{ data.count }}" class="govuk-link">GeoJSON</a>
                       {% endif %}
