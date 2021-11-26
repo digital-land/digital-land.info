@@ -29,7 +29,7 @@
 <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
 
 <div class="govuk-grid-row govuk-!-margin-bottom-6">
-  <div class="govuk-grid-column-two-thirds">
+  <div class="govuk-grid-column-full">
     <dl class="govuk-summary-list govuk-!-margin-bottom-0">
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Entity count</dt>
@@ -46,6 +46,12 @@
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Latest resource collected on</dt>
         <dd class="govuk-summary-list__value">{{ latest_resource['collected_date'] if latest_resource['collected_date'] else 'N/A' }}</dd>
+      </div>
+    </dl>
+    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Collector last ran on</dt>
+        <dd class="govuk-summary-list__value">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
       </div>
     </dl>
   </div>

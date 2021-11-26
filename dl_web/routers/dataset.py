@@ -11,6 +11,7 @@ from dl_web.data_access.digital_land_queries import (
     fetch_datasets_with_theme,
     fetch_publisher_coverage_count,
     fetch_latest_resource,
+    fetch_lastest_log_date,
 )
 from dl_web.data_access.entity_queries import EntityQuery, get_entity_count
 from dl_web.core.resources import specification, templates
@@ -67,6 +68,7 @@ async def get_dataset(
         entity_count_repsonse = await get_entity_count(dataset=dataset)
         publisher_coverage_response = await fetch_publisher_coverage_count(dataset)
         latest_resource_response = await fetch_latest_resource(dataset)
+        latest_log_response = await fetch_lastest_log_date(dataset)
         typology = specification.field_typology(dataset)
         params = {
             "typology": [_dataset.typology],
@@ -101,6 +103,9 @@ async def get_dataset(
                         "current": publisher_coverage_response["rows"][0][1],
                     },
                     "latest_resource": latest_resource,
+                    "last_collection_attempt": latest_log_response["rows"][0][1]
+                    if len(latest_log_response["rows"])
+                    else None,
                 },
             )
     except KeyError as e:

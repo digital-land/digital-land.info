@@ -104,3 +104,25 @@ async def fetch_latest_resource(dataset):
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_publisher_coverage_count: %s", url)
     return await fetch(url)
+
+
+async def fetch_lastest_log_date(dataset):
+    datasette_url = get_settings().DATASETTE_URL
+    query_lines = [
+        "SELECT",
+        "source_pipeline.pipeline,",
+        "MAX(log.entry_date) AS latest_attempt",
+        "FROM",
+        "source",
+        "INNER JOIN source_pipeline ON source.source = source_pipeline.source",
+        "INNER JOIN log ON source.endpoint = log.endpoint",
+        "WHERE",
+        f"source_pipeline.pipeline = '{dataset}'",
+        "GROUP BY",
+        "source_pipeline.pipeline",
+    ]
+    query_str = " ".join(query_lines)
+    query = urllib.parse.quote(query_str)
+    url = f"{datasette_url}/digital-land.json?sql={query}"
+    logger.info("get_latest_log_date: %s", url)
+    return await fetch(url)
