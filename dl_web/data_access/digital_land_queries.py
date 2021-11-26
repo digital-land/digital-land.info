@@ -77,3 +77,30 @@ async def fetch_publisher_coverage_count(dataset):
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_publisher_coverage_count: %s", url)
     return await fetch(url)
+
+
+async def fetch_latest_resource(dataset):
+    datasette_url = get_settings().DATASETTE_URL
+    query_lines = [
+        "SELECT",
+        "resource.resource,",
+        "resource.end_date,",
+        "resource.entry_date,",
+        "resource.start_date,",
+        "source_pipeline.pipeline",
+        "FROM",
+        "resource",
+        "INNER JOIN resource_endpoint ON resource.resource = resource_endpoint.resource",
+        "INNER JOIN source ON resource_endpoint.endpoint = source.endpoint",
+        "INNER JOIN source_pipeline ON source.source = source_pipeline.source",
+        "WHERE",
+        f"source_pipeline.pipeline = '{dataset}'",
+        "ORDER BY",
+        "resource.start_date DESC",
+        "LIMIT 1",
+    ]
+    query_str = " ".join(query_lines)
+    query = urllib.parse.quote(query_str)
+    url = f"{datasette_url}/digital-land.json?sql={query}"
+    logger.info("get_publisher_coverage_count: %s", url)
+    return await fetch(url)

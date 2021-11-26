@@ -10,6 +10,7 @@ from dl_web.data_access.digital_land_queries import (
     fetch_dataset,
     fetch_datasets_with_theme,
     fetch_publisher_coverage_count,
+    fetch_latest_resource,
 )
 from dl_web.data_access.entity_queries import EntityQuery, get_entity_count
 from dl_web.core.resources import specification, templates
@@ -65,12 +66,19 @@ async def get_dataset(
         _dataset = await fetch_dataset(dataset)
         entity_count_repsonse = await get_entity_count(dataset=dataset)
         publisher_coverage_response = await fetch_publisher_coverage_count(dataset)
+        latest_resource_response = await fetch_latest_resource(dataset)
         typology = specification.field_typology(dataset)
         params = {
             "typology": [_dataset.typology],
             "dataset": [dataset],
             "limit": limit,
         }
+        latest_resource = None
+        if len(latest_resource_response["rows"]):
+            latest_resource = {
+                "resource": latest_resource_response["rows"][0][0],
+                "collected_date": latest_resource_response["rows"][0][3],
+            }
         # TODO I don't think this page needs anything more than an entity count
         # now - and if so, note the limit param above if we try to do a count
         query = EntityQuery(params=params)
@@ -92,6 +100,7 @@ async def get_dataset(
                         "expected": publisher_coverage_response["rows"][0][0],
                         "current": publisher_coverage_response["rows"][0][1],
                     },
+                    "latest_resource": latest_resource,
                 },
             )
     except KeyError as e:
