@@ -62,6 +62,7 @@ async def get_dataset(
     collection_bucket = settings.S3_COLLECTION_BUCKET
     try:
         _dataset = await fetch_dataset(dataset)
+        entity_count_repsonse = await get_entity_count(dataset=dataset)
         typology = specification.field_typology(dataset)
         params = {
             "typology": [_dataset.typology],
@@ -84,6 +85,7 @@ async def get_dataset(
                     "entities": entities["results"],
                     "key_field": specification.key_field(typology),
                     "collection_bucket": collection_bucket,
+                    "entity_count": entity_count_repsonse["rows"][0][1],
                 },
             )
     except KeyError as e:
