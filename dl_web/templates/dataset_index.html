@@ -71,6 +71,9 @@
 			{% for dataset in themes[theme]['dataset']|sort(attribute='name')  %}
 				<li class="dl-list-filter__item" data-filter="item">
 					<a href="{{ dataset.dataset }}" class="govuk-link dl-list-filter__item-title">{{ dataset.name }}</a>
+					{%- if dataset['entity_count'] == 0 %}
+					<span class="govuk-tag govuk-tag--grey govuk-!-margin-left-2">No Data</span>
+					{% endif -%}
 				</li>
 			{% endfor %}
 			</ol>

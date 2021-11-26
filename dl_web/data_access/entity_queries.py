@@ -1,5 +1,6 @@
 import json
 import logging
+import urllib.parse
 
 from decimal import Decimal
 
@@ -278,3 +279,25 @@ class EntityQuery:
             return entity_factory(e)
         else:
             return None
+
+async def get_entity_count(dataset=None):
+    datasette_url = get_settings().DATASETTE_URL
+    query_lines = [
+        "SELECT",
+        "dataset,",
+        "COUNT(DISTINCT entity) AS count",
+        "FROM",
+        "entity"
+    ]
+    if dataset:
+        query_lines.append("WHERE")
+        query_lines.append(f"dataset = '{dataset}'")
+    else:
+        query_lines.append("GROUP BY")
+        query_lines.append("dataset")
+
+    query_str = " ".join(query_lines)
+    query = urllib.parse.quote(query_str)
+    url = f"{datasette_url}/entity.json?sql={query}"
+    logger.info("get_entity_count: %s", url)
+    return await fetch(url)
