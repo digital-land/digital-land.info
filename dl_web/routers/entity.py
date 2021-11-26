@@ -125,6 +125,14 @@ async def search_entities(
         create_dict(response["columns"], row) for row in response["rows"]
     ]
 
+    next_url = (
+        make_pagination_link(
+            request.query_params._list, data["results"][-1].dict().get("entity")
+        )
+        if len(data["results"])
+        else None
+    )
+
     # default is HTML
     return templates.TemplateResponse(
         "search.html",
@@ -149,9 +157,7 @@ async def search_entities(
                 ),
                 "list": request.query_params._list,
             },
-            "next_url": make_pagination_link(
-                request.query_params._list, data["results"][-1].dict().get("entity")
-            ),
+            "next_url": next_url,
         },
     )
 
