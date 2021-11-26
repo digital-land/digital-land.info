@@ -281,7 +281,7 @@ class EntityQuery:
             return None
 
 
-async def get_entity_count(dataset=None):
+async def fetch_entity_count(dataset=None):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
         "SELECT",

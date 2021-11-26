@@ -13,7 +13,7 @@ from dl_web.data_access.digital_land_queries import (
     fetch_latest_resource,
     fetch_lastest_log_date,
 )
-from dl_web.data_access.entity_queries import EntityQuery, get_entity_count
+from dl_web.data_access.entity_queries import EntityQuery, fetch_entity_count
 from dl_web.core.resources import specification, templates
 from dl_web.core.utils import create_dict
 from dl_web.search.enum import Suffix
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 async def list_datasets(request: Request, extension: Optional[Suffix] = None):
     response = await fetch_datasets_with_theme()
-    entity_counts_response = await get_entity_count()
+    entity_counts_response = await fetch_entity_count()
     entity_counts = {count[0]: count[1] for count in entity_counts_response["rows"]}
     results = [create_dict(response["columns"], row) for row in response["rows"]]
     datasets = []
@@ -65,7 +65,7 @@ async def get_dataset(
     collection_bucket = settings.S3_COLLECTION_BUCKET
     try:
         _dataset = await fetch_dataset(dataset)
-        entity_count_repsonse = await get_entity_count(dataset=dataset)
+        entity_count_repsonse = await fetch_entity_count(dataset=dataset)
         publisher_coverage_response = await fetch_publisher_coverage_count(dataset)
         latest_resource_response = await fetch_latest_resource(dataset)
         latest_log_response = await fetch_lastest_log_date(dataset)
