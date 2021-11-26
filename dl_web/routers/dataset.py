@@ -9,6 +9,7 @@ from dl_web.core.models import Dataset
 from dl_web.data_access.digital_land_queries import (
     fetch_dataset,
     fetch_datasets_with_theme,
+    fetch_publisher_coverage_count,
 )
 from dl_web.data_access.entity_queries import EntityQuery, get_entity_count
 from dl_web.core.resources import specification, templates
@@ -63,6 +64,7 @@ async def get_dataset(
     try:
         _dataset = await fetch_dataset(dataset)
         entity_count_repsonse = await get_entity_count(dataset=dataset)
+        publisher_coverage_response = await fetch_publisher_coverage_count(dataset)
         typology = specification.field_typology(dataset)
         params = {
             "typology": [_dataset.typology],
@@ -86,6 +88,10 @@ async def get_dataset(
                     "key_field": specification.key_field(typology),
                     "collection_bucket": collection_bucket,
                     "entity_count": entity_count_repsonse["rows"][0][1],
+                    "publishers": {
+                        "expected": publisher_coverage_response["rows"][0][0],
+                        "current": publisher_coverage_response["rows"][0][1],
+                    },
                 },
             )
     except KeyError as e:

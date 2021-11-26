@@ -58,3 +58,22 @@ async def fetch_local_authorities():
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_local_authorities: %s", url)
     return await fetch(url)
+
+
+async def fetch_publisher_coverage_count(dataset):
+    datasette_url = get_settings().DATASETTE_URL
+    query_lines = [
+        "SELECT",
+        "count(DISTINCT source.organisation) as expected_publishers,",
+        "COUNT(DISTINCT CASE WHEN source.endpoint != '' THEN source.organisation END) AS publishers",
+        "FROM",
+        "source",
+        "INNER JOIN source_pipeline on source.source = source_pipeline.source",
+        "WHERE",
+        f"source_pipeline.pipeline = '{dataset}'",
+    ]
+    query_str = " ".join(query_lines)
+    query = urllib.parse.quote(query_str)
+    url = f"{datasette_url}/digital-land.json?sql={query}"
+    logger.info("get_publisher_coverage_count: %s", url)
+    return await fetch(url)
