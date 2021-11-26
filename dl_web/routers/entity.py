@@ -149,7 +149,9 @@ async def search_entities(
                 ),
                 "list": request.query_params._list,
             },
-            "next_url": make_pagination_link(request.query_params._list, data['results'][-1].dict().get('entity')) 
+            "next_url": make_pagination_link(
+                request.query_params._list, data["results"][-1].dict().get("entity")
+            ),
         },
     )
 

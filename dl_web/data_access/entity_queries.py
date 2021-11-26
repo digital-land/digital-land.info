@@ -280,6 +280,7 @@ class EntityQuery:
         else:
             return None
 
+
 async def get_entity_count(dataset=None):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
@@ -287,7 +288,7 @@ async def get_entity_count(dataset=None):
         "dataset,",
         "COUNT(DISTINCT entity) AS count",
         "FROM",
-        "entity"
+        "entity",
     ]
     if dataset:
         query_lines.append("WHERE")

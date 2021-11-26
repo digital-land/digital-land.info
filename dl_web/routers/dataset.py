@@ -23,13 +23,17 @@ logger = logging.getLogger(__name__)
 async def list_datasets(request: Request, extension: Optional[Suffix] = None):
     response = await fetch_datasets_with_theme()
     entity_counts_response = await get_entity_count()
-    entity_counts = {count[0]:count[1] for count in entity_counts_response['rows']}
+    entity_counts = {count[0]: count[1] for count in entity_counts_response["rows"]}
     results = [create_dict(response["columns"], row) for row in response["rows"]]
     datasets = []
-    # add entity count if available
+    # add entity count if available
     for dataset in results:
-        count = entity_counts.get(dataset['dataset']) if entity_counts.get(dataset['dataset']) else 0
-        dataset.update({'entity_count': count})
+        count = (
+            entity_counts.get(dataset["dataset"])
+            if entity_counts.get(dataset["dataset"])
+            else 0
+        )
+        dataset.update({"entity_count": count})
         datasets.append(dataset)
     themes = {}
 
