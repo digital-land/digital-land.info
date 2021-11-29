@@ -20,8 +20,7 @@
     "watch": "npm-run-all --parallel watch:*",
     "dev": "npm run watch",
     "serve": "browser-sync start --proxy 'localhost:8000' --files '.'",
-    "nps": "nps -c ./node_modules/digital-land-frontend/package-scripts.js",
-    "postinstall": "npm i --save copyfiles govuk-frontend node-sass nps nps-utils"
+    "nps": "nps -c ./node_modules/digital-land-frontend/package-scripts.js"
   },
   "repository": {
     "type": "git",
@@ -43,11 +42,6 @@
   },
   "homepage": "https://github.com/digital-land/digital-land.info#readme",
   "dependencies": {
-    "copyfiles": "^2.4.1",
-    "digital-land-frontend": "https://gitpkg.now.sh/digital-land/digital-land-frontend/package?main",
-    "govuk-frontend": "^3.14.0",
-    "node-sass": "^6.0.1",
-    "nps": "^5.10.0",
-    "nps-utils": "^1.7.0"
+    "digital-land-frontend": "https://gitpkg.now.sh/digital-land/digital-land-frontend/package?main"
   }
 }
