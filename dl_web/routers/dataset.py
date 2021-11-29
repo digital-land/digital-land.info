@@ -5,7 +5,6 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse
 
-from dl_web.core.models import Dataset
 from dl_web.data_access.digital_land_queries import (
     fetch_dataset,
     fetch_datasets_with_theme,
@@ -15,7 +14,7 @@ from dl_web.data_access.digital_land_queries import (
 )
 from dl_web.data_access.entity_queries import EntityQuery, fetch_entity_count
 from dl_web.core.resources import specification, templates
-from dl_web.core.utils import create_dict
+from dl_web.core.utils import create_dict, DigitalLandJSONResponse
 from dl_web.search.enum import Suffix
 from dl_web.settings import get_settings, Settings
 
@@ -122,8 +121,7 @@ async def get_dataset(
 router.add_api_route(
     ".{extension}",
     endpoint=list_datasets,
-    response_class=JSONResponse,
-    response_model=Dataset,
+    response_class=DigitalLandJSONResponse,
     tags=["List datasets"],
 )
 router.add_api_route(
@@ -133,8 +131,7 @@ router.add_api_route(
 router.add_api_route(
     "/{dataset}.{extension}",
     endpoint=get_dataset,
-    response_class=JSONResponse,
-    response_model=Dataset,
+    response_class=DigitalLandJSONResponse,
     tags=["Get dataset"],
 )
 router.add_api_route(

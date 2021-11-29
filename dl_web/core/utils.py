@@ -67,6 +67,9 @@ def none_to_empty_str(d):
     if isinstance(copied, dict):
         for key, val in copied.items():
             copied[key] = none_to_empty_str(val)
+    if isinstance(copied, list):
+        for key, val in enumerate(copied):
+            copied[key] = none_to_empty_str(val)
     if d is None:
         copied = ""
     return copied
