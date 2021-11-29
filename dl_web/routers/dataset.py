@@ -13,7 +13,7 @@ from dl_web.data_access.digital_land_queries import (
     fetch_lastest_log_date,
 )
 from dl_web.data_access.entity_queries import EntityQuery, fetch_entity_count
-from dl_web.core.resources import specification, templates
+from dl_web.core.resources import templates
 from dl_web.core.utils import create_dict, DigitalLandJSONResponse
 from dl_web.search.enum import Suffix
 from dl_web.settings import get_settings, Settings
@@ -68,7 +68,6 @@ async def get_dataset(
         publisher_coverage_response = await fetch_publisher_coverage_count(dataset)
         latest_resource_response = await fetch_latest_resource(dataset)
         latest_log_response = await fetch_lastest_log_date(dataset)
-        typology = specification.field_typology(dataset)
         params = {
             "typology": [_dataset.typology],
             "dataset": [dataset],
@@ -94,7 +93,6 @@ async def get_dataset(
                     "request": request,
                     "dataset": _dataset,
                     "entities": entities["results"],
-                    "key_field": specification.key_field(typology),
                     "collection_bucket": collection_bucket,
                     "entity_count": entity_count_repsonse["rows"][0][1],
                     "publishers": {

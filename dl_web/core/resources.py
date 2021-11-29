@@ -2,7 +2,6 @@ import jinja2
 
 from fastapi.templating import Jinja2Templates
 
-from digital_land.specification import Specification
 from digital_land_frontend.filters import (
     is_list_filter,
     hex_to_rgb_string_filter,
@@ -18,8 +17,6 @@ from dl_web.core.filters import (
 )
 
 from dl_web.core.utils import model_dumps
-
-specification = Specification("specification/")
 
 templates = Jinja2Templates("dl_web/templates")
 
