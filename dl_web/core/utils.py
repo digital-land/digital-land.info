@@ -1,3 +1,6 @@
+import copy
+import json
+import typing
 import urllib
 from typing import List
 
@@ -5,6 +8,8 @@ import aiohttp
 import requests
 from pydantic import BaseModel
 from datetime import date
+
+from starlette.responses import Response
 
 
 def create_dict(keys_list, values_list):
@@ -52,3 +57,36 @@ def get(url: str) -> requests.Response:
     except ConnectionRefusedError:
         raise ConnectionError("failed to connect at %s" % url)
     return response
+
+
+# Sets Nones to empty string in json encoding
+
+
+def none_to_empty_str(d):
+    copied = copy.deepcopy(d)
+    if isinstance(copied, dict):
+        for key, val in copied.items():
+            copied[key] = none_to_empty_str(val)
+    if d is None:
+        copied = ""
+    return copied
+
+
+class NoneToEmptyStringEncoder(json.JSONEncoder):
+    def encode(self, obj):
+        data = none_to_empty_str(obj)
+        return super().encode(data)
+
+
+class DigitalLandJSONResponse(Response):
+    media_type = "application/json"
+
+    def render(self, content: typing.Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+            cls=NoneToEmptyStringEncoder,
+        ).encode("utf-8")

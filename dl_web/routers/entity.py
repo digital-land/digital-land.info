@@ -4,7 +4,6 @@ from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
-from starlette.responses import JSONResponse
 
 from dl_web.core.models import GeoJSON
 from dl_web.data_access.digital_land_queries import (
@@ -24,7 +23,7 @@ from dl_web.search.filters import (
 )
 
 from dl_web.core.resources import templates
-from dl_web.core.utils import create_dict
+from dl_web.core.utils import create_dict, DigitalLandJSONResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -166,7 +165,7 @@ async def search_entities(
 router.add_api_route(
     ".{extension}",
     endpoint=search_entities,
-    response_class=JSONResponse,
+    response_class=DigitalLandJSONResponse,
     tags=["Search entity"],
 )
 router.add_api_route(
@@ -193,7 +192,7 @@ router.add_api_route(
 router.add_api_route(
     "/{entity}.{extension}",
     get_entity,
-    response_class=JSONResponse,
+    response_class=DigitalLandJSONResponse,
     tags=["Get entity"],
 )
 router.add_api_route(
