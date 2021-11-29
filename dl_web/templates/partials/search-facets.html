@@ -1,6 +1,7 @@
 {% from 'digital-land-frontend/components/dl-filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
 <form action="{{ search_form_url }}" method="get">
 
+  <h3 class="govuk-heading-m">Filters</h3>
   {%- if typologies %}
   <!-- typology facet -->
   <div class="govuk-form-group">
