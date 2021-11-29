@@ -3,6 +3,7 @@ from dl_web.routers import entity, dataset, map_
 
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -51,6 +52,7 @@ def create_app():
     add_base_routes(app)
     add_routers(app)
     add_static(app)
+    add_middleware(app)
     return app
 
 
@@ -93,4 +95,13 @@ def add_static(app):
         "/static",
         StaticFiles(directory="static"),
         name="static",
+    )
+
+def add_middleware(app):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
