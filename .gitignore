@@ -23,4 +23,8 @@ tf/**/tfplan
 .idea
 
 node_modules
+
 .editorconfig
+pyrightconfig.json
+
+.env

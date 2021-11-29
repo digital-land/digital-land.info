@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  dl_web:
+    image: 955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
+    volumes:
+      - .:/src
+    ports:
+      - 80:80
