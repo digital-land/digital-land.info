@@ -51,7 +51,6 @@ def create_app():
     add_base_routes(app)
     add_routers(app)
     add_static(app)
-    add_static(app)
     return app
 
 
