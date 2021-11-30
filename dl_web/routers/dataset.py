@@ -43,7 +43,8 @@ async def list_datasets(request: Request, extension: Optional[Suffix] = None):
         dataset_themes = d["dataset_themes"].split(";")
         for theme in dataset_themes:
             themes.setdefault(theme, {"dataset": []})
-            themes[theme]["dataset"].append(d)
+            if d["entity_count"] > 0:
+                themes[theme]["dataset"].append(d)
 
     data = {"datasets": datasets, "themes": themes}
     if extension is not None and extension.value == "json":

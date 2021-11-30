@@ -31,10 +31,12 @@
 
 		<h1 class="govuk-heading-xl">Datasets</h1>
 
-    	<p class="govuk-body">Contents</p>
+		<p class="govuk-body">Digital land have collected data across a number of datasets. These have been grouped by theme.</p>
+
+    	<p class="govuk-body govuk-visually-hidden">Contents</p>
 		<ul class="govuk-list govuk-list--bullet">
 		{% for theme in themes.keys() %}
-			{% if theme != "" %}
+			{% if theme != "" and themes[theme]['dataset']|length > 0 %}
 			<li><a class="govuk-link" href="#{{ theme }}">{{ theme | capitalize }}</a></li>
 			{% endif %}
 		{% endfor %}
@@ -51,7 +53,7 @@
 	</form>
 
 	{% for theme in themes.keys() %}
-	{% if theme != "" %}
+	{% if theme != "" and themes[theme]['dataset']|length > 0 %}
 	<div class="govuk-grid-row dl-list-filter__count">
 		<div class="govuk-grid-column-one-third">
 		{% set plural = theme | capitalize %}
