@@ -97,6 +97,7 @@ def add_static(app):
         name="static",
     )
 
+
 def add_middleware(app):
     app.add_middleware(
         CORSMiddleware,
