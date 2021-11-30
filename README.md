@@ -29,36 +29,45 @@ Create a virtualenv then
 make init
 ```
 
-That will install all dependencies and then you can...
+That will install all dependencies as well as install pre-commit hooks.
 
+The pre commit hooks will lint and run black and abort a commit on failure.
 
-Install pre-commit hooks. When you try to commit any local changes the pre commit hooks will lint and run black 
-and abort commit on failure. This will save you lots of broken builds and subsequent "lint fix" commit messages.
+This will save you lots of broken builds and subsequent "lint fix" commit messages.
 
 ```
 pre-commit install
 ```
 
+Run integration tests
+
+```
+make test
+```
+
 Run the acceptance tests
+
+This runs a browser based test of main pages, and a test of a json endpoint for an entity
 
 ```
 make test-acceptance
 ```
 
-This is basic test that visits key urls in app. If you want to see tests in action run the following:
+If you want to see the acceptance tests in action run the following:
 
 ```
 playwright install chromium
 pytest tests/acceptance  --headed --slowmo 1000
 ```
 
-headed opens browser and slowmo slows down interactions by number of milliseconds
+--headed opens browser and --slowmo slows down interactions by the specified number of milliseconds
+
+
+To run the app use:
 
 ```
 make server
 ```
-
-to run the app
 
 
 # Building the infrastructure

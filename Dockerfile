@@ -10,4 +10,3 @@ EXPOSE 80
 ENV PATH=/root/.local:$PATH
 ENV MODULE_NAME=dl_web.app
 ENV GUNICORN_CONF=/src/gunicorn_conf.py
-ENV PRE_START_PATH=/src/prestart.sh
