@@ -2,10 +2,10 @@
 {% set templateName = "dl-info/entity.html" %}
 
 {%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
-{%- from "digital-land-frontend/components/dl-map/macro.jinja" import dlLeafletMap %}
-{%- from "digital-land-frontend/components/dl-data-record/macro.jinja" import dlDataRecordPanel %}
-{%- from "digital-land-frontend/components/dl-data-reference-cell/macro.jinja" import dlDataReferenceCell %}
-{%- from "digital-land-frontend/components/dl-data-table/macro.jinja" import dlDataTableWrapper %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
+{%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
+{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
 
 {%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
 {% set geometry_url = "/entity/"+ row["entity"] + ".geojson" if row['typology'] == "geography" else None %}
@@ -216,7 +216,7 @@
   {% block recordEnd %}{% endblock recordEnd %}
 
   {% block footerStart %}
-    {%- from "digital-land-frontend/components/dl-feedback/macro.jinja" import dlFeedback %}
+    {%- from "digital-land-frontend/components/feedback/macro.jinja" import dlFeedback %}
     {% set subject = "Feedback on " + row_name + " -- " + pipeline_name  %}
     {{ dlFeedback({
         "text": "Spotted an issue? Let us know so we can improve the data.",
