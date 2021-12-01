@@ -31,7 +31,7 @@ def test_response_strict_transport_security_header():
     until https://github.com/encode/starlette/pull/1071 is merged
     so we pick an arbitrary JSON endpoint
     """
-    expected_header = f"max-age=${SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+    expected_header = f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
     response = client.get("/entity.json", headers={"Origin": "localhost"})
     assert "Strict-Transport-Security" in response.headers.keys()
     assert response.headers["Strict-Transport-Security"] == expected_header
