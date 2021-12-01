@@ -1,5 +1,4 @@
-from dl_web.core.resources import templates
-from dl_web.routers import entity, dataset, map_
+from datetime import timedelta
 
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
@@ -8,6 +7,11 @@ from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from dl_web.core.resources import templates
+from dl_web.routers import entity, dataset, map_
+
+
+SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
 
 # Add markdown here
 description = """
@@ -106,3 +110,21 @@ def add_middleware(app):
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def add_strict_transport_security_header(request: Request, call_next):
+        response = await call_next(request)
+        response.headers['Strict-Transport-Security'] = f"max-age=${SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        return response
+
+    @app.middleware("http")
+    async def add_x_frame_options_header(request: Request, call_next):
+        response = await call_next(request)
+        response.headers['X-Frame-Options'] = "sameorigin"
+        return response
+
+    @app.middleware("http")
+    async def add_x_content_type_options_header(request: Request, call_next):
+        response = await call_next(request)
+        response.headers['X-Content-Type-Options'] = "nosniff"
+        return response
