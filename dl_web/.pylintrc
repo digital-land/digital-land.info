@@ -1,0 +1,11 @@
+[MASTER]
+; from .flake8
+; C0303: Trailing whitespace
+
+;https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
+; C0330:Wrong hanging indentation before block (add 4 spaces)
+; C0326: Incorrect whitespacing around operator
+disable = C0330,C0326,C0303
+max-line-length = 88
+
+; vim: ft=dosini

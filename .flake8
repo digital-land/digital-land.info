@@ -1,6 +1,11 @@
 [flake8]
+; W291 	Trailing whitespace
+; E203 	Whitespace before ':'
+; W503 	Line break occurred before a binary operator
 ignore = W291, E203, W503
 exclude =
     __pycache__
     node_modules
 		.venv
+
+; vim: ft=dosini

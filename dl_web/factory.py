@@ -114,17 +114,19 @@ def add_middleware(app):
     @app.middleware("http")
     async def add_strict_transport_security_header(request: Request, call_next):
         response = await call_next(request)
-        response.headers['Strict-Transport-Security'] = f"max-age=${SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        response.headers[
+            "Strict-Transport-Security"
+        ] = f"max-age=${SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
         return response
 
     @app.middleware("http")
     async def add_x_frame_options_header(request: Request, call_next):
         response = await call_next(request)
-        response.headers['X-Frame-Options'] = "sameorigin"
+        response.headers["X-Frame-Options"] = "sameorigin"
         return response
 
     @app.middleware("http")
     async def add_x_content_type_options_header(request: Request, call_next):
         response = await call_next(request)
-        response.headers['X-Content-Type-Options'] = "nosniff"
+        response.headers["X-Content-Type-Options"] = "nosniff"
         return response
