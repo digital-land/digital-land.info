@@ -5,8 +5,8 @@
 {%- from "govuk_frontend_jinja/components/fieldset/macro.html" import govukFieldset %}
 {%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton %}
 {%- from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
-{%- from "digital-land-frontend/components/dl-map/macro.jinja" import dlMap %}
-{%- from "digital-land-frontend/components/dl-filter-group/macro.jinja" import dlFilterGroup %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlMap %}
+{%- from "digital-land-frontend/components/filter-group/macro.jinja" import dlFilterGroup %}
 {% from 'components/pagination/macro.jinja' import appPagination %}
 
 {% block breadcrumbs %}
@@ -240,7 +240,7 @@
           {{ appPagination({
             "next": {
               "href": next_url,
-              "text": "Show next 10 entities" 
+              "text": "Show next 10 entities"
             }
           }) }}
           </div>
