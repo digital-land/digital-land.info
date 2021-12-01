@@ -116,7 +116,7 @@ def add_middleware(app):
         response = await call_next(request)
         response.headers[
             "Strict-Transport-Security"
-        ] = f"max-age=${SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        ] = f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
         return response
 
     @app.middleware("http")
