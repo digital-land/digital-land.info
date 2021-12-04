@@ -1,15 +1,19 @@
+import logging
 from datetime import timedelta
 
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from dl_web.core.resources import templates
+from dl_web.data_access.digital_land_queries import fetch_datasets
+from dl_web.data_access.entity_queries import fetch_entity_count
 from dl_web.routers import entity, dataset, map_
 
+logger = logging.getLogger(__name__)
 
 SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
 
@@ -68,9 +72,23 @@ def add_base_routes(app):
             {"request": request},
         )
 
-    @app.get("/health", response_class=PlainTextResponse, include_in_schema=False)
-    def health(request: Request):
-        return "OK"
+    @app.get("/health", response_class=JSONResponse, include_in_schema=False)
+    async def health(request: Request):
+        try:
+            datasets = await fetch_datasets()
+            entity_count_by_datatset = await fetch_entity_count()
+            entity_count = 0
+            for ds in entity_count_by_datatset["rows"]:
+                entity_count += ds[1]
+            return {
+                "status": "OK",
+                "dataset_count": len(datasets),
+                "entity_count": entity_count,
+            }
+
+        except Exception as e:
+            logger.exception(e)
+            raise e
 
     @app.exception_handler(StarletteHTTPException)
     async def custom_exception_handler(request: Request, exc: StarletteHTTPException):

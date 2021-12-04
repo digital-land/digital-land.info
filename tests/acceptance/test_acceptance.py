@@ -27,39 +27,49 @@ def server_process():
 
 def test_acceptance(server_process, page):
 
-    assert server_process.is_alive()
+    page.goto(BASE_URL)
 
-    page.goto(f"{BASE_URL}")
     page.click("text=Datasets")
     assert page.url == f"{BASE_URL}/dataset/"
-    page.click("text=Brownfield site")
-    assert page.url == f"{BASE_URL}/dataset/brownfield-site"
-    page.click('h1:has-text("Brownfield site")')
+    assert page.text_content("h1") == "Datasets"
+    page.goto(BASE_URL)
+
+    page.click("text=Map")
+    assert page.url == f"{BASE_URL}/map/"
+    assert page.text_content("h1") == "National map of planning data"
+    page.goto(BASE_URL)
+
+    page.click("text=Search")
+    assert page.url == f"{BASE_URL}/entity/"
+    assert page.text_content("h1") == "Search for planning and housing data"
+    page.goto(BASE_URL)
+
     page.click("text=Datasets")
     assert page.url == f"{BASE_URL}/dataset/"
+    page.click("text=Green belt")
+    assert page.url == f"{BASE_URL}/dataset/green-belt"
+    assert page.text_content("h1") == "Green belt"
 
-    page.goto(f"{BASE_URL}/entity/")
-    assert page.inner_text("h1") == "Search for planning and housing data"
-    page.click("text=Ancient woodland")
-    page.click('button:has-text("Search")')
-    assert (
-        page.url
-        == f"{BASE_URL}/entity/?dataset=ancient-woodland&entries=all&entry_entry_date_day=&entry_entry_date_month=&entry_entry_date_year="
-    )
-
-    page.click("text=11345")
-    assert page.url == f"{BASE_URL}/entity/11345"
+    page.click("text=Datasets")
+    assert page.url == f"{BASE_URL}/dataset/"
 
 
 def test_get_json(server_process):
-    json_url = f"{BASE_URL}/entity/11345.json"
+    json_url = f"{BASE_URL}/dataset/local-authority-eng.json"
     resp = requests.get(json_url)
     resp.raise_for_status()
     data = resp.json()
 
-    assert data["entity"] == "11345"
-    assert data["entry-date"] == "2021-05-26"
-    assert data["name"] == "WILK WOOD"
-    assert data["dataset"] == "ancient-woodland"
-    assert data["typology"] == "geography"
-    assert data.get("geojson")
+    assert data["collection"] == "organisation"
+    assert data["dataset"] == "local-authority-eng"
+
+
+def test_get_healthcheck(server_process):
+    json_url = f"{BASE_URL}/health"
+    resp = requests.get(json_url)
+    resp.raise_for_status()
+    data = resp.json()
+
+    assert data["status"] == "OK"
+    assert data["dataset_count"] > 0
+    assert data["entity_count"] > 0
