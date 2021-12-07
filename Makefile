@@ -12,7 +12,7 @@ init::
 	pre-commit install
 	npm install
 
-init:: frontend
+init:: digital-land-frontend-init
 
 server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
@@ -42,11 +42,16 @@ test:
 
 lint:	black-check flake8
 
-frontend:
+digital-land-frontend-init:
 	npm run nps build.stylesheets
 	npm run nps copy.javascripts
 	npm run nps copy.json
 	npm run nps copy.images
+	npm run nps copy.govukAssets
+
+frontend:
+	npm run nps build.stylesheets
+	rsync -r assets/images static/
 
 black:
 	black .

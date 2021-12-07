@@ -2,5 +2,6 @@
   "jsOutputPath": "static/javascripts",
   "stylesheetsOutputPath": "static/stylesheets",
   "scssPath": "./assets/stylesheets",
-  "imagesOutputPath": "static/images"
+  "imagesOutputPath": "static/images",
+  "govukOutputPath": "static/"
 }
