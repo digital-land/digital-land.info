@@ -46,6 +46,7 @@ frontend:
 	npm run nps build.stylesheets
 	npm run nps copy.javascripts
 	npm run nps copy.json
+	npm run nps copy.images
 
 black:
 	black .

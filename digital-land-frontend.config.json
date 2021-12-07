@@ -1,5 +1,6 @@
 {
   "jsOutputPath": "static/javascripts",
   "stylesheetsOutputPath": "static/stylesheets",
-  "scssPath": "./assets/stylesheets"
+  "scssPath": "./assets/stylesheets",
+  "imagesOutputPath": "static/images"
 }
