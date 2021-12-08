@@ -42,6 +42,9 @@ test:
 
 lint:	black-check flake8
 
+clean::
+	rm -r static/
+
 digital-land-frontend-init:
 	npm run nps build.stylesheets
 	npm run nps copy.javascripts
@@ -56,7 +59,7 @@ frontend: javascripts
 	npm run nps build.stylesheets
 	rsync -r assets/images static/
 
-frontend-all: digital-land-frontend-init frontend
+frontend-all: clean digital-land-frontend-init frontend
 
 black:
 	black .
