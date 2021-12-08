@@ -3,5 +3,6 @@
   "stylesheetsOutputPath": "static/stylesheets",
   "scssPath": "./assets/stylesheets",
   "imagesOutputPath": "static/images",
-  "govukOutputPath": "static/"
+  "govukOutputPath": "static/",
+  "rollupConfig": "etc/rollup.config.js"
 }

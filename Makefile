@@ -45,13 +45,18 @@ lint:	black-check flake8
 digital-land-frontend-init:
 	npm run nps build.stylesheets
 	npm run nps copy.javascripts
-	npm run nps copy.json
 	npm run nps copy.images
 	npm run nps copy.govukAssets
 
-frontend:
+javascripts:
+	npm run nps build.javascripts
+	cp assets/javascripts/dl-national-map-controller.js static/javascripts/
+
+frontend: javascripts
 	npm run nps build.stylesheets
 	rsync -r assets/images static/
+
+frontend-all: digital-land-frontend-init frontend
 
 black:
 	black .
