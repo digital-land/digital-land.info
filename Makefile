@@ -12,7 +12,7 @@ init::
 	pre-commit install
 	npm install
 
-init:: digital-land-frontend-init
+init:: frontend-all
 
 server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
@@ -43,7 +43,7 @@ test:
 lint:	black-check flake8
 
 clean::
-	rm -r static/
+	rm -rf static/
 
 digital-land-frontend-init:
 	npm run nps build.stylesheets
