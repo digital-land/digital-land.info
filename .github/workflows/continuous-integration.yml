@@ -63,3 +63,4 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |
         aws ecs update-service --force-new-deployment --service dl-web-service --cluster dl-web-cluster
+        aws ecs update-service --force-new-deployment --service development-ecs-service --cluster development-ecs-cluster
