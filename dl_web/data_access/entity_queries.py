@@ -35,7 +35,14 @@ def sqlescape(s):
 
 
 class EntityQuery:
-    lists = ["typology", "dataset", "entity", "prefix", "reference"]
+    lists = [
+        "typology",
+        "dataset",
+        "entity",
+        "prefix",
+        "reference",
+        "organisation_entity",
+    ]
 
     def __init__(self, params: dict = {}):
         datasette_url = get_settings().DATASETTE_URL
@@ -57,7 +64,14 @@ class EntityQuery:
 
     def where_column(self, params):
         sql = where = ""
-        for col in ["typology", "dataset", "entity", "prefix", "reference"]:
+        for col in [
+            "typology",
+            "dataset",
+            "entity",
+            "prefix",
+            "reference",
+            "organisation_entity",
+        ]:
             if col in params and params[col]:
                 sql += (
                     where

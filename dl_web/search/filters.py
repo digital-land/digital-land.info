@@ -13,6 +13,7 @@ class BaseFilters:
     typology: Optional[List[str]] = Query(None)
     dataset: Optional[List[str]] = Query(None)
     organisation: Optional[List[str]] = Query(None)
+    organisation_entity: Optional[List[str]] = Query(None)
     entity: Optional[List[str]] = Query(None)
     curie: Optional[List[str]] = Query(None)
     prefix: Optional[List[str]] = Query(None)
@@ -27,6 +28,7 @@ class BaseFilters:
 
 @dataclass
 class DateFilters:
+    # TODO: remove the spurious "entry_" prefixes to these filters
     entry_start_date: Optional[datetime.date] = None
     entry_start_date_year: Optional[str] = None
     entry_start_date_month: Optional[str] = None
