@@ -44,11 +44,13 @@ class EntityQuery:
 
     def normalised_params(self, params):
         # remove empty parameters
-        params = {k: v for k, v in params.items() if v is not None}
+        params = {k: v for k, v in params.items() if v}
 
         # sort/unique list parameters
         for lst in self.lists:
             if lst in params:
+                # remove empty list parameters
+                params[lst] = [v for v in params[lst] if v]
                 params[lst] = sorted(set(params[lst]))
 
         return params
