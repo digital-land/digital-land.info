@@ -87,6 +87,25 @@ class EntityQuery:
                 where = " AND "
         return sql
 
+    def where_organisation(self, params):
+        sql = where = ""
+        if "organisation" in params and params["organisation"]:
+            sql += (
+                where
+                + "("
+                + " OR ".join(
+                    [
+                        "(entity.organisation_entity = (SELECT entity from entity "
+                        + "where entity.prefix = '{c[0]}' and entity.reference = '{c[1]}' group by entity))".format(
+                            c=[sqlescape(s) for s in c.split(":") + ["", ""]]
+                        )
+                        for c in params["organisation"]
+                    ]
+                )
+                + ")"
+            )
+        return sql
+
     def where_curie(self, params):
         sql = where = ""
         if "curie" in params and params["curie"]:
@@ -96,7 +115,7 @@ class EntityQuery:
                 + " OR ".join(
                     [
                         "(entity.prefix = '{c[0]}' AND entity.reference = '{c[1]}')".format(
-                            c=c.split(":") + ["", ""]
+                            c=[sqlescape(s) for s in c.split(":") + ["", ""]]
                         )
                         for c in params["curie"]
                     ]
@@ -227,6 +246,7 @@ class EntityQuery:
         where = " WHERE "
         for part in [
             "column",
+            "organisation",
             "curie",
             "entries",
             "date",
