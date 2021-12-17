@@ -49,7 +49,7 @@ MapController.prototype.setup = function () {
   this.zoomControl = new DLMaps.ZoomControls(this.$zoomControls, this.map, this.map.getZoom()).init({}); // setup layers
 
   console.log(this.$layerControlsList, this.map);
-  this.layerControlsComponent = new DLMaps.LayerControls(this.$layerControlsList, this.map, this.sourceName).init(); // register click handler
+  this.layerControlsComponent = new DLMaps.LayerControls(this.$layerControlsList, this.map, this.sourceName).init(this.LayerControlOptions); // register click handler
 
   var boundClickHandler = this.clickHandler.bind(this);
   this.map.on('click', boundClickHandler);
@@ -163,6 +163,7 @@ MapController.prototype.setupOptions = function (params) {
   this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tile.json';
   this.popupWidth = params.popupWidth || '260px';
   this.popupMaxListLength = params.popupMaxListLength || 10;
+  this.LayerControlOptions = params.LayerControlOptions || {};
 };
 
 MapController.prototype.debug = function () {

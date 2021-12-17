@@ -36,8 +36,8 @@
   </div>
 
   {% macro layerControlItem(layer) %}
-  <li class="dl-map__layer-item govuk-!-margin-bottom-2" data-layer-control="{{ layer.dataset }}" 
-  {% if layer.type %}data-layer-data-type={{layer.type}}{% endif %} 
+  <li class="dl-map__layer-item govuk-!-margin-bottom-2" data-layer-control="{{ layer.dataset }}"
+  {% if layer.type %}data-layer-data-type={{layer.type}}{% endif %}
   {% if layer.paint_options %}data-style-options="{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}"{% endif %}>
     <div class="govuk-checkboxes__item">
       <input class="govuk-checkboxes__input" id="{{ layer.dataset }}" name="{{ layer.dataset }}" type="checkbox" value="{{ layer.dataset }}" {{ "checked='checked'" if layer.checked }}>
@@ -90,7 +90,10 @@
   const $zoomMod = document.querySelector('[data-module="zoom-controls"]')
   // init national map
   const mapController = new MapController($controlsList, $zoomMod).init({
-    baseTileStyleFilePath: "/static/javascripts/base-tile.json"
+    baseTileStyleFilePath: "/static/javascripts/base-tile.json",
+    LayerControlOptions: {
+      layerURLParamName: "dataset"
+    }
   })
 </script>
 {% endblock %}
