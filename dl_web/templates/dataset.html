@@ -57,6 +57,16 @@
   </div>
 </div>
 
+  {%  if dataset.text %}
+  <div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+    <p class="govuk-body">
+      {{ dataset.text }}
+    </p>
+  </div>
+  </div>
+  {%  endif %}
+
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-full">
     <h2 class="govuk-heading-m" id="national-dataset-map">View the data</h2>

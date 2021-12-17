@@ -1,0 +1,6 @@
+db
+Makefile
+.*
+docker-compose.yml
+*.md
+tests

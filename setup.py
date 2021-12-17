@@ -19,6 +19,10 @@ setup(
         "PyYAML",
         "python-dotenv",
         "requests",
+        "sqlalchemy",
+        "GeoAlchemy2",
+        "psycopg2",
+        "alembic",
     ],
     extras_require={
         "testing": [

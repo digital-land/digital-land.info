@@ -11,7 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from dl_web.core.resources import templates
 from dl_web.data_access.digital_land_queries import fetch_datasets
 from dl_web.data_access.entity_queries import fetch_entity_count
-from dl_web.routers import entity, dataset, map_
+from dl_web.routers import entity, dataset, map_, experimental
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +107,7 @@ def add_routers(app):
 
     app.include_router(entity.router, prefix="/entity")
     app.include_router(dataset.router, prefix="/dataset")
+    app.include_router(experimental.router, prefix="/experimental")
 
     # map not added to swagger docs page
     app.include_router(map_.router, prefix="/map", include_in_schema=False)

@@ -2,8 +2,25 @@ version: "3.8"
 
 services:
   dl_web:
-    image: 955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
+    build: .
     volumes:
       - .:/src
     ports:
       - 80:80
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost/digital_land_db"
+  postgres:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=digital_land_db
+    volumes:
+      - ./.db-data/:/var/lib/postgresql/data/
+
+volumes:
+  .db-data:

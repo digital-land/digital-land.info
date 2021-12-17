@@ -28,4 +28,6 @@ node_modules
 pyrightconfig.json
 
 .env
+.db-data
 static
+*.csv
