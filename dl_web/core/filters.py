@@ -23,3 +23,15 @@ def make_param_str_filter(exclude_value, exclude_param, all):
             if exclude_param != param[0] or exclude_value != param[1]
         ]
     )
+
+
+def render_markdown(text):
+    import markdown
+    import markupsafe
+    from dl_web.core.markdown_extensions import GovUKStylesExtension
+
+    # register extensions here as well if needed
+    html = markdown.markdown(
+        text, output_format="html5", extensions=[GovUKStylesExtension()]
+    )
+    return markupsafe.Markup(html)
