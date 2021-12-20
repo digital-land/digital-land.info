@@ -58,11 +58,21 @@
       <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Data layers</h3>
     </div>
     <div class="dl-map__side-panel__content">
-      <ul class="govuk-list govuk-!-margin-bottom-0" data-module="layer-controls">
-        {% for layer in layers %}
-        {{ layerControlItem(layer) }}
-        {% endfor %}
-      </ul>
+      <div class="govuk-checkboxes" data-module="filter-checkboxes">
+        <div class="dl-filter-group__auto-filter">
+          <label for="input-71108" class="govuk-label govuk-visually-hidden">
+          Filter Show only
+          </label>
+          <input id="input-71108" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-71108" aria-controls="checkboxes-71108">
+        </div>
+        <ul class="govuk-list govuk-!-margin-bottom-0" data-module="layer-controls" role="group">
+        <span id="checkbox-filter-71108" class="dl-filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">{{ layers|length }} options found, 0 selected</span>
+        <span class="app-filter-group__status-update js-hidden govuk-!-padding-bottom-3 dl-secondary-text" aria-live="polite" data-single="dataset" data-multiple="datasets">0 datasets hidden</span>
+          {% for layer in layers %}
+          {{ layerControlItem(layer) }}
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </div>
 </div>
@@ -84,6 +94,7 @@
 {% block bodyEnd %}
 {{ super() }}
 <script src="/static/javascripts/dl-national-map-controller.js"></script>
+<script src="/static/javascripts/filter-checkbox-extension.js"></script>
 <script>
   // grab html elements
   const $controlsList = document.querySelector('[data-module="layer-controls"]')
@@ -94,6 +105,15 @@
     LayerControlOptions: {
       layerURLParamName: "dataset"
     }
+  })
+
+  // extend the filter checkbox component to work with the map
+  const $fgStatusUpdate = $controlsList.querySelector('.app-filter-group__status-update')
+  extendFilterCheckboxes($fgStatusUpdate)
+
+  var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
+  $filterCheckboxes.forEach(el => {
+    new window.DLFrontend.FilterCheckboxes(el).init()
   })
 </script>
 {% endblock %}

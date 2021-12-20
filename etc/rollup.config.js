@@ -9,5 +9,12 @@ module.exports = [
       file: `${assets.distDir}/javascripts/application.js`,
       format: "iife",
     }
+  },
+  {
+    input: `${assets.sourceDir}/javascripts/filter-checkbox-extension.js`,
+    output: {
+      file: `${assets.distDir}/javascripts/filter-checkbox-extension.js`,
+      format: "iife",
+    }
   }
 ];
