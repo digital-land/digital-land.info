@@ -75,11 +75,11 @@ MapController.prototype.getFillColour = function (feature) {
 
 
 MapController.prototype.removeDuplicates = function (features) {
-  var uniqueIds = [];
+  var uniqueEntities = [];
   console.log(features);
   return features.filter(function (feature) {
-    if (uniqueIds.indexOf(feature.id) === -1) {
-      uniqueIds.push(feature.id);
+    if (uniqueEntities.indexOf(feature.properties.entity) === -1) {
+      uniqueEntities.push(feature.properties.entity);
       return true;
     }
 
