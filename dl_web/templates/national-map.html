@@ -37,15 +37,15 @@
 
   {% macro layerControlItem(layer) %}
   <li class="dl-map__layer-item govuk-!-margin-bottom-2" data-layer-control="{{ layer.dataset }}"
-  {% if layer.type %}data-layer-data-type={{layer.type}}{% endif %}
-  {% if layer.paint_options %}data-style-options="{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}"{% endif %}>
+  {% if layer.paint_options.type %}data-layer-data-type={{layer.paint_options.type}}{% endif %}
+   data-style-options="{% if layer.paint_options %}{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}{% endif %}">
     <div class="govuk-checkboxes__item">
       <input class="govuk-checkboxes__input" id="{{ layer.dataset }}" name="{{ layer.dataset }}" type="checkbox" value="{{ layer.dataset }}" {{ "checked='checked'" if layer.checked }}>
       <label class="govuk-label govuk-checkboxes__label" for="{{ layer.dataset }}">
         <span class="dl-label__key">
-          <span class="dl-label__key__symbol{{ ' dl-label__key__symbol--circle' if layer.type and layer.type == 'point' }}"
+          <span class="dl-label__key__symbol{{ ' dl-label__key__symbol--circle' if layer.paint_options.type and layer.paint_options.type == 'point' }}"
           style="border-color: {{layer.paint_options.colour|default('#003078')}}; background: rgba({{layer.paint_options.colour|default('#003078')|hex_to_rgb}},{{ layer.paint_options.opacity|default('0.5') }});"></span>
-          {{ layer.label }}
+          {{ layer.name }}
         </span>
       </label>
     </div>
