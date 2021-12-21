@@ -4,9 +4,11 @@ import logging
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from dl_web.core.resources import templates
+
+from dl_web.core.templates import templates
 from dl_web.data_access.digital_land_queries import fetch_datasets_with_typology
 from dl_web.data_access.entity_queries import fetch_entity_count
+
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

@@ -22,7 +22,7 @@ from dl_web.search.filters import (
     FormatFilters,
 )
 
-from dl_web.core.resources import templates
+from dl_web.core.templates import templates
 from dl_web.core.utils import create_dict, DigitalLandJSONResponse
 
 router = APIRouter()
