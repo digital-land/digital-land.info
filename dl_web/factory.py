@@ -109,8 +109,9 @@ def add_routers(app):
     app.include_router(dataset.router, prefix="/dataset")
     app.include_router(experimental.router, prefix="/experimental")
 
-    # map not added to swagger docs page
+    # not added to /docs
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
+    # app.include_router(status.router, prefix="/status", include_in_schema=False)
 
 
 def add_static(app):

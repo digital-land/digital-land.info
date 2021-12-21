@@ -23,3 +23,12 @@ def make_param_str_filter(exclude_value, exclude_param, all):
             if exclude_param != param[0] or exclude_value != param[1]
         ]
     )
+
+
+def render_markdown(text):
+    import markdown
+    import markupsafe
+
+    # register extensions here if needed
+    html = markdown.markdown(text, output_format="html5")
+    return markupsafe.Markup(html)

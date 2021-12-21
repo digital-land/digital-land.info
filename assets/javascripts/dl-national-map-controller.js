@@ -48,8 +48,7 @@ MapController.prototype.setup = function () {
 
   this.zoomControl = new DLMaps.ZoomControls(this.$zoomControls, this.map, this.map.getZoom()).init({}); // setup layers
 
-  console.log(this.$layerControlsList, this.map);
-  this.layerControlsComponent = new DLMaps.LayerControls(this.$layerControlsList, this.map, this.sourceName).init(); // register click handler
+  this.layerControlsComponent = new DLMaps.LayerControls(this.$layerControlsList, this.map, this.sourceName).init(this.LayerControlOptions); // register click handler
 
   var boundClickHandler = this.clickHandler.bind(this);
   this.map.on('click', boundClickHandler);
@@ -75,11 +74,11 @@ MapController.prototype.getFillColour = function (feature) {
 
 
 MapController.prototype.removeDuplicates = function (features) {
-  var uniqueIds = [];
-  console.log(features);
+  var uniqueEntities = [];
+
   return features.filter(function (feature) {
-    if (uniqueIds.indexOf(feature.id) === -1) {
-      uniqueIds.push(feature.id);
+    if (uniqueEntities.indexOf(feature.properties.entity) === -1) {
+      uniqueEntities.push(feature.properties.entity);
       return true;
     }
 
@@ -114,7 +113,6 @@ MapController.prototype.createFeaturesPopup = function (features) {
 
 MapController.prototype.clickHandler = function (e) {
   var map = this.map;
-  console.log('click at', e);
   var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
   var that = this; // returns a list of layer ids we want to be 'clickable'
 
@@ -131,7 +129,7 @@ MapController.prototype.clickHandler = function (e) {
 
     return components[0];
   });
-  console.log('Clickable layers: ', clickableLayers); // need to get all the layers that are clickable
+  if (window.DEBUG) console.log('Clickable layers: ', clickableLayers); // need to get all the layers (fill) that are clickable
 
   var features = map.queryRenderedFeatures(bbox, {
     layers: clickableLayers
@@ -163,6 +161,7 @@ MapController.prototype.setupOptions = function (params) {
   this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tile.json';
   this.popupWidth = params.popupWidth || '260px';
   this.popupMaxListLength = params.popupMaxListLength || 10;
+  this.LayerControlOptions = params.LayerControlOptions || {};
 };
 
 MapController.prototype.debug = function () {

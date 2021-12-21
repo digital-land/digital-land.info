@@ -1,0 +1,20 @@
+{% extends "layouts/layout.html" %}
+{% block pageTitle %}There is a problem with the service - Digital Land{% endblock %}
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Sorry, there is a problem with the service</h1>
+      <p class="govuk-body">
+        There was an error
+      </p>
+      <p class="govuk-body">
+        Try again later.
+      </p>
+      <p class="govuk-body">
+        If the problem continues, you can <a href="mailto:digitalland@communities.gov.uk?subject=Page missing" class="govuk-link">contact the Digital Land team</a> if you need to speak to someone.
+      </p>
+  </div>
+</div>
+{% endblock %}

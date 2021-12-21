@@ -23,6 +23,7 @@ setup(
         "GeoAlchemy2",
         "psycopg2",
         "alembic",
+        "Markdown",
     ],
     extras_require={
         "testing": [

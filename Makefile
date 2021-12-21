@@ -38,10 +38,10 @@ apply:
 
 test-acceptance:
 	python -m playwright install chromium
-	python -m pytest -p no:warnings -sv tests/acceptance
+	python -m pytest -p no:warnings tests/acceptance
 
 test:
-	python -m pytest -sv tests/integration
+	python -m pytest --ignore=tests/acceptance
 
 lint:	black-check flake8
 
