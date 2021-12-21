@@ -19,6 +19,8 @@ setup(
         "PyYAML",
         "python-dotenv",
         "requests",
+        "Markdown",
+        "beautifulsoup4",
     ],
     extras_require={
         "testing": [

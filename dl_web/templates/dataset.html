@@ -28,6 +28,17 @@
 <span class="govuk-caption-xl">Dataset</span>
 <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
 
+{% if dataset.text %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h2 class="govuk-heading-m">About this dataset</h2>
+      <div class="app-prose">
+        {{ dataset.text | render_markdown }}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
 <div class="govuk-grid-row govuk-!-margin-bottom-6">
   <div class="govuk-grid-column-full">
     <dl class="govuk-summary-list govuk-!-margin-bottom-0">
