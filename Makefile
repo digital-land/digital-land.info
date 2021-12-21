@@ -11,7 +11,8 @@ server: export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 endif
 
 init::
-	pip install -e .[testing]
+	python -m pip install pip-tools
+	python -m piptools sync requirements.txt dev-requirements.txt
 	pre-commit install
 	npm install
 	frontend-all

@@ -1,4 +1,5 @@
 [flake8]
+max-line-length = 120
 ; W291 	Trailing whitespace
 ; E203 	Whitespace before ':'
 ; W503 	Line break occurred before a binary operator
