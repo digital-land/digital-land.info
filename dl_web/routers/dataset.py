@@ -13,7 +13,7 @@ from dl_web.data_access.digital_land_queries import (
     fetch_lastest_log_date,
 )
 from dl_web.data_access.entity_queries import EntityQuery, fetch_entity_count
-from dl_web.core.resources import templates
+from dl_web.core.templates import templates
 from dl_web.core.utils import create_dict, DigitalLandJSONResponse
 from dl_web.search.enum import Suffix
 from dl_web.settings import get_settings, Settings

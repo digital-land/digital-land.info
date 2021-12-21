@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from dl_web.core.resources import templates
+from dl_web.core.templates import templates
 from dl_web.data_access.digital_land_queries import fetch_datasets
 from dl_web.data_access.entity_queries import fetch_entity_count
 from dl_web.routers import entity, dataset, map_
