@@ -44,6 +44,13 @@ async def fetch_datasets_with_theme():
     return await fetch(url)
 
 
+async def fetch_datasets_with_typology(typology):
+    datasette_url = get_settings().DATASETTE_URL
+    url = f"{datasette_url}/digital-land/dataset.json?_shape=object&_sort=dataset&typology__exact={typology}"
+    logger.info("get_datasets_with_typology: %s", url)
+    return await fetch(url)
+
+
 async def fetch_typologies():
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/typology.json"
