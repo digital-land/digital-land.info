@@ -1,0 +1,7 @@
+-c requirements.txt
+pytest
+flake8
+pre-commit
+playwright
+pytest-playwright
+black

@@ -16,3 +16,4 @@ tf
 .vscode
 .idea
 .git
+*.in
