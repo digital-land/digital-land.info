@@ -11,7 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from dl_web.core.resources import templates
 from dl_web.data_access.digital_land_queries import fetch_datasets
 from dl_web.data_access.entity_queries import fetch_entity_count
-from dl_web.routers import entity, dataset, map_, status
+from dl_web.routers import entity, dataset, map_
 
 logger = logging.getLogger(__name__)
 
@@ -91,16 +91,25 @@ def add_base_routes(app):
             raise e
 
     @app.exception_handler(StarletteHTTPException)
-    async def custom_exception_handler(request: Request, exc: StarletteHTTPException):
+    async def custom_404_exception_handler(
+        request: Request, exc: StarletteHTTPException
+    ):
         if exc.status_code == 404:
             return templates.TemplateResponse(
                 "404.html",
                 {"request": request},
-                status_code=404,
+                status_code=exc.status_code,
             )
         else:
             # Just use FastAPI's built-in handler for other errors
             return await http_exception_handler(request, exc)
+
+    # catch all handler - for any unhandled exceptions return 500 template
+    @app.exception_handler(Exception)
+    async def custom_catch_all_exception_handler(request: Request, exc: Exception):
+        return templates.TemplateResponse(
+            "500.html", {"request": request}, status_code=500
+        )
 
 
 def add_routers(app):
@@ -110,7 +119,6 @@ def add_routers(app):
 
     # not added to /docs
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
-    app.include_router(status.router, prefix="/status", include_in_schema=False)
 
 
 def add_static(app):
