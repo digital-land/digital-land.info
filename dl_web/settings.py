@@ -1,14 +1,15 @@
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv
 from pydantic import BaseSettings, PostgresDsn
 from pydantic.tools import lru_cache
 
-dotenv_file = find_dotenv(".env.shared")
-load_dotenv(dotenv_file)
+load_dotenv()
 
 
 class Settings(BaseSettings):
     DATASETTE_URL: str
-    DATABASE_URL: PostgresDsn
+    S3_COLLECTION_BUCKET: str
+    WRITE_DATABASE_URL: PostgresDsn
+    READ_DATABASE_URL: PostgresDsn
 
 
 @lru_cache()

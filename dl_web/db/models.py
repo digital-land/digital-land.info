@@ -1,18 +1,9 @@
-from sqlalchemy import Column, Text, Date, Integer
+from geoalchemy2 import Geometry
+from sqlalchemy import Column, Date, Integer, Text, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
-from geoalchemy2 import Geometry
-
-from dl_web.settings import get_settings
-
-sqlalchemy_url = get_settings().DATABASE_URL
 
 Base = declarative_base()
-
-
-# this is a test module to experiment with using postgis via sqlalchemy and geoalchemy2
-# in this application - it should be removed if/when we move the code over to using it
-# and potentially much different model classes.
 
 
 class Entity(Base):
@@ -33,3 +24,13 @@ class Entity(Base):
     geojson = Column(JSONB)
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326))
     point = Column(Geometry(geometry_type="POINT", srid=4326))
+
+
+# Note geoalchemy2 automatically indexes Geometry columns
+idx_entity_columns = Index(
+    "idx_entity_columns",
+    Entity.entity,
+    Entity.name,
+    Entity.entry_date,
+    Entity.start_date,
+)
