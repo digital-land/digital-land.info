@@ -88,23 +88,30 @@ MapController.prototype.removeDuplicates = function (features) {
 
 MapController.prototype.createFeaturesPopup = function (features) {
   var featureCount = features.length;
-  var wrapperOpen = '<div class="dl-popup">';
+  var wrapperOpen = '<div class="app-popup">';
   var wrapperClose = '</div>';
   var featureOrFeatures = featureCount > 1 ? 'features' : 'feature';
-  var headingHTML = "<h3 class=\"dl-popup-heading\">".concat(featureCount, " ").concat(featureOrFeatures, " selected</h3>");
+  var headingHTML = "<h3 class=\"app-popup-heading\">".concat(featureCount, " ").concat(featureOrFeatures, " selected</h3>");
 
   if (featureCount > this.popupMaxListLength) {
-    headingHTML = '<h3 class="dl-popup-heading">Too many features selected</h3>';
+    headingHTML = '<h3 class="app-popup-heading">Too many features selected</h3>';
     var tooMany = "<p class=\"govuk-body-s\">You clicked on ".concat(featureCount, " features.</p><p class=\"govuk-body-s\">Zoom in or turn off layers to narrow down your choice.</p>");
     return wrapperOpen + headingHTML + tooMany + wrapperClose;
   }
 
-  var itemsHTML = '<ul class="dl-popup-list">\n';
+  var itemsHTML = '<ul class="app-popup-list">\n';
   var that = this;
   features.forEach(function (feature) {
     var featureType = capitalizeFirstLetter(feature.sourceLayer).replaceAll('-', ' ');
     var fillColour = that.getFillColour(feature);
-    var itemHTML = ["<li class=\"dl-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"), "<p class=\"secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"), '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">', "<a href=\"/entity/".concat(feature.properties.entity, "\">").concat(feature.properties.name, "</a>"), '</p>', '</li>'];
+    var itemHTML = [
+      "<li class=\"app-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"),
+      "<p class=\"app-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"),
+      '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">',
+      "<a class='govuk-link' href=\"/entity/".concat(feature.properties.entity, "\">").concat(feature.properties.name, "</a>"),
+      '</p>',
+      '</li>'
+    ];
     itemsHTML = itemsHTML + itemHTML.join('\n');
   });
   itemsHTML = headingHTML + itemsHTML + '</ul>';
