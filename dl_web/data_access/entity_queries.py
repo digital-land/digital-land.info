@@ -268,7 +268,7 @@ class EntityQuery:
             # TODO see if there's a way to handle this conversion of string
             # geojson to json in pydantic
             for key, val in row.items():
-                if key == "geojson" and row.get("geojson") is not None:
+                if key == "geojson" and row.get("geojson"):
                     row["geojson"] = json.loads(row["geojson"])
                 if isinstance(val, str) and not val:
                     row[key] = None
