@@ -305,7 +305,7 @@ class EntityQuery:
         if len(resp["rows"]) > 0:
             e = resp["rows"][0]
             for key, val in e.items():
-                if key == "geojson" and e.get(key) is not None:
+                if key == "geojson" and e.get(key):
                     e["geojson"] = json.loads(e["geojson"])
                 if isinstance(val, str) and not val:
                     e[key] = None
