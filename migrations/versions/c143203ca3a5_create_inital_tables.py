@@ -1,17 +1,18 @@
 """create inital tables
 
-Revision ID: 23e1b5068abd
+Revision ID: c143203ca3a5
 Revises:
-Create Date: 2021-12-21 19:18:47.986355
+Create Date: 2021-12-23 10:48:55.841380
 
 """
+import geoalchemy2
+
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-import geoalchemy2
 
 # revision identifiers, used by Alembic.
-revision = "23e1b5068abd"
+revision = "c143203ca3a5"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,14 +23,14 @@ def upgrade():
     op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
     op.create_table(
         "entity",
-        sa.Column("entity", sa.Integer(), nullable=False),
+        sa.Column("entity", sa.BIGINT(), autoincrement=False, nullable=False),
         sa.Column("name", sa.Text(), nullable=True),
         sa.Column("entry_date", sa.Date(), nullable=True),
         sa.Column("start_date", sa.Date(), nullable=True),
         sa.Column("end_date", sa.Date(), nullable=True),
         sa.Column("dataset", sa.Text(), nullable=True),
         sa.Column("json", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column("organisation_entity", sa.Integer(), nullable=True),
+        sa.Column("organisation_entity", sa.BIGINT(), nullable=True),
         sa.Column("prefix", sa.Text(), nullable=True),
         sa.Column("reference", sa.Text(), nullable=True),
         sa.Column("typology", sa.Text(), nullable=True),
@@ -59,7 +60,18 @@ def upgrade():
     op.create_index(
         "idx_entity_columns",
         "entity",
-        ["entity", "name", "entry_date", "start_date"],
+        [
+            "entity",
+            "name",
+            "entry_date",
+            "start_date",
+            "end_date",
+            "dataset",
+            "organisation_entity",
+            "prefix",
+            "reference",
+            "typology",
+        ],
         unique=False,
     )
     # ### end Alembic commands ###
@@ -71,5 +83,4 @@ def downgrade():
     op.drop_index("idx_entity_geometry", table_name="entity")
     op.drop_index("idx_entity_point", table_name="entity")
     op.drop_table("entity")
-    op.execute("DROP EXTENSION IF EXISTS postgis")
     # ### end Alembic commands ###
