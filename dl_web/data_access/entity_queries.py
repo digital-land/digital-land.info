@@ -195,14 +195,14 @@ class EntityQuery:
 
         for entity in params.get("geometry_entity", []):
             values.append(
-                "(SELECT geometry_geom from geometry where entity = '%s')"
+                "(SELECT geometry_geom from entity where entity = '%s')"
                 % sqlescape(entity)
             )
 
         for reference in params.get("geometry_reference", []):
             values.append(
                 """
-                  (SELECT geometry_geom from geometry where entity =
+                  (SELECT geometry_geom from entity where entity =
                       (SELECT entity from entity where reference = '%s' group by entity))
                 """
                 % sqlescape(reference)
@@ -212,16 +212,15 @@ class EntityQuery:
             return
 
         sql = ""
-        where = "entity.entity = geometry.entity AND ("
+        where = " ("
         match = params.get("geometry_relation", GeometryRelation.intersects).value
         for value in values:
-            sql += (
-                where
-                + "(geometry.geometry_geom IS NOT NULL AND %s(geometry.geometry_geom, %s))"
-                % (match, value)
+            sql += where + "(geometry_geom IS NOT NULL AND %s(geometry_geom, %s))" % (
+                match,
+                value,
             )
             where = " OR "
-            sql += where + "%s(geometry.point_geom, %s)" % (match, value)
+            sql += where + "%s(point_geom, %s)" % (match, value)
         return sql + ")"
 
     def pagination(self, where, params):
@@ -238,10 +237,8 @@ class EntityQuery:
         if count:
             sql = "SELECT DISTINCT COUNT(*) as _count"
         else:
-            sql = "SELECT entity.*, geometry.geojson"
-        sql += (
-            " FROM entity LEFT OUTER JOIN geometry on entity.entity = geometry.entity"
-        )
+            sql = "SELECT entity.* "
+        sql += " FROM entity "
 
         where = " WHERE "
         for part in [
@@ -271,7 +268,7 @@ class EntityQuery:
             # TODO see if there's a way to handle this conversion of string
             # geojson to json in pydantic
             for key, val in row.items():
-                if key == "geojson" and row.get("geojson") is not None:
+                if key == "geojson" and row.get("geojson"):
                     row["geojson"] = json.loads(row["geojson"])
                 if isinstance(val, str) and not val:
                     row[key] = None
@@ -298,9 +295,9 @@ class EntityQuery:
     # where the Model.get(id) returns the thing by primary key which you get for free
     async def get(self, entity_id: int):
         sql = f"""
-            SELECT e.*, g.geojson
-            FROM entity e LEFT OUTER JOIN geometry g on e.entity = g.entity
-            WHERE (e.entity = {entity_id})
+            SELECT *
+            FROM entity
+            WHERE (entity = {entity_id})
             """
         url = make_url(f"{self.url_base}.json", params={"sql": sql})
         logger.info(f"get entity: {url}")
@@ -308,7 +305,7 @@ class EntityQuery:
         if len(resp["rows"]) > 0:
             e = resp["rows"][0]
             for key, val in e.items():
-                if key == "geojson" and e.get(key) is not None:
+                if key == "geojson" and e.get(key):
                     e["geojson"] = json.loads(e["geojson"])
                 if isinstance(val, str) and not val:
                     e[key] = None
