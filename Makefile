@@ -12,7 +12,7 @@ endif
 
 init::
 	python -m pip install pip-tools
-	python -m piptools sync requirements.txt dev-requirements.txt
+	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 	pre-commit install
 	npm install
 	frontend-all

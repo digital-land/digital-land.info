@@ -3,7 +3,7 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 AS production
 COPY . /src
 WORKDIR /src
 RUN pip install --user -U pip
-RUN pip install --user --no-cache-dir -r requirements.txt
+RUN pip install --user --no-cache-dir -r requirements/requirements.txt
 
 EXPOSE 80
 
@@ -14,4 +14,4 @@ ENV PRE_START_PATH=/src/prestart.sh
 
 FROM production AS dev
 WORKDIR /src
-RUN pip install --user --no-cache-dir -r dev-requirements.txt
+RUN pip install --user --no-cache-dir -r requirements/dev-requirements.txt
