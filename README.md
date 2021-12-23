@@ -160,7 +160,7 @@ aws-vault exec dl-dev -- make apply
 The docker container can be built with the following command (NB this tag can be anything):
 
 ```bash
-docker build -t dl_web_container .
+docker build --target production -t dl_web_container .
 ```
 
 **OPTIONAL**: You can test the newly built container locally. Note that we must explicitly tell docker to take the various AWS variables from our environment (set by aws-vault) and provide them to the container at runtime:
