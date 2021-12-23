@@ -1,8 +1,15 @@
 #!/usr/bin/env py.test
 import pytest
+
 from fastapi.testclient import TestClient
 from dl_web.factory import create_app
 from dl_web.settings import get_settings
+
+settings = get_settings()
+settings.DATASETTE_URL = "https://datasette.digital-land.info"
+settings.S3_COLLECTION_BUCKET = "https://collection-dataset.s3.eu-west-2.amazonaws.com"
+settings.READ_DATABASE_URL = "postgresql://postgres:postgres@localhost/digitalland"
+settings.WRITE_DATABASE_URL = "postgresql://postgres:postgres@localhost/digitalland"
 
 """
     We can't test any templated endpoint now we have middleware
@@ -23,7 +30,6 @@ def test_404_page():
 @pytest.mark.skip(reason="await fix https://github.com/encode/starlette/issues/472")
 def test_500_page():
     # break some settings so we can force an unhandled exception
-    settings = get_settings()
     settings.DATASETTE_URL = "http://thiswontwork.com"
     app = create_app()
     client = TestClient(app)

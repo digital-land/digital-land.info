@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dotenv import load_dotenv
 from pydantic import BaseSettings, PostgresDsn
 from pydantic.tools import lru_cache
@@ -6,10 +8,10 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    DATASETTE_URL: str
-    S3_COLLECTION_BUCKET: str
-    WRITE_DATABASE_URL: PostgresDsn
-    READ_DATABASE_URL: PostgresDsn
+    DATASETTE_URL: Optional[str]
+    S3_COLLECTION_BUCKET: Optional[str]
+    WRITE_DATABASE_URL: Optional[PostgresDsn]
+    READ_DATABASE_URL: Optional[PostgresDsn]
 
 
 @lru_cache()
