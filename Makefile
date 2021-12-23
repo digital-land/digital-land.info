@@ -15,7 +15,8 @@ init::
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 	pre-commit install
 	npm install
-	frontend-all
+
+init:: frontend-all
 
 server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
