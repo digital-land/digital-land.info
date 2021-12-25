@@ -9,8 +9,6 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from dl_web.core.templates import templates
-from dl_web.data_access.digital_land_queries import fetch_datasets
-from dl_web.data_access.entity_queries import fetch_entity_count
 from dl_web.routers import entity, dataset, map_
 
 logger = logging.getLogger(__name__)
@@ -74,21 +72,9 @@ def add_base_routes(app):
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
     async def health(request: Request):
-        try:
-            datasets = await fetch_datasets()
-            entity_count_by_datatset = await fetch_entity_count()
-            entity_count = 0
-            for ds in entity_count_by_datatset["rows"]:
-                entity_count += ds[1]
-            return {
-                "status": "OK",
-                "dataset_count": len(datasets),
-                "entity_count": entity_count,
-            }
-
-        except Exception as e:
-            logger.exception(e)
-            raise e
+        return {
+            "status": "OK",
+        }
 
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(
