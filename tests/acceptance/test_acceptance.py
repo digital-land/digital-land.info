@@ -71,5 +71,3 @@ def test_get_healthcheck(server_process):
     data = resp.json()
 
     assert data["status"] == "OK"
-    assert data["dataset_count"] > 0
-    assert data["entity_count"] > 0

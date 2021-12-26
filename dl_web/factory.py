@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 
+import requests
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from dl_web.core.templates import templates
 from dl_web.routers import entity, dataset, map_
+from dl_web.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -71,10 +73,20 @@ def add_base_routes(app):
         )
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
-    async def health(request: Request):
-        return {
-            "status": "OK",
-        }
+    def health():
+        try:
+            datasette_url = get_settings().DATASETTE_URL
+            resp = requests.get(datasette_url)
+            status = {
+                "status": "OK",
+                "digital_land_datasette_status": resp.status_code,
+            }
+            logger.info(f"healtcheck {status}")
+            return status
+
+        except Exception as e:
+            logger.exception(e)
+            raise e
 
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(
