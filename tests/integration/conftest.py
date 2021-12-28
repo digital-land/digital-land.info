@@ -9,21 +9,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from dl_web.settings import Settings
+from dl_web.settings import Settings, get_settings
 
 
-# TODO - I don't really want to do this at all really
-# it would be better I think to just be driven just off
-# of env vars? and in test just use a .env.test over ride?
-# so get settings would just return the right thing?
 @pytest.fixture(scope="session")
 def test_settings() -> Settings:
-    from dl_web.settings import get_settings
+    from dotenv import load_dotenv
 
-    settings = get_settings()
-    settings.READ_DATABASE_URL = f"{settings.READ_DATABASE_URL}_test"
-    settings.WRITE_DATABASE_URL = f"{settings.WRITE_DATABASE_URL}_test"
-    return settings
+    load_dotenv(".env.test", override=True)
+    return get_settings()
 
 
 @pytest.fixture(scope="session")
