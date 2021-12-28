@@ -12,6 +12,10 @@ from sqlalchemy.orm import sessionmaker
 from dl_web.settings import Settings
 
 
+# TODO - I don't really want to do this at all really
+# it would be better I think to just be driven just off
+# of env vars? and in test just use a .env.test over ride?
+# so get settings would just return the right thing?
 @pytest.fixture(scope="session")
 def test_settings() -> Settings:
     from dl_web.settings import get_settings

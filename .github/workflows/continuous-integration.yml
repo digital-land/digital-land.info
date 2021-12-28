@@ -31,7 +31,7 @@ jobs:
       with:
         python-version: 3.8
 
-    - name: Make Init
+    - name: Make init
       run: |
         make init
 
