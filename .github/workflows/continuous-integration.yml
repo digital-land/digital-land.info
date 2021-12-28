@@ -47,9 +47,16 @@ jobs:
       run: |
         make lint
 
-    - name: Test
+    - name: setup database
       run: |
         psql -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres"
+      env:
+        POSTGRES_HOST: postgres
+        POSTGRES_PORT: 5432
+        POSTGRES_PASSWORD: postgres
+
+    - name: Test
+      run: |
         make test
         make test-acceptance
       env:
