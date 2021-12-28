@@ -8,6 +8,8 @@ from dl_web.settings import get_settings
 
 engine = create_engine(get_settings().READ_DATABASE_URL)
 
+# TODO - move all this over to using https://fastapi-utils.davidmontague.xyz/user-guide/session/
+
 
 @lru_cache
 def create_session() -> scoped_session:
