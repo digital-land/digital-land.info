@@ -26,7 +26,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: set up python
+    - name: Set up python
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
@@ -46,13 +46,13 @@ jobs:
       run: |
         make lint
 
-    - name: setup database
+    - name: Setup database
       run: |
-        psql -h postgres -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres" -U postgresup
+        psql -h localhost -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres" -U postgres
       env:
         PGPASSWORD: postgres
 
-    - name: test
+    - name: Test
       run: |
         make test
         make test-acceptance
@@ -62,11 +62,11 @@ jobs:
         READ_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land
         WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land
 
-    - name: login to ECR
+    - name: Login to ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: build and tag
+    - name: Build and tag
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: dl-web
@@ -74,7 +74,7 @@ jobs:
       run: |
         docker build --target production -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
-    - name: push to ECR
+    - name: Push to ECR
       if: ${{ github.ref == 'refs/heads/main' }}
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -83,7 +83,7 @@ jobs:
       run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    - name: restart digital-land.info service
+    - name: Restart digital-land.info service
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |
         aws ecs update-service --force-new-deployment --service development-ecs-service --cluster development-ecs-cluster
