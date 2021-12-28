@@ -48,7 +48,7 @@ jobs:
 
     - name: setup database
       run: |
-        psql -h postgres -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres -U postgres digital_land_test"
+        psql -h postgres -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres" -U postgresup
       env:
         PGPASSWORD: postgres
 
