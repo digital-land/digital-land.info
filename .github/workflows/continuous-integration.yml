@@ -63,10 +63,12 @@ jobs:
         WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land
 
     - name: Login to ECR
+      if: ${{ github.ref == 'refs/heads/main' }}
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build and tag
+      if: ${{ github.ref == 'refs/heads/main' }}
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: dl-web
