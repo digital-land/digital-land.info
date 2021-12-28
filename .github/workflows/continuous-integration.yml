@@ -19,8 +19,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        command: |
-          psql -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres"
         ports:
           - 5432:5432
 
@@ -51,6 +49,7 @@ jobs:
 
     - name: Test
       run: |
+        psql -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres"
         make test
         make test-acceptance
       env:
