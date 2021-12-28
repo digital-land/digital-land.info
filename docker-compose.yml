@@ -15,8 +15,8 @@ services:
     depends_on:
       - db
     environment:
-      WRITE_DATABASE_URL: "postgresql://postgres:postgres@db/digitalland"
-      READ_DATABASE_URL: "postgresql://postgres:postgres@db/digitalland"
+      WRITE_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
+      READ_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
 
   db:
     image: postgis/postgis:13-master

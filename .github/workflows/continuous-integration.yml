@@ -4,9 +4,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+
+  runner-job:
 
     runs-on: ubuntu-20.04
+
+    services:
+      postgres:
+        image: postgis/postgis:13-master
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
     - uses: actions/checkout@v2
@@ -37,6 +51,11 @@ jobs:
       run: |
         make test
         make test-acceptance
+      env:
+        DATASETTE_URL=https://datasette.digital-land.info
+        S3_COLLECTION_BUCKET=https://collection-dataset.s3.eu-west-2.amazonaws.com
+        READ_DATABASE_URL=postgresql://postgres:postgres@localhost/digital_land
+        WRITE_DATABASE_URL=postgresql://postgres:postgres@localhost/digital_land
 
     - name: Login to Amazon ECR
       id: login-ecr
