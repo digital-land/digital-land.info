@@ -140,7 +140,11 @@ Then run
 
 # Building the application container
 
-The docker container can be built with the following command (NB this tag can be anything):
+Note that the Dockerfile for this application uses a multi stage build. The production version can be built using the
+target `production`. The target `dev` can be used to build a version for local development and is the version the
+docker-compose file builds.
+
+The docker container for use in production can be built with the following command (NB this tag can be anything):
 
 ```bash
 docker build --target production -t dl_web_container .
