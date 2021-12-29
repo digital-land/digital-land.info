@@ -58,6 +58,8 @@ Then run the initial db migration
     docker-compose run --rm web python -m alembic upgrade head
 
 
+**TODO - details of how to load some data into db**
+
 
 **Running the application on your machine**
 
