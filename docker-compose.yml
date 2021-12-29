@@ -1,9 +1,32 @@
 version: "3.8"
 
 services:
-  dl_web:
-    build: .
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    command: |
+      bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn dl_web.app:app --reload --workers 1 --host 0.0.0.0 --port 8000'
     volumes:
       - .:/src
     ports:
-      - 80:80
+      - 8000:8000
+    depends_on:
+      - db
+    environment:
+      WRITE_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
+      READ_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
+
+  db:
+    image: postgis/postgis:13-master
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=digital_land
+volumes:
+  postgres_data:

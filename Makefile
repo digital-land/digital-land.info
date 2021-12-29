@@ -1,5 +1,8 @@
-DOCKER_IMAGE_URL=955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
 UNAME := $(shell uname)
+NAME=955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
+TAG    := $$(git log -1 --pretty=%h)
+IMG    := ${NAME}:${TAG}
+LATEST := ${NAME}:latest
 
 all::	lint
 
@@ -9,7 +12,7 @@ endif
 
 init::
 	python -m pip install pip-tools
-	python -m piptools sync requirements.txt dev-requirements.txt
+	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 	pre-commit install
 	npm install
 
@@ -20,10 +23,11 @@ server:
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker dl_web.app:app --preload --forwarded-allow-ips="*"
 
 build:
-	docker build -t $(DOCKER_IMAGE_URL) .
+	docker build -t ${IMG} .
+	docker tag ${IMG} ${LATEST}
 
 push:
-	docker push $(DOCKER_IMAGE_URL)
+	docker push ${NAME}
 
 login:
 	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(DOCKER_IMAGE_URL)

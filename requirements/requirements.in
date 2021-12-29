@@ -9,3 +9,7 @@ PyYAML
 python-dotenv
 requests
 Markdown
+sqlalchemy
+GeoAlchemy2
+psycopg2
+alembic

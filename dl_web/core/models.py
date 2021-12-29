@@ -21,6 +21,7 @@ class DigitalLandBase(BaseModel):
     class Config:
         alias_generator = to_kebab
         allow_population_by_field_name = True
+        orm_mode = True
 
 
 class Entity(DigitalLandBase):

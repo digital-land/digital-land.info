@@ -3,9 +3,20 @@ import time
 import pytest
 import requests
 import uvicorn
-from multiprocessing.context import Process
 
-from dl_web.app import app
+from multiprocessing.context import Process
+from dl_web.settings import get_settings
+
+
+settings = get_settings()
+settings.DATASETTE_URL = "https://datasette.digital-land.info"
+settings.S3_COLLECTION_BUCKET = "https://collection-dataset.s3.eu-west-2.amazonaws.com"
+settings.READ_DATABASE_URL = "postgresql://postgres:postgres@localhost/digital_land"
+settings.WRITE_DATABASE_URL = "postgresql://postgres:postgres@localhost/digital_land"
+
+from dl_web.app import create_app  # noqa: E402
+
+app = create_app()
 
 HOST = "0.0.0.0"
 PORT = 9000
