@@ -114,10 +114,14 @@ def add_routers(app):
 
     app.include_router(entity.router, prefix="/entity")
     app.include_router(dataset.router, prefix="/dataset")
-    app.include_router(experimental.router, prefix="/experimental")
 
     # not added to /docs
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
+
+    # temp testing using local db - also exclude from /docs
+    app.include_router(
+        experimental.router, prefix="/experimental", include_in_schema=False
+    )
 
 
 def add_static(app):
