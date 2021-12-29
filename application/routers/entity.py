@@ -5,16 +5,16 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
-from dl_web.core.models import GeoJSON
-from dl_web.data_access.digital_land_queries import (
+from application.core.models import GeoJSON
+from application.data_access.digital_land_queries import (
     fetch_typologies,
     fetch_datasets_with_theme,
     fetch_local_authorities,
 )
-from dl_web.data_access.entity_queries import EntityQuery
-from dl_web.search.enum import Suffix
+from application.data_access.entity_queries import EntityQuery
+from application.search.enum import Suffix
 
-from dl_web.search.filters import (
+from application.search.filters import (
     BaseFilters,
     DateFilters,
     SpatialFilters,
@@ -22,8 +22,8 @@ from dl_web.search.filters import (
     FormatFilters,
 )
 
-from dl_web.core.templates import templates
-from dl_web.core.utils import create_dict, DigitalLandJSONResponse
+from application.core.templates import templates
+from application.core.utils import create_dict, DigitalLandJSONResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

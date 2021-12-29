@@ -9,9 +9,9 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from dl_web.core.templates import templates
-from dl_web.routers import entity, dataset, map_, experimental
-from dl_web.settings import get_settings
+from application.core.templates import templates
+from application.routers import entity, dataset, map_, experimental
+from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
 

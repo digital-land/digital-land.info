@@ -183,14 +183,19 @@ The containers are configured to send their logs to AWS Cloudwatch. The log grou
 Logging configuration can be found in `log_config.yml`. Here you can change log level of each of the loggers independently, change the log format, or redirect specific/all logs to file.
 
 
-### Notes on docker compose
+### Notes on docker compose and postgres
 
-Docker compose can be used to run the application + database. It uses the build target of dev for the main application,
-which has a multistage [Dockerfile](Dockerfile)
+Docker compose can be used to run the application + database. However, you may find that it's most helpful for running
+postgres without having to install it on your machine.
+
+The docker-compose file uses the build target of `dev` for the main application, which has a multistage [Dockerfile](Dockerfile).
+
+If you want to run tests using docker-compose, then a `.env.test` file may conflict with env vars in docker-compose file,
+so make a decision about whether to run postgres in docker or on you machine.
 
 Run up/down migrations
 
-    docker-compose run --rm web python -m alembic upgrade head
+å    docker-compose run --rm web python -m alembic upgrade head
 
 Downgrade last migration
 
@@ -198,4 +203,4 @@ Downgrade last migration
 
 Run integration tests
 
-    docker-compose run --rm web python -m pytest tests/integration
+    docker-compose run --rm db web python -m pytest tests/integration

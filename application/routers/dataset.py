@@ -5,18 +5,18 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse
 
-from dl_web.data_access.digital_land_queries import (
+from application.data_access.digital_land_queries import (
     fetch_dataset,
     fetch_datasets_with_theme,
     fetch_publisher_coverage_count,
     fetch_latest_resource,
     fetch_lastest_log_date,
 )
-from dl_web.data_access.entity_queries import EntityQuery, fetch_entity_count
-from dl_web.core.templates import templates
-from dl_web.core.utils import create_dict, DigitalLandJSONResponse
-from dl_web.search.enum import Suffix
-from dl_web.settings import get_settings, Settings
+from application.data_access.entity_queries import EntityQuery, fetch_entity_count
+from application.core.templates import templates
+from application.core.utils import create_dict, DigitalLandJSONResponse
+from application.search.enum import Suffix
+from application.settings import get_settings, Settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

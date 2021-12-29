@@ -2,7 +2,7 @@ import logging.config
 import uvicorn
 import yaml
 
-from dl_web.factory import create_app
+from application.factory import create_app
 
 with open("log_config.yml") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)

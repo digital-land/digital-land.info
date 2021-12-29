@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, List
 from fastapi import Query, Header
 
-from dl_web.search.enum import EntriesOption, DateOption, GeometryRelation, Suffix
+from application.search.enum import EntriesOption, DateOption, GeometryRelation, Suffix
 
 
 @dataclass

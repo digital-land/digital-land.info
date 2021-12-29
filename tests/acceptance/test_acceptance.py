@@ -5,7 +5,7 @@ import requests
 import uvicorn
 
 from multiprocessing.context import Process
-from dl_web.settings import get_settings
+from application.settings import get_settings
 
 
 settings = get_settings()
@@ -14,7 +14,7 @@ settings.S3_COLLECTION_BUCKET = "https://collection-dataset.s3.eu-west-2.amazona
 settings.READ_DATABASE_URL = "postgresql://postgres:postgres@localhost/digital_land"
 settings.WRITE_DATABASE_URL = "postgresql://postgres:postgres@localhost/digital_land"
 
-from dl_web.app import create_app  # noqa: E402
+from application.app import create_app  # noqa: E402
 
 app = create_app()
 

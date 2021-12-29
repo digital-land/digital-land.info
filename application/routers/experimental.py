@@ -3,9 +3,9 @@ import logging
 from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse
 
-from dl_web.db.session import get_session
-from dl_web.db.models import Entity as EntityModel
-from dl_web.core.models import Entity
+from application.db.session import get_session
+from application.db.models import Entity as EntityModel
+from application.core.models import Entity
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

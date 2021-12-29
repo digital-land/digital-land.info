@@ -32,12 +32,6 @@ push:
 login:
 	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(DOCKER_IMAGE_URL)
 
-plan:
-	cd tf/app; terraform plan -out=tfplan
-
-apply:
-	cd tf/app; terraform apply tfplan
-
 test-acceptance:
 	python -m playwright install chromium
 	python -m pytest -p no:warnings tests/acceptance

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from dl_web.settings import Settings, get_settings
+from application.settings import Settings, get_settings
 
 
 @pytest.fixture(scope="session")
@@ -30,7 +30,7 @@ def apply_migrations(test_settings):
 
 @pytest.fixture(scope="session")
 def app(apply_migrations) -> FastAPI:
-    from dl_web.factory import create_app
+    from application.factory import create_app
 
     return create_app()
 

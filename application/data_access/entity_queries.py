@@ -4,10 +4,10 @@ import urllib.parse
 
 from decimal import Decimal
 
-from dl_web.core.models import entity_factory
-from dl_web.core.utils import fetch, make_url, get
-from dl_web.search.enum import EntriesOption, DateOption, GeometryRelation
-from dl_web.settings import get_settings
+from application.core.models import entity_factory
+from application.core.utils import fetch, make_url, get
+from application.search.enum import EntriesOption, DateOption, GeometryRelation
+from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
 

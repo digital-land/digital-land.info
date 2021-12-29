@@ -10,20 +10,20 @@ from digital_land_frontend.filters import (
 )
 from digital_land_frontend.globals import random_int
 
-from dl_web.core.filters import (
+from application.core.filters import (
     generate_query_param_str,
     geometry_reference_count,
     make_param_str_filter,
     render_markdown,
 )
 
-from dl_web.core.utils import model_dumps
+from application.core.utils import model_dumps
 
-templates = Jinja2Templates("dl_web/templates")
+templates = Jinja2Templates("application/templates")
 
 templates.env.loader = jinja2.ChoiceLoader(
     [
-        jinja2.FileSystemLoader(searchpath=["dl_web/templates"]),
+        jinja2.FileSystemLoader(searchpath=["application/templates"]),
         jinja2.PrefixLoader(
             {
                 "govuk_frontend_jinja": jinja2.PackageLoader("govuk_frontend_jinja"),

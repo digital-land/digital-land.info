@@ -1,9 +1,9 @@
 import logging
 import urllib.parse
 
-from dl_web.core.utils import fetch
-from dl_web.core.models import Dataset
-from dl_web.settings import get_settings
+from application.core.utils import fetch
+from application.core.models import Dataset
+from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
 

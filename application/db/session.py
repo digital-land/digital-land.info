@@ -4,7 +4,7 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from dl_web.settings import get_settings
+from application.settings import get_settings
 
 engine = create_engine(get_settings().READ_DATABASE_URL)
 
