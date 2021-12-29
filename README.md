@@ -57,8 +57,13 @@ Then run the initial db migration
 
     docker-compose run --rm web python -m alembic upgrade head
 
+**Loading data into postgres**
 
-**TODO - details of how to load some data into db**
+Assuming there's a running postgres available locally on localhost with a db called digital_land, you can use [https://github.com/digital-land/digital-land-postgres](https://github.com/digital-land/digital-land-postgres)
+to load entity data into the datbase.
+
+Check out the digital-land-postgres repo, ensure you have postgres running in docker-compose from this repo or on your machine and
+follow the instructions in the readme of digital-land-postgres repo.
 
 
 **Running the application on your machine**
@@ -134,8 +139,6 @@ To add a development library, add a line to [dev-requirements.in](dev-requiremen
 Then run
 
     python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
-
-
 
 
 # Building the application container
