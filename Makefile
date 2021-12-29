@@ -1,4 +1,6 @@
 UNAME := $(shell uname)
+
+# what if we tagged with commit sha?
 NAME=955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-info
 TAG    := $$(git log -1 --pretty=%h)
 IMG    := ${NAME}:${TAG}
@@ -23,7 +25,7 @@ server:
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker dl_web.app:app --preload --forwarded-allow-ips="*"
 
 build:
-	docker build -t ${IMG} .
+	docker build  --target production -t ${IMG} .
 	docker tag ${IMG} ${LATEST}
 
 push:
