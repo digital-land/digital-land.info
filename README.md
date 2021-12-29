@@ -22,7 +22,52 @@ If everything is configured correctly this should return the details of the `dev
 
 # Running locally
 
-Create a virtualenv then
+Prerequisites
+
+    - python 3.8 or above
+    - postgresql 13 or above with postgis extensions enabled
+
+**Postgres setup**
+
+You have two options:
+
+1. Run postgres directly on your machine
+
+If you have postgres running on your machine then run
+
+    createdb digital_land
+
+Then run the initial database migration
+
+    python -m alembic upgrade head
+
+2. Run postgres in docker
+
+There's a docker-compose file which can be used to run postgis as well as this application [docker-compose.yml](docker-compose.yml).
+
+To run postgres in the container run the following commands:
+
+    docker-compose up -d db
+
+Then create the digital land database (enter password "postgres" when prompted)
+
+    docker-compose run --rm db psql -h db -c "CREATE DATABASE digital_land WITH TEMPLATE postgres" -U postgres
+
+Then run the initial db migration
+
+    docker-compose run --rm web python -m alembic upgrade head
+
+
+
+**Running the application on your machine**
+
+Create a virtualenv, then setup some environment variables. Copy `.env.example` to `.env`.
+
+Note that to run tests you'll want a `.env.test` file as well to override db connection strings for local test. For
+example, I have a digital_land_test db to run integration tests with and override *_DATABASE_URL variables using the
+`.env.test` file.
+
+Initialise the application (install dependencies)
 
 ```
 make init
@@ -34,7 +79,10 @@ The pre commit hooks will  lint and run black and abort a commit on failure.
 
 This will save you lots of broken builds and subsequent "lint fix" commit messages.
 
+
 Run integration tests
+
+Assuming you have setup a test database, you can run:
 
 ```
 make test
