@@ -1,5 +1,5 @@
 UNAME := $(shell uname)
-NAME=955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
+NAME=955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-info
 TAG    := $$(git log -1 --pretty=%h)
 IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest

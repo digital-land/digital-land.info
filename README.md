@@ -147,13 +147,13 @@ docker-compose file builds.
 The docker container for use in production can be built with the following command (NB this tag can be anything):
 
 ```bash
-docker build --target production -t dl_web_container .
+docker build --target production -t digital-land-info .
 ```
 
 Tag our build:
 
 ```bash
-docker tag dl_web_container:latest 955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web:latest
+docker tag digital-land-info:latest 955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-info:latest
 ```
 
 Authenticate with AWS in order for docker push to work:
@@ -165,7 +165,7 @@ aws-vault exec dl-dev -- aws ecr get-login-password --region eu-west-2 | docker 
 Then we're finally ready to push the image:
 
 ```bash
-docker push 955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
+docker push 955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-info
 ```
 
 # Force redeployment
@@ -173,7 +173,7 @@ docker push 955696714113.dkr.ecr.eu-west-2.amazonaws.com/dl-web
 If you have pushed a new container, and want to force a redeployment of the ECS service in order to start using it, you can do so directly with aws and do not need to use terraform. The command is:
 
 ```bash
-aws-vault exec dl-dev -- aws ecs update-service --force-new-deployment --service development-ecs-service --cluster development-ecs-cluster
+aws-vault exec dl-dev -- aws ecs update-service --force-new-deployment --service development-web-service --cluster development-web-cluster
 ```
 
 # Logging
