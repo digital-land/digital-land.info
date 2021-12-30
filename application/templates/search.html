@@ -310,15 +310,4 @@
   })
 </script>
 {% endif %}
-<script>
-  var $filters = document.querySelectorAll('[data-module="selected-counter"]')
-  $filters.forEach(filter => {
-    new window.DLFrontend.FilterGroupSelectedCounter(filter).init()
-  })
-
-  var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
-  $filterCheckboxes.forEach(el => {
-    new window.DLFrontend.FilterCheckboxes(el).init()
-  })
-</script>
 {% endblock pageScripts %}
