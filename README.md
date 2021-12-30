@@ -198,7 +198,7 @@ so make a decision about whether to run postgres in docker or on you machine.
 
 Run up/down migrations
 
-å    docker-compose run --rm web python -m alembic upgrade head
+    docker-compose run --rm web python -m alembic upgrade head
 
 Downgrade last migration
 
