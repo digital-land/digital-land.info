@@ -47,7 +47,7 @@
 
 	<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
-	<form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-filter="form">
+	<form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form">
 		<label class="dl-list-filter__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
 		<input class="dl-list-filter__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Ramsar site">
 	</form>
@@ -87,13 +87,4 @@
 
 	<p class="dl-list-filter__no-filter-match">No dataset matches that filter.</p>
 
-{% endblock %}
-
-{% block bodyEnd %}
-{{ super() }}
-<script>
-  // initialise list filter
-  const $form = document.querySelector('[data-filter="form"]');
-  new window.DLFrontend.ListFilter($form).init()
-</script>
 {% endblock %}
