@@ -1,11 +1,12 @@
 import logging
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from application.db.session import get_session
 from application.db.models import Entity as EntityModel
 from application.core.models import Entity
+from application.db.session import get_db_session
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -15,9 +16,9 @@ logger = logging.getLogger(__name__)
 # and potentially much different model classes.
 
 
-def get_entities(session=Depends(get_session)):
+def get_entities(db_session: Session = Depends(get_db_session)):
     try:
-        entities = session.query(EntityModel).limit(50).all()
+        entities = db_session.query(EntityModel).limit(50).all()
         return {"entities": [Entity.from_orm(e) for e in entities]}
     except Exception as e:
         print(e)

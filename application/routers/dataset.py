@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
+from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from application.data_access.digital_land_queries import (
@@ -15,6 +16,7 @@ from application.data_access.digital_land_queries import (
 from application.data_access.entity_queries import EntityQuery, fetch_entity_count
 from application.core.templates import templates
 from application.core.utils import create_dict, DigitalLandJSONResponse
+from application.db.session import get_db_session
 from application.search.enum import Suffix
 from application.settings import get_settings, Settings
 
@@ -22,10 +24,14 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-async def list_datasets(request: Request, extension: Optional[Suffix] = None):
-    response = await fetch_datasets_with_theme()
-    entity_counts_response = await fetch_entity_count()
-    entity_counts = {count[0]: count[1] for count in entity_counts_response["rows"]}
+def list_datasets(
+    request: Request,
+    extension: Optional[Suffix] = None,
+    db_session: Session = Depends(get_db_session),
+):
+    response = fetch_datasets_with_theme()
+    entity_counts_response = fetch_entity_count(db_session)
+    entity_counts = {count[0]: count[1] for count in entity_counts_response}
     results = [create_dict(response["columns"], row) for row in response["rows"]]
     datasets = []
     # add entity count if available
@@ -55,20 +61,21 @@ async def list_datasets(request: Request, extension: Optional[Suffix] = None):
         )
 
 
-async def get_dataset(
+def get_dataset(
     request: Request,
     dataset: str,
     limit: int = 50,
     extension: Optional[Suffix] = None,
     settings: Settings = Depends(get_settings),
+    db_session: Session = Depends(get_db_session),
 ):
     collection_bucket = settings.S3_COLLECTION_BUCKET
     try:
-        _dataset = await fetch_dataset(dataset)
-        entity_count_repsonse = await fetch_entity_count(dataset=dataset)
-        publisher_coverage_response = await fetch_publisher_coverage_count(dataset)
-        latest_resource_response = await fetch_latest_resource(dataset)
-        latest_log_response = await fetch_lastest_log_date(dataset)
+        _dataset = fetch_dataset(db_session, dataset)
+        entity_count = fetch_entity_count(db_session, dataset)
+        publisher_coverage_response = fetch_publisher_coverage_count(dataset)
+        latest_resource_response = fetch_latest_resource(dataset)
+        latest_log_response = fetch_lastest_log_date(dataset)
         params = {
             "typology": [_dataset.typology],
             "dataset": [dataset],
@@ -95,7 +102,7 @@ async def get_dataset(
                     "dataset": _dataset,
                     "entities": entities["results"],
                     "collection_bucket": collection_bucket,
-                    "entity_count": entity_count_repsonse["rows"][0][1],
+                    "entity_count": entity_count,
                     "publishers": {
                         "expected": publisher_coverage_response["rows"][0][0],
                         "current": publisher_coverage_response["rows"][0][1],
