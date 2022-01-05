@@ -60,3 +60,15 @@ def test_x_content_type_options_header(client):
     response = client.get("/entity.json", headers={"Origin": "localhost"})
     assert "X-Content-Type-Options" in response.headers.keys()
     assert response.headers["X-Content-Type-Options"] == "nosniff"
+
+
+def test_app_returns_valid_geojson_list(client):
+
+    response = client.get(
+        "/entity.geojson?dataset=not-real", headers={"Origin": "localhost"}
+    )
+    data = response.json()
+    assert "type" in data
+    assert "features" in data
+    assert "FeatureCollection" == data["type"]
+    assert [] == data["features"]

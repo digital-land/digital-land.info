@@ -5,7 +5,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
-from application.core.models import GeoJSON
+from application.core.models import GeoJSONFeatureCollection, Entity
 from application.data_access.digital_land_queries import (
     fetch_typologies,
     fetch_datasets_with_theme,
@@ -29,9 +29,9 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _get_geojson(data: List[GeoJSON]):
-    results = [item.geojson for item in data["results"]]
-    return results
+def _get_geojson(data: List[Entity]) -> GeoJSONFeatureCollection:
+    results = [item.geojson for item in data]
+    return {"type": "FeatureCollection", "features": results}
 
 
 async def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
@@ -107,7 +107,7 @@ async def search_entities(
         return data
 
     if extension is not None and extension.value == "geojson":
-        return _get_geojson(data)
+        return _get_geojson(data.get("results", []))
 
     # typology facet
     response = await fetch_typologies()
