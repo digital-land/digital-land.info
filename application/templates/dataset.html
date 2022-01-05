@@ -3,11 +3,11 @@
 {% block pageTitle %}{{ dataset["name"] }} Dataset | Digital Land{% endblock %}
 
 {% block headStart %}
-<meta name="generated-date" content="{{ now }}" />
+  <meta name="generated-date" content="{{ now }}"/>
 {% endblock headStart %}
 
 {%- block breadcrumbs -%}
-    {{- govukBreadcrumbs({
+  {{- govukBreadcrumbs({
     "items": [
         {
         "text": "Digital Land",
@@ -25,90 +25,80 @@
 {%- endblock -%}
 
 {% block content %}
-<span class="govuk-caption-xl">Dataset</span>
-<h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
+  <span class="govuk-caption-xl">Dataset</span>
+  <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
 
-{% if dataset.text %}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <h2 class="govuk-heading-m">About this dataset</h2>
-      <div class="app-prose">
-        {{ dataset.text | render_markdown }}
+  {% if dataset.text %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <h2 class="govuk-heading-m">About this dataset</h2>
+        <div class="app-prose">
+          {{ dataset.text | render_markdown }}
+        </div>
       </div>
     </div>
-  </div>
-{% endif %}
+  {% endif %}
 
-<div class="govuk-grid-row govuk-!-margin-bottom-6">
-  <div class="govuk-grid-column-full">
-    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Entity count</dt>
-        <dd class="govuk-summary-list__value">{{ entity_count|commanum }}</dd>
-      </div>
-    </dl>
-    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Publishers</dt>
-        <dd class="govuk-summary-list__value">{{ publishers['current'] }}/{{ publishers['expected'] }}</dd>
-      </div>
-    </dl>
-    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Latest resource collected on</dt>
-        <dd class="govuk-summary-list__value">{{ latest_resource['collected_date'] if latest_resource['collected_date'] else 'N/A' }}</dd>
-      </div>
-    </dl>
-    <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Collector last ran on</dt>
-        <dd class="govuk-summary-list__value">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
-      </div>
-    </dl>
+  <div class="govuk-grid-row govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-full">
+      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Entity count</dt>
+          <dd class="govuk-summary-list__value">{{ entity_count|commanum }}</dd>
+        </div>
+      </dl>
+      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Publishers</dt>
+          <dd class="govuk-summary-list__value">{{ publishers['current'] }}/{{ publishers['expected'] }}</dd>
+        </div>
+      </dl>
+      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Latest resource collected on</dt>
+          <dd class="govuk-summary-list__value">{{ latest_resource['collected_date'] if latest_resource['collected_date'] else 'N/A' }}</dd>
+        </div>
+      </dl>
+      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Collector last ran on</dt>
+          <dd class="govuk-summary-list__value">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
+        </div>
+      </dl>
+    </div>
   </div>
-</div>
 
-  {%  if dataset.text %}
   <div class="govuk-grid-row">
-  <div class="govuk-grid-column-full">
-    <p class="govuk-body">
-      {{ dataset.text }}
-    </p>
-  </div>
-  </div>
-  {%  endif %}
-
-<div class="govuk-grid-row">
-  <div class="govuk-grid-column-full">
-    <h2 class="govuk-heading-m" id="national-dataset-map">View the data</h2>
-    <p class="govuk-body">
+    <div class="govuk-grid-column-full">
+      <h2 class="govuk-heading-m" id="national-dataset-map">View the data</h2>
+      <p class="govuk-body">
         You can view and explore this data <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">as a list</a>
         and <a class="govuk-link" href='/map?layer={{dataset["dataset"]}}'>on a map</a>
-    </p>
+      </p>
 
-    <h2 class="govuk-heading-m" id="national-dataset-map">Download the data</h2>
-    <p class="govuk-body">
+      <h2 class="govuk-heading-m" id="national-dataset-map">Download the data</h2>
+      <p class="govuk-body">
         Download a copy of this dataset as <a class="govuk-link" href="{{ collection_bucket }}/{{dataset["dataset"]}}-collection/dataset/{{ dataset["dataset"] }}.csv">CSV</a>,
         <a class="govuk-link" href="/entity.json?dataset={{ dataset['dataset'] }}&limit={{ entity_count }}" download="{{ dataset['dataset'] }}">JSON</a>
         {% if dataset['typology'] == 'geography' %}
          or <a class="govuk-link" href="/entity.geojson?dataset={{ dataset['dataset'] }}&limit={{ entity_count }}" download="{{ dataset['dataset'] }}-geojson">GeoJSON</a>
         {% endif %}
-    </p>
+      </p>
 
-    <div class="govuk-warning-text govuk-!-margin-top-6">
-      <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-      <strong class="govuk-warning-text__text">
-        <span class="govuk-warning-text__assistive">Warning</span>
+      <div class="govuk-warning-text govuk-!-margin-top-6">
+        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+        <strong class="govuk-warning-text__text">
+          <span class="govuk-warning-text__assistive">Warning</span>
         This is a prototype and the download links are likely to change.
       </strong>
-    </div>
+      </div>
 
-    <div class="feedback-panel">
-      <h3 class="feedback-panel__heading">Help improve this data</h3>
-      <p>If you have found any issues with this dataset, please complete <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOTmyAeKH5m0Xy3pXAYNcNApPdx0_Eioj-toHCOMZWiEdU8g/viewform?usp=sf_link">this form</a>, or email your questions and corrections to
+      <div class="feedback-panel">
+        <h3 class="feedback-panel__heading">Help improve this data</h3>
+        <p>If you have found any issues with this dataset, please complete <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOTmyAeKH5m0Xy3pXAYNcNApPdx0_Eioj-toHCOMZWiEdU8g/viewform?usp=sf_link">this form</a>, or email your questions and corrections to
           <a href="mailto:DigitalLand@communities.gov.uk">DigitalLand@communities.gov.uk</a>.</p>
+      </div>
     </div>
-</div>
-</div>
+  </div>
 
 {% endblock %}
