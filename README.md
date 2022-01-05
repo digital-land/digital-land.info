@@ -32,7 +32,7 @@ Prerequisites
 
 **Mac users**
 
-1. Download "[PostgressApp](https://postgresapp.com/downloads.html)" and install.
+1. Download "[PostgresApp](https://postgresapp.com/downloads.html)" and install.
 2. Add the CLI tools to your 'path'. How to do this will depend on which version of MacOS you are using. An example for Monterey (MacOS 12.1) would be to run the following command in terminal:
 
 ```shell
