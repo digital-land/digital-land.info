@@ -22,7 +22,7 @@ init:: frontend-all
 
 server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
-	gunicorn -w 2 -k uvicorn.workers.UvicornWorker dl_web.app:app --preload --forwarded-allow-ips="*"
+	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
 build:
 	docker build  --target production -t ${IMG} .
