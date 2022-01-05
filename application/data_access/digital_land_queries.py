@@ -4,6 +4,7 @@ import urllib.parse
 from application.core.utils import get
 from application.core.models import Dataset
 from application.db.models import Dataset as DatasetModel
+from application.db.session import get_context_session
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -16,9 +17,10 @@ def fetch_datasets():
     return get(url).json()
 
 
-def fetch_dataset(db_session, dataset):
-    dataset = db_session.query(DatasetModel).get(dataset)
-    return Dataset.from_orm(dataset)
+def fetch_dataset(dataset):
+    with get_context_session() as session:
+        dataset = session.query(DatasetModel).get(dataset)
+        return Dataset.from_orm(dataset)
 
 
 def fetch_datasets_with_theme():

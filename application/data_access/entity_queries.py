@@ -4,13 +4,12 @@ import logging
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy.orm import Session
-
 from application.core.models import entity_factory
 from application.core.utils import fetch, make_url, get
 from application.search.enum import EntriesOption, DateOption, GeometryRelation
 from application.settings import get_settings
 from application.db.models import Entity
+from application.db.session import get_context_session
 
 logger = logging.getLogger(__name__)
 
@@ -317,7 +316,7 @@ class EntityQuery:
             return None
 
 
-def fetch_entity_count(db_session: Session, dataset: Optional[str] = None):
+def fetch_entity_count(dataset: Optional[str] = None):
     from sqlalchemy import select
     from sqlalchemy import func
 
@@ -325,5 +324,6 @@ def fetch_entity_count(db_session: Session, dataset: Optional[str] = None):
     sql = sql.group_by(Entity.dataset)
     if dataset is not None:
         sql = sql.filter(Entity.dataset == dataset)
-    result = db_session.execute(sql)
-    return result.fetchall()
+    with get_context_session() as session:
+        result = session.execute(sql)
+        return result.fetchall()
