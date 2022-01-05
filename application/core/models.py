@@ -13,6 +13,11 @@ class GeoJSON(BaseModel):
     properties: dict = None
 
 
+class GeoJSONFeatureCollection(BaseModel):
+    type: str = "FeatureColletion"
+    features: List[GeoJSON]
+
+
 class DigitalLandBase(BaseModel):
     entry_date: Optional[date] = None
     start_date: Optional[date] = None
