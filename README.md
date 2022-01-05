@@ -1,7 +1,6 @@
 [![Build and deploy](https://github.com/digital-land/digital-land.info/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/digital-land/digital-land.info/actions/)
 [![Digital land smoke test](https://github.com/digital-land/smoke-test/actions/workflows/smoke-test.yml/badge.svg)](https://github.com/digital-land/smoke-test/actions/)
 
-
 # AWS Authentication
 
 Throughout this guide, [aws-vault](https://github.com/99designs/aws-vault) is used in order to assume the correct role for accessing our AWS environment. It is recommended to set something like this up, but you can get by with manual authentication or other tooling. Just ensure that the various AWS env vars are setup such that you can use the aws cli as the `developer` role. You can check this with the following command:
@@ -27,15 +26,23 @@ Prerequisites
     - python 3.8 or above
     - postgresql 13 or above with postgis extensions enabled
 
-**Postgres setup**
+## Postgres setup
 
-You have two options:
+### Run postgres directly on your machine
 
-1. Run postgres directly on your machine
+**Mac users**
 
-If you have postgres running on your machine then run
+1. Download "[PostgressApp](https://postgresapp.com/downloads.html)" and install.
+2. Add the CLI tools to your 'path'. How to do this will depend on which version of MacOS you are using. An example for Monterey (MacOS 12.1) would be to run the following command in terminal:
 
-    createdb digital_land
+```shell
+echo 'export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:\$PATH";' >> .zshrc
+```
+
+3. Open Postgress app and initialise to create a new server.
+
+4. Now you have postgres running on your machine, from terminal run:
+   `createdb digital_land`
 
 Then run the initial database migration
 
@@ -65,13 +72,12 @@ to load entity data into the datbase.
 Check out the digital-land-postgres repo, ensure you have postgres running in docker-compose from this repo or on your machine and
 follow the instructions in the readme of digital-land-postgres repo.
 
-
 **Running the application on your machine**
 
 Create a virtualenv, then setup some environment variables. Copy `.env.example` to `.env`.
 
 Note that to run tests you'll want a `.env.test` file as well to override db connection strings for local test. For
-example, I have a digital_land_test db to run integration tests with and override *_DATABASE_URL variables using the
+example, I have a digital_land_test db to run integration tests with and override \*\_DATABASE_URL variables using the
 `.env.test` file.
 
 Initialise the application (install dependencies)
@@ -82,10 +88,9 @@ make init
 
 That will install all dependencies as well as install pre-commit hooks.
 
-The pre commit hooks will  lint and run black and abort a commit on failure.
+The pre commit hooks will lint and run black and abort a commit on failure.
 
 This will save you lots of broken builds and subsequent "lint fix" commit messages.
-
 
 Run integration tests
 
@@ -140,7 +145,6 @@ Then run
 
     python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 
-
 # Building the application container
 
 Note that the Dockerfile for this application uses a multi stage build. The production version can be built using the
@@ -184,7 +188,6 @@ aws-vault exec dl-dev -- aws ecs update-service --force-new-deployment --service
 The containers are configured to send their logs to AWS Cloudwatch. The log group is called `/development/dl-web`.
 
 Logging configuration can be found in `log_config.yml`. Here you can change log level of each of the loggers independently, change the log format, or redirect specific/all logs to file.
-
 
 ### Notes on docker compose and postgres
 
