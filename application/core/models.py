@@ -53,6 +53,8 @@ class Dataset(DigitalLandBase):
     wikidata: str = None
     wikipedia: str = None
     entities: Optional[List[Entity]]
+    themes: Optional[List[str]]
+    entity_count: int = None
 
 
 def entity_factory(data):

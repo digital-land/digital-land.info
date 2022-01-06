@@ -1,6 +1,6 @@
 from geoalchemy2 import Geometry
 from sqlalchemy import Column, Date, BIGINT, Text, Index
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -61,3 +61,4 @@ class Dataset(Base):
     typology = Column(Text, nullable=True)
     wikidata = Column(Text, nullable=True)
     wikipedia = Column(Text, nullable=True)
+    themes = Column(ARRAY(Text), nullable=True)

@@ -7,14 +7,14 @@ from starlette.responses import JSONResponse
 
 from application.data_access.digital_land_queries import (
     fetch_dataset,
-    fetch_datasets_with_theme,
     fetch_publisher_coverage_count,
     fetch_latest_resource,
     fetch_lastest_log_date,
+    fetch_datasets,
 )
 from application.data_access.entity_queries import EntityQuery, fetch_entity_count
 from application.core.templates import templates
-from application.core.utils import create_dict, DigitalLandJSONResponse
+from application.core.utils import DigitalLandJSONResponse
 from application.search.enum import Suffix
 from application.settings import get_settings, Settings
 
@@ -23,28 +23,26 @@ logger = logging.getLogger(__name__)
 
 
 def list_datasets(request: Request, extension: Optional[Suffix] = None):
-    response = fetch_datasets_with_theme()
+    datasets = fetch_datasets()
     entity_counts_response = fetch_entity_count()
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
-    results = [create_dict(response["columns"], row) for row in response["rows"]]
-    datasets = []
     # add entity count if available
-    for dataset in results:
+    for dataset in datasets:
         count = (
-            entity_counts.get(dataset["dataset"])
-            if entity_counts.get(dataset["dataset"])
+            entity_counts.get(dataset.dataset)
+            if entity_counts.get(dataset.dataset)
             else 0
         )
-        dataset.update({"entity_count": count})
-        datasets.append(dataset)
+        dataset.entity_count = count
+
     themes = {}
 
     for d in datasets:
-        dataset_themes = d["dataset_themes"].split(";")
-        for theme in dataset_themes:
-            themes.setdefault(theme, {"dataset": []})
-            if d["entity_count"] > 0:
-                themes[theme]["dataset"].append(d)
+        if d.themes:
+            for theme in d.themes:
+                themes.setdefault(theme, {"dataset": []})
+                if d.entity_count > 0:
+                    themes[theme]["dataset"].append(d)
 
     data = {"datasets": datasets, "themes": themes}
     if extension is not None and extension.value == "json":

@@ -11,10 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 def fetch_datasets():
-    datasette_url = get_settings().DATASETTE_URL
-    url = f"{datasette_url}/digital-land/dataset.json?_shape=object"
-    logger.info("get_datasets: %s", url)
-    return get(url).json()
+    with get_context_session() as session:
+        datasets = session.query(DatasetModel).all()
+        return [Dataset.from_orm(ds) for ds in datasets]
 
 
 def fetch_dataset(dataset):
