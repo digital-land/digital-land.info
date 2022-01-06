@@ -4,8 +4,6 @@
 #
 #    pip-compile requirements/dev-requirements.in
 #
-asgi-lifespan==1.0.1
-    # via -r requirements/dev-requirements.in
 attrs==21.2.0
     # via
     #   -c requirements/requirements.txt
@@ -85,11 +83,8 @@ pyparsing==3.0.6
 pytest==6.2.5
     # via
     #   -r requirements/dev-requirements.in
-    #   pytest-asyncio
     #   pytest-base-url
     #   pytest-playwright
-pytest-asyncio==0.16.0
-    # via -r requirements/dev-requirements.in
 pytest-base-url==1.4.2
     # via pytest-playwright
 pytest-playwright==0.2.2
@@ -108,10 +103,6 @@ six==1.16.0
     # via
     #   -c requirements/requirements.txt
     #   virtualenv
-sniffio==1.2.0
-    # via
-    #   -c requirements/requirements.txt
-    #   asgi-lifespan
 text-unidecode==1.3
     # via python-slugify
 toml==0.10.2
