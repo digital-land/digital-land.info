@@ -40,7 +40,6 @@ def server_process():
     proc.kill()
 
 
-@pytest.mark.skip(reason="needs work to run in ci env")
 def test_acceptance(server_process, page, data):
 
     page.goto(BASE_URL)
@@ -50,27 +49,21 @@ def test_acceptance(server_process, page, data):
     assert page.text_content("h1") == "Datasets"
     page.goto(BASE_URL)
 
-    # page.click("text=Map")
-    # assert page.url == f"{BASE_URL}/map/"
-    # assert page.text_content("h1") == "National map of planning data"
-    # page.goto(BASE_URL)
-    #
-    # page.click("text=Search")
-    # assert page.url == f"{BASE_URL}/entity/"
-    # assert page.text_content("h1") == "Search for planning and housing data"
-    # page.goto(BASE_URL)
-    #
-    # page.click("text=Datasets")
-    # assert page.url == f"{BASE_URL}/dataset/"
-    # page.click("text=Green belt")
-    # assert page.url == f"{BASE_URL}/dataset/green-belt"
-    # assert page.text_content("h1") == "Green belt"
-    #
-    # page.click("text=Datasets")
-    # assert page.url == f"{BASE_URL}/dataset/"
+    page.click("text=Map")
+    assert page.url == f"{BASE_URL}/map/"
+    assert page.text_content("h1") == "National map of planning data"
+    page.goto(BASE_URL)
+
+    page.click("text=Search")
+    assert page.url == f"{BASE_URL}/entity/"
+    assert page.text_content("h1") == "Search for planning and housing data"
+    page.goto(BASE_URL)
+
+    page.click("text=Datasets")
+    assert page.url == f"{BASE_URL}/dataset/"
 
 
-@pytest.mark.skip(reason="fixture not implemented yet to populate test db")
+@pytest.mark.skip(reason="fixture to populate of data in test db not implemented yet")
 def test_get_json(server_process):
     json_url = f"{BASE_URL}/dataset/local-authority-eng.json"
     resp = requests.get(json_url)

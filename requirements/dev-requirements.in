@@ -5,3 +5,5 @@ pre-commit
 playwright
 pytest-playwright
 black
+asgi-lifespan
+pytest-asyncio

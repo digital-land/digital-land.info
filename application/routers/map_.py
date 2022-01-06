@@ -14,17 +14,17 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-async def filter_no_data(datasets):
-    active_datasets_response = await fetch_entity_count()
-    active_datasets = {d[0]: d[1] for d in active_datasets_response["rows"]}
+def filter_no_data(datasets):
+    active_datasets_response = fetch_entity_count()
+    active_datasets = {d[0]: d[1] for d in active_datasets_response}
 
     return [datasets[d] for d in datasets.keys() if d in active_datasets.keys()]
 
 
 @router.get("/", response_class=HTMLResponse)
-async def get_map(request: Request):
-    geography_datasets = await fetch_datasets_with_typology("geography")
-    active_geography_datasets = await filter_no_data(geography_datasets)
+def get_map(request: Request):
+    geography_datasets = fetch_datasets_with_typology("geography")
+    active_geography_datasets = filter_no_data(geography_datasets)
 
     for dataset in active_geography_datasets:
         print(dataset["name"], dataset["paint_options"])
