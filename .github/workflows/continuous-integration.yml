@@ -41,7 +41,7 @@ jobs:
 
     - name: Setup database
       run: |
-        psql -h localhost -c "CREATE DATABASE digital_land WITH TEMPLATE postgres" -U postgres
+        psql -h localhost -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres" -U postgres
       env:
         PGPASSWORD: postgres
 
@@ -52,8 +52,8 @@ jobs:
       env:
         DATASETTE_URL:  https://datasette.digital-land.info
         S3_COLLECTION_BUCKET: https://collection-dataset.s3.eu-west-2.amazonaws.com
-        READ_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land
-        WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land
+        READ_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
+        WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
 
     - name: Configure AWS credentials
       if: ${{ github.ref == 'refs/heads/main' }}
