@@ -3,55 +3,59 @@
 
 {% block main %}
 
-<div class="govuk-width-container">
+  <div class="govuk-width-container">
     {% include 'digital-land-frontend/partials/prototype-banner.jinja' %}
-</div>
+  </div>
 
-<main id="content" role="main">
+  <main id="content" role="main">
 
     <section class="app-hero" id="intro">
-        <div class="app-hero__content govuk-width-container">
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds">
-                    <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Find planning and housing data that is easy to understand, use and trust</h1>
-                    <p class="govuk-body-l">A platform to help you create services to inform planning and housing decisions in England.</p>
-                </div>
-                <div class="govuk-grid-column-one-third">
-                    <img src="{{url_for("static", path="/images/proposition-image.png")}}" srcset="/static/images/proposition-image.svg" alt="A graphic represent the data platform, showing a map and different types of data file such as CSV and JSON" class="app-hero__image">
-                </div>
-            </div>
-		</div>
+      <div class="app-hero__content govuk-width-container">
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Find planning and housing data that is easy to understand, use and trust</h1>
+            <p class="govuk-body-l">A platform to help you create services to inform planning and housing decisions in England.</p>
+          </div>
+          <div class="govuk-grid-column-one-third">
+            <img src="{{url_for("static", path="/images/proposition-image.png")}}" srcset="/static/images/proposition-image.svg" alt="A graphic represent the data platform, showing a map and different types of data file such as CSV and JSON" class="app-hero__image">
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="feature-list" class="govuk-width-container">
 
-        <div class="govuk-grid-row govuk-!-margin-bottom-8" id="explore">
-            <div class="govuk-grid-column-one-half">
-                <h2 class="govuk-heading-l">Explore data on a map</h2>
-                <p class="govuk-body">View planning and housing datasets with geographic location data on an interactive map.</p>
-                <p class="govuk-body"><a href="/map" class="govuk-link" class="govuk-link">Explore the national map of planning</a></p>
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
-            <div class="govuk-grid-column-one-half">
-                <img src="{{url_for("static", path="/images/explore.png")}}" srcset="/static/images/explore.svg" alt="An illustration depicting the national map of planning" class="app-max-width--100">
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
+      <div class="govuk-grid-row govuk-!-margin-bottom-8" id="explore">
+        <div class="govuk-grid-column-one-half">
+          <h2 class="govuk-heading-l">Explore data on a map</h2>
+          <p class="govuk-body">View planning and housing datasets with geographic location data on an interactive map.</p>
+          <p class="govuk-body">
+            <a href="/map" class="govuk-link" class="govuk-link">Explore the national map of planning</a>
+          </p>
         </div>
-        <!-- /#explore.govuk-grid-row -->
+        <!-- /.govuk-grid-column-one-half -->
+        <div class="govuk-grid-column-one-half">
+          <img src="{{url_for("static", path="/images/explore.png")}}" srcset="/static/images/explore.svg" alt="An illustration depicting the national map of planning" class="app-max-width--100">
+        </div>
+        <!-- /.govuk-grid-column-one-half -->
+      </div>
+      <!-- /#explore.govuk-grid-row -->
 
-        <div class="govuk-grid-row govuk-!-margin-bottom-8" id="search">
-            <div class="govuk-grid-column-one-half">
-                <h2 class="govuk-heading-l">Search and filter data</h2>
-                <p class="govuk-body">Explore, filter and download the data you want in bulk.</p>
-                <p class="govuk-body"><a href="/entity/" class="govuk-link">Search planning and housing data</a></p>
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
-            <div class="govuk-grid-column-one-half">
-                <img src="{{url_for("static", path="/images/search.png")}}" srcset="/static/images/search.svg" alt="" class="app-max-width--100">
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
+      <div class="govuk-grid-row govuk-!-margin-bottom-8" id="search">
+        <div class="govuk-grid-column-one-half">
+          <h2 class="govuk-heading-l">Search and filter data</h2>
+          <p class="govuk-body">Explore, filter and download the data you want in bulk.</p>
+          <p class="govuk-body">
+            <a href="/entity/" class="govuk-link">Search planning and housing data</a>
+          </p>
         </div>
-        <!-- /#search.govuk-grid-row -->
+        <!-- /.govuk-grid-column-one-half -->
+        <div class="govuk-grid-column-one-half">
+          <img src="{{url_for("static", path="/images/search.png")}}" srcset="/static/images/search.svg" alt="" class="app-max-width--100">
+        </div>
+        <!-- /.govuk-grid-column-one-half -->
+      </div>
+      <!-- /#search.govuk-grid-row -->
 
     </section>
     <!-- /#feature-list -->
@@ -60,32 +64,36 @@
 
     <section id="other-features" class="govuk-width-container">
 
-        <div class="govuk-grid-row govuk-!-margin-bottom-8">
-            <div class="govuk-grid-column-one-half">
-                <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Understand the data</h2>
-                <p class="govuk-body">Read about why data is important to planning and how the data is created.</p>
-                <p class="govuk-body"><img src="{{url_for("static", path="/images/datasets.png")}}" srcset="/static/images/datasets.svg" alt="An illustration depicting a dataset page with a title of 'What is this data about'" class="app-max-width--100"></p>
-                <p class="govuk-body"><a href="/dataset/" class="govuk-link">Find planning and housing datasets</a></p>
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
-            <div class="govuk-grid-column-one-half">
-                <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Use the data</h2>
-                <p class="govuk-body">Integrate the Digital Land API with your web application or back office system.</p>
-                <p class="govuk-body"><img src="{{url_for("static", path="/images/api.png")}}" srcset="/static/images/api.svg" alt="An illustration depicting an API, showing a terminal command prompt" class="app-max-width--100"></p>
-                <p class="govuk-body"><a href="/docs" class="govuk-link">View the API documentation</a></p>
-            </div>
+      <div class="govuk-grid-row govuk-!-margin-bottom-8">
+        <div class="govuk-grid-column-one-half">
+          <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Understand the data</h2>
+          <p class="govuk-body">Read about why data is important to planning and how the data is created.</p>
+          <p class="govuk-body"><img src="{{url_for("static", path="/images/datasets.png")}}" srcset="/static/images/datasets.svg" alt="An illustration depicting a dataset page with a title of 'What is this data about'" class="app-max-width--100"></p>
+          <p class="govuk-body">
+            <a href="/dataset/" class="govuk-link">Find planning and housing datasets</a>
+          </p>
         </div>
-        <!-- /#search.govuk-grid-row -->
+        <!-- /.govuk-grid-column-one-half -->
+        <div class="govuk-grid-column-one-half">
+          <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Use the data</h2>
+          <p class="govuk-body">Integrate the Digital Land API with your web application or back office system.</p>
+          <p class="govuk-body"><img src="{{url_for("static", path="/images/api.png")}}" srcset="/static/images/api.svg" alt="An illustration depicting an API, showing a terminal command prompt" class="app-max-width--100"></p>
+          <p class="govuk-body">
+            <a href="/docs" class="govuk-link">View the API documentation</a>
+          </p>
+        </div>
+      </div>
+      <!-- /#search.govuk-grid-row -->
 
     </section>
 
-</main>
+  </main>
 {% endblock %}
 
 {% block footer %}
-    {% set github_url = "https://github.com/digital-land/design-system" %}
-    {% set licence_url = licence_url | default(github_url + '/blob/master/LICENSE') %}
-    {{ govukFooter({
+  {% set github_url = "https://github.com/digital-land/design-system" %}
+  {% set licence_url = licence_url | default(github_url + '/blob/master/LICENSE') %}
+  {{ govukFooter({
         "classes": "app-footer app-footer--full",
         "containerClasses" : "app-width-container",
         "meta": {
