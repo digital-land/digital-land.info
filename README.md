@@ -59,34 +59,32 @@ follow the instructions in the readme of digital-land-postgres repo.
 
 ### Run integration tests
 
-Assuming you have setup a test database, you can run:
+Setup a test database
 
-```
-make test
-```
+    createdb digital_land_test
+
+then you can run:
+
+    make test
 
 ### Run the acceptance tests
 
 This runs a browser based test of main pages, and a test of a json endpoint for an entity
 
-```
-   make test-acceptance
-```
+    make test-acceptance
 
 If you want to see the acceptance tests in action run the following:
 
-```
-playwright install chromium
-pytest tests/acceptance  --headed --slowmo 1000
-```
+    playwright install chromium
+    pytest tests/acceptance  --headed --slowmo 1000
+    
 
 --headed opens browser and --slowmo slows down interactions by the specified number of milliseconds
 
 ### Run the application
 
-```
-make server
-```
+
+    make server
 
 ## Adding new python packages to the project
 
