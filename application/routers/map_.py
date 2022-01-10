@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 
 from application.core.templates import templates
 from application.data_access.digital_land_queries import fetch_datasets_with_typology
-from application.data_access.entity_queries import fetch_entity_count
+from application.data_access.entity_queries import get_entity_count
 
 
 router = APIRouter()
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def filter_no_data(datasets):
-    active_datasets_response = fetch_entity_count()
+    active_datasets_response = get_entity_count()
     active_datasets = {d[0]: d[1] for d in active_datasets_response}
 
     return [datasets[d] for d in datasets.keys() if d in active_datasets.keys()]

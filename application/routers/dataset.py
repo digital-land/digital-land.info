@@ -12,7 +12,7 @@ from application.data_access.digital_land_queries import (
     fetch_lastest_log_date,
     fetch_datasets,
 )
-from application.data_access.entity_queries import EntityQuery, fetch_entity_count
+from application.data_access.entity_queries import get_entity_count
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.search.enum import Suffix
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def list_datasets(request: Request, extension: Optional[Suffix] = None):
     datasets = fetch_datasets()
-    entity_counts_response = fetch_entity_count()
+    entity_counts_response = get_entity_count()
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available
     for dataset in datasets:
@@ -56,53 +56,39 @@ def get_dataset(
     request: Request,
     dataset: str,
     limit: int = 50,
-    extension: Optional[Suffix] = None,
     settings: Settings = Depends(get_settings),
 ):
     collection_bucket = settings.S3_COLLECTION_BUCKET
     try:
         _dataset = fetch_dataset(dataset)
-        entity_count = fetch_entity_count(dataset)
+        entity_count = get_entity_count(dataset)
         publisher_coverage_response = fetch_publisher_coverage_count(dataset)
         latest_resource_response = fetch_latest_resource(dataset)
         latest_log_response = fetch_lastest_log_date(dataset)
-        params = {
-            "typology": [_dataset.typology],
-            "dataset": [dataset],
-            "limit": limit,
-        }
         latest_resource = None
         if len(latest_resource_response["rows"]):
             latest_resource = {
                 "resource": latest_resource_response["rows"][0][0],
                 "collected_date": latest_resource_response["rows"][0][3],
             }
-        # TODO I don't think this page needs anything more than an entity count
-        # now - and if so, note the limit param above if we try to do a count
-        query = EntityQuery(params=params)
-        entities = query.execute()
-        if extension is not None and extension.value == "json":
-            _dataset.entities = entities["results"]
-            return _dataset
-        else:
-            return templates.TemplateResponse(
-                "dataset.html",
-                {
-                    "request": request,
-                    "dataset": _dataset,
-                    "entities": entities["results"],
-                    "collection_bucket": collection_bucket,
-                    "entity_count": entity_count,
-                    "publishers": {
-                        "expected": publisher_coverage_response["rows"][0][0],
-                        "current": publisher_coverage_response["rows"][0][1],
-                    },
-                    "latest_resource": latest_resource,
-                    "last_collection_attempt": latest_log_response["rows"][0][1]
-                    if len(latest_log_response["rows"])
-                    else None,
+
+        return templates.TemplateResponse(
+            "dataset.html",
+            {
+                "request": request,
+                "dataset": _dataset,
+                "collection_bucket": collection_bucket,
+                "entity_count": entity_count[1] if entity_count else 0,
+                "publishers": {
+                    "expected": publisher_coverage_response["rows"][0][0],
+                    "current": publisher_coverage_response["rows"][0][1],
                 },
-            )
+                "latest_resource": latest_resource,
+                "last_collection_attempt": latest_log_response["rows"][0][1]
+                if len(latest_log_response["rows"])
+                else None,
+            },
+        )
     except KeyError as e:
         logger.exception(e)
         return templates.TemplateResponse(

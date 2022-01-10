@@ -8,7 +8,6 @@ from application.core.models import entity_factory
 from application.core.utils import fetch, make_url, get
 from application.search.enum import EntriesOption, DateOption, GeometryRelation
 from application.settings import get_settings
-from application.db.models import Entity
 from application.db.session import get_context_session
 
 logger = logging.getLogger(__name__)
@@ -316,9 +315,10 @@ class EntityQuery:
             return None
 
 
-def fetch_entity_count(dataset: Optional[str] = None):
+def get_entity_count(dataset: Optional[str] = None):
     from sqlalchemy import select
     from sqlalchemy import func
+    from application.db.models import Entity
 
     sql = select(Entity.dataset, func.count(func.distinct(Entity.entity)))
     sql = sql.group_by(Entity.dataset)
@@ -326,4 +326,11 @@ def fetch_entity_count(dataset: Optional[str] = None):
         sql = sql.filter(Entity.dataset == dataset)
     with get_context_session() as session:
         result = session.execute(sql)
-        return result.fetchall()
+        return result.fetchone()
+
+
+# def get_entities(dataset: str, limit: int) -> List[Entity]:
+#     from application.db.models import Entity as EntityModel
+#     with get_context_session() as session:
+#         entities = session.query(EntityModel).filter(EntityModel.dataset == dataset).limit(limit).all()
+#         return [Entity.from_orm(e) for e in entities]
