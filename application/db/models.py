@@ -16,7 +16,7 @@ class Entity(Base):
     start_date = Column(Date, nullable=True)
     end_date = Column(Date, nullable=True)
     dataset = Column(Text, nullable=True)
-    _json = Column("json", JSONB, nullable=True)
+    json = Column(JSONB, nullable=True)
     organisation_entity = Column(BIGINT, nullable=True)
     prefix = Column(Text, nullable=True)
     reference = Column(Text, nullable=True)

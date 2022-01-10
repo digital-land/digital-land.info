@@ -37,12 +37,11 @@ def list_datasets(request: Request, extension: Optional[Suffix] = None):
 
     themes = {}
 
-    for d in datasets:
-        if d.themes:
-            for theme in d.themes:
-                themes.setdefault(theme, {"dataset": []})
-                if d.entity_count > 0:
-                    themes[theme]["dataset"].append(d)
+    for ds in (d for d in datasets if d.themes):
+        for theme in ds.themes:
+            themes.setdefault(theme, {"dataset": []})
+            if ds.entity_count > 0:
+                themes[theme]["dataset"].append(ds)
 
     data = {"datasets": datasets, "themes": themes}
     if extension is not None and extension.value == "json":

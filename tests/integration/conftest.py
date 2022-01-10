@@ -4,10 +4,6 @@ from fastapi import FastAPI
 
 from fastapi.testclient import TestClient
 from alembic.config import Config
-from sqlalchemy.orm import Session
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from application.settings import Settings, get_settings
 
@@ -29,19 +25,10 @@ def apply_migrations(test_settings):
 
 
 @pytest.fixture(scope="session")
-def app(apply_migrations) -> FastAPI:
+def app() -> FastAPI:
     from application.factory import create_app
 
     return create_app()
-
-
-@pytest.fixture(scope="session")
-def db_session(app: FastAPI, test_settings: Settings) -> Session:
-    engine = create_engine(test_settings.READ_DATABASE_URL)
-    db = sessionmaker(bind=engine)()
-    yield db
-    db.close()
-    engine.dispose()
 
 
 @pytest.fixture(scope="session")

@@ -2,14 +2,13 @@ import pytest
 import alembic
 from fastapi import FastAPI
 
-from fastapi.testclient import TestClient
 from alembic.config import Config
 from sqlalchemy.orm import Session
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from application.db.models import Dataset
+from application.db.models import Dataset, Entity
 from application.settings import Settings, get_settings
 
 
@@ -47,11 +46,17 @@ def db_session(app: FastAPI, test_settings: Settings) -> Session:
 
 @pytest.fixture(scope="session")
 def data(db_session: Session):
-    dataset = Dataset(dataset="test")
-    db_session.add(dataset)
+    from tests.test_data import datasets
+    from tests.test_data import entities
+
+    for dataset in datasets:
+        themes = dataset.pop("themes").split(",")
+        ds = Dataset(**dataset)
+        ds.themes = themes
+        db_session.add(ds)
+
+    for entity in entities:
+        e = Entity(**entity)
+        db_session.add(e)
+
     db_session.commit()
-
-
-@pytest.fixture(scope="session")
-def client(app: FastAPI, test_settings: Settings) -> TestClient:
-    return TestClient(app)
