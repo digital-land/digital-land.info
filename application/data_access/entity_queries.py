@@ -326,7 +326,10 @@ def get_entity_count(dataset: Optional[str] = None):
         sql = sql.filter(Entity.dataset == dataset)
     with get_context_session() as session:
         result = session.execute(sql)
-        return result.fetchone()
+        if dataset is not None:
+            return result.fetchone()
+        else:
+            return result.fetchall()
 
 
 # def get_entities(dataset: str, limit: int) -> List[Entity]:
