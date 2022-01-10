@@ -1,13 +1,14 @@
 import json
 import logging
-import urllib.parse
 
 from decimal import Decimal
+from typing import Optional
 
 from application.core.models import entity_factory
 from application.core.utils import fetch, make_url, get
 from application.search.enum import EntriesOption, DateOption, GeometryRelation
 from application.settings import get_settings
+from application.db.session import get_context_session
 
 logger = logging.getLogger(__name__)
 
@@ -314,24 +315,25 @@ class EntityQuery:
             return None
 
 
-async def fetch_entity_count(dataset=None):
-    datasette_url = get_settings().DATASETTE_URL
-    query_lines = [
-        "SELECT",
-        "dataset,",
-        "COUNT(DISTINCT entity) AS count",
-        "FROM",
-        "entity",
-    ]
-    if dataset:
-        query_lines.append("WHERE")
-        query_lines.append(f"dataset = '{dataset}'")
-    else:
-        query_lines.append("GROUP BY")
-        query_lines.append("dataset")
+def get_entity_count(dataset: Optional[str] = None):
+    from sqlalchemy import select
+    from sqlalchemy import func
+    from application.db.models import Entity
 
-    query_str = " ".join(query_lines)
-    query = urllib.parse.quote(query_str)
-    url = f"{datasette_url}/entity.json?sql={query}"
-    logger.info("get_entity_count: %s", url)
-    return await fetch(url)
+    sql = select(Entity.dataset, func.count(func.distinct(Entity.entity)))
+    sql = sql.group_by(Entity.dataset)
+    if dataset is not None:
+        sql = sql.filter(Entity.dataset == dataset)
+    with get_context_session() as session:
+        result = session.execute(sql)
+        if dataset is not None:
+            return result.fetchone()
+        else:
+            return result.fetchall()
+
+
+# def get_entities(dataset: str, limit: int) -> List[Entity]:
+#     from application.db.models import Entity as EntityModel
+#     with get_context_session() as session:
+#         entities = session.query(EntityModel).filter(EntityModel.dataset == dataset).limit(limit).all()
+#         return [Entity.from_orm(e) for e in entities]

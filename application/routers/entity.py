@@ -75,7 +75,7 @@ def make_pagination_link(query_params, last_entity):
     return url + "&next_entity={}".format(last_entity)
 
 
-async def search_entities(
+def search_entities(
     request: Request,
     # filter entries
     base_filters: BaseFilters = Depends(BaseFilters),
@@ -110,16 +110,16 @@ async def search_entities(
         return _get_geojson(data.get("results", []))
 
     # typology facet
-    response = await fetch_typologies()
+    response = fetch_typologies()
     typologies = [create_dict(response["columns"], row) for row in response["rows"]]
     # dataset facet
-    response = await fetch_datasets_with_theme()
+    response = fetch_datasets_with_theme()
     dataset_results = [
         create_dict(response["columns"], row) for row in response["rows"]
     ]
     datasets = [d for d in dataset_results if d["dataset_active"]]
     # local-authority-district facet
-    response = await fetch_local_authorities()
+    response = fetch_local_authorities()
     local_authorities = [
         create_dict(response["columns"], row) for row in response["rows"]
     ]

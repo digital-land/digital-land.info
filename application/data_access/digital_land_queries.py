@@ -1,32 +1,28 @@
 import logging
 import urllib.parse
 
-from application.core.utils import fetch
+from application.core.utils import get
 from application.core.models import Dataset
+from application.db.models import Dataset as DatasetModel
+from application.db.session import get_context_session
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
 
-async def fetch_datasets():
-    datasette_url = get_settings().DATASETTE_URL
-    url = f"{datasette_url}/digital-land/dataset.json?_shape=object"
-    logger.info("get_datasets: %s", url)
-    return await fetch(url)
+def fetch_datasets():
+    with get_context_session() as session:
+        datasets = session.query(DatasetModel).all()
+        return [Dataset.from_orm(ds) for ds in datasets]
 
 
-async def fetch_dataset(dataset):
-    datasette_url = get_settings().DATASETTE_URL
-    url = f"{datasette_url}/digital-land/dataset.json?_shape=object&dataset={urllib.parse.quote(dataset)}"
-    logger.info("get_dataset: %s", url)
-    data = await fetch(url)
-    for key, val in data[dataset].items():
-        if isinstance(val, str) and not val:
-            data[dataset][key] = None
-    return Dataset(**data[dataset])
+def fetch_dataset(dataset):
+    with get_context_session() as session:
+        dataset = session.query(DatasetModel).get(dataset)
+        return Dataset.from_orm(dataset)
 
 
-async def fetch_datasets_with_theme():
+def fetch_datasets_with_theme():
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
         "SELECT DISTINCT dataset.dataset, dataset.name, dataset.plural, dataset.typology,",
@@ -41,33 +37,33 @@ async def fetch_datasets_with_theme():
     query = urllib.parse.quote(query_str)
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_datasets_with_themes: %s", url)
-    return await fetch(url)
+    return get(url).json()
 
 
-async def fetch_datasets_with_typology(typology):
+def fetch_datasets_with_typology(typology):
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/dataset.json?_shape=object&_sort=dataset&typology__exact={typology}"
     logger.info("get_datasets_with_typology: %s", url)
-    return await fetch(url)
+    return get(url).json()
 
 
-async def fetch_typologies():
+def fetch_typologies():
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/typology.json"
     logger.info("get_typologies: %s", url)
-    return await fetch(url)
+    return get(url).json()
 
 
-async def fetch_local_authorities():
+def fetch_local_authorities():
     datasette_url = get_settings().DATASETTE_URL
     query_str = """select * from organisation where organisation like '%local-authority-eng%' order by organisation"""
     query = urllib.parse.quote(query_str)
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_local_authorities: %s", url)
-    return await fetch(url)
+    return get(url).json()
 
 
-async def fetch_publisher_coverage_count(dataset):
+def fetch_publisher_coverage_count(dataset):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
         "SELECT",
@@ -83,10 +79,10 @@ async def fetch_publisher_coverage_count(dataset):
     query = urllib.parse.quote(query_str)
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_publisher_coverage_count: %s", url)
-    return await fetch(url)
+    return get(url).json()
 
 
-async def fetch_latest_resource(dataset):
+def fetch_latest_resource(dataset):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
         "SELECT",
@@ -110,10 +106,10 @@ async def fetch_latest_resource(dataset):
     query = urllib.parse.quote(query_str)
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_publisher_coverage_count: %s", url)
-    return await fetch(url)
+    return get(url).json()
 
 
-async def fetch_lastest_log_date(dataset):
+def fetch_lastest_log_date(dataset):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
         "SELECT",
@@ -132,4 +128,4 @@ async def fetch_lastest_log_date(dataset):
     query = urllib.parse.quote(query_str)
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_latest_log_date: %s", url)
-    return await fetch(url)
+    return get(url).json()

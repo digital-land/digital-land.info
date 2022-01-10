@@ -13,3 +13,4 @@ sqlalchemy
 GeoAlchemy2
 psycopg2
 alembic
+fastapi-utils

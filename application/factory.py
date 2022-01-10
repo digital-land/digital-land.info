@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from application.core.templates import templates
-from application.routers import entity, dataset, map_, experimental
+from application.routers import entity, dataset, map_
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -117,11 +117,6 @@ def add_routers(app):
 
     # not added to /docs
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
-
-    # temp testing using local db - also exclude from /docs
-    app.include_router(
-        experimental.router, prefix="/experimental", include_in_schema=False
-    )
 
 
 def add_static(app):
