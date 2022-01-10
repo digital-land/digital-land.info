@@ -1,0 +1,5 @@
+dataset|name|entry_date|start_date|end_date|collection|description|key_field|paint_options|plural|prefix|text|typology|wikidata|wikipedia|themes
+greenspace|Greenspace|2022-01-07|||greenspace|Greenspace||"{ ""colour"": ""#78AA00"" }"|Greenspaces||# This is some markdown that will render in the dataset page |geography|Q1234567|Greenspace_(United_Kingdom)|heritage
+forest|Forest|2022-01-07|||forest|Forest||"{ ""colour"": ""#85994b"" }"|Forests|||geography|Q7654321|Forest_(United_Kingdom)|environment,heritage
+brownfield-site|Brownfield site|2022-01-07|||brownfield-site|Brownfield site||"{ ""colour"": ""#85994b"" }"|Brownfield sites|||geography|Q111222|Brownfield_site_(United_Kingdom)|environment,housing
+historical-monument|Historical monument|2022-01-07|||historical-monument|Historical monument||"{ ""colour"": ""#85994b"" }"|Historical monuments|||geography|Q333444|Historical_monument_(United_Kingdom)|heritage
