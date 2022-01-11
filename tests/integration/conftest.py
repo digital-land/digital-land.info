@@ -25,7 +25,7 @@ def apply_migrations(test_settings):
 
 
 @pytest.fixture(scope="session")
-def app() -> FastAPI:
+def app(apply_migrations) -> FastAPI:
     from application.factory import create_app
 
     return create_app()

@@ -2,10 +2,12 @@ import json
 import logging
 
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 
 from application.core.models import entity_factory
-from application.core.utils import fetch, make_url, get
+from application.core.models import EntityModel
+from application.db.models import EntityOrm
+from application.core.utils import make_url, get
 from application.search.enum import EntriesOption, DateOption, GeometryRelation
 from application.settings import get_settings
 from application.db.session import get_context_session
@@ -291,39 +293,45 @@ class EntityQuery:
         data = get(self.url(self.sql())).json()
         return self.response(data, count)
 
-    # TBD: remove, doesn't belong here ..
-    # I think it could belong here. It's a bit like the sqlalchemy api
-    # where the Model.get(id) returns the thing by primary key which you get for free
-    async def get(self, entity_id: int):
-        sql = f"""
-            SELECT *
-            FROM entity
-            WHERE (entity = {entity_id})
-            """
-        url = make_url(f"{self.url_base}.json", params={"sql": sql})
-        logger.info(f"get entity: {url}")
-        resp = await fetch(url)
-        if len(resp["rows"]) > 0:
-            e = resp["rows"][0]
-            for key, val in e.items():
-                if key == "geojson" and e.get(key):
-                    e["geojson"] = json.loads(e["geojson"])
-                if isinstance(val, str) and not val:
-                    e[key] = None
-            return entity_factory(e)
+
+def normalised_params(params):
+    lists = [
+        "typology",
+        "dataset",
+        "entity",
+        "prefix",
+        "reference",
+        "organisation_entity",
+    ]
+
+    params = {k: v for k, v in params.items() if v}
+
+    for lst in lists:
+        if lst in params:
+            params[lst] = [v for v in params[lst] if v]
+            params[lst] = sorted(set(params[lst]))
+
+    return params
+
+
+def get_entity_query(id: int):
+    with get_context_session() as session:
+        entity = session.query(EntityOrm).get(id)
+        if entity is not None:
+            return EntityModel.from_orm(entity)
         else:
             return None
 
 
 def get_entity_count(dataset: Optional[str] = None):
+
     from sqlalchemy import select
     from sqlalchemy import func
-    from application.db.models import Entity
 
-    sql = select(Entity.dataset, func.count(func.distinct(Entity.entity)))
-    sql = sql.group_by(Entity.dataset)
+    sql = select(EntityOrm.dataset, func.count(func.distinct(EntityOrm.entity)))
+    sql = sql.group_by(EntityOrm.dataset)
     if dataset is not None:
-        sql = sql.filter(Entity.dataset == dataset)
+        sql = sql.filter(EntityOrm.dataset == dataset)
     with get_context_session() as session:
         result = session.execute(sql)
         if dataset is not None:
@@ -332,8 +340,32 @@ def get_entity_count(dataset: Optional[str] = None):
             return result.fetchall()
 
 
-# def get_entities(dataset: str, limit: int) -> List[Entity]:
-#     from application.db.models import Entity as EntityModel
-#     with get_context_session() as session:
-#         entities = session.query(EntityModel).filter(EntityModel.dataset == dataset).limit(limit).all()
-#         return [Entity.from_orm(e) for e in entities]
+def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
+
+    with get_context_session() as session:
+        entities = (
+            session.query(EntityOrm)
+            .filter(EntityOrm.dataset == dataset)
+            .limit(limit)
+            .all()
+        )
+        return [EntityModel.from_orm(e) for e in entities]
+
+
+def entity_search(params: dict):
+    # p = normalised_params(params)
+    with get_context_session() as session:
+        query = session.query(EntityOrm)
+        for key, val in params.items():
+            if hasattr(EntityOrm, key):
+                field = getattr(EntityOrm, key)
+                if isinstance(val, list):
+                    query = query.filter(field.in_(val))
+                else:
+                    query = query.filter(field == val)
+        query = query.order_by(EntityOrm.entity)
+        query = query.limit(params["limit"])
+        if params.get("offset") is not None:
+            query = query.offset(params["offset"])
+        entities = query.all()
+        return [EntityModel.from_orm(e) for e in entities]

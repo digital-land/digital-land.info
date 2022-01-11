@@ -43,7 +43,7 @@
       <div class="govuk-grid-column-two-thirds">
 
         <div class="app-results-summary">
-          <h2 class="app-results-summary__title">{{ data.count|commanum }} result{{ "" if data.count == 1 else "s" }}</h2>
+          <h2 class="app-results-summary__title">{{ data|count|commanum }} result{{ "" if data|count == 1 else "s" }}</h2>
 
           {% macro removeFilterButton(params) %}
           <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
@@ -163,11 +163,11 @@
         </div>
         <!-- /.app-results-summary -->
 
-        {% if data and data.count > 0 %}
+        {% if data and data|count > 0 %}
         <div class="app-results-body">
 
           <ul class="app-results-list">
-            {% for row in data.results %}
+            {% for row in data %}
             {%  set e = row.dict(by_alias=True) %}
             {% set propertiesArr = [
               { "key": "Dataset", "value": e["dataset"] },
@@ -292,9 +292,9 @@
 {% endblock %}
 
 {% block pageScripts %}
-{% if data and data.count > 0 %}
+{% if data and data|count > 0 %}
 <script>
-  const results = {{ data.results|tojson }};
+  const results = {{ data|tojson }};
   results.forEach(function (result) {
       console.log(result);
       if (!result.geojson || !result.geojson.hasOwnProperty("geometry")) {

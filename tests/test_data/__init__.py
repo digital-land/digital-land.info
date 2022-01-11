@@ -1,4 +1,5 @@
 import csv
+import json
 
 from pathlib import Path
 
@@ -13,10 +14,13 @@ def load_data(name):
         for row in reader:
             r = {}
             for key, val in row.items():
-                if not val:
-                    r[key] = None
+                if val:
+                    if key in ["json", "geojson"] and val:
+                        r[key] = json.loads(val)
+                    else:
+                        r[key] = val
                 else:
-                    r[key] = val
+                    r[key] = None
             data.append(r)
     return data
 

@@ -2,42 +2,24 @@ import logging
 import urllib.parse
 
 from application.core.utils import get
-from application.core.models import Dataset
-from application.db.models import Dataset as DatasetModel
+from application.core.models import DatasetModel
+from application.db.models import DatasetOrm
 from application.db.session import get_context_session
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
 
-def fetch_datasets():
+def get_datasets():
     with get_context_session() as session:
-        datasets = session.query(DatasetModel).all()
-        return [Dataset.from_orm(ds) for ds in datasets]
+        datasets = session.query(DatasetOrm).order_by(DatasetOrm.dataset).all()
+        return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
 def fetch_dataset(dataset):
     with get_context_session() as session:
-        dataset = session.query(DatasetModel).get(dataset)
-        return Dataset.from_orm(dataset)
-
-
-def fetch_datasets_with_theme():
-    datasette_url = get_settings().DATASETTE_URL
-    query_lines = [
-        "SELECT DISTINCT dataset.dataset, dataset.name, dataset.plural, dataset.typology,",
-        "(CASE WHEN pipeline.pipeline IS NOT NULL THEN 1 WHEN pipeline.pipeline IS NULL THEN 0 END) AS dataset_active,",
-        "GROUP_CONCAT(dataset_theme.theme, ';') AS dataset_themes",
-        "FROM dataset LEFT JOIN pipeline ON dataset.dataset = pipeline.pipeline",
-        "INNER JOIN dataset_theme ON dataset.dataset = dataset_theme.dataset",
-        "GROUP BY dataset.dataset",
-        "ORDER BY dataset.name ASC",
-    ]
-    query_str = " ".join(query_lines)
-    query = urllib.parse.quote(query_str)
-    url = f"{datasette_url}/digital-land.json?sql={query}"
-    logger.info("get_datasets_with_themes: %s", url)
-    return get(url).json()
+        dataset = session.query(DatasetOrm).get(dataset)
+        return DatasetModel.from_orm(dataset)
 
 
 def fetch_datasets_with_typology(typology):
@@ -47,6 +29,7 @@ def fetch_datasets_with_typology(typology):
     return get(url).json()
 
 
+# TODO - recreate from db
 def fetch_typologies():
     datasette_url = get_settings().DATASETTE_URL
     url = f"{datasette_url}/digital-land/typology.json"
@@ -54,6 +37,7 @@ def fetch_typologies():
     return get(url).json()
 
 
+# TODO - recreate from db
 def fetch_local_authorities():
     datasette_url = get_settings().DATASETTE_URL
     query_str = """select * from organisation where organisation like '%local-authority-eng%' order by organisation"""
@@ -63,6 +47,7 @@ def fetch_local_authorities():
     return get(url).json()
 
 
+# TODO - recreate from db
 def fetch_publisher_coverage_count(dataset):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
@@ -82,6 +67,7 @@ def fetch_publisher_coverage_count(dataset):
     return get(url).json()
 
 
+# TODO - recreate from db
 def fetch_latest_resource(dataset):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [
@@ -109,6 +95,7 @@ def fetch_latest_resource(dataset):
     return get(url).json()
 
 
+# TODO - recreate from db
 def fetch_lastest_log_date(dataset):
     datasette_url = get_settings().DATASETTE_URL
     query_lines = [

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from application.db.models import Dataset, Entity
+from application.db.models import DatasetOrm, EntityOrm
 from application.settings import Settings, get_settings
 
 
@@ -51,12 +51,12 @@ def data(db_session: Session):
 
     for dataset in datasets:
         themes = dataset.pop("themes").split(",")
-        ds = Dataset(**dataset)
+        ds = DatasetOrm(**dataset)
         ds.themes = themes
         db_session.add(ds)
 
     for entity in entities:
-        e = Entity(**entity)
+        e = EntityOrm(**entity)
         db_session.add(e)
 
     db_session.commit()

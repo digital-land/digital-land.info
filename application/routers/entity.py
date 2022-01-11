@@ -5,23 +5,20 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
-from application.core.models import GeoJSONFeatureCollection, Entity
+from application.core.models import GeoJSONFeatureCollection, EntityModel
 from application.data_access.digital_land_queries import (
     fetch_typologies,
-    fetch_datasets_with_theme,
     fetch_local_authorities,
+    get_datasets,
 )
-from application.data_access.entity_queries import EntityQuery
+from application.data_access.entity_queries import (
+    get_entity_query,
+    entity_search,
+    normalised_params,
+)
+
 from application.search.enum import Suffix
-
-from application.search.filters import (
-    BaseFilters,
-    DateFilters,
-    SpatialFilters,
-    PaginationFilters,
-    FormatFilters,
-)
-
+from application.search.filters import QueryFilters
 from application.core.templates import templates
 from application.core.utils import create_dict, DigitalLandJSONResponse
 
@@ -29,13 +26,14 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _get_geojson(data: List[Entity]) -> GeoJSONFeatureCollection:
+def _get_geojson(data: List[EntityModel]) -> GeoJSONFeatureCollection:
     results = [item.geojson for item in data]
     return {"type": "FeatureCollection", "features": results}
 
 
-async def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
-    e = await EntityQuery().get(entity)
+def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
+
+    e = get_entity_query(entity)
     if e is not None:
 
         if extension is not None and extension.value == "json":
@@ -44,7 +42,6 @@ async def get_entity(request: Request, entity: int, extension: Optional[Suffix] 
         if extension is not None and extension.value == "geojson":
             return e.geojson
 
-        # TODO - update template - no longer fully works
         return templates.TemplateResponse(
             "entity.html",
             {
@@ -64,72 +61,55 @@ async def get_entity(request: Request, entity: int, extension: Optional[Suffix] 
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-def make_pagination_link(query_params, last_entity):
+def make_pagination_link(query_params, offset):
     url = "?" + "&".join(
         [
             "{}={}".format(param[0], param[1])
             for param in query_params
-            if param[0] != "next_entity"
+            if param[0] != "offset"
         ]
     )
-    return url + "&next_entity={}".format(last_entity)
+    return url + "&offset={}".format(offset)
 
 
 def search_entities(
     request: Request,
-    # filter entries
-    base_filters: BaseFilters = Depends(BaseFilters),
-    date_filters: DateFilters = Depends(DateFilters),
-    spatial_filters: SpatialFilters = Depends(SpatialFilters),
-    pagination_filters: PaginationFilters = Depends(PaginationFilters),
-    format_filters: FormatFilters = Depends(FormatFilters),
+    query_filters: QueryFilters = Depends(),
     extension: Optional[Suffix] = None,
 ):
-    base_params = asdict(base_filters)
-    date_params = asdict(date_filters)
-    spatial_params = asdict(spatial_filters)
-    pagination_params = asdict(pagination_filters)
-    format_params = asdict(format_filters)
 
-    params = {
-        **base_params,
-        **date_params,
-        **spatial_params,
-        **pagination_params,
-        **format_params,
-    }
+    params = asdict(query_filters)
+    params = normalised_params(params)
+    query = {"params": params}
 
-    query = EntityQuery(params=params)
-
-    data = query.execute()
+    data = entity_search(params)
 
     if extension is not None and extension.value == "json":
         return data
 
     if extension is not None and extension.value == "geojson":
-        return _get_geojson(data.get("results", []))
+        return _get_geojson(data)
 
     # typology facet
     response = fetch_typologies()
     typologies = [create_dict(response["columns"], row) for row in response["rows"]]
+
     # dataset facet
-    response = fetch_datasets_with_theme()
-    dataset_results = [
-        create_dict(response["columns"], row) for row in response["rows"]
-    ]
-    datasets = [d for d in dataset_results if d["dataset_active"]]
-    # local-authority-district facet
+    response = get_datasets()
+    columns = ["dataset", "name", "plural", "typology", "themes"]
+    datasets = [dataset.dict(include=set(columns)) for dataset in response]
+
     response = fetch_local_authorities()
     local_authorities = [
         create_dict(response["columns"], row) for row in response["rows"]
     ]
 
+    if params.get("offset") is not None:
+        offset = params["offset"] + params["limit"]
+    else:
+        offset = params["limit"]
     next_url = (
-        make_pagination_link(
-            request.query_params._list, data["results"][-1].dict().get("entity")
-        )
-        if len(data["results"])
-        else None
+        make_pagination_link(request.query_params._list, offset) if data else None
     )
 
     # default is HTML
@@ -144,7 +124,7 @@ def search_entities(
             "query": query,
             "active_filters": [
                 filter_name
-                for filter_name, values in query.params.items()
+                for filter_name, values in params.items()
                 if filter_name != "limit" and values is not None
             ],
             "url_query_params": {

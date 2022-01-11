@@ -10,7 +10,7 @@ from application.data_access.digital_land_queries import (
     fetch_publisher_coverage_count,
     fetch_latest_resource,
     fetch_lastest_log_date,
-    fetch_datasets,
+    get_datasets,
 )
 from application.data_access.entity_queries import get_entity_count
 from application.core.templates import templates
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def list_datasets(request: Request, extension: Optional[Suffix] = None):
-    datasets = fetch_datasets()
+    datasets = get_datasets()
     entity_counts_response = get_entity_count()
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available

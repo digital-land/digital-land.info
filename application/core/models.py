@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional, List
-from pydantic import BaseModel, Field, Json
+from pydantic import BaseModel, Field
 
 
 def to_kebab(string: str) -> str:
@@ -18,7 +18,7 @@ class GeoJSONFeatureCollection(BaseModel):
     features: List[GeoJSON]
 
 
-class DigitalLandBase(BaseModel):
+class DigitalLandBaseModel(BaseModel):
     entry_date: Optional[date] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -29,7 +29,7 @@ class DigitalLandBase(BaseModel):
         orm_mode = True
 
 
-class Entity(DigitalLandBase):
+class EntityModel(DigitalLandBaseModel):
     entity: str = None
     name: str = None
     dataset: str = None
@@ -38,10 +38,10 @@ class Entity(DigitalLandBase):
     prefix: str = None
     organisation_entity: str = None
     geojson: GeoJSON = None
-    json_: Json = Field(None, alias="json")
+    json_: dict = Field(None, alias="json")
 
 
-class Dataset(DigitalLandBase):
+class DatasetModel(DigitalLandBaseModel):
     collection: str = None
     dataset: str = None
     description: str = None
@@ -52,13 +52,18 @@ class Dataset(DigitalLandBase):
     typology: str = None
     wikidata: str = None
     wikipedia: str = None
-    entities: Optional[List[Entity]]
+    entities: Optional[List[EntityModel]]
     themes: Optional[List[str]]
     entity_count: int = None
 
 
 def entity_factory(data):
-    e = Entity(**data)
+
+    json = data.pop("json", None)
+    if json and isinstance(json, dict):
+        data["json"] = json.dumps(json)
+
+    e = EntityModel(**data)
     if e.geojson is not None:
         e.geojson.properties = e.dict(exclude={"geojson"}, by_alias=True)
     return e
