@@ -4,6 +4,8 @@ import logging
 from decimal import Decimal
 from typing import Optional, List
 
+from sqlalchemy import func
+
 from application.core.models import entity_factory
 from application.core.models import EntityModel
 from application.db.models import EntityOrm
@@ -355,7 +357,10 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
 def entity_search(params: dict):
     # p = normalised_params(params)
     with get_context_session() as session:
-        query = session.query(EntityOrm)
+        query = session.query(
+            EntityOrm, func.count(EntityOrm.entity).over().label("count_all")
+        )
+
         for key, val in params.items():
             if hasattr(EntityOrm, key):
                 field = getattr(EntityOrm, key)
@@ -363,9 +368,20 @@ def entity_search(params: dict):
                     query = query.filter(field.in_(val))
                 else:
                     query = query.filter(field == val)
-        query = query.order_by(EntityOrm.entity)
-        query = query.limit(params["limit"])
+
+        query = query.order_by(EntityOrm.entity).limit(params["limit"])
+
         if params.get("offset") is not None:
             query = query.offset(params["offset"])
+
         entities = query.all()
-        return [EntityModel.from_orm(e) for e in entities]
+
+        if entities:
+            count_all = entities[0].count_all
+        else:
+            count_all = 0
+
+        return {
+            "count_all": count_all,
+            "entities": [EntityModel.from_orm(e.EntityOrm) for e in entities],
+        }

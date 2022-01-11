@@ -43,7 +43,7 @@
       <div class="govuk-grid-column-two-thirds">
 
         <div class="app-results-summary">
-          <h2 class="app-results-summary__title">{{ data|count|commanum }} result{{ "" if data|count == 1 else "s" }}</h2>
+          <h2 class="app-results-summary__title">{{ count_all|commanum }} result{{ "" if count_all == 1 else "s" }}</h2>
 
           {% macro removeFilterButton(params) %}
           <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">

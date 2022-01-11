@@ -85,10 +85,10 @@ def search_entities(
     data = entity_search(params)
 
     if extension is not None and extension.value == "json":
-        return data
+        return data["entities"]
 
     if extension is not None and extension.value == "geojson":
-        return _get_geojson(data)
+        return _get_geojson(data["entities"])
 
     # typology facet
     response = fetch_typologies()
@@ -117,7 +117,8 @@ def search_entities(
         "search.html",
         {
             "request": request,
-            "data": data,
+            "count_all": data["count_all"],
+            "data": data["entities"],
             "datasets": datasets,
             "local_authorities": local_authorities,
             "typologies": typologies,
