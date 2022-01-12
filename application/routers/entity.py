@@ -13,7 +13,7 @@ from application.data_access.digital_land_queries import (
 )
 from application.data_access.entity_queries import (
     get_entity_query,
-    entity_search,
+    get_entity_search,
     normalised_params,
 )
 
@@ -78,7 +78,7 @@ def search_entities(
     extension: Optional[Suffix] = None,
 ):
     params = normalised_params(asdict(query_filters))
-    data = entity_search(params)
+    data = get_entity_search(params)
 
     if extension is not None and extension.value == "json":
         return data["entities"]
