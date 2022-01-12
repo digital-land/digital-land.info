@@ -3,7 +3,7 @@ import urllib.parse
 
 from application.core.utils import get
 from application.core.models import DatasetModel
-from application.db.models import DatasetOrm
+from application.db.models import DatasetOrm, EntityOrm
 from application.db.session import get_context_session
 from application.settings import get_settings
 
@@ -22,11 +22,21 @@ def get_dataset_query(dataset):
         return DatasetModel.from_orm(dataset)
 
 
-def fetch_datasets_with_typology(typology):
-    datasette_url = get_settings().DATASETTE_URL
-    url = f"{datasette_url}/digital-land/dataset.json?_shape=object&_sort=dataset&typology__exact={typology}"
-    logger.info("get_datasets_with_typology: %s", url)
-    return get(url).json()
+def get_datasets_with_data_by_typology(typology):
+    from sqlalchemy import select
+    from sqlalchemy import func
+
+    sql = select(
+        DatasetOrm, func.count(func.distinct(EntityOrm.entity)).label("entity_count")
+    )
+    sql = sql.filter(DatasetOrm.typology == typology)
+    sql = sql.filter(DatasetOrm.dataset == EntityOrm.dataset)
+    sql = sql.group_by(DatasetOrm.dataset)
+
+    with get_context_session() as session:
+        result = session.execute(sql)
+        datasets = result.fetchall()
+        return [DatasetModel.from_orm(ds.DatasetOrm) for ds in datasets]
 
 
 # TODO - recreate from db

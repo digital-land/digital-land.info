@@ -55,6 +55,7 @@ class DatasetModel(DigitalLandBaseModel):
     entities: Optional[List[EntityModel]]
     themes: Optional[List[str]]
     entity_count: int = None
+    paint_options: dict = Field(None)
 
 
 def entity_factory(data):

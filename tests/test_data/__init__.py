@@ -15,7 +15,7 @@ def load_data(name):
             r = {}
             for key, val in row.items():
                 if val:
-                    if key in ["json", "geojson"] and val:
+                    if key in ["json", "geojson", "paint_options"] and val:
                         r[key] = json.loads(val)
                     else:
                         r[key] = val
