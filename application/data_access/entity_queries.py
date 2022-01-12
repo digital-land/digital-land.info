@@ -6,8 +6,6 @@ import operator
 from decimal import Decimal
 from typing import Optional, List
 
-from sqlalchemy import func
-
 from application.core.models import entity_factory
 from application.core.models import EntityModel
 from application.db.models import EntityOrm
@@ -356,6 +354,8 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
 
 
 def get_entity_search(parameters: dict):
+    from sqlalchemy import func
+
     params = normalised_params(parameters)
     with get_context_session() as session:
         query = session.query(
@@ -371,6 +371,7 @@ def get_entity_search(parameters: dict):
                     query = query.filter(field == val)
 
         query = _add_date_filters(query, params)
+        query = _add_geometry_filters(query, params)
 
         query = query.order_by(EntityOrm.entity).limit(params["limit"])
 
@@ -433,3 +434,20 @@ def _get_operator(params):
     if match == DateOption.since:
         return operator.gt
     return None
+
+
+def _get_point(params):
+    if "longitude" in params and "latitude" in params:
+        return f"POINT({params['longitude']} {params['latitude']})"
+    return None
+
+
+def _add_geometry_filters(query, params):
+    from sqlalchemy import func
+
+    point = _get_point(params)
+    if point:
+        query = query.filter(
+            func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326))
+        )
+    return query
