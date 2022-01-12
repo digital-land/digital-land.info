@@ -1,5 +1,7 @@
+import datetime
 import json
 import logging
+import operator
 
 from decimal import Decimal
 from typing import Optional, List
@@ -353,7 +355,8 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
         return [EntityModel.from_orm(e) for e in entities]
 
 
-def get_entity_search(params: dict):
+def get_entity_search(parameters: dict):
+    params = normalised_params(parameters)
     with get_context_session() as session:
         query = session.query(
             EntityOrm, func.count(EntityOrm.entity).over().label("count_all")
@@ -366,6 +369,8 @@ def get_entity_search(params: dict):
                     query = query.filter(field.in_(val))
                 else:
                     query = query.filter(field == val)
+
+        query = _add_date_filters(query, params)
 
         query = query.order_by(EntityOrm.entity).limit(params["limit"])
 
@@ -380,6 +385,51 @@ def get_entity_search(params: dict):
             count_all = 0
 
         return {
+            "params": params,
             "count_all": count_all,
             "entities": [EntityModel.from_orm(e.EntityOrm) for e in entities],
         }
+
+
+def _add_date_filters(query, params):
+    for date_field in ["start_date", "end_date", "entry_date"]:
+        field = _get_field_to_filter(date_field)
+        date = _get_date_to_filter(date_field, params)
+        op = _get_operator(params)
+        if field is not None and date is not None and op is not None:
+            query = query.filter(op(field, date))
+    return query
+
+
+def _get_field_to_filter(date_field):
+    if date_field == "start_date":
+        return EntityOrm.start_date
+    if date_field == "end_date":
+        return EntityOrm.end_date
+    if date_field == "entry_date":
+        return EntityOrm.entry_date
+    return None
+
+
+def _get_date_to_filter(date_field, params):
+    try:
+        year = int(params.get(date_field + "_year", 0))
+        if year:
+            month = int(params.setdefault(date_field + "_month", 1))
+            day = int(params.setdefault(date_field + "_day", 1))
+            return datetime.date(year, month, day)
+        else:
+            return None
+    except ValueError:
+        return None
+
+
+def _get_operator(params):
+    match = params.get("entry_date_match", None)
+    if match is None:
+        return operator.eq
+    if match == DateOption.before:
+        return operator.lt
+    if match == DateOption.since:
+        return operator.gt
+    return None

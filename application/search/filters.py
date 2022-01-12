@@ -28,22 +28,23 @@ class QueryFilters:
     )
 
     # date filters
-    # TODO: remove the spurious "entry_" prefixes to these filters
-    entry_start_date: Optional[datetime.date] = None
-    entry_start_date_year: Optional[str] = None
-    entry_start_date_month: Optional[str] = None
-    entry_start_date_day: Optional[str] = None
-    entry_start_date_match: Optional[DateOption] = None
-    entry_end_date: Optional[datetime.date] = None
-    entry_end_date_year: Optional[str] = None
-    entry_end_date_month: Optional[str] = None
-    entry_end_date_day: Optional[str] = None
-    entry_end_date_match: Optional[DateOption] = None
-    entry_entry_date: Optional[datetime.date] = None
-    entry_entry_date_year: Optional[str] = None
-    entry_entry_date_month: Optional[str] = None
-    entry_entry_date_day: Optional[str] = None
-    entry_entry_date_match: Optional[DateOption] = None
+    start_date: Optional[datetime.date] = None
+    start_date_year: Optional[str] = None
+    start_date_month: Optional[str] = None
+    start_date_day: Optional[str] = None
+    start_date_match: Optional[DateOption] = None
+
+    end_date: Optional[datetime.date] = None
+    end_date_year: Optional[str] = None
+    end_date_month: Optional[str] = None
+    end_date_day: Optional[str] = None
+    end_date_match: Optional[DateOption] = None
+
+    entry_date: Optional[datetime.date] = None
+    entry_date_year: Optional[str] = None
+    entry_date_month: Optional[str] = None
+    entry_date_day: Optional[str] = None
+    entry_date_match: Optional[DateOption] = None
 
     # spatial filters
     longitude: Optional[float] = Query(

@@ -11,11 +11,7 @@ from application.data_access.digital_land_queries import (
     fetch_local_authorities,
     get_datasets,
 )
-from application.data_access.entity_queries import (
-    get_entity_query,
-    get_entity_search,
-    normalised_params,
-)
+from application.data_access.entity_queries import get_entity_query, get_entity_search
 
 from application.search.enum import Suffix
 from application.search.filters import QueryFilters
@@ -77,8 +73,12 @@ def search_entities(
     query_filters: QueryFilters = Depends(),
     extension: Optional[Suffix] = None,
 ):
-    params = normalised_params(asdict(query_filters))
-    data = get_entity_search(params)
+    query_params = asdict(query_filters)
+    data = get_entity_search(query_params)
+
+    # the query does some normalisation to remove empty
+    # params and they get returned from search
+    params = data["params"]
 
     if extension is not None and extension.value == "json":
         return data["entities"]

@@ -143,14 +143,14 @@
             </div>
             {% endif %}
 
-            {% if query.params and query.params.get('entry_entry_date_match') %}
+            {% if query.params and query.params.get('entry_date_match') %}
             <div class="app-applied-filter__group">
               <span class="app-applied-filter__name govuk-!-font-weight-bold">Entries:</span>
               <span class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
                     "name": "entries",
-                    "value": query.params.get('entry_entry_date_match')
+                    "value": query.params.get('entry_date_match')
                   },
                   "url": "#"
                 }) }}
