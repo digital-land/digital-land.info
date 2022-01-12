@@ -16,7 +16,7 @@ def get_datasets():
         return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
-def fetch_dataset(dataset):
+def get_dataset_query(dataset):
     with get_context_session() as session:
         dataset = session.query(DatasetOrm).get(dataset)
         return DatasetModel.from_orm(dataset)

@@ -77,11 +77,7 @@ def search_entities(
     query_filters: QueryFilters = Depends(),
     extension: Optional[Suffix] = None,
 ):
-
-    params = asdict(query_filters)
-    params = normalised_params(params)
-    query = {"params": params}
-
+    params = normalised_params(asdict(query_filters))
     data = entity_search(params)
 
     if extension is not None and extension.value == "json":
@@ -122,7 +118,7 @@ def search_entities(
             "datasets": datasets,
             "local_authorities": local_authorities,
             "typologies": typologies,
-            "query": query,
+            "query": {"params": params},
             "active_filters": [
                 filter_name
                 for filter_name, values in params.items()

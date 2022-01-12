@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from starlette.responses import JSONResponse
 
 from application.data_access.digital_land_queries import (
-    fetch_dataset,
+    get_dataset_query,
     fetch_publisher_coverage_count,
     fetch_latest_resource,
     fetch_lastest_log_date,
@@ -60,7 +60,7 @@ def get_dataset(
 ):
     collection_bucket = settings.S3_COLLECTION_BUCKET
     try:
-        _dataset = fetch_dataset(dataset)
+        _dataset = get_dataset_query(dataset)
         entity_count = get_entity_count(dataset)
         publisher_coverage_response = fetch_publisher_coverage_count(dataset)
         latest_resource_response = fetch_latest_resource(dataset)

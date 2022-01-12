@@ -343,7 +343,6 @@ def get_entity_count(dataset: Optional[str] = None):
 
 
 def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
-
     with get_context_session() as session:
         entities = (
             session.query(EntityOrm)
@@ -355,7 +354,6 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
 
 
 def entity_search(params: dict):
-    # p = normalised_params(params)
     with get_context_session() as session:
         query = session.query(
             EntityOrm, func.count(EntityOrm.entity).over().label("count_all")
