@@ -1,326 +1,30 @@
-import datetime
-import json
 import logging
-import operator
 
-from decimal import Decimal
 from typing import Optional, List
 
+from sqlalchemy import or_
+
 from application.core.models import entity_factory
-from application.core.models import EntityModel
+from application.data_access.entity_query_helpers import (
+    get_date_field_to_filter,
+    get_date_to_filter,
+    get_operator,
+    get_point,
+    get_geometry_params,
+    get_geometry_relation_function,
+    normalised_params,
+)
 from application.db.models import EntityOrm
-from application.core.utils import make_url, get
-from application.search.enum import EntriesOption, DateOption, GeometryRelation
-from application.settings import get_settings
 from application.db.session import get_context_session
 
 logger = logging.getLogger(__name__)
-
-
-# TBD: replace string concatenation with sqlite3 ? expressions ..
-def sqlescape(s):
-    if s is None:
-        return ""
-    return s.translate(
-        s.maketrans(
-            {
-                "'": "''",
-                '"': "",
-                "\\": "",
-                "%": "",
-                "\0": "",
-                "\n": " ",
-                "\r": " ",
-                "\x08": " ",
-                "\x09": " ",
-                "\x1a": " ",
-            }
-        )
-    )
-
-
-class EntityQuery:
-    lists = [
-        "typology",
-        "dataset",
-        "entity",
-        "prefix",
-        "reference",
-        "organisation_entity",
-    ]
-
-    def __init__(self, params: dict = {}):
-        datasette_url = get_settings().DATASETTE_URL
-        self.url_base = f"{datasette_url}/entity"
-        self.params = self.normalised_params(params)
-
-    def normalised_params(self, params):
-        # remove empty parameters
-        params = {k: v for k, v in params.items() if v}
-
-        # sort/unique list parameters
-        for lst in self.lists:
-            if lst in params:
-                # remove empty list parameters
-                params[lst] = [v for v in params[lst] if v]
-                params[lst] = sorted(set(params[lst]))
-
-        return params
-
-    def where_column(self, params):
-        sql = where = ""
-        for col in [
-            "typology",
-            "dataset",
-            "entity",
-            "prefix",
-            "reference",
-            "organisation_entity",
-        ]:
-            if col in params and params[col]:
-                sql += (
-                    where
-                    + "("
-                    + " OR ".join(
-                        [
-                            "entity.%s = '%s'" % (col, sqlescape(value))
-                            for value in params[col]
-                        ]
-                    )
-                    + ")"
-                )
-                where = " AND "
-        return sql
-
-    def where_organisation(self, params):
-        sql = where = ""
-        if "organisation" in params and params["organisation"]:
-            sql += (
-                where
-                + "("
-                + " OR ".join(
-                    [
-                        "(entity.organisation_entity = (SELECT entity from entity "
-                        + "where entity.prefix = '{c[0]}' and entity.reference = '{c[1]}' group by entity))".format(
-                            c=[sqlescape(s) for s in c.split(":") + ["", ""]]
-                        )
-                        for c in params["organisation"]
-                    ]
-                )
-                + ")"
-            )
-        return sql
-
-    def where_curie(self, params):
-        sql = where = ""
-        if "curie" in params and params["curie"]:
-            sql += (
-                where
-                + "("
-                + " OR ".join(
-                    [
-                        "(entity.prefix = '{c[0]}' AND entity.reference = '{c[1]}')".format(
-                            c=[sqlescape(s) for s in c.split(":") + ["", ""]]
-                        )
-                        for c in params["curie"]
-                    ]
-                )
-                + ")"
-            )
-        return sql
-
-    def where_entries(self, params):
-        option = params.get("entries", EntriesOption.all)
-        if option == EntriesOption.current:
-            return " entity.end_date is ''"
-        if option == EntriesOption.historical:
-            return " entity.end_date is not ''"
-
-    def get_date(self, params, param):
-        if param in params:
-            d = params[param]
-            params[param + "_year"] = d.year
-            params[param + "_month"] = d.month
-            params[param + "_day"] = d.day
-            return d.isoformat()
-
-        try:
-            year = int(params.get(param + "_year", 0))
-            if year:
-                month = int(params.setdefault(param + "_month", 1))
-                day = int(params.setdefault(param + "_day", 1))
-                return "%04d-%02d-%02d" % (year, month, day)
-        except ValueError:
-            return
-
-    def where_date(self, params):
-        sql = where = ""
-        for col in ["start_date", "end_date", "entry_date"]:
-            param = "entry_" + col
-            value = self.get_date(params, param)
-            match = params.get(param + "_match", "")
-            if match:
-                if match == DateOption.empty:
-                    sql += where + " entity.%s = ''" % col
-                    where = " AND "
-                elif value:
-                    operator = {
-                        DateOption.match: "=",
-                        DateOption.before: "<",
-                        DateOption.since: ">=",
-                    }[match]
-                    sql += where + "(entity.%s != '' AND entity.%s %s '%s') " % (
-                        col,
-                        col,
-                        operator,
-                        sqlescape(value),
-                    )
-                    where = " AND "
-        return sql
-
-    # a single point maybe provided as longitude and latitude params
-    def get_point(self, params):
-        for field in ["longitude", "latitude"]:
-            try:
-                params[field] = "%.6f" % round(Decimal(params[field]), 6)
-            except (KeyError, TypeError):
-                return
-
-        return "POINT(%s %s)" % (params["longitude"], params["latitude"])
-
-    def where_geometry(self, params):
-        values = []
-
-        point = self.get_point(params)
-        if point:
-            values.append("GeomFromText('%s')" % sqlescape(point))
-
-        for geometry in params.get("geometry", []):
-            values.append("GeomFromText('%s')" % sqlescape(geometry))
-
-        for entity in params.get("geometry_entity", []):
-            values.append(
-                "(SELECT geometry_geom from entity where entity = '%s')"
-                % sqlescape(entity)
-            )
-
-        for reference in params.get("geometry_reference", []):
-            values.append(
-                """
-                  (SELECT geometry_geom from entity where entity =
-                      (SELECT entity from entity where reference = '%s' group by entity))
-                """
-                % sqlescape(reference)
-            )
-
-        if not values:
-            return
-
-        sql = ""
-        where = " ("
-        match = params.get("geometry_relation", GeometryRelation.intersects).value
-        for value in values:
-            sql += where + "(geometry_geom IS NOT NULL AND %s(geometry_geom, %s))" % (
-                match,
-                value,
-            )
-            where = " OR (point_geom IS NOT NULL AND "
-            sql += where + "%s(point_geom, %s))" % (match, value)
-        return sql + ")"
-
-    def pagination(self, where, params):
-        sql = ""
-        if params.get("next_entity", ""):
-            sql += where + " entity.entity > %s" % (
-                sqlescape(str(params["next_entity"]))
-            )
-        sql += " ORDER BY entity.entity"
-        sql += " LIMIT %s" % (sqlescape(str(params.get("limit", 10))))
-        return sql
-
-    def sql(self, count=False):
-        if count:
-            sql = "SELECT DISTINCT COUNT(*) as _count"
-        else:
-            sql = "SELECT entity.* "
-        sql += " FROM entity "
-
-        where = " WHERE "
-        for part in [
-            "column",
-            "organisation",
-            "curie",
-            "entries",
-            "date",
-            "geometry",
-        ]:
-            clause = getattr(self, "where_" + part)(self.params)
-            if clause:
-                sql += where + clause
-                where = " AND "
-
-        sql += self.pagination(where, self.params)
-
-        print(sql)
-        return sql
-
-    def url(self, sql):
-        return make_url(self.url_base + ".json", params={"sql": sql})
-
-    def response(self, data, count):
-        results = []
-        for row in data.get("rows", []):
-            # TODO see if there's a way to handle this conversion of string
-            # geojson to json in pydantic
-            for key, val in row.items():
-                if key == "geojson" and row.get("geojson"):
-                    row["geojson"] = json.loads(row["geojson"])
-                if isinstance(val, str) and not val:
-                    row[key] = None
-            results.append(entity_factory(row))
-
-        response = {
-            "query": self.params,
-            "count": count,
-            "results": results,
-        }
-        return response
-
-    def execute(self):
-        r = get(self.url(self.sql(count=True))).json()
-        if "rows" not in r or not len(r["rows"]):
-            count = 0
-        else:
-            count = r["rows"][0]["_count"]
-        data = get(self.url(self.sql())).json()
-        return self.response(data, count)
-
-
-def normalised_params(params):
-    lists = [
-        "typology",
-        "dataset",
-        "entity",
-        "prefix",
-        "reference",
-        "organisation_entity",
-    ]
-
-    params = {k: v for k, v in params.items() if v}
-
-    for lst in lists:
-        if lst in params:
-            params[lst] = [v for v in params[lst] if v]
-            params[lst] = sorted(set(params[lst]))
-
-    return params
 
 
 def get_entity_query(id: int):
     with get_context_session() as session:
         entity = session.query(EntityOrm).get(id)
         if entity is not None:
-            return EntityModel.from_orm(entity)
+            return entity_factory(entity)
         else:
             return None
 
@@ -350,33 +54,23 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
             .limit(limit)
             .all()
         )
-        return [EntityModel.from_orm(e) for e in entities]
+        return [entity_factory(e) for e in entities]
 
 
 def get_entity_search(parameters: dict):
     from sqlalchemy import func
 
     params = normalised_params(parameters)
+
     with get_context_session() as session:
         query = session.query(
             EntityOrm, func.count(EntityOrm.entity).over().label("count_all")
         )
 
-        for key, val in params.items():
-            if hasattr(EntityOrm, key):
-                field = getattr(EntityOrm, key)
-                if isinstance(val, list):
-                    query = query.filter(field.in_(val))
-                else:
-                    query = query.filter(field == val)
-
-        query = _add_date_filters(query, params)
-        query = _add_geometry_filters(query, params)
-
-        query = query.order_by(EntityOrm.entity).limit(params["limit"])
-
-        if params.get("offset") is not None:
-            query = query.offset(params["offset"])
+        query = _apply_base_filters(query, params)
+        query = _apply_date_filters(query, params)
+        query = _apply_geometry_filters(query, params)
+        query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
 
@@ -388,66 +82,69 @@ def get_entity_search(parameters: dict):
         return {
             "params": params,
             "count_all": count_all,
-            "entities": [EntityModel.from_orm(e.EntityOrm) for e in entities],
+            "entities": [entity_factory(e.EntityOrm) for e in entities],
         }
 
 
-def _add_date_filters(query, params):
+def _apply_base_filters(query, params):
+
+    # for params that may also match entity field names but need special handling
+    excluded = set(["geometry"])
+
+    for key, val in params.items():
+        if key not in excluded and hasattr(EntityOrm, key):
+            field = getattr(EntityOrm, key)
+            if isinstance(val, list):
+                query = query.filter(field.in_(val))
+            else:
+                query = query.filter(field == val)
+    return query
+
+
+def _apply_date_filters(query, params):
     for date_field in ["start_date", "end_date", "entry_date"]:
-        field = _get_field_to_filter(date_field)
-        date = _get_date_to_filter(date_field, params)
-        op = _get_operator(params)
+        field = get_date_field_to_filter(date_field)
+        date = get_date_to_filter(date_field, params)
+        op = get_operator(params)
         if field is not None and date is not None and op is not None:
             query = query.filter(op(field, date))
     return query
 
 
-def _get_field_to_filter(date_field):
-    if date_field == "start_date":
-        return EntityOrm.start_date
-    if date_field == "end_date":
-        return EntityOrm.end_date
-    if date_field == "entry_date":
-        return EntityOrm.entry_date
-    return None
-
-
-def _get_date_to_filter(date_field, params):
-    try:
-        year = int(params.get(date_field + "_year", 0))
-        if year:
-            month = int(params.setdefault(date_field + "_month", 1))
-            day = int(params.setdefault(date_field + "_day", 1))
-            return datetime.date(year, month, day)
-        else:
-            return None
-    except ValueError:
-        return None
-
-
-def _get_operator(params):
-    match = params.get("entry_date_match", None)
-    if match is None:
-        return operator.eq
-    if match == DateOption.before:
-        return operator.lt
-    if match == DateOption.since:
-        return operator.gt
-    return None
-
-
-def _get_point(params):
-    if "longitude" in params and "latitude" in params:
-        return f"POINT({params['longitude']} {params['latitude']})"
-    return None
-
-
-def _add_geometry_filters(query, params):
+def _apply_geometry_filters(query, params):
     from sqlalchemy import func
 
-    point = _get_point(params)
-    if point:
+    point = get_point(params)
+    if point is not None:
         query = query.filter(
             func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326))
         )
+
+    geometry_params = get_geometry_params(params)
+    if geometry_params is not None:
+        relation = geometry_params["geometry_relation"]
+        geometry = geometry_params["geometry"]
+
+        f = get_geometry_relation_function(relation)
+        if f is None:
+            return query
+
+        if len(geometry) > 1:
+            clauses = []
+            for g in geometry:
+                clauses.append(f(EntityOrm.geometry, func.ST_GeomFromText(g, 4326)))
+            query = query.filter(or_(*clauses))
+        else:
+            query = query.filter(
+                f(EntityOrm.geometry, func.ST_GeomFromText(geometry[0], 4326))
+            )
+
+    return query
+
+
+def _apply_limit_and_pagination_filters(query, params):
+    query = query.order_by(EntityOrm.entity)
+    query = query.limit(params["limit"])
+    if params.get("offset") is not None:
+        query = query.offset(params["offset"])
     return query

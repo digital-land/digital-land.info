@@ -2,6 +2,8 @@ from datetime import date
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
+from application.db.models import EntityOrm
+
 
 def to_kebab(string: str) -> str:
     return string.replace("_", "-")
@@ -58,13 +60,8 @@ class DatasetModel(DigitalLandBaseModel):
     paint_options: dict = Field(None)
 
 
-def entity_factory(data):
-
-    json = data.pop("json", None)
-    if json and isinstance(json, dict):
-        data["json"] = json.dumps(json)
-
-    e = EntityModel(**data)
+def entity_factory(entity_orm: EntityOrm):
+    e = EntityModel.from_orm(entity_orm)
     if e.geojson is not None:
         e.geojson.properties = e.dict(exclude={"geojson"}, by_alias=True)
     return e

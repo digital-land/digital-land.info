@@ -40,7 +40,7 @@ def server_process():
     proc.kill()
 
 
-def test_acceptance(server_process, page, data):
+def test_acceptance(server_process, page, test_data):
 
     page.goto(BASE_URL)
 
