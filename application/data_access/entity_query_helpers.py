@@ -54,7 +54,7 @@ def get_geometry_params(params):
     return None
 
 
-def get_geometry_relation_function(relation):
+def get_spatial_function_for_relation(relation):
     from sqlalchemy import func
 
     if relation == GeometryRelation.intersects:

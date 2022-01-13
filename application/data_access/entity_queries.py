@@ -11,7 +11,7 @@ from application.data_access.entity_query_helpers import (
     get_operator,
     get_point,
     get_geometry_params,
-    get_geometry_relation_function,
+    get_spatial_function_for_relation,
     normalised_params,
 )
 from application.db.models import EntityOrm
@@ -125,18 +125,22 @@ def _apply_geometry_filters(query, params):
         relation = geometry_params["geometry_relation"]
         geometry = geometry_params["geometry"]
 
-        f = get_geometry_relation_function(relation)
-        if f is None:
+        spatial_function = get_spatial_function_for_relation(relation)
+        if spatial_function is None:
             return query
 
         if len(geometry) > 1:
             clauses = []
             for g in geometry:
-                clauses.append(f(EntityOrm.geometry, func.ST_GeomFromText(g, 4326)))
+                clauses.append(
+                    spatial_function(EntityOrm.geometry, func.ST_GeomFromText(g, 4326))
+                )
             query = query.filter(or_(*clauses))
         else:
             query = query.filter(
-                f(EntityOrm.geometry, func.ST_GeomFromText(geometry[0], 4326))
+                spatial_function(
+                    EntityOrm.geometry, func.ST_GeomFromText(geometry[0], 4326)
+                )
             )
 
     return query
