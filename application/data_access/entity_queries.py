@@ -220,8 +220,8 @@ class EntityQuery:
                 match,
                 value,
             )
-            where = " OR "
-            sql += where + "%s(point_geom, %s)" % (match, value)
+            where = " OR (point_geom IS NOT NULL AND "
+            sql += where + "%s(point_geom, %s))" % (match, value)
         return sql + ")"
 
     def pagination(self, where, params):
