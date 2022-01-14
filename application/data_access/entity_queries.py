@@ -111,12 +111,12 @@ def _apply_location_filters(session, query, params):
             func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326))
         )
 
-    relation_clauses = []
     spatial_function = get_spatial_function_for_relation(
         params.get("geometry_relation", GeometryRelation.within)
     )
+
     for geometry in params.get("geometry", []):
-        relation_clauses.append(
+        query = query.filter(
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
@@ -132,8 +132,6 @@ def _apply_location_filters(session, query, params):
                 ),
             )
         )
-    if relation_clauses:
-        query = query.filter(or_(*relation_clauses))
 
     for reference in params.get("geometry_reference", []):
         reference_query = (
