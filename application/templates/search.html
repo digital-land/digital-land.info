@@ -296,7 +296,6 @@
 <script>
   const results = {{ data|tojson }};
   results.forEach(function (result) {
-      console.log(result);
       if (!result.geojson || !result.geojson.hasOwnProperty("geometry")) {
         return;
       }

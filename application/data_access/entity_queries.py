@@ -1,7 +1,7 @@
 import logging
 
 from typing import Optional, List
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, func, or_, and_
 
 from application.core.models import entity_factory
 from application.data_access.entity_query_helpers import (
@@ -9,12 +9,12 @@ from application.data_access.entity_query_helpers import (
     get_date_to_filter,
     get_operator,
     get_point,
-    get_geometry_params,
     get_spatial_function_for_relation,
     normalised_params,
 )
 from application.db.models import EntityOrm
 from application.db.session import get_context_session
+from application.search.enum import GeometryRelation
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def get_entity_search(parameters: dict):
         )
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
-        query = _apply_location_filters(query, params)
+        query = _apply_location_filters(session, query, params)
         query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
@@ -103,7 +103,7 @@ def _apply_date_filters(query, params):
     return query
 
 
-def _apply_location_filters(query, params):
+def _apply_location_filters(session, query, params):
 
     point = get_point(params)
     if point is not None:
@@ -111,30 +111,44 @@ def _apply_location_filters(query, params):
             func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326))
         )
 
-    geometry_params = get_geometry_params(params)
-    if geometry_params is not None:
-        relation = geometry_params["geometry_relation"]
-        geometry = geometry_params["geometry"]
-
-        spatial_function = get_spatial_function_for_relation(relation)
-        if spatial_function is None:
-            return query
-
-        if len(geometry) == 1:
-            query = query.filter(
-                spatial_function(
-                    EntityOrm.geometry, func.ST_GeomFromText(geometry[0], 4326)
-                )
+    relation_clauses = []
+    spatial_function = get_spatial_function_for_relation(
+        params.get("geometry_relation", GeometryRelation.within)
+    )
+    for geometry in params.get("geometry", []):
+        relation_clauses.append(
+            or_(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    spatial_function(
+                        EntityOrm.geometry, func.ST_GeomFromText(geometry, 4326)
+                    ),
+                ),
+                and_(
+                    EntityOrm.point.is_not(None),
+                    spatial_function(
+                        EntityOrm.point, func.ST_GeomFromText(geometry, 4326)
+                    ),
+                ),
             )
-        if len(geometry) > 1:
-            clauses = []
-            for g in geometry:
-                clauses.append(
-                    spatial_function(EntityOrm.geometry, func.ST_GeomFromText(g, 4326))
-                )
-            query = query.filter(or_(*clauses))
+        )
+    if relation_clauses:
+        query = query.filter(or_(*relation_clauses))
 
-    # TODO add or to check if point within geometry as well
+    for reference in params.get("geometry_reference", []):
+        reference_query = (
+            session.query(EntityOrm.entity)
+            .filter(EntityOrm.reference == reference)
+            .group_by(EntityOrm.entity)
+        )
+        subquery = (
+            session.query(EntityOrm.geometry)
+            .filter(EntityOrm.entity.in_(reference_query))
+            .subquery()
+        )
+        query = query.join(
+            subquery, func.ST_Intersects(EntityOrm.geometry, subquery.c.geometry)
+        )
 
     return query
 
