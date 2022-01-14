@@ -88,6 +88,13 @@ def add_base_routes(app):
             logger.exception(e)
             raise e
 
+    @app.get("/cookies", response_class=HTMLResponse, include_in_schema=False)
+    def return_page(request: Request):
+        return templates.TemplateResponse(
+            "page.cookies.html",
+            {"request": request},
+        )
+
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(
         request: Request, exc: StarletteHTTPException

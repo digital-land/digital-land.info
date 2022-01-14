@@ -1,5 +1,5 @@
 from tests.test_data.wkt_data import (
-    somewhere_in_lambeth,
+    random_location_lambeth,
     intersects_with_greenspace_entity,
 )
 
@@ -43,7 +43,7 @@ def test_lasso_geo_search_finds_results(client, test_data):
 
 
 def test_lasso_geo_search_finds_no_results(client):
-    params = {"geometry_relation": "intersects", "geometry": somewhere_in_lambeth}
+    params = {"geometry_relation": "intersects", "geometry": random_location_lambeth}
     response = client.get("/entity.geojson", params=params)
     assert response.status_code == 200
     data = response.json()

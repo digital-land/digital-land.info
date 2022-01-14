@@ -45,15 +45,6 @@ def get_point(params):
     return None
 
 
-def get_geometry_params(params):
-    if "geometry_relation" in params and "geometry" in params:
-        return {
-            "geometry_relation": params["geometry_relation"],
-            "geometry": params["geometry"],
-        }
-    return None
-
-
 def get_spatial_function_for_relation(relation):
     from sqlalchemy import func
 
