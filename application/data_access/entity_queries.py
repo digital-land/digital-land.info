@@ -1,8 +1,7 @@
 import logging
 
 from typing import Optional, List
-
-from sqlalchemy import or_
+from sqlalchemy import select, func, or_
 
 from application.core.models import entity_factory
 from application.data_access.entity_query_helpers import (
@@ -30,10 +29,6 @@ def get_entity_query(id: int):
 
 
 def get_entity_count(dataset: Optional[str] = None):
-
-    from sqlalchemy import select
-    from sqlalchemy import func
-
     sql = select(EntityOrm.dataset, func.count(func.distinct(EntityOrm.entity)))
     sql = sql.group_by(EntityOrm.dataset)
     if dataset is not None:
@@ -58,15 +53,12 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
 
 
 def get_entity_search(parameters: dict):
-    from sqlalchemy import func
-
     params = normalised_params(parameters)
 
     with get_context_session() as session:
         query = session.query(
             EntityOrm, func.count(EntityOrm.entity).over().label("count_all")
         )
-
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
         query = _apply_geometry_filters(query, params)
@@ -112,7 +104,6 @@ def _apply_date_filters(query, params):
 
 
 def _apply_geometry_filters(query, params):
-    from sqlalchemy import func
 
     point = get_point(params)
     if point is not None:
@@ -129,6 +120,10 @@ def _apply_geometry_filters(query, params):
         if spatial_function is None:
             return query
 
+        # TODO change this logic
+        # check if length one apply one filter
+        # else if > 1 or_ the filters
+        # else return query unmodified
         if len(geometry) > 1:
             clauses = []
             for g in geometry:
@@ -142,6 +137,8 @@ def _apply_geometry_filters(query, params):
                     EntityOrm.geometry, func.ST_GeomFromText(geometry[0], 4326)
                 )
             )
+
+    # TODO add or to check if point within geometry as well
 
     return query
 
