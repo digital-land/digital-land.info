@@ -61,7 +61,7 @@ def get_entity_search(parameters: dict):
         )
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
-        query = _apply_geometry_filters(query, params)
+        query = _apply_location_filters(query, params)
         query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
@@ -103,7 +103,7 @@ def _apply_date_filters(query, params):
     return query
 
 
-def _apply_geometry_filters(query, params):
+def _apply_location_filters(query, params):
 
     point = get_point(params)
     if point is not None:
@@ -120,10 +120,12 @@ def _apply_geometry_filters(query, params):
         if spatial_function is None:
             return query
 
-        # TODO change this logic
-        # check if length one apply one filter
-        # else if > 1 or_ the filters
-        # else return query unmodified
+        if len(geometry) == 1:
+            query = query.filter(
+                spatial_function(
+                    EntityOrm.geometry, func.ST_GeomFromText(geometry[0], 4326)
+                )
+            )
         if len(geometry) > 1:
             clauses = []
             for g in geometry:
@@ -131,12 +133,6 @@ def _apply_geometry_filters(query, params):
                     spatial_function(EntityOrm.geometry, func.ST_GeomFromText(g, 4326))
                 )
             query = query.filter(or_(*clauses))
-        else:
-            query = query.filter(
-                spatial_function(
-                    EntityOrm.geometry, func.ST_GeomFromText(geometry[0], 4326)
-                )
-            )
 
     # TODO add or to check if point within geometry as well
 
