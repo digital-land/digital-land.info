@@ -62,6 +62,9 @@ frontend: javascripts
 
 frontend-all: clean digital-land-frontend-init frontend
 
+frontend-watch:
+	npm run nps watch.assets & npm run nps watch.pages
+
 black:
 	black .
 
@@ -72,4 +75,4 @@ flake8:
 	flake8 .
 
 server-dev:
-	make -j 2 server generate-assets
+	make -j 2 server frontend-watch
