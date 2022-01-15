@@ -133,21 +133,27 @@ def _apply_location_filters(session, query, params):
             )
         )
 
-    for reference in params.get("geometry_reference", []):
+    references = params.get("geometry_reference", [])
+    if references:
         reference_query = (
-            session.query(EntityOrm.entity)
-            .filter(EntityOrm.reference == reference)
-            .group_by(EntityOrm.entity)
-        )
-        subquery = (
             session.query(EntityOrm.geometry)
-            .filter(EntityOrm.entity.in_(reference_query))
+            .filter(EntityOrm.reference.in_(references))
+            .group_by(EntityOrm.entity)
             .subquery()
         )
         query = query.join(
-            subquery, func.ST_Intersects(EntityOrm.geometry, subquery.c.geometry)
+            reference_query,
+            or_(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_Intersects(EntityOrm.geometry, reference_query.c.geometry),
+                ),
+                and_(
+                    EntityOrm.point.is_not(None),
+                    func.ST_Intersects(EntityOrm.point, reference_query.c.geometry),
+                ),
+            ),
         )
-
     return query
 
 
