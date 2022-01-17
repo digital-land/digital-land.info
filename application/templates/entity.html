@@ -89,7 +89,7 @@
                 <dd class="govuk-summary-list__value">{{ row['name'] }}</dd>
             </div>
             {%- for field in row.keys() %}
-            {%- if field not in ["name", "json"] %}
+            {%- if field not in ["name", "json", "organisation-entity"] %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                 {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
@@ -103,6 +103,16 @@
                     {{ row[field]|make_link }}
                     {%- endif %}
                     {% endif %}
+                </dd>
+            </div>
+            {% endif %}
+            {% if field == "organisation-entity" and row[field] is not none %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                {{ field }}
+                </dt>
+                <dd class="govuk-summary-list__value">
+                  {{ row[field]|entity_name }}
                 </dd>
             </div>
             {% endif %}

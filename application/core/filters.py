@@ -1,5 +1,8 @@
 from digital_land_frontend.filters import is_list_filter
 
+from application.data_access.entity_queries import get_entity_query
+from jinja2 import Markup, pass_eval_context
+
 
 def generate_query_param_str(v, filter_name, current_str):
     query_str = str(current_str)
@@ -32,3 +35,14 @@ def render_markdown(text):
     # register extensions here if needed
     html = markdown.markdown(text, output_format="html5")
     return markupsafe.Markup(html)
+
+
+@pass_eval_context
+def entity_name_filter(eval_ctx, id):
+    entity = get_entity_query(id)
+    if entity.name:
+        anchor = f'<a class="govuk-link" href="/entity/{id}">{id}</a>'
+        name = f'<span class="govuk-!-margin-left-1 dl-data-reference">({entity.name})</span>'
+        if eval_ctx.autoescape:
+            return Markup(anchor + name)
+    return id
