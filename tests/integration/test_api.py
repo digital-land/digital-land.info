@@ -4,11 +4,6 @@ from tests.test_data.wkt_data import (
 )
 
 
-# These test actually run against live data. When moved to postgres we should use
-# test data as part of this repo to flesh out test cases. At the moment no detailed
-# assertions made on details of data results as they are real and can change.
-
-
 def test_app_returns_valid_geojson_list(client):
 
     response = client.get(
