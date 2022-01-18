@@ -14,15 +14,13 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm
 from application.db.session import get_context_session
-from application.search.enum import GeometryRelation
+from application.search.enum import GeometryRelation, EntriesOption
 
 logger = logging.getLogger(__name__)
 
 
-# TODO - curie, prefix, organisation  not implemented yet
-
-
-# TODO - implement current/historical options
+# TODO - curie (prefix:reference), organisation not implemented yet
+#  not sure about curie search and how it should be implemented to make sense.
 
 
 def get_entity_query(id: int):
@@ -58,10 +56,6 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
         return [entity_factory(e) for e in entities]
 
 
-def _apply_other_filters(query, params):
-    return query
-
-
 def get_entity_search(parameters: dict):
     params = normalised_params(parameters)
 
@@ -72,8 +66,8 @@ def get_entity_search(parameters: dict):
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
+        query = _apply_entries_option_filter(query, params)
         query = _apply_limit_and_pagination_filters(query, params)
-        query = _apply_other_filters(query, params)
 
         entities = query.all()
 
@@ -126,8 +120,9 @@ def _apply_location_filters(session, query, params):
         params.get("geometry_relation", GeometryRelation.within)
     )
 
+    clauses = []
     for geometry in params.get("geometry", []):
-        query = query.filter(
+        clauses.append(
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
@@ -143,6 +138,8 @@ def _apply_location_filters(session, query, params):
                 ),
             )
         )
+    if clauses:
+        query = query.filter(or_(*clauses))
 
     references = params.get("geometry_reference", [])
     if references:
@@ -166,6 +163,16 @@ def _apply_location_filters(session, query, params):
             ),
         )
     return query
+
+
+def _apply_entries_option_filter(query, params):
+    option = params.get("entries", EntriesOption.all)
+    if option == EntriesOption.all:
+        return query
+    if option == EntriesOption.current:
+        return query.filter(EntityOrm.end_date.is_(None))
+    if option == EntriesOption.historical:
+        return query.filter(EntityOrm.end_date.is_not(None))
 
 
 def _apply_limit_and_pagination_filters(query, params):
