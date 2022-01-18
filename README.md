@@ -1,7 +1,7 @@
 [![Build and deploy](https://github.com/digital-land/digital-land.info/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/digital-land/digital-land.info/actions/)
 [![Digital land smoke test](https://github.com/digital-land/smoke-test/actions/workflows/smoke-test.yml/badge.svg)](https://github.com/digital-land/smoke-test/actions/)
 
-# Digital land info web application
+# Digital land web application
 
 This is the repository for the [digital land info application](https://www.digital-land.info)
 
