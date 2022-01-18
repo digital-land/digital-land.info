@@ -19,6 +19,12 @@ from application.search.enum import GeometryRelation
 logger = logging.getLogger(__name__)
 
 
+# TODO - curie, prefix, organisation  not implemented yet
+
+
+# TODO - implement current/historical options
+
+
 def get_entity_query(id: int):
     with get_context_session() as session:
         entity = session.query(EntityOrm).get(id)
@@ -52,6 +58,10 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
         return [entity_factory(e) for e in entities]
 
 
+def _apply_other_filters(query, params):
+    return query
+
+
 def get_entity_search(parameters: dict):
     params = normalised_params(parameters)
 
@@ -63,6 +73,7 @@ def get_entity_search(parameters: dict):
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
         query = _apply_limit_and_pagination_filters(query, params)
+        query = _apply_other_filters(query, params)
 
         entities = query.all()
 
@@ -80,7 +91,7 @@ def get_entity_search(parameters: dict):
 
 def _apply_base_filters(query, params):
 
-    # for params that may also match entity field names but need special handling
+    # exclude any params that match an entity field name but need special handling
     excluded = set(["geometry"])
 
     for key, val in params.items():

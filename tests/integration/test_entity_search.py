@@ -157,3 +157,11 @@ def test_search_entity_by_date_equal(test_data):
     assert 1 == result["count_all"]
     entity = result["entities"][0]
     assert "greenspace" == entity.dataset
+
+
+def test_search_entity_by_point(test_data):
+    pass
+
+
+def test_search_entity_by_polygon_intersects(test_data):
+    pass

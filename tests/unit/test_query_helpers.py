@@ -54,7 +54,7 @@ date_field_to_filter_params = [
     (EntityOrm.start_date, "start_date"),
     (EntityOrm.end_date, "end_date"),
     (EntityOrm.entry_date, "entry_date"),
-    (None, "non_date"),
+    (None, "no_match"),
 ]
 
 
@@ -66,7 +66,7 @@ def test_get_get_date_field_to_filter(expected, date_field_name):
 
 
 operator_params = [
-    (operator.eq, {"no_date_match": "ignored"}),
+    (operator.eq, {}),
     (operator.lt, {"entry_date_match": DateOption.before}),
     (operator.gt, {"entry_date_match": DateOption.since}),
 ]

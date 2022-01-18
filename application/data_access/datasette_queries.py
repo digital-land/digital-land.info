@@ -8,6 +8,9 @@ from application.search.enum import EntriesOption, DateOption, GeometryRelation
 from application.settings import get_settings
 
 
+# TODO - This module is not used and will be removed once all queries re-implemented using dedicated db
+
+
 def sqlescape(s):
     if s is None:
         return ""
