@@ -215,4 +215,4 @@ with one or the other.
 
 **Run everything:**
 
-   docker-compose up
+    docker-compose up
