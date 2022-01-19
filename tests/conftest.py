@@ -2,13 +2,12 @@ import pytest
 import alembic
 from fastapi import FastAPI
 
+from fastapi.testclient import TestClient
 from alembic.config import Config
-from sqlalchemy.orm import Session
-
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
-from application.db.models import Dataset, Entity
+from application.db.models import DatasetOrm, EntityOrm
 from application.settings import Settings, get_settings
 
 
@@ -29,14 +28,7 @@ def apply_migrations(test_settings):
 
 
 @pytest.fixture(scope="session")
-def app(apply_migrations) -> FastAPI:
-    from application.factory import create_app
-
-    return create_app()
-
-
-@pytest.fixture(scope="session")
-def db_session(app: FastAPI, test_settings: Settings) -> Session:
+def db_session(test_settings: Settings) -> Session:
     engine = create_engine(test_settings.READ_DATABASE_URL)
     db = sessionmaker(bind=engine)()
     yield db
@@ -45,18 +37,30 @@ def db_session(app: FastAPI, test_settings: Settings) -> Session:
 
 
 @pytest.fixture(scope="session")
-def data(db_session: Session):
+def test_data(apply_migrations, db_session: Session):
     from tests.test_data import datasets
     from tests.test_data import entities
 
     for dataset in datasets:
         themes = dataset.pop("themes").split(",")
-        ds = Dataset(**dataset)
+        ds = DatasetOrm(**dataset)
         ds.themes = themes
         db_session.add(ds)
 
     for entity in entities:
-        e = Entity(**entity)
+        e = EntityOrm(**entity)
         db_session.add(e)
 
     db_session.commit()
+
+
+@pytest.fixture(scope="session")
+def app(apply_migrations) -> FastAPI:
+    from application.factory import create_app
+
+    return create_app()
+
+
+@pytest.fixture(scope="session")
+def client(app: FastAPI, test_settings: Settings) -> TestClient:
+    return TestClient(app)

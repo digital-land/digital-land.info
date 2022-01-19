@@ -39,7 +39,7 @@ test-acceptance:
 	python -m pytest -p no:warnings tests/acceptance
 
 test:
-	python -m pytest --ignore=tests/acceptance -W ignore::DeprecationWarning
+	python -m pytest --ignore=tests/acceptance
 
 lint:	black-check flake8
 

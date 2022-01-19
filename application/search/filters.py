@@ -8,7 +8,9 @@ from application.search.enum import EntriesOption, DateOption, GeometryRelation,
 
 
 @dataclass
-class BaseFilters:
+class QueryFilters:
+
+    # base filters
     theme: Optional[List[str]] = Query(None)
     typology: Optional[List[str]] = Query(None)
     dataset: Optional[List[str]] = Query(None)
@@ -25,29 +27,26 @@ class BaseFilters:
         None, description="Results to include current, or all entries"
     )
 
+    # date filters
+    start_date: Optional[datetime.date] = None
+    start_date_year: Optional[str] = None
+    start_date_month: Optional[str] = None
+    start_date_day: Optional[str] = None
+    start_date_match: Optional[DateOption] = None
 
-@dataclass
-class DateFilters:
-    # TODO: remove the spurious "entry_" prefixes to these filters
-    entry_start_date: Optional[datetime.date] = None
-    entry_start_date_year: Optional[str] = None
-    entry_start_date_month: Optional[str] = None
-    entry_start_date_day: Optional[str] = None
-    entry_start_date_match: Optional[DateOption] = None
-    entry_end_date: Optional[datetime.date] = None
-    entry_end_date_year: Optional[str] = None
-    entry_end_date_month: Optional[str] = None
-    entry_end_date_day: Optional[str] = None
-    entry_end_date_match: Optional[DateOption] = None
-    entry_entry_date: Optional[datetime.date] = None
-    entry_entry_date_year: Optional[str] = None
-    entry_entry_date_month: Optional[str] = None
-    entry_entry_date_day: Optional[str] = None
-    entry_entry_date_match: Optional[DateOption] = None
+    end_date: Optional[datetime.date] = None
+    end_date_year: Optional[str] = None
+    end_date_month: Optional[str] = None
+    end_date_day: Optional[str] = None
+    end_date_match: Optional[DateOption] = None
 
+    entry_date: Optional[datetime.date] = None
+    entry_date_year: Optional[str] = None
+    entry_date_month: Optional[str] = None
+    entry_date_day: Optional[str] = None
+    entry_date_match: Optional[DateOption] = None
 
-@dataclass
-class SpatialFilters:
+    # spatial filters
     longitude: Optional[float] = Query(
         None, description="construct a point with this longitude"
     )
@@ -67,20 +66,13 @@ class SpatialFilters:
         None, description="DE-9IM spatial relationship, default is 'intersects'"
     )
 
-
-@dataclass
-class PaginationFilters:
+    # pagination filters
     limit: Optional[int] = Query(
         10, description="limit for the number of results", ge=1
     )
-    next_entity: Optional[int] = Query(
-        None, description="paginate results from this entity"
-    )
+    offset: Optional[int] = Query(None, description="paginate results from this entity")
 
-
-@dataclass
-class FormatFilters:
-    # response format
+    # response format filters
     accept: Optional[str] = Header(
         None, description="accepted content-type for results"
     )

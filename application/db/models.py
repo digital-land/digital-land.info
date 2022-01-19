@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class Entity(Base):
+class EntityOrm(Base):
 
     __tablename__ = "entity"
 
@@ -29,20 +29,20 @@ class Entity(Base):
 # Note geoalchemy2 automatically indexes Geometry columns
 idx_entity_columns = Index(
     "idx_entity_columns",
-    Entity.entity,
-    Entity.name,
-    Entity.entry_date,
-    Entity.start_date,
-    Entity.end_date,
-    Entity.dataset,
-    Entity.organisation_entity,
-    Entity.prefix,
-    Entity.reference,
-    Entity.typology,
+    EntityOrm.entity,
+    EntityOrm.name,
+    EntityOrm.entry_date,
+    EntityOrm.start_date,
+    EntityOrm.end_date,
+    EntityOrm.dataset,
+    EntityOrm.organisation_entity,
+    EntityOrm.prefix,
+    EntityOrm.reference,
+    EntityOrm.typology,
 )
 
 
-class Dataset(Base):
+class DatasetOrm(Base):
 
     __tablename__ = "dataset"
 
