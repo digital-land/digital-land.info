@@ -47,18 +47,52 @@ class DatasetOrm(Base):
     __tablename__ = "dataset"
 
     dataset = Column(Text, primary_key=True)
+    name = Column(Text, nullable=True)
     collection = Column(Text, nullable=True)
     description = Column(Text, nullable=True)
-    end_date = Column(Date, nullable=True)
     entry_date = Column(Date, nullable=True)
+    start_date = Column(Text, nullable=True)
+    end_date = Column(Date, nullable=True)
     key_field = Column(Text, nullable=True)
-    name = Column(Text, nullable=True)
     paint_options = Column(JSONB, nullable=True)
     plural = Column(Text, nullable=True)
     prefix = Column(Text, nullable=True)
-    start_date = Column(Text, nullable=True)
     text = Column(Text, nullable=True)
     typology = Column(Text, nullable=True)
     wikidata = Column(Text, nullable=True)
     wikipedia = Column(Text, nullable=True)
     themes = Column(ARRAY(Text), nullable=True)
+
+
+class TypologyOrm(Base):
+
+    __tablename__ = "typology"
+
+    typology = Column(Text, primary_key=True)
+    name = Column(Text, nullable=True)
+    description = Column(Text, nullable=True)
+    entry_date = Column(Text, nullable=True)
+    start_date = Column(Text, nullable=True)
+    end_date = Column(Text, nullable=True)
+    plural = Column(Text, nullable=True)
+    text = Column(Text, nullable=True)
+    wikidata = Column(Text, nullable=True)
+    wikipedia = Column(Text, nullable=True)
+
+
+class OrganisationOrm(Base):
+
+    __tablename__ = "organisation"
+
+    organisation = Column(Text, primary_key=True)
+    name = Column(Text, nullable=True)
+    combined_authority = Column(Text, nullable=True)
+    entry_date = Column(Date, nullable=True)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
+    entity = Column(BIGINT, nullable=True)
+    local_authority_type = Column(Text, nullable=True)
+    official_name = Column(Text, nullable=True)
+    region = Column(Text, nullable=True)
+    statistical_geography = Column(Text, nullable=True)
+    website = Column(Text, nullable=True)

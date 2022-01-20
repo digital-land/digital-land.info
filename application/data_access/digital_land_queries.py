@@ -3,7 +3,7 @@ import urllib.parse
 
 from application.core.utils import get
 from application.core.models import DatasetModel
-from application.db.models import DatasetOrm, EntityOrm
+from application.db.models import DatasetOrm, EntityOrm, OrganisationOrm, TypologyOrm
 from application.db.session import get_context_session
 from application.settings import get_settings
 
@@ -23,19 +23,18 @@ def get_dataset_query(dataset):
 
 
 def get_datasets_with_data_by_typology(typology):
-    from sqlalchemy import select
     from sqlalchemy import func
 
-    sql = select(
-        DatasetOrm, func.count(func.distinct(EntityOrm.entity)).label("entity_count")
-    )
-    sql = sql.filter(DatasetOrm.typology == typology)
-    sql = sql.filter(DatasetOrm.dataset == EntityOrm.dataset)
-    sql = sql.group_by(DatasetOrm.dataset)
-
     with get_context_session() as session:
-        result = session.execute(sql)
-        datasets = result.fetchall()
+        query = session.query(
+            DatasetOrm,
+            func.count(func.distinct(EntityOrm.entity).label(("entity_count"))),
+        )
+        query = query.filter(
+            DatasetOrm.typology == typology, DatasetOrm.dataset == EntityOrm.dataset
+        )
+        query = query.group_by(DatasetOrm.dataset)
+        datasets = query.all()
         return [DatasetModel.from_orm(ds.DatasetOrm) for ds in datasets]
 
 
@@ -47,6 +46,12 @@ def fetch_typologies():
     return get(url).json()
 
 
+def get_typologies():
+    with get_context_session() as session:
+        typologies = session.query(TypologyOrm).order_by(TypologyOrm.typology).all()
+        return typologies
+
+
 # TODO - recreate from db
 def fetch_local_authorities():
     datasette_url = get_settings().DATASETTE_URL
@@ -55,6 +60,17 @@ def fetch_local_authorities():
     url = f"{datasette_url}/digital-land.json?sql={query}"
     logger.info("get_local_authorities: %s", url)
     return get(url).json()
+
+
+def get_local_authorities():
+    with get_context_session() as session:
+        organisations = (
+            session.query(OrganisationOrm)
+            .filter(OrganisationOrm.organisation.like("%local-authority-eng%"))
+            .order_by(OrganisationOrm.organisation)
+            .all()
+        )
+        return organisations
 
 
 # TODO - recreate from db
