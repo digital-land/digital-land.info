@@ -32,7 +32,7 @@ class DigitalLandBaseModel(BaseModel):
 
 
 class EntityModel(DigitalLandBaseModel):
-    entity: str = None
+    entity: int = None
     name: str = None
     dataset: str = None
     typology: str = None
@@ -58,6 +58,28 @@ class DatasetModel(DigitalLandBaseModel):
     themes: Optional[List[str]]
     entity_count: int = None
     paint_options: dict = Field(None)
+
+
+class TypologyModel(DigitalLandBaseModel):
+    typology: str = None
+    name: str = None
+    description: str = None
+    plural: str = None
+    text: str = None
+    wikidata: str = None
+    wikipedia: str = None
+
+
+class OrganisationModel(DigitalLandBaseModel):
+    organisation: str = None
+    name: str = None
+    combined_authority: str = None
+    entity: int = None
+    local_authority_type: str = None
+    official_name: str = None
+    region: str = None
+    statistical_geography: str = None
+    website: str = None
 
 
 def entity_factory(entity_orm: EntityOrm):

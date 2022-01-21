@@ -7,16 +7,16 @@ from fastapi.responses import HTMLResponse
 
 from application.core.models import GeoJSONFeatureCollection, EntityModel
 from application.data_access.digital_land_queries import (
-    fetch_typologies,
-    fetch_local_authorities,
     get_datasets,
+    get_local_authorities,
+    get_typologies,
 )
 from application.data_access.entity_queries import get_entity_query, get_entity_search
 
 from application.search.enum import Suffix
 from application.search.filters import QueryFilters
 from application.core.templates import templates
-from application.core.utils import create_dict, DigitalLandJSONResponse
+from application.core.utils import DigitalLandJSONResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -87,18 +87,15 @@ def search_entities(
         return _get_geojson(data["entities"])
 
     # typology facet
-    response = fetch_typologies()
-    typologies = [create_dict(response["columns"], row) for row in response["rows"]]
-
+    typologies = get_typologies()
+    typologies = [t.dict() for t in typologies]
     # dataset facet
     response = get_datasets()
     columns = ["dataset", "name", "plural", "typology", "themes"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
-    response = fetch_local_authorities()
-    local_authorities = [
-        create_dict(response["columns"], row) for row in response["rows"]
-    ]
+    local_authorities = get_local_authorities()
+    local_authorities = [la.dict() for la in local_authorities]
 
     if params.get("offset") is not None:
         offset = params["offset"] + params["limit"]

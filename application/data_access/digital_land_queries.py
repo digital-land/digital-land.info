@@ -1,8 +1,9 @@
 import logging
 import urllib.parse
+from typing import List
 
 from application.core.utils import get
-from application.core.models import DatasetModel
+from application.core.models import DatasetModel, TypologyModel, OrganisationModel
 from application.db.models import DatasetOrm, EntityOrm, OrganisationOrm, TypologyOrm
 from application.db.session import get_context_session
 from application.settings import get_settings
@@ -10,19 +11,19 @@ from application.settings import get_settings
 logger = logging.getLogger(__name__)
 
 
-def get_datasets():
+def get_datasets() -> List[DatasetModel]:
     with get_context_session() as session:
         datasets = session.query(DatasetOrm).order_by(DatasetOrm.dataset).all()
         return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
-def get_dataset_query(dataset):
+def get_dataset_query(dataset) -> DatasetModel:
     with get_context_session() as session:
         dataset = session.query(DatasetOrm).get(dataset)
         return DatasetModel.from_orm(dataset)
 
 
-def get_datasets_with_data_by_typology(typology):
+def get_datasets_with_data_by_typology(typology) -> List[DatasetModel]:
     from sqlalchemy import func
 
     with get_context_session() as session:
@@ -38,31 +39,13 @@ def get_datasets_with_data_by_typology(typology):
         return [DatasetModel.from_orm(ds.DatasetOrm) for ds in datasets]
 
 
-# TODO - recreate from db
-def fetch_typologies():
-    datasette_url = get_settings().DATASETTE_URL
-    url = f"{datasette_url}/digital-land/typology.json"
-    logger.info("get_typologies: %s", url)
-    return get(url).json()
-
-
-def get_typologies():
+def get_typologies() -> List[TypologyModel]:
     with get_context_session() as session:
         typologies = session.query(TypologyOrm).order_by(TypologyOrm.typology).all()
-        return typologies
+        return [TypologyModel.from_orm(t) for t in typologies]
 
 
-# TODO - recreate from db
-def fetch_local_authorities():
-    datasette_url = get_settings().DATASETTE_URL
-    query_str = """select * from organisation where organisation like '%local-authority-eng%' order by organisation"""
-    query = urllib.parse.quote(query_str)
-    url = f"{datasette_url}/digital-land.json?sql={query}"
-    logger.info("get_local_authorities: %s", url)
-    return get(url).json()
-
-
-def get_local_authorities():
+def get_local_authorities() -> List[OrganisationModel]:
     with get_context_session() as session:
         organisations = (
             session.query(OrganisationOrm)
@@ -70,7 +53,7 @@ def get_local_authorities():
             .order_by(OrganisationOrm.organisation)
             .all()
         )
-        return organisations
+        return [OrganisationModel.from_orm(o) for o in organisations]
 
 
 # TODO - recreate from db
