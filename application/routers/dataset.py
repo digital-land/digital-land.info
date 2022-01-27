@@ -7,11 +7,11 @@ from starlette.responses import JSONResponse
 
 from application.data_access.digital_land_queries import (
     get_dataset_query,
-    fetch_publisher_coverage_count,
-    fetch_latest_resource,
-    fetch_lastest_log_date,
     get_datasets,
+    get_latest_resource,
+    get_publisher_coverage,
 )
+
 from application.data_access.entity_queries import get_entity_count
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
@@ -62,15 +62,8 @@ def get_dataset(
     try:
         _dataset = get_dataset_query(dataset)
         entity_count = get_entity_count(dataset)
-        publisher_coverage_response = fetch_publisher_coverage_count(dataset)
-        latest_resource_response = fetch_latest_resource(dataset)
-        latest_log_response = fetch_lastest_log_date(dataset)
-        latest_resource = None
-        if len(latest_resource_response["rows"]):
-            latest_resource = {
-                "resource": latest_resource_response["rows"][0][0],
-                "collected_date": latest_resource_response["rows"][0][3],
-            }
+        latest_resource = get_latest_resource(dataset)
+        publisher_coverage = get_publisher_coverage(dataset)
 
         return templates.TemplateResponse(
             "dataset.html",
@@ -80,12 +73,12 @@ def get_dataset(
                 "collection_bucket": collection_bucket,
                 "entity_count": entity_count[1] if entity_count else 0,
                 "publishers": {
-                    "expected": publisher_coverage_response["rows"][0][0],
-                    "current": publisher_coverage_response["rows"][0][1],
+                    "expected": publisher_coverage.expected_publisher_count,
+                    "current": publisher_coverage.publisher_count,
                 },
                 "latest_resource": latest_resource,
-                "last_collection_attempt": latest_log_response["rows"][0][1]
-                if len(latest_log_response["rows"])
+                "last_collection_attempt": latest_resource.last_collection_attempt
+                if latest_resource
                 else None,
             },
         )

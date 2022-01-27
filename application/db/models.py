@@ -98,7 +98,7 @@ class OrganisationOrm(Base):
     website = Column(Text, nullable=True)
 
 
-class DatasetCollection(Base):
+class DatasetCollectionOrm(Base):
 
     __tablename__ = "dataset_collection"
 
@@ -110,7 +110,7 @@ class DatasetCollection(Base):
     last_collection_attempt = Column(Date, nullable=True)
 
 
-class DatasetPublicationOrm(Base):
+class DatasetPublicationCountOrm(Base):
 
     __tablename__ = "dataset_publication"
 

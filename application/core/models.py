@@ -21,17 +21,19 @@ class GeoJSONFeatureCollection(BaseModel):
 
 
 class DigitalLandBaseModel(BaseModel):
-    entry_date: Optional[date] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-
     class Config:
         alias_generator = to_kebab
         allow_population_by_field_name = True
         orm_mode = True
 
 
-class EntityModel(DigitalLandBaseModel):
+class DigitalLandDateFieldsModel(DigitalLandBaseModel):
+    entry_date: Optional[date] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+
+
+class EntityModel(DigitalLandDateFieldsModel):
     entity: int = None
     name: str = None
     dataset: str = None
@@ -43,7 +45,7 @@ class EntityModel(DigitalLandBaseModel):
     json_: dict = Field(None, alias="json")
 
 
-class DatasetModel(DigitalLandBaseModel):
+class DatasetModel(DigitalLandDateFieldsModel):
     collection: str = None
     dataset: str = None
     description: str = None
@@ -60,7 +62,7 @@ class DatasetModel(DigitalLandBaseModel):
     paint_options: dict = Field(None)
 
 
-class TypologyModel(DigitalLandBaseModel):
+class TypologyModel(DigitalLandDateFieldsModel):
     typology: str = None
     name: str = None
     description: str = None
@@ -70,7 +72,7 @@ class TypologyModel(DigitalLandBaseModel):
     wikipedia: str = None
 
 
-class OrganisationModel(DigitalLandBaseModel):
+class OrganisationModel(DigitalLandDateFieldsModel):
     organisation: str = None
     name: str = None
     combined_authority: str = None
@@ -80,6 +82,21 @@ class OrganisationModel(DigitalLandBaseModel):
     region: str = None
     statistical_geography: str = None
     website: str = None
+
+
+class DatasetCollectionModel(DigitalLandBaseModel):
+    dataset_collection: str = None
+    resource: str = None
+    resource_end_date: Optional[date] = None
+    resource_entry_date: Optional[date] = None
+    last_updated: Optional[date] = None
+    last_collection_attempt: Optional[date] = None
+
+
+class DatasetPublicationCountModel(DigitalLandBaseModel):
+    dataset_publication: str
+    expected_publisher_count: int
+    publisher_count: int
 
 
 def entity_factory(entity_orm: EntityOrm):

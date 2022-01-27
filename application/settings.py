@@ -6,7 +6,6 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    DATASETTE_URL: str
     S3_COLLECTION_BUCKET: str
     WRITE_DATABASE_URL: PostgresDsn
     READ_DATABASE_URL: PostgresDsn

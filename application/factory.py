@@ -1,7 +1,7 @@
 import logging
+
 from datetime import timedelta
 
-import requests
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,8 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from application.core.templates import templates
+from application.db.models import EntityOrm
 from application.routers import entity, dataset, map_
-from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -74,16 +74,21 @@ def add_base_routes(app):
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
     def health():
-        try:
-            datasette_url = get_settings().DATASETTE_URL
-            resp = requests.get(datasette_url)
-            status = {
-                "status": "OK",
-                "digital_land_datasette_status": resp.status_code,
-            }
-            logger.info(f"healtcheck {status}")
-            return status
+        from application.db.session import get_context_session
+        from sqlalchemy.sql import select
 
+        try:
+            with get_context_session() as session:
+                sql = select(EntityOrm.entity).limit(1)
+                result = session.execute(sql).fetchone()
+                if result is not None:
+                    status = {
+                        "status": "OK",
+                    }
+                    logger.info(f"healthcheck {status}")
+                    return status
+                else:
+                    raise Exception("Error fetching entities")
         except Exception as e:
             logger.exception(e)
             raise e
