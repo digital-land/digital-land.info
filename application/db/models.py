@@ -96,3 +96,15 @@ class OrganisationOrm(Base):
     region = Column(Text, nullable=True)
     statistical_geography = Column(Text, nullable=True)
     website = Column(Text, nullable=True)
+
+
+class DatasetCollection(Base):
+
+    __tablename__ = "dataset_collection"
+
+    dataset_collection = Column(Text, primary_key=True)
+    resource = Column(Text, nullable=True)
+    resource_end_date = Column(Date, nullable=True)
+    resource_entry_date = Column(Date, nullable=True)
+    last_updated = Column(Date, nullable=True)
+    last_collection_attempt = Column(Date, nullable=True)

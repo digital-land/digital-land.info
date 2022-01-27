@@ -45,16 +45,21 @@ def get_typologies() -> List[TypologyModel]:
         return [TypologyModel.from_orm(t) for t in typologies]
 
 
-def get_local_authorities() -> List[OrganisationModel]:
+def get_local_authorities(local_authority_region) -> List[OrganisationModel]:
     with get_context_session() as session:
         organisations = (
             session.query(OrganisationOrm)
-            .filter(OrganisationOrm.organisation.like("%local-authority-eng%"))
+            .filter(OrganisationOrm.organisation.like(f"%{local_authority_region}%"))
             .order_by(OrganisationOrm.organisation)
             .all()
         )
         return [OrganisationModel.from_orm(o) for o in organisations]
 
+
+# SELECT source.organisation, source_pipeline.source
+# FROM source, source_pipeline
+# WHERE source.source = source_pipeline.source
+# AND source.endpoint != ''
 
 # TODO - recreate from db
 def fetch_publisher_coverage_count(dataset):

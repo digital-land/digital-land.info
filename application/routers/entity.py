@@ -94,7 +94,7 @@ def search_entities(
     columns = ["dataset", "name", "plural", "typology", "themes"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
-    local_authorities = get_local_authorities()
+    local_authorities = get_local_authorities("local-authority-eng")
     local_authorities = [la.dict() for la in local_authorities]
 
     if params.get("offset") is not None:
