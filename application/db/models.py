@@ -1,5 +1,5 @@
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Date, BIGINT, Text, Index
+from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -108,3 +108,12 @@ class DatasetCollection(Base):
     resource_entry_date = Column(Date, nullable=True)
     last_updated = Column(Date, nullable=True)
     last_collection_attempt = Column(Date, nullable=True)
+
+
+class DatasetPublicationOrm(Base):
+
+    __tablename__ = "dataset_publication"
+
+    dataset_publication = Column(Text, primary_key=True)
+    expected_publisher_count = Column(Integer, nullable=False)
+    publisher_count = Column(Integer, nullable=False)
