@@ -4,7 +4,6 @@ import typing
 import urllib
 from typing import List
 
-import aiohttp
 import requests
 from pydantic import BaseModel
 from datetime import date
@@ -15,12 +14,6 @@ from starlette.responses import Response
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)
     return dict(zip_iterator)
-
-
-async def fetch(url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            return await resp.json()
 
 
 # Used to customize jinja tojson filter
