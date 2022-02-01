@@ -1,6 +1,7 @@
 import logging
 
 from datetime import timedelta
+from pickle import TRUE
 
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
@@ -68,8 +69,7 @@ def add_base_routes(app):
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def home(request: Request):
         return templates.TemplateResponse(
-            "homepage.html",
-            {"request": request},
+            "homepage.html", {"request": request, "opengraphImage": TRUE}
         )
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
