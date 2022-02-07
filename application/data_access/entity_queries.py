@@ -61,7 +61,7 @@ def get_entity_search(parameters: dict):
 
     with get_context_session() as session:
         query = session.query(
-            EntityOrm, func.count(EntityOrm.entity).over().label("count_all")
+            EntityOrm, func.count(EntityOrm.entity).over().label("count")
         )
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
@@ -72,13 +72,13 @@ def get_entity_search(parameters: dict):
         entities = query.all()
 
         if entities:
-            count_all = entities[0].count_all
+            count = entities[0].count
         else:
-            count_all = 0
+            count = 0
 
         return {
             "params": params,
-            "count_all": count_all,
+            "count": count,
             "entities": [entity_factory(e.EntityOrm) for e in entities],
         }
 

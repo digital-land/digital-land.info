@@ -1,4 +1,5 @@
 import logging
+
 from dataclasses import asdict
 from typing import Optional, List
 
@@ -57,15 +58,60 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-def make_pagination_link(query_params, offset):
+def make_pagination_query_str(query_params, offset=0):
     url = "?" + "&".join(
         [
             "{}={}".format(param[0], param[1])
             for param in query_params
-            if param[0] != "offset"
+            if param[1] and param[0] != "offset"
         ]
     )
-    return url + "&offset={}".format(offset)
+    if offset != 0:
+        return f"{url}&offset={offset}"
+    else:
+        return url
+
+
+def make_links(request, data):
+    count = data["count"]
+    query_str = make_pagination_query_str(request.query_params._list)
+
+    first_url = (
+        f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
+    )
+
+    offset = data["params"].get("offset", 0)
+    limit = data["params"].get("limit")
+
+    next_offset = offset + limit
+    if next_offset < count:
+        query_str = make_pagination_query_str(request.query_params._list, next_offset)
+        next_url = (
+            f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
+        )
+    else:
+        next_url = None
+
+    if offset != 0:
+        prev_offset = offset - limit
+        query_str = make_pagination_query_str(request.query_params._list, prev_offset)
+        prev_url = (
+            f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
+        )
+    else:
+        prev_url = None
+
+    count = data["count"]
+    last_offset = count - limit
+    if last_offset < count:
+        query_str = make_pagination_query_str(request.query_params._list, last_offset)
+        last_url = (
+            f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
+        )
+    else:
+        last_url = None
+
+    return {"first": first_url, "next": next_url, "prev": prev_url, "last": last_url}
 
 
 def search_entities(
@@ -81,7 +127,8 @@ def search_entities(
     params = data["params"]
 
     if extension is not None and extension.value == "json":
-        return data["entities"]
+        links = make_links(request, data)
+        return {"entities": data["entities"], "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
         return _get_geojson(data["entities"])
@@ -102,7 +149,7 @@ def search_entities(
     else:
         offset = params["limit"]
     next_url = (
-        make_pagination_link(request.query_params._list, offset) if data else None
+        make_pagination_query_str(request.query_params._list, offset) if data else None
     )
 
     # default is HTML
@@ -110,7 +157,7 @@ def search_entities(
         "search.html",
         {
             "request": request,
-            "count_all": data["count_all"],
+            "count": data["count"],
             "data": data["entities"],
             "datasets": datasets,
             "local_authorities": local_authorities,

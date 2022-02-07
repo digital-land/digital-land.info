@@ -54,7 +54,7 @@ def test_search_entity_by_dataset_name_not_in_system(test_data, params):
 
     params["dataset"] = ["not-exists"]
     result = get_entity_search(params)
-    assert 0 == result["count_all"]
+    assert 0 == result["count"]
     assert [] == result["entities"]
 
 
@@ -62,7 +62,7 @@ def test_search_entity_by_single_dataset_name(test_data, params):
 
     params["dataset"] = ["greenspace"]
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
     entity = result["entities"][0]
     assert "greenspace" == entity.dataset
     assert "geography" == entity.typology
@@ -72,7 +72,7 @@ def test_search_entity_by_list_of_dataset_names(test_data, params):
 
     params["dataset"] = ["greenspace", "brownfield-site"]
     result = get_entity_search(params)
-    assert 2 == result["count_all"]
+    assert 2 == result["count"]
     for e in result["entities"]:
         assert e.dataset in ["greenspace", "brownfield-site"]
         assert "geography" == e.typology
@@ -86,7 +86,7 @@ def test_search_entity_by_date_since(test_data, params):
     params["entry_date_match"] = "since"
 
     result = get_entity_search(params)
-    assert 4 == result["count_all"]
+    assert 4 == result["count"]
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
@@ -98,28 +98,28 @@ def test_search_entity_by_date_since(test_data, params):
 
     params["entry_date_year"] = 2020
     result = get_entity_search(params)
-    assert 3 == result["count_all"]
+    assert 3 == result["count"]
     for e in result["entities"]:
         assert e.dataset in ["forest", "brownfield-site", "historical-monument"]
         assert e.dataset != "greenspace"
 
     params["entry_date_year"] = 2021
     result = get_entity_search(params)
-    assert 2 == result["count_all"]
+    assert 2 == result["count"]
     for e in result["entities"]:
         assert e.dataset in ["brownfield-site", "historical-monument"]
         assert e.dataset not in ["greenspace", "forest"]
 
     params["entry_date_year"] = 2022
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
     for e in result["entities"]:
         assert e.dataset in ["historical-monument"]
         assert e.dataset not in ["greenspace", "forest", "brownfield-site"]
 
     params["entry_date_year"] = 2023
     result = get_entity_search(params)
-    assert 0 == result["count_all"]
+    assert 0 == result["count"]
 
 
 def test_search_entity_by_date_before(test_data, params):
@@ -130,23 +130,23 @@ def test_search_entity_by_date_before(test_data, params):
     params["entry_date_match"] = "before"
 
     result = get_entity_search(params)
-    assert 0 == result["count_all"]
+    assert 0 == result["count"]
 
     params["entry_date_year"] = 2020
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
 
     params["entry_date_year"] = 2021
     result = get_entity_search(params)
-    assert 2 == result["count_all"]
+    assert 2 == result["count"]
 
     params["entry_date_year"] = 2022
     result = get_entity_search(params)
-    assert 3 == result["count_all"]
+    assert 3 == result["count"]
 
     params["entry_date_year"] = 2023
     result = get_entity_search(params)
-    assert 4 == result["count_all"]
+    assert 4 == result["count"]
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
@@ -163,12 +163,12 @@ def test_search_entity_by_date_equal(test_data, params):
     params["entry_date_day"] = 1
 
     result = get_entity_search(params)
-    assert 0 == result["count_all"]
+    assert 0 == result["count"]
 
     params["entry_date_day"] = 7
 
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
     entity = result["entities"][0]
     assert "greenspace" == entity.dataset
 
@@ -179,13 +179,13 @@ def test_search_entity_by_point(test_data, params):
     params["latitude"] = 50.51342652633956
 
     result = get_entity_search(params)
-    assert 0 == result["count_all"]
+    assert 0 == result["count"]
 
     params["longitude"] = -1.82398796081543
     params["latitude"] = 51.18064775509972
 
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
     entity = result["entities"][0]
     assert "historical-monument" == entity.dataset
 
@@ -199,13 +199,13 @@ def test_search_entity_by_single_polygon_intersects(test_data, params):
     params["geometry_relation"] = GeometryRelation.intersects.name
 
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
     entity = result["entities"][0]
     assert "brownfield-site" == entity.dataset
 
     params["geometry"] = [greenspace]
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
     entity = result["entities"][0]
     assert "greenspace" == entity.dataset
 
@@ -219,7 +219,7 @@ def test_search_entity_by_list_of_polygons_that_intersect(test_data, params):
     params["geometry_relation"] = GeometryRelation.intersects.name
 
     result = get_entity_search(params)
-    assert 2 == result["count_all"]
+    assert 2 == result["count"]
 
 
 def test_search_entity_by_polygon_with_no_intersection(test_data, params):
@@ -230,14 +230,14 @@ def test_search_entity_by_polygon_with_no_intersection(test_data, params):
     params["geometry_relation"] = GeometryRelation.intersects.name
 
     result = get_entity_search(params)
-    assert 0 == result["count_all"]
+    assert 0 == result["count"]
 
 
 def test_search_all_entities(test_data, params):
 
     # default is EntriesOption.all - already in params
     result = get_entity_search(params)
-    assert 4 == result["count_all"]
+    assert 4 == result["count"]
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
@@ -253,7 +253,7 @@ def test_search_current_entries(test_data, params):
     params["entries"] = EntriesOption.current
 
     result = get_entity_search(params)
-    assert 3 == result["count_all"]
+    assert 3 == result["count"]
     for e in result["entities"]:
         assert e.dataset in [
             "forest",
@@ -268,6 +268,6 @@ def test_search_historical_entries(test_data, params):
     params["entries"] = EntriesOption.historical
 
     result = get_entity_search(params)
-    assert 1 == result["count_all"]
+    assert 1 == result["count"]
     e = result["entities"][0]
     assert "greenspace" == e.dataset
