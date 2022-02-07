@@ -43,7 +43,7 @@
       <div class="govuk-grid-column-two-thirds">
 
         <div class="app-results-summary">
-          <h2 class="app-results-summary__title">{{ count_all|commanum }} result{{ "" if count_all == 1 else "s" }}</h2>
+          <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
 
           {% macro removeFilterButton(params) %}
           <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
@@ -261,14 +261,14 @@
                       {% if url_query_params.str == "" %}
                       <a href="/entity.json" class="govuk-link">JSON</a>
                       {% else %}
-                      <a href="/entity.json?{{ url_query_params.str }}&limit={{ data.count }}" class="govuk-link">JSON</a>
+                      <a href="/entity.json?{{ url_query_params.str }}&limit=10" class="govuk-link">JSON</a>
                       {% endif %}
                     </li>
                     <li class="app-list__item">
                       {% if url_query_params.str == "" %}
                       <a href="/entity.geojson" class="govuk-link">GeoJSON</a>
                       {% else %}
-                      <a href="/entity.geojson?{{ url_query_params.str }}&limit={{ data.count }}" class="govuk-link">GeoJSON</a>
+                      <a href="/entity.geojson?{{ url_query_params.str }}&limit=10" class="govuk-link">GeoJSON</a>
                       {% endif %}
                     </li>
                   </ul>
