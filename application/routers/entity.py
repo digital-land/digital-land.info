@@ -79,9 +79,9 @@ def make_links(request, data):
     limit = data["params"]["limit"]
     query_str = make_pagination_query_str(request.query_params._list, limit)
 
-    first_url = (
-        f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
-    )
+    pagination_links = {
+        "first": f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
+    }
 
     offset = data["params"].get("offset", 0)
     limit = data["params"].get("limit")
@@ -94,8 +94,7 @@ def make_links(request, data):
         next_url = (
             f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
         )
-    else:
-        next_url = None
+        pagination_links["next"] = next_url
 
     if offset != 0:
         prev_offset = offset - limit
@@ -105,8 +104,7 @@ def make_links(request, data):
         prev_url = (
             f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
         )
-    else:
-        prev_url = None
+        pagination_links["prev"] = prev_url
 
     count = data["count"]
     last_offset = count - limit
@@ -117,10 +115,9 @@ def make_links(request, data):
         last_url = (
             f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
         )
-    else:
-        last_url = None
+        pagination_links["last"] = last_url
 
-    return {"first": first_url, "next": next_url, "prev": prev_url, "last": last_url}
+    return pagination_links
 
 
 def search_entities(
