@@ -68,7 +68,7 @@ class QueryFilters:
 
     # pagination filters
     limit: Optional[int] = Query(
-        10, description="limit for the number of results", ge=1
+        10, description="limit for the number of results", ge=1, le=500
     )
     offset: Optional[int] = Query(None, description="paginate results from this entity")
 

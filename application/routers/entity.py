@@ -58,7 +58,7 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-def make_pagination_query_str(query_params, offset=0):
+def make_pagination_query_str(query_params, limit, offset=0):
     url = "?" + "&".join(
         [
             "{}={}".format(param[0], param[1])
@@ -66,6 +66,8 @@ def make_pagination_query_str(query_params, offset=0):
             if param[1] and param[0] != "offset"
         ]
     )
+    if "limit" not in [p[0] for p in query_params]:
+        url = f"{url}&limit={limit}"
     if offset != 0:
         return f"{url}&offset={offset}"
     else:
@@ -74,7 +76,8 @@ def make_pagination_query_str(query_params, offset=0):
 
 def make_links(request, data):
     count = data["count"]
-    query_str = make_pagination_query_str(request.query_params._list)
+    limit = data["params"]["limit"]
+    query_str = make_pagination_query_str(request.query_params._list, limit)
 
     first_url = (
         f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
@@ -85,7 +88,9 @@ def make_links(request, data):
 
     next_offset = offset + limit
     if next_offset < count:
-        query_str = make_pagination_query_str(request.query_params._list, next_offset)
+        query_str = make_pagination_query_str(
+            request.query_params._list, limit, next_offset
+        )
         next_url = (
             f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
         )
@@ -94,7 +99,9 @@ def make_links(request, data):
 
     if offset != 0:
         prev_offset = offset - limit
-        query_str = make_pagination_query_str(request.query_params._list, prev_offset)
+        query_str = make_pagination_query_str(
+            request.query_params._list, limit, prev_offset
+        )
         prev_url = (
             f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
         )
@@ -104,7 +111,9 @@ def make_links(request, data):
     count = data["count"]
     last_offset = count - limit
     if last_offset < count:
-        query_str = make_pagination_query_str(request.query_params._list, last_offset)
+        query_str = make_pagination_query_str(
+            request.query_params._list, limit, last_offset
+        )
         last_url = (
             f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
         )
@@ -149,7 +158,9 @@ def search_entities(
     else:
         offset = params["limit"]
     next_url = (
-        make_pagination_query_str(request.query_params._list, offset) if data else None
+        make_pagination_query_str(request.query_params._list, params["limit"], offset)
+        if data
+        else None
     )
 
     # default is HTML
@@ -158,6 +169,7 @@ def search_entities(
         {
             "request": request,
             "count": data["count"],
+            "limit": params["limit"],
             "data": data["entities"],
             "datasets": datasets,
             "local_authorities": local_authorities,
