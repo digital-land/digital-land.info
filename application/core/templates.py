@@ -41,7 +41,7 @@ templates.env.globals["assetPath"] = "/static"
 templates.env.globals["enable_x_ref"] = True
 templates.env.globals["includeAutocomplete"] = True
 templates.env.globals["random_int"] = random_int
-templates.env.globals["templateVar"] = {"email": "digitalland@communities.gov.uk"}
+templates.env.globals["templateVar"] = {"email": "digitalland@levellingup.gov.uk"}
 
 templates.env.filters["is_list"] = is_list_filter
 templates.env.filters["commanum"] = commanum_filter

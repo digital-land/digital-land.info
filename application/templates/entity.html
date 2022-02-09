@@ -8,7 +8,8 @@
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
 
 {%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
-{% set geometry_url = "/entity/"+ row["entity"]|string + ".geojson" if row['typology'] == "geography" else None %}
+{% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
+  None %}
 {% if geometry_url or geojson_features %}
   {% set includesMap = true %}
 {% endif %}
@@ -79,59 +80,59 @@
 
     <div id="record">
       {% block recordTableContainer %}
-      <div class="govuk-grid-row">
+        <div class="govuk-grid-row">
 
-        {%- block recordTable %}
-        <div class="{{ recordPanelContainerClass|default('govuk-grid-column-two-thirds') }}">
-            {%- set areaproperties %}
-            <div class="govuk-summary-list__row">
+          {%- block recordTable %}
+            <div class="{{ recordPanelContainerClass|default('govuk-grid-column-two-thirds') }}">
+              {%- set areaproperties %}
+              <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">Name</dt>
                 <dd class="govuk-summary-list__value">{{ row['name'] }}</dd>
-            </div>
-            {%- for field in row.keys() %}
-            {%- if field not in ["name", "json", "organisation-entity"] %}
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
-                {{ field }}
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    {% if row[field] is not none %}
-                    {% if field == "dataset" %}
-                    <a class="govuk-link" href="/dataset/{{ row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
-                    {% else %}
-                    {{ row[field]|make_link }}
-                    {%- endif %}
-                    {% endif %}
-                </dd>
-            </div>
-            {% endif %}
-            {% if field == "organisation-entity" and row[field] is not none %}
-            <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                {{ field }}
-                </dt>
-                <dd class="govuk-summary-list__value">
-                  {{ row[field]|entity_name }}
-                </dd>
-            </div>
-            {% endif %}
-            {% if field == "json" and row[field] is not none %}
-              {% for attr, val in row[field].items() %}
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                {{ attr }}
-                </dt>
-                <dd class="govuk-summary-list__value">
-                  {{ val|make_link }}
-                </dd>
               </div>
-              {% endfor %}
-            {% endif %}
-            {%- endfor %}
-            {%- endset %}
+              {%- for field in row.keys() %}
+                {%- if field not in ["name", "json", "organisation-entity"] %}
+                  <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                      {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
+                      {{ field }}
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                      {% if row[field] is not none %}
+                        {% if field == "dataset" %}
+                          <a class="govuk-link" href="/dataset/{{ row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
+                        {% else %}
+                          {{ row[field]|make_link }}
+                        {%- endif %}
+                      {% endif %}
+                    </dd>
+                  </div>
+                {% endif %}
+                {% if field == "organisation-entity" and row[field] is not none %}
+                  <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                      {{ field }}
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                      {{ row[field]|entity_name }}
+                    </dd>
+                  </div>
+                {% endif %}
+                {% if field == "json" and row[field] is not none %}
+                  {% for attr, val in row[field].items() %}
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">
+                        {{ attr }}
+                      </dt>
+                      <dd class="govuk-summary-list__value">
+                        {{ val|make_link }}
+                      </dd>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              {%- endfor %}
+              {%- endset %}
 
-            {%- if row['resource'] -%}
+              {%- if row['resource'] -%}
                 {{ dlDataRecordPanel({
                     "classes": "govuk-!-margin-bottom-6",
                     "identifier": row['entity'] if row['entity'] else "missing entity number",
@@ -141,28 +142,28 @@
                     },
                     "html": areaproperties
                 }) }}
-            {%- else -%}
+              {%- else -%}
                 {{ dlDataRecordPanel({
                     "classes": "govuk-!-margin-bottom-6",
                     "identifier": row['entity'] if row['entity'] else "missing entity number",
                     "html": areaproperties
                 }) }}
-            {%- endif -%}
-        </div>
+              {%- endif -%}
+            </div>
 
-        {% endblock recordTable -%}
-      </div>
+          {% endblock recordTable -%}
+        </div>
       {% endblock recordTableContainer %}
 
       {% block recordGeometry -%}
-      {%- if includesMap %}
-      <h2 class="govuk-heading-m">Geographical area</h2>
+        {%- if includesMap %}
+          <h2 class="govuk-heading-m">Geographical area</h2>
 
-      {% set noteHTML %}
-      <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
-      {% endset %}
+          {% set noteHTML %}
+          <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
+          {% endset %}
 
-      {{- dlLeafletMap({
+          {{- dlLeafletMap({
           "id": "dlMap",
           "wrapper_classes": "govuk-!-margin-top-4",
           "attributes": {
@@ -174,10 +175,10 @@
           }
       }) -}}
 
-      <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
-        <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
-      </div>
-      {%- endif %}
+          <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+            <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
+          </div>
+        {%- endif %}
       {%- endblock recordGeometry %}
 
     </div>
@@ -221,7 +222,7 @@
       {% endif %}
     {% endblock recordReferences -%}
 
-{%- endblock content %}
+  {%- endblock content %}
 
   {% block recordEnd %}{% endblock recordEnd %}
 
@@ -232,7 +233,7 @@
         "text": "Spotted an issue? Let us know so we can improve the data.",
         "action": {
             "text": "There is something wrong with the data",
-            "href": "mailto:digitalLand@communities.gov.uk?subject=" + subject
+            "href": "mailto:" + templateVar.email  + "?subject=" + subject
         },
         "container": true
         })
@@ -240,40 +241,51 @@
   {% endblock footerStart %}
 
   {%- block pageScripts %}
-  {%- if includesMap %}
-  <script>
-      const datasetName = "{{ pipeline_name }}"
-      const $mapElement = document.querySelector('[data-module="boundary-map"]')
-      const $nationalMapLink = document.querySelector('.dl-link-national-map')
-      const mapParams = {
+    {%- if includesMap %}
+      <script>
+        const datasetName = "{{ pipeline_name }}"
+        const $mapElement = document.querySelector('[data-module="boundary-map"]')
+        const $nationalMapLink = document.querySelector('.dl-link-national-map')
+        const mapParams = {
           initZoomCallback: function (featureGroup, map) {
-              console.log("initial load completed")
-              // do we need to check there isn't more than one shape?
-              const center = featureGroup.getBounds().getCenter()
-              const zoom = map.getZoom()
-              let url = `http://digital-land.github.io/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
-              console.log(url)
-              if ($nationalMapLink) {
-                  // only show this for the datasets we've added to the national map
-                  $nationalMapLink.href = url
-                  $nationalMapLink.classList.remove("js-hidden")
-              }
+            console.log("initial load completed")
+            // do we need to check there isn't more than one shape?
+            const center = featureGroup
+              .getBounds()
+              .getCenter()
+            const zoom = map.getZoom()
+            let url = `http://digital-land.github.io/map?layer=${datasetName}#${center
+              .lat},${center
+              .lng},${zoom}z`
+              console
+              .log(url)
+            if ($nationalMapLink) {
+              // only show this for the datasets we've added to the national map
+              $nationalMapLink.href = url
+              $nationalMapLink
+                .classList
+                .remove("js-hidden")
+            }
           }
-      }
+        }
 
-      {% if geometry_url %}
+        {% if geometry_url %}
           mapParams.geojsonURLs = ["{{ geometry_url }}"]
-      {% elif geojson_features %}
+        {% elif geojson_features %}
           mapParams.geojsonFeatures = [{{ geojson_features|tojson }}]
-      {% endif %}
+        {% endif %}
 
-      const mapComponent = new DLMaps.Map($mapElement).init(mapParams)
-  </script>
-  {% endif %}
+        const mapComponent = new DLMaps
+          .Map($mapElement)
+          .init(mapParams)
+      </script>
+    {% endif %}
 
-  <script>
+    <script>
       const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')
-      const subNavTabsComponent = new DLFrontend.SubNavTabs($subNavTabs).init({})
-  </script>
+      const subNavTabsComponent = new DLFrontend
+        .SubNavTabs($subNavTabs)
+        .init({})
+    </script>
 
-{%- endblock %}
+  {%- endblock %}
