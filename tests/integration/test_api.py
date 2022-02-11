@@ -1,7 +1,23 @@
+from copy import deepcopy
+
+from tests.test_data import datasets
 from tests.test_data.wkt_data import (
     random_location_lambeth,
     intersects_with_greenspace_entity,
 )
+
+
+def _transform_dataset_fixture_to_response(datasets):
+
+    for dataset in datasets:
+        dataset["prefix"] = dataset["prefix"] or ""
+        dataset["start-date"] = dataset.pop("start_date") or ""
+        dataset["end-date"] = dataset.pop("end_date") or ""
+        dataset["text"] = dataset["text"] or ""
+        dataset["entry-date"] = dataset.pop("entry_date") or ""
+        dataset["paint-options"] = dataset.pop("paint_options") or ""
+        dataset.pop("key_field")
+    return datasets
 
 
 def test_app_returns_valid_geojson_list(client):
@@ -46,3 +62,21 @@ def test_lasso_geo_search_finds_no_results(client):
     assert "features" in data
     assert "FeatureCollection" == data["type"]
     assert [] == data["features"]
+
+
+def test_dataset_json_endpoint_returns_as_expected(client):
+    response = client.get("/dataset.json")
+    assert response.status_code == 200
+    data = response.json()
+    assert "datasets" in data
+    # TODO find way of generating these field values from fixtures
+    for dataset in data["datasets"]:
+        assert dataset.pop("themes")
+        assert dataset.pop("entity-count")
+        assert "entities" in dataset
+        dataset.pop("entities")
+
+    assert sorted(data["datasets"], key=lambda x: x["name"]) == sorted(
+        _transform_dataset_fixture_to_response(deepcopy(datasets)),
+        key=lambda x: x["name"],
+    )
