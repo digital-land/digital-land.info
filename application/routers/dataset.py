@@ -3,7 +3,6 @@ from typing import Optional
 
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
-from starlette.responses import JSONResponse
 
 from application.data_access.digital_land_queries import (
     get_dataset_query,
@@ -45,7 +44,7 @@ def list_datasets(request: Request, extension: Optional[Suffix] = None):
 
     data = {"datasets": datasets, "themes": themes}
     if extension is not None and extension.value == "json":
-        return JSONResponse(data)
+        return data
     else:
         return templates.TemplateResponse(
             "dataset_index.html", {"request": request, **data}
