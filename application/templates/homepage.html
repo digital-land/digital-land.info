@@ -91,24 +91,4 @@
   </main>
 {% endblock %}
 
-{% block footer %}
-  {% set github_url = "https://github.com/digital-land/design-system" %}
-  {% set licence_url = licence_url | default(github_url + '/blob/master/LICENSE') %}
-  {{ govukFooter({
-        "classes": "app-footer app-footer--full",
-        "containerClasses" : "app-width-container",
-        "meta": {
-        "items": [
-            {
-            "href": "/cookies",
-            "text": "Cookies"
-            },
-            {
-            "href": "/accessibility-statement",
-            "text": "Accessibility statement"
-            },
-        ],
-        "html": ''
-        }
-    }) }}
-{% endblock %}
+{% set github_repository = "digital-land.info" %}
