@@ -80,3 +80,11 @@ def test_dataset_json_endpoint_returns_as_expected(client):
         _transform_dataset_fixture_to_response(deepcopy(datasets)),
         key=lambda x: x["name"],
     )
+
+
+def test_get_dataset_endpoint_returns_as_expected(client, exclude_middleware):
+    """
+    Tests that we handle the case of no DatasetCollectionOrm result found gracefully
+    """
+    response = client.get("/dataset/waste-authority")
+    assert response.status_code == 200

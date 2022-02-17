@@ -72,7 +72,11 @@ def get_publisher_coverage(dataset) -> DatasetPublicationCountModel:
         if result is not None:
             return DatasetPublicationCountModel.from_orm(result)
         else:
-            return None
+            return DatasetPublicationCountModel(
+                dataset_publication=dataset,
+                expected_publisher_count=0,
+                publisher_count=0,
+            )
 
 
 def get_latest_resource(dataset) -> DatasetCollectionModel:

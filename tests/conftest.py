@@ -64,3 +64,14 @@ def app(apply_migrations) -> FastAPI:
 @pytest.fixture(scope="session")
 def client(app: FastAPI, test_settings: Settings) -> TestClient:
     return TestClient(app)
+
+
+# This is a hack to fix a bug in starlette https://github.com/encode/starlette/issues/472
+@pytest.fixture
+def exclude_middleware(app):
+    user_middleware = app.user_middleware.copy()
+    app.user_middleware = []
+    app.middleware_stack = app.build_middleware_stack()
+    yield
+    app.user_middleware = user_middleware
+    app.middleware_stack = app.build_middleware_stack()
