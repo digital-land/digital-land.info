@@ -9,7 +9,9 @@ from application.settings import get_settings
 
 
 settings = get_settings()
-settings.S3_COLLECTION_BUCKET = "https://collection-dataset.s3.eu-west-2.amazonaws.com"
+settings.S3_COLLECTION_BUCKET = (
+    "https://digital-land-production-collection-dataset.s3.eu-west-2.amazonaws.com"
+)
 settings.READ_DATABASE_URL = (
     "postgresql://postgres:postgres@localhost/digital_land_test"
 )
