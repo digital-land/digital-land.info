@@ -61,7 +61,7 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
 def make_pagination_query_str(query_params, limit, offset=0):
     params = query_params.items()
     if not params:
-        return None
+        return f"?limit={limit}&offset={limit+offset}"
     url = "?" + "&".join(
         [
             "{}={}".format(param[0], param[1])
@@ -154,11 +154,7 @@ def search_entities(
         offset = params["offset"] + params["limit"]
     else:
         offset = params["limit"]
-    next_url = (
-        make_pagination_query_str(request.query_params, params["limit"], offset)
-        if data
-        else None
-    )
+    next_url = make_pagination_query_str(request.query_params, params["limit"], offset)
 
     # default is HTML
     return templates.TemplateResponse(
