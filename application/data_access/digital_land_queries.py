@@ -23,7 +23,12 @@ logger = logging.getLogger(__name__)
 
 def get_datasets() -> List[DatasetModel]:
     with get_context_session() as session:
-        datasets = session.query(DatasetOrm).order_by(DatasetOrm.dataset).all()
+        datasets = (
+            session.query(DatasetOrm)
+            .filter(DatasetOrm.typology != "specification")
+            .order_by(DatasetOrm.dataset)
+            .all()
+        )
         return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
