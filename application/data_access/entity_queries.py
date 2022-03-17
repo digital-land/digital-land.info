@@ -70,10 +70,10 @@ def get_entity_search(parameters: dict):
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
         query = _apply_entries_option_filter(query, params)
+        count = query.count()
         query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
-        count = query.count()
 
         if only_fields:
             entities = [
