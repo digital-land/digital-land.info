@@ -274,15 +274,19 @@ def test_search_historical_entries(test_data, params):
     assert "greenspace" == e.dataset
 
 
-def test_search_include_only_field_params(
-    test_data, params, client, exclude_middleware
-):
-
-    params["field"] = ["name"]
-
+def test_search_includes_only_field_params(test_data, client, exclude_middleware):
     response = client.get("/entity.json?limit=10&field=name")
     response.raise_for_status()
     result = response.json()
     assert result["count"] > 0
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name"]))
+
+
+def test_search_includes_multiple_field_params(test_data, client, exclude_middleware):
+    response = client.get("/entity.json?limit=10&field=name&field=dataset")
+    response.raise_for_status()
+    result = response.json()
+    assert result["count"] > 0
+    e = result["entities"][0]
+    assert not set(e.keys()).symmetric_difference(set(["name", "dataset"]))
