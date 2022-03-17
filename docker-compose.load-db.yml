@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  load-db:
+    image: 955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-postgres
+    depends_on:
+      - db
+    environment:
+      S3_KEY: entity-builder/dataset/entity.sqlite3
+      DB_NAME: digital_land
+      DB_USER_NAME: postgres
+      DB_PASSWORD: postgres
+      DB_WRITE_ENDPOINT: db
+      S3_BUCKET: digital-land-production-collection-dataset

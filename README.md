@@ -54,8 +54,19 @@ Assuming there's a running postgres available locally on localhost with a db cal
 use [https://github.com/digital-land/digital-land-postgres](https://github.com/digital-land/digital-land-postgres) to
 load entity data into the database.
 
-Check out the digital-land-postgres repo, ensure you have postgres running in docker-compose from this repo or on your machine and
-follow the instructions in the readme of digital-land-postgres repo.
+Run the following command to load data into the database used by docker compose:
+
+```
+make load-db
+```
+
+Note that you will have to be authenticated with AWS ECR in order to pull the` ``digital-land-postgres` image. If you are following the [AWS Authentication](#aws-authentication) instructions from below, it would be better to run:
+
+```
+aws-vault exec dl-dev -- make load-db
+```
+
+Once the database is loaded, run `docker-compose up` to start the service with a fresh database
 
 ### Run integration tests
 
@@ -77,7 +88,7 @@ If you want to see the acceptance tests in action run the following:
 
     playwright install chromium
     pytest tests/acceptance  --headed --slowmo 1000
-    
+
 
 --headed opens browser and --slowmo slows down interactions by the specified number of milliseconds
 
