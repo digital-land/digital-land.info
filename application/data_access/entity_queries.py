@@ -65,9 +65,7 @@ def get_entity_search(parameters: dict):
             query_args = [getattr(EntityOrm, field.value) for field in only_fields]
         else:
             query_args = [EntityOrm]
-        query = session.query(
-            *query_args
-        )
+        query = session.query(*query_args)
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
@@ -79,9 +77,7 @@ def get_entity_search(parameters: dict):
 
         if only_fields:
             entities = [
-                entity_factory(
-                    dict(zip([field.value for field in only_fields], entity_values))
-                )
+                dict(zip([field.value for field in only_fields], entity_values))
                 for entity_values in entities
             ]
         else:

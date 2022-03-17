@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, List, Union
+from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from application.db.models import EntityOrm
@@ -99,12 +99,8 @@ class DatasetPublicationCountModel(DigitalLandBaseModel):
     publisher_count: int
 
 
-def entity_factory(entity: Union[EntityOrm, dict]):
-    if isinstance(entity, EntityOrm):
-        e = EntityModel.from_orm(entity)
-    else:
-        e = EntityModel.parse_obj(entity)
-
+def entity_factory(entity_orm: EntityOrm):
+    e = EntityModel.from_orm(entity_orm)
     if e.geojson is not None:
         e.geojson.properties = e.dict(exclude={"geojson"}, by_alias=True)
     return e
