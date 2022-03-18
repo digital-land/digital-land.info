@@ -5,13 +5,11 @@ from dataclasses import dataclass
 from typing import Optional, List
 from fastapi import Query, Header
 
-from application.core.models import DatasetModel
+from application.core.models import EntityModel
 from application.search.enum import EntriesOption, DateOption, GeometryRelation, Suffix
 
-DATASET_MODEL_FIELDS = list(DatasetModel.schema()["properties"].keys())
-DATASET_MODEL_FIELD_ENUM = Enum(
-    "field", zip(DATASET_MODEL_FIELDS, DATASET_MODEL_FIELDS)
-)
+ENTITY_MODEL_FIELDS = list(EntityModel.schema()["properties"].keys())
+ENTITY_MODEL_FIELD_ENUM = Enum("field", zip(ENTITY_MODEL_FIELDS, ENTITY_MODEL_FIELDS))
 
 
 @dataclass
@@ -84,6 +82,6 @@ class QueryFilters:
         None, description="accepted content-type for results"
     )
     suffix: Optional[Suffix] = Query(None, description="file format for the results")
-    field: Optional[List[DATASET_MODEL_FIELD_ENUM]] = Query(
+    field: Optional[List[ENTITY_MODEL_FIELD_ENUM]] = Query(
         None, description="fields to be included in response"
     )
