@@ -47,6 +47,7 @@ graceful_timeout = int(graceful_timeout_str)
 timeout = int(timeout_str)
 keepalive = int(keepalive_str)
 preload_app = True
+reload = os.getenv("RELOAD", "false").lower() == "true"
 
 
 # For debugging and testing

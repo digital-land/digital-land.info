@@ -5,6 +5,7 @@ services:
     image: 955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-postgres
     depends_on:
       - db
+      - web
     environment:
       S3_KEY: entity-builder/dataset/entity.sqlite3
       DB_NAME: digital_land
