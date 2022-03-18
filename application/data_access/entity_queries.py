@@ -65,23 +65,28 @@ def get_entity_search(parameters: dict):
             query_args = [getattr(EntityOrm, field.value) for field in only_fields]
         else:
             query_args = [EntityOrm]
+        query_args.append(func.count(EntityOrm.entity).over().label("count"))
         query = session.query(*query_args)
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
         query = _apply_entries_option_filter(query, params)
-        count = query.count()
         query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
 
+        if entities:
+            count = entities[0].count
+        else:
+            count = 0
+
         if only_fields:
             entities = [
-                dict(zip([field.value for field in only_fields], entity_values))
+                dict(zip([field.value for field in only_fields], entity_values[:-1]))
                 for entity_values in entities
             ]
         else:
-            entities = [entity_factory(entity) for entity in entities]
+            entities = [entity_factory(entity.EntityOrm) for entity in entities]
         return {"params": params, "count": count, "entities": entities}
 
 

@@ -278,7 +278,7 @@ def test_search_includes_only_field_params(test_data, client, exclude_middleware
     response = client.get("/entity.json?limit=10&field=name")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] > 0
+    assert result["count"] == 4
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name"]))
 
@@ -287,7 +287,7 @@ def test_search_includes_multiple_field_params(test_data, client, exclude_middle
     response = client.get("/entity.json?limit=10&field=name&field=dataset")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] > 0
+    assert result["count"] == 4
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name", "dataset"]))
 
@@ -297,3 +297,10 @@ def test_search_pagination_does_not_affect_count(test_data, client, exclude_midd
     response.raise_for_status()
     result = response.json()
     assert result["count"] == 4
+
+
+def test_search_filtering_does_affect_count(test_data, client, exclude_middleware):
+    response = client.get("/entity.json?limit=1&dataset=greenspace")
+    response.raise_for_status()
+    result = response.json()
+    assert result["count"] == 1
