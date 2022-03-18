@@ -6,8 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
-    command: |
-      bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn application.app:app --reload --workers 1 --host 0.0.0.0 --port 8000'
     volumes:
       - .:/src
     ports:
@@ -17,6 +15,10 @@ services:
     environment:
       WRITE_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
       READ_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
+      PRE_START_PATH: /src/prestart-dev.sh
+      PORT: 8000
+      RELOAD: "true"
+      WEB_CONCURRENCY: 1
 
   db:
     image: postgis/postgis:13-master

@@ -1,7 +1,8 @@
 UNAME := $(shell uname)
 
 # what if we tagged with commit sha?
-NAME=955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-info
+REPO=955696714113.dkr.ecr.eu-west-2.amazonaws.com
+NAME=$(REPO)/digital-land-info
 TAG    := $$(git log -1 --pretty=%h)
 IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest
@@ -28,11 +29,11 @@ build:
 	docker build  --target production -t ${IMG} .
 	docker tag ${IMG} ${LATEST}
 
-push:
+push: login
 	docker push ${NAME}
 
 login:
-	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(DOCKER_IMAGE_URL)
+	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(REPO)
 
 test-acceptance:
 	python -m playwright install chromium
@@ -76,3 +77,6 @@ flake8:
 
 server-dev:
 	make -j 2 server frontend-watch
+
+load-db: login
+	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db
