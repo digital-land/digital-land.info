@@ -22,9 +22,7 @@ def _transform_dataset_fixture_to_response(datasets):
 
 def test_app_returns_valid_geojson_list(client):
 
-    response = client.get(
-        "/entity.geojson?dataset=not-real", headers={"Origin": "localhost"}
-    )
+    response = client.get("/entity.geojson", headers={"Origin": "localhost"})
     data = response.json()
     assert "type" in data
     assert "features" in data

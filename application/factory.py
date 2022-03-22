@@ -127,12 +127,15 @@ def add_base_routes(app):
             return await http_exception_handler(request, exc)
 
     # FastAPI disapproves of handling ValidationErrors as they leak internal info to users
-    # Unfortunately, the validator bound to QueryFilters are not caught and reraised as
-    # RequestValidationError, so we handle a subset of those cases manually here
+    # Unfortunately, the errors raised by the validator bound to QueryFilters are not caught and
+    # reraised as RequestValidationError, so we handle that subset of ValidationErrors manually here
     @app.exception_handler(ValidationError)
     async def custom_validation_error_handler(request: Request, exc: ValidationError):
-        if len(exc.raw_errors) == 1 and isinstance(
-            exc.raw_errors[0].exc, DatasetValueNotFound
+        if all(
+            [
+                isinstance(raw_error.exc, DatasetValueNotFound)
+                for raw_error in exc.raw_errors
+            ]
         ):
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,

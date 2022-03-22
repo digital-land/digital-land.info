@@ -95,7 +95,9 @@ class QueryFilters:
         if not v:
             return v
         with get_context_session() as session:
-            dataset_names = session.query(DatasetOrm.dataset).all()
+            dataset_names = [
+                result[0] for result in session.query(DatasetOrm.dataset).all()
+            ]
         missing_datasets = set(v).difference(set(dataset_names))
         if missing_datasets:
             raise DatasetValueNotFound(
