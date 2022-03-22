@@ -3,15 +3,18 @@ import logging
 from datetime import timedelta
 from pickle import TRUE
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from application.core.templates import templates
 from application.db.models import EntityOrm
+from application.exceptions import DatasetValueNotFound
 from application.routers import entity, dataset, map_
 
 logger = logging.getLogger(__name__)
@@ -122,6 +125,21 @@ def add_base_routes(app):
         else:
             # Just use FastAPI's built-in handler for other errors
             return await http_exception_handler(request, exc)
+
+    # FastAPI disapproves of handling ValidationErrors as they leak internal info to users
+    # Unfortunately, the validator bound to QueryFilters are not caught and reraised as
+    # RequestValidationError, so we handle a subset of those cases manually here
+    @app.exception_handler(ValidationError)
+    async def custom_validation_error_handler(request: Request, exc: ValidationError):
+        if len(exc.raw_errors) == 1 and isinstance(
+            exc.raw_errors[0].exc, DatasetValueNotFound
+        ):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder({"detail": exc.errors()}),
+            )
+        else:
+            raise exc
 
     # catch all handler - for any unhandled exceptions return 500 template
     @app.exception_handler(Exception)

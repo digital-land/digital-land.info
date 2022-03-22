@@ -9,6 +9,7 @@ from pydantic.dataclasses import dataclass
 from application.core.models import EntityModel
 from application.db.models import DatasetOrm
 from application.db.session import get_context_session
+from application.exceptions import DatasetValueNotFound
 from application.search.enum import EntriesOption, DateOption, GeometryRelation, Suffix
 
 ENTITY_MODEL_FIELDS = list(EntityModel.schema()["properties"].keys())
@@ -89,7 +90,7 @@ class QueryFilters:
         None, description="fields to be included in response"
     )
 
-    @validator("dataset")
+    @validator("dataset", pre=True)
     def datasets_exist(cls, v: Optional[list]):
         if not v:
             return v
@@ -97,7 +98,9 @@ class QueryFilters:
             dataset_names = session.query(DatasetOrm.dataset).all()
         missing_datasets = set(v).difference(set(dataset_names))
         if missing_datasets:
-            raise ValueError(
-                f"Requested datasets do not exist: {','.join(missing_datasets)}"
+            raise DatasetValueNotFound(
+                f"Requested datasets do not exist: {','.join(missing_datasets)}. "
+                f"Valid dataset names: {','.join(dataset_names)}",
+                dataset_names=dataset_names,
             )
         return v
