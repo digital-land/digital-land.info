@@ -23,13 +23,11 @@ def test_settings() -> Settings:
 
 
 @pytest.fixture(scope="session")
-def apply_migrations(db_session: Session):
+def apply_migrations(db_session, test_settings: Settings):
     config = Config("alembic.ini")
 
     config.set_section_option(
-        "alembic",
-        "sqlalchemy.url",
-        "postgresql://postgres:postgres@db/digital_land_test",
+        "alembic", "sqlalchemy.url", test_settings.WRITE_DATABASE_URL
     )
 
     alembic.command.upgrade(config, "head")
@@ -39,16 +37,11 @@ def apply_migrations(db_session: Session):
 
 @pytest.fixture(scope="session")
 def create_db(test_settings: Settings):
-    database_url = test_settings.READ_DATABASE_URL
+    database_url = test_settings.WRITE_DATABASE_URL
     if database_exists(database_url):
         drop_database(database_url)
     create_database(database_url)
     return database_url
-
-
-#  @pytest.fixture(scope="session")
-#  def db_engine(create_db: PostgresDsn):
-#      return create_engine(create_db)
 
 
 @pytest.fixture(scope="session")
@@ -66,23 +59,20 @@ def patch_db_urls(mocker, test_settings):
     mocker.patch("application.settings.get_settings", return_value=test_settings)
 
 
-# TODO this shouldn't break if local data presnt, instrument fixture to set up test db
 @pytest.fixture
 def test_data(patch_db_urls, apply_migrations, db_session: Session):
     from tests.test_data import datasets
     from tests.test_data import entities
 
-    if db_session.query(DatasetOrm).count() == 0:
-        for dataset in datasets:
-            themes = dataset.pop("themes").split(",")
-            ds = DatasetOrm(**dataset)
-            ds.themes = themes
-            db_session.add(ds)
+    for dataset in datasets:
+        themes = dataset.pop("themes").split(",")
+        ds = DatasetOrm(**dataset)
+        ds.themes = themes
+        db_session.add(ds)
 
-    if db_session.query(EntityOrm).count() == 0:
-        for entity in entities:
-            e = EntityOrm(**entity)
-            db_session.add(e)
+    for entity in entities:
+        e = EntityOrm(**entity)
+        db_session.add(e)
 
     db_session.commit()
 

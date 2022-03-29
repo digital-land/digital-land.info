@@ -55,9 +55,10 @@ def run_migrations_online():
     and associate a connection with the context.
     """
 
+    from application.settings import get_settings
     from sqlalchemy import create_engine
 
-    url = config.get_section_option("alembic", "sqlalchemy.url")
+    url = get_settings().WRITE_DATABASE_URL
     engine = create_engine(url)
     connectable = engine
 

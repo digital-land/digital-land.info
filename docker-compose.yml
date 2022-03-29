@@ -8,6 +8,7 @@ services:
       target: dev
     volumes:
       - .:/src
+      - .env.test.docker:/src/.env.test
     ports:
       - 8000:8000
     depends_on:
