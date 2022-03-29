@@ -53,14 +53,8 @@ def db_session(create_db: PostgresDsn, test_settings: Settings) -> Session:
     engine.dispose()
 
 
-@pytest.fixture
-def patch_db_urls(mocker, test_settings):
-    get_settings.cache_clear()
-    mocker.patch("application.settings.get_settings", return_value=test_settings)
-
-
-@pytest.fixture
-def test_data(patch_db_urls, apply_migrations, db_session: Session):
+@pytest.fixture(scope="session")
+def test_data(apply_migrations, db_session: Session):
     from tests.test_data import datasets
     from tests.test_data import entities
 

@@ -1,3 +1,4 @@
+import os
 import logging
 
 from logging.config import fileConfig
@@ -35,7 +36,7 @@ def run_migrations_offline():
     script output.
     """
 
-    url = config.get_section_option("alembic", "sqlalchemy.url")
+    url = os.getenv("WRITE_DATABASE_URL")
     logging.info(f"Running offline migration against {url}")
     context.configure(
         url=url,
