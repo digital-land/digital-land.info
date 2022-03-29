@@ -86,3 +86,20 @@ def test_get_dataset_endpoint_returns_as_expected(client, exclude_middleware):
     """
     response = client.get("/dataset/waste-authority")
     assert response.status_code == 200
+
+
+def test_get_entity_csv_endpoint_returns_as_expected(
+    test_data, client, exclude_middleware, test_data_csv_response
+):
+    """
+    Tests that we return a CSV representation of the test data
+    """
+    response = client.get("/entity.csv")
+    assert response.status_code == 200
+    assert response.headers.get("content-type") == "application/csv"
+    response_text = response.text
+    with test_data_csv_response.open() as expected_response_file:
+        expected_response = expected_response_file.readlines()
+
+    assert ",json," not in response_text[0]
+    assert response_text == expected_response

@@ -1,7 +1,10 @@
+from copy import deepcopy
+from csv import DictWriter
+from typing import Dict
+
 import pytest
 import alembic
 from fastapi import FastAPI
-
 from fastapi.testclient import TestClient
 from alembic.config import Config
 from pydantic import PostgresDsn
@@ -69,6 +72,23 @@ def test_data(apply_migrations, db_session: Session):
         db_session.add(e)
 
     db_session.commit()
+    return {"dataset": datasets, "entity": entities}
+
+
+@pytest.fixture
+def test_data_csv_response(test_data: Dict[str, list], tmp_path) -> str:
+    csv_path = tmp_path.joinpath("test_data_json_hoisted.csv")
+    fields = set()
+    test_data = deepcopy(test_data)
+    for test_datum in test_data["entity"]:
+        test_datum.update(test_datum.pop("json") or {})
+        fields.update(set(test_datum.keys()))
+    with csv_path.open("w+") as csv_file:
+        writer = DictWriter(csv_file, fieldnames=fields)
+        writer.writeheader()
+        for row in test_data["entity"]:
+            writer.writerow(row)
+    return csv_path
 
 
 @pytest.fixture(scope="session")

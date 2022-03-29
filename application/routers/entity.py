@@ -139,6 +139,10 @@ def search_entities(
         geojson["links"] = links
         return geojson
 
+    if extension is not None and extension.value == "csv":
+        payload = flatten_payload(data["entities"])
+        return to_csv(payload)
+
     # typology facet
     typologies = get_typologies()
     typologies = [t.dict() for t in typologies]
@@ -185,6 +189,14 @@ def search_entities(
             "next_url": next_url,
         },
     )
+
+
+def flatten_payload(data):
+    pass
+
+
+def to_csv(payload):
+    pass
 
 
 # Route ordering in important. Match routes with extensions first
