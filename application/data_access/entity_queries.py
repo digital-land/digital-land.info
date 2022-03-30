@@ -1,6 +1,6 @@
 import logging
 
-from typing import Optional, List, Union, Dict
+from typing import Optional, List, Union, Dict, Tuple
 from sqlalchemy import select, func, or_, and_
 from sqlalchemy.orm import Query
 
@@ -104,7 +104,9 @@ def get_entity_search(parameters: dict, is_unpaginated_iterator: bool = False):
 
 def get_json_field_keys_for_query(query: Query) -> List[str]:
     standard_fields = [
-        to_snake(field) for field in EntityModel.schema()["properties"].keys()
+        to_snake(field)
+        for field in EntityModel.schema()["properties"].keys()
+        if field != "json"
     ]
     field_key_query = query.with_entities(
         func.jsonb_object_keys(EntityOrm.json).label("json_fields")
@@ -115,17 +117,19 @@ def get_json_field_keys_for_query(query: Query) -> List[str]:
 
 
 def _get_entity_representation(
-    entities: EntityOrm, only_fields: List[str], entity_attribute: str = None
-) -> Union[Dict[str, Union[str, int, Dict]], EntityModel]:
+    entities: List[Union[Tuple, EntityOrm]],
+    only_fields: List[str],
+    entity_attribute: str = None,
+) -> List[Union[Dict[str, Union[str, int, Dict]], EntityModel]]:
     if only_fields:
-        yield from [dict(zip(only_fields, entity[:-1])) for entity in entities]
+        return [dict(zip(only_fields, entity[:-1])) for entity in entities]
     else:
         if entity_attribute:
-            yield from [
+            return [
                 entity_factory(getattr(entity, entity_attribute)) for entity in entities
             ]
         else:
-            yield from [entity_factory(entity) for entity in entities]
+            return [entity_factory(entity) for entity in entities]
 
 
 def _apply_base_filters(query, params):

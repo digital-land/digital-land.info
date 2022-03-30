@@ -102,7 +102,6 @@ def test_get_entity_csv_endpoint_returns_as_expected(
     response_text = response.text
     assert "\r\n" in response_text
     with test_data_csv_response.open() as expected_response_file:
-        #  expected_response = "\r\n".join([line.strip() for line in expected_response_file.readlines()])
         expected_response = list(DictReader(expected_response_file))
     response_dict = list(DictReader(StringIO(response_text)))
     assert "json" not in response_dict[0].keys()

@@ -6,7 +6,7 @@ import logging
 from typing import DefaultDict, Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, Response
 
 from application.core.models import GeoJSONFeatureCollection, EntityModel
 from application.data_access.digital_land_queries import (
@@ -225,15 +225,17 @@ def flatten_payload(data: List[EntityModel]) -> List[DefaultDict[str, str]]:
         yield entity_dict
 
 
-def to_csv(payload: List[DefaultDict[str, str]], keys: List[str]) -> StreamingResponse:
+def to_csv(payload: List[DefaultDict[str, str]], keys: List[str]) -> Response:
     with StringIO("") as stream:
         csv_payload_stream = DictWriter(stream, fieldnames=keys)
         csv_payload_stream.writeheader()
         for item in payload:
             csv_payload_stream.writerow(item)
-        return StreamingResponse(
-            iter([stream.getvalue()]), media_type="application/csv"
-        )
+        payload_body = stream.getvalue()
+    return Response(
+        content=payload_body,
+        media_type="application/csv",
+    )
 
 
 # Route ordering in important. Match routes with extensions first
