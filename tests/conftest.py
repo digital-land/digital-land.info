@@ -68,6 +68,8 @@ def test_data(apply_migrations, db_session: Session):
         db_session.add(ds)
 
     for entity in entities:
+        # Inserting json=null breaks JSON queries
+        entity["json"] = entity.pop("json") or {}
         e = EntityOrm(**entity)
         db_session.add(e)
 

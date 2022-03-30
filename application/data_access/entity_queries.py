@@ -2,6 +2,7 @@ import logging
 
 from typing import Optional, List
 from sqlalchemy import select, func, or_, and_
+from sqlalchemy.orm import Query
 
 from application.core.models import entity_factory
 from application.data_access.entity_query_helpers import (
@@ -56,23 +57,25 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
         return [entity_factory(e) for e in entities]
 
 
-def get_entity_search(parameters: dict, is_paginated: bool = True):
+def get_entity_search(parameters: dict, is_unpaginated_iterator: bool = False):
     params = normalised_params(parameters)
 
     with get_context_session() as session:
-        only_fields = params.get("field")
+        only_fields = [field.value for field in params.get("field", [])]
         if only_fields:
-            query_args = [getattr(EntityOrm, field.value) for field in only_fields]
+            query_args = [getattr(EntityOrm, field) for field in only_fields]
         else:
             query_args = [EntityOrm]
-        query_args.append(func.count(EntityOrm.entity).over().label("count"))
+        if not is_unpaginated_iterator:
+            query_args.append(func.count(EntityOrm.entity).over().label("count"))
         query = session.query(*query_args)
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
         query = _apply_entries_option_filter(query, params)
-        if is_paginated:
-            query = _apply_limit_and_pagination_filters(query, params)
+        if is_unpaginated_iterator:
+            return {"params": params, "entities": query}
+        query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
 
@@ -89,6 +92,13 @@ def get_entity_search(parameters: dict, is_paginated: bool = True):
         else:
             entities = [entity_factory(entity.EntityOrm) for entity in entities]
         return {"params": params, "count": count, "entities": entities}
+
+
+def get_json_field_keys_for_query(query: Query) -> List[str]:
+    field_key_query = query.with_entities(
+        func.jsonb_object_keys(EntityOrm.json).label("json_fields")
+    )
+    return [result_tuple[0] for result_tuple in field_key_query.all()]
 
 
 def _apply_base_filters(query, params):

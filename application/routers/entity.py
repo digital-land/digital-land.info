@@ -14,7 +14,11 @@ from application.data_access.digital_land_queries import (
     get_local_authorities,
     get_typologies,
 )
-from application.data_access.entity_queries import get_entity_query, get_entity_search
+from application.data_access.entity_queries import (
+    get_entity_query,
+    get_entity_search,
+    get_json_field_keys_for_query,
+)
 
 from application.search.enum import Suffix
 from application.search.filters import QueryFilters
@@ -130,7 +134,8 @@ def search_entities(
 ):
     query_params = asdict(query_filters)
     data = get_entity_search(
-        query_params, is_paginated=not _is_matching_extension(extension, Suffix.csv)
+        query_params,
+        is_unpaginated_iterator=_is_matching_extension(extension, Suffix.csv),
     )
 
     # the query does some normalisation to remove empty
@@ -148,8 +153,9 @@ def search_entities(
         return geojson
 
     if _is_matching_extension(extension, Suffix.csv):
+        keys = get_json_field_keys_for_query(data["entities"])
         payload = flatten_payload(data["entities"])
-        return to_csv(payload)
+        return to_csv(payload, keys)
 
     # typology facet
     typologies = get_typologies()
@@ -221,14 +227,10 @@ def flatten_payload(data: List[EntityModel]) -> List[DefaultDict[str, str]]:
         yield entity_dict
 
 
-def to_csv(payload: List[DefaultDict[str, str]]) -> StreamingResponse:
+def to_csv(payload: List[DefaultDict[str, str]], keys: List[str]) -> StreamingResponse:
     with StringIO("") as stream:
-        first_item = next(payload)
-        csv_payload_stream = DictWriter(
-            stream, fieldnames=sorted(dict(first_item).keys())
-        )
+        csv_payload_stream = DictWriter(stream, fieldnames=keys)
         csv_payload_stream.writeheader()
-        csv_payload_stream.writerow(first_item)
         for item in payload:
             csv_payload_stream.writerow(item)
         return StreamingResponse(
