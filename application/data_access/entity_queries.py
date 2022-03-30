@@ -24,6 +24,10 @@ logger = logging.getLogger(__name__)
 #  not sure about curie search and how it should be implemented to make sense.
 
 
+def to_snake(string: str) -> str:
+    return string.replace("-", "_")
+
+
 def get_entity_query(id: int):
     with get_context_session() as session:
         entity = session.query(EntityOrm).get(id)
@@ -63,7 +67,7 @@ def get_entity_search(parameters: dict, is_unpaginated_iterator: bool = False):
     with get_context_session() as session:
         only_fields = [field.value for field in params.get("field", [])]
         if only_fields:
-            query_args = [getattr(EntityOrm, field) for field in only_fields]
+            query_args = [getattr(EntityOrm, to_snake(field)) for field in only_fields]
         else:
             query_args = [EntityOrm]
         if not is_unpaginated_iterator:
@@ -88,7 +92,6 @@ def get_entity_search(parameters: dict, is_unpaginated_iterator: bool = False):
             count = entities[0].count
         else:
             count = 0
-
 
         return {
             "params": params,
