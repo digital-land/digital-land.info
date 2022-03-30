@@ -1,12 +1,10 @@
-from asyncio import coroutine
 from collections import defaultdict
-from csv import QUOTE_ALL
+from csv import QUOTE_ALL, DictWriter
 from dataclasses import asdict
 from io import StringIO
 import logging
 from typing import DefaultDict, Optional, List
 
-from aiocsv import AsyncDictWriter
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 
@@ -220,23 +218,22 @@ def flatten_payload(data: List[EntityModel]) -> List[DefaultDict[str, str]]:
     for entity_model in data:
         entity_dict = defaultdict(str)
         entity_dict.update(entity_model.dict())
-        entity_dict.update(entity_dict.pop("json", {}) or {})
+        entity_dict.update(entity_dict.pop("json_", {}) or {})
         entity_dicts.append(entity_dict)
     return entity_dicts
 
 
 def to_csv(payload: List[DefaultDict[str, str]]) -> StreamingResponse:
-    @coroutine
-    def iterstream():
-        with StringIO("", newline="\r\n") as stream:
-            for item in payload:
-                csv_payload_stream = AsyncDictWriter(
-                    stream, fieldnames=dict(item).keys(), quoting=QUOTE_ALL
-                )
-                csv_payload_stream.writeheader()
-                yield from csv_payload_stream.writerow(item)
-
-    return StreamingResponse(iterstream(), media_type="application/csv")
+    with StringIO("", newline="\r\n") as stream:
+        for item in payload:
+            csv_payload_stream = DictWriter(
+                stream, fieldnames=dict(item).keys(), quoting=QUOTE_ALL
+            )
+            csv_payload_stream.writeheader()
+            csv_payload_stream.writerow(item)
+        return StreamingResponse(
+            iter([stream.getvalue()]), media_type="application/csv"
+        )
 
 
 # Route ordering in important. Match routes with extensions first
