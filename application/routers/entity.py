@@ -1,5 +1,5 @@
 from collections import defaultdict
-from csv import QUOTE_ALL, DictWriter
+from csv import DictWriter
 from dataclasses import asdict
 from io import StringIO
 import logging
@@ -214,22 +214,22 @@ def flatten_payload(data: List[EntityModel]) -> List[DefaultDict[str, str]]:
     :type data: List[EntityModel]
     :rtype: List[dict]
     """
-    entity_dicts = []
     for entity_model in data:
         entity_dict = defaultdict(str)
         entity_dict.update(entity_model.dict())
         entity_dict.update(entity_dict.pop("json_", {}) or {})
-        entity_dicts.append(entity_dict)
-    return entity_dicts
+        yield entity_dict
 
 
 def to_csv(payload: List[DefaultDict[str, str]]) -> StreamingResponse:
-    with StringIO("", newline="\r\n") as stream:
+    with StringIO("") as stream:
+        first_item = next(payload)
+        csv_payload_stream = DictWriter(
+            stream, fieldnames=sorted(dict(first_item).keys())
+        )
+        csv_payload_stream.writeheader()
+        csv_payload_stream.writerow(first_item)
         for item in payload:
-            csv_payload_stream = DictWriter(
-                stream, fieldnames=dict(item).keys(), quoting=QUOTE_ALL
-            )
-            csv_payload_stream.writeheader()
             csv_payload_stream.writerow(item)
         return StreamingResponse(
             iter([stream.getvalue()]), media_type="application/csv"

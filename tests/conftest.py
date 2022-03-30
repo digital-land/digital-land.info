@@ -82,9 +82,14 @@ def test_data_csv_response(test_data: Dict[str, list], tmp_path) -> str:
     test_data = deepcopy(test_data)
     for test_datum in test_data["entity"]:
         test_datum.update(test_datum.pop("json") or {})
+
+        # These fields don't exist at top level on the real model
+        test_datum.pop("point", "")
+        test_datum.pop("geometry")
+
         fields.update(set(test_datum.keys()))
     with csv_path.open("w+") as csv_file:
-        writer = DictWriter(csv_file, fieldnames=fields)
+        writer = DictWriter(csv_file, fieldnames=sorted(fields))
         writer.writeheader()
         for row in test_data["entity"]:
             writer.writerow(row)
