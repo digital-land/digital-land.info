@@ -112,7 +112,8 @@ def get_json_field_keys_for_query(query: Query) -> List[str]:
         func.jsonb_object_keys(EntityOrm.json).label("json_fields")
     )
     return sorted(
-        standard_fields + [result_tuple[0] for result_tuple in field_key_query.all()]
+        standard_fields
+        + list(set([result_tuple[0] for result_tuple in field_key_query.all()]))
     )
 
 

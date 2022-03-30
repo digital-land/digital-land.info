@@ -100,6 +100,8 @@ def test_get_entity_csv_endpoint_returns_as_expected(
     assert response.status_code == 200
     assert response.headers.get("content-type") == "application/csv"
     response_text = response.text
+    # Assert hoisted fields present on multiple rows only included once
+    assert "foo,foo," not in response_text
     assert "\r\n" in response_text
     with test_data_csv_response.open() as expected_response_file:
         expected_response = list(DictReader(expected_response_file))
