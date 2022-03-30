@@ -59,6 +59,59 @@ def test_search_entity_by_dataset_name_not_in_system(test_data, params):
     assert [] == result["entities"]
 
 
+def test_search_entity_by_dataset_name_not_in_system_returns_error(
+    test_data, client, exclude_middleware
+):
+    response = client.get("/entity.json?dataset=not-exists")
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": [
+            {
+                "ctx": {
+                    "dataset_names": [
+                        "greenspace",
+                        "forest",
+                        "brownfield-site",
+                        "historical-monument",
+                    ]
+                },
+                "loc": ["dataset"],
+                "msg": "Requested datasets do not exist: not-exists. Valid "
+                "dataset names: "
+                "greenspace,forest,brownfield-site,historical-monument",
+                "type": "value_error.datasetvaluenotfound",
+            }
+        ]
+    }
+
+
+def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
+    test_data, client, exclude_middleware
+):
+    response = client.get("/entity.json?dataset=not-exists&dataset=greenspace")
+    assert response.status_code == 400
+
+    assert response.json() == {
+        "detail": [
+            {
+                "ctx": {
+                    "dataset_names": [
+                        "greenspace",
+                        "forest",
+                        "brownfield-site",
+                        "historical-monument",
+                    ]
+                },
+                "loc": ["dataset"],
+                "msg": "Requested datasets do not exist: not-exists. Valid "
+                "dataset names: "
+                "greenspace,forest,brownfield-site,historical-monument",
+                "type": "value_error.datasetvaluenotfound",
+            }
+        ]
+    }
+
+
 def test_search_entity_by_single_dataset_name(test_data, params):
 
     params["dataset"] = ["greenspace"]
