@@ -89,6 +89,5 @@ jobs:
     - name: Restart digital-land.info service
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |
-        aws ecs update-service --force-new-deployment --service development-web-service --cluster development-web-cluster
         aws ecs update-service --force-new-deployment --service staging-web-service --cluster staging-web-cluster
         aws ecs update-service --force-new-deployment --service production-web-service --cluster production-web-cluster
