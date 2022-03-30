@@ -79,4 +79,5 @@ server-dev:
 	make -j 2 server frontend-watch
 
 load-db: login
-	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db
+	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-dataset
+	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-entity

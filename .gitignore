@@ -31,3 +31,5 @@ pyrightconfig.json
 .env.test
 .db-data
 static
+
+docker-compose.override.yml
