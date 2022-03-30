@@ -86,3 +86,64 @@ class DigitalLandJSONResponse(Response):
             separators=(",", ":"),
             cls=NoneToEmptyStringEncoder,
         ).encode("utf-8")
+
+
+def make_links(scheme, netloc, path, query_params, data):
+
+    count = data["count"]
+    limit = data["params"].get("limit", 10)
+    offset = data["params"].get("offset", 0)
+
+    # note api validation ensures limit > 0 but handle ZeroDivisionError
+    try:
+        page_count = count / limit
+    except ZeroDivisionError:
+        return {}
+
+    last_offset = int(page_count) * limit
+    next_offset = offset + limit
+    prev_offset = offset - limit if offset else 0
+
+    if count == 0 or count <= limit:
+        # no pagination links needed
+        return {}
+
+    query_str = make_pagination_query_str(query_params, limit)
+    pagination_links = {"first": f"{scheme}://{netloc}{path}{query_str}"}
+
+    if 0 < last_offset <= count:
+        query_str = make_pagination_query_str(query_params, limit, last_offset)
+        last_url = f"{scheme}://{netloc}{path}{query_str}"
+        pagination_links["last"] = last_url
+
+    if next_offset < count and next_offset <= last_offset:
+        query_str = make_pagination_query_str(query_params, limit, next_offset)
+        next_url = f"{scheme}://{netloc}{path}{query_str}"
+        pagination_links["next"] = next_url
+
+    if offset != 0 and prev_offset >= 0:
+        query_str = make_pagination_query_str(query_params, limit, prev_offset)
+        prev_url = f"{scheme}://{netloc}{path}{query_str}"
+        pagination_links["prev"] = prev_url
+
+    return pagination_links
+
+
+def make_pagination_query_str(query_params, limit, offset=0):
+    params = query_params.items()
+    url = "?" + "&".join(
+        [
+            "{}={}".format(param[0], param[1])
+            for param in params
+            if param[1] and param[0] != "offset"
+        ]
+    )
+    if "limit" not in [p[0] for p in params]:
+        if url == "?":
+            url = f"{url}limit={limit}"
+        else:
+            url = f"{url}&limit={limit}"
+    if offset != 0:
+        return f"{url}&offset={offset}"
+    else:
+        return url

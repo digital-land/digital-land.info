@@ -17,7 +17,11 @@ from application.data_access.entity_queries import get_entity_query, get_entity_
 from application.search.enum import Suffix
 from application.search.filters import QueryFilters
 from application.core.templates import templates
-from application.core.utils import DigitalLandJSONResponse
+from application.core.utils import (
+    DigitalLandJSONResponse,
+    make_links,
+    make_pagination_query_str,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -58,65 +62,6 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-def make_pagination_query_str(query_params, limit, offset=0):
-    params = query_params.items()
-    if not params:
-        return f"?limit={limit}&offset={limit+offset}"
-    url = "?" + "&".join(
-        [
-            "{}={}".format(param[0], param[1])
-            for param in params
-            if param[1] and param[0] != "offset"
-        ]
-    )
-    if "limit" not in [p[0] for p in params]:
-        url = f"{url}&limit={limit}"
-    if offset != 0:
-        return f"{url}&offset={offset}"
-    else:
-        return url
-
-
-def make_links(request, data):
-    count = data["count"]
-    limit = data["params"]["limit"]
-    query_str = make_pagination_query_str(request.query_params, limit)
-
-    pagination_links = {
-        "first": f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
-    }
-
-    offset = data["params"].get("offset", 0)
-    limit = data["params"].get("limit")
-
-    next_offset = offset + limit
-    if next_offset < count:
-        query_str = make_pagination_query_str(request.query_params, limit, next_offset)
-        next_url = (
-            f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
-        )
-        pagination_links["next"] = next_url
-
-    if offset != 0:
-        prev_offset = offset - limit
-        query_str = make_pagination_query_str(request.query_params, limit, prev_offset)
-        prev_url = (
-            f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
-        )
-        pagination_links["prev"] = prev_url
-
-    count = data["count"]
-    last_offset = count - limit
-    if last_offset < count:
-        query_str = make_pagination_query_str(request.query_params, limit, last_offset)
-        last_url = (
-            f"{request.url.scheme}://{request.url.netloc}{request.url.path}{query_str}"
-        )
-        pagination_links["last"] = last_url
-
-    return pagination_links
-
-
 def search_entities(
     request: Request,
     query_filters: QueryFilters = Depends(),
@@ -130,12 +75,20 @@ def search_entities(
     params = data["params"]
 
     if extension is not None and extension.value == "json":
-        links = make_links(request, data)
+        scheme = request.url.scheme
+        netloc = request.url.netloc
+        path = request.url.path
+        params = request.query_params
+        links = make_links(scheme, netloc, path, params, data)
         return {"entities": data["entities"], "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
         geojson = _get_geojson(data["entities"])
-        links = make_links(request, data)
+        scheme = request.url.scheme
+        netloc = request.url.netloc
+        path = request.url.path
+        params = request.query_params
+        links = make_links(scheme, netloc, path, params, data)
         geojson["links"] = links
         return geojson
 
