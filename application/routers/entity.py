@@ -1,10 +1,14 @@
-import logging
-
+from asyncio import coroutine
+from collections import defaultdict
+from csv import QUOTE_ALL
 from dataclasses import asdict
-from typing import Optional, List
+from io import StringIO
+import logging
+from typing import DefaultDict, Optional, List
 
+from aiocsv import AsyncDictWriter
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 
 from application.core.models import GeoJSONFeatureCollection, EntityModel
 from application.data_access.digital_land_queries import (
@@ -33,11 +37,15 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
     e = get_entity_query(entity)
     if e is not None:
 
-        if extension is not None and extension.value == "json":
+        if _is_matching_extension(extension, Suffix.json):
             return e
 
-        if extension is not None and extension.value == "geojson":
+        if _is_matching_extension(extension, Suffix.geojson):
             return e.geojson
+
+        if _is_matching_extension(extension, Suffix.csv):
+            payload = flatten_payload(e)
+            return to_csv(payload)
 
         return templates.TemplateResponse(
             "entity.html",
@@ -123,23 +131,25 @@ def search_entities(
     extension: Optional[Suffix] = None,
 ):
     query_params = asdict(query_filters)
-    data = get_entity_search(query_params)
+    data = get_entity_search(
+        query_params, is_paginated=not _is_matching_extension(extension, Suffix.csv)
+    )
 
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
 
-    if extension is not None and extension.value == "json":
+    if _is_matching_extension(extension, Suffix.json):
         links = make_links(request, data)
         return {"entities": data["entities"], "links": links, "count": data["count"]}
 
-    if extension is not None and extension.value == "geojson":
+    if _is_matching_extension(extension, Suffix.geojson):
         geojson = _get_geojson(data["entities"])
         links = make_links(request, data)
         geojson["links"] = links
         return geojson
 
-    if extension is not None and extension.value == "csv":
+    if _is_matching_extension(extension, Suffix.csv):
         payload = flatten_payload(data["entities"])
         return to_csv(payload)
 
@@ -191,12 +201,42 @@ def search_entities(
     )
 
 
-def flatten_payload(data):
-    pass
+def _is_matching_extension(extension: Optional[Suffix], match: Suffix):
+    return extension is not None and extension.value == match
 
 
-def to_csv(payload):
-    pass
+def flatten_payload(data: List[EntityModel]) -> List[DefaultDict[str, str]]:
+    """
+    Flatten_payload so that `json` fields are top level attributes.
+
+    This is an expensive operation, as we need the structure to be consistent for serialization,
+    so we use a `defaultdict` to provide that consistency at attribute access time
+
+    :param data:
+    :type data: List[EntityModel]
+    :rtype: List[dict]
+    """
+    entity_dicts = []
+    for entity_model in data:
+        entity_dict = defaultdict(str)
+        entity_dict.update(entity_model.dict())
+        entity_dict.update(entity_dict.pop("json", {}) or {})
+        entity_dicts.append(entity_dict)
+    return entity_dicts
+
+
+def to_csv(payload: List[DefaultDict[str, str]]) -> StreamingResponse:
+    @coroutine
+    def iterstream():
+        with StringIO("", newline="\r\n") as stream:
+            for item in payload:
+                csv_payload_stream = AsyncDictWriter(
+                    stream, fieldnames=dict(item).keys(), quoting=QUOTE_ALL
+                )
+                csv_payload_stream.writeheader()
+                yield from csv_payload_stream.writerow(item)
+
+    return StreamingResponse(iterstream(), media_type="application/csv")
 
 
 # Route ordering in important. Match routes with extensions first

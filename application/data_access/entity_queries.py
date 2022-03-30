@@ -56,7 +56,7 @@ def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
         return [entity_factory(e) for e in entities]
 
 
-def get_entity_search(parameters: dict):
+def get_entity_search(parameters: dict, is_paginated: bool = True):
     params = normalised_params(parameters)
 
     with get_context_session() as session:
@@ -71,7 +71,8 @@ def get_entity_search(parameters: dict):
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
         query = _apply_entries_option_filter(query, params)
-        query = _apply_limit_and_pagination_filters(query, params)
+        if is_paginated:
+            query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
 
