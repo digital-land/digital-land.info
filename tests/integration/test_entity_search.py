@@ -1,5 +1,6 @@
 import pytest
 
+from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
 from application.search.enum import EntriesOption, GeometryRelation
 
@@ -343,6 +344,18 @@ def test_search_includes_multiple_field_params(test_data, client, exclude_middle
     assert result["count"] == 4
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name", "dataset"]))
+
+
+@pytest.mark.parametrize("field_name", list(EntityModel.schema()["properties"].keys()))
+def test_search_includes_any_field_params(
+    field_name, test_data, client, exclude_middleware
+):
+    response = client.get(f"/entity.json?limit=10&field={field_name}")
+    response.raise_for_status()
+    result = response.json()
+    assert result["count"] == 4
+    e = result["entities"][0]
+    assert not set(e.keys()).symmetric_difference(set([field_name]))
 
 
 def test_search_pagination_does_not_affect_count(test_data, client, exclude_middleware):

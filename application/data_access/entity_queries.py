@@ -23,6 +23,10 @@ logger = logging.getLogger(__name__)
 #  not sure about curie search and how it should be implemented to make sense.
 
 
+def to_snake(string: str) -> str:
+    return string.replace("-", "_")
+
+
 def get_entity_query(id: int):
     with get_context_session() as session:
         entity = session.query(EntityOrm).get(id)
@@ -62,7 +66,9 @@ def get_entity_search(parameters: dict):
     with get_context_session() as session:
         only_fields = params.get("field")
         if only_fields:
-            query_args = [getattr(EntityOrm, field.value) for field in only_fields]
+            query_args = [
+                getattr(EntityOrm, to_snake(field.value)) for field in only_fields
+            ]
         else:
             query_args = [EntityOrm]
         query_args.append(func.count(EntityOrm.entity).over().label("count"))
