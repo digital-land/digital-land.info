@@ -17,7 +17,6 @@ from application.data_access.digital_land_queries import (
 from application.data_access.entity_queries import (
     get_entity_query,
     get_entity_search,
-    get_json_field_keys_for_query,
 )
 
 from application.search.enum import Suffix
@@ -153,9 +152,8 @@ def search_entities(
         return geojson
 
     if _is_matching_extension(extension, Suffix.csv):
-        keys = get_json_field_keys_for_query(data["entities"])
         payload = flatten_payload(data["entities"])
-        return to_csv(payload, keys)
+        return to_csv(payload, data["keys"])
 
     # typology facet
     typologies = get_typologies()

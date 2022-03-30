@@ -1,10 +1,10 @@
 import logging
 
-from typing import Optional, List
+from typing import Optional, List, Union, Dict
 from sqlalchemy import select, func, or_, and_
 from sqlalchemy.orm import Query
 
-from application.core.models import entity_factory
+from application.core.models import entity_factory, EntityModel
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
     get_date_to_filter,
@@ -74,7 +74,12 @@ def get_entity_search(parameters: dict, is_unpaginated_iterator: bool = False):
         query = _apply_location_filters(session, query, params)
         query = _apply_entries_option_filter(query, params)
         if is_unpaginated_iterator:
-            return {"params": params, "entities": query}
+            keys = get_json_field_keys_for_query(query)
+            return {
+                "params": params,
+                "entities": _get_entity_representation(query, only_fields),
+                "keys": keys,
+            }
         query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
@@ -84,21 +89,40 @@ def get_entity_search(parameters: dict, is_unpaginated_iterator: bool = False):
         else:
             count = 0
 
-        if only_fields:
-            entities = [
-                dict(zip([field.value for field in only_fields], entity_values[:-1]))
-                for entity_values in entities
-            ]
-        else:
-            entities = [entity_factory(entity.EntityOrm) for entity in entities]
-        return {"params": params, "count": count, "entities": entities}
+
+        return {
+            "params": params,
+            "count": count,
+            "entities": _get_entity_representation(
+                entities, only_fields, entity_attribute="EntityOrm"
+            ),
+        }
 
 
 def get_json_field_keys_for_query(query: Query) -> List[str]:
+    standard_fields = [
+        to_snake(field) for field in EntityModel.schema()["properties"].keys()
+    ]
     field_key_query = query.with_entities(
         func.jsonb_object_keys(EntityOrm.json).label("json_fields")
     )
-    return [result_tuple[0] for result_tuple in field_key_query.all()]
+    return sorted(
+        standard_fields + [result_tuple[0] for result_tuple in field_key_query.all()]
+    )
+
+
+def _get_entity_representation(
+    entities: EntityOrm, only_fields: List[str], entity_attribute: str = None
+) -> Union[Dict[str, Union[str, int, Dict]], EntityModel]:
+    if only_fields:
+        yield from [dict(zip(only_fields, entity[:-1])) for entity in entities]
+    else:
+        if entity_attribute:
+            yield from [
+                entity_factory(getattr(entity, entity_attribute)) for entity in entities
+            ]
+        else:
+            yield from [entity_factory(entity) for entity in entities]
 
 
 def _apply_base_filters(query, params):
