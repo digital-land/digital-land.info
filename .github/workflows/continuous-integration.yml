@@ -39,6 +39,12 @@ jobs:
       run: |
         make lint
 
+    - name: Setup database
+      run: |
+        psql -h localhost -c "CREATE DATABASE digital_land_test WITH TEMPLATE postgres" -U postgres
+      env:
+        PGPASSWORD: postgres
+
     - name: Test
       run: |
         make test
