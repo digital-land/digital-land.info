@@ -1,3 +1,4 @@
+from typing import Generator
 import pytest
 import alembic
 from fastapi import FastAPI
@@ -36,7 +37,7 @@ def apply_migrations(db_session, test_settings: Settings):
 
 
 @pytest.fixture(scope="session")
-def create_db(test_settings: Settings):
+def create_db(test_settings: Settings) -> PostgresDsn:
     database_url = test_settings.WRITE_DATABASE_URL
     if database_exists(database_url):
         drop_database(database_url)
@@ -45,7 +46,9 @@ def create_db(test_settings: Settings):
 
 
 @pytest.fixture(scope="session")
-def db_session(create_db: PostgresDsn, test_settings: Settings) -> Session:
+def db_session(
+    create_db: PostgresDsn, test_settings: Settings
+) -> Generator[Session, None, None]:
     engine = create_engine(create_db)
     db = sessionmaker(bind=engine)()
     yield db
