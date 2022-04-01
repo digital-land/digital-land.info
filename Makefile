@@ -39,8 +39,13 @@ test-acceptance:
 	python -m playwright install chromium
 	python -m pytest -p no:warnings tests/acceptance
 
-test:
-	python -m pytest --ignore=tests/acceptance
+test: test-unit test-integration
+
+test-unit:
+	python -m pytest tests/unit --junitxml=.junitxml/unit.xml
+
+test-integration:
+	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml
 
 lint:	black-check flake8
 
