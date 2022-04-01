@@ -39,8 +39,16 @@ test-acceptance:
 	python -m playwright install chromium
 	python -m pytest -p no:warnings tests/acceptance
 
-test:
-	python -m pytest --ignore=tests/acceptance
+test: test-unit test-integration
+
+test-unit:
+	python -m pytest tests/unit --junitxml=.junitxml/unit.xml
+
+test-integration:
+	python -m pytest tests/integration --junitxml=.junitxml/integration.xml
+
+test-integration-docker:
+	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml
 
 lint:	black-check flake8
 
@@ -79,4 +87,5 @@ server-dev:
 	make -j 2 server frontend-watch
 
 load-db: login
-	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db
+	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-dataset
+	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-entity
