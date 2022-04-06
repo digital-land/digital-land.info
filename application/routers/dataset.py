@@ -1,20 +1,21 @@
 import logging
 from typing import Optional
+from urllib.parse import urljoin
 
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 from application.data_access.digital_land_queries import (
+    DATASET_NAMES_ENUM,
     get_dataset_query,
     get_datasets,
     get_latest_resource,
     get_publisher_coverage,
 )
-
 from application.data_access.entity_queries import get_entity_count
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
-from application.search.enum import Suffix
+from application.search.enum import Suffix, SuffixLinkableFiles
 from application.settings import get_settings, Settings
 
 router = APIRouter()
@@ -92,6 +93,18 @@ def get_dataset(
         )
 
 
+def link_dataset(
+    request: Request,
+    dataset: DATASET_NAMES_ENUM,
+    extension: SuffixLinkableFiles,
+    settings: Settings = Depends(get_settings),
+):
+    hoisted_collection_bucket = settings.S3_HOISTED_BUCKET
+    return RedirectResponse(
+        urljoin(hoisted_collection_bucket, f"{dataset}-hoisted.csv"), status_code=302
+    )
+
+
 router.add_api_route(
     ".{extension}",
     endpoint=list_datasets,
@@ -113,4 +126,11 @@ router.add_api_route(
     endpoint=get_dataset,
     response_class=HTMLResponse,
     include_in_schema=False,
+)
+
+router.add_api_route(
+    "/{dataset}.{extension}/link",
+    endpoint=link_dataset,
+    response_class=RedirectResponse,
+    tags=["Link dataset"],
 )
