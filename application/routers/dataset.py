@@ -101,7 +101,8 @@ def link_dataset(
 ):
     hoisted_collection_bucket = settings.S3_HOISTED_BUCKET
     return RedirectResponse(
-        urljoin(hoisted_collection_bucket, f"{dataset}-hoisted.csv"), status_code=302
+        urljoin(hoisted_collection_bucket, f"{dataset.dataset}-hoisted.csv"),
+        status_code=302,
     )
 
 
