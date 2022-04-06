@@ -1,3 +1,4 @@
+from enum import Enum
 import logging
 from typing import List
 
@@ -91,3 +92,12 @@ def get_latest_resource(dataset) -> DatasetCollectionModel:
             return DatasetCollectionModel.from_orm(result)
         else:
             return None
+
+
+def get_dataset_names():
+    with get_context_session() as session:
+        return [result[0] for result in session.query(DatasetOrm.dataset).all()]
+
+
+DATASET_NAMES = get_dataset_names()
+DATASET_NAMES_ENUM = Enum("dataset", zip(DATASET_NAMES, DATASET_NAMES))

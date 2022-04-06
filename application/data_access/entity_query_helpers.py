@@ -1,3 +1,4 @@
+from enum import Enum
 import datetime
 import operator
 
@@ -67,7 +68,9 @@ def normalised_params(params):
 
     for lst in lists:
         if lst in params:
-            params[lst] = [v for v in params[lst] if v]
+            params[lst] = filter(
+                bool, [v.value if isinstance(v, Enum) else v for v in params[lst]]
+            )
             params[lst] = sorted(set(params[lst]))
 
     return params
