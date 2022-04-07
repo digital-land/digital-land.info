@@ -78,7 +78,7 @@
 
       <h2 class="govuk-heading-m" id="national-dataset-map">Download the data</h2>
       <p class="govuk-body">
-        Download a copy of this dataset as <a class="govuk-link" href="{{ collection_bucket }}/{{dataset["dataset"]}}-collection/dataset/{{ dataset["dataset"] }}.csv">CSV</a>,
+        Download a copy of this dataset as <a class="govuk-link" href="{{ hoisted_bucket }}/{{ dataset["dataset"] }}-hoisted.csv">CSV</a>,
         <a class="govuk-link" href="/entity.json?dataset={{ dataset['dataset'] }}">JSON</a>
         {% if dataset['typology'] == 'geography' %}
          or <a class="govuk-link" href="/entity.geojson?dataset={{ dataset['dataset'] }}">GeoJSON</a>

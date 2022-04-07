@@ -59,6 +59,7 @@ def get_dataset(
     settings: Settings = Depends(get_settings),
 ):
     collection_bucket = settings.S3_COLLECTION_BUCKET
+    hoisted_bucket = settings.S3_HOISTED_BUCKET
     try:
         _dataset = get_dataset_query(dataset)
         entity_count = get_entity_count(dataset)
@@ -71,6 +72,7 @@ def get_dataset(
                 "request": request,
                 "dataset": _dataset,
                 "collection_bucket": collection_bucket,
+                "hoisted_bucket": hoisted_bucket,
                 "entity_count": entity_count[1] if entity_count else 0,
                 "publishers": {
                     "expected": publisher_coverage.expected_publisher_count,
