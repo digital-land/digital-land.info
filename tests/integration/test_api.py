@@ -86,3 +86,17 @@ def test_get_dataset_endpoint_returns_as_expected(client, exclude_middleware):
     """
     response = client.get("/dataset/waste-authority")
     assert response.status_code == 200
+
+
+def test_link_dataset_endpoint_returns_as_expected(
+    test_data, test_settings, client, exclude_middleware
+):
+    """
+    Test link dataset endpoint returns a 302 response code with the S3_HOISTED_BUCKET domain
+    """
+    response = client.get("/dataset/greenspace.csv/link", allow_redirects=False)
+    assert response.status_code == 302
+    assert (
+        response.headers["location"]
+        == f"{test_settings.S3_HOISTED_BUCKET}/greenspace-hoisted.csv"
+    )
