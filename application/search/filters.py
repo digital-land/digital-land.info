@@ -24,7 +24,10 @@ class DatasetQueryFilters:
     def datasets_exist(cls, dataset: str):
         with get_context_session() as session:
             dataset_names = [
-                result[0] for result in session.query(DatasetOrm.dataset).all()
+                result[0]
+                for result in session.query(DatasetOrm.dataset)
+                .where(DatasetOrm.typology != "specification")
+                .all()
             ]
         if dataset not in dataset_names:
             raise DatasetValueNotFound(
