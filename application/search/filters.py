@@ -17,6 +17,28 @@ ENTITY_MODEL_FIELD_ENUM = Enum("field", zip(ENTITY_MODEL_FIELDS, ENTITY_MODEL_FI
 
 
 @dataclass
+class DatasetQueryFilters:
+    dataset: str = Query(None)
+
+    @validator("dataset", pre=True)
+    def datasets_exist(cls, dataset: str):
+        with get_context_session() as session:
+            dataset_names = [
+                result[0]
+                for result in session.query(DatasetOrm.dataset)
+                .where(DatasetOrm.typology != "specification")
+                .all()
+            ]
+        if dataset not in dataset_names:
+            raise DatasetValueNotFound(
+                f"Requested dataset does not exist: {dataset}. "
+                f"Valid dataset names: {','.join(dataset_names)}",
+                dataset_names=dataset_names,
+            )
+        return dataset
+
+
+@dataclass
 class QueryFilters:
 
     # base filters

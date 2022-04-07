@@ -1,6 +1,10 @@
 from enum import Enum
 
 
+class SuffixLinkableFiles(str, Enum):
+    csv = "csv"
+
+
 class Suffix(str, Enum):
     json = "json"
     html = "html"
