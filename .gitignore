@@ -33,3 +33,4 @@ pyrightconfig.json
 static
 
 docker-compose.override.yml
+.junitxml
