@@ -1,4 +1,5 @@
 import os
+import logging
 
 from logging.config import fileConfig
 from alembic import context
@@ -36,6 +37,7 @@ def run_migrations_offline():
     """
 
     url = os.getenv("WRITE_DATABASE_URL")
+    logging.info(f"Running offline migration against {url}")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -57,10 +59,12 @@ def run_migrations_online():
     from application.settings import get_settings
     from sqlalchemy import create_engine
 
-    engine = create_engine(get_settings().WRITE_DATABASE_URL)
+    url = get_settings().WRITE_DATABASE_URL
+    engine = create_engine(url)
     connectable = engine
 
     with connectable.connect() as connection:
+        logging.info(f"Running online migration against {url}")
         context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():

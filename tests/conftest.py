@@ -1,11 +1,14 @@
+from typing import Generator
 import pytest
 import alembic
 from fastapi import FastAPI
 
 from fastapi.testclient import TestClient
 from alembic.config import Config
+from pydantic import PostgresDsn
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from application.db.models import DatasetOrm, EntityOrm
 from application.settings import Settings, get_settings
@@ -16,20 +19,37 @@ def test_settings() -> Settings:
     from dotenv import load_dotenv
 
     load_dotenv(".env.test", override=True)
+    get_settings.cache_clear()
     return get_settings()
 
 
 @pytest.fixture(scope="session")
-def apply_migrations(test_settings):
+def apply_migrations(db_session, test_settings: Settings):
     config = Config("alembic.ini")
+
+    config.set_section_option(
+        "alembic", "sqlalchemy.url", test_settings.WRITE_DATABASE_URL
+    )
+
     alembic.command.upgrade(config, "head")
     yield
     alembic.command.downgrade(config, "base")
 
 
 @pytest.fixture(scope="session")
-def db_session(test_settings: Settings) -> Session:
-    engine = create_engine(test_settings.READ_DATABASE_URL)
+def create_db(test_settings: Settings) -> PostgresDsn:
+    database_url = test_settings.WRITE_DATABASE_URL
+    if database_exists(database_url):
+        drop_database(database_url)
+    create_database(database_url)
+    return database_url
+
+
+@pytest.fixture(scope="session")
+def db_session(
+    create_db: PostgresDsn, test_settings: Settings
+) -> Generator[Session, None, None]:
+    engine = create_engine(create_db)
     db = sessionmaker(bind=engine)()
     yield db
     db.close()

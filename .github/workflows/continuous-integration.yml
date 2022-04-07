@@ -55,6 +55,12 @@ jobs:
         READ_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
         WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
 
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v2
+      if: always() # always run even if the previous step fails
+      with:
+        report_paths: '.junitxml/*.xml'
+
     - name: Configure AWS credentials
       if: ${{ github.ref == 'refs/heads/main' }}
       uses: aws-actions/configure-aws-credentials@v1
