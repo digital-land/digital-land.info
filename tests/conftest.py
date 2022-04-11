@@ -33,7 +33,6 @@ def apply_migrations(db_session, test_settings: Settings):
 
     alembic.command.upgrade(config, "head")
     yield
-    alembic.command.downgrade(config, "base")
 
 
 @pytest.fixture(scope="session")
