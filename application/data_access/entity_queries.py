@@ -2,8 +2,9 @@ import logging
 
 from typing import Optional, List
 from sqlalchemy import select, func, or_, and_
+from sqlalchemy.orm import joinedload
 
-from application.core.models import entity_factory
+from application.core.models import EntityModel, entity_factory
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
     get_date_to_filter,
@@ -27,9 +28,15 @@ def to_snake(string: str) -> str:
     return string.replace("-", "_")
 
 
-def get_entity_query(id: int):
+def get_entity_query(id: int) -> Optional[EntityModel]:
     with get_context_session() as session:
-        entity = session.query(EntityOrm).get(id)
+        entity = (
+            session.query(EntityOrm)
+            .options(joinedload(EntityOrm.new_entity_mapping))
+            .join(EntityOrm.new_entity_mapping)
+            .filter(EntityOrm.entity == id)
+            .one_or_none()
+        )
         if entity is not None:
             return entity_factory(entity)
         else:

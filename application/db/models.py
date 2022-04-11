@@ -1,7 +1,8 @@
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer
+from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer, cast
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, foreign, remote
 
 Base = declarative_base()
 
@@ -40,6 +41,35 @@ idx_entity_columns = Index(
     EntityOrm.reference,
     EntityOrm.typology,
 )
+
+
+class OldEntityOrm(Base):
+
+    __tablename__ = "old_entity"
+
+    # TODO Change this field to integer
+    old_entity_id = Column(
+        Text, name="old_entity", primary_key=True, autoincrement=False
+    )
+    old_entity = relationship(
+        EntityOrm,
+        primaryjoin=remote(EntityOrm.entity) == cast(foreign(old_entity_id), Integer),
+        backref="new_entity_mapping",
+        uselist=False,
+        #  single_parent=True
+    )
+    entry_date = Column(Date, nullable=True)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
+    status = Column(Integer, nullable=False)
+    notes = Column(Text, nullable=True)
+    new_entity_id = Column(Text, name="entity", nullable=True)
+    new_entity = relationship(
+        EntityOrm,
+        primaryjoin=remote(EntityOrm.entity) == foreign(new_entity_id),
+        backref="old_entity_mappings",
+        uselist=True,
+    )
 
 
 class DatasetOrm(Base):

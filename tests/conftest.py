@@ -1,8 +1,8 @@
-from typing import Generator
+from typing import Generator, Dict, List
+
 import pytest
 import alembic
 from fastapi import FastAPI
-
 from fastapi.testclient import TestClient
 from alembic.config import Config
 from pydantic import PostgresDsn
@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from application.db.models import DatasetOrm, EntityOrm
+from application.db.models import DatasetOrm, EntityOrm, Base, OldEntityOrm
 from application.settings import Settings, get_settings
 
 
@@ -61,17 +61,42 @@ def test_data(apply_migrations, db_session: Session):
     from tests.test_data import datasets
     from tests.test_data import entities
 
+    dataset_models = []
     for dataset in datasets:
         themes = dataset.pop("themes").split(",")
         ds = DatasetOrm(**dataset)
         ds.themes = themes
         db_session.add(ds)
+        dataset_models.append(ds)
 
+    entity_models = []
     for entity in entities:
         e = EntityOrm(**entity)
         db_session.add(e)
+        entity_models.append(e)
 
     db_session.commit()
+    return {"datasets": dataset_models, "entities": entity_models}
+
+
+@pytest.fixture(scope="session")
+def test_data_old_entities(
+    test_data: Dict[str, List[Base]], db_session: Session
+) -> Dict[str, List[Base]]:
+    dataset_models = test_data["datasets"].copy()
+    entity_models = test_data["entities"].copy()
+    entity_models_with_old = [test_data["entities"].pop()]
+    oe = OldEntityOrm(
+        old_entity=entity_models_with_old[0], new_entity=[entity_models[0]], status=301
+    )
+    db_session.add(oe)
+    db_session.commit()
+
+    return {
+        "datasets": dataset_models,
+        "entities": entity_models,
+        "entity_models_with_old": entity_models_with_old,
+    }
 
 
 @pytest.fixture(scope="session")
