@@ -25,7 +25,7 @@ def upgrade():
         sa.Column("end_date", sa.Date(), nullable=True),
         sa.Column("status", sa.Integer(), nullable=False),
         sa.Column("notes", sa.Text(), nullable=True),
-        sa.Column("entity", sa.Text(), nullable=True),
+        sa.Column("entity", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("old_entity"),
     )
 

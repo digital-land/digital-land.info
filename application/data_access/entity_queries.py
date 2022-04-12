@@ -1,8 +1,7 @@
 import logging
 
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from sqlalchemy import select, func, or_, and_
-from sqlalchemy.orm import joinedload
 
 from application.core.models import EntityModel, entity_factory
 from application.data_access.entity_query_helpers import (
@@ -13,7 +12,7 @@ from application.data_access.entity_query_helpers import (
     get_spatial_function_for_relation,
     normalised_params,
 )
-from application.db.models import EntityOrm
+from application.db.models import EntityOrm, OldEntityOrm
 from application.db.session import get_context_session
 from application.search.enum import GeometryRelation, EntriesOption
 
@@ -28,19 +27,27 @@ def to_snake(string: str) -> str:
     return string.replace("-", "_")
 
 
-def get_entity_query(id: int) -> Optional[EntityModel]:
+def get_entity_query(
+    id: int,
+) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
     with get_context_session() as session:
-        entity = (
-            session.query(EntityOrm)
-            .options(joinedload(EntityOrm.new_entity_mapping))
-            .join(EntityOrm.new_entity_mapping)
-            .filter(EntityOrm.entity == id)
-            .one_or_none()
-        )
-        if entity is not None:
-            return entity_factory(entity)
+        entity = session.query(EntityOrm).get(id)
+        if not entity:
+            old_entity = (
+                session.query(OldEntityOrm)
+                .filter(OldEntityOrm.old_entity_id == str(id))
+                .one_or_none()
+            )
+            if old_entity:
+                return (
+                    None,
+                    old_entity.status,
+                    old_entity.new_entity_id,
+                )
+            else:
+                return None, None, None
         else:
-            return None
+            return entity_factory(entity), None, None
 
 
 def get_entity_count(dataset: Optional[str] = None):

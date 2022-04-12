@@ -30,18 +30,18 @@ def _get_geojson(data: List[EntityModel]) -> GeoJSONFeatureCollection:
 
 def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
 
-    e = get_entity_query(entity)
-    if e and e.new_entity_mapping and e.new_entity_mapping.status == 410:
+    e, old_entity_status, new_entity_id = get_entity_query(entity)
+
+    if old_entity_status == 410:
         return templates.TemplateResponse(
             "entity-gone.html",
             {
-                "entity": e.dict(by_alias=True, exclude={"geojson"}),
+                "request": request,
+                "entity": str(entity),
             },
         )
-    elif e and e.new_entity_mapping and e.new_entity_mapping.status == 301:
-        return RedirectResponse(
-            f"/{e.new_entity_mapping.new_entity_id}", status_code=301
-        )
+    elif old_entity_status == 301:
+        return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
     elif e is not None:
 
         if extension is not None and extension.value == "json":
