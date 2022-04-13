@@ -444,4 +444,28 @@ def test_search_entity_covered_by_a_polygon(test_data, params):
     assert result["entities"][0].dataset == "historical-monument"
 
 
-# TODO test cases for within, overlaps and crosses
+def test_search_entity_that_overlaps_a_polygon(test_data, params):
+
+    from tests.test_data.wkt_data import intersects_with_brownfield_entity
+
+    params["geometry"] = [intersects_with_brownfield_entity]
+    params["geometry_relation"] = GeometryRelation.overlaps.name
+
+    result = get_entity_search(params)
+    assert result["count"] == 1
+    assert result["entities"][0].dataset == "brownfield-site"
+
+
+def test_search_entity_that_is_crossed_by_a_line(test_data, params):
+
+    from tests.test_data.wkt_data import crosses_historical_entity
+
+    params["geometry"] = [crosses_historical_entity]
+    params["geometry_relation"] = GeometryRelation.crosses.name
+
+    result = get_entity_search(params)
+    assert result["count"] == 1
+    assert result["entities"][0].dataset == "historical-monument"
+
+
+# TODO test cases for contains and within

@@ -64,6 +64,8 @@ def get_spatial_function_for_relation(relation):
         return func.ST_CoveredBy
     if relation == GeometryRelation.overlaps:
         return func.ST_Overlaps
+    if relation == GeometryRelation.crosses:
+        return func.ST_Crosses
 
     return func.ST_Within
 
