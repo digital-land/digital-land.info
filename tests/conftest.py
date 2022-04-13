@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from application.db.models import DatasetOrm, EntityOrm, Base, OldEntityOrm
+from application.db.models import DatasetOrm, EntityOrm, OldEntityOrm
 from application.settings import Settings, get_settings
 
 
@@ -81,20 +81,18 @@ def test_data(apply_migrations, db_session: Session):
 @pytest.fixture(scope="session")
 def test_data_old_entities(
     test_data: Dict[str, List[Union[DatasetOrm, EntityOrm]]], db_session: Session
-) -> Dict[str, Union[List[Union[DatasetOrm, EntityOrm]], Dict[int, List[OldEntityOrm]]]]:
+) -> Dict[
+    str, Union[List[Union[DatasetOrm, EntityOrm]], Dict[int, List[OldEntityOrm]]]
+]:
     dataset_models = test_data["datasets"].copy()
     entity_models = test_data["entities"].copy()
     old_entity_redirect = [
         OldEntityOrm(
-            old_entity_id="999", new_entity=entity_models[0], status=301
+            old_entity=entity_models[0], new_entity=entity_models[0], status=301
         )
     ]
     db_session.add(old_entity_redirect[0])
-    old_entity_gone = [
-        OldEntityOrm(
-            old_entity_id="998", status=410
-        )
-    ]
+    old_entity_gone = [OldEntityOrm(old_entity=entity_models[1], status=410)]
     db_session.add(old_entity_gone[0])
     db_session.commit()
 
@@ -104,7 +102,7 @@ def test_data_old_entities(
         "old_entities": {
             301: old_entity_redirect,
             410: old_entity_gone,
-        }
+        },
     }
 
 

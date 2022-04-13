@@ -71,21 +71,19 @@ def test_old_entity_redirects_as_expected(
     old_entity = test_data_old_entities["old_entities"][301][0]
     response = client.get(f"/entity/{old_entity.old_entity_id}", allow_redirects=False)
     assert response.status_code == 301
-    assert (
-        response.headers["location"]
-        == f"/entity/{old_entity.new_entity_id}"
-    )
+    assert response.headers["location"] == f"/entity/{old_entity.new_entity_id}"
 
-def test_old_entity_gone_shown(
-    test_data_old_entities, client, exclude_middleware
-):
+
+def test_old_entity_gone_shown(test_data_old_entities, client, exclude_middleware):
     """
     Test entity endpoint returns entity gone content
     """
     old_entity = test_data_old_entities["old_entities"][410][0]
     response = client.get(f"/entity/{old_entity.old_entity_id}", allow_redirects=False)
     assert response.status_code == 200
-    assert f"This entity (#{old_entity.old_entity_id}) has been removed." in response.text
+    assert (
+        f"This entity (#{old_entity.old_entity_id}) has been removed." in response.text
+    )
 
 
 def test_dataset_json_endpoint_returns_as_expected(client):

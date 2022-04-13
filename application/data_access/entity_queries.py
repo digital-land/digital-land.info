@@ -31,23 +31,23 @@ def get_entity_query(
     id: int,
 ) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
     with get_context_session() as session:
-        entity = session.query(EntityOrm).get(id)
-        if not entity:
-            old_entity = (
-                session.query(OldEntityOrm)
-                .filter(OldEntityOrm.old_entity_id == str(id))
-                .one_or_none()
+        old_entity = (
+            session.query(OldEntityOrm)
+            .filter(OldEntityOrm.old_entity_id == str(id))
+            .one_or_none()
+        )
+        if old_entity:
+            return (
+                None,
+                old_entity.status,
+                old_entity.new_entity_id,
             )
-            if old_entity:
-                return (
-                    None,
-                    old_entity.status,
-                    old_entity.new_entity_id,
-                )
-            else:
-                return None, None, None
         else:
-            return entity_factory(entity), None, None
+            entity = session.query(EntityOrm).get(id)
+            if not entity:
+                return None, None, None
+            else:
+                return entity_factory(entity), None, None
 
 
 def get_entity_count(dataset: Optional[str] = None):
