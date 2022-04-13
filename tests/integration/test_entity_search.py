@@ -409,3 +409,17 @@ def test_search_by_geometry_that_equals_that_of_an_entity_should_return_the_enti
     result = get_entity_search(params)
     assert 1 == result["count"]
     assert result["entities"][0].dataset == "brownfield-site"
+
+
+def test_search_by_geometry_that_touches_an_entity_should_return_the_entity(
+    test_data, params
+):
+
+    from tests.test_data.wkt_data import touches_forest_entity
+
+    params["geometry"] = [touches_forest_entity]
+    params["geometry_relation"] = GeometryRelation.touches.name
+
+    result = get_entity_search(params)
+    assert 1 == result["count"]
+    assert result["entities"][0].dataset == "forest"
