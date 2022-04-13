@@ -50,7 +50,24 @@ def get_spatial_function_for_relation(relation):
 
     if relation == GeometryRelation.intersects:
         return func.ST_Intersects
-    return None
+    if relation == GeometryRelation.equals:
+        return func.ST_Equals
+    if relation == GeometryRelation.disjoint:
+        return func.ST_Disjoint
+    if relation == GeometryRelation.intersects:
+        return func.ST_Intersects
+    if relation == GeometryRelation.touches:
+        return func.ST_Touches
+    if relation == GeometryRelation.contains:
+        return func.ST_Contains
+    if relation == GeometryRelation.covers:
+        return func.ST_Covers
+    if relation == GeometryRelation.coveredby:
+        return func.ST_CoveredBy
+    if relation == GeometryRelation.overlaps:
+        return func.ST_Overlaps
+
+    return func.ST_Within
 
 
 def normalised_params(params):

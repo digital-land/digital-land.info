@@ -56,8 +56,8 @@ def test_search_entity_by_dataset_name_not_in_system(test_data, params):
 
     params["dataset"] = ["not-exists"]
     result = get_entity_search(params)
-    assert 0 == result["count"]
-    assert [] == result["entities"]
+    assert result["count"] == 0
+    assert result["entities"] == []
 
 
 def test_search_entity_by_dataset_name_not_in_system_returns_error(
@@ -119,8 +119,8 @@ def test_search_entity_by_single_dataset_name(test_data, params):
     result = get_entity_search(params)
     assert 1 == result["count"]
     entity = result["entities"][0]
-    assert "greenspace" == entity.dataset
-    assert "geography" == entity.typology
+    assert entity.dataset == "greenspace"
+    assert entity.typology == "geography"
 
 
 def test_search_entity_by_list_of_dataset_names(test_data, params):
@@ -130,7 +130,7 @@ def test_search_entity_by_list_of_dataset_names(test_data, params):
     assert 2 == result["count"]
     for e in result["entities"]:
         assert e.dataset in ["greenspace", "brownfield-site"]
-        assert "geography" == e.typology
+        assert e.typology == "geography"
 
 
 def test_search_entity_by_date_since(test_data, params):
@@ -174,7 +174,7 @@ def test_search_entity_by_date_since(test_data, params):
 
     params["entry_date_year"] = 2023
     result = get_entity_search(params)
-    assert 0 == result["count"]
+    assert result["count"] == 0
 
 
 def test_search_entity_by_date_before(test_data, params):
@@ -225,7 +225,7 @@ def test_search_entity_by_date_equal(test_data, params):
     result = get_entity_search(params)
     assert 1 == result["count"]
     entity = result["entities"][0]
-    assert "greenspace" == entity.dataset
+    assert entity.dataset == "greenspace"
 
 
 def test_search_entity_by_point(test_data, params):
@@ -242,7 +242,7 @@ def test_search_entity_by_point(test_data, params):
     result = get_entity_search(params)
     assert 1 == result["count"]
     entity = result["entities"][0]
-    assert "historical-monument" == entity.dataset
+    assert entity.dataset == "historical-monument"
 
 
 def test_search_entity_by_single_polygon_intersects(test_data, params):
@@ -262,7 +262,7 @@ def test_search_entity_by_single_polygon_intersects(test_data, params):
     result = get_entity_search(params)
     assert 1 == result["count"]
     entity = result["entities"][0]
-    assert "greenspace" == entity.dataset
+    assert entity.dataset == "greenspace"
 
 
 def test_search_entity_by_list_of_polygons_that_intersect(test_data, params):
@@ -274,7 +274,7 @@ def test_search_entity_by_list_of_polygons_that_intersect(test_data, params):
     params["geometry_relation"] = GeometryRelation.intersects.name
 
     result = get_entity_search(params)
-    assert 2 == result["count"]
+    assert result["count"] == 2
 
 
 def test_search_entity_by_polygon_with_no_intersection(test_data, params):
@@ -325,7 +325,7 @@ def test_search_historical_entries(test_data, params):
     result = get_entity_search(params)
     assert 1 == result["count"]
     e = result["entities"][0]
-    assert "greenspace" == e.dataset
+    assert e.dataset == "greenspace"
 
 
 def test_search_includes_only_field_params(test_data, client, exclude_middleware):
@@ -370,3 +370,42 @@ def test_search_filtering_does_affect_count(test_data, client, exclude_middlewar
     response.raise_for_status()
     result = response.json()
     assert result["count"] == 1
+
+
+def test_search_disjoint_geometry_should_return_all_data(test_data, params):
+
+    from tests.test_data.wkt_data import no_intersection
+
+    params["geometry"] = [no_intersection]
+    params["geometry_relation"] = GeometryRelation.disjoint.name
+
+    result = get_entity_search(params)
+    assert 4 == result["count"]
+
+
+def test_search_by_geometry_that_is_contained_by_another_should_return_containing_entity(
+    test_data, params
+):
+
+    from tests.test_data.wkt_data import contained_by_greenspace_entity
+
+    params["geometry"] = [contained_by_greenspace_entity]
+    params["geometry_relation"] = GeometryRelation.contains.name
+
+    result = get_entity_search(params)
+    assert 1 == result["count"]
+    assert result["entities"][0].dataset == "greenspace"
+
+
+def test_search_by_geometry_that_equals_that_of_an_entity_should_return_the_entity(
+    test_data, params
+):
+
+    from tests.test_data.wkt_data import equals_brownfield_site_entity
+
+    params["geometry"] = [equals_brownfield_site_entity]
+    params["geometry_relation"] = GeometryRelation.equals.name
+
+    result = get_entity_search(params)
+    assert 1 == result["count"]
+    assert result["entities"][0].dataset == "brownfield-site"
