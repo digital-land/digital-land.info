@@ -47,9 +47,8 @@ class OldEntityOrm(Base):
 
     __tablename__ = "old_entity"
 
-    # TODO Change this field to integer
     old_entity_id = Column(
-        Text, name="old_entity", primary_key=True, autoincrement=False
+        BIGINT, name="old_entity", primary_key=True, autoincrement=False
     )
     old_entity = relationship(
         EntityOrm,
@@ -62,7 +61,7 @@ class OldEntityOrm(Base):
     end_date = Column(Date, nullable=True)
     status = Column(Integer, nullable=False)
     notes = Column(Text, nullable=True)
-    new_entity_id = Column(Integer, name="entity", nullable=True)
+    new_entity_id = Column(BIGINT, name="entity", nullable=True)
     new_entity = relationship(
         EntityOrm,
         primaryjoin=remote(EntityOrm.entity) == foreign(new_entity_id),

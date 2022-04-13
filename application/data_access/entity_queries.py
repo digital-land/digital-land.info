@@ -33,7 +33,7 @@ def get_entity_query(
     with get_context_session() as session:
         old_entity = (
             session.query(OldEntityOrm)
-            .filter(OldEntityOrm.old_entity_id == str(id))
+            .filter(OldEntityOrm.old_entity_id == id)
             .one_or_none()
         )
         if old_entity:

@@ -19,13 +19,13 @@ depends_on = None
 def upgrade():
     op.create_table(
         "old_entity",
-        sa.Column("old_entity", sa.Text(), autoincrement=False, nullable=False),
+        sa.Column("old_entity", sa.BIGINT(), autoincrement=False, nullable=False),
         sa.Column("entry_date", sa.Date(), nullable=True),
         sa.Column("start_date", sa.Date(), nullable=True),
         sa.Column("end_date", sa.Date(), nullable=True),
         sa.Column("status", sa.Integer(), nullable=False),
         sa.Column("notes", sa.Text(), nullable=True),
-        sa.Column("entity", sa.Integer(), nullable=True),
+        sa.Column("entity", sa.BIGINT(), nullable=True),
         sa.PrimaryKeyConstraint("old_entity"),
     )
 
