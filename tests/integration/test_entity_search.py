@@ -372,34 +372,7 @@ def test_search_filtering_does_affect_count(test_data, client, exclude_middlewar
     assert result["count"] == 1
 
 
-def test_search_disjoint_geometry_should_return_all_data(test_data, params):
-
-    from tests.test_data.wkt_data import no_intersection
-
-    params["geometry"] = [no_intersection]
-    params["geometry_relation"] = GeometryRelation.disjoint.name
-
-    result = get_entity_search(params)
-    assert result["count"] == 4
-
-
-def test_search_by_geometry_that_is_contained_by_another_should_return_containing_entity(
-    test_data, params
-):
-
-    from tests.test_data.wkt_data import contained_by_greenspace_entity
-
-    params["geometry"] = [contained_by_greenspace_entity]
-    params["geometry_relation"] = GeometryRelation.contains.name
-
-    result = get_entity_search(params)
-    assert result["count"] == 1
-    assert result["entities"][0].dataset == "greenspace"
-
-
-def test_search_by_geometry_that_equals_that_of_an_entity_should_return_the_entity(
-    test_data, params
-):
+def test_search_entity_equal_to_a_polygon(test_data, params):
 
     from tests.test_data.wkt_data import equals_brownfield_site_entity
 
@@ -411,9 +384,18 @@ def test_search_by_geometry_that_equals_that_of_an_entity_should_return_the_enti
     assert result["entities"][0].dataset == "brownfield-site"
 
 
-def test_search_by_geometry_that_touches_an_entity_should_return_the_entity(
-    test_data, params
-):
+def test_search_entity_disjoint_from_a_polygon(test_data, params):
+
+    from tests.test_data.wkt_data import no_intersection
+
+    params["geometry"] = [no_intersection]
+    params["geometry_relation"] = GeometryRelation.disjoint.name
+
+    result = get_entity_search(params)
+    assert result["count"] == 4
+
+
+def test_search_entity_that_polygon_touches(test_data, params):
 
     from tests.test_data.wkt_data import touches_forest_entity
 
@@ -423,3 +405,40 @@ def test_search_by_geometry_that_touches_an_entity_should_return_the_entity(
     result = get_entity_search(params)
     assert result["count"] == 1
     assert result["entities"][0].dataset == "forest"
+
+
+def test_search_entity_that_contains_a_polygon(test_data, params):
+
+    from tests.test_data.wkt_data import contained_by_greenspace_entity
+
+    params["geometry"] = [contained_by_greenspace_entity]
+    params["geometry_relation"] = GeometryRelation.contains.name
+
+    result = get_entity_search(params)
+    assert result["count"] == 1
+    assert result["entities"][0].dataset == "greenspace"
+
+
+# when dealing with polygons contains and covers are synonymous
+def test_search_entity_that_covers_a_polygon(test_data, params):
+
+    from tests.test_data.wkt_data import contained_by_greenspace_entity
+
+    params["geometry"] = [contained_by_greenspace_entity]
+    params["geometry_relation"] = GeometryRelation.covers.name
+
+    result = get_entity_search(params)
+    assert result["count"] == 1
+    assert result["entities"][0].dataset == "greenspace"
+
+
+def test_search_entity_covered_by_a_polygon(test_data, params):
+
+    from tests.test_data.wkt_data import covers_historical_monument_entity
+
+    params["geometry"] = [covers_historical_monument_entity]
+    params["geometry_relation"] = GeometryRelation.coveredby.name
+
+    result = get_entity_search(params)
+    assert result["count"] == 1
+    assert result["entities"][0].dataset == "historical-monument"
