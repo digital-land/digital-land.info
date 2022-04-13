@@ -442,3 +442,6 @@ def test_search_entity_covered_by_a_polygon(test_data, params):
     result = get_entity_search(params)
     assert result["count"] == 1
     assert result["entities"][0].dataset == "historical-monument"
+
+
+# TODO test cases for within, overlaps and crosses
