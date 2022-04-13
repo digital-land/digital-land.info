@@ -39,8 +39,8 @@ def render_markdown(text):
 
 @pass_eval_context
 def entity_name_filter(eval_ctx, id):
-    entity = get_entity_query(id)
-    if entity.name:
+    entity, _, _ = get_entity_query(id)
+    if entity:
         anchor = f'<a class="govuk-link" href="/entity/{id}">{id}</a>'
         name = f'<span class="govuk-!-margin-left-1 dl-data-reference">({entity.name})</span>'
         if eval_ctx.autoescape:

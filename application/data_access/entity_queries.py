@@ -1,9 +1,9 @@
 import logging
 
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from sqlalchemy import select, func, or_, and_
 
-from application.core.models import entity_factory
+from application.core.models import EntityModel, entity_factory
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
     get_date_to_filter,
@@ -12,7 +12,7 @@ from application.data_access.entity_query_helpers import (
     get_spatial_function_for_relation,
     normalised_params,
 )
-from application.db.models import EntityOrm
+from application.db.models import EntityOrm, OldEntityOrm
 from application.db.session import get_context_session
 from application.search.enum import GeometryRelation, EntriesOption
 
@@ -27,13 +27,27 @@ def to_snake(string: str) -> str:
     return string.replace("-", "_")
 
 
-def get_entity_query(id: int):
+def get_entity_query(
+    id: int,
+) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
     with get_context_session() as session:
-        entity = session.query(EntityOrm).get(id)
-        if entity is not None:
-            return entity_factory(entity)
+        old_entity = (
+            session.query(OldEntityOrm)
+            .filter(OldEntityOrm.old_entity_id == id)
+            .one_or_none()
+        )
+        if old_entity:
+            return (
+                None,
+                old_entity.status,
+                old_entity.new_entity_id,
+            )
         else:
-            return None
+            entity = session.query(EntityOrm).get(id)
+            if not entity:
+                return None, None, None
+            else:
+                return entity_factory(entity), None, None
 
 
 def get_entity_count(dataset: Optional[str] = None):
@@ -49,7 +63,7 @@ def get_entity_count(dataset: Optional[str] = None):
             return result.fetchall()
 
 
-def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
+def get_entities(dataset: str, limit: int) -> List[EntityModel]:
     with get_context_session() as session:
         entities = (
             session.query(EntityOrm)

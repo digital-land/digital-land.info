@@ -1,8 +1,8 @@
-from typing import Generator
+from typing import Generator, Dict, List, Union
+
 import pytest
 import alembic
 from fastapi import FastAPI
-
 from fastapi.testclient import TestClient
 from alembic.config import Config
 from pydantic import PostgresDsn
@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from application.db.models import DatasetOrm, EntityOrm
+from application.db.models import DatasetOrm, EntityOrm, OldEntityOrm
 from application.settings import Settings, get_settings
 
 
@@ -33,7 +33,6 @@ def apply_migrations(db_session, test_settings: Settings):
 
     alembic.command.upgrade(config, "head")
     yield
-    alembic.command.downgrade(config, "base")
 
 
 @pytest.fixture(scope="session")
@@ -61,17 +60,50 @@ def test_data(apply_migrations, db_session: Session):
     from tests.test_data import datasets
     from tests.test_data import entities
 
+    dataset_models = []
     for dataset in datasets:
         themes = dataset.pop("themes").split(",")
         ds = DatasetOrm(**dataset)
         ds.themes = themes
         db_session.add(ds)
+        dataset_models.append(ds)
 
+    entity_models = []
     for entity in entities:
         e = EntityOrm(**entity)
         db_session.add(e)
+        entity_models.append(e)
 
     db_session.commit()
+    return {"datasets": dataset_models, "entities": entity_models}
+
+
+@pytest.fixture(scope="session")
+def test_data_old_entities(
+    test_data: Dict[str, List[Union[DatasetOrm, EntityOrm]]], db_session: Session
+) -> Dict[
+    str, Union[List[Union[DatasetOrm, EntityOrm]], Dict[int, List[OldEntityOrm]]]
+]:
+    dataset_models = test_data["datasets"].copy()
+    entity_models = test_data["entities"].copy()
+    old_entity_redirect = [
+        OldEntityOrm(
+            old_entity=entity_models[0], new_entity=entity_models[0], status=301
+        )
+    ]
+    db_session.add(old_entity_redirect[0])
+    old_entity_gone = [OldEntityOrm(old_entity=entity_models[1], status=410)]
+    db_session.add(old_entity_gone[0])
+    db_session.commit()
+
+    return {
+        "datasets": dataset_models,
+        "entities": entity_models,
+        "old_entities": {
+            301: old_entity_redirect,
+            410: old_entity_gone,
+        },
+    }
 
 
 @pytest.fixture(scope="session")

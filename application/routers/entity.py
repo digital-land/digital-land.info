@@ -4,7 +4,7 @@ from dataclasses import asdict
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 from application.core.models import GeoJSONFeatureCollection, EntityModel
 from application.data_access.digital_land_queries import (
@@ -34,8 +34,19 @@ def _get_geojson(data: List[EntityModel]) -> GeoJSONFeatureCollection:
 
 def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
 
-    e = get_entity_query(entity)
-    if e is not None:
+    e, old_entity_status, new_entity_id = get_entity_query(entity)
+
+    if old_entity_status == 410:
+        return templates.TemplateResponse(
+            "entity-gone.html",
+            {
+                "request": request,
+                "entity": str(entity),
+            },
+        )
+    elif old_entity_status == 301:
+        return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
+    elif e is not None:
 
         if extension is not None and extension.value == "json":
             return e
