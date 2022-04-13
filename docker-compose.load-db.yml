@@ -6,6 +6,11 @@ services:
     depends_on:
       - db
       - web
+    # volumes:
+    #   # Uncomment if developing against digital-land-postgres
+    #   - ../digital-land-postgres/task:/src
+    # # Uncomment to use entity.sqlite generated locally
+    #   - ../entity-builder/dataset/entity.sqlite3:/src/entity.sqlite3
     environment:
       S3_KEY: entity-builder/dataset/entity.sqlite3
       DB_NAME: digital_land
@@ -19,6 +24,9 @@ services:
     depends_on:
       - db
       - web
+    # volumes:
+    #   # Uncomment if developing against digital-land-postgres
+    #   - ../digital-land-postgres/task:/src
     environment:
       S3_KEY: digital-land-builder/dataset/digital-land.sqlite3
       DB_NAME: digital_land
