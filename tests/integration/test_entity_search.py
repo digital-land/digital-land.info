@@ -380,7 +380,7 @@ def test_search_disjoint_geometry_should_return_all_data(test_data, params):
     params["geometry_relation"] = GeometryRelation.disjoint.name
 
     result = get_entity_search(params)
-    assert 4 == result["count"]
+    assert result["count"] == 4
 
 
 def test_search_by_geometry_that_is_contained_by_another_should_return_containing_entity(
@@ -393,7 +393,7 @@ def test_search_by_geometry_that_is_contained_by_another_should_return_containin
     params["geometry_relation"] = GeometryRelation.contains.name
 
     result = get_entity_search(params)
-    assert 1 == result["count"]
+    assert result["count"] == 1
     assert result["entities"][0].dataset == "greenspace"
 
 
@@ -407,7 +407,7 @@ def test_search_by_geometry_that_equals_that_of_an_entity_should_return_the_enti
     params["geometry_relation"] = GeometryRelation.equals.name
 
     result = get_entity_search(params)
-    assert 1 == result["count"]
+    assert result["count"] == 1
     assert result["entities"][0].dataset == "brownfield-site"
 
 
@@ -421,5 +421,5 @@ def test_search_by_geometry_that_touches_an_entity_should_return_the_entity(
     params["geometry_relation"] = GeometryRelation.touches.name
 
     result = get_entity_search(params)
-    assert 1 == result["count"]
+    assert result["count"] == 1
     assert result["entities"][0].dataset == "forest"
