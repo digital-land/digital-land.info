@@ -63,7 +63,7 @@ def get_entity_count(dataset: Optional[str] = None):
             return result.fetchall()
 
 
-def get_entities(dataset: str, limit: int) -> List[EntityOrm]:
+def get_entities(dataset: str, limit: int) -> List[EntityModel]:
     with get_context_session() as session:
         entities = (
             session.query(EntityOrm)
