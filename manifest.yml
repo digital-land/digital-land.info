@@ -4,3 +4,8 @@ applications:
   docker:
     image: public.ecr.aws/l6z6v3j6/digital-land-platform:latest
     username: null
+  disk_quota: 2G
+  env:
+    DATASETTE_URL: https://staging-datasette.digital-land.info/
+    S3_COLLECTION_BUCKET: https://digital-land-staging-collection-dataset.s3.eu-west-2.amazonaws.com
+    S3_HOISTED_BUCKET: https://digital-land-staging-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
