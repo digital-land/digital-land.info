@@ -1,0 +1,6 @@
+---
+applications:
+- name: digital-land-platform
+  docker:
+    image: 955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-info:74865fc
+    username: ASIA55A7WSGA67GLJRW7

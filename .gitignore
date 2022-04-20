@@ -26,6 +26,7 @@ node_modules
 
 .editorconfig
 pyrightconfig.json
+tags
 
 .env
 .env.test
@@ -34,3 +35,8 @@ static
 
 docker-compose.override.yml
 .junitxml
+.envrc
+.env.staging
+.env.sandbox
+.env.production
+coverage.xml
