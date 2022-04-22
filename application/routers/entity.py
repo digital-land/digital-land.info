@@ -45,7 +45,12 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
             },
         )
     elif old_entity_status == 301:
-        return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
+        if extension:
+            return RedirectResponse(
+                f"/entity/{new_entity_id}.{extension}", status_code=301
+            )
+        else:
+            return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
     elif e is not None:
 
         if extension is not None and extension.value == "json":
