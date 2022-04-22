@@ -63,7 +63,7 @@ jobs:
         report_paths: '.junitxml/*.xml'
 
     - name: Configure AWS credentials
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'  }}
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DL_WEB }}
@@ -71,11 +71,11 @@ jobs:
         aws-region: eu-west-2
 
     - name: Login to ECR
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'  }}
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build and tag
+    - name: Build and tag as latest
       if: ${{ github.ref == 'refs/heads/main' }}
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -84,7 +84,17 @@ jobs:
       run: |
         docker build --target production -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
-    - name: Push to ECR
+    - name: Build and tag as staging
+      if: ${{ github.ref == 'refs/heads/staging' }}
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: digital-land-info
+        IMAGE_TAG: staging
+      run: |
+        docker build --target production -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+
+    - name: Push to ECR as latest
       if: ${{ github.ref == 'refs/heads/main' }}
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -93,8 +103,21 @@ jobs:
       run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    - name: Restart digital-land.info service
+    - name: Push to ECR as staging
+      if: ${{ github.ref == 'refs/heads/staging' }}
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: digital-land-info
+        IMAGE_TAG: staging
+      run: |
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Restart digital-land.info service on production environment
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |
-        aws ecs update-service --force-new-deployment --service staging-web-service --cluster staging-web-cluster
         aws ecs update-service --force-new-deployment --service production-web-service --cluster production-web-cluster
+
+    - name: Restart digital-land.info service on staging environment
+      if: ${{ github.ref == 'refs/heads/staging' }}
+      run: |
+        aws ecs update-service --force-new-deployment --service staging-web-service --cluster staging-web-cluster
