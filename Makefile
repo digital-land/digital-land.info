@@ -121,10 +121,3 @@ ifeq (, $(ENVIRONMENT))
 endif
 	cf target -o dluhc-digital-land -s $(ENVIRONMENT)
 	cf push $(CF_APP_NAME)
-	set -a; source ./.env.$(ENVIRONMENT); set +a
-	cf set-env $(CF_APP_NAME) ENVIRONMENT $(ENVIRONMENT)
-	cf set-env $(CF_APP_NAME) DATASETTE_URL $(DATASETTE_URL)
-	cf set-env $(CF_APP_NAME) S3_COLLECTION_BUCKET $(S3_COLLECTION_BUCKET)
-	cf set-env $(CF_APP_NAME) S3_HOISTED_BUCKET $(S3_HOISTED_BUCKET)
-	cf set-env $(CF_APP_NAME) WRITE_DATABASE_URL $(WRITE_DATABASE_URL)
-	cf set-env $(CF_APP_NAME) READ_DATABASE_URL $(READ_DATABASE_URL)
