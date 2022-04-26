@@ -346,7 +346,10 @@ def test_search_includes_multiple_field_params(test_data, client, exclude_middle
     assert not set(e.keys()).symmetric_difference(set(["name", "dataset"]))
 
 
-@pytest.mark.parametrize("field_name", list(EntityModel.schema()["properties"].keys()))
+# geojson needs to be removed from model
+@pytest.mark.parametrize(
+    "field_name", list(EntityModel.schema()["properties"].keys() - {"geojson"})
+)
 def test_search_includes_any_field_params(
     field_name, test_data, client, exclude_middleware
 ):

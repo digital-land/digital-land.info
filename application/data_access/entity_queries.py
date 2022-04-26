@@ -101,9 +101,12 @@ def get_entity_search(parameters: dict):
             count = 0
 
         if only_fields:
-            entities = [
+            entities_with_fields = [
                 dict(zip([field.value for field in only_fields], entity_values[:-1]))
                 for entity_values in entities
+            ]
+            entities = [
+                EntityModel.parse_obj(entity) for entity in entities_with_fields
             ]
         else:
             entities = [entity_factory(entity.EntityOrm) for entity in entities]

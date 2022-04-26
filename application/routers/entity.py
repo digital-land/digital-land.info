@@ -28,8 +28,28 @@ logger = logging.getLogger(__name__)
 
 
 def _get_geojson(data: List[EntityModel]) -> GeoJSONFeatureCollection:
-    results = [item.geojson for item in data]
-    return {"type": "FeatureCollection", "features": results}
+    features = []
+    for entity in data:
+        geojson = entity.geojson
+        properties = entity.dict(
+            exclude={"geojson", "geometry", "point"}, by_alias=True
+        )
+        geojson.properties = properties
+        features.append(geojson)
+    return {"type": "FeatureCollection", "features": features}
+
+
+def _get_entity_json(data: List[EntityModel], exclude_unset=False):
+    entities = []
+    for entity in data:
+        if isinstance(entity, EntityModel):
+            e = entity.dict(
+                exclude={"geojson"}, exclude_unset=exclude_unset, by_alias=True
+            )
+            entities.append(e)
+        else:
+            entities.append(entity)
+    return entities
 
 
 def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
@@ -54,10 +74,13 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
     elif e is not None:
 
         if extension is not None and extension.value == "json":
-            return e
+            return e.dict(by_alias=True, exclude={"geojson"})
 
         if extension is not None and extension.value == "geojson":
-            return e.geojson
+            geojson = e.geojson
+            properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
+            geojson.properties = properties
+            return geojson
 
         return templates.TemplateResponse(
             "entity.html",
@@ -91,12 +114,14 @@ def search_entities(
     params = data["params"]
 
     if extension is not None and extension.value == "json":
+        exclude_unset = False if params.get("field") is None else True
+        entities = _get_entity_json(data["entities"], exclude_unset)
         scheme = request.url.scheme
         netloc = request.url.netloc
         path = request.url.path
         params = request.query_params
         links = make_links(scheme, netloc, path, params, data)
-        return {"entities": data["entities"], "links": links, "count": data["count"]}
+        return {"entities": entities, "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
         geojson = _get_geojson(data["entities"])

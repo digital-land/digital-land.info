@@ -1,6 +1,8 @@
 from datetime import date
 from typing import Optional, List
-from pydantic import BaseModel, Field
+
+from geoalchemy2.shape import to_shape
+from pydantic import BaseModel, Field, validator, Extra
 
 from application.db.models import EntityOrm
 
@@ -16,7 +18,7 @@ class GeoJSON(BaseModel):
 
 
 class GeoJSONFeatureCollection(BaseModel):
-    type: str = "FeatureColletion"
+    type: str = "FeatureCollection"
     features: List[GeoJSON]
 
 
@@ -25,6 +27,7 @@ class DigitalLandBaseModel(BaseModel):
         alias_generator = to_kebab
         allow_population_by_field_name = True
         orm_mode = True
+        arbitrary_types_allowed = True
 
 
 class DigitalLandDateFieldsModel(DigitalLandBaseModel):
@@ -33,7 +36,13 @@ class DigitalLandDateFieldsModel(DigitalLandBaseModel):
     end_date: Optional[date] = None
 
 
-class EntityModel(DigitalLandDateFieldsModel):
+def _make_geometry(v, values) -> str:
+    if v is not None:
+        s = to_shape(v)
+        return s.wkt
+
+
+class EntityModel(DigitalLandDateFieldsModel, extra=Extra.allow):
     entity: int = None
     name: str = None
     dataset: str = None
@@ -42,7 +51,15 @@ class EntityModel(DigitalLandDateFieldsModel):
     prefix: str = None
     organisation_entity: str = None
     geojson: GeoJSON = None
-    json_: dict = Field(None, alias="json")
+    geometry: str = None
+    point: str = None
+
+    _validate_geometry = validator("geometry", pre=True, always=True, allow_reuse=True)(
+        _make_geometry
+    )
+    _validate_point = validator("point", pre=True, always=True, allow_reuse=True)(
+        _make_geometry
+    )
 
 
 class DatasetModel(DigitalLandDateFieldsModel):
@@ -101,6 +118,7 @@ class DatasetPublicationCountModel(DigitalLandBaseModel):
 
 def entity_factory(entity_orm: EntityOrm):
     e = EntityModel.from_orm(entity_orm)
-    if e.geojson is not None:
-        e.geojson.properties = e.dict(exclude={"geojson"}, by_alias=True)
+    if entity_orm.json is not None:
+        for key, val in entity_orm.json.items():
+            setattr(e, key, val)
     return e
