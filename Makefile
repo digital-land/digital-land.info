@@ -7,6 +7,15 @@ TAG    := $$(git log -1 --pretty=%h)
 IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest
 
+CF_APP_NAME := digital-land-platform
+
+PUBLIC_REPO   := public.ecr.aws/l6z6v3j6
+PUBLIC_NAME   := $(PUBLIC_REPO)/$(CF_APP_NAME)
+PUBLIC_TAG    := $$(git log -1 --pretty=%h)
+PUBLIC_IMG    := ${PUBLIC_NAME}:${PUBLIC_TAG}
+PUBLIC_LATEST := ${PUBLIC_NAME}:latest
+
+
 all::	lint
 
 ifeq ($(UNAME), Darwin)
@@ -25,15 +34,28 @@ server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
-build:
+build: docker-build
+
+docker-build:
 	docker build  --target production -t ${IMG} .
 	docker tag ${IMG} ${LATEST}
+	docker tag ${IMG} ${PUBLIC_IMG}
+	docker tag ${IMG} ${PUBLIC_LATEST}
 
-push: login
+push: push-private push-public
+
+push-private: login
 	docker push ${NAME}
+
+push-public: docker-login-public
+	docker push $(PUBLIC_IMG)
+	docker push $(PUBLIC_LATEST)
 
 login:
 	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(REPO)
+
+docker-login-public:
+	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
 test-acceptance:
 	python -m playwright install chromium
@@ -89,3 +111,13 @@ server-dev:
 load-db: login
 	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-dataset
 	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-entity
+
+cf-login:
+	cf target -o dluhc-digital-land || cf login -a api.london.cloud.service.gov.uk
+
+cf-deploy: cf-login
+ifeq (, $(ENVIRONMENT))
+	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
+endif
+	cf target -o dluhc-digital-land -s $(ENVIRONMENT)
+	cf push $(CF_APP_NAME)
