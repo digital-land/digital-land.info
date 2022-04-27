@@ -45,6 +45,7 @@ def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
     for entity in data:
         if isinstance(entity, EntityModel):
             if include is not None:
+                # always return at least the entity (id)
                 include.add("entity")
                 e = entity.dict(include=include, by_alias=True)
             else:
