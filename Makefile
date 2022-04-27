@@ -37,13 +37,15 @@ server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
-build: docker-build
+build: docker-build-private docker-build-public
 
-docker-build:
+docker-build-private:
 	docker build  --target production -t $(EXPLICIT_IMG) .
 	docker tag $(EXPLICIT_IMG) $(COMMIT_IMG)
-	docker tag $(EXPLICIT_IMG) $(PUBLIC_COMMIT_IMG)
-	docker tag $(EXPLICIT_IMG) $(PUBLIC_EXPLICIT_IMG)
+
+docker-build-public:
+	docker build  --target production -t $(PUBLIC_EXPLICIT_IMG) .
+	docker tag $(PUBLIC_EXPLICIT_IMG) $(PUBLIC_COMMIT_IMG)
 
 push: push-private push-public
 

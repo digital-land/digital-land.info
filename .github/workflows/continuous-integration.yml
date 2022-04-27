@@ -80,14 +80,14 @@ jobs:
       env:
         IMAGE_TAG: latest
       run: |
-        make EXPLICIT_TAG=$IMAGE_TAG docker-build
+        make EXPLICIT_TAG=$IMAGE_TAG docker-build-private
 
     - name: Build and tag as staging
       if: ${{ github.ref == 'refs/heads/staging' }}
       env:
         IMAGE_TAG: staging
       run: |
-        make EXPLICIT_TAG=$IMAGE_TAG docker-build
+        make EXPLICIT_TAG=$IMAGE_TAG docker-build-public
 
     - name: Push to ECR as latest
       if: ${{ github.ref == 'refs/heads/main' }}
