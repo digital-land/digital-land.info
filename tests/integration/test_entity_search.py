@@ -334,7 +334,7 @@ def test_search_includes_only_field_params(test_data, client, exclude_middleware
     result = response.json()
     assert result["count"] == 4
     e = result["entities"][0]
-    assert not set(e.keys()).symmetric_difference(set(["name"]))
+    assert not set(e.keys()).symmetric_difference(set(["name", "entity"]))
 
 
 def test_search_includes_multiple_field_params(test_data, client, exclude_middleware):
@@ -343,7 +343,7 @@ def test_search_includes_multiple_field_params(test_data, client, exclude_middle
     result = response.json()
     assert result["count"] == 4
     e = result["entities"][0]
-    assert not set(e.keys()).symmetric_difference(set(["name", "dataset"]))
+    assert not set(e.keys()).symmetric_difference(set(["name", "dataset", "entity"]))
 
 
 # geojson needs to be removed from model
@@ -358,7 +358,7 @@ def test_search_includes_any_field_params(
     result = response.json()
     assert result["count"] == 4
     e = result["entities"][0]
-    assert not set(e.keys()).symmetric_difference(set([field_name]))
+    assert not set(e.keys()).symmetric_difference(set([field_name, "entity"]))
 
 
 def test_search_pagination_does_not_affect_count(test_data, client, exclude_middleware):

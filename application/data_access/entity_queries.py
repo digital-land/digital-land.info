@@ -23,10 +23,6 @@ logger = logging.getLogger(__name__)
 #  not sure about curie search and how it should be implemented to make sense.
 
 
-def to_snake(string: str) -> str:
-    return string.replace("-", "_")
-
-
 def get_entity_query(
     id: int,
 ) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
@@ -78,14 +74,8 @@ def get_entity_search(parameters: dict):
     params = normalised_params(parameters)
 
     with get_context_session() as session:
-        only_fields = params.get("field")
-        if only_fields:
-            query_args = [
-                getattr(EntityOrm, to_snake(field.value)) for field in only_fields
-            ]
-        else:
-            query_args = [EntityOrm]
-        query_args.append(func.count(EntityOrm.entity).over().label("count"))
+
+        query_args = [EntityOrm, func.count(EntityOrm.entity).over().label("count")]
         query = session.query(*query_args)
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
@@ -100,16 +90,7 @@ def get_entity_search(parameters: dict):
         else:
             count = 0
 
-        if only_fields:
-            entities_with_fields = [
-                dict(zip([field.value for field in only_fields], entity_values[:-1]))
-                for entity_values in entities
-            ]
-            entities = [
-                EntityModel.parse_obj(entity) for entity in entities_with_fields
-            ]
-        else:
-            entities = [entity_factory(entity.EntityOrm) for entity in entities]
+        entities = [entity_factory(entity.EntityOrm) for entity in entities]
         return {"params": params, "count": count, "entities": entities}
 
 

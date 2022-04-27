@@ -1,7 +1,7 @@
 import logging
 
 from dataclasses import asdict
-from typing import Optional, List
+from typing import Optional, List, Set
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -21,6 +21,7 @@ from application.core.utils import (
     DigitalLandJSONResponse,
     make_links,
     make_pagination_query_str,
+    to_snake,
 )
 
 router = APIRouter()
@@ -39,13 +40,15 @@ def _get_geojson(data: List[EntityModel]) -> GeoJSONFeatureCollection:
     return {"type": "FeatureCollection", "features": features}
 
 
-def _get_entity_json(data: List[EntityModel], exclude_unset=False):
+def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
     entities = []
     for entity in data:
         if isinstance(entity, EntityModel):
-            e = entity.dict(
-                exclude={"geojson"}, exclude_unset=exclude_unset, by_alias=True
-            )
+            if include is not None:
+                include.add("entity")
+                e = entity.dict(include=include, by_alias=True)
+            else:
+                e = entity.dict(exclude={"geojson"}, by_alias=True)
             entities.append(e)
         else:
             entities.append(entity)
@@ -114,8 +117,13 @@ def search_entities(
     params = data["params"]
 
     if extension is not None and extension.value == "json":
-        exclude_unset = False if params.get("field") is None else True
-        entities = _get_entity_json(data["entities"], exclude_unset)
+
+        if params.get("field") is not None:
+            include = set([to_snake(field) for field in params.get("field")])
+            entities = _get_entity_json(data["entities"], include=include)
+        else:
+            entities = _get_entity_json(data["entities"])
+
         scheme = request.url.scheme
         netloc = request.url.netloc
         path = request.url.path

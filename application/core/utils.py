@@ -147,3 +147,7 @@ def make_pagination_query_str(query_params, limit, offset=0):
         return f"{url}&offset={offset}"
     else:
         return url
+
+
+def to_snake(string: str) -> str:
+    return string.replace("-", "_")
