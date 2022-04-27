@@ -20,6 +20,8 @@ services:
       PORT: 8000
       RELOAD: "true"
       WEB_CONCURRENCY: 1
+      S3_HOISTED_BUCKET: ${S3_HOISTED_BUCKET}
+      S3_COLLECTION_BUCKET: ${S3_COLLECTION_BUCKET}
 
   db:
     image: postgis/postgis:13-master
