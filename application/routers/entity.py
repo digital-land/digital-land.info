@@ -14,7 +14,7 @@ from application.data_access.digital_land_queries import (
 )
 from application.data_access.entity_queries import get_entity_query, get_entity_search
 
-from application.search.enum import Suffix
+from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
 from application.core.templates import templates
 from application.core.utils import (
@@ -57,7 +57,7 @@ def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
     return entities
 
 
-def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None):
+def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] = None):
 
     e, old_entity_status, new_entity_id = get_entity_query(entity)
 
@@ -109,7 +109,7 @@ def get_entity(request: Request, entity: int, extension: Optional[Suffix] = None
 def search_entities(
     request: Request,
     query_filters: QueryFilters = Depends(),
-    extension: Optional[Suffix] = None,
+    extension: Optional[SuffixEntity] = None,
 ):
     query_params = asdict(query_filters)
     data = get_entity_search(query_params)
@@ -204,13 +204,9 @@ router.add_api_route(
     responses={
         200: {
             "content": {
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {},
-                "application/zip": {},
                 "application/x-qgis-project": {},
                 "application/geo+json": {},
                 "text/json": {},
-                "text/csv": {},
-                "text/turtle": {},
             },
             "description": "List of entities in one of a number of different formats.",
         }

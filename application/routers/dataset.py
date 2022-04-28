@@ -14,7 +14,7 @@ from application.data_access.digital_land_queries import (
 from application.data_access.entity_queries import get_entity_count
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
-from application.search.enum import Suffix, SuffixLinkableFiles
+from application.search.enum import SuffixDataset, SuffixLinkableFiles
 from application.search.filters import DatasetQueryFilters
 from application.settings import get_settings, Settings
 
@@ -22,7 +22,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def list_datasets(request: Request, extension: Optional[Suffix] = None):
+def list_datasets(request: Request, extension: Optional[SuffixDataset] = None):
     datasets = get_datasets()
     entity_counts_response = get_entity_count()
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
