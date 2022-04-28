@@ -7,17 +7,30 @@ from tests.test_data.wkt_data import (
 )
 
 
-def _transform_dataset_fixture_to_response(datasets):
+def _transform_dataset_fixture_to_response(datasets, is_geojson=False):
 
     for dataset in datasets:
-        dataset["prefix"] = dataset["prefix"] or ""
-        dataset["start-date"] = dataset.pop("start_date") or ""
-        dataset["end-date"] = dataset.pop("end_date") or ""
+        _transform_dataset_to_response(dataset)
+    return datasets
+
+
+def _transform_dataset_to_response(dataset, is_geojson=False):
+    dataset["prefix"] = dataset["prefix"] or ""
+    dataset["start-date"] = dataset.pop("start_date") or ""
+    dataset["end-date"] = dataset.pop("end_date") or ""
+    dataset["entry-date"] = dataset.pop("entry_date") or ""
+    if is_geojson:
+        dataset["organisation-entity"] = dataset.pop("organisation_entity") or ""
+        dataset["entity"] = int(dataset["entity"])
+        dataset.pop("geojson")
+        dataset.pop("geometry")
+        dataset.pop("json")
+        dataset.pop("point")
+    else:
         dataset["text"] = dataset["text"] or ""
-        dataset["entry-date"] = dataset.pop("entry_date") or ""
         dataset["paint-options"] = dataset.pop("paint_options") or ""
         dataset.pop("key_field")
-    return datasets
+    return dataset
 
 
 def test_app_returns_valid_geojson_list(client):
@@ -28,6 +41,23 @@ def test_app_returns_valid_geojson_list(client):
     assert "features" in data
     assert "FeatureCollection" == data["type"]
     assert [] == data["features"]
+
+
+def test_app_returns_valid_populated_geojson_list(client, test_data):
+    expected_response = []
+    for entity in test_data["entities"]:
+        geojson_dict = entity["geojson"]
+        if geojson_dict:
+            geojson_dict["properties"] = _transform_dataset_to_response(
+                entity, is_geojson=True
+            )
+            expected_response.append(geojson_dict)
+    response = client.get("/entity.geojson", headers={"Origin": "localhost"})
+    data = response.json()
+    assert "type" in data
+    assert "features" in data
+    assert "FeatureCollection" == data["type"]
+    assert expected_response == data["features"]
 
 
 def test_lasso_geo_search_finds_results(client, test_data):

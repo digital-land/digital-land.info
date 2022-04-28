@@ -5,6 +5,9 @@ from application.data_access.entity_queries import get_entity_search
 from application.search.enum import EntriesOption, GeometryRelation
 
 
+NUMBER_OF_ENTITIES_IN_TEST_FIXTURE = 5
+
+
 @pytest.fixture(scope="module")
 def raw_params():
     return {
@@ -141,7 +144,7 @@ def test_search_entity_by_date_since(test_data, params):
     params["entry_date_match"] = "since"
 
     result = get_entity_search(params)
-    assert 4 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
@@ -153,21 +156,21 @@ def test_search_entity_by_date_since(test_data, params):
 
     params["entry_date_year"] = 2020
     result = get_entity_search(params)
-    assert 3 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 1
     for e in result["entities"]:
         assert e.dataset in ["forest", "brownfield-site", "historical-monument"]
         assert e.dataset != "greenspace"
 
     params["entry_date_year"] = 2021
     result = get_entity_search(params)
-    assert 2 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 2
     for e in result["entities"]:
         assert e.dataset in ["brownfield-site", "historical-monument"]
         assert e.dataset not in ["greenspace", "forest"]
 
     params["entry_date_year"] = 2022
     result = get_entity_search(params)
-    assert 1 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 3
     for e in result["entities"]:
         assert e.dataset in ["historical-monument"]
         assert e.dataset not in ["greenspace", "forest", "brownfield-site"]
@@ -201,7 +204,7 @@ def test_search_entity_by_date_before(test_data, params):
 
     params["entry_date_year"] = 2023
     result = get_entity_search(params)
-    assert 4 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
@@ -292,7 +295,7 @@ def test_search_all_entities(test_data, params):
 
     # default is EntriesOption.all - already in params
     result = get_entity_search(params)
-    assert 4 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
@@ -308,7 +311,7 @@ def test_search_current_entries(test_data, params):
     params["entries"] = EntriesOption.current
 
     result = get_entity_search(params)
-    assert 3 == result["count"]
+    assert result["count"] == 4
     for e in result["entities"]:
         assert e.dataset in [
             "forest",
@@ -332,7 +335,7 @@ def test_search_includes_only_field_params(test_data, client, exclude_middleware
     response = client.get("/entity.json?limit=10&field=name")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name", "entity"]))
 
@@ -341,7 +344,7 @@ def test_search_includes_multiple_field_params(test_data, client, exclude_middle
     response = client.get("/entity.json?limit=10&field=name&field=dataset")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name", "dataset", "entity"]))
 
@@ -356,7 +359,7 @@ def test_search_includes_any_field_params(
     response = client.get(f"/entity.json?limit=10&field={field_name}")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set([field_name, "entity"]))
 
@@ -365,7 +368,7 @@ def test_search_pagination_does_not_affect_count(test_data, client, exclude_midd
     response = client.get("/entity.json?limit=1")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
 
 
 def test_search_filtering_does_affect_count(test_data, client, exclude_middleware):

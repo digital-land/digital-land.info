@@ -75,7 +75,7 @@ def test_data(apply_migrations, db_session: Session):
         entity_models.append(e)
 
     db_session.commit()
-    return {"datasets": dataset_models, "entities": entity_models}
+    return {"datasets": datasets, "entities": entities}
 
 
 @pytest.fixture(scope="session")
@@ -84,8 +84,14 @@ def test_data_old_entities(
 ) -> Dict[
     str, Union[List[Union[DatasetOrm, EntityOrm]], Dict[int, List[OldEntityOrm]]]
 ]:
-    dataset_models = test_data["datasets"].copy()
-    entity_models = test_data["entities"].copy()
+    dataset_models = [
+        db_session.query(DatasetOrm).get(test_datum["dataset"])
+        for test_datum in test_data["datasets"]
+    ]
+    entity_models = [
+        db_session.query(EntityOrm).get(test_datum["entity"])
+        for test_datum in test_data["entities"]
+    ]
     old_entity_redirect = [
         OldEntityOrm(
             old_entity=entity_models[0], new_entity=entity_models[0], status=301

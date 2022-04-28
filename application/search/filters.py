@@ -8,7 +8,12 @@ from pydantic.dataclasses import dataclass
 from application.db.models import DatasetOrm
 from application.db.session import get_context_session
 from application.exceptions import DatasetValueNotFound
-from application.search.enum import EntriesOption, DateOption, GeometryRelation, Suffix
+from application.search.enum import (
+    EntriesOption,
+    DateOption,
+    GeometryRelation,
+    SuffixEntity,
+)
 
 
 @dataclass
@@ -102,7 +107,9 @@ class QueryFilters:
     accept: Optional[str] = Header(
         None, description="accepted content-type for results"
     )
-    suffix: Optional[Suffix] = Query(None, description="file format for the results")
+    suffix: Optional[SuffixEntity] = Query(
+        None, description="file format for the results"
+    )
     field: Optional[List[str]] = Query(
         None, description="fields to be included in response"
     )

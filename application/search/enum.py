@@ -5,6 +5,17 @@ class SuffixLinkableFiles(str, Enum):
     csv = "csv"
 
 
+class SuffixEntity(str, Enum):
+    json = "json"
+    html = "html"
+    geojson = "geojson"
+
+
+class SuffixDataset(str, Enum):
+    json = "json"
+    html = "html"
+
+
 class Suffix(str, Enum):
     json = "json"
     html = "html"
