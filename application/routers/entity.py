@@ -1,12 +1,12 @@
 import logging
 
 from dataclasses import asdict
-from typing import Optional, List, Set
+from typing import Optional, List, Set, Dict, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from application.core.models import GeoJSONFeatureCollection, EntityModel
+from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
     get_datasets,
     get_local_authorities,
@@ -28,15 +28,16 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _get_geojson(data: List[EntityModel]) -> GeoJSONFeatureCollection:
+def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]]:
     features = []
     for entity in data:
         geojson = entity.geojson
-        properties = entity.dict(
-            exclude={"geojson", "geometry", "point"}, by_alias=True
-        )
-        geojson.properties = properties
-        features.append(geojson)
+        if geojson:
+            properties = entity.dict(
+                exclude={"geojson", "geometry", "point"}, by_alias=True
+            )
+            geojson.properties = properties
+            features.append(geojson)
     return {"type": "FeatureCollection", "features": features}
 
 
