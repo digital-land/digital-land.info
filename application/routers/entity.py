@@ -31,12 +31,13 @@ logger = logging.getLogger(__name__)
 def _get_geojson(data: List[EntityModel]) -> GeoJSONFeatureCollection:
     features = []
     for entity in data:
-        geojson = entity.geojson
-        properties = entity.dict(
-            exclude={"geojson", "geometry", "point"}, by_alias=True
-        )
-        geojson.properties = properties
-        features.append(geojson)
+        if entity.geojson is not None:
+            geojson = entity.geojson
+            properties = entity.dict(
+                exclude={"geojson", "geometry", "point"}, by_alias=True
+            )
+            geojson.properties = properties
+            features.append(geojson)
     return {"type": "FeatureCollection", "features": features}
 
 
