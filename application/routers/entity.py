@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]]:
     features = []
     for entity in data:
-        geojson = entity.geojson
-        if geojson:
+        if entity.geojson is not None:
+            geojson = entity.geojson
             properties = entity.dict(
                 exclude={"geojson", "geometry", "point"}, by_alias=True
             )
