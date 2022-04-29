@@ -10,7 +10,7 @@ attrs==21.4.0
     #   pytest
 backports-entry-points-selectable==1.1.1
     # via virtualenv
-black==21.12b0
+black==22.3.0
     # via -r requirements/dev-requirements.in
 certifi==2021.10.8
     # via
