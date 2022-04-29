@@ -30,6 +30,11 @@ init::
 
 init:: frontend-all
 
+piptool-compile::
+	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
+	python -m piptools compile requirements/dev-requirements.in
+
+
 server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
