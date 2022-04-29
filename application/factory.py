@@ -10,14 +10,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
+import sentry_sdk
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from application.core.templates import templates
 from application.db.models import EntityOrm
 from application.exceptions import DatasetValueNotFound
 from application.routers import entity, dataset, map_
+from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
 SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
 
@@ -64,7 +68,7 @@ def create_app():
     add_base_routes(app)
     add_routers(app)
     add_static(app)
-    add_middleware(app)
+    app = add_middleware(app)
     return app
 
 
@@ -197,3 +201,8 @@ def add_middleware(app):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         return response
+
+    if settings.SENTRY_DSN:
+        sentry_sdk.init(dsn=settings.SENTRY_DSN, environment=settings.ENVIRONMENT)
+        app = SentryAsgiMiddleware(app)
+    return app
