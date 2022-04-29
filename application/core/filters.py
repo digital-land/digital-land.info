@@ -1,7 +1,9 @@
 from digital_land_frontend.filters import is_list_filter
 
 from application.data_access.entity_queries import get_entity_query
-from jinja2 import Markup, pass_eval_context
+from jinja2 import pass_eval_context
+from markdown import markdown
+from markupsafe import Markup
 
 
 def generate_query_param_str(v, filter_name, current_str):
@@ -29,12 +31,10 @@ def make_param_str_filter(exclude_value, exclude_param, all):
 
 
 def render_markdown(text):
-    import markdown
-    import markupsafe
 
     # register extensions here if needed
-    html = markdown.markdown(text, output_format="html5")
-    return markupsafe.Markup(html)
+    html = markdown(text, output_format="html")
+    return Markup(html)
 
 
 @pass_eval_context
