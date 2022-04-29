@@ -1,12 +1,13 @@
-import csv
 import json
-
+import sys
+import csv
 from pathlib import Path
 
-csv.register_dialect("piped", delimiter="|", quoting=csv.QUOTE_ALL)
+csv.field_size_limit(sys.maxsize)
 
 
-def load_data(name):
+def load_data(name, delimiter="|"):
+    csv.register_dialect("piped", delimiter=delimiter, quoting=csv.QUOTE_ALL)
     data = []
     p = Path(__file__).with_name(f"{name}.csv")
     with open(p) as f:
@@ -27,3 +28,4 @@ def load_data(name):
 
 datasets = load_data("datasets")
 entities = load_data("entities")
+invalid_geometry = load_data("invalid_geometry", delimiter=",")

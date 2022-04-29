@@ -82,10 +82,17 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
             return e.dict(by_alias=True, exclude={"geojson"})
 
         if extension is not None and extension.value == "geojson":
-            geojson = e.geojson
-            properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
-            geojson.properties = properties
-            return geojson
+            if e.geojson is not None:
+                geojson = e.geojson
+                properties = e.dict(
+                    exclude={"geojson", "geometry", "point"}, by_alias=True
+                )
+                geojson.properties = properties
+                return geojson
+            else:
+                raise HTTPException(
+                    status_code=406, detail="geojson for entity not available"
+                )
 
         return templates.TemplateResponse(
             "entity.html",
