@@ -16,16 +16,6 @@ class SuffixDataset(str, Enum):
     html = "html"
 
 
-class Suffix(str, Enum):
-    json = "json"
-    html = "html"
-    xlsx = "xlsx"
-    zip = "zip"
-    csv = "csv"
-    ttl = "ttl"
-    geojson = "geojson"
-
-
 class PointMatch(str, Enum):
     within = "within"
 
