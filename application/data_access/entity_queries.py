@@ -152,6 +152,33 @@ def _apply_location_filters(session, query, params):
     if clauses:
         query = query.filter(or_(*clauses))
 
+    intersecting_entities = params.get("geometry_entity", [])
+    if intersecting_entities:
+        intersecting_entities_query = (
+            session.query(EntityOrm.geometry)
+            .filter(EntityOrm.entity.in_(intersecting_entities))
+            .group_by(EntityOrm)
+            .subquery()
+        )
+
+        query = query.join(
+            intersecting_entities_query,
+            or_(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_Intersects(
+                        EntityOrm.geometry, intersecting_entities_query.c.geometry
+                    ),
+                ),
+                and_(
+                    EntityOrm.point.is_not(None),
+                    func.ST_Intersects(
+                        EntityOrm.point, intersecting_entities_query.c.geometry
+                    ),
+                ),
+            ),
+        )
+
     references = params.get("geometry_reference", [])
     if references:
         reference_query = (
