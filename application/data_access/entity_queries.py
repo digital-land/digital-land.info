@@ -175,6 +175,7 @@ def _apply_location_filters(session, query, params):
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
+                    func.ST_IsValid(intersecting_entities_query.c.geometry),
                     func.ST_Intersects(
                         EntityOrm.point, intersecting_entities_query.c.geometry
                     ),
@@ -201,6 +202,7 @@ def _apply_location_filters(session, query, params):
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
+                    func.ST_IsValid(reference_query.c.geometry),
                     func.ST_Intersects(EntityOrm.point, reference_query.c.geometry),
                 ),
             ),
