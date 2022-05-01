@@ -12,7 +12,11 @@ from application.data_access.digital_land_queries import (
     get_local_authorities,
     get_typologies,
 )
-from application.data_access.entity_queries import get_entity_query, get_entity_search
+from application.data_access.entity_queries import (
+    get_entity_query,
+    get_entity_search,
+    InvalidQueryException,
+)
 
 from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
@@ -119,7 +123,11 @@ def search_entities(
     extension: Optional[SuffixEntity] = None,
 ):
     query_params = asdict(query_filters)
-    data = get_entity_search(query_params)
+    try:
+        data = get_entity_search(query_params)
+    except InvalidQueryException as e:
+        logger.exception(e)
+        raise HTTPException(status_code=400)
 
     # the query does some normalisation to remove empty
     # params and they get returned from search

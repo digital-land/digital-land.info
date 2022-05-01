@@ -170,3 +170,27 @@ def test_link_dataset_endpoint_returns_as_expected(
         response.headers["location"]
         == f"{test_settings.S3_HOISTED_BUCKET}/greenspace-hoisted.csv"
     )
+
+
+def test_api_handles_quoted_wkt(client, test_data):
+
+    unquoted_point = "POINT (-0.33753991127014155 53.74458682618967)"
+    single_quoted_point = f"'{unquoted_point}'"
+    double_quoted_point = f'"{unquoted_point}"'
+    empty_wkt = "\t"
+
+    params = {"geometry_relation": "intersects", "geometry": unquoted_point}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 200
+
+    params = {"geometry_relation": "intersects", "geometry": single_quoted_point}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 200
+
+    params = {"geometry_relation": "intersects", "geometry": double_quoted_point}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 200
+
+    params = {"geometry_relation": "intersects", "geometry": empty_wkt}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 400
