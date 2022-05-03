@@ -178,8 +178,6 @@ def add_static(app):
 
 def add_middleware(app):
 
-    app.add_middleware(SuppressClientDisconnectNoResponseReturnedMiddleware)
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -207,6 +205,9 @@ def add_middleware(app):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         return response
+
+    # this has to registered after the first middleware but before sentry?
+    app.add_middleware(SuppressClientDisconnectNoResponseReturnedMiddleware)
 
     if settings.SENTRY_DSN:
         sentry_sdk.init(dsn=settings.SENTRY_DSN, environment=settings.ENVIRONMENT)
