@@ -1,4 +1,5 @@
 import logging
+import sentry_sdk
 
 from datetime import timedelta
 from pickle import TRUE
@@ -10,9 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
-import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.responses import Response
+from http import HTTPStatus
 
 from application.core.templates import templates
 from application.db.models import EntityOrm
@@ -205,4 +208,27 @@ def add_middleware(app):
     if settings.SENTRY_DSN:
         sentry_sdk.init(dsn=settings.SENTRY_DSN, environment=settings.ENVIRONMENT)
         app = SentryAsgiMiddleware(app)
+
+    app.add_middleware(SuppressClientDisconnectNoResponseReturnedMiddleware)
+
     return app
+
+
+# Supress "no response returned" error when client disconnects
+# discussion and sample code found here
+# https://github.com/encode/starlette/discussions/1527
+class SuppressClientDisconnectNoResponseReturnedMiddleware(BaseHTTPMiddleware):
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        try:
+            response = await call_next(request)
+        except RuntimeError as e:
+            if await request.is_disconnected() and str(e) == "No response returned.":
+                logger.warning(
+                    "Error 'No response returned' detected - but client already disconnected"
+                )
+                return Response(status_code=HTTPStatus.NO_CONTENT)
+            else:
+                raise
+        return response
