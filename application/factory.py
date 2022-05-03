@@ -177,6 +177,9 @@ def add_static(app):
 
 
 def add_middleware(app):
+
+    app.add_middleware(SuppressClientDisconnectNoResponseReturnedMiddleware)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -208,8 +211,6 @@ def add_middleware(app):
     if settings.SENTRY_DSN:
         sentry_sdk.init(dsn=settings.SENTRY_DSN, environment=settings.ENVIRONMENT)
         app.add_middleware(SentryAsgiMiddleware)
-
-    app.add_middleware(SuppressClientDisconnectNoResponseReturnedMiddleware)
 
     return app
 
