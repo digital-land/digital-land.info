@@ -207,7 +207,7 @@ def add_middleware(app):
 
     if settings.SENTRY_DSN:
         sentry_sdk.init(dsn=settings.SENTRY_DSN, environment=settings.ENVIRONMENT)
-        app = SentryAsgiMiddleware(app)
+        app.add_middleware(SentryAsgiMiddleware)
 
     app.add_middleware(SuppressClientDisconnectNoResponseReturnedMiddleware)
 
