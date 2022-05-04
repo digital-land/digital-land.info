@@ -4,10 +4,11 @@ from typing import Optional, List
 from fastapi import Query, Header
 from pydantic import validator
 from pydantic.dataclasses import dataclass
+from sqlalchemy import text
 
 from application.db.models import DatasetOrm
 from application.db.session import get_context_session
-from application.exceptions import DatasetValueNotFound
+from application.exceptions import DatasetValueNotFound, InvalidGeometry
 from application.search.enum import (
     EntriesOption,
     DateOption,
@@ -129,4 +130,18 @@ class QueryFilters:
                 f"Valid dataset names: {','.join(dataset_names)}",
                 dataset_names=dataset_names,
             )
+        return v
+
+    @validator("geometry", pre=True)
+    def geometry_valid(cls, v: Optional[list]):
+        if not v:
+            return v
+        with get_context_session() as session:
+            for geometry in v:
+                try:
+                    stmt = text("SELECT ST_IsValid(:geometry);")
+                    stmt = stmt.bindparams(geometry=geometry)
+                    session.execute(stmt)
+                except Exception:
+                    raise InvalidGeometry(f"Invalid geometry {geometry}")
         return v

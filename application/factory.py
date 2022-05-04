@@ -19,7 +19,7 @@ from http import HTTPStatus
 
 from application.core.templates import templates
 from application.db.models import EntityOrm
-from application.exceptions import DatasetValueNotFound
+from application.exceptions import DigitalLandValidationError
 from application.routers import entity, dataset, map_
 from application.settings import get_settings
 
@@ -140,7 +140,7 @@ def add_base_routes(app):
     async def custom_validation_error_handler(request: Request, exc: ValidationError):
         if all(
             [
-                isinstance(raw_error.exc, DatasetValueNotFound)
+                isinstance(raw_error.exc, DigitalLandValidationError)
                 for raw_error in exc.raw_errors
             ]
         ):

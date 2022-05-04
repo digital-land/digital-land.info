@@ -172,11 +172,14 @@ def test_link_dataset_endpoint_returns_as_expected(
     )
 
 
-def test_api_handles_quoted_wkt(client, test_data):
+def test_api_handles_invalid_wkt(client, test_data):
 
     unquoted_point = "POINT (-0.33753991127014155 53.74458682618967)"
     single_quoted_point = f"'{unquoted_point}'"
     double_quoted_point = f'"{unquoted_point}"'
+    invalid_point = "POINT (-0.33753991127014155)"
+    invalid_polygon = "POLYGON ((-0.33753991127014155)"
+    invalid_multi_polygon = "MULTIPOLYGON ((-0.33753991127014155)))"
     empty_wkt = "\t"
 
     params = {"geometry_relation": "intersects", "geometry": unquoted_point}
@@ -185,12 +188,36 @@ def test_api_handles_quoted_wkt(client, test_data):
 
     params = {"geometry_relation": "intersects", "geometry": single_quoted_point}
     response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 200
+    assert response.status_code == 400
+    data = response.json()
+    assert f"Invalid geometry {single_quoted_point}" == data["detail"][0]["msg"]
 
     params = {"geometry_relation": "intersects", "geometry": double_quoted_point}
     response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 200
+    assert response.status_code == 400
+    data = response.json()
+    assert f"Invalid geometry {double_quoted_point}" == data["detail"][0]["msg"]
+
+    params = {"geometry_relation": "intersects", "geometry": invalid_point}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 400
+    data = response.json()
+    assert f"Invalid geometry {invalid_point}" == data["detail"][0]["msg"]
+
+    params = {"geometry_relation": "intersects", "geometry": invalid_polygon}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 400
+    data = response.json()
+    assert f"Invalid geometry {invalid_polygon}" == data["detail"][0]["msg"]
+
+    params = {"geometry_relation": "intersects", "geometry": invalid_multi_polygon}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 400
+    data = response.json()
+    assert f"Invalid geometry {invalid_multi_polygon}" == data["detail"][0]["msg"]
 
     params = {"geometry_relation": "intersects", "geometry": empty_wkt}
     response = client.get("/entity.geojson", params=params)
     assert response.status_code == 400
+    data = response.json()
+    assert f"Invalid geometry {empty_wkt}" == data["detail"][0]["msg"]

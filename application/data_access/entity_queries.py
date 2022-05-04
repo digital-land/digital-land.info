@@ -1,5 +1,4 @@
 import logging
-import re
 
 from typing import Optional, List, Tuple
 from sqlalchemy import select, func, or_, and_
@@ -18,11 +17,6 @@ from application.db.session import get_context_session
 from application.search.enum import GeometryRelation, EntriesOption
 
 logger = logging.getLogger(__name__)
-
-
-class InvalidQueryException(Exception):
-    pass
-
 
 # TODO - curie (prefix:reference), organisation not implemented yet
 #  not sure about curie search and how it should be implemented to make sense.
@@ -138,9 +132,6 @@ def _apply_location_filters(session, query, params):
 
     clauses = []
     for geometry in params.get("geometry", []):
-        geometry = re.sub("['\"]", "", geometry).strip()
-        if not geometry:
-            raise InvalidQueryException("Invalid query. geometry parameter empty")
         clauses.append(
             or_(
                 and_(
