@@ -46,15 +46,21 @@ class QueryFilters:
     theme: Optional[List[str]] = Query(None)
     typology: Optional[List[str]] = Query(None)
     dataset: Optional[List[str]] = Query(None)
+
+    # TODO implement this like curie and subselect
     organisation: Optional[List[str]] = Query(None)
-    organisation_entity: Optional[List[str]] = Query(None)
+
+    organisation_entity: Optional[List[int]] = Query(None)
     entity: Optional[List[str]] = Query(None)
     curie: Optional[List[str]] = Query(None)
     prefix: Optional[List[str]] = Query(None)
     reference: Optional[List[str]] = Query(None)
-    related_entity: Optional[List[str]] = Query(
-        None, description="filter by related entity"
-    )
+
+    # TODO remove not implemented
+    # related_entity: Optional[List[str]] = Query(
+    #     None, description="filter by related entity"
+    # )
+
     entries: Optional[EntriesOption] = Query(
         None, description="Results to include current, or all entries"
     )

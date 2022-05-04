@@ -18,8 +18,8 @@ from application.search.enum import GeometryRelation, EntriesOption
 
 logger = logging.getLogger(__name__)
 
-# TODO - curie (prefix:reference), organisation not implemented yet
-#  not sure about curie search and how it should be implemented to make sense.
+
+# TODO - organisation not implemented yet
 
 
 def get_entity_query(
@@ -76,7 +76,7 @@ def get_entity_search(parameters: dict):
 
         query_args = [EntityOrm, func.count(EntityOrm.entity).over().label("count")]
         query = session.query(*query_args)
-        query = _apply_base_filters(query, params)
+        query = _apply_base_filters(session, query, params)
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
         query = _apply_entries_option_filter(query, params)
@@ -93,7 +93,7 @@ def get_entity_search(parameters: dict):
         return {"params": params, "count": count, "entities": entities}
 
 
-def _apply_base_filters(query, params):
+def _apply_base_filters(session, query, params):
 
     # exclude any params that match an entity field name but need special handling
     excluded = set(["geometry"])
@@ -105,6 +105,15 @@ def _apply_base_filters(query, params):
                 query = query.filter(field.in_(val))
             else:
                 query = query.filter(field == val)
+
+    if params.get("curie") is not None:
+        curies = params.get("curie")
+        for curie in curies:
+            prefix, reference = curie.split(":")
+            query = query.filter(
+                EntityOrm.prefix == prefix, EntityOrm.reference == reference
+            )
+
     return query
 
 

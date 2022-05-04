@@ -508,4 +508,25 @@ def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
         assert e.entity in test_trees
 
 
-# TODO test cases for contains, within and entity_reference
+def test_search_entity_by_curie(test_data, params):
+
+    expected_entity = [
+        e
+        for e in test_data["entities"]
+        if e["prefix"] == "greenspace" and e["reference"] == "Q1234567"
+    ][0]
+
+    curie = f"{expected_entity['prefix']}:{expected_entity['reference']}"
+    params["curie"] = [curie]
+
+    result = get_entity_search(params)
+
+    assert result["count"] == 1
+
+    entity = result["entities"][0]
+
+    assert entity.prefix == expected_entity["prefix"]
+    assert entity.reference == expected_entity["reference"]
+
+
+# TODO test cases for contains, within
