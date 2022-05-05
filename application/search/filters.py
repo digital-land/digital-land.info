@@ -51,7 +51,7 @@ class QueryFilters:
     organisation: Optional[List[str]] = Query(None)
 
     organisation_entity: Optional[List[int]] = Query(None)
-    entity: Optional[List[str]] = Query(None)
+    entity: Optional[List[int]] = Query(None)
     curie: Optional[List[str]] = Query(None)
     prefix: Optional[List[str]] = Query(None)
     reference: Optional[List[str]] = Query(None)
@@ -94,7 +94,7 @@ class QueryFilters:
     geometry: Optional[List[str]] = Query(
         None, description="one or more geometries in WKT format"
     )
-    geometry_entity: Optional[List[str]] = Query(
+    geometry_entity: Optional[List[int]] = Query(
         None, description="take the geometry from each of these entities"
     )
     geometry_reference: Optional[List[str]] = Query(

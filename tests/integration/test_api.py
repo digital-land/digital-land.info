@@ -221,3 +221,19 @@ def test_api_handles_invalid_wkt(client, test_data):
     assert response.status_code == 400
     data = response.json()
     assert f"Invalid geometry {empty_wkt}" == data["detail"][0]["msg"]
+
+
+def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_data):
+    params = {"geometry_entity": "not a number"}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 422
+    data = response.json()
+    assert "value is not a valid integer" == data["detail"][0]["msg"]
+    assert "geometry_entity" == data["detail"][0]["loc"][1]
+
+    params = {"entity": "not a number"}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 422
+    data = response.json()
+    assert "value is not a valid integer" == data["detail"][0]["msg"]
+    assert "entity" == data["detail"][0]["loc"][1]
