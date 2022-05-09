@@ -76,7 +76,7 @@ def get_entity_search(parameters: dict):
 
         query_args = [EntityOrm, func.count(EntityOrm.entity).over().label("count")]
         query = session.query(*query_args)
-        query = _apply_base_filters(session, query, params)
+        query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
         query = _apply_entries_option_filter(query, params)
@@ -93,7 +93,7 @@ def get_entity_search(parameters: dict):
         return {"params": params, "count": count, "entities": entities}
 
 
-def _apply_base_filters(session, query, params):
+def _apply_base_filters(query, params):
 
     # exclude any params that match an entity field name but need special handling
     excluded = set(["geometry"])
@@ -129,6 +129,7 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
 
+    # TODO - might need to add some defensive checks for invalid geometry here
     point = get_point(params)
     if point is not None:
         query = query.filter(
@@ -139,6 +140,7 @@ def _apply_location_filters(session, query, params):
         params.get("geometry_relation", GeometryRelation.within)
     )
 
+    # TODO - might need to add some defensive checks for invalid geometry here
     clauses = []
     for geometry in params.get("geometry", []):
         clauses.append(

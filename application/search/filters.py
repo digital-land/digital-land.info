@@ -8,7 +8,11 @@ from sqlalchemy import text
 
 from application.db.models import DatasetOrm
 from application.db.session import get_context_session
-from application.exceptions import DatasetValueNotFound, InvalidGeometry
+from application.exceptions import (
+    DatasetValueNotFound,
+    InvalidGeometry,
+    DigitalLandValidationError,
+)
 from application.search.enum import (
     EntriesOption,
     DateOption,
@@ -150,4 +154,54 @@ class QueryFilters:
                     session.execute(stmt)
                 except Exception:
                     raise InvalidGeometry(f"Invalid geometry {geometry}")
+        return v
+
+    @validator("entry_date_day", "start_date_day", "end_date_day", pre=True)
+    def validate_date_day(cls, v, field):
+        if isinstance(v, str):
+            if v.strip() == "":
+                return v
+            try:
+                day = int(v)
+                if 1 <= day <= 31:
+                    return day
+                else:
+                    raise DigitalLandValidationError(
+                        f"field {field} must be a number between 1 and 31"
+                    )
+            except Exception:
+                raise DigitalLandValidationError(
+                    f"field {field} must be a number between 1 and 31"
+                )
+        return v
+
+    @validator("entry_date_month", "start_date_month", "end_date_month", pre=True)
+    def validate_date_month(cls, v, field):
+        if isinstance(v, str):
+            if v.strip() == "":
+                return v
+            try:
+                month = int(v)
+                if 1 <= month <= 12:
+                    return month
+                else:
+                    raise DigitalLandValidationError(
+                        f"field {field} must be a number between 1 and 12"
+                    )
+            except Exception:
+                raise DigitalLandValidationError(
+                    f"field {field} must be a number between 1 and 12"
+                )
+        return v
+
+    @validator("entry_date_year", "start_date_year", "end_date_year", pre=True)
+    def validate_date_year(cls, v, field):
+        if isinstance(v, str):
+            if v.strip() == "":
+                return v
+            try:
+                year = int(v)
+                return year
+            except Exception:
+                raise DigitalLandValidationError(f"field {field} must be numeric")
         return v

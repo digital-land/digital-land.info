@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+import pytest as pytest
+
 from tests.test_data import datasets
 from tests.test_data.wkt_data import (
     random_location_lambeth,
@@ -172,55 +174,26 @@ def test_link_dataset_endpoint_returns_as_expected(
     )
 
 
-def test_api_handles_invalid_wkt(client, test_data):
+wkt_params = [
+    ("POINT (-0.33753991127014155 53.74458682618967)", 200),
+    ("'POINT (-0.33753991127014155 53.74458682618967)'", 400),
+    ('"POINT (-0.33753991127014155 53.74458682618967)"', 400),
+    ("POINT (-0.33753991127014155)", 400),
+    ("POLYGON ((-0.33753991127014155)", 400),
+    ("MULTIPOLYGON ((-0.33753991127014155)))", 400),
+    ("\t", 400),
+]
 
-    unquoted_point = "POINT (-0.33753991127014155 53.74458682618967)"
-    single_quoted_point = f"'{unquoted_point}'"
-    double_quoted_point = f'"{unquoted_point}"'
-    invalid_point = "POINT (-0.33753991127014155)"
-    invalid_polygon = "POLYGON ((-0.33753991127014155)"
-    invalid_multi_polygon = "MULTIPOLYGON ((-0.33753991127014155)))"
-    empty_wkt = "\t"
 
-    params = {"geometry_relation": "intersects", "geometry": unquoted_point}
+@pytest.mark.parametrize("point, expected_status_code", wkt_params)
+def test_api_handles_invalid_wkt(point, expected_status_code, client, test_data):
+
+    params = {"geometry_relation": "intersects", "geometry": point}
     response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 200
-
-    params = {"geometry_relation": "intersects", "geometry": single_quoted_point}
-    response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 400
+    assert response.status_code == expected_status_code
     data = response.json()
-    assert f"Invalid geometry {single_quoted_point}" == data["detail"][0]["msg"]
-
-    params = {"geometry_relation": "intersects", "geometry": double_quoted_point}
-    response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 400
-    data = response.json()
-    assert f"Invalid geometry {double_quoted_point}" == data["detail"][0]["msg"]
-
-    params = {"geometry_relation": "intersects", "geometry": invalid_point}
-    response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 400
-    data = response.json()
-    assert f"Invalid geometry {invalid_point}" == data["detail"][0]["msg"]
-
-    params = {"geometry_relation": "intersects", "geometry": invalid_polygon}
-    response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 400
-    data = response.json()
-    assert f"Invalid geometry {invalid_polygon}" == data["detail"][0]["msg"]
-
-    params = {"geometry_relation": "intersects", "geometry": invalid_multi_polygon}
-    response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 400
-    data = response.json()
-    assert f"Invalid geometry {invalid_multi_polygon}" == data["detail"][0]["msg"]
-
-    params = {"geometry_relation": "intersects", "geometry": empty_wkt}
-    response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 400
-    data = response.json()
-    assert f"Invalid geometry {empty_wkt}" == data["detail"][0]["msg"]
+    if data.get("detail") is not None:
+        assert f"Invalid geometry {point}" == data["detail"][0]["msg"]
 
 
 def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_data):
@@ -237,3 +210,91 @@ def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_da
     data = response.json()
     assert "value is not a valid integer" == data["detail"][0]["msg"]
     assert "entity" == data["detail"][0]["loc"][1]
+
+
+date_params = [
+    (
+        ["entry_date_day"],
+        {"entry_date_year": 2022, "entry_date_month": 11, "entry_date_day": -1},
+    ),
+    (
+        ["entry_date_day"],
+        {"entry_date_year": 2022, "entry_date_month": 11, "entry_date_day": 32},
+    ),
+    (
+        ["entry_date_month"],
+        {"entry_date_year": 2022, "entry_date_month": -1, "entry_date_day": 1},
+    ),
+    (
+        ["entry_date_month"],
+        {"entry_date_year": 2022, "entry_date_month": 13, "entry_date_day": 1},
+    ),
+    (
+        ["entry_date_year"],
+        {
+            "entry_date_year": "twenty_twenty_two",
+            "entry_date_month": 1,
+            "entry_date_day": 1,
+        },
+    ),
+    (
+        ["start_date_day"],
+        {"star_date_year": 2022, "start_date_month": 11, "start_date_day": -1},
+    ),
+    (
+        ["start_date_day"],
+        {"start_date_year": 2022, "start_date_month": 11, "start_date_day": 32},
+    ),
+    (
+        ["start_date_month"],
+        {"start_date_year": 2022, "start_date_month": -1, "start_date_day": 1},
+    ),
+    (
+        ["start_date_month"],
+        {"start_date_year": 2022, "start_date_month": 13, "start_date_day": 1},
+    ),
+    (
+        ["start_date_year"],
+        {
+            "start_date_year": "twenty_twenty_two",
+            "start_date_month": 1,
+            "start_date_day": 1,
+        },
+    ),
+    (
+        ["end_date_day"],
+        {"end_date_year": 2022, "end_date_month": 11, "end_date_day": -1},
+    ),
+    (
+        ["end_date_day"],
+        {"end_date_year": 2022, "end_date_month": 11, "end_date_day": 32},
+    ),
+    (
+        ["end_date_month"],
+        {"end_date_year": 2022, "end_date_month": -1, "end_date_day": 1},
+    ),
+    (
+        ["end_date_month"],
+        {"end_date_year": 2022, "end_date_month": 13, "end_date_day": 1},
+    ),
+    (
+        ["end_date_year"],
+        {"end_date_year": "twenty_twenty_two", "end_date_month": 1, "end_date_day": 1},
+    ),
+    (
+        ["end_date_month"],
+        {"end_date_year": 2022, "end_date_month": "-1", "end_date_day": 1},
+    ),
+    (
+        ["end_date_day"],
+        {"end_date_year": 2022, "end_date_month": 1, "end_date_day": "33"},
+    ),
+]
+
+
+@pytest.mark.parametrize("expected, params", date_params)
+def test_api_requires_numeric_date_fields_in_range(expected, params, client):
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 400
+    data = response.json()
+    assert expected == data["detail"][0]["loc"]

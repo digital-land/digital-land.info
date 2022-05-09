@@ -44,16 +44,13 @@ def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]
 def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
     entities = []
     for entity in data:
-        if isinstance(entity, EntityModel):
-            if include is not None:
-                # always return at least the entity (id)
-                include.add("entity")
-                e = entity.dict(include=include, by_alias=True)
-            else:
-                e = entity.dict(exclude={"geojson"}, by_alias=True)
-            entities.append(e)
+        if include is not None:
+            # always return at least the entity (id)
+            include.add("entity")
+            e = entity.dict(include=include, by_alias=True)
         else:
-            entities.append(entity)
+            e = entity.dict(exclude={"geojson"}, by_alias=True)
+        entities.append(e)
     return entities
 
 
