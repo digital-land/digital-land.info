@@ -36,7 +36,10 @@ def run_migrations_offline():
     script output.
     """
 
-    url = os.getenv("WRITE_DATABASE_URL")
+    if "DATABASE_URL" in os.environ:
+        url = os.getenv("DATABASE_URL")
+    else:
+        url = os.getenv("WRITE_DATABASE_URL")
     logging.info(f"Running offline migration against {url}")
     context.configure(
         url=url,
