@@ -91,14 +91,12 @@ def add_base_routes(app):
             with get_context_session() as session:
                 sql = select(EntityOrm.entity).limit(1)
                 result = session.execute(sql).fetchone()
-                if result is not None:
-                    status = {
-                        "status": "OK",
-                    }
-                    logger.info(f"healthcheck {status}")
-                    return status
-                else:
-                    raise Exception("Error fetching entities")
+                status = {
+                    "status": "OK",
+                    "entities_present": "OK" if result is not None else "FAIL",
+                }
+                logger.info(f"healthcheck {status}")
+                return status
         except Exception as e:
             logger.exception(e)
             raise e
