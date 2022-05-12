@@ -7,10 +7,10 @@ TAG    := $$(git log -1 --pretty=%h)
 IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest
 
-CF_APP_NAME := digital-land-platform
+CF_BASE_APP_NAME := digital-land-platform
 
 PUBLIC_REPO   := public.ecr.aws/l6z6v3j6
-PUBLIC_NAME   := $(PUBLIC_REPO)/$(CF_APP_NAME)
+PUBLIC_NAME   := $(PUBLIC_REPO)/$(CF_BASE_APP_NAME)
 PUBLIC_TAG    := $$(git log -1 --pretty=%h)
 PUBLIC_IMG    := ${PUBLIC_NAME}:${PUBLIC_TAG}
 PUBLIC_LATEST := ${PUBLIC_NAME}:latest
@@ -125,4 +125,4 @@ ifeq (, $(ENVIRONMENT))
 	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
 endif
 	cf target -o dluhc-digital-land -s $(ENVIRONMENT)
-	cf push $(CF_APP_NAME)
+	cf push $(ENVIRONMENT)-$(CF_BASE_APP_NAME)
