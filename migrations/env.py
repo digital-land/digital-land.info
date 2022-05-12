@@ -37,7 +37,7 @@ def run_migrations_offline():
     """
 
     if "DATABASE_URL" in os.environ:
-        url = os.getenv("DATABASE_URL")
+        url = os.environ["DATABASE_URL"].replace("postgres://", "postgresql://", 1)
     else:
         url = os.getenv("WRITE_DATABASE_URL")
     logging.info(f"Running offline migration against {url}")
