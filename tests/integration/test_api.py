@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+import pytest as pytest
+
 from tests.test_data import datasets
 from tests.test_data.wkt_data import (
     random_location_lambeth,
@@ -7,17 +9,31 @@ from tests.test_data.wkt_data import (
 )
 
 
-def _transform_dataset_fixture_to_response(datasets):
+def _transform_dataset_fixture_to_response(datasets, is_geojson=False):
 
     for dataset in datasets:
-        dataset["prefix"] = dataset["prefix"] or ""
-        dataset["start-date"] = dataset.pop("start_date") or ""
-        dataset["end-date"] = dataset.pop("end_date") or ""
+        _transform_dataset_to_response(dataset)
+    return datasets
+
+
+def _transform_dataset_to_response(dataset, is_geojson=False):
+    dataset["prefix"] = dataset["prefix"] or ""
+    dataset["start-date"] = dataset.pop("start_date") or ""
+    dataset["end-date"] = dataset.pop("end_date") or ""
+    dataset["entry-date"] = dataset.pop("entry_date") or ""
+    dataset["name"] = dataset.pop("name") or ""
+    if is_geojson:
+        dataset["organisation-entity"] = dataset.pop("organisation_entity") or ""
+        dataset["entity"] = int(dataset["entity"])
+        dataset.pop("geojson")
+        dataset.pop("geometry")
+        dataset.pop("json")
+        dataset.pop("point")
+    else:
         dataset["text"] = dataset["text"] or ""
-        dataset["entry-date"] = dataset.pop("entry_date") or ""
         dataset["paint-options"] = dataset.pop("paint_options") or ""
         dataset.pop("key_field")
-    return datasets
+    return dataset
 
 
 def test_app_returns_valid_geojson_list(client):
@@ -28,6 +44,24 @@ def test_app_returns_valid_geojson_list(client):
     assert "features" in data
     assert "FeatureCollection" == data["type"]
     assert [] == data["features"]
+
+
+def test_app_returns_valid_populated_geojson_list(client, test_data):
+    expected_response = []
+    for entity in test_data["entities"]:
+        geojson_dict = entity["geojson"]
+        if geojson_dict:
+            geojson_dict["properties"] = _transform_dataset_to_response(
+                entity, is_geojson=True
+            )
+            expected_response.append(geojson_dict)
+    response = client.get("/entity.geojson", headers={"Origin": "localhost"})
+    data = response.json()
+    assert "type" in data
+    assert "features" in data
+    assert "FeatureCollection" == data["type"]
+    assert len(expected_response) == len(data["features"])
+    assert expected_response == data["features"]
 
 
 def test_lasso_geo_search_finds_results(client, test_data):
@@ -138,3 +172,129 @@ def test_link_dataset_endpoint_returns_as_expected(
         response.headers["location"]
         == f"{test_settings.S3_HOISTED_BUCKET}/greenspace-hoisted.csv"
     )
+
+
+wkt_params = [
+    ("POINT (-0.33753991127014155 53.74458682618967)", 200),
+    ("'POINT (-0.33753991127014155 53.74458682618967)'", 400),
+    ('"POINT (-0.33753991127014155 53.74458682618967)"', 400),
+    ("POINT (-0.33753991127014155)", 400),
+    ("POLYGON ((-0.33753991127014155)", 400),
+    ("MULTIPOLYGON ((-0.33753991127014155)))", 400),
+    ("\t", 400),
+]
+
+
+@pytest.mark.parametrize("point, expected_status_code", wkt_params)
+def test_api_handles_invalid_wkt(point, expected_status_code, client, test_data):
+
+    params = {"geometry_relation": "intersects", "geometry": point}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == expected_status_code
+    data = response.json()
+    if data.get("detail") is not None:
+        assert f"Invalid geometry {point}" == data["detail"][0]["msg"]
+
+
+def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_data):
+    params = {"geometry_entity": "not a number"}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 422
+    data = response.json()
+    assert "value is not a valid integer" == data["detail"][0]["msg"]
+    assert "geometry_entity" == data["detail"][0]["loc"][1]
+
+    params = {"entity": "not a number"}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 422
+    data = response.json()
+    assert "value is not a valid integer" == data["detail"][0]["msg"]
+    assert "entity" == data["detail"][0]["loc"][1]
+
+
+date_params = [
+    (
+        ["entry_date_day"],
+        {"entry_date_year": 2022, "entry_date_month": 11, "entry_date_day": -1},
+    ),
+    (
+        ["entry_date_day"],
+        {"entry_date_year": 2022, "entry_date_month": 11, "entry_date_day": 32},
+    ),
+    (
+        ["entry_date_month"],
+        {"entry_date_year": 2022, "entry_date_month": -1, "entry_date_day": 1},
+    ),
+    (
+        ["entry_date_month"],
+        {"entry_date_year": 2022, "entry_date_month": 13, "entry_date_day": 1},
+    ),
+    (
+        ["entry_date_year"],
+        {
+            "entry_date_year": "twenty_twenty_two",
+            "entry_date_month": 1,
+            "entry_date_day": 1,
+        },
+    ),
+    (
+        ["start_date_day"],
+        {"star_date_year": 2022, "start_date_month": 11, "start_date_day": -1},
+    ),
+    (
+        ["start_date_day"],
+        {"start_date_year": 2022, "start_date_month": 11, "start_date_day": 32},
+    ),
+    (
+        ["start_date_month"],
+        {"start_date_year": 2022, "start_date_month": -1, "start_date_day": 1},
+    ),
+    (
+        ["start_date_month"],
+        {"start_date_year": 2022, "start_date_month": 13, "start_date_day": 1},
+    ),
+    (
+        ["start_date_year"],
+        {
+            "start_date_year": "twenty_twenty_two",
+            "start_date_month": 1,
+            "start_date_day": 1,
+        },
+    ),
+    (
+        ["end_date_day"],
+        {"end_date_year": 2022, "end_date_month": 11, "end_date_day": -1},
+    ),
+    (
+        ["end_date_day"],
+        {"end_date_year": 2022, "end_date_month": 11, "end_date_day": 32},
+    ),
+    (
+        ["end_date_month"],
+        {"end_date_year": 2022, "end_date_month": -1, "end_date_day": 1},
+    ),
+    (
+        ["end_date_month"],
+        {"end_date_year": 2022, "end_date_month": 13, "end_date_day": 1},
+    ),
+    (
+        ["end_date_year"],
+        {"end_date_year": "twenty_twenty_two", "end_date_month": 1, "end_date_day": 1},
+    ),
+    (
+        ["end_date_month"],
+        {"end_date_year": 2022, "end_date_month": "-1", "end_date_day": 1},
+    ),
+    (
+        ["end_date_day"],
+        {"end_date_year": 2022, "end_date_month": 1, "end_date_day": "33"},
+    ),
+]
+
+
+@pytest.mark.parametrize("expected, params", date_params)
+def test_api_requires_numeric_date_fields_in_range(expected, params, client):
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == 400
+    data = response.json()
+    assert expected == data["detail"][0]["loc"]

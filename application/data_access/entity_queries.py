@@ -19,8 +19,7 @@ from application.search.enum import GeometryRelation, EntriesOption
 logger = logging.getLogger(__name__)
 
 
-# TODO - curie (prefix:reference), organisation not implemented yet
-#  not sure about curie search and how it should be implemented to make sense.
+# TODO - organisation not implemented yet
 
 
 def get_entity_query(
@@ -106,6 +105,15 @@ def _apply_base_filters(query, params):
                 query = query.filter(field.in_(val))
             else:
                 query = query.filter(field == val)
+
+    if params.get("curie") is not None:
+        curies = params.get("curie")
+        for curie in curies:
+            prefix, reference = curie.split(":")
+            query = query.filter(
+                EntityOrm.prefix == prefix, EntityOrm.reference == reference
+            )
+
     return query
 
 
@@ -121,6 +129,7 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
 
+    # TODO - might need to add some defensive checks for invalid geometry here
     point = get_point(params)
     if point is not None:
         query = query.filter(
@@ -131,6 +140,7 @@ def _apply_location_filters(session, query, params):
         params.get("geometry_relation", GeometryRelation.within)
     )
 
+    # TODO - might need to add some defensive checks for invalid geometry here
     clauses = []
     for geometry in params.get("geometry", []):
         clauses.append(
@@ -152,6 +162,37 @@ def _apply_location_filters(session, query, params):
     if clauses:
         query = query.filter(or_(*clauses))
 
+    intersecting_entities = params.get("geometry_entity", [])
+    if intersecting_entities:
+        intersecting_entities_query = (
+            session.query(EntityOrm.geometry)
+            .filter(EntityOrm.entity.in_(intersecting_entities))
+            .group_by(EntityOrm)
+            .subquery()
+        )
+
+        query = query.join(
+            intersecting_entities_query,
+            or_(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    func.ST_IsValid(intersecting_entities_query.c.geometry),
+                    func.ST_Intersects(
+                        EntityOrm.geometry,
+                        intersecting_entities_query.c.geometry,
+                    ),
+                ),
+                and_(
+                    EntityOrm.point.is_not(None),
+                    func.ST_IsValid(intersecting_entities_query.c.geometry),
+                    func.ST_Intersects(
+                        EntityOrm.point, intersecting_entities_query.c.geometry
+                    ),
+                ),
+            ),
+        )
+
     references = params.get("geometry_reference", [])
     if references:
         reference_query = (
@@ -165,10 +206,13 @@ def _apply_location_filters(session, query, params):
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    func.ST_IsValid(reference_query.c.geometry),
                     func.ST_Intersects(EntityOrm.geometry, reference_query.c.geometry),
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
+                    func.ST_IsValid(reference_query.c.geometry),
                     func.ST_Intersects(EntityOrm.point, reference_query.c.geometry),
                 ),
             ),

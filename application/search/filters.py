@@ -4,11 +4,21 @@ from typing import Optional, List
 from fastapi import Query, Header
 from pydantic import validator
 from pydantic.dataclasses import dataclass
+from sqlalchemy import text
 
 from application.db.models import DatasetOrm
 from application.db.session import get_context_session
-from application.exceptions import DatasetValueNotFound
-from application.search.enum import EntriesOption, DateOption, GeometryRelation, Suffix
+from application.exceptions import (
+    DatasetValueNotFound,
+    InvalidGeometry,
+    DigitalLandValidationError,
+)
+from application.search.enum import (
+    EntriesOption,
+    DateOption,
+    GeometryRelation,
+    SuffixEntity,
+)
 
 
 @dataclass
@@ -40,15 +50,21 @@ class QueryFilters:
     theme: Optional[List[str]] = Query(None)
     typology: Optional[List[str]] = Query(None)
     dataset: Optional[List[str]] = Query(None)
+
+    # TODO implement this like curie and subselect
     organisation: Optional[List[str]] = Query(None)
-    organisation_entity: Optional[List[str]] = Query(None)
-    entity: Optional[List[str]] = Query(None)
+
+    organisation_entity: Optional[List[int]] = Query(None)
+    entity: Optional[List[int]] = Query(None)
     curie: Optional[List[str]] = Query(None)
     prefix: Optional[List[str]] = Query(None)
     reference: Optional[List[str]] = Query(None)
-    related_entity: Optional[List[str]] = Query(
-        None, description="filter by related entity"
-    )
+
+    # TODO remove not implemented
+    # related_entity: Optional[List[str]] = Query(
+    #     None, description="filter by related entity"
+    # )
+
     entries: Optional[EntriesOption] = Query(
         None, description="Results to include current, or all entries"
     )
@@ -82,7 +98,7 @@ class QueryFilters:
     geometry: Optional[List[str]] = Query(
         None, description="one or more geometries in WKT format"
     )
-    geometry_entity: Optional[List[str]] = Query(
+    geometry_entity: Optional[List[int]] = Query(
         None, description="take the geometry from each of these entities"
     )
     geometry_reference: Optional[List[str]] = Query(
@@ -102,7 +118,9 @@ class QueryFilters:
     accept: Optional[str] = Header(
         None, description="accepted content-type for results"
     )
-    suffix: Optional[Suffix] = Query(None, description="file format for the results")
+    suffix: Optional[SuffixEntity] = Query(
+        None, description="file format for the results"
+    )
     field: Optional[List[str]] = Query(
         None, description="fields to be included in response"
     )
@@ -122,4 +140,68 @@ class QueryFilters:
                 f"Valid dataset names: {','.join(dataset_names)}",
                 dataset_names=dataset_names,
             )
+        return v
+
+    @validator("geometry", pre=True)
+    def geometry_valid(cls, v: Optional[list]):
+        if not v:
+            return v
+        with get_context_session() as session:
+            for geometry in v:
+                try:
+                    stmt = text("SELECT ST_IsValid(:geometry);")
+                    stmt = stmt.bindparams(geometry=geometry)
+                    session.execute(stmt)
+                except Exception:
+                    raise InvalidGeometry(f"Invalid geometry {geometry}")
+        return v
+
+    @validator("entry_date_day", "start_date_day", "end_date_day", pre=True)
+    def validate_date_day(cls, v, field):
+        if isinstance(v, str):
+            if v.strip() == "":
+                return v
+            try:
+                day = int(v)
+                if 1 <= day <= 31:
+                    return day
+                else:
+                    raise DigitalLandValidationError(
+                        f"field {field} must be a number between 1 and 31"
+                    )
+            except Exception:
+                raise DigitalLandValidationError(
+                    f"field {field} must be a number between 1 and 31"
+                )
+        return v
+
+    @validator("entry_date_month", "start_date_month", "end_date_month", pre=True)
+    def validate_date_month(cls, v, field):
+        if isinstance(v, str):
+            if v.strip() == "":
+                return v
+            try:
+                month = int(v)
+                if 1 <= month <= 12:
+                    return month
+                else:
+                    raise DigitalLandValidationError(
+                        f"field {field} must be a number between 1 and 12"
+                    )
+            except Exception:
+                raise DigitalLandValidationError(
+                    f"field {field} must be a number between 1 and 12"
+                )
+        return v
+
+    @validator("entry_date_year", "start_date_year", "end_date_year", pre=True)
+    def validate_date_year(cls, v, field):
+        if isinstance(v, str):
+            if v.strip() == "":
+                return v
+            try:
+                year = int(v)
+                return year
+            except Exception:
+                raise DigitalLandValidationError(f"field {field} must be numeric")
         return v

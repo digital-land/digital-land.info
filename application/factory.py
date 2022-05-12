@@ -1,4 +1,5 @@
 import logging
+import sentry_sdk
 
 from datetime import timedelta
 from pickle import TRUE
@@ -10,14 +11,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.responses import Response
+from http import HTTPStatus
 
 from application.core.templates import templates
 from application.db.models import EntityOrm
-from application.exceptions import DatasetValueNotFound
+from application.exceptions import DigitalLandValidationError
 from application.routers import entity, dataset, map_
+from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
 SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
 
@@ -64,7 +71,7 @@ def create_app():
     add_base_routes(app)
     add_routers(app)
     add_static(app)
-    add_middleware(app)
+    app = add_middleware(app)
     return app
 
 
@@ -133,7 +140,7 @@ def add_base_routes(app):
     async def custom_validation_error_handler(request: Request, exc: ValidationError):
         if all(
             [
-                isinstance(raw_error.exc, DatasetValueNotFound)
+                isinstance(raw_error.exc, DigitalLandValidationError)
                 for raw_error in exc.raw_errors
             ]
         ):
@@ -170,6 +177,7 @@ def add_static(app):
 
 
 def add_middleware(app):
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -196,4 +204,33 @@ def add_middleware(app):
     async def add_x_content_type_options_header(request: Request, call_next):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+
+    # this has to registered after the first middleware but before sentry?
+    app.add_middleware(SuppressClientDisconnectNoResponseReturnedMiddleware)
+
+    if settings.SENTRY_DSN:
+        sentry_sdk.init(dsn=settings.SENTRY_DSN, environment=settings.ENVIRONMENT)
+        app.add_middleware(SentryAsgiMiddleware)
+
+    return app
+
+
+# Supress "no response returned" error when client disconnects
+# discussion and sample code found here
+# https://github.com/encode/starlette/discussions/1527
+class SuppressClientDisconnectNoResponseReturnedMiddleware(BaseHTTPMiddleware):
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        try:
+            response = await call_next(request)
+        except RuntimeError as e:
+            if await request.is_disconnected() and str(e) == "No response returned.":
+                logger.warning(
+                    "Error 'No response returned' detected - but client already disconnected"
+                )
+                return Response(status_code=HTTPStatus.NO_CONTENT)
+            else:
+                raise
         return response

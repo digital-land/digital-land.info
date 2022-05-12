@@ -5,14 +5,15 @@ class SuffixLinkableFiles(str, Enum):
     csv = "csv"
 
 
-class Suffix(str, Enum):
+class SuffixEntity(str, Enum):
     json = "json"
     html = "html"
-    xlsx = "xlsx"
-    zip = "zip"
-    csv = "csv"
-    ttl = "ttl"
     geojson = "geojson"
+
+
+class SuffixDataset(str, Enum):
+    json = "json"
+    html = "html"
 
 
 class PointMatch(str, Enum):

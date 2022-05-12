@@ -55,6 +55,7 @@ jobs:
         S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
         READ_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
         WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
+        ENVIRONMENT: development
 
     - name: Publish Test Report
       uses: mikepenz/action-junit-report@v2

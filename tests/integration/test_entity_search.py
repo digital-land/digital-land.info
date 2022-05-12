@@ -4,6 +4,8 @@ from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
 from application.search.enum import EntriesOption, GeometryRelation
 
+NUMBER_OF_ENTITIES_IN_TEST_FIXTURE = 9
+
 
 @pytest.fixture(scope="module")
 def raw_params():
@@ -52,14 +54,6 @@ def params(raw_params):
     return raw_params.copy()
 
 
-def test_search_entity_by_dataset_name_not_in_system(test_data, params):
-
-    params["dataset"] = ["not-exists"]
-    result = get_entity_search(params)
-    assert result["count"] == 0
-    assert result["entities"] == []
-
-
 def test_search_entity_by_dataset_name_not_in_system_returns_error(
     test_data, client, exclude_middleware
 ):
@@ -74,12 +68,14 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
                         "forest",
                         "brownfield-site",
                         "historical-monument",
+                        "tree",
+                        "conservation-area",
                     ]
                 },
                 "loc": ["dataset"],
                 "msg": "Requested datasets do not exist: not-exists. Valid "
                 "dataset names: "
-                "greenspace,forest,brownfield-site,historical-monument",
+                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area",
                 "type": "value_error.datasetvaluenotfound",
             }
         ]
@@ -101,12 +97,14 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
                         "forest",
                         "brownfield-site",
                         "historical-monument",
+                        "tree",
+                        "conservation-area",
                     ]
                 },
                 "loc": ["dataset"],
                 "msg": "Requested datasets do not exist: not-exists. Valid "
                 "dataset names: "
-                "greenspace,forest,brownfield-site,historical-monument",
+                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area",
                 "type": "value_error.datasetvaluenotfound",
             }
         ]
@@ -129,7 +127,7 @@ def test_search_entity_by_list_of_dataset_names(test_data, params):
     result = get_entity_search(params)
     assert 2 == result["count"]
     for e in result["entities"]:
-        assert e.dataset in ["greenspace", "brownfield-site"]
+        assert e.dataset in ["greenspace", "brownfield-site", "conservation-area"]
         assert e.typology == "geography"
 
 
@@ -139,38 +137,51 @@ def test_search_entity_by_date_since(test_data, params):
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
     params["entry_date_match"] = "since"
-
     result = get_entity_search(params)
-    assert 4 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
             "forest",
             "brownfield-site",
             "historical-monument",
+            "tree",
+            "conservation-area",
         ]
         assert "geography" == e.typology
 
     params["entry_date_year"] = 2020
     result = get_entity_search(params)
-    assert 3 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 1
     for e in result["entities"]:
-        assert e.dataset in ["forest", "brownfield-site", "historical-monument"]
+        assert e.dataset in [
+            "forest",
+            "brownfield-site",
+            "historical-monument",
+            "conservation-area",
+            "tree",
+        ]
         assert e.dataset != "greenspace"
 
     params["entry_date_year"] = 2021
     result = get_entity_search(params)
-    assert 2 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 3
     for e in result["entities"]:
-        assert e.dataset in ["brownfield-site", "historical-monument"]
+        assert e.dataset in ["brownfield-site", "historical-monument", "tree"]
         assert e.dataset not in ["greenspace", "forest"]
 
     params["entry_date_year"] = 2022
     result = get_entity_search(params)
-    assert 1 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 7
     for e in result["entities"]:
         assert e.dataset in ["historical-monument"]
-        assert e.dataset not in ["greenspace", "forest", "brownfield-site"]
+        assert e.dataset not in [
+            "greenspace",
+            "forest",
+            "brownfield-site",
+            "tree",
+            "conservation-area",
+        ]
 
     params["entry_date_year"] = 2023
     result = get_entity_search(params)
@@ -193,21 +204,23 @@ def test_search_entity_by_date_before(test_data, params):
 
     params["entry_date_year"] = 2021
     result = get_entity_search(params)
-    assert 2 == result["count"]
+    assert 3 == result["count"]
 
     params["entry_date_year"] = 2022
     result = get_entity_search(params)
-    assert 3 == result["count"]
+    assert 7 == result["count"]
 
     params["entry_date_year"] = 2023
     result = get_entity_search(params)
-    assert 4 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
             "forest",
             "brownfield-site",
             "historical-monument",
+            "conservation-area",
+            "tree",
         ]
 
 
@@ -292,13 +305,15 @@ def test_search_all_entities(test_data, params):
 
     # default is EntriesOption.all - already in params
     result = get_entity_search(params)
-    assert 4 == result["count"]
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     for e in result["entities"]:
         assert e.dataset in [
             "greenspace",
             "forest",
             "brownfield-site",
             "historical-monument",
+            "tree",
+            "conservation-area",
         ]
 
 
@@ -308,12 +323,14 @@ def test_search_current_entries(test_data, params):
     params["entries"] = EntriesOption.current
 
     result = get_entity_search(params)
-    assert 3 == result["count"]
+    assert result["count"] == 8
     for e in result["entities"]:
         assert e.dataset in [
             "forest",
             "brownfield-site",
             "historical-monument",
+            "tree",
+            "conservation-area",
         ]
 
 
@@ -332,7 +349,7 @@ def test_search_includes_only_field_params(test_data, client, exclude_middleware
     response = client.get("/entity.json?limit=10&field=name")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name", "entity"]))
 
@@ -341,7 +358,7 @@ def test_search_includes_multiple_field_params(test_data, client, exclude_middle
     response = client.get("/entity.json?limit=10&field=name&field=dataset")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set(["name", "dataset", "entity"]))
 
@@ -356,7 +373,7 @@ def test_search_includes_any_field_params(
     response = client.get(f"/entity.json?limit=10&field={field_name}")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     e = result["entities"][0]
     assert not set(e.keys()).symmetric_difference(set([field_name, "entity"]))
 
@@ -365,7 +382,7 @@ def test_search_pagination_does_not_affect_count(test_data, client, exclude_midd
     response = client.get("/entity.json?limit=1")
     response.raise_for_status()
     result = response.json()
-    assert result["count"] == 4
+    assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
 
 
 def test_search_filtering_does_affect_count(test_data, client, exclude_middleware):
@@ -395,7 +412,7 @@ def test_search_entity_disjoint_from_a_polygon(test_data, params):
     params["geometry_relation"] = GeometryRelation.disjoint.name
 
     result = get_entity_search(params)
-    assert result["count"] == 4
+    assert result["count"] == 8
 
 
 def test_search_entity_that_polygon_touches(test_data, params):
@@ -471,4 +488,45 @@ def test_search_entity_that_is_crossed_by_a_line(test_data, params):
     assert result["entities"][0].dataset == "historical-monument"
 
 
-# TODO test cases for contains and within
+def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
+    test_data, params
+):
+
+    test_conservation_area = [
+        e for e in test_data["entities"] if e["dataset"] == "conservation-area"
+    ][0]
+    test_trees = set(
+        [e["entity"] for e in test_data["entities"] if e["dataset"] == "tree"]
+    )
+
+    params["geometry_entity"] = [test_conservation_area.get("entity")]
+    params["dataset"] = ["tree"]
+    result = get_entity_search(params)
+    assert result["count"] == 3
+    for e in result["entities"]:
+        assert e.dataset == "tree"
+        assert e.entity in test_trees
+
+
+def test_search_entity_by_curie(test_data, params):
+
+    expected_entity = [
+        e
+        for e in test_data["entities"]
+        if e["prefix"] == "greenspace" and e["reference"] == "Q1234567"
+    ][0]
+
+    curie = f"{expected_entity['prefix']}:{expected_entity['reference']}"
+    params["curie"] = [curie]
+
+    result = get_entity_search(params)
+
+    assert result["count"] == 1
+
+    entity = result["entities"][0]
+
+    assert entity.prefix == expected_entity["prefix"]
+    assert entity.reference == expected_entity["reference"]
+
+
+# TODO test cases for contains, within

@@ -13,15 +13,7 @@ services:
       - 8000:8000
     depends_on:
       - db
-    environment:
-      WRITE_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
-      READ_DATABASE_URL: "postgresql://postgres:postgres@db/digital_land"
-      PRE_START_PATH: /src/prestart-dev.sh
-      PORT: 8000
-      RELOAD: "true"
-      WEB_CONCURRENCY: 1
-      S3_HOISTED_BUCKET: ${S3_HOISTED_BUCKET}
-      S3_COLLECTION_BUCKET: ${S3_COLLECTION_BUCKET}
+    env_file: ./.env.dev.docker
 
   db:
     image: postgis/postgis:13-master
