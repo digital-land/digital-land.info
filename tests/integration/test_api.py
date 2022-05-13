@@ -298,3 +298,16 @@ def test_api_requires_numeric_date_fields_in_range(expected, params, client):
     assert response.status_code == 400
     data = response.json()
     assert expected == data["detail"][0]["loc"]
+
+
+curie_params = ["", ":", "broken", "bro-ken", "bro;ken", "bro\tken"]
+
+
+@pytest.mark.parametrize("curie", curie_params)
+def test_search_entity_rejects_invalid_curie(curie, client):
+    params = {"curie": curie}
+    response = client.get("/entity.json", params=params)
+    assert response.status_code == 400
+    data = response.json()
+    assert "curie must be in form 'prefix:reference'" == data["detail"][0]["msg"]
+    assert "curie" == data["detail"][0]["loc"][0]
