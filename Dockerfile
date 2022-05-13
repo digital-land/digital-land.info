@@ -7,7 +7,7 @@ RUN pip install --user --no-cache-dir -r requirements/requirements.txt
 
 EXPOSE 80
 
-ENV PATH=/root/.local:$PATH
+ENV PATH=/root/.local/bin:$PATH
 ENV MODULE_NAME=application.app
 ENV GUNICORN_CONF=/src/gunicorn_conf.py
 ENV PRE_START_PATH=/src/prestart.sh

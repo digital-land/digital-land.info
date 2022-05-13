@@ -11,10 +11,10 @@ NAME           := $(REPO)/digital-land-info
 COMMIT_IMG     := $(NAME):$(COMMIT_TAG)
 EXPLICIT_IMG   := $(NAME):$(EXPLICIT_TAG)
 
-CF_APP_NAME := digital-land-platform
+CF_BASE_APP_NAME := digital-land-platform
 
 PUBLIC_REPO         := public.ecr.aws/l6z6v3j6
-PUBLIC_NAME         := $(PUBLIC_REPO)/$(CF_APP_NAME)
+PUBLIC_NAME         := $(PUBLIC_REPO)/$(CF_BASE_APP_NAME)
 PUBLIC_COMMIT_IMG   := $(PUBLIC_NAME):$(COMMIT_TAG)
 PUBLIC_EXPLICIT_IMG := $(PUBLIC_NAME):$(EXPLICIT_TAG)
 
@@ -42,7 +42,7 @@ server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
-build: docker-build-private docker-build-public
+docker-build: docker-build-private docker-build-public
 
 docker-build-private:
 	docker build  --target production -t $(EXPLICIT_IMG) .
@@ -131,4 +131,4 @@ ifeq (, $(ENVIRONMENT))
 	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
 endif
 	cf target -o dluhc-digital-land -s $(ENVIRONMENT)
-	cf push $(CF_APP_NAME)
+	cf push $(ENVIRONMENT)-$(CF_BASE_APP_NAME)
