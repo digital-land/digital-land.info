@@ -205,3 +205,15 @@ class QueryFilters:
             except Exception:
                 raise DigitalLandValidationError(f"field {field} must be numeric")
         return v
+
+    @validator("curie", pre=True)
+    def validate_curie(cls, values: Optional[list]):
+        if not values:
+            return values
+        for v in values:
+            parts = v.split(":")
+            if len(parts) < 2 or not all(parts):
+                raise DigitalLandValidationError(
+                    "curie must be in form 'prefix:reference'"
+                )
+        return values
