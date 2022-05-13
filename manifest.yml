@@ -2,7 +2,7 @@
 applications:
 - name: digital-land-platform
   docker:
-    image: public.ecr.aws/l6z6v3j6/digital-land-platform:latest
+    image: public.ecr.aws/l6z6v3j6/digital-land-platform:staging
     username: null
   disk_quota: 2G
   health-check-type: http

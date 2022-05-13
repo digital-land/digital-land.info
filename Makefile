@@ -1,19 +1,22 @@
 UNAME := $(shell uname)
 
+ifeq ($(EXPLICIT_TAG),)
+EXPLICIT_TAG := latest
+endif
+COMMIT_TAG   := $$(git log -1 --pretty=%h)
+
 # what if we tagged with commit sha?
-REPO=955696714113.dkr.ecr.eu-west-2.amazonaws.com
-NAME=$(REPO)/digital-land-info
-TAG    := $$(git log -1 --pretty=%h)
-IMG    := ${NAME}:${TAG}
-LATEST := ${NAME}:latest
+REPO           := 955696714113.dkr.ecr.eu-west-2.amazonaws.com
+NAME           := $(REPO)/digital-land-info
+COMMIT_IMG     := $(NAME):$(COMMIT_TAG)
+EXPLICIT_IMG   := $(NAME):$(EXPLICIT_TAG)
 
 CF_APP_NAME := digital-land-platform
 
-PUBLIC_REPO   := public.ecr.aws/l6z6v3j6
-PUBLIC_NAME   := $(PUBLIC_REPO)/$(CF_APP_NAME)
-PUBLIC_TAG    := $$(git log -1 --pretty=%h)
-PUBLIC_IMG    := ${PUBLIC_NAME}:${PUBLIC_TAG}
-PUBLIC_LATEST := ${PUBLIC_NAME}:latest
+PUBLIC_REPO         := public.ecr.aws/l6z6v3j6
+PUBLIC_NAME         := $(PUBLIC_REPO)/$(CF_APP_NAME)
+PUBLIC_COMMIT_IMG   := $(PUBLIC_NAME):$(COMMIT_TAG)
+PUBLIC_EXPLICIT_IMG := $(PUBLIC_NAME):$(EXPLICIT_TAG)
 
 
 all::	lint
@@ -39,22 +42,25 @@ server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
-build: docker-build
+build: docker-build-private docker-build-public
 
-docker-build:
-	docker build  --target production -t ${IMG} .
-	docker tag ${IMG} ${LATEST}
-	docker tag ${IMG} ${PUBLIC_IMG}
-	docker tag ${IMG} ${PUBLIC_LATEST}
+docker-build-private:
+	docker build  --target production -t $(EXPLICIT_IMG) .
+	docker tag $(EXPLICIT_IMG) $(COMMIT_IMG)
+
+docker-build-public:
+	docker build  --target production -t $(PUBLIC_EXPLICIT_IMG) .
+	docker tag $(PUBLIC_EXPLICIT_IMG) $(PUBLIC_COMMIT_IMG)
 
 push: push-private push-public
 
 push-private: login
-	docker push ${NAME}
+	docker push $(COMMIT_IMG)
+	docker push $(EXPLICIT_IMG)
 
 push-public: docker-login-public
-	docker push $(PUBLIC_IMG)
-	docker push $(PUBLIC_LATEST)
+	docker push $(PUBLIC_COMMIT_IMG)
+	docker push $(PUBLIC_EXPLICIT_IMG)
 
 login:
 	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(REPO)
