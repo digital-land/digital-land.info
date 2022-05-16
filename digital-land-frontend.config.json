@@ -5,5 +5,8 @@
   "imagesOutputPath": "static/images",
   "govukOutputPath": "static/",
   "rollupConfig": "etc/rollup.config.js",
-  "serverURL": "http://localhost:8000"
+  "serverURL": "http://localhost:8000",
+  "watchPaths": "'./assets/stylesheets/**/*.scss' './assets/javascripts/**/*.js'",
+  "staticFilesPath": "./static",
+  "templatesPath": "./application/templates"
 }

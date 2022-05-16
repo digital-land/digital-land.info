@@ -22,7 +22,6 @@
 		flex-direction: row-reverse;
 		justify-content: space-between;
 		align-items: center;
-		border-bottom: 1px solid $govuk-border-colour;
 		background: govuk-colour('light-grey');
 	}
 
@@ -51,6 +50,7 @@
 	.app-card__datalist__key,
 	.app-card__datalist__value {
 		margin: 0;
+    @include govuk-font($size: 19);
 	}
 }
 
