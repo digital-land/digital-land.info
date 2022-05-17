@@ -145,3 +145,17 @@ class DatasetPublicationCountOrm(Base):
     dataset_publication = Column(Text, primary_key=True)
     expected_publisher_count = Column(Integer, nullable=False)
     publisher_count = Column(Integer, nullable=False)
+
+
+class LookupOrm(Base):
+
+    __tablename__ = "lookup"
+
+    id = Column(BIGINT, primary_key=True, autoincrement=False)
+    entity = Column(BIGINT)
+    entry_number = Column(BIGINT)
+    prefix = Column(Text, nullable=True)
+    reference = Column(Text, nullable=True)
+    value = Column(Text, nullable=True)
+    entry_date = Column(Date, nullable=True)
+    start_date = Column(Date, nullable=True)
