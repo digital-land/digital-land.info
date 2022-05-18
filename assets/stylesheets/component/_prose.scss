@@ -4,25 +4,25 @@
 
     h1:not([class]) {
         @extend %govuk-heading-xl;
-        max-width: 40rem;
+        max-width: 38rem;
         outline: 0;
     }
 
     h2:not([class]) {
         @extend %govuk-heading-l;
-        max-width: 40rem;
+        max-width: 38rem;
         outline: 0;
     }
 
     h3:not([class]) {
         @extend %govuk-heading-m;
-        max-width: 40rem;
+        max-width: 38rem;
         outline: 0;
     }
 
     h4:not([class]) {
         @extend %govuk-heading-s;
-        max-width: 40rem;
+        max-width: 38rem;
         outline: 0;
     }
 
@@ -46,7 +46,7 @@
     dl,
     blockquote p {
         @extend %govuk-body-m;
-        max-width: 40rem;
+        max-width: 38rem;
     }
 
     > blockquote {
@@ -126,14 +126,14 @@
     ol {
         @extend %govuk-list;
         @extend %govuk-list--number;
-        max-width: 40rem;
+        max-width: 38rem;
     }
 
     ul:not([class]),
     .table-of-contents ul {
         @extend %govuk-list;
         @extend %govuk-list--bullet;
-        max-width: 40rem;
+        max-width: 38rem;
     }
 
     a:not([class]) {
