@@ -27,82 +27,87 @@
 
 {% block content %}
 
-  <span class="govuk-caption-xl">Dataset</span>
-  <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
-
-    <div class="govuk-grid-row">
-
-      <div class="govuk-grid-column-two-thirds">
-
-        {% if dataset.text %}
-        <div class="app-prose">
-          {{ dataset.text | render_markdown }}
-        </div>
-        <hr class="govuk-section-break govuk-section-break--m">
-        {% endif %}
-
-        {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-6' }) %}
-          <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">Total</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ entity_count|commanum }} <br><span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">Publishers</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ publishers['current'] }} of {{ publishers['expected'] }}</dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">Latest resource collected on</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">Collector last ran on</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
-            </div>
-          </dl>
-        {% endcall %}
-
-        <h3 class="govuk-heading-s govuk-!-margin-bottom-2">Help improve this data</h3>
-        <p class="govuk-body">If you have found any issues with this dataset, please complete <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOTmyAeKH5m0Xy3pXAYNcNApPdx0_Eioj-toHCOMZWiEdU8g/viewform?usp=sf_link" class="govuk-link">this form</a>, or email your questions and corrections to <a href="mailto:{{ templateVar.email }}" class="govuk-link">{{ templateVar.email }}</a>.</p>
-
-      </div>
-      <!-- / grid-column-two-thirds -->
-
-      <div class="govuk-grid-column-one-third">
-
-        <aside class="app-related-items" role="complementary">
-          <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="view-the-data">
-            View the data
-          </h2>
-          <p class="govuk-hint govuk-!-font-size-14">You can explore this data</p>
-          <nav role="navigation" aria-labelledby="view-the-data">
-            <ul class="govuk-list govuk-!-font-size-16">
-              <li>
-                <a class="govuk-link" href='/map?layer={{dataset["dataset"]}}'>On a map</a>
-              </li>
-              <li>
-                <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">As a list</a>
-              </li>
-            </ul>
-          </nav>
-          <hr class="govuk-section-break govuk-section-break--m">
-          <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="download-the-data">
-            Download the data
-          </h2>
-          <p class="govuk-hint govuk-!-font-size-14">You can take a copy of this data as</p>
-          <nav role="navigation" aria-labelledby="download-the-data">
-            <ul class="govuk-list govuk-!-font-size-16">
-              <li>
-                <a class="govuk-link" href="{{ hoisted_bucket }}/{{ dataset["dataset"] }}-hoisted.csv">CSV</a>
-              </li>
-              <li>
-                <a class="govuk-link" href="/entity.json?dataset={{ dataset['dataset'] }}">JSON</a>
-              </li>
-            </ul>
-          </nav>
-        </aside>
-
-      </div>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-xl">Dataset</span>
+      <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
     </div>
+  </div>
+  <!-- /.govuk-grid-row -->
+
+  <div class="govuk-grid-row">
+
+    <div class="govuk-grid-column-two-thirds">
+
+    {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-6' }) %}
+      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key govuk-!-width-one-half">Total</dt>
+          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ entity_count|commanum }} <br><span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key govuk-!-width-one-half">Publishers</dt>
+          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ publishers['current'] }} of {{ publishers['expected'] }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key govuk-!-width-one-half">Latest resource collected on</dt>
+          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key govuk-!-width-one-half">Collector last ran on</dt>
+          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
+        </div>
+      </dl>
+    {% endcall %}
+
+      {% if dataset.text %}
+      <div class="app-prose">
+        {{ dataset.text | render_markdown }}
+      </div>
+      <hr class="govuk-section-break govuk-section-break--m">
+      {% endif %}
+
+      <h3 class="govuk-heading-s govuk-!-margin-bottom-2">Help improve this data</h3>
+      <p class="govuk-body">If you have found any issues with this dataset, please complete <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOTmyAeKH5m0Xy3pXAYNcNApPdx0_Eioj-toHCOMZWiEdU8g/viewform?usp=sf_link" class="govuk-link">this form</a>, or email your questions and corrections to <a href="mailto:{{ templateVar.email }}" class="govuk-link">{{ templateVar.email }}</a>.</p>
+
+    </div>
+    <!-- / grid-column-two-thirds -->
+
+    <div class="govuk-grid-column-one-third">
+
+      <aside class="app-related-items" role="complementary">
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="view-the-data">
+          View the data
+        </h2>
+        <p class="govuk-hint govuk-!-font-size-14">You can explore this data</p>
+        <nav role="navigation" aria-labelledby="view-the-data">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li>
+              <a class="govuk-link" href='/map?layer={{dataset["dataset"]}}'>On a map</a>
+            </li>
+            <li>
+              <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">As a list</a>
+            </li>
+          </ul>
+        </nav>
+        <hr class="govuk-section-break govuk-section-break--m">
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="download-the-data">
+          Download the data
+        </h2>
+        <p class="govuk-hint govuk-!-font-size-14">You can take a copy of this data as</p>
+        <nav role="navigation" aria-labelledby="download-the-data">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li>
+              <a class="govuk-link" href="{{ hoisted_bucket }}/{{ dataset["dataset"] }}-hoisted.csv">CSV</a>
+            </li>
+            <li>
+              <a class="govuk-link" href="/entity.json?dataset={{ dataset['dataset'] }}">JSON</a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+    </div>
+  </div>
 
 {% endblock %}
