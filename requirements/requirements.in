@@ -16,3 +16,4 @@ alembic
 fastapi-utils
 Shapely
 sentry-sdk
+jsonpickle
