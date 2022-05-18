@@ -4,6 +4,7 @@ from application.data_access.entity_queries import get_entity_query
 from jinja2 import pass_eval_context
 from markdown import markdown
 from markupsafe import Markup
+import json
 
 
 def generate_query_param_str(v, filter_name, current_str):
@@ -35,6 +36,10 @@ def render_markdown(text):
     # register extensions here if needed
     html = markdown(text, output_format="html")
     return Markup(html)
+
+
+def debug(thing):
+    return f"<script>console.log({json.dumps(thing)});</script>"
 
 
 @pass_eval_context
