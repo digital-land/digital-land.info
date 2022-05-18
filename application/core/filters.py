@@ -5,6 +5,7 @@ from jinja2 import pass_eval_context
 from markdown import markdown
 from markupsafe import Markup
 import json
+import jsonpickle
 
 
 def generate_query_param_str(v, filter_name, current_str):
@@ -39,7 +40,8 @@ def render_markdown(text):
 
 
 def debug(thing):
-    return f"<script>console.log({json.dumps(thing)});</script>"
+    dumpee = json.dumps(json.loads(jsonpickle.encode(thing)), indent=2)
+    return f"<script>console.log({dumpee});</script>"
 
 
 @pass_eval_context

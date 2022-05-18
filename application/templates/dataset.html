@@ -30,6 +30,8 @@
   <span class="govuk-caption-xl">Dataset</span>
   <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
 
+  {{ dataset | debug | safe }}
+
     <div class="govuk-grid-row">
 
       <div class="govuk-grid-column-two-thirds">
@@ -41,12 +43,11 @@
         <hr class="govuk-section-break govuk-section-break--m">
         {% endif %}
 
-
         {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-6' }) %}
           <dl class="govuk-summary-list govuk-!-margin-bottom-0">
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key govuk-!-width-one-half">Total</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ entity_count|commanum }} <br><span class="govuk-!-font-size-14">{{ dataset["name"] }} items</span></dd>
+              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ entity_count|commanum }} <br><span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></dd>
             </div>
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key govuk-!-width-one-half">Publishers</dt>
