@@ -39,26 +39,26 @@
 
     <div class="govuk-grid-column-two-thirds">
 
-    {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-6' }) %}
-      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key govuk-!-width-one-half">Total</dt>
-          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ entity_count|commanum }} <br><span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></dd>
-        </div>
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key govuk-!-width-one-half">Publishers</dt>
-          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ publishers['current'] }} of {{ publishers['expected'] }}</dd>
-        </div>
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key govuk-!-width-one-half">Latest resource collected on</dt>
-          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
-        </div>
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key govuk-!-width-one-half">Collector last ran on</dt>
-          <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
-        </div>
-      </dl>
-    {% endcall %}
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-6' }) %}
+        <dl class="govuk-summary-list govuk-!-margin-bottom-0">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-width-one-half">Total</dt>
+            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ entity_count|commanum }} <br><span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-width-one-half">Publishers</dt>
+            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ publishers['current'] }} of {{ publishers['expected'] }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-width-one-half">Latest resource collected on</dt>
+            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-width-one-half">Collector last ran on</dt>
+            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
+          </div>
+        </dl>
+      {% endcall %}
 
       {% if dataset.text %}
       <div class="app-prose">
@@ -105,6 +105,19 @@
             </li>
           </ul>
         </nav>
+        <hr class="govuk-section-break govuk-section-break--m">
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="specification">
+          Specification
+        </h2>
+        <p class="govuk-hint govuk-!-font-size-14">You can view the definition of the this dataset including the list of fields</p>
+        <nav role="navigation" aria-labelledby="specification">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li>
+              <a class="govuk-link" href="https://digital-land.github.io/specification/dataset/{{ dataset["dataset"] }}">Specfication for {{ dataset["name"] }} dataset</a>
+            </li>
+          </ul>
+        </nav>
+        <hr class="govuk-section-break govuk-section-break--m">
       </aside>
 
     </div>
