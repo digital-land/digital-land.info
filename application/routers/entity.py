@@ -20,7 +20,6 @@ from application.core.templates import templates
 from application.core.utils import (
     DigitalLandJSONResponse,
     make_links,
-    make_pagination_query_str,
     to_snake,
 )
 
@@ -122,6 +121,12 @@ def search_entities(
     # params and they get returned from search
     params = data["params"]
 
+    scheme = request.url.scheme
+    netloc = request.url.netloc
+    path = request.url.path
+    links_query_params = request.query_params
+    links = make_links(scheme, netloc, path, links_query_params, data)
+
     if extension is not None and extension.value == "json":
 
         if params.get("field") is not None:
@@ -130,20 +135,20 @@ def search_entities(
         else:
             entities = _get_entity_json(data["entities"])
 
-        scheme = request.url.scheme
-        netloc = request.url.netloc
-        path = request.url.path
-        params = request.query_params
-        links = make_links(scheme, netloc, path, params, data)
+        # scheme = request.url.scheme
+        # netloc = request.url.netloc
+        # path = request.url.path
+        # params = request.query_params
+        # links = make_links(scheme, netloc, path, params, data)
         return {"entities": entities, "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
         geojson = _get_geojson(data["entities"])
-        scheme = request.url.scheme
-        netloc = request.url.netloc
-        path = request.url.path
-        params = request.query_params
-        links = make_links(scheme, netloc, path, params, data)
+        # scheme = request.url.scheme
+        # netloc = request.url.netloc
+        # path = request.url.path
+        # params = request.query_params
+        # links = make_links(scheme, netloc, path, params, data)
         geojson["links"] = links
         return geojson
 
@@ -158,11 +163,15 @@ def search_entities(
     local_authorities = get_local_authorities("local-authority-eng")
     local_authorities = [la.dict() for la in local_authorities]
 
-    if params.get("offset") is not None:
-        offset = params["offset"] + params["limit"]
+    if links.get("prev") is not None:
+        prev_url = links["prev"]
     else:
-        offset = params["limit"]
-    next_url = make_pagination_query_str(request.query_params, params["limit"], offset)
+        prev_url = None
+
+    if links.get("next") is not None:
+        next_url = links["next"]
+    else:
+        next_url = None
 
     # default is HTML
     return templates.TemplateResponse(
@@ -191,6 +200,7 @@ def search_entities(
                 "list": request.query_params._list,
             },
             "next_url": next_url,
+            "prev_url": prev_url,
         },
     )
 

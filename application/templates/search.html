@@ -232,14 +232,38 @@
           </ul>
           <!-- /.app-results-list -->
 
+          {% if prev_url and next_url %}
           <div class="app-pagination__wrapper govuk-!-margin-bottom-7">
           {{ appPagination({
             "next": {
               "href": next_url,
               "text": "Show next "+ limit|string + " entities"
+            },
+            "prev":{
+              "href":prev_url,
+              "text": "Show previous "+ limit|string + " entities"
             }
           }) }}
           </div>
+          {% elif next_url %}
+          <div class="app-pagination__wrapper govuk-!-margin-bottom-7">
+            {{ appPagination({
+              "next": {
+                "href": next_url,
+                "text": "Show next "+ limit|string + " entities"
+              }
+            }) }}
+          </div>
+          {% elif prev_url %}
+          <div class="app-pagination__wrapper govuk-!-margin-bottom-7">
+            {{ appPagination({
+              "prev": {
+                "href": prev_url,
+                "text": "Show previous "+ limit|string + " entities"
+              }
+            }) }}
+          </div>
+          {% endif %}
           <!-- /.app-pagination__wrapper -->
 
           {# Anything within this div becomes 'sticky' to the bottom upon scroll #}
