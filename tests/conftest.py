@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from application.db.models import DatasetOrm, EntityOrm, OldEntityOrm
+from application.db.models import DatasetOrm, EntityOrm, OldEntityOrm, LookupOrm
 from application.settings import Settings, get_settings
 
 
@@ -69,9 +69,16 @@ def test_data(apply_migrations, db_session: Session):
         dataset_models.append(ds)
 
     entity_models = []
-    for entity in entities:
+    for i, entity in enumerate(entities):
         e = EntityOrm(**entity)
         db_session.add(e)
+        lookup = LookupOrm(
+            id=i,
+            entity=entity["entity"],
+            prefix=entity["prefix"],
+            reference=entity["reference"],
+        )
+        db_session.add(lookup)
         entity_models.append(e)
 
     db_session.commit()
