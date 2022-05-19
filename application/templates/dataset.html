@@ -78,9 +78,11 @@
         <p class="govuk-hint govuk-!-font-size-14">You can explore this data</p>
         <nav role="navigation" aria-labelledby="view-the-data">
           <ul class="govuk-list govuk-!-font-size-16">
-            <li>
-              <a class="govuk-link" href='/map?layer={{dataset["dataset"]}}'>On a map</a>
-            </li>
+            {% if dataset['typology'] == 'geography' %}
+              <li>
+                <a class="govuk-link" href='/map?dataset={{dataset["dataset"]}}'>On a map</a>
+              </li>
+            {% endif %}
             <li>
               <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">As a list</a>
             </li>
@@ -99,6 +101,11 @@
             <li>
               <a class="govuk-link" href="/entity.json?dataset={{ dataset['dataset'] }}">JSON</a>
             </li>
+            {% if dataset['typology'] == 'geography' %}
+            <li>
+              <a class="govuk-link" href="/entity.geojson?dataset={{ dataset['dataset'] }}">GeoJSON</a>
+            </li>
+            {% endif %}
           </ul>
         </nav>
         <hr class="govuk-section-break govuk-section-break--m">
