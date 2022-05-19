@@ -91,21 +91,23 @@
               </div>
               {%- for field in row.keys() %}
                 {%- if field not in ["name", "json", "organisation-entity"] %}
-                  <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                      {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
-                      {{ field }}
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                      {% if row[field] is not none %}
-                        {% if field == "dataset" %}
-                          <a class="govuk-link" href="/dataset/{{ row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
-                        {% else %}
-                          {{ row[field]|make_link }}
-                        {%- endif %}
-                      {% endif %}
-                    </dd>
-                  </div>
+                  {%- if field not in ["geometry","point"] or row[field] is not none %}
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">
+                        {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
+                        {{ field }}
+                      </dt>
+                      <dd class="govuk-summary-list__value">
+                        {% if row[field] is not none %}
+                          {% if field == "dataset" %}
+                            <a class="govuk-link" href="/dataset/{{ row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
+                          {% else %}
+                            {{ row[field]|make_link }}
+                          {%- endif %}
+                        {% endif %}
+                      </dd>
+                    </div>
+                  {% endif %}
                 {% endif %}
                 {% if field == "organisation-entity" and row[field] is not none %}
                   <div class="govuk-summary-list__row">
