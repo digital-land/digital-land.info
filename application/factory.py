@@ -7,6 +7,7 @@ from pickle import TRUE
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -142,12 +143,39 @@ def add_base_routes(app):
                 for raw_error in exc.raw_errors
             ]
         ):
+            try:
+                extension_path_param = request.path_params["extension"]
+            except KeyError:
+                extension_path_param = None
+            if extension_path_param == "json":
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content=jsonable_encoder({"detail": exc.errors()}),
+                )
+            else:
+                return templates.TemplateResponse(
+                    "404.html", {"request": request}, status_code=404
+                )
+
+        else:
+            raise exc
+
+    @app.exception_handler(RequestValidationError)
+    async def custom_request_validation_error_handler(request, exc):
+        try:
+            extension_path_param = request.path_params["extension"]
+        except KeyError:
+            extension_path_param = None
+
+        if extension_path_param == "json":
             return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=404,
                 content=jsonable_encoder({"detail": exc.errors()}),
             )
         else:
-            raise exc
+            return templates.TemplateResponse(
+                "404.html", {"request": request}, status_code=404
+            )
 
     # catch all handler - for any unhandled exceptions return 500 template
     @app.exception_handler(Exception)

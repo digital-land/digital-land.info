@@ -134,21 +134,10 @@ def search_entities(
             entities = _get_entity_json(data["entities"], include=include)
         else:
             entities = _get_entity_json(data["entities"])
-
-        # scheme = request.url.scheme
-        # netloc = request.url.netloc
-        # path = request.url.path
-        # params = request.query_params
-        # links = make_links(scheme, netloc, path, params, data)
         return {"entities": entities, "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
         geojson = _get_geojson(data["entities"])
-        # scheme = request.url.scheme
-        # netloc = request.url.netloc
-        # path = request.url.path
-        # params = request.query_params
-        # links = make_links(scheme, netloc, path, params, data)
         geojson["links"] = links
         return geojson
 
