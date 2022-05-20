@@ -311,3 +311,25 @@ def test_search_entity_rejects_invalid_curie(curie, client):
     data = response.json()
     assert "curie must be in form 'prefix:reference'" == data["detail"][0]["msg"]
     assert "curie" == data["detail"][0]["loc"][0]
+
+
+def test_get_by_curie_redirects_to_entity(test_data, client, exclude_middleware):
+    greenspace = test_data["entities"][0]
+    prefix = greenspace["prefix"]
+    reference = greenspace["reference"]
+    entity = greenspace["entity"]
+
+    response = client.get(f"/curie/{prefix}:{reference}", allow_redirects=False)
+    assert response.status_code == 303
+    assert f"http://testserver/entity/{entity}" == response.headers["location"]
+
+    response = client.get(
+        f"/prefix/{prefix}/reference/{reference}", allow_redirects=False
+    )
+    assert response.status_code == 303
+    assert f"http://testserver/entity/{entity}" == response.headers["location"]
+
+
+def test_get_by_curie_404s_for_unknown_reference(test_data, client, exclude_middleware):
+    response = client.get("/curie/not:found", allow_redirects=False)
+    assert response.status_code == 404
