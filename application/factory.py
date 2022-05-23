@@ -147,7 +147,7 @@ def add_base_routes(app):
                 extension_path_param = request.path_params["extension"]
             except KeyError:
                 extension_path_param = None
-            if extension_path_param == "json":
+            if extension_path_param in ["json", "geojson"]:
                 return JSONResponse(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     content=jsonable_encoder({"detail": exc.errors()}),
@@ -167,9 +167,9 @@ def add_base_routes(app):
         except KeyError:
             extension_path_param = None
 
-        if extension_path_param == "json":
+        if extension_path_param in ["json", "geojson"]:
             return JSONResponse(
-                status_code=404,
+                status_code=422,
                 content=jsonable_encoder({"detail": exc.errors()}),
             )
         else:
