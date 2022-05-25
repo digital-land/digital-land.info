@@ -1,0 +1,218 @@
+{% extends "layouts/layout.html" %}
+{% set templateName = "dl-info/entity.html" %}
+
+{%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
+{%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
+{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+
+{%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
+{% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
+  None %}
+{% if geometry_url or geojson_features %}
+  {% set includesMap = true %}
+{% endif %}
+
+{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
+
+{%- block breadcrumbs -%}
+  {{- govukBreadcrumbs({
+    "items": [
+        {
+          "text": "Digital Land",
+          "href": "/"
+        },
+        {
+          "text": "Entity",
+          "href": "/entity"
+        },
+        {
+          "text": row["entity"]
+        }
+      ]
+    }) -}}
+{%- endblock -%}
+
+{%- block content %}
+  <div class="govuk-grid-column-full">
+    <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
+    <h1 class="govuk-heading-xl">{{ row_name }}</h1>
+  </div>
+
+  <div class="govuk-grid-column-two-thirds">
+    <section class="app-summary-card govuk-!-margin-bottom-0">
+      <div class ="app-summary-card govuk-!-margin-bottom-0">
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table_row">
+              <th scope="col" class="govuk-table__header">Field</th>
+              <th scope="col" class="govuk-table__header">Value</th>
+              <th scope="col" class="govuk-table__header"></th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for field in row.keys() %}
+              {%- if field not in ["geometry","point"] or row[field] is not none %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell">
+                    {%- if field == "organisation-entity" %}
+                      {{ field|replace("-entity", "")|capitalize }}
+                    {%- else %}
+                      {{ field|replace("-", " ")|capitalize }}
+                    {%- endif %}
+                  </td>
+                  <td class="govuk-table__cell">
+                    <span class="u-data-value">
+                    {%- if field in ["dataset"] %}
+                      <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field] }}</a>
+                    {%- elif field in ["organisation-entity"] %}
+                      <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
+                    {%- else %}
+                      {{ row[field] }}
+                    {%- endif %}
+                    </span>
+                  </td>
+                  <td class="govuk-table__cell govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
+                </tr>
+              {%- endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+  <div class="govuk-grid-column-full">
+  {% block recordGeometry -%}
+    {%- if includesMap %}
+      <h2 class="govuk-heading-m">Geographical area</h2>
+
+      {% set noteHTML %}
+      <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
+      {% endset %}
+
+      {{- dlLeafletMap({
+      "id": "dlMap",
+      "wrapper_classes": "govuk-!-margin-top-4",
+      "attributes": {
+          "data-geojson-urls": geometry_url
+      },
+      "height": "460",
+      "notePanel": {
+          "html": noteHTML
+      }
+      }) -}}
+
+      <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+        <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
+      </div>
+    {%- endif %}
+  {%- endblock recordGeometry %}
+  </div>
+
+  {%- if history_enabled %}
+    <div id="history">
+      {#{%- block entryHistory %}#}
+      {#{%- endblock entryHistory %}#}
+    </div>
+  {%- endif %}
+
+  {%- if provenance %}
+    <div id="provenance">
+      <h2 class="govuk-heading-m dl-subnav__heading">Provenance</h2>
+    </div>
+  {% endif -%}
+
+  {% block recordReferences -%}
+    {% if references %}
+      <div id="referenced-by">
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m dl-subnav__heading">Referenced by</h2>
+            <p class="govuk-body">This record is referenced by {{ references|total_items }} other planning related data record{{ "" if references|total_items == 1 else "s" }}.</p>
+            {% if references|length > 0 -%}
+              {% for type, refs in references.items() %}
+                <h3 class="govuk-heading-s">{{ type|capitalize }}</h3>
+                <ul class="govuk-list govuk-list--bullet">
+                  {%- for ref in refs %}
+                    <li>
+                      <a href={{ entity_prefix|default('') }}{{ ref["href"] }}>{{ ref["text"] }}</a>
+                      <span class="secondary-text data-reference">({{ ref["id"] }})</span>
+                    </li>
+                  {% endfor -%}
+                </ul>
+              {% endfor %}
+            {% endif -%}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endblock recordReferences -%}
+{%- endblock content %}
+
+{% block recordEnd %}{% endblock recordEnd %}
+
+{% block footerStart %}
+  {%- from "digital-land-frontend/components/feedback/macro.jinja" import dlFeedback %}
+  {% set subject = "Feedback on " + row_name + " -- " + pipeline_name  %}
+  {{ dlFeedback({
+      "text": "Spotted an issue? Let us know so we can improve the data.",
+      "action": {
+          "text": "There is something wrong with the data",
+          "href": "mailto:" + templateVar.email  + "?subject=" + subject
+      },
+      "container": true
+      })
+    }}
+{% endblock footerStart %}
+
+{%- block pageScripts %}
+  {%- if includesMap %}
+    <script>
+      const datasetName = "{{ pipeline_name }}"
+      const $mapElement = document.querySelector('[data-module="boundary-map"]')
+      const $nationalMapLink = document.querySelector('.dl-link-national-map')
+      const mapParams = {
+        initZoomCallback: function (featureGroup, map) {
+          console.log("initial load completed")
+          // do we need to check there isn't more than one shape?
+          const center = featureGroup
+            .getBounds()
+            .getCenter()
+          const zoom = map.getZoom()
+          let url = `http://digital-land.github.io/map?layer=${datasetName}#${center
+            .lat},${center
+            .lng},${zoom}z`
+            console
+            .log(url)
+          if ($nationalMapLink) {
+            // only show this for the datasets we've added to the national map
+            $nationalMapLink.href = url
+            $nationalMapLink
+              .classList
+              .remove("js-hidden")
+          }
+        }
+      }
+
+      {% if geometry_url %}
+        mapParams.geojsonURLs = ["{{ geometry_url }}"]
+      {% elif geojson_features %}
+        mapParams.geojsonFeatures = [{{ geojson_features|tojson }}]
+      {% endif %}
+
+      const mapComponent = new DLMaps
+        .Map($mapElement)
+        .init(mapParams)
+    </script>
+  {% endif %}
+
+  <script>
+    const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')
+    const subNavTabsComponent = new DLFrontend
+      .SubNavTabs($subNavTabs)
+      .init({})
+  </script>
+
+{%- endblock %}

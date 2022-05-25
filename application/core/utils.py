@@ -151,3 +151,24 @@ def make_pagination_query_str(query_params, limit, offset=0):
 
 def to_snake(string: str) -> str:
     return string.replace("-", "_")
+
+
+ENTITY_ATTRIBUTE_ORDER = {
+    "entity": 0,
+    "dataset": 1,
+    "organisation-entity": 2,
+    "prefix": 3,
+    "reference": 4,
+    "name": 5,
+    "typology": 6,
+    "start-date": 7,
+    "end-date": 8,
+    "entry-date": 9,
+}
+
+
+def entity_attribute_sort_key(val, sort_order=ENTITY_ATTRIBUTE_ORDER):
+    try:
+        return sort_order[val]
+    except KeyError:
+        return len(sort_order)

@@ -53,3 +53,12 @@ def entity_name_filter(eval_ctx, id):
         if eval_ctx.autoescape:
             return Markup(anchor + name)
     return id
+
+
+@pass_eval_context
+def get_entity_name_filter(eval_ctx, id):
+    entity, _, _ = get_entity_query(id)
+    if entity:
+        if eval_ctx.autoescape:
+            return entity.name
+    return id

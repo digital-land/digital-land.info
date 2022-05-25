@@ -21,6 +21,7 @@ from application.core.utils import (
     DigitalLandJSONResponse,
     make_links,
     to_snake,
+    entity_attribute_sort_key,
 )
 
 router = APIRouter()
@@ -90,12 +91,18 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                     status_code=406, detail="geojson for entity not available"
                 )
 
+        e_dict = e.dict(by_alias=True, exclude={"geojson"})
+        e_dict_sorted = {
+            key: e_dict[key]
+            for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
+        }
+
         return templates.TemplateResponse(
-            "entity.html",
+            "entity_2.html",
             {
                 "request": request,
-                "row": e.dict(by_alias=True, exclude={"geojson"}),
-                "entity": e.dict(by_alias=True, exclude={"geojson"}),
+                "row": e_dict_sorted,
+                "entity": e_dict_sorted,
                 "pipeline_name": e.dataset,
                 "references": [],
                 "breadcrumb": [],
