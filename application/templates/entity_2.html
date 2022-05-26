@@ -6,6 +6,7 @@
 {%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+{%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 
 {%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
 {% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
@@ -41,48 +42,46 @@
   </div>
 
   <div class="govuk-grid-column-two-thirds">
-    <section class="app-summary-card govuk-!-margin-bottom-0">
-      <div class ="app-summary-card govuk-!-margin-bottom-0">
-        <table class="govuk-table">
-          <thead class="govuk-table__head">
-            <tr class="govuk-table_row">
-              <th scope="col" class="govuk-table__header">Field</th>
-              <th scope="col" class="govuk-table__header">Value</th>
-              <th scope="col" class="govuk-table__header"></th>
-            </tr>
-          </thead>
-          <tbody class="govuk-table__body">
-            {% for field in row.keys() %}
-              {%- if field not in ["geometry","point"] or row[field] is not none %}
-                <tr class="govuk-table__row">
-                  <td class="govuk-table__cell">
-                    {%- if field == "organisation-entity" %}
-                      {{ field|replace("-entity", "")|capitalize }}
-                    {%- else %}
-                      {{ field|replace("-", " ")|capitalize }}
-                    {%- endif %}
-                  </td>
-                  <td class="govuk-table__cell">
-                    <span class="u-data-value">
-                    {%- if field in ["dataset"] %}
-                      <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field] }}</a>
-                    {%- elif field in ["organisation-entity"] %}
-                      <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
-                    {%- else %}
-                      {{ row[field] }}
-                    {%- endif %}
-                    </span>
-                  </td>
-                  <td class="govuk-table__cell govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
-                </tr>
-              {%- endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
+    {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0' }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table_row">
+            <th scope="col" class="govuk-table__header">Field</th>
+            <th scope="col" class="govuk-table__header">Value</th>
+            <th scope="col" class="govuk-table__header"></th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for field in row.keys() %}
+            {%- if field not in ["geometry","point"] or row[field] is not none %}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell">
+                  {%- if field == "organisation-entity" %}
+                    {{ field|replace("-entity", "")|capitalize }}
+                  {%- else %}
+                    {{ field|replace("-", " ")|capitalize }}
+                  {%- endif %}
+                </td>
+                <td class="govuk-table__cell">
+                  <span class="u-data-value">
+                  {%- if field in ["dataset"] %}
+                    <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field] }}</a>
+                  {%- elif field in ["organisation-entity"] %}
+                    <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
+                  {%- else %}
+                    {{ row[field] }}
+                  {%- endif %}
+                  </span>
+                </td>
+                <td class="govuk-table__cell govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
+              </tr>
+            {%- endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endcall %}
   </div>
+
   <div class="govuk-grid-column-full">
   {% block recordGeometry -%}
     {%- if includesMap %}
