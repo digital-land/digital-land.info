@@ -125,6 +125,9 @@ class OrganisationOrm(Base):
     statistical_geography = Column(Text, nullable=True)
     website = Column(Text, nullable=True)
 
+    def type(self):
+        return self.organisation.split(":")[0]
+
 
 class DatasetCollectionOrm(Base):
 

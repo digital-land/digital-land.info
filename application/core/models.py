@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from geoalchemy2.shape import to_shape
 from pydantic import BaseModel, Field, validator, Extra
@@ -99,6 +99,10 @@ class OrganisationModel(DigitalLandDateFieldsModel):
     region: str = None
     statistical_geography: str = None
     website: str = None
+
+
+class OrganisationsByTypeModel(BaseModel):
+    organisations: Dict[str, List[OrganisationModel]]
 
 
 class DatasetCollectionModel(DigitalLandBaseModel):

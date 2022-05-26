@@ -21,7 +21,7 @@ from http import HTTPStatus
 from application.core.templates import templates
 from application.db.models import EntityOrm
 from application.exceptions import DigitalLandValidationError
-from application.routers import entity, dataset, map_, curie
+from application.routers import entity, dataset, map_, curie, organisation
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -191,6 +191,7 @@ def add_routers(app):
     app.include_router(dataset.router, prefix="/dataset")
     app.include_router(curie.router, prefix="/curie")
     app.include_router(curie.router, prefix="/prefix")
+    app.include_router(organisation.router, prefix="/organisation")
 
     # not added to /docs
     app.include_router(map_.router, prefix="/map", include_in_schema=False)

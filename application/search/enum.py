@@ -16,6 +16,11 @@ class SuffixDataset(str, Enum):
     html = "html"
 
 
+class SuffixOrganisation(str, Enum):
+    json = "json"
+    html = "html"
+
+
 class PointMatch(str, Enum):
     within = "within"
 
