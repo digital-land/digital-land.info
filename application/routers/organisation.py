@@ -15,6 +15,17 @@ from application.search.enum import SuffixOrganisation
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+display_names = {
+    "development-corporation": "Development corporations",
+    "government-organisation": "Government departments, agencies and public bodies",
+    "local-authority-eng": "Local authorities",
+    "national-park-authority": "National park authorities, including the Broads",
+    "public-authority": "Public authorities",
+    "regional-park-authority": "Regional park authorities",
+    "transport-authority": "Transport authorities",
+    "waste-authority": "Waste authorities",
+}
+
 
 def get_organisations(
     request: Request,
@@ -37,7 +48,11 @@ def get_organisations(
     else:
         return templates.TemplateResponse(
             "organisation_index.html",
-            {"request": request, "organisations": organisations_by_type},
+            {
+                "request": request,
+                "organisations": organisations_by_type,
+                "display_names": display_names,
+            },
         )
 
 
