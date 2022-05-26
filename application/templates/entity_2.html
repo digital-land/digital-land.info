@@ -70,7 +70,9 @@
                     {%- elif field in ["organisation-entity"] %}
                       <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
                     {%- else %}
-                      {{ row[field] }}
+                      {% if row[field] is not none %}
+                        {{ row[field] }}
+                      {% endif %}
                     {%- endif %}
                     </span>
                   </td>
