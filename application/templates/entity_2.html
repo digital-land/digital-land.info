@@ -54,7 +54,7 @@
           </thead>
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
-              {%- if field not in ["geometry","point"] or row[field] is not none %}
+              {%- if field not in ["geometry","point","organisation-entity"] or row[field] is not none %}
                 <tr class="govuk-table__row">
                   <td class="govuk-table__cell">
                     {%- if field == "organisation-entity" %}
@@ -66,7 +66,7 @@
                   <td class="govuk-table__cell">
                     <span class="u-data-value">
                     {%- if field in ["dataset"] %}
-                      <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field] }}</a>
+                      <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
                     {%- elif field in ["organisation-entity"] %}
                       <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
                     {%- else %}
