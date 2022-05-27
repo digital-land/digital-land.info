@@ -42,7 +42,7 @@
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
     </div>
 
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-three-quarters">
       {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0' }) %}
         <table class="govuk-table">
           <thead class="govuk-table__head">
@@ -54,31 +54,35 @@
           </thead>
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
-              {%- if field not in ["geometry","point","organisation-entity"] or row[field] is not none %}
-                <tr class="govuk-table__row">
-                  <td class="govuk-table__cell">
-                    {%- if field == "organisation-entity" %}
-                      {{ field|replace("-entity", "")|capitalize }}
-                    {%- else %}
-                      {{ field|replace("-", " ")|capitalize }}
-                    {%- endif %}
-                  </td>
-                  <td class="govuk-table__cell">
-                    <span class="u-data-value">
-                    {%- if field in ["dataset"] %}
-                      <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
-                    {%- elif field in ["organisation-entity"] %}
-                      <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
-                    {%- else %}
-                      {% if row[field] is not none %}
-                        {{ row[field] }}
-                      {% endif %}
-                    {%- endif %}
-                    </span>
-                  </td>
-                  <td class="govuk-table__cell govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
-                </tr>
-              {%- endif %}
+              {% if field != 'entity' %}
+                {%- if field not in ["geometry","point","organisation-entity"] or row[field] is not none  %}
+                  <tr class="govuk-table__row">
+                    <th scope="row" class="app-table__header app-table__header--row">
+                      {%- if field == "organisation-entity" %}
+                        {{ field|replace("-entity", "")|capitalize }}
+                      {%- else %}
+                        {{ field|replace("-", " ")|capitalize }}
+                      {%- endif %}
+                    </th>
+                    <td class="govuk-table__cell app-table__cell">
+                      <span class="u-data-value">
+                      {%- if field in ["dataset"] %}
+                        <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
+                      {%- elif field == "twitter" %}
+                        <a href="https://twitter.com/{{ row[field] }}">@{{ row[field] }}</a>
+                      {%- elif field in ["organisation-entity"] %}
+                        <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
+                      {%- else %}
+                        {% if row[field] is not none %}
+                          {{ row[field] }}
+                        {% endif %}
+                      {%- endif %}
+                      </span>
+                    </td>
+                    <td class="govuk-table__cell govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
+                  </tr>
+                {%- endif %}
+              {% endif %}
             {% endfor %}
           </tbody>
         </table>
@@ -152,23 +156,7 @@
       {% endif %}
     {% endblock recordReferences -%}
   </div>
-{%- endblock content %}
-
-{% block recordEnd %}{% endblock recordEnd %}
-
-{% block footerStart %}
-  {%- from "digital-land-frontend/components/feedback/macro.jinja" import dlFeedback %}
-  {% set subject = "Feedback on " + row_name + " -- " + pipeline_name  %}
-  {{ dlFeedback({
-      "text": "Spotted an issue? Let us know so we can improve the data.",
-      "action": {
-          "text": "There is something wrong with the data",
-          "href": "mailto:" + templateVar.email  + "?subject=" + subject
-      },
-      "container": true
-      })
-    }}
-{% endblock footerStart %}
+{%- endblock content %}}
 
 {%- block pageScripts %}
   {%- if includesMap %}
