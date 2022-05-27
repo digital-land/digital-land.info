@@ -18,6 +18,7 @@ from application.core.filters import (
     entity_name_filter,
     get_entity_name_filter,
     debug,
+    to_nice_json,
 )
 
 from application.core.utils import model_dumps
@@ -56,3 +57,4 @@ templates.env.filters["render_markdown"] = render_markdown
 templates.env.filters["entity_name"] = entity_name_filter
 templates.env.filters["get_entity_name"] = get_entity_name_filter
 templates.env.filters["debug"] = debug
+templates.env.filters["to_nice_json"] = to_nice_json

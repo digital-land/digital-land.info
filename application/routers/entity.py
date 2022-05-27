@@ -24,6 +24,10 @@ from application.core.utils import (
     entity_attribute_sort_key,
 )
 
+from application.core.filters import (
+    to_nice_json,
+)
+
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -110,6 +114,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                 "typology": e.typology,
                 "entity_prefix": "",
                 "geojson_features": e.geojson if e.geojson is not None else None,
+                "row_json": to_nice_json(e_dict_sorted),
             },
         )
     else:

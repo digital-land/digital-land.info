@@ -2,6 +2,7 @@
 {% set templateName = "dl-info/entity.html" %}
 
 {%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
+{%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
 {%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
 {%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
@@ -21,6 +22,12 @@
 {% if geometry_url or geojson_features %}
   {% set includesMap = true %}
 {% endif %}
+
+{% block pageAssets %}
+  {{ super() }}
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+{% endblock %}
 
 {%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
 
@@ -99,6 +106,33 @@
           </tbody>
         </table>
       {% endcall %}
+
+      {% set jsonEntity %}
+        <pre class="govuk-!-margin-0"><code class="language-json">{{row_json}}</code></pre>
+      {% endset %}
+      {% set csvEntity %}
+        <code class="hljs language-json">
+          hfhjfjkjnek
+        </code>
+      {% endset %}
+
+      {% set params = {
+        "title":"Hello",
+        "items":[
+          {
+            "label":"JSON","id":"json","panel":{
+              "html":jsonEntity
+            }
+          },
+          {
+            "label":"CSV","id":"csv","panel":{
+              "html":csvEntity
+            }
+          }
+        ]
+      } %}
+
+      {{ govukTabs(params) }}
     </div>
 
     <div class="govuk-grid-column-full">
@@ -216,6 +250,10 @@
     const subNavTabsComponent = new DLFrontend
       .SubNavTabs($subNavTabs)
       .init({})
+  </script>
+
+  <script>
+    hljs.initHighlightingOnLoad();
   </script>
 
 {%- endblock %}

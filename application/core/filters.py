@@ -62,3 +62,7 @@ def get_entity_name_filter(eval_ctx, id):
         if eval_ctx.autoescape:
             return entity.name
     return id
+
+
+def to_nice_json(dict):
+    return json.dumps(dict, default=str, indent=4)
