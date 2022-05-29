@@ -17,13 +17,13 @@ def get_entity_redirect_by_curie(request: Request, prefix: str, reference: str):
         lookup = (
             session.query(LookupOrm.entity.label("entity"))
             .filter(LookupOrm.prefix == prefix, LookupOrm.reference == reference)
-            .one_or_none()
+            .first()
         )
         if lookup is None:
             lookup = (
                 session.query(EntityOrm.entity.label("entity"))
                 .filter(EntityOrm.prefix == prefix, EntityOrm.reference == reference)
-                .one_or_none()
+                .first()
             )
     if lookup is None:
         raise HTTPException(status_code=404)
