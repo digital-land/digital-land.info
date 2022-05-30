@@ -98,7 +98,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
         }
 
         return templates.TemplateResponse(
-            "entity_2.html",
+            "entity.html",
             {
                 "request": request,
                 "row": e_dict_sorted,

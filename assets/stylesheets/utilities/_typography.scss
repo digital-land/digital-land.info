@@ -16,14 +16,15 @@
   padding-right: 0.65em; /* space for ellipsis */
   display: block;
   &:hover {
-    max-height: calc(1.1em * 5);
+    overflow-y:scroll;
+    max-height: calc(1.1em * 10);
   }
 }
 
 .app-u-truncate::before {
   // color: $govuk-border-colour;
   position: absolute;
-  content: "...";
+  content: "";
   inset-block-end: 0; /* "bottom" */
   inset-inline-end: 0; /* "right" */
 }

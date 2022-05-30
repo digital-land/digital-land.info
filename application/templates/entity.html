@@ -6,6 +6,7 @@
 {%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+{%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 
 {%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
 {% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
@@ -35,154 +36,91 @@
 {%- endblock -%}
 
 {%- block content %}
-
-  {% block recordHead %}
-    {% block recordTitle -%}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
       <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
-    {%- endblock recordTitle %}
-  {% endblock recordHead %}
+    </div>
 
-  <div class="govuk-tabs" data-module="dl-subnav">
-    <h2 class="govuk-tabs__title">
-      Contents
-    </h2>
-    <nav class="dl-subnav" aria-label="Sub navigation">
-      <ul class="dl-subnav__list">
-        <li class="dl-subnav__list-item dl-subnav__list-item--selected">
-          <a class="dl-subnav__list-item__link" href="#record" data-module-sub-nav="tab">
-            Record
-          </a>
-        </li>
-        {%- if history %}
-          <li class="dl-subnav__list-item">
-            <a class="dl-subnav__list-item__link" href="#history" data-module-sub-nav="tab">
-              History
-            </a>
-          </li>
-        {%- endif %}
-        {%- if provenance %}
-          <li class="dl-subnav__list-item">
-            <a class="dl-subnav__list-item__link" href="#provenance" data-module-sub-nav="tab">
-              Provenance
-            </a>
-          </li>
-        {% endif -%}
-        {% if references %}
-          <li class="dl-subnav__list-item">
-            <a class="dl-subnav__list-item__link" href="#referenced-by" data-module-sub-nav="tab">
-              {{ references|total_items }} Reference{{ "" if references|total_items == 1 else "s" }}
-            </a>
-          </li>
-        {% endif %}
-      </ul>
-    </nav>
-
-    <div id="record">
-      {% block recordTableContainer %}
-        <div class="govuk-grid-row">
-
-          {%- block recordTable %}
-            <div class="{{ recordPanelContainerClass|default('govuk-grid-column-two-thirds') }}">
-              {%- set areaproperties %}
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Name</dt>
-                <dd class="govuk-summary-list__value">{{ row['name'] }}</dd>
-              </div>
-              {%- for field in row.keys() %}
-                {%- if field not in ["name", "json", "organisation-entity"] %}
-                  {%- if field not in ["geometry","point"] or row[field] is not none %}
-                    <div class="govuk-summary-list__row">
-                      <dt class="govuk-summary-list__key">
-                        {#- used to have a filter that returned the name of a field e.g. end-date would return End date -#}
-                        {{ field }}
-                      </dt>
-                      <dd class="govuk-summary-list__value">
+    <div class="govuk-grid-column-three-quarters">
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0' }) %}
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table_row">
+              <th scope="col" class="govuk-table__header">Field</th>
+              <th scope="col" class="govuk-table__header">Value</th>
+              <th scope="col" class="govuk-table__header"></th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for field in row.keys() %}
+              {% if field != 'entity' %}
+                {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
+                  <tr class="govuk-table__row">
+                    <th scope="row" class="app-table__header app-table__header--row">
+                      {%- if field == "organisation-entity" %}
+                        {{ field|replace("-entity", "")|capitalize }}
+                      {%- else %}
+                        {{ field|replace("-", " ")|capitalize }}
+                      {%- endif %}
+                    </th>
+                    <td class="govuk-table__cell app-table__cell">
+                      <!-- <span class="u-data-value"> -->
+                      {%- if field in ["dataset"] %}
+                        <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
+                      {%- elif field == "twitter" %}
+                        <a class ="govuk-link" href="https://twitter.com/{{ row[field] }}">@{{ row[field] }}</a>
+                      {%- elif field in ["organisation-entity"] %}
+                        <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
+                      {%- elif field in ["website","opendatacommunities"] %}
+                        <a class ="govuk-link" href="{{ row[field] }}">{{ row[field] }}</a>
+                      {%- elif field in ["wikipedia"] %}
+                        <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + row[field] }}">{{ row[field] }}</a>
+                      {%- elif field in ["geometry"] %}
+                        <div class ="app-u-truncate">{{ row[field] }}</div>
+                      {%- else %}
                         {% if row[field] is not none %}
-                          {% if field == "dataset" %}
-                            <a class="govuk-link" href="/dataset/{{ row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
-                          {% else %}
-                            {{ row[field]|make_link }}
-                          {%- endif %}
+                          {{ row[field] }}
                         {% endif %}
-                      </dd>
-                    </div>
-                  {% endif %}
-                {% endif %}
-                {% if field == "organisation-entity" and row[field] is not none %}
-                  <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                      {{ field }}
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                      {{ row[field]|entity_name }}
-                    </dd>
-                  </div>
-                {% endif %}
-                {% if field == "json" and row[field] is not none %}
-                  {% for attr, val in row[field].items() %}
-                    <div class="govuk-summary-list__row">
-                      <dt class="govuk-summary-list__key">
-                        {{ attr }}
-                      </dt>
-                      <dd class="govuk-summary-list__value">
-                        {{ val|make_link }}
-                      </dd>
-                    </div>
-                  {% endfor %}
-                {% endif %}
-              {%- endfor %}
-              {%- endset %}
+                      {%- endif %}
+                      <!-- </span> -->
+                    </td>
+                    <td class="govuk-table__cell govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
+                  </tr>
+                {%- endif %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endcall %}
+    </div>
 
-              {%- if row['resource'] -%}
-                {{ dlDataRecordPanel({
-                    "classes": "govuk-!-margin-bottom-6",
-                    "identifier": row['entity'] if row['entity'] else "missing entity number",
-                    "resource": {
-                        "identifier": row['resource'],
-                        "url": "https://github.com/digital-land/" + pipeline_name + "-collection/tree/main/transformed/" + pipeline_name + "/" + row['resource'] + ".csv"
-                    },
-                    "html": areaproperties
-                }) }}
-              {%- else -%}
-                {{ dlDataRecordPanel({
-                    "classes": "govuk-!-margin-bottom-6",
-                    "identifier": row['entity'] if row['entity'] else "missing entity number",
-                    "html": areaproperties
-                }) }}
-              {%- endif -%}
-            </div>
+    <div class="govuk-grid-column-full">
+    {% block recordGeometry -%}
+      {%- if includesMap %}
+        <h2 class="govuk-heading-m">Geographical area</h2>
 
-          {% endblock recordTable -%}
+        {% set noteHTML %}
+        <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
+        {% endset %}
+
+        {{- dlLeafletMap({
+        "id": "dlMap",
+        "wrapper_classes": "govuk-!-margin-top-4",
+        "attributes": {
+            "data-geojson-urls": geometry_url
+        },
+        "height": "460",
+        "notePanel": {
+            "html": noteHTML
+        }
+        }) -}}
+
+        <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+          <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
         </div>
-      {% endblock recordTableContainer %}
-
-      {% block recordGeometry -%}
-        {%- if includesMap %}
-          <h2 class="govuk-heading-m">Geographical area</h2>
-
-          {% set noteHTML %}
-          <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
-          {% endset %}
-
-          {{- dlLeafletMap({
-          "id": "dlMap",
-          "wrapper_classes": "govuk-!-margin-top-4",
-          "attributes": {
-              "data-geojson-urls": geometry_url
-          },
-          "height": "460",
-          "notePanel": {
-              "html": noteHTML
-          }
-      }) -}}
-
-          <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
-            <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
-          </div>
-        {%- endif %}
-      {%- endblock recordGeometry %}
-
+      {%- endif %}
+    {%- endblock recordGeometry %}
     </div>
 
     {%- if history_enabled %}
@@ -223,71 +161,55 @@
         </div>
       {% endif %}
     {% endblock recordReferences -%}
+  </div>
+{%- endblock content %}}
 
-  {%- endblock content %}
-
-  {% block recordEnd %}{% endblock recordEnd %}
-
-  {% block footerStart %}
-    {%- from "digital-land-frontend/components/feedback/macro.jinja" import dlFeedback %}
-    {% set subject = "Feedback on " + row_name + " -- " + pipeline_name  %}
-    {{ dlFeedback({
-        "text": "Spotted an issue? Let us know so we can improve the data.",
-        "action": {
-            "text": "There is something wrong with the data",
-            "href": "mailto:" + templateVar.email  + "?subject=" + subject
-        },
-        "container": true
-        })
-      }}
-  {% endblock footerStart %}
-
-  {%- block pageScripts %}
-    {%- if includesMap %}
-      <script>
-        const datasetName = "{{ pipeline_name }}"
-        const $mapElement = document.querySelector('[data-module="boundary-map"]')
-        const $nationalMapLink = document.querySelector('.dl-link-national-map')
-        const mapParams = {
-          initZoomCallback: function (featureGroup, map) {
-            console.log("initial load completed")
-            // do we need to check there isn't more than one shape?
-            const center = featureGroup
-              .getBounds()
-              .getCenter()
-            const zoom = map.getZoom()
-            let url = `http://digital-land.github.io/map?layer=${datasetName}#${center
-              .lat},${center
-              .lng},${zoom}z`
-              console
-              .log(url)
-            if ($nationalMapLink) {
-              // only show this for the datasets we've added to the national map
-              $nationalMapLink.href = url
-              $nationalMapLink
-                .classList
-                .remove("js-hidden")
-            }
+{%- block pageScripts %}
+  {%- if includesMap %}
+    <script>
+      const datasetName = "{{ pipeline_name }}"
+      const $mapElement = document.querySelector('[data-module="boundary-map"]')
+      const $nationalMapLink = document.querySelector('.dl-link-national-map')
+      const mapParams = {
+        initZoomCallback: function (featureGroup, map) {
+          console.log("initial load completed")
+          // do we need to check there isn't more than one shape?
+          const center = featureGroup
+            .getBounds()
+            .getCenter()
+          const zoom = map.getZoom()
+          let url = `http://digital-land.github.io/map?layer=${datasetName}#${center
+            .lat},${center
+            .lng},${zoom}z`
+            console
+            .log(url)
+          if ($nationalMapLink) {
+            // only show this for the datasets we've added to the national map
+            $nationalMapLink.href = url
+            $nationalMapLink
+              .classList
+              .remove("js-hidden")
           }
         }
+      }
 
-        {% if geometry_url %}
-          mapParams.geojsonURLs = ["{{ geometry_url }}"]
-        {% elif geojson_features %}
-          mapParams.geojsonFeatures = [{{ geojson_features|tojson }}]
-        {% endif %}
+      {% if geometry_url %}
+        mapParams.geojsonURLs = ["{{ geometry_url }}"]
+      {% elif geojson_features %}
+        mapParams.geojsonFeatures = [{{ geojson_features|tojson }}]
+      {% endif %}
 
-        const mapComponent = new DLMaps
-          .Map($mapElement)
-          .init(mapParams)
-      </script>
-    {% endif %}
-
-    <script>
-      const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')
-      const subNavTabsComponent = new DLFrontend
-        .SubNavTabs($subNavTabs)
-        .init({})
+      const mapComponent = new DLMaps
+        .Map($mapElement)
+        .init(mapParams)
     </script>
+  {% endif %}
 
-  {%- endblock %}
+  <script>
+    const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')
+    const subNavTabsComponent = new DLFrontend
+      .SubNavTabs($subNavTabs)
+      .init({})
+  </script>
+
+{%- endblock %}

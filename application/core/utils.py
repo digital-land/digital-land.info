@@ -154,16 +154,17 @@ def to_snake(string: str) -> str:
 
 
 ENTITY_ATTRIBUTE_ORDER = {
-    "entity": 0,
-    "dataset": 1,
-    "organisation-entity": 2,
-    "prefix": 3,
-    "reference": 4,
-    "name": 5,
-    "typology": 6,
-    "start-date": 7,
-    "end-date": 8,
-    "entry-date": 9,
+    "reference": 0,
+    "prefix": 1,
+    "name": 2,
+    "dataset": 3,
+    "organisation-entity": 4,
+    "start-date": 5,
+    "end-date": 6,
+    "entry-date": 7,
+    "typology": 8,
+    "geometry": 9,
+    "point": 10,
 }
 
 
