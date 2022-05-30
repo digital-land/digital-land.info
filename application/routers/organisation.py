@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 from typing import Optional
 
 from fastapi import APIRouter, Request
@@ -52,6 +53,7 @@ def get_organisations(
                 "request": request,
                 "organisations": organisations_by_type,
                 "display_names": display_names,
+                "today": date.today(),
             },
         )
 

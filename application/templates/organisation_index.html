@@ -68,6 +68,11 @@
         {% for organisation in organisations[org_type]|sort(attribute='name')  %}
           <li class="dl-list-filter__item" data-filter="item">
             <a href="/curie/{{ organisation.organisation }}" class="govuk-link dl-list-filter__item-title">{{ organisation.name }}</a>
+            {% if organisation.end_date and organisation.end_date < today  %}
+              <strong class="govuk-tag govuk-tag--grey">
+                Dissolved
+              </strong>
+            {% endif %}
           </li>
         {% endfor %}
       </ol>
