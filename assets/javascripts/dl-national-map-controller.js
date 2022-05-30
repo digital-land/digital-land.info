@@ -112,7 +112,7 @@ MapController.prototype.createFeaturesPopup = function (features) {
 
     var itemHTML = [
       "<li class=\"app-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"),
-      "<p class=\"app-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"),
+      "<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"),
       '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">',
       "<a class='govuk-link' href=\"/entity/".concat(feature.properties.entity, "\">").concat(featureName, "</a>"),
       '</p>',

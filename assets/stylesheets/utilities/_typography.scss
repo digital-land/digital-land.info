@@ -1,8 +1,38 @@
 .dl-link--mono,
-.u-font-mono {
+.app-u-font-mono {
 	font-family: monospace;
 }
 
-.app-secondary-text {
-    color: govuk-colour('dark-grey');
+.app-u-secondary-text {
+  color: govuk-colour('dark-grey');
+}
+
+.app-u-truncate {
+  word-break: break-all;
+  line-height: 1.1em;
+  position: relative;
+  max-height: calc(1.1em);
+  overflow: hidden;
+  padding-right: 0.65em; /* space for ellipsis */
+  display: block;
+  &:hover {
+    max-height: calc(1.1em * 5);
+  }
+}
+
+.app-u-truncate::before {
+  // color: $govuk-border-colour;
+  position: absolute;
+  content: "...";
+  inset-block-end: 0; /* "bottom" */
+  inset-inline-end: 0; /* "right" */
+}
+
+.app-u-truncate::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 0; /* "right" */
+  width: 1em;
+  height: 1em;
+  background: white;
 }
