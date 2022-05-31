@@ -106,8 +106,13 @@ MapController.prototype.createFeaturesPopup = function (features) {
     var fillColour = that.getFillColour(feature);
 
     var featureName = feature.properties.name
+    var featureReference = feature.properties.reference
     if (featureName === ''){
-      featureName = 'Not Named'
+      if (featureReference === ''){
+        featureName = 'Not Named'
+      } else {
+        featureName = featureReference
+      }
     }
 
     var itemHTML = [

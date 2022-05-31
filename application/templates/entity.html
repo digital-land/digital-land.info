@@ -7,7 +7,14 @@
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
 
-{%- set row_name = row['name'] if row['name'] else "Entity " ~ row['entity'] %}
+{% if row['name'] %}
+  {%- set row_name = row['name'] %}
+{%- elif row['reference'] %}
+  {%- set row_name = row['reference'] %}
+{%- else %}
+  {%- set row_name = "Not Named" %}
+{%- endif %}
+
 {% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
   None %}
 {% if geometry_url or geojson_features %}
