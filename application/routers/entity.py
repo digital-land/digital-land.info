@@ -90,7 +90,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                 raise HTTPException(
                     status_code=406, detail="geojson for entity not available"
                 )
-        facts = get_entity_facts(e.entity)
+        facts = get_entity_facts(e)
         return templates.TemplateResponse(
             "entity.html",
             {

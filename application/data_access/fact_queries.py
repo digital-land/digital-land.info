@@ -1,11 +1,30 @@
+import logging
 from typing import List
 
-from application.core.models import FactModel
-from application.db.models import FactOrm
-from application.db.session import get_context_session
+import requests
+
+from application.core.models import EntityModel, FactModel
+from application.settings import get_settings
+
+logger = logging.getLogger(__name__)
+settings = get_settings()
 
 
-def get_entity_facts(entity: int) -> List[FactModel]:
-    with get_context_session() as session:
-        facts = session.query(FactOrm).filter(FactOrm.entity == entity).all()
-        return [FactModel.from_orm(f) for f in facts]
+def get_entity_facts(entity: EntityModel) -> List[FactModel]:
+    url = f"{settings.DATASETTE_URL}/{entity.dataset}/fact.json"
+    params = {"entity__exact": entity.entity, "_shape": "array", "_labels": "off"}
+    try:
+        resp = requests.get(url, params=params)
+        resp.raise_for_status()
+        rows = resp.json()
+        # datasette returns empty strings for nulls. is there
+        # a way to prevent this? for now filter out empties
+        for r in rows:
+            for key, val in r.items():
+                if not val:
+                    r[key] = None
+        facts = [FactModel(**fact) for fact in rows]
+        return facts
+    except Exception as e:
+        logger.exception(e)
+        return []

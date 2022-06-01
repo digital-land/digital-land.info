@@ -162,20 +162,3 @@ class LookupOrm(Base):
     value = Column(Text, nullable=True)
     entry_date = Column(Date, nullable=True)
     start_date = Column(Date, nullable=True)
-
-
-class FactOrm(Base):
-
-    __tablename__ = "fact"
-
-    fact = Column(Text, primary_key=True)
-    entity = Column(BIGINT, nullable=False)
-    field = Column(Text, nullable=True)
-    value = Column(Text, nullable=True)
-    reference_entity = Column(BIGINT, nullable=True)
-    entry_date = Column(Date, nullable=True)
-    start_date = Column(Date, nullable=True)
-    end_date = Column(Date, nullable=True)
-
-
-Index("idx_fact_entity", FactOrm.entity)
