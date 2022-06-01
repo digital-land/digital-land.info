@@ -13,6 +13,7 @@ from application.data_access.digital_land_queries import (
     get_typologies,
 )
 from application.data_access.entity_queries import get_entity_query, get_entity_search
+from application.data_access.fact_queries import get_entity_facts
 
 from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
@@ -89,7 +90,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                 raise HTTPException(
                     status_code=406, detail="geojson for entity not available"
                 )
-
+        facts = get_entity_facts(e.entity)
         return templates.TemplateResponse(
             "entity.html",
             {
@@ -103,6 +104,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                 "typology": e.typology,
                 "entity_prefix": "",
                 "geojson_features": e.geojson if e.geojson is not None else None,
+                "facts": facts,
             },
         )
     else:

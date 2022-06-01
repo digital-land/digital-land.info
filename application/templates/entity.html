@@ -192,6 +192,35 @@
 
     </div>
 
+
+    <details class="govuk-details" data-module="govuk-details">
+      <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Facts
+    </span>
+      </summary>
+      <div class="govuk-details__text">
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Field</th>
+            <th scope="col" class="govuk-table__header">Value</th>
+            <th scope="col" class="govuk-table__header">Date</th>
+          </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+          {% for fact in facts %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ fact.field }}</td>
+              <td class="govuk-table__cell">{{ fact.value }}</td>
+              <td class="govuk-table__cell">{{ fact.entry_date }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+
     {%- if history_enabled %}
       <div id="history">
         {#{%- block entryHistory %}#}
