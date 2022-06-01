@@ -77,7 +77,7 @@
                       {%- elif field in ["wikipedia"] %}
                         <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + row[field] }}">{{ row[field] }}</a>
                       {%- elif field in ["geometry"] %}
-                        <div class ="app-u-truncate">{{ row[field] }}</div>
+                        <div class="app-code-block">{{ row[field] }}</div>
                       {%- else %}
                         {% if row[field] is not none %}
                           {{ row[field] }}
@@ -85,7 +85,6 @@
                       {%- endif %}
                       <!-- </span> -->
                     </td>
-                    <td class="govuk-table__cell govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
                   </tr>
                 {%- endif %}
               {% endif %}
