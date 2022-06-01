@@ -76,7 +76,7 @@
                         <a class ="govuk-link" href="{{ row[field] }}">{{ row[field] }}</a>
                       {%- elif field in ["wikipedia"] %}
                         <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + row[field] }}">{{ row[field] }}</a>
-                      {%- elif field in ["geometry"] %}
+                      {%- elif field in ["geometry","point"] %}
                         <div class="app-code-block">{{ row[field] }}</div>
                       {%- else %}
                         {% if row[field] is not none %}
