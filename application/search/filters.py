@@ -107,6 +107,9 @@ class QueryFilters:
     geometry_relation: Optional[GeometryRelation] = Query(
         None, description="DE-9IM spatial relationship, default is 'within'"
     )
+    geometry_curie: Optional[List[str]] = Query(
+        None, description="take the geometry from the entities with these curies"
+    )
 
     # pagination filters
     limit: Optional[int] = Query(
@@ -206,7 +209,7 @@ class QueryFilters:
                 raise DigitalLandValidationError(f"field {field} must be numeric")
         return v
 
-    @validator("curie", pre=True)
+    @validator("curie", "geometry_curie", pre=True)
     def validate_curie(cls, values: Optional[list]):
         if not values:
             return values
