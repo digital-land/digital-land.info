@@ -41,6 +41,7 @@ idx_entity_columns = Index(
     EntityOrm.reference,
     EntityOrm.typology,
 )
+# TODO i think this might be better as index per field not composite index
 
 
 class OldEntityOrm(Base):
