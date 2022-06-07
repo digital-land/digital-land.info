@@ -244,6 +244,10 @@ def _apply_location_filters(session, query, params):
         )
 
     # final step to add a group by if more than one condition is being met.
+    if len(intersecting_entities) > 1 or len(references) > 0 or len(curies) > 1:
+        query = query.group_by(EntityOrm)
+    elif len(intersecting_entities) + len(curies) > 1:
+        query = query.group_by(EntityOrm)
 
     return query
 

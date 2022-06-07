@@ -100,18 +100,18 @@
               {% endfor %}
             </div>
             {% endif %}
-            {% if query.params and query.params.get('geometry_reference') %}
+            {% if query.params and query.params.get('geometry_curie') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Local authority district:</span>
-              {% if query.params.get('geometry_reference')|is_list %}
-                {% for filter in query.params.get('geometry_reference') %}
+              <span class="app-applied-filter__name govuk-!-font-weight-bold">Local Authority District:</span>
+              {% if query.params.get('geometry_curie')|is_list %}
+                {% for filter in query.params.get('geometry_curie') %}
                 <span class="app-applied-filter__item">
                   {{ removeFilterButton({
                     "filter": {
-                      "name": "geometry_reference",
+                      "name": "geometry_curie",
                       "value": filter
                     },
-                    "url": "?" + filter|make_param_str('geometry_reference', url_query_params.list)
+                    "url": "?" + filter|make_param_str('geometry_curie', url_query_params.list)
                   }) }}
                 </span>
                 {% endfor %}
@@ -119,10 +119,10 @@
               <span class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
-                    "name": "geometry_reference",
-                    "value": query.params.get('geometry_reference')
+                    "name": "geometry_curie",
+                    "value": query.params.get('geometry_curie')
                   },
-                  "url": "?" + query.params.get('geometry_reference')|make_param_str('geometry_reference', url_query_params.list)
+                  "url": "?" + query.params.get('geometry_curie')|make_param_str('geometry_curie', url_query_params.list)
                 }) }}
               </span>
               {% endif %}
