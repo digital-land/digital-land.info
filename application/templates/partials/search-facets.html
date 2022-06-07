@@ -56,20 +56,21 @@
   {# this is messy until geometry_reference accepts a list #}
   {% set checkboxesHTML %}
     {% for district in local_authorities %}
-    <div class="govuk-checkboxes__item">
-      <input class="govuk-checkboxes__input" id="geometry-{{loop.index}}" name="geometry_reference" type="checkbox" value="{{ district['statistical_geography'] }}" {% if query.params.get('geometry_reference') and district['statistical_geography'] in query.params.get('geometry_reference') %}checked="checked"{% endif %}>
-      <label class="govuk-label govuk-checkboxes__label" for="geometry-{{loop.index}}">
-        {{ district['name'] }} district
-      </label>
-    </div>
+      {% set district_curie = 'statistical-geography:' + district['statistical_geography'] %}
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="geometry-{{loop.index}}" name="geometry_curie" type="checkbox" value="{{ district_curie }}" {% if query.params.get('geometry_curie') and  district_curie in query.params.get('geometry_curie') %}checked="checked"{% endif %}>
+        <label class="govuk-label govuk-checkboxes__label" for="geometry-{{loop.index}}">
+          {{ district['name'] }} District
+        </label>
+      </div>
     {% endfor %}
   {% endset %}
 
   <div class="govuk-form-group">
     {% call dlFilterGroup({
       "title": "Location",
-      "is_open": True if query.params.get('geometry_reference') else False,
-      "selected": query.params.get('geometry_reference')|geometry_reference_count if query.params.get('geometry_reference') else 0
+      "is_open": True if query.params.get('geometry_curie') else False,
+      "selected": query.params.get('geometry_curie')|geometry_reference_count if query.params.get('geometry_curie') else 0
     }) %}
     {{ dlFilterCheckboxes({
       "uniqueID": random_int(5),

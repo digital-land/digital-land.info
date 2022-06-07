@@ -1,7 +1,7 @@
 import logging
 
 from typing import Optional, List, Tuple
-from sqlalchemy import select, func, or_, and_
+from sqlalchemy import select, func, or_, and_, tuple_
 
 from application.core.models import EntityModel, entity_factory
 from application.data_access.entity_query_helpers import (
@@ -83,7 +83,6 @@ def get_entity_search(parameters: dict):
         query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
-
         if entities:
             count = entities[0].count
         else:
@@ -167,7 +166,7 @@ def _apply_location_filters(session, query, params):
         intersecting_entities_query = (
             session.query(EntityOrm.geometry)
             .filter(EntityOrm.entity.in_(intersecting_entities))
-            .group_by(EntityOrm)
+            .group_by(EntityOrm.entity)
             .subquery()
         )
 
@@ -198,7 +197,7 @@ def _apply_location_filters(session, query, params):
         reference_query = (
             session.query(EntityOrm.geometry)
             .filter(EntityOrm.reference.in_(references))
-            .group_by(EntityOrm.entity)
+            .group_by(EntityOrm)
             .subquery()
         )
         query = query.join(
@@ -217,6 +216,39 @@ def _apply_location_filters(session, query, params):
                 ),
             ),
         )
+
+    curies = params.get("geometry_curie", [])
+    if curies:
+        split_curies = [tuple(curie.split(":")) for curie in curies]
+        curie_query = (
+            session.query(EntityOrm.geometry)
+            .filter(tuple_(EntityOrm.prefix, EntityOrm.reference).in_(split_curies))
+            .group_by(EntityOrm)
+            .subquery()
+        )
+        query = query.join(
+            curie_query,
+            or_(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    func.ST_IsValid(curie_query.c.geometry),
+                    func.ST_Intersects(EntityOrm.geometry, curie_query.c.geometry),
+                ),
+                and_(
+                    EntityOrm.point.is_not(None),
+                    func.ST_IsValid(curie_query.c.geometry),
+                    func.ST_Intersects(EntityOrm.point, curie_query.c.geometry),
+                ),
+            ),
+        )
+
+    # final step to add a group by if more than one condition is being met.
+    if len(intersecting_entities) > 1 or len(references) > 0 or len(curies) > 1:
+        query = query.group_by(EntityOrm)
+    elif len(intersecting_entities) + len(curies) > 1:
+        query = query.group_by(EntityOrm)
+
     return query
 
 
