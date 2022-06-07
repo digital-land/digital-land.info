@@ -44,28 +44,27 @@
 
         <div class="app-results-summary">
           <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
-
-            {% macro removeFilterButton(params) %}
-              <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
-                <span class="app-facet-tag__icon" aria-hidden="true">
-                  <svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                      <g id="Group" fill="#000000" fill-rule="nonzero">
-                        <path
-                          d="M2.84386208,29.6395923 C2.1083442,29.6823572 1.38499138,29.4378396 0.826334681,28.9576007 C-0.275444894,27.8492707 -0.275444894,26.0592298 0.826334681,24.9508998 L24.9516952,0.825445695 C26.0976433,-0.246857017 27.8958254,-0.187248253 28.9681281,0.958699821 C29.9377765,1.99497526 29.9942972,3.58775513 29.1004465,4.69009616 L4.83294196,28.9576007 C4.28149071,29.4309149 3.56974148,29.6749646 2.84386208,29.6395923 Z"
-                          id="Path"
-                        ></path>
-                        <path
-                          d="M26.9408687,29.6395923 C26.1954316,29.6364107 25.4809686,29.3405191 24.9516952,28.8155503 L0.8262411,4.69000258 C-0.194500497,3.49801446 -0.0557253049,1.70413689 1.13626282,0.683301721 C2.20014357,-0.22776724 3.76915479,-0.22776724 4.83294196,0.683301721 L29.1004465,24.8087558 C30.2461138,25.8813393 30.3053483,27.679615 29.2327649,28.8252824 C29.1900936,28.8708545 29.1460187,28.9149294 29.1004465,28.9576007 C28.5062304,29.4743348 27.7242046,29.7212854 26.9408687,29.6395923 L26.9408687,29.6395923 Z"
-                          id="Path"
-                        ></path>
-                      </g>
-                    </g>
-                  </svg>
-                </span>
-                <span class="app-facet-tag__label u-font-mono">{{ params.filter.value }}</span>
-              </a>
-            {% endmacro %}
+          {% macro removeFilterButton(params) %}
+          <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
+            <span class="app-facet-tag__icon" aria-hidden="true">
+              <svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                  <g id="Group" fill="#000000" fill-rule="nonzero">
+                    <path
+                      d="M2.84386208,29.6395923 C2.1083442,29.6823572 1.38499138,29.4378396 0.826334681,28.9576007 C-0.275444894,27.8492707 -0.275444894,26.0592298 0.826334681,24.9508998 L24.9516952,0.825445695 C26.0976433,-0.246857017 27.8958254,-0.187248253 28.9681281,0.958699821 C29.9377765,1.99497526 29.9942972,3.58775513 29.1004465,4.69009616 L4.83294196,28.9576007 C4.28149071,29.4309149 3.56974148,29.6749646 2.84386208,29.6395923 Z"
+                      id="Path"
+                    ></path>
+                    <path
+                      d="M26.9408687,29.6395923 C26.1954316,29.6364107 25.4809686,29.3405191 24.9516952,28.8155503 L0.8262411,4.69000258 C-0.194500497,3.49801446 -0.0557253049,1.70413689 1.13626282,0.683301721 C2.20014357,-0.22776724 3.76915479,-0.22776724 4.83294196,0.683301721 L29.1004465,24.8087558 C30.2461138,25.8813393 30.3053483,27.679615 29.2327649,28.8252824 C29.1900936,28.8708545 29.1460187,28.9149294 29.1004465,28.9576007 C28.5062304,29.4743348 27.7242046,29.7212854 26.9408687,29.6395923 L26.9408687,29.6395923 Z"
+                      id="Path"
+                    ></path>
+                  </g>
+                </g>
+              </svg>
+            </span>
+            <span class="app-facet-tag__label app-u-font-mono">{{ params.filter.value }}</span>
+          </a>
+          {% endmacro %}
           {% if active_filters|length > 0 %}
           <div class="app-applied-filters">
             {% if query.params and query.params.get('typology') %}
