@@ -54,3 +54,8 @@
   word-wrap: break-word;
   max-height: calc(1em * 12);
 }
+
+.app-code-block-overflow{
+  max-height: 240px;
+  overflow-y: auto;
+}

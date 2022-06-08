@@ -25,7 +25,7 @@
 
 {% block pageAssets %}
   {{ super() }}
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/stackoverflow-light.min.css">
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
 {% endblock %}
 
@@ -57,7 +57,7 @@
     </div>
 
     <div class="govuk-grid-column-three-quarters">
-      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-2' }) %}
         <table class="govuk-table">
           <thead class="govuk-table__head">
             <tr class="govuk-table_row">
@@ -107,31 +107,41 @@
         </table>
       {% endcall %}
 
-      {% set jsonEntity %}
-        <pre class="govuk-!-margin-0"><code class="language-json">{{row_json}}</code></pre>
+      {% set jsonHTML %}
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block-overflow">{{row|digital_land_to_json}}</code></pre>
       {% endset %}
-      {% set csvEntity %}
-        <code class="hljs language-json">
-          hfhjfjkjnek
-        </code>
+      {% set geojsonHTML %}
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block-overflow">{{geojson|digital_land_to_json}}</code></pre>
       {% endset %}
 
-      {% set params = {
-        "title":"Hello",
-        "items":[
-          {
-            "label":"JSON","id":"json","panel":{
-              "html":jsonEntity
+      {% if geojson %}
+        {% set params = {
+          "title":"Hello",
+          "items":[
+            {
+              "label":"JSON","id":"json","panel":{
+                "html":jsonHTML
+              }
+            },
+            {
+              "label":"GeoJSON","id":"geojson","panel":{
+                "html":geojsonHTML
+              }
             }
-          },
-          {
-            "label":"CSV","id":"csv","panel":{
-              "html":csvEntity
+          ]
+        } %}
+      {% else %}
+        {% set params = {
+          "title":"Hello",
+          "items":[
+            {
+              "label":"JSON","id":"json","panel":{
+                "html":jsonHTML
+              }
             }
-          }
-        ]
-      } %}
-
+          ]
+        } %}
+      {% endif %}
       {{ govukTabs(params) }}
     </div>
 

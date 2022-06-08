@@ -1,6 +1,7 @@
 from digital_land_frontend.filters import is_list_filter
 
 from application.data_access.entity_queries import get_entity_query
+from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
 from markdown import markdown
 from markupsafe import Markup
@@ -64,5 +65,5 @@ def get_entity_name_filter(eval_ctx, id):
     return id
 
 
-def to_nice_json(dict):
-    return json.dumps(dict, default=str, indent=4)
+def digital_land_to_json(dict):
+    return json.dumps(dict, default=str, indent=4, cls=NoneToEmptyStringEncoder)

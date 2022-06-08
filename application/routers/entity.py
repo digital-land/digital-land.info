@@ -24,10 +24,6 @@ from application.core.utils import (
     entity_attribute_sort_key,
 )
 
-from application.core.filters import (
-    to_nice_json,
-)
-
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -82,13 +78,15 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
         if extension is not None and extension.value == "json":
             return e.dict(by_alias=True, exclude={"geojson"})
 
+        if e.geojson is not None:
+            geojson = e.geojson
+            properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
+            geojson.properties = properties
+        else:
+            geojson = None
+
         if extension is not None and extension.value == "geojson":
-            if e.geojson is not None:
-                geojson = e.geojson
-                properties = e.dict(
-                    exclude={"geojson", "geometry", "point"}, by_alias=True
-                )
-                geojson.properties = properties
+            if geojson is not None:
                 return geojson
             else:
                 raise HTTPException(
@@ -100,6 +98,11 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
             key: e_dict[key]
             for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
         }
+
+        if geojson is not None:
+            geojson_dict = dict(geojson)
+        else:
+            geojson_dict = None
 
         return templates.TemplateResponse(
             "entity.html",
@@ -114,7 +117,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                 "typology": e.typology,
                 "entity_prefix": "",
                 "geojson_features": e.geojson if e.geojson is not None else None,
-                "row_json": to_nice_json(e_dict_sorted),
+                "geojson": geojson_dict,
             },
         )
     else:
