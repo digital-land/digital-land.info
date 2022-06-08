@@ -126,3 +126,18 @@ def entity_factory(entity_orm: EntityOrm):
         for key, val in entity_orm.json.items():
             setattr(e, key, val)
     return e
+
+
+class FactResourceModel(DigitalLandBaseModel):
+    fact: str
+    entity: int
+    field: str
+    value: str
+    reference_entity: Optional[str] = None
+    entry_date: Optional[date] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    resource: str
+    entry_number: int
+    resource_entry_date: Optional[date] = None
+    resource_start_date: Optional[date] = None

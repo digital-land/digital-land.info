@@ -56,3 +56,4 @@ templates.env.filters["render_markdown"] = render_markdown
 templates.env.filters["entity_name"] = entity_name_filter
 templates.env.filters["get_entity_name"] = get_entity_name_filter
 templates.env.filters["debug"] = debug
+templates.env.policies["json.dumps_kwargs"] = {"sort_keys": True}
