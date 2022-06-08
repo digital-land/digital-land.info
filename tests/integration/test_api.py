@@ -152,14 +152,6 @@ def test_dataset_json_endpoint_returns_as_expected(client):
     )
 
 
-def test_get_dataset_endpoint_returns_as_expected(client, exclude_middleware):
-    """
-    Tests that we handle the case of no DatasetCollectionOrm result found gracefully
-    """
-    response = client.get("/dataset/waste-authority")
-    assert response.status_code == 200
-
-
 def test_link_dataset_endpoint_returns_as_expected(
     test_data, test_settings, client, exclude_middleware
 ):
@@ -333,3 +325,14 @@ def test_get_by_curie_redirects_to_entity(test_data, client, exclude_middleware)
 def test_get_by_curie_404s_for_unknown_reference(test_data, client, exclude_middleware):
     response = client.get("/curie/not:found", allow_redirects=False)
     assert response.status_code == 404
+
+
+def test_get_dataset_unknown_returns_404(client, exclude_middleware):
+    response = client.get("/dataset/waste-authority")
+    assert response.status_code == 404
+
+
+def test_get_dataset_as_json_returns_json(client, exclude_middleware):
+    response = client.get("/dataset/greenspace.json")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/json"

@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from urllib.parse import urljoin
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from application.data_access.digital_land_queries import (
@@ -57,12 +57,21 @@ def get_dataset(
     dataset: str,
     limit: int = 50,
     settings: Settings = Depends(get_settings),
+    extension: Optional[SuffixDataset] = None,
 ):
     collection_bucket = settings.S3_COLLECTION_BUCKET
     hoisted_bucket = settings.S3_HOISTED_BUCKET
     try:
         _dataset = get_dataset_query(dataset)
+        if _dataset is None:
+            raise HTTPException(status_code=404, detail="dataset not found")
+
         entity_count = get_entity_count(dataset)
+
+        if extension is not None and extension.value == "json":
+            _dataset.entity_count = entity_count
+            return _dataset
+
         latest_resource = get_latest_resource(dataset)
         publisher_coverage = get_publisher_coverage(dataset)
 
@@ -114,6 +123,7 @@ router.add_api_route(
     response_class=DigitalLandJSONResponse,
     tags=["List datasets"],
 )
+
 router.add_api_route(
     "/", endpoint=list_datasets, response_class=HTMLResponse, include_in_schema=False
 )
