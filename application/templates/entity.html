@@ -127,6 +127,20 @@
         </div>
       {%- endif %}
     {%- endblock recordGeometry %}
+
+    <details class="govuk-details" data-module="govuk-details">
+      <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Facts
+    </span>
+      </summary>
+      <div class="govuk-details__text">
+        <pre>
+        {{ facts | tojson(indent=4)}}
+        </pre>
+      </div>
+    </details>
+
     </div>
 
 
@@ -138,7 +152,7 @@
       </summary>
       <div class="govuk-details__text">
         <pre>
-        {{ facts | tojson(indent=2)}}
+        {{ facts | tojson(indent=4)}}
         </pre>
       </div>
     </details>

@@ -18,7 +18,8 @@ def get_entity_facts(entity: EntityModel) -> List[FactResourceModel]:
                      fr.start_date AS resource_start_date
             FROM fact f, fact_resource fr
             WHERE f.fact = fr.fact
-            AND f.entity = {entity.entity};"""
+            AND f.entity = {entity.entity}
+            ORDER BY f.entry_date;"""
     params = {"sql": sql, "_shape": "array"}
     try:
         resp = requests.get(url, params=params)
