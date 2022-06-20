@@ -24,24 +24,6 @@
 
 {%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
 
-{%- block breadcrumbs -%}
-  {{- govukBreadcrumbs({
-    "items": [
-        {
-          "text": "Digital Land",
-          "href": "/"
-        },
-        {
-          "text": "Entity",
-          "href": "/entity"
-        },
-        {
-          "text": row["entity"]
-        }
-      ]
-    }) -}}
-{%- endblock -%}
-
 {%- block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
@@ -54,47 +36,37 @@
         <table class="govuk-table">
           <thead class="govuk-table__head">
             <tr class="govuk-table_row">
+              f.entity, f.fact, f.field,f.value,min(fr.entry_date) as earliest_entry_date , max(fr.entry_date) as latest_entry_date,
+              <th scope="col" class="govuk-table__header">Fact</th>
               <th scope="col" class="govuk-table__header">Field</th>
               <th scope="col" class="govuk-table__header">Value</th>
-              <th scope="col" class="govuk-table__header"></th>
+              <th scope="col" class="govuk-table__header">Earliest Entry Date</th>
+              <th scope="col" class="govuk-table__header">Latest Entry Date</th>
+              <th scope="col" class="govuk-table__header">Resource History</th>
             </tr>
           </thead>
           <tbody class="govuk-table__body">
-            {% for field in row.keys() %}
-              {% if field != 'entity' %}
-                {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
-                  <tr class="govuk-table__row">
-                    <th scope="row" class="app-table__header app-table__header--row">
-                      {%- if field == "organisation-entity" %}
-                        {{ field|replace("-entity", "")|capitalize }}
-                      {%- else %}
-                        {{ field|replace("-", " ")|capitalize }}
-                      {%- endif %}
-                    </th>
-                    <td class="govuk-table__cell app-table__cell">
-                      <!-- <span class="u-data-value"> -->
-                      {%- if field in ["dataset"] %}
-                        <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
-                      {%- elif field == "twitter" %}
-                        <a class ="govuk-link" href="https://twitter.com/{{ row[field] }}">@{{ row[field] }}</a>
-                      {%- elif field in ["organisation-entity"] %}
-                        <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
-                      {%- elif field in ["website","opendatacommunities"] %}
-                        <a class ="govuk-link" href="{{ row[field] }}">{{ row[field] }}</a>
-                      {%- elif field in ["wikipedia"] %}
-                        <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + row[field] }}">{{ row[field] }}</a>
-                      {%- elif field in ["geometry","point"] %}
-                        <div class="app-code-block">{{ row[field] }}</div>
-                      {%- else %}
-                        {% if row[field] is not none %}
-                          {{ row[field] }}
-                        {% endif %}
-                      {%- endif %}
-                      <!-- </span> -->
-                    </td>
-                  </tr>
-                {%- endif %}
-              {% endif %}
+            {% for fact in facts %}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact.fact}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact.field}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact.value}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact.earliest_entry_date}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact.latest_entry_date}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact.resource_history}}
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -127,6 +99,19 @@
         </div>
       {%- endif %}
     {%- endblock recordGeometry %}
+
+    <details class="govuk-details" data-module="govuk-details">
+      <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Facts
+    </span>
+      </summary>
+      <div class="govuk-details__text">
+        <pre>
+        {{ facts | tojson(indent=4)}}
+        </pre>
+      </div>
+    </details>
 
     </div>
 
