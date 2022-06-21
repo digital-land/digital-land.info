@@ -1,0 +1,167 @@
+{% extends "layouts/layout.html" %}
+{% set templateName = "dl-info/entity-facts.html" %}
+
+{%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
+{%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
+{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+{%- from "components/summary-card/macro.jinja" import appSummaryCard %}
+
+{% block stylesheets -%}
+  {{super()}}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css">
+{%- endblock %}
+
+{% if row['name'] %}
+  {%- set row_name = row['name'] %}
+{%- elif row['reference'] %}
+  {%- set row_name = row['reference'] %}
+{%- else %}
+  {%- set row_name = "Not Named" %}
+{%- endif %}
+
+{% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
+  None %}
+{% if geometry_url or geojson_features %}
+  {% set includesMap = true %}
+{% endif %}
+
+{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
+
+{%- block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
+      <h1 class="govuk-heading-xl">{{ row_name }}</h1>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
+        <table id="facttable" class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table_row">
+              <th scope="col" class="govuk-table__header">Fact</th>
+              <th scope="col" class="govuk-table__header">Field</th>
+              <th scope="col" class="govuk-table__header">Value</th>
+              <th scope="col" class="govuk-table__header">Earliest Entry Date</th>
+              <th scope="col" class="govuk-table__header">Latest Entry Date</th>
+              <th scope="col" class="govuk-table__header"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for fact in facts %}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact['fact']}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact['field']}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact['value']}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact['earliest-entry-date']}}
+                </td>
+                <td class="govuk-table__cell app-table__cell">
+                  {{fact['entry-date']}}
+                </td>
+                <td></td>
+                <td>
+                  <table>
+                    <thead>
+                      <th scope="col" class="govuk-table__header">Entry Date</th>
+                      <th scope="col" class="govuk-table__header">Resource</th>
+                    </thead>
+                    <tbody>
+                      {% for resource in fact['resource-history'] %}
+                      <tr>
+                        <td class="govuk-table__cell app-table__cell">
+                          {{resource['entry_date']}}
+                        </td>
+                        <td class="govuk-table__cell app-table__cell">
+                          {{resource['resource']}}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endcall %}
+    </div>
+
+    <div class="govuk-grid-column-full">
+
+    </div>
+
+    {% block recordReferences -%}
+      {% if references %}
+        <div id="referenced-by">
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+              <h2 class="govuk-heading-m dl-subnav__heading">Referenced by</h2>
+              <p class="govuk-body">This record is referenced by {{ references|total_items }} other planning related data record{{ "" if references|total_items == 1 else "s" }}.</p>
+              {% if references|length > 0 -%}
+                {% for type, refs in references.items() %}
+                  <h3 class="govuk-heading-s">{{ type|capitalize }}</h3>
+                  <ul class="govuk-list govuk-list--bullet">
+                    {%- for ref in refs %}
+                      <li>
+                        <a href={{ entity_prefix|default('') }}{{ ref["href"] }}>{{ ref["text"] }}</a>
+                        <span class="secondary-text data-reference">({{ ref["id"] }})</span>
+                      </li>
+                    {% endfor -%}
+                  </ul>
+                {% endfor %}
+              {% endif -%}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endblock recordReferences -%}
+  </div>
+{%- endblock content %}}
+
+{%- block pageScripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>
+  <script>
+    $(document).ready( function () {
+      var table = $('#facttable').DataTable({
+        "columnDefs": [
+      // hide the needed column
+      { "visible": false, "targets": 6 },
+      {
+          "className":'dt-control',
+          "orderable":false,
+          "defaultContent": '',
+          "targets": 5
+      },
+]
+      });
+      $('#facttable tbody').on('click', 'td.dt-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            // Open this row
+            row.child(row.data()['6']).show();
+            tr.addClass('shown');
+        }
+    });
+
+    } );
+
+  </script>
+
+{%- endblock %}

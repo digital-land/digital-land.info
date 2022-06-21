@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     READ_DATABASE_URL: PostgresDsn
     SENTRY_DSN: Optional[str] = None
     ENVIRONMENT: str
+    DATASETTE_URL: str
 
 
 @lru_cache()

@@ -1,4 +1,5 @@
 import logging
+import json
 
 from typing import Optional
 
@@ -17,6 +18,11 @@ from application.core.utils import (
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _convert_resources_to_dict(fact):
+    fact["resource-history"] = json.loads(fact["resource-history"])
+    return fact
 
 
 def get_entity_facts(
@@ -51,11 +57,14 @@ def get_entity_facts(
             for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
         }
 
+        facts_dicts = [fact.dict(by_alias=True) for fact in facts]
+        facts_dicts = [_convert_resources_to_dict(fact) for fact in facts_dicts]
+
         return templates.TemplateResponse(
             "entity-facts.html",
             {
                 "request": request,
-                "facts": facts,
+                "facts": facts_dicts,
                 "row": e_dict_sorted,
             },
         )
