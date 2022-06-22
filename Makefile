@@ -117,6 +117,10 @@ endif
 
 deploy: aws-deploy
 
+ifeq (staging, $(ENVIRONMENT))
+deploy: aws-deploy cf-deploy
+endif
+
 aws-deploy:
 ifeq (, $(ENVIRONMENT))
 	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
