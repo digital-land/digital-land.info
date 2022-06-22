@@ -114,4 +114,6 @@ jobs:
       if: ${{ github.ref == 'refs/heads/staging' }}
       env:
         ENVIRONMENT: staging
+        CF_USERNAME: ${{ secrets.GOV_PAAS_SERVICE_ACCOUNT_USERNAME }}
+        CF_PASSWORD: ${{ secrets.GOV_PAAS_SERVICE_ACCOUNT_PASSWORD }}
       run: make ENVIRONMENT=$ENVIRONMENT deploy
