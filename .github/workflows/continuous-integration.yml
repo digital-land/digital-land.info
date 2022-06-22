@@ -106,10 +106,12 @@ jobs:
 
     - name: Restart digital-land.info service on production environment
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: |
-        aws ecs update-service --force-new-deployment --service production-web-service --cluster production-web-cluster
+      env:
+        ENVIRONMENT: production
+      run: make ENVIRONMENT=$ENVIRONMENT deploy
 
     - name: Restart digital-land.info service on staging environment
       if: ${{ github.ref == 'refs/heads/staging' }}
-      run: |
-        aws ecs update-service --force-new-deployment --service staging-web-service --cluster staging-web-cluster
+      env:
+        ENVIRONMENT: staging
+      run: make ENVIRONMENT=$ENVIRONMENT deploy

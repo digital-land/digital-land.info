@@ -114,3 +114,11 @@ ifeq (, $(ENVIRONMENT))
 endif
 	cf target -o dluhc-digital-land -s $(ENVIRONMENT)
 	cf push $(ENVIRONMENT)-$(CF_BASE_APP_NAME)
+
+deploy: aws-deploy
+
+aws-deploy:
+ifeq (, $(ENVIRONMENT))
+	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
+endif
+	aws ecs update-service --force-new-deployment --service $(ENVIRONMENT)-web-service --cluster $(ENVIRONMENT)-web-cluster
