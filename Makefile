@@ -5,18 +5,12 @@ EXPLICIT_TAG := latest
 endif
 COMMIT_TAG   := $$(git log -1 --pretty=%h)
 
-# what if we tagged with commit sha?
-REPO           := 955696714113.dkr.ecr.eu-west-2.amazonaws.com
-NAME           := $(REPO)/digital-land-info
-COMMIT_IMG     := $(NAME):$(COMMIT_TAG)
-EXPLICIT_IMG   := $(NAME):$(EXPLICIT_TAG)
-
 CF_BASE_APP_NAME := digital-land-platform
 
-PUBLIC_REPO         := public.ecr.aws/l6z6v3j6
-PUBLIC_NAME         := $(PUBLIC_REPO)/$(CF_BASE_APP_NAME)
-PUBLIC_COMMIT_IMG   := $(PUBLIC_NAME):$(COMMIT_TAG)
-PUBLIC_EXPLICIT_IMG := $(PUBLIC_NAME):$(EXPLICIT_TAG)
+REPO         := public.ecr.aws/l6z6v3j6
+NAME         := $(REPO)/$(CF_BASE_APP_NAME)
+COMMIT_IMG   := $(NAME):$(COMMIT_TAG)
+EXPLICIT_IMG := $(NAME):$(EXPLICIT_TAG)
 
 
 all::	lint
@@ -42,30 +36,18 @@ server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
-docker-build: docker-build-private docker-build-public
-
-docker-build-private:
+docker-build:
 	docker build  --target production -t $(EXPLICIT_IMG) .
 	docker tag $(EXPLICIT_IMG) $(COMMIT_IMG)
 
-docker-build-public:
-	docker build  --target production -t $(PUBLIC_EXPLICIT_IMG) .
-	docker tag $(PUBLIC_EXPLICIT_IMG) $(PUBLIC_COMMIT_IMG)
-
-push: push-private push-public
-
-push-private: login
+push: docker-login
 	docker push $(COMMIT_IMG)
 	docker push $(EXPLICIT_IMG)
-
-push-public: docker-login-public
-	docker push $(PUBLIC_COMMIT_IMG)
-	docker push $(PUBLIC_EXPLICIT_IMG)
 
 login:
 	aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $(REPO)
 
-docker-login-public:
+docker-login:
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
 test-acceptance:
