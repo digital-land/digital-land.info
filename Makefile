@@ -128,7 +128,7 @@ ifeq (, $(ENVIRONMENT))
 	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
 endif
 	cf target -o dluhc-digital-land -s $(ENVIRONMENT)
-	cf push $(ENVIRONMENT)-$(CF_BASE_APP_NAME)
+	cf push $(ENVIRONMENT)-$(CF_BASE_APP_NAME) --docker-image $(EXPLICIT_IMG)
 
 deploy: aws-deploy
 
