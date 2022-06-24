@@ -38,7 +38,7 @@ server:
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
 docker-build:
-	docker build  --target production -t $(EXPLICIT_IMG) .
+	docker build --build-arg RELEASE_TAG=$(COMMIT_TAG) --target production -t $(EXPLICIT_IMG) .
 	docker tag $(EXPLICIT_IMG) $(COMMIT_IMG)
 
 push: docker-login
