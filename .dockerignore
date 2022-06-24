@@ -10,6 +10,7 @@ docker-compose.override.yml
 *.md
 tests
 tf
+.venv
 .pytest_cache
 .env
 .DS_Store
