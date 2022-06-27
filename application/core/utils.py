@@ -89,7 +89,16 @@ class DigitalLandJSONResponse(Response):
 
 
 def make_links(scheme, netloc, path, query_params, data):
-
+    """
+    Creates a set of links for use on the entity search page
+    including extracting additional information of the data itself
+    Arguments:
+        scheme: str
+        netloc: str
+        path: str
+        query_param: dict a normalised dictionary of query parameters see normalised_params for details
+        data: dict that contain all of the required data for a search query see get_entity_search
+    """
     count = data["count"]
     limit = data["params"].get("limit", 10)
     offset = data["params"].get("offset", 0)
@@ -130,23 +139,36 @@ def make_links(scheme, netloc, path, query_params, data):
 
 
 def make_pagination_query_str(query_params, limit, offset=0):
-    params = query_params.items()
-    url = "?" + "&".join(
+    """
+    Creates a url used for pagination on the entity search page
+    Arguments:
+        query_param: dict a normalised dictionary of query parameters see normalised_params for details
+        limit: int a number specifying the total number of entries that the query should return
+        offset: int a number specifying the current offset, defaults to 0 to get the first batch
+    """
+    # make all params in list format for iteration
+    params = {
+        key: (value if isinstance(value, list) else [value])
+        for key, value in query_params.items()
+    }
+
+    url_query_str = "?" + "&".join(
         [
-            "{}={}".format(param[0], param[1])
-            for param in params
-            if param[1] and param[0] != "offset"
+            f"{key}={value}"
+            for key in params.keys()
+            for value in params[key]
+            if key != "offset"
         ]
     )
-    if "limit" not in [p[0] for p in params]:
-        if url == "?":
-            url = f"{url}limit={limit}"
+    if "limit" not in params.keys():
+        if url_query_str == "?":
+            url_query_str = f"{url_query_str}limit={limit}"
         else:
-            url = f"{url}&limit={limit}"
+            url_query_str = f"{url_query_str}&limit={limit}"
     if offset != 0:
-        return f"{url}&offset={offset}"
+        return f"{url_query_str}&offset={offset}"
     else:
-        return url
+        return url_query_str
 
 
 def to_snake(string: str) -> str:
