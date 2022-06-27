@@ -54,3 +54,13 @@
   word-wrap: break-word;
   max-height: calc(1em * 12);
 }
+
+.app-u-breakword{
+  word-break: break-all;
+  line-height: 1.1em;
+  position: relative;
+  max-height: calc(1.1em);
+  overflow: hidden;
+  padding-right: 0.65em;
+  display: block;
+}

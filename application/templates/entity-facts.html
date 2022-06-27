@@ -54,7 +54,9 @@
             {% for fact in facts %}
               <tr class="govuk-table__row">
                 <td class="govuk-table__cell app-table__cell">
-                  {{fact['fact']}}
+                  <span class="app-u-truncate">
+                    {{fact['fact']}}
+                  </span>
                 </td>
                 <td class="govuk-table__cell app-table__cell">
                   {{fact['field']}}
@@ -82,7 +84,9 @@
                           {{resource['entry_date']}}
                         </td>
                         <td class="govuk-table__cell app-table__cell">
+                          <span class="app-u-truncate">
                           {{resource['resource']}}
+                          </span>
                         </td>
                       </tr>
                       {% endfor %}
