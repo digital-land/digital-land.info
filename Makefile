@@ -110,7 +110,7 @@ cf-check:
 # install dependencies
 ifndef CF_CLI
 ifeq ($(UNAME),Darwin)
-$(error CloudFoundry CLI not found in PATH)
+	$(error CloudFoundry CLI not found in PATH)
 endif
 	curl https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
 	echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
