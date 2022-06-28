@@ -96,8 +96,8 @@ def make_links(scheme, netloc, path, query, data):
         scheme: str
         netloc: str
         path: str
-        query: query string of request
-        data: dict that contain all of the required data for a search query see get_entity_search
+        query: query string of incoming request
+        data: dict that contains all the required data for a search query see get_entity_search
     """
 
     from urllib.parse import urlunsplit
@@ -120,24 +120,25 @@ def make_links(scheme, netloc, path, query, data):
         # no pagination links needed
         return {}
 
-    query_str = set_pagination_limit_and_offset(query, limit)
+    query_str = make_pagination_query_str(query, limit)
     pagination_links = {"first": urlunsplit((scheme, netloc, path, query_str, ""))}
 
     if 0 < last_offset <= count:
-        query_str = set_pagination_limit_and_offset(query, limit, offset=last_offset)
+        query_str = make_pagination_query_str(query, limit, offset=last_offset)
         pagination_links["last"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     if next_offset < count and next_offset <= last_offset:
-        query_str = set_pagination_limit_and_offset(query, limit, offset=next_offset)
+        query_str = make_pagination_query_str(query, limit, offset=next_offset)
         pagination_links["next"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     if offset != 0 and prev_offset >= 0:
-        query_str = set_pagination_limit_and_offset(query, limit, offset=prev_offset)
+        query_str = make_pagination_query_str(query, limit, offset=prev_offset)
         pagination_links["prev"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     return pagination_links
 
-def set_pagination_limit_and_offset(query, limit, offset=0):
+
+def make_pagination_query_str(query, limit, offset=0):
     from urllib.parse import parse_qs, urlencode
 
     query_dict = parse_qs(query)
@@ -149,7 +150,6 @@ def set_pagination_limit_and_offset(query, limit, offset=0):
         query_dict.pop("offset", None)
 
     return urlencode(query_dict, doseq=True)
-
 
 
 def to_snake(string: str) -> str:

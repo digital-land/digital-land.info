@@ -19,7 +19,7 @@ from application.search.filters import QueryFilters
 from application.core.templates import templates
 from application.core.utils import (
     DigitalLandJSONResponse,
-    make_links,
+    make_pagination_query_str,
     to_snake,
     entity_attribute_sort_key,
 )
@@ -132,7 +132,7 @@ def search_entities(
     netloc = request.url.netloc
     path = request.url.path
     query = request.url.query
-    links = make_links(scheme, netloc, path, query, data)
+    links = make_pagination_query_str(scheme, netloc, path, query, data)
 
     if extension is not None and extension.value == "json":
 
