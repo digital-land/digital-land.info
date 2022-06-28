@@ -88,7 +88,7 @@ class DigitalLandJSONResponse(Response):
         ).encode("utf-8")
 
 
-def make_links(scheme, netloc, path, query_params, data):
+def make_links(scheme, netloc, path, query, data):
     """
     Creates a set of links for use on the entity search page
     including extracting additional information of the data itself
@@ -96,9 +96,12 @@ def make_links(scheme, netloc, path, query_params, data):
         scheme: str
         netloc: str
         path: str
-        query_param: dict a normalised dictionary of query parameters see normalised_params for details
+        query: query string of request
         data: dict that contain all of the required data for a search query see get_entity_search
     """
+
+    from urllib.parse import urlunsplit
+
     count = data["count"]
     limit = data["params"].get("limit", 10)
     offset = data["params"].get("offset", 0)
@@ -117,58 +120,36 @@ def make_links(scheme, netloc, path, query_params, data):
         # no pagination links needed
         return {}
 
-    query_str = make_pagination_query_str(query_params, limit)
-    pagination_links = {"first": f"{scheme}://{netloc}{path}{query_str}"}
+    query_str = set_pagination_limit_and_offset(query, limit)
+    pagination_links = {"first": urlunsplit((scheme, netloc, path, query_str, ""))}
 
     if 0 < last_offset <= count:
-        query_str = make_pagination_query_str(query_params, limit, last_offset)
-        last_url = f"{scheme}://{netloc}{path}{query_str}"
-        pagination_links["last"] = last_url
+        query_str = set_pagination_limit_and_offset(query, limit, offset=last_offset)
+        pagination_links["last"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     if next_offset < count and next_offset <= last_offset:
-        query_str = make_pagination_query_str(query_params, limit, next_offset)
-        next_url = f"{scheme}://{netloc}{path}{query_str}"
-        pagination_links["next"] = next_url
+        query_str = set_pagination_limit_and_offset(query, limit, offset=next_offset)
+        pagination_links["next"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     if offset != 0 and prev_offset >= 0:
-        query_str = make_pagination_query_str(query_params, limit, prev_offset)
-        prev_url = f"{scheme}://{netloc}{path}{query_str}"
-        pagination_links["prev"] = prev_url
+        query_str = set_pagination_limit_and_offset(query, limit, offset=prev_offset)
+        pagination_links["prev"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     return pagination_links
 
+def set_pagination_limit_and_offset(query, limit, offset=0):
+    from urllib.parse import parse_qs, urlencode
 
-def make_pagination_query_str(query_params, limit, offset=0):
-    """
-    Creates a url used for pagination on the entity search page
-    Arguments:
-        query_param: dict a normalised dictionary of query parameters see normalised_params for details
-        limit: int a number specifying the total number of entries that the query should return
-        offset: int a number specifying the current offset, defaults to 0 to get the first batch
-    """
-    # make all params in list format for iteration
-    params = {
-        key: (value if isinstance(value, list) else [value])
-        for key, value in query_params.items()
-    }
-
-    url_query_str = "?" + "&".join(
-        [
-            f"{key}={value}"
-            for key in params.keys()
-            for value in params[key]
-            if key != "offset"
-        ]
-    )
-    if "limit" not in params.keys():
-        if url_query_str == "?":
-            url_query_str = f"{url_query_str}limit={limit}"
-        else:
-            url_query_str = f"{url_query_str}&limit={limit}"
+    query_dict = parse_qs(query)
+    if "limit" not in query_dict:
+        query_dict["limit"] = limit
     if offset != 0:
-        return f"{url_query_str}&offset={offset}"
+        query_dict["offset"] = offset
     else:
-        return url_query_str
+        query_dict.pop("offset", None)
+
+    return urlencode(query_dict, doseq=True)
+
 
 
 def to_snake(string: str) -> str:

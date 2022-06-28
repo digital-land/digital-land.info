@@ -131,7 +131,8 @@ def search_entities(
     scheme = request.url.scheme
     netloc = request.url.netloc
     path = request.url.path
-    links = make_links(scheme, netloc, path, params, data)
+    query = request.url.query
+    links = make_links(scheme, netloc, path, query, data)
 
     if extension is not None and extension.value == "json":
 
