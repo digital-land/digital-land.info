@@ -142,8 +142,9 @@ def make_pagination_query_str(query, limit, offset=0):
     from urllib.parse import parse_qs, urlencode
 
     query_dict = parse_qs(query)
-    if "limit" not in query_dict:
-        query_dict["limit"] = limit
+
+    query_dict["limit"] = limit
+
     if offset != 0:
         query_dict["offset"] = offset
     else:

@@ -10,7 +10,7 @@ def test_entity_attribute_sort_key_only_excepts_string():
         assert True
 
 
-def test_make_pagination_query_str_preserves_repeated_key_params():
+def test_make_pagination_query_str_preserves_repeated_key_params_when_adding_limit_or_offset():
     query_string_several_datasets = (
         "dataset=ancient-woodland&dataset=battlefield&dataset=conservation-area"
     )
