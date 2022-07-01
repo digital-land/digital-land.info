@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  web:
+    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG}
+
+  zap:
+    image: owasp/zap2docker-stable:${ZAP_VERSION-2.11.1}
+    command: bash -c "zap.sh -cmd -addonupdate; zap.sh -cmd -autorun /zap/wrk/zap.yaml"
+    volumes:
+      - .:/zap/wrk
+      - ./zap-working-dir/zap.log:/home/zap/.ZAP/zap.log
+    depends_on:
+      web:
+        condition: service_healthy

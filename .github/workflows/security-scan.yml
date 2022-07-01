@@ -1,0 +1,37 @@
+name: security-scan
+
+on:
+  push:
+    branches:
+      - feat/security-scans
+
+env:
+  APPLICATION: digital-land-platform
+  DOCKER_REPO: public.ecr.aws/l6z6v3j6
+  ZAP_VERSION: 2.11.1
+
+jobs:
+  staging-dynamic-audit:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_APPLICATION_TAG: staging
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+          docker pull ${DOCKER_REPO}/${APPLICATION}:${DOCKER_APPLICATION_TAG}
+
+      - name: attack
+        run: |
+          make docker-staging-security-scan
+          cat zap-working-dir/zap-report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: upload log
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: zap.log
+          path: zap-working-dir/zap.log

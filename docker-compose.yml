@@ -10,10 +10,15 @@ services:
       - .:/src
       - .env.test.docker:/src/.env.test
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
       - db
     env_file: ./.env.dev.docker
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      interval: 1s
+      timeout: 3s
+      retries: 60
 
   db:
     image: postgis/postgis:13-master

@@ -1,0 +1,76 @@
+env:
+  contexts:
+    - name: digital-land-platform
+      urls:
+        - http://web:8000/
+  parameters:
+    failOnError: true
+    failOnWarning: true
+    progressToStdout: true
+
+jobs:
+  - type: addOns
+    install:
+      - ascanrules
+      - ascanrulesAlpha
+      - ascanrulesBeta
+      - pscanrulesBeta
+      - pscanrulesAlpha
+      - automation
+      - domxss
+      - openapi
+      - reflect
+      - reports
+      - spiderAjax
+
+  - type: passiveScan-config
+    parameters:
+      maxAlertsPerRule: 10
+      scanOnlyInScope: true
+
+  - type: spider
+    parameters:
+      context: digital-land-platform
+
+  - type: activeScan
+    parameters:
+      context: digital-land-platform
+    policyDefinition:
+      defaultStrength: Low
+      defaultThreshold: 'Off'
+
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 1
+
+  - type: report
+    parameters:
+      template: traditional-md
+      reportDir: /zap/wrk/zap-working-dir/
+      reportFile: zap-report.md
+    risks:
+      - high
+      - medium
+      - low
+      - info
+    confidences:
+      - high
+      - medium
+      - low
+      - falsepositive
+
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: /zap/wrk/zap-working-dir/
+      reportFile: zap-report.json
+    risks:
+      - high
+      - medium
+      - low
+      - info
+    confidences:
+      - high
+      - medium
+      - low
+      - falsepositive

@@ -141,3 +141,14 @@ ifeq (, $(ENVIRONMENT))
 	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
 endif
 	aws ecs update-service --force-new-deployment --service $(ENVIRONMENT)-web-service --cluster $(ENVIRONMENT)-web-cluster
+
+.PHONY: docker-staging-security-scan
+docker-staging-security-scan:
+	mkdir zap-working-dir
+	touch zap-working-dir/zap.log
+	chmod -R a+rw zap-working-dir
+	env DOCKER_APPLICATION_TAG=staging \
+		docker-compose \
+		-f docker-compose.yml \
+		-f docker-compose.security.yml \
+		run --rm zap
