@@ -11,7 +11,7 @@ env:
   ZAP_VERSION: 2.11.1
 
 jobs:
-  staging-dynamic-audit:
+  dynamic-audit:
     runs-on: ubuntu-latest
     env:
       DOCKER_APPLICATION_TAG: latest

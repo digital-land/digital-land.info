@@ -14,11 +14,6 @@ services:
     depends_on:
       - db
     env_file: ./.env.dev.docker
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://web:8000" ]
-      interval: 1s
-      timeout: 3s
-      retries: 60
 
   db:
     image: postgis/postgis:13-master
