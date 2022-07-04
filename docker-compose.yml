@@ -15,7 +15,7 @@ services:
       - db
     env_file: ./.env.dev.docker
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      test: [ "CMD", "curl", "-f", "http://web:8000" ]
       interval: 1s
       timeout: 3s
       retries: 60
