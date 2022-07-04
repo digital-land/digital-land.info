@@ -2,7 +2,7 @@ env:
   contexts:
     - name: digital-land-platform
       urls:
-        - http://web:3000/
+        - http://web:8000/
   parameters:
     failOnError: true
     failOnWarning: true
