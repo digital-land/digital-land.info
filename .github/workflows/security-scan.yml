@@ -14,7 +14,7 @@ jobs:
   staging-dynamic-audit:
     runs-on: ubuntu-latest
     env:
-      DOCKER_APPLICATION_TAG: staging
+      DOCKER_APPLICATION_TAG: latest
     steps:
       - uses: actions/checkout@v2
 

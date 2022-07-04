@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   web:
-    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG}
+    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG-staging}
     environment:
       ENVIRONMENT: production
       S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com

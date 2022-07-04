@@ -147,8 +147,7 @@ docker-staging-security-scan:
 	mkdir -p zap-working-dir
 	touch zap-working-dir/zap.log
 	chmod -R a+rw zap-working-dir
-	env DOCKER_APPLICATION_TAG=staging \
-		docker-compose \
+	docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.security.yml \
 		run --rm zap
