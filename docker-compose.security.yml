@@ -3,6 +3,14 @@ version: "3.8"
 services:
   web:
     image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG}
+    environment:
+      ENVIRONMENT: production
+      S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
+      S3_COLLECTION_BUCKET: https://digital-land-production-collection-dataset.s3.eu-west-2.amazonaws.com
+      DATABASE_URL: postgres://postgres:postgres@db/digital_land
+      PRE_START_PATH: /src/prestart.sh
+      PORT: 8000
+      WEB_CONCURRENCY: 1
 
   zap:
     image: owasp/zap2docker-stable:${ZAP_VERSION-2.11.1}
