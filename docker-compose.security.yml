@@ -19,4 +19,5 @@ services:
       - .:/zap/wrk
       - ./zap-working-dir/zap.log:/home/zap/.ZAP/zap.log
     depends_on:
-      - web
+      web:
+        condition: service_healthy
