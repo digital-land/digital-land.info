@@ -2,6 +2,15 @@ version: "3.8"
 
 services:
   web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
     image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG-staging}
     environment:
       ENVIRONMENT: production
@@ -10,6 +19,11 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db/digital_land
       PORT: 8000
       WEB_CONCURRENCY: 1
+    healthcheck:
+      test: curl -v -i -f http://localhost:8000
+      interval: 1s
+      timeout: 3s
+      retries: 60
 
   zap:
     image: owasp/zap2docker-stable:${ZAP_VERSION-2.11.1}
