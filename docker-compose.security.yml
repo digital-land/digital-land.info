@@ -21,3 +21,7 @@ services:
     depends_on:
       web:
         condition: service_healthy
+
+networks:
+  default:
+    name: digital-land

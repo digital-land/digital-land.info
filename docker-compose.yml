@@ -38,3 +38,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    name: digital-land
