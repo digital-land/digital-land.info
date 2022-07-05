@@ -25,6 +25,22 @@ services:
       timeout: 3s
       retries: 60
 
+  db:
+    image: postgis/postgis:13-master
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - ${DB_HOST_PORT-5432:}5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=digital_land
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   zap:
     image: owasp/zap2docker-stable:${ZAP_VERSION-2.11.1}
     command: bash -c "zap.sh -cmd -addonupdate; zap.sh -cmd -autorun /zap/wrk/zap.yaml"
@@ -34,6 +50,9 @@ services:
     depends_on:
       web:
         condition: service_healthy
+
+volumes:
+  postgres_data:
 
 networks:
   default:
