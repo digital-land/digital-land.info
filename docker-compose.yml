@@ -12,7 +12,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file: ./.env.dev.docker
     healthcheck:
       test: curl -v -i -f http://localhost:8000
