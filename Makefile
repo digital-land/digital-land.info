@@ -150,5 +150,5 @@ docker-staging-security-scan:
 	docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.security.yml \
-		run --rm -d zap
+		run --rm -d zap || true
 	docker-compose logs -f --tail="all"
