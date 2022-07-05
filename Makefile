@@ -147,7 +147,7 @@ docker-staging-security-scan:
 	mkdir -p zap-working-dir
 	touch zap-working-dir/zap.log
 	chmod -R a+rw zap-working-dir
-	( sleep 15 ; docker-compose logs -f ) &
+	( sleep 60 ; docker-compose logs -f --tail="all" ) &
 	docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.security.yml \
