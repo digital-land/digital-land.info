@@ -35,7 +35,9 @@ def get_datasets() -> List[DatasetModel]:
 def get_dataset_query(dataset) -> DatasetModel:
     with get_context_session() as session:
         dataset = session.query(DatasetOrm).get(dataset)
-        return DatasetModel.from_orm(dataset)
+        if dataset is not None:
+            return DatasetModel.from_orm(dataset)
+        return None
 
 
 def get_datasets_with_data_by_typology(typology) -> List[DatasetModel]:

@@ -14,7 +14,10 @@ class Settings(BaseSettings):
     WRITE_DATABASE_URL: PostgresDsn
     READ_DATABASE_URL: PostgresDsn
     SENTRY_DSN: Optional[str] = None
+    SENTRY_TRACE_SAMPLE_RATE: Optional[float] = 0.1
+    RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
+    DATASETTE_URL: str
 
 
 @lru_cache()

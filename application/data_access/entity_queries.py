@@ -128,30 +128,34 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
 
-    # TODO - might need to add some defensive checks for invalid geometry here
     point = get_point(params)
     if point is not None:
         query = query.filter(
-            func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326))
+            and_(
+                EntityOrm.geometry.is_not(None),
+                func.ST_IsValid(EntityOrm.geometry),
+                func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
+            )
         )
 
     spatial_function = get_spatial_function_for_relation(
         params.get("geometry_relation", GeometryRelation.within)
     )
 
-    # TODO - might need to add some defensive checks for invalid geometry here
     clauses = []
     for geometry in params.get("geometry", []):
         clauses.append(
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
                     spatial_function(
                         EntityOrm.geometry, func.ST_GeomFromText(geometry, 4326)
                     ),
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
+                    func.ST_IsValid(EntityOrm.point),
                     spatial_function(
                         EntityOrm.point, func.ST_GeomFromText(geometry, 4326)
                     ),

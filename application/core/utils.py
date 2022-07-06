@@ -88,7 +88,19 @@ class DigitalLandJSONResponse(Response):
         ).encode("utf-8")
 
 
-def make_links(scheme, netloc, path, query_params, data):
+def make_links(scheme, netloc, path, query, data):
+    """
+    Creates a set of links for use on the entity search page
+    including extracting additional information of the data itself
+    Arguments:
+        scheme: str
+        netloc: str
+        path: str
+        query: query string of incoming request
+        data: dict that contains all the required data for a search query see get_entity_search
+    """
+
+    from urllib.parse import urlunsplit
 
     count = data["count"]
     limit = data["params"].get("limit", 10)
@@ -108,45 +120,37 @@ def make_links(scheme, netloc, path, query_params, data):
         # no pagination links needed
         return {}
 
-    query_str = make_pagination_query_str(query_params, limit)
-    pagination_links = {"first": f"{scheme}://{netloc}{path}{query_str}"}
+    query_str = make_pagination_query_str(query, limit)
+    pagination_links = {"first": urlunsplit((scheme, netloc, path, query_str, ""))}
 
     if 0 < last_offset <= count:
-        query_str = make_pagination_query_str(query_params, limit, last_offset)
-        last_url = f"{scheme}://{netloc}{path}{query_str}"
-        pagination_links["last"] = last_url
+        query_str = make_pagination_query_str(query, limit, offset=last_offset)
+        pagination_links["last"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     if next_offset < count and next_offset <= last_offset:
-        query_str = make_pagination_query_str(query_params, limit, next_offset)
-        next_url = f"{scheme}://{netloc}{path}{query_str}"
-        pagination_links["next"] = next_url
+        query_str = make_pagination_query_str(query, limit, offset=next_offset)
+        pagination_links["next"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     if offset != 0 and prev_offset >= 0:
-        query_str = make_pagination_query_str(query_params, limit, prev_offset)
-        prev_url = f"{scheme}://{netloc}{path}{query_str}"
-        pagination_links["prev"] = prev_url
+        query_str = make_pagination_query_str(query, limit, offset=prev_offset)
+        pagination_links["prev"] = urlunsplit((scheme, netloc, path, query_str, ""))
 
     return pagination_links
 
 
-def make_pagination_query_str(query_params, limit, offset=0):
-    params = query_params.items()
-    url = "?" + "&".join(
-        [
-            "{}={}".format(param[0], param[1])
-            for param in params
-            if param[1] and param[0] != "offset"
-        ]
-    )
-    if "limit" not in [p[0] for p in params]:
-        if url == "?":
-            url = f"{url}limit={limit}"
-        else:
-            url = f"{url}&limit={limit}"
+def make_pagination_query_str(query, limit, offset=0):
+    from urllib.parse import parse_qs, urlencode
+
+    query_dict = parse_qs(query)
+
+    query_dict["limit"] = limit
+
     if offset != 0:
-        return f"{url}&offset={offset}"
+        query_dict["offset"] = offset
     else:
-        return url
+        query_dict.pop("offset", None)
+
+    return urlencode(query_dict, doseq=True)
 
 
 def to_snake(string: str) -> str:

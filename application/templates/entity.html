@@ -99,6 +99,11 @@
                       {%- endif %}
                       <!-- </span> -->
                     </td>
+                    {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
+                    <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
+                      <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
+                    </td>
+                    {% endif %}
                   </tr>
                 {%- endif %}
               {% endif %}

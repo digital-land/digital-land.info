@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 
 from application.data_access.entity_queries import get_entity_search
 from application.db.models import EntityOrm
-from application.search.enum import EntriesOption
+from application.search.enum import EntriesOption, GeometryRelation
+from tests.test_data.wkt_data import handrians_wall_search
 
 
 @pytest.fixture(scope="module")
@@ -84,3 +85,15 @@ def test_search_geometry_reference_excludes_invalid_data(invalid_test_data, para
     for e in result["entities"]:
         assert e.entity not in invalid
         assert e.entity in valid
+
+
+def test_search_by_dataset_and_lasso_excludes_invalid_geometry(
+    invalid_test_data, params
+):
+
+    params["dataset"] = ["world-heritage-site"]
+    params["geometry_relation"] = GeometryRelation.intersects.name
+    params["geometry"] = [handrians_wall_search]
+    result = get_entity_search(params)
+    assert 0 == result["count"]
+    assert 0 == len(result["entities"])

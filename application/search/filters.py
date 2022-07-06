@@ -220,3 +220,15 @@ class QueryFilters:
                     "curie must be in form 'prefix:reference'"
                 )
         return values
+
+
+# need separate classes for fact pages as dataset is not optional, this should be easy by expanding classes
+@dataclass
+class FactDatasetQueryFilters:
+    dataset: str
+
+
+@dataclass
+class FactQueryFilters(FactDatasetQueryFilters):
+    entity: int
+    field: Optional[List[str]] = Query(None)

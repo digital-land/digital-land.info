@@ -19,9 +19,9 @@ from application.search.filters import QueryFilters
 from application.core.templates import templates
 from application.core.utils import (
     DigitalLandJSONResponse,
-    make_links,
     to_snake,
     entity_attribute_sort_key,
+    make_links,
 )
 
 router = APIRouter()
@@ -135,12 +135,11 @@ def search_entities(
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
-
     scheme = request.url.scheme
     netloc = request.url.netloc
     path = request.url.path
-    links_query_params = request.query_params
-    links = make_links(scheme, netloc, path, links_query_params, data)
+    query = request.url.query
+    links = make_links(scheme, netloc, path, query, data)
 
     if extension is not None and extension.value == "json":
 
