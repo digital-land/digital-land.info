@@ -131,12 +131,21 @@ def entity_factory(entity_orm: EntityOrm):
 class FactModel(DigitalLandBaseModel):
     fact: str
     entity: int
+    reference_entity: Optional[int] = None
     field: str
     value: str
-    reference_entity: Optional[str] = None
-    entry_date: Optional[date] = None
+    entity_name: Optional[str] = None
+    entity_prefix: Optional[str] = None
+    entity_reference: Optional[str] = None
     earliest_entry_date: Optional[date] = None
-    resource_history: Optional[str] = None
-    entry_number: Optional[int] = None
-    resource_entry_date: Optional[date] = None
-    resource_start_date: Optional[date] = None
+    latest_entry_date: Optional[date] = None
+    latest_resource: Optional[str] = None
+    resources: Optional[str] = None
+
+
+class DatasetFieldModel(DigitalLandBaseModel):
+    field: str
+    # dataset: str
+    # entry_date: Optional[date] = None
+    # start_date: Optional[date] = None
+    # end_date: Optional[date] = None
