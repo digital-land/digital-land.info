@@ -127,7 +127,6 @@ def search_entities(
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
-
     scheme = request.url.scheme
     netloc = request.url.netloc
     path = request.url.path

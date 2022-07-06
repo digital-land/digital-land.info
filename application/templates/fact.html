@@ -1,0 +1,129 @@
+{% extends "layouts/layout.html" %}
+{% set templateName = "dl-info/entity.html" %}
+
+{%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
+{%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
+{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+{%- from "components/summary-card/macro.jinja" import appSummaryCard %}
+
+{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
+
+{%- block breadcrumbs -%}
+  {{- govukBreadcrumbs({
+    "items": [
+        {
+          "text": "Digital Land",
+          "href": "/"
+        },
+        {
+          "text": "Fact",
+          "href": "/fact"
+        },
+        {
+          "text": fact["fact"]
+        }
+      ]
+    }) -}}
+{%- endblock -%}
+
+{%- block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">Fact</h1>
+      <span class="govuk-caption-xl govuk-!-margin-bottom-9">{{ fact['fact'] }}</span>
+    </div>
+
+    <div class="govuk-grid-column-three-quarters">
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table_row">
+              <th scope="col" class="govuk-table__header">Field</th>
+              <th scope="col" class="govuk-table__header">Value</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for field in fact.keys() %}
+              {%- if field not in ["resources","entity","entity-prefix","entity-reference"]  %}
+                {% if field not in ['reference-entity'] or fact[field] %}
+                  <tr class="govuk-table__row">
+                    <th scope="row" class="app-table__header app-table__header--row">
+                      {% if field in ["entity-name"] %}
+                        {{ field|replace("-name", "")|capitalize }}
+                      {% else %}
+                        {{ field|replace("-", " ")|capitalize }}
+                      {% endif %}
+                    </th>
+                    <td class="govuk-table__cell app-table__cell">
+                      <!-- <span class="u-data-value"> -->
+                      {%- if field == 'value' and fact['field'] == "twitter" %}
+                        <a class ="govuk-link" href="https://twitter.com/{{ fact[field] }}">@{{ fact[field] }}</a>
+                      {%- elif field == 'value' and fact['field'] in ["organisation-entity"] %}
+                        <a class ="govuk-link" href="{{ '/entity/' + fact[field] }}">{{ fact[field]|get_entity_name }}</a>
+                      {%- elif field == 'value' and fact['field'] in ["website","opendatacommunities"] %}
+                        <a class ="govuk-link" href="{{ fact[field] }}">{{ fact[field] }}</a>
+                      {%- elif field == 'value' and fact['field'] in ["wikipedia"] %}
+                        <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + fact[field] }}">{{ fact[field] }}</a>
+                      {%- elif field == 'value' and fact['field'] in ["geometry","point"] %}
+                        <div class="app-code-block">{{ fact[field] }}</div>
+                      {%- elif field == 'entity-name' %}
+                        <a class ="govuk-link" href="/curie/{{ fact['entity-prefix'] + ':' + fact['entity-reference'] }}">{{ fact[field] }}</a>
+                      {%- elif field == 'reference-entity' %}
+                        <a class ="govuk-link" href="/entity/{{ fact[field] }}">{{ fact[field] }}</a>
+                      {%- else %}
+                        {% if fact[field] is not none %}
+                          {{ fact[field] }}
+                        {% endif %}
+                      {%- endif %}
+                      <!-- </span> -->
+                    </td>
+                  </tr>
+                {% endif %}
+              {%- endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endcall %}
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
+        <table class="govuk-table">
+          <caption class="govuk-table__caption govuk-table__caption--m">Resources</caption>
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">
+                Entry Date
+              </th>
+              <th scope="col" class="govuk-table__header">
+                Resource
+              </th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for resource in fact['resources'] %}
+              <tr class="govuk-table__row">
+                <th class="govuk-table__header app-table__header--row">
+                  {{resource['entry_date']}}
+                </th>
+                <td class="govuk-table__cell app-table__cell">
+                  <span class="app-u-breakword">
+                    {{resource['resource']}}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endcall %}
+    </div>
+  </div>
+{%- endblock content %}}
+
+{%- block pageScripts %}
+  <script>
+    const $subNavTabs = document.querySelector('[data-module="dl-subnav"]')
+    const subNavTabsComponent = new DLFrontend
+      .SubNavTabs($subNavTabs)
+      .init({})
+  </script>
+{%- endblock %}
