@@ -2,6 +2,7 @@
 {% set templateName = "dl-info/entity.html" %}
 
 {%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
+{%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
 {%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
 {%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
@@ -21,6 +22,12 @@
 {% if geometry_url or geojson_features %}
   {% set includesMap = true %}
 {% endif %}
+
+{% block pageAssets %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/stackoverflow-light.min.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+{% endblock %}
 
 {%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
 
@@ -50,7 +57,7 @@
     </div>
 
     <div class="govuk-grid-column-three-quarters">
-      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-2' }) %}
         <table class="govuk-table">
           <thead class="govuk-table__head">
             <tr class="govuk-table_row">
@@ -104,6 +111,43 @@
           </tbody>
         </table>
       {% endcall %}
+
+      {% set jsonHTML %}
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block-overflow">{{row|digital_land_to_json}}</code></pre>
+      {% endset %}
+      {% set geojsonHTML %}
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block-overflow">{{geojson|digital_land_to_json}}</code></pre>
+      {% endset %}
+
+      {% if geojson %}
+        {% set params = {
+          "title":"Hello",
+          "items":[
+            {
+              "label":"JSON","id":"json","panel":{
+                "html":jsonHTML
+              }
+            },
+            {
+              "label":"GeoJSON","id":"geojson","panel":{
+                "html":geojsonHTML
+              }
+            }
+          ]
+        } %}
+      {% else %}
+        {% set params = {
+          "title":"Hello",
+          "items":[
+            {
+              "label":"JSON","id":"json","panel":{
+                "html":jsonHTML
+              }
+            }
+          ]
+        } %}
+      {% endif %}
+      {{ govukTabs(params) }}
     </div>
 
     <div class="govuk-grid-column-full">
@@ -221,6 +265,10 @@
     const subNavTabsComponent = new DLFrontend
       .SubNavTabs($subNavTabs)
       .init({})
+  </script>
+
+  <script>
+    hljs.initHighlightingOnLoad();
   </script>
 
 {%- endblock %}

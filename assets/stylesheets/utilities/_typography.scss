@@ -55,6 +55,12 @@
   max-height: calc(1em * 12);
 }
 
+.app-code-block-overflow{
+  max-height:330px;
+  overflow-y: auto;
+  font-size: 1.1875rem;
+}
+
 .app-u-breakword {
   word-break: break-all;
   line-height: 1.1em;
