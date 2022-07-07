@@ -1,6 +1,9 @@
 import logging
 import requests
 
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
 from typing import List, Optional
 from application.core.models import FactModel, DatasetFieldModel
 from application.settings import get_settings
@@ -9,16 +12,45 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
-def get_dataset_fields(dataset):
+def get_datasette_http():
+    """
+    Function to return  http for the use of querying  datasette,
+    specifically to add retries for larger queries
+    """
+    retry_strategy = Retry(
+        total=3, status_forcelist=[400], method_whitelist=["GET"], backoff_factor=0
+    )
+
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+
+    return http
+
+
+def get_dataset_fields(dataset, entity=None):
     url = f"{settings.DATASETTE_URL}/{dataset}.json"
     sql = """
-         SELECT DISTINCT field
-         FROM fact;
+         SELECT DISTINCT f.field
+         FROM fact f
     """
+    if entity is not None:
+        sql = (
+            sql
+            + f"""
+            WHERE f.entity='{entity}';
+        """
+        )
+    else:
+        sql = sql + ";"
+
     params = {"sql": sql, "_shape": "array"}
 
     try:
-        resp = requests.get(url, params=params)
+        http = get_datasette_http()
+        resp = http.get(url, params=params)
         resp.raise_for_status()
         rows = resp.json()
         # datasette returns empty strings for nulls. is there
@@ -31,7 +63,7 @@ def get_dataset_fields(dataset):
         fields = [DatasetFieldModel(**field) for field in rows]
         return fields
     except Exception as e:
-        logger.exception(e)
+        logger.warning(e)
         return None
 
 
@@ -59,7 +91,8 @@ def get_fact_query(fact: str, dataset: str) -> Optional[FactModel]:
     params = {"sql": sql, "_shape": "array"}
 
     try:
-        resp = requests.get(url, params=params)
+        http = get_datasette_http()
+        resp = http.get(url, params=params)
         resp.raise_for_status()
         rows = resp.json()
         # datasette returns empty strings for nulls. is there
@@ -72,7 +105,7 @@ def get_fact_query(fact: str, dataset: str) -> Optional[FactModel]:
         facts = [FactModel(**fact) for fact in rows]
         return facts
     except Exception as e:
-        logger.exception(e)
+        logger.warning(e)
         return None
 
 
@@ -116,7 +149,8 @@ def get_search_facts_query(query_params: List) -> Optional[FactModel]:
     params = {"sql": sql, "_shape": "array"}
 
     try:
-        resp = requests.get(url, params=params)
+        http = get_datasette_http()
+        resp = http.get(url, params=params)
         resp.raise_for_status()
         rows = resp.json()
         # datasette returns empty strings for nulls. is there
@@ -129,5 +163,5 @@ def get_search_facts_query(query_params: List) -> Optional[FactModel]:
         facts = [FactModel(**fact) for fact in rows]
         return facts
     except Exception as e:
-        logger.exception(e)
+        logger.warning(e)
         return []
