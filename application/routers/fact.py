@@ -93,7 +93,9 @@ def search_facts(
 
         facts_dicts = [fact.dict(by_alias=True) for fact in facts]
 
-        dataset_fields = get_dataset_fields(dataset=query_params["dataset"])
+        dataset_fields = get_dataset_fields(
+            dataset=query_params["dataset"], entity=query_params["entity"]
+        )
         dataset_fields_dict = [
             dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
         ]
