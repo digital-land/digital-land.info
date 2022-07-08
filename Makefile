@@ -106,35 +106,7 @@ load-db: login
 	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-dataset
 	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-entity
 
-cf-check:
-# install dependencies
-ifndef CF_CLI
-ifeq ($(UNAME),Darwin)
-	$(error CloudFoundry CLI not found in PATH)
-endif
-	curl https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-	echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-	sudo apt update
-	sudo apt install -y cf8-cli
-endif
-
-
-cf-login: cf-check
-	cf api https://api.london.cloud.service.gov.uk
-	cf auth
-
-cf-deploy: cf-login
-ifeq (, $(ENVIRONMENT))
-	$(error "No environment specified via $$ENVIRONMENT, please pass as make argument")
-endif
-	cf target -o dluhc-digital-land -s $(ENVIRONMENT)
-	cf push $(ENVIRONMENT)-$(CF_BASE_APP_NAME) --docker-image $(EXPLICIT_IMG)
-
 deploy: aws-deploy
-
-ifeq (staging, $(ENVIRONMENT))
-deploy: aws-deploy cf-deploy
-endif
 
 aws-deploy:
 ifeq (, $(ENVIRONMENT))
