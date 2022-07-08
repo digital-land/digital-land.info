@@ -1,6 +1,6 @@
 # Accessibility statement
 
-This accessibility statement applies to the Digital Land website: [https://digital-land.info]().
+This accessibility statement applies to the Digital Land website: <https://digital-land.info>.
 
 This website is run by the Digital Land team in the Department for Levelling Up, Housing and Communities
 
@@ -12,16 +12,59 @@ We are always working to improve our website and want as many people as possible
 - navigate most of the website using speech recognition software
 - listen to most of the website using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
 
-We've also made the website text as simple as possible to understand. [ AbilityNet kdjkdjd](https://mcmw.abilitynet.org.uk/) has advice on making your device easier to use if you have a disability.
+We've also made the website text as simple as possible to understand. [ AbilityNet](https://mcmw.abilitynet.org.uk/) has advice on making your device easier to use if you have a disability.
 
 ## How accessible this website is
 
-We know some parts of this website are not fully accessible:
+We have performed an internal accessibility audit following the Web Content Accessibility Guidelines Evaluation Method (WCAG-EM)
 
-- the maps on our [National map of planning data](/map/) and 
-  [entity pages](/entity/56826) are difficult to navigate using just a keyboard and colours of data layers might be difficult to differentiate for some users
-- there's a limit to how far you can magnify the maps on these pages
-- some images published by past suppliers or external teams that we worked with do not have a text alternative
+On 50 of 50 WCAG 2.1 AA Success Criteria, at the time of writing this website:
+
+- 29 Passed
+- 6 Failed
+- 1 Cannot tell
+- 14 Not present
+- 0 Not checked
+
+### Where we failed web content accessibility guidelines
+
+#### 1.1.1: Non-text Content
+
+Aspects of the National Map show do not have a text alternative such as street labels and locations.
+
+#### 1.3.2: Meaningful Sequence
+
+Some pages need heading levels and reading order adjusted to make comprehension and way finding easier
+
+#### 1.3.3: Sensory Characteristics
+
+National Map of planning data currently relies on the ability to see shapes, colours and visual locations. A 'non map alternative' is required for users unable able perceive content visually.
+
+#### 1.4.1: Use of Color
+
+The National Map of Planning Data currently relies on colour to distinguish geographic shapes from one dataset to another.
+
+#### 1.4.3: Contrast (Minimum)
+
+The National Map of Planning Data fails colour contrast for map features and data layers. Text labels for locations can become difficult to read and are not a contrast ratio of at least 4.5:1.
+
+#### 1.4.11: Non-text Contrast
+
+The National Map of Planning has shapes and areas of colour that when overlayed do not have sufficient contrast.
+
+#### 2.1.1: Keyboard
+
+Features of the National Map of Planning Data are not able to be access via a keyboard.
+
+#### 3.2.2: On Input
+
+Search functionality on the [dataset index](/dataset/) and [organisation index](/organisation/) performs an update to page content by filtering a list of links. It is a change of content that could be a 'change of context' because the viewport changes height and potentially scroll position as the number list items increases or decreases.
+
+#### 3.3.1: Error Identification
+
+In the 'search' page. There is functionality to search for a dataset to facet search results by. However there is no visual feedback if the user types a search with no results, the content is visually hidden.
+
+### What we plan to do next
 
 We will outsource an accessibility audit on this website in the near future and fix as many of the issues that are found as possible.
 
@@ -51,24 +94,8 @@ The Digital Land team is committed to making its website accessible, in accordan
 
 This website is partially compliant with the [Web Content Accessibility Guidelines version 2.1](https://www.w3.org/TR/WCAG21/) AA standard, due to the non-compliances listed below.
 
-## Non-accessible content
-
-The content listed below is non-accessible for the following reasons.
-
-### Non-text content
-
-Some images that were published by past suppliers or external teams that we worked with, do not have a text alternative, so people using a screen reader cannot access the information. This fails WCAG 2.1 success criterion 1.1.1 (non-text content).
-
-When working with suppliers in the future, or allowing other teams to publish on this website, we will make it a requirement that any images meet accessibility standards.
-
-### Maps
-
-Our maps are also not screen-reader accessible. To mitigate this we have included a descriptive heading, descriptive text, and a title attribute on the map elements. Also, the maps on the organisations pages display information which is available as text on the page.
-
 ## Preparation of this accessibility statement
 
-This statement was prepared on 16 September 2020. It was last reviewed on 16 September 2020.
+This statement was prepared on 08 September 2020. It was last reviewed on 08 July 2022.
 
-This website was last tested on 11 September 2020. The test was carried out by the Digital Land team.
-
-We checked most pages on our site for compliance against the Web Content Accessibility Guidelines (WCAG v2.0 and 2.1). We plan to get a third-party supplier to run a full accessibility audit of our website soon.
+This website was last tested on 08 July 2022. The test was carried out by the Digital Land team.
