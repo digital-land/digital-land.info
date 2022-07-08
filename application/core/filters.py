@@ -34,17 +34,21 @@ def make_param_str_filter(exclude_value, exclude_param, all):
     )
 
 
-def render_markdown(text, govAttributes=False):
-    soup = BeautifulSoup(markdown(text, output_format="html"), "html.parser")
+def render_markdown(text, govAttributes=False, makeSafe=True):
+    soup = BeautifulSoup(markdown(text), "html.parser")
     if govAttributes:
         _add_html_attrs(soup)
-    return Markup(soup.prettify())
+    if makeSafe:
+        return Markup(soup)
+    else:
+        return soup
 
 
 def _add_html_attrs(soup):
     for tag in soup.select("p"):
         tag["class"] = "govuk-body"
     for tag in soup.select("h1, h2, h3, h4, h5"):
+        # sets the id to a 'slugified' version of the text content
         tag["id"] = slugify(tag.getText())
     for tag in soup.select("h1"):
         tag["class"] = "govuk-heading-xl"
