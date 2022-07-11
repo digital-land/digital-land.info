@@ -115,6 +115,4 @@ jobs:
       env:
         IMAGE_TAG: staging
         ENVIRONMENT: staging
-        CF_USERNAME: ${{ secrets.GOV_PAAS_SERVICE_ACCOUNT_USERNAME }}
-        CF_PASSWORD: ${{ secrets.GOV_PAAS_SERVICE_ACCOUNT_PASSWORD }}
       run: make EXPLICIT_TAG=$IMAGE_TAG ENVIRONMENT=$ENVIRONMENT deploy
