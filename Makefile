@@ -5,9 +5,6 @@ EXPLICIT_TAG := latest
 endif
 COMMIT_TAG   := $$(git log -1 --pretty=%h)
 
-CF_BASE_APP_NAME := digital-land-platform
-CF_CLI := $(shell command -v cf 2> /dev/null)
-
 REPO         := public.ecr.aws/l6z6v3j6
 NAME         := $(REPO)/$(CF_BASE_APP_NAME)
 COMMIT_IMG   := $(NAME):$(COMMIT_TAG)
