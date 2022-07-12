@@ -1,33 +1,12 @@
 import logging
-import requests
-
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 from typing import List, Optional
 from application.core.models import FactModel, DatasetFieldModel
+from application.data_access.datasette_query_helpers import get_datasette_http
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
-
-
-def get_datasette_http():
-    """
-    Function to return  http for the use of querying  datasette,
-    specifically to add retries for larger queries
-    """
-    retry_strategy = Retry(
-        total=3, status_forcelist=[400], method_whitelist=["GET"], backoff_factor=0
-    )
-
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-
-    http = requests.Session()
-    http.mount("https://", adapter)
-    http.mount("http://", adapter)
-
-    return http
 
 
 def get_dataset_fields(dataset, entity=None):

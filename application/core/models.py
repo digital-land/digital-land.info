@@ -149,3 +149,10 @@ class DatasetFieldModel(DigitalLandBaseModel):
     # entry_date: Optional[date] = None
     # start_date: Optional[date] = None
     # end_date: Optional[date] = None
+
+
+class FieldModel(DigitalLandBaseModel):
+    field: str
+    datatype: str
+    name: str
+    typology: str

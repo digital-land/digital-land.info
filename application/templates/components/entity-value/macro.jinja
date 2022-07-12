@@ -1,0 +1,65 @@
+{% macro entityValue(field,value,field_spec,dataset_fields) %}
+    {% if field_spec and field_spec[field] %}
+        {% if field_spec[field]['typology'] == 'value' %}
+            {% if field_spec[field]['datatype'] == 'url' %}
+                <span class="app-u-breakword">
+                    <a class="govuk-link" href="{{ value }}">{{value}}</a>
+                </span>
+            {% elif field_spec[field]['datatype'] == 'wkt' %}
+                <div class="app-code-block">{{ value }}</div>
+            {% elif field in ["organisation-entity"] %}
+                <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ value|get_entity_name }}</a>
+            {% elif field in ["twitter"] %}
+                <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
+            {% elif field in ["twitter"] %}
+                <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + value }}">{{ value }}</a>
+            {% else %}
+                {% if value is not none %}
+                    {{ value }}
+                {% endif %}
+            {% endif %}
+        {% elif field_spec[field]['typology'] == 'specification' %}
+            {%- if field in ["dataset"] %}
+                <a class="govuk-link" href="{{ '/' + field + '/' + value }}">{{ value|replace("-", " ")|capitalize }}</a>
+            {% else %}
+                {% if value is not none %}
+                    {{ value }}
+                {% endif %}
+            {% endif %}
+        {% elif field_spec[field]['typology'] == 'category' %}
+            {% if dataset_fields and field in dataset_fields %}
+                <a class="govuk-link" href="/curie/{{field}}:{{value}}">
+                    {{value}}
+                </a>
+            {% else %}
+                {% if value is not none %}
+                    {{ value }}
+                {% endif %}
+            {% endif %}
+        {% else %}
+            {% if value is not none %}
+                    {{ value }}
+                {% endif %}
+        {% endif %}
+
+    {% else %}
+    {# some catch-alls to use if field spec  isn't provided #}
+        {%- if field in ["dataset"] %}
+            <a class="govuk-link" href="{{ '/' + field + '/' + value }}">{{ value|replace("-", " ")|capitalize }}</a>
+        {%- elif field == "twitter" %}
+            <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
+        {%- elif field in ["organisation-entity"] %}
+            <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ value|get_entity_name }}</a>
+        {%- elif field in ["website","opendatacommunities"] %}
+            <a class ="govuk-link" href="{{ value }}">{{ value }}</a>
+        {%- elif field in ["wikipedia"] %}
+            <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + value }}">{{ value }}</a>
+        {%- elif field in ["geometry","point"] %}
+            <div class="app-code-block">{{ value }}</div>
+        {%- else %}
+            {% if value is not none %}
+                {{ value }}
+            {% endif %}
+        {%- endif %}
+    {% endif %}
+{% endmacro %}

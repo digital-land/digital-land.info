@@ -21,14 +21,18 @@ from application.db.session import get_context_session
 logger = logging.getLogger(__name__)
 
 
-def get_datasets() -> List[DatasetModel]:
+def get_datasets(datasets=None) -> List[DatasetModel]:
     with get_context_session() as session:
-        datasets = (
+        query = (
             session.query(DatasetOrm)
             .filter(DatasetOrm.typology != "specification")
             .order_by(DatasetOrm.dataset)
-            .all()
         )
+
+        if datasets:
+            query = query.filter(DatasetOrm.dataset.in_(datasets))
+
+        datasets = query.all()
         return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
