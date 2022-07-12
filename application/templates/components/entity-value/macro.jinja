@@ -11,7 +11,7 @@
                 <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ value|get_entity_name }}</a>
             {% elif field in ["twitter"] %}
                 <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
-            {% elif field in ["twitter"] %}
+            {% elif field in ["wikipedia"] %}
                 <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + value }}">{{ value }}</a>
             {% else %}
                 {% if value is not none %}
