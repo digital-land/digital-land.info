@@ -17,3 +17,4 @@ fastapi-utils
 Shapely
 sentry-sdk
 jsonpickle
+uritemplate

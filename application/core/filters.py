@@ -8,6 +8,8 @@ from markupsafe import Markup
 import json
 import jsonpickle
 
+from uritemplate import URITemplate
+
 
 def generate_query_param_str(v, filter_name, current_str):
     query_str = str(current_str)
@@ -67,3 +69,8 @@ def get_entity_name_filter(eval_ctx, id):
 
 def digital_land_to_json(dict):
     return json.dumps(dict, default=str, indent=4, cls=NoneToEmptyStringEncoder)
+
+
+def uri_encode(uri_template, kwarg_list):
+    uri = URITemplate(uri_template)
+    return uri.expand(**kwarg_list)

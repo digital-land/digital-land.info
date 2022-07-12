@@ -17,7 +17,8 @@ def get_field_specifications(fields):
             f.field,
             f.datatype,
             f.name,
-            f.typology
+            f.typology,
+            f.uri_template
          FROM field f
          WHERE field in ('{"','".join(fields)}');
     """

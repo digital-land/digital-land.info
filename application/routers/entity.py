@@ -119,7 +119,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
         ]
         dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
-        logging.error(dataset_fields)
+        logging.error(fields)
 
         return templates.TemplateResponse(
             "entity.html",

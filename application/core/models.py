@@ -156,3 +156,4 @@ class FieldModel(DigitalLandBaseModel):
     datatype: str
     name: str
     typology: str
+    uri_template: Optional[str] = None
