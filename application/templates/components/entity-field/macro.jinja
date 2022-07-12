@@ -1,0 +1,22 @@
+{% macro entityField(field,field_spec,dataset_fields) %}
+    {% if field_spec and field_spec[field] %}
+        {% if field_spec[field]['typology'] == 'category' %}
+            {% if dataset_fields and field in dataset_fields %}
+                <a class="govuk-link" href="/dataset/{{field}}">
+                    {{ field_spec[field]['name'] }}
+                </a>
+            {% else %}
+                {{ field_spec[field]['name'] }}
+            {% endif %}
+        {% else%}
+            {{ field_spec[field]['name'] }}
+        {% endif %}
+    {% else %}
+    {# some catch-alls to use if field spec  isn't provided #}
+        {%- if field == "organisation-entity" %}
+            {{ field|replace("-entity", "")|capitalize }}
+        {%- else %}
+            {{ field|replace("-", " ")|replace("url","URL")|capitalize }}
+        {%- endif %}
+    {% endif %}
+{% endmacro %}

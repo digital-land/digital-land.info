@@ -8,6 +8,8 @@
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
+{%- from "components/entity-value/macro.jinja" import entityValue %}
+{%- from "components/entity-field/macro.jinja" import entityField %}
 
 {% if row['name'] %}
   {%- set row_name = row['name'] %}
@@ -72,37 +74,17 @@
                 {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
                   <tr class="govuk-table__row">
                     <th scope="row" class="app-table__header app-table__header--row">
-                      {%- if field == "organisation-entity" %}
-                        {{ field|replace("-entity", "")|capitalize }}
-                      {%- else %}
-                        {{ field|replace("-", " ")|capitalize }}
-                      {%- endif %}
+                      {{ entityField(field,fields,dataset_fields) }}
                     </th>
                     <td class="govuk-table__cell app-table__cell">
                       <!-- <span class="u-data-value"> -->
-                      {%- if field in ["dataset"] %}
-                        <a class="govuk-link" href="{{ '/' + field + '/' + row[field] }}">{{ row[field]|replace("-", " ")|capitalize }}</a>
-                      {%- elif field == "twitter" %}
-                        <a class ="govuk-link" href="https://twitter.com/{{ row[field] }}">@{{ row[field] }}</a>
-                      {%- elif field in ["organisation-entity"] %}
-                        <a class ="govuk-link" href="{{ '/entity/' + row[field] }}">{{ row[field]|get_entity_name }}</a>
-                      {%- elif field in ["website","opendatacommunities"] %}
-                        <a class ="govuk-link" href="{{ row[field] }}">{{ row[field] }}</a>
-                      {%- elif field in ["wikipedia"] %}
-                        <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + row[field] }}">{{ row[field] }}</a>
-                      {%- elif field in ["geometry","point"] %}
-                        <div class="app-code-block">{{ row[field] }}</div>
-                      {%- else %}
-                        {% if row[field] is not none %}
-                          {{ row[field] }}
-                        {% endif %}
-                      {%- endif %}
+                      {{ entityValue(field,row[field],fields,dataset_fields)}}
                       <!-- </span> -->
                     </td>
                     {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
-                    <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
-                      <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
-                    </td>
+                      <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
+                        <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
+                      </td>
                     {% endif %}
                   </tr>
                 {%- endif %}

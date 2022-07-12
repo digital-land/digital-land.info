@@ -17,5 +17,6 @@ fastapi-utils
 Shapely
 sentry-sdk
 jsonpickle
+uritemplate
 beautifulsoup4
 slugify
