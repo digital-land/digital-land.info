@@ -7,6 +7,8 @@ from markdown import markdown
 from markupsafe import Markup
 import json
 import jsonpickle
+from bs4 import BeautifulSoup
+from slugify import slugify
 
 from uritemplate import URITemplate
 
@@ -35,11 +37,40 @@ def make_param_str_filter(exclude_value, exclude_param, all):
     )
 
 
-def render_markdown(text):
+def render_markdown(text, govAttributes=False, makeSafe=True):
+    soup = BeautifulSoup(markdown(text), "html.parser")
+    if govAttributes:
+        _add_html_attrs(soup)
+    if makeSafe:
+        return Markup(soup)
+    else:
+        return soup
 
-    # register extensions here if needed
-    html = markdown(text, output_format="html")
-    return Markup(html)
+
+def _add_html_attrs(soup):
+    for tag in soup.select("p"):
+        tag["class"] = "govuk-body"
+    for tag in soup.select("h1, h2, h3, h4, h5"):
+        # sets the id to a 'slugified' version of the text content
+        tag["id"] = slugify(tag.getText())
+    for tag in soup.select("h1"):
+        tag["class"] = "govuk-heading-xl"
+    for tag in soup.select("h2"):
+        tag["class"] = "govuk-heading-l"
+    for tag in soup.select("h3"):
+        tag["class"] = "govuk-heading-m"
+    for tag in soup.select("h4"):
+        tag["class"] = "govuk-heading-s"
+    for tag in soup.select("ul"):
+        tag["class"] = "govuk-list govuk-list--bullet"
+    for tag in soup.select("a"):
+        tag["class"] = "govuk-link"
+    for tag in soup.select("ol"):
+        tag["class"] = "govuk-list govuk-list--number"
+    for tag in soup.select("hr"):
+        tag["class"] = "govuk-section-break govuk-section-break--l"
+    for tag in soup.select("code"):
+        tag["class"] = "app-code"
 
 
 def debug(thing):
