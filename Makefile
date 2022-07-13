@@ -5,10 +5,11 @@ EXPLICIT_TAG := latest
 endif
 COMMIT_TAG   := $$(git log -1 --pretty=%h)
 
-REPO         := public.ecr.aws/l6z6v3j6
-NAME         := $(REPO)/$(CF_BASE_APP_NAME)
-COMMIT_IMG   := $(NAME):$(COMMIT_TAG)
-EXPLICIT_IMG := $(NAME):$(EXPLICIT_TAG)
+DL_APP_REMOTE_NAME  := digital-land-platform
+REPO                := public.ecr.aws/l6z6v3j6
+NAME                := $(REPO)/$(DL_APP_REMOTE_NAME)
+COMMIT_IMG          := $(NAME):$(COMMIT_TAG)
+EXPLICIT_IMG        := $(NAME):$(EXPLICIT_TAG)
 
 
 all::	lint
