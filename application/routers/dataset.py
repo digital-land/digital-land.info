@@ -11,7 +11,7 @@ from application.data_access.digital_land_queries import (
     get_latest_resource,
     get_publisher_coverage,
 )
-from application.data_access.entity_queries import get_entity_count
+from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.search.enum import SuffixDataset, SuffixLinkableFiles
@@ -75,6 +75,17 @@ def get_dataset(
         latest_resource = get_latest_resource(dataset)
         publisher_coverage = get_publisher_coverage(dataset)
 
+        # for categoric datasets provide list of categories
+        if _dataset.typology == "category":
+            entity_query_params = {"dataset": [dataset]}
+            categories = get_entity_search(entity_query_params)["entities"]
+            categories = [
+                category.dict(by_alias=True, exclude={"geojson"})
+                for category in categories
+            ]
+        else:
+            categories = None
+
         return templates.TemplateResponse(
             "dataset.html",
             {
@@ -91,8 +102,10 @@ def get_dataset(
                 "last_collection_attempt": latest_resource.last_collection_attempt
                 if latest_resource
                 else None,
+                "categories": categories,
             },
         )
+
     except KeyError as e:
         logger.exception(e)
         return templates.TemplateResponse(
