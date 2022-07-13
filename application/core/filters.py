@@ -83,7 +83,11 @@ def entity_name_filter(eval_ctx, id):
     entity, _, _ = get_entity_query(id)
     if entity:
         anchor = f'<a class="govuk-link" href="/entity/{id}">{id}</a>'
-        name = f'<span class="govuk-!-margin-left-1 dl-data-reference">({entity.name})</span>'
+        if entity.name:
+            name = f'<span class="govuk-!-margin-left-1 dl-data-reference">({entity.name})</span>'
+        else:
+            name = f'<span class="govuk-!-margin-left-1 dl-data-reference">({entity.reference})</span>'
+
         if eval_ctx.autoescape:
             return Markup(anchor + name)
     return id
@@ -94,7 +98,10 @@ def get_entity_name_filter(eval_ctx, id):
     entity, _, _ = get_entity_query(id)
     if entity:
         if eval_ctx.autoescape:
-            return entity.name
+            if entity.name:
+                return entity.name
+            else:
+                return entity.reference
     return id
 
 
