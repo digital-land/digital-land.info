@@ -112,8 +112,8 @@ ifeq (, $(ENVIRONMENT))
 endif
 	aws ecs update-service --force-new-deployment --service $(ENVIRONMENT)-web-service --cluster $(ENVIRONMENT)-web-cluster
 
-.PHONY: docker-staging-security-scan
-docker-staging-security-scan:
+.PHONY: docker-security-scan
+docker-security-scan:
 	mkdir -p zap-working-dir
 	touch zap-working-dir/zap.log
 	chmod -R a+rw zap-working-dir
