@@ -21,7 +21,7 @@ from http import HTTPStatus
 from application.core.templates import templates
 from application.db.models import EntityOrm
 from application.exceptions import DigitalLandValidationError
-from application.routers import entity, dataset, map_, curie, organisation
+from application.routers import entity, dataset, map_, curie, organisation, fact
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -101,6 +101,42 @@ def add_base_routes(app):
         except Exception as e:
             logger.exception(e)
             raise e
+
+    @app.get(
+        "/invalid-geometries", response_class=JSONResponse, include_in_schema=False
+    )
+    def invalid_geometries():
+
+        from application.db.session import get_context_session
+        from application.core.models import entity_factory
+        from sqlalchemy import func
+        from sqlalchemy import and_
+        from sqlalchemy import not_
+
+        try:
+            with get_context_session() as session:
+                query_args = [
+                    EntityOrm,
+                    func.ST_IsValidReason(EntityOrm.geometry).label("invalid_reason"),
+                ]
+                query = session.query(*query_args)
+                query = query.filter(
+                    and_(
+                        EntityOrm.geometry.is_not(None),
+                        not_(func.ST_IsValid(EntityOrm.geometry)),
+                    )
+                )
+                entities = query.all()
+                return [
+                    {
+                        "entity": entity_factory(e.EntityOrm),
+                        "invalid_reason": e.invalid_reason,
+                    }
+                    for e in entities
+                ]
+        except Exception as e:
+            logger.exception(e)
+            return {"message": "There was an error checking for invalid geometries"}
 
     @app.get("/cookies", response_class=HTMLResponse, include_in_schema=False)
     def cookies(request: Request):
@@ -192,6 +228,7 @@ def add_routers(app):
     app.include_router(curie.router, prefix="/curie")
     app.include_router(curie.router, prefix="/prefix")
     app.include_router(organisation.router, prefix="/organisation")
+    app.include_router(fact.router, prefix="/fact")
 
     # not added to /docs
     app.include_router(map_.router, prefix="/map", include_in_schema=False)

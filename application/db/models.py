@@ -28,19 +28,17 @@ class EntityOrm(Base):
 
 
 # Note geoalchemy2 automatically indexes Geometry columns
-idx_entity_columns = Index(
-    "idx_entity_columns",
-    EntityOrm.entity,
-    EntityOrm.name,
-    EntityOrm.entry_date,
-    EntityOrm.start_date,
-    EntityOrm.end_date,
-    EntityOrm.dataset,
-    EntityOrm.organisation_entity,
-    EntityOrm.prefix,
-    EntityOrm.reference,
-    EntityOrm.typology,
+idx_entity_name = Index("idx_entity_name", EntityOrm.name)
+idx_entity_entry_date = Index("idx_entity_entry_date", EntityOrm.entry_date)
+idx_entity_start_date = Index("idx_entity_start_date", EntityOrm.start_date)
+idx_entity_end_date = Index("idx_entity_end_date", EntityOrm.end_date)
+idx_entity_dataset = Index("idx_entity_dataset", EntityOrm.dataset)
+idx_entity_organisation_entity = Index(
+    "idx_entity_organisation_entity", EntityOrm.organisation_entity
 )
+idx_entity_prefix = Index("idx_entity_prefix", EntityOrm.prefix)
+idx_entity_reference = Index("idx_entity_reference", EntityOrm.reference)
+idx_entity_typology = Index("idx_entity_typology", EntityOrm.typology)
 
 
 class OldEntityOrm(Base):
@@ -162,20 +160,3 @@ class LookupOrm(Base):
     value = Column(Text, nullable=True)
     entry_date = Column(Date, nullable=True)
     start_date = Column(Date, nullable=True)
-
-
-class FactOrm(Base):
-
-    __tablename__ = "fact"
-
-    fact = Column(Text, primary_key=True)
-    entity = Column(BIGINT, nullable=False)
-    field = Column(Text, nullable=True)
-    value = Column(Text, nullable=True)
-    reference_entity = Column(BIGINT, nullable=True)
-    entry_date = Column(Date, nullable=True)
-    start_date = Column(Date, nullable=True)
-    end_date = Column(Date, nullable=True)
-
-
-Index("idx_fact_entity", FactOrm.entity)

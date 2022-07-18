@@ -7,6 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from application.core.models import GeoJSON, EntityModel
+from application.data_access.datasette_digital_land_queries import (
+    get_field_specifications,
+)
 from application.data_access.digital_land_queries import (
     get_datasets,
     get_local_authorities,
@@ -78,13 +81,15 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
         if extension is not None and extension.value == "json":
             return e.dict(by_alias=True, exclude={"geojson"})
 
+        if e.geojson is not None:
+            geojson = e.geojson
+            properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
+            geojson.properties = properties
+        else:
+            geojson = None
+
         if extension is not None and extension.value == "geojson":
-            if e.geojson is not None:
-                geojson = e.geojson
-                properties = e.dict(
-                    exclude={"geojson", "geometry", "point"}, by_alias=True
-                )
-                geojson.properties = properties
+            if geojson is not None:
                 return geojson
             else:
                 raise HTTPException(
@@ -96,6 +101,24 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
             key: e_dict[key]
             for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
         }
+
+        if geojson is not None:
+            geojson_dict = dict(geojson)
+        else:
+            geojson_dict = None
+
+        # get field specifications and convert to dictionary to easily access
+        fields = get_field_specifications(e_dict_sorted.keys())
+        if fields:
+            fields = [field.dict(by_alias=True) for field in fields]
+            fields = {field["field"]: field for field in fields}
+
+        # get dictionary of fields which have linked datasets
+        dataset_fields = get_datasets(datasets=fields.keys())
+        dataset_fields = [
+            dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
+        ]
+        dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
         return templates.TemplateResponse(
             "entity.html",
@@ -110,6 +133,9 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                 "typology": e.typology,
                 "entity_prefix": "",
                 "geojson_features": e.geojson if e.geojson is not None else None,
+                "geojson": geojson_dict,
+                "fields": fields,
+                "dataset_fields": dataset_fields,
             },
         )
     else:
@@ -127,7 +153,6 @@ def search_entities(
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
-
     scheme = request.url.scheme
     netloc = request.url.netloc
     path = request.url.path
@@ -168,7 +193,6 @@ def search_entities(
         next_url = links["next"]
     else:
         next_url = None
-
     # default is HTML
     return templates.TemplateResponse(
         "search.html",

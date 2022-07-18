@@ -54,3 +54,38 @@
   word-wrap: break-word;
   max-height: calc(1em * 12);
 }
+
+.app-code-block-overflow{
+  max-height:330px;
+  overflow-y: auto;
+  font-size: 1.1875rem;
+}
+
+.app-u-breakword {
+  word-break: break-all;
+  line-height: 1.1em;
+  position: relative;
+  max-height: calc(1.1em);
+  overflow: hidden;
+  padding-right: 0.65em;
+  display: block;
+}
+
+.app-u-breakword:hover {
+  max-height: calc(1.1em * 5);
+}
+
+.app-u-breakword::before {
+  position: absolute;
+  content: "...";
+  inset-block-end: 0;
+  inset-inline-end: 0; }
+
+.app-u-breakword::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 0;
+  /* "right" */
+  width: 1em;
+  height: 1em;
+  background: white; }

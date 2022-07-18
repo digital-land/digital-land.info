@@ -126,3 +126,34 @@ def entity_factory(entity_orm: EntityOrm):
         for key, val in entity_orm.json.items():
             setattr(e, key, val)
     return e
+
+
+class FactModel(DigitalLandBaseModel):
+    fact: str
+    entity: int
+    reference_entity: Optional[int] = None
+    field: str
+    value: str
+    entity_name: Optional[str] = None
+    entity_prefix: Optional[str] = None
+    entity_reference: Optional[str] = None
+    earliest_entry_date: Optional[date] = None
+    latest_entry_date: Optional[date] = None
+    latest_resource: Optional[str] = None
+    resources: Optional[str] = None
+
+
+class DatasetFieldModel(DigitalLandBaseModel):
+    field: str
+    # dataset: str
+    # entry_date: Optional[date] = None
+    # start_date: Optional[date] = None
+    # end_date: Optional[date] = None
+
+
+class FieldModel(DigitalLandBaseModel):
+    field: str
+    datatype: str
+    name: str
+    typology: str
+    uri_template: Optional[str] = None

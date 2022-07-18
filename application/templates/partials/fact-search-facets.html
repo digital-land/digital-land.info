@@ -1,0 +1,40 @@
+{% from 'digital-land-frontend/components/filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
+<form action="{{ fact_search_form_url }}" method="get">
+
+  <h3 class="govuk-heading-m">Filters</h3>
+
+  <!-- dataset facet -->
+  <div class="govuk-form-group">
+    {% set checkboxesHTML %}
+      {% for field in dataset_fields %}
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="field-{{loop.index}}" name="field" type="checkbox" value="{{ field }}" {% if query_params.get('field') and field in query_params.get('field') %}checked="checked"{% endif %}>
+          <label class="govuk-label govuk-checkboxes__label" for="field-{{loop.index}}">
+            {{ field }}
+          </label>
+        </div>
+      {% endfor %}
+      <input type="hidden" id="dataset-1" name="dataset" value="{{query_params['dataset']}}">
+      <input type="hidden" id="entity-1" name="entity" value="{{query_params['entity']}}">
+    {% endset %}
+
+    {% call dlFilterGroup({
+      "title": "Field",
+      "is_open": True,
+      "selected": query_params.get('field')|length if query_params.get('field') else 0
+    }) %}
+    {{ dlFilterCheckboxes({
+      "uniqueID": random_int(5),
+      "checkboxesHTML": checkboxesHTML
+    }) }}
+    {% endcall %}
+  </div>
+
+  <div class="govuk-button-group">
+    {{ govukButton({
+      "text": "Search"
+    }) }}
+    <a href="{{ fact_search_form_url }}?dataset={{query_params['dataset']}}&entity={{query_params['entity']}}" class="govuk-link">Clear</a>
+  </div>
+
+</form>

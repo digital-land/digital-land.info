@@ -1,0 +1,179 @@
+{% extends "layouts/layout.html" %}
+{% set templateName = "dl-info/entity-facts.html" %}
+
+{%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
+{%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
+{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+
+{%- from "digital-land-frontend/components/filter-group/macro.jinja" import dlFilterGroup %}
+{%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton %}
+{%- from "govuk_frontend_jinja/components/input/macro.html" import govukInput %}
+{%- from "components/summary-card/macro.jinja" import appSummaryCard %}
+
+{% block content %}
+  <main id="content" role="main">
+    <section class="govuk-width-container govuk-!-padding-bottom-6">
+
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+          <span class="govuk-caption-xl">
+            <a href="/curie/{{entity_prefix}}:{{entity_reference}}" class="govuk-link">{{entity_name}}</a>
+          </span>
+          <div class="govuk-heading-xl">Provenance</div>
+        </div>
+        <div class="govuk-grid-column-one-third">
+          {% set fact_search_form_url = "/fact" %}
+          {% include 'partials/fact-search-facets.html' %}
+        </div>
+        <!-- /.govuk-grid-column-one-third -->
+        <div class="govuk-grid-column-two-thirds">
+
+          <div class="app-results-summary">
+            <h2 class="app-results-summary__title">{{ facts|length|commanum }} result{{ "" if facts|length == 1 else "s" }}</h2>
+            {% macro removeFilterButton(params) %}
+              <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
+                <span class="app-facet-tag__icon" aria-hidden="true">
+                  <svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g id="Group" fill="#000000" fill-rule="nonzero">
+                        <path
+                          d="M2.84386208,29.6395923 C2.1083442,29.6823572 1.38499138,29.4378396 0.826334681,28.9576007 C-0.275444894,27.8492707 -0.275444894,26.0592298 0.826334681,24.9508998 L24.9516952,0.825445695 C26.0976433,-0.246857017 27.8958254,-0.187248253 28.9681281,0.958699821 C29.9377765,1.99497526 29.9942972,3.58775513 29.1004465,4.69009616 L4.83294196,28.9576007 C4.28149071,29.4309149 3.56974148,29.6749646 2.84386208,29.6395923 Z"
+                          id="Path"
+                        ></path>
+                        <path
+                          d="M26.9408687,29.6395923 C26.1954316,29.6364107 25.4809686,29.3405191 24.9516952,28.8155503 L0.8262411,4.69000258 C-0.194500497,3.49801446 -0.0557253049,1.70413689 1.13626282,0.683301721 C2.20014357,-0.22776724 3.76915479,-0.22776724 4.83294196,0.683301721 L29.1004465,24.8087558 C30.2461138,25.8813393 30.3053483,27.679615 29.2327649,28.8252824 C29.1900936,28.8708545 29.1460187,28.9149294 29.1004465,28.9576007 C28.5062304,29.4743348 27.7242046,29.7212854 26.9408687,29.6395923 L26.9408687,29.6395923 Z"
+                          id="Path"
+                        ></path>
+                      </g>
+                    </g>
+                  </svg>
+                </span>
+                <span class="app-facet-tag__label app-u-font-mono">{{ params.filter.value }}</span>
+              </a>
+            {% endmacro %}
+            <div class="app-applied-filters">
+              {% if query_params and query_params.get('field') %}
+              <div class="app-applied-filter__group">
+                <span class="app-applied-filter__name govuk-!-font-weight-bold">Fields:</span>
+                {% for filter in query_params.get('field') %}
+                <span class="app-applied-filter__item">
+                  {{ removeFilterButton({
+                    "filter": {
+                      "name": "field",
+                      "value": filter
+                    },
+                    "url": "?" + query_params|make_url_param_str({"field":filter})
+                  }) }}
+                </span>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <!-- /.app-results-summary -->
+
+          {% if facts and facts|count > 0 %}
+            <div class="app-results-body">
+              {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
+                <table id="facttable" class="govuk-table">
+                  <thead class="govuk-table__head">
+                    <tr class="govuk-table_row">
+                      <th scope="col" class="govuk-table__header">Fact</th>
+                      <th scope="col" class="govuk-table__header">Field</th>
+                      <th scope="col" class="govuk-table__header">Value</th>
+                      <th scope="col" class="govuk-table__header">Latest Entry Date</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody class="govuk-table__body">
+                    {% for fact in facts %}
+                      <tr class="govuk-table__row">
+                        <td class="govuk-table__cell app-table__cell">
+                          <span class="app-u-breakword">
+                            <a href="/fact/{{fact['fact']}}?dataset={{query_params['dataset']}}" class="govuk-link">
+                            {{fact['fact']}}
+                          </span>
+                        </td>
+                        <td class="govuk-table__cell app-table__cell">
+                          {{fact['field']}}
+                        </td>
+                        <td class="govuk-table__cell app-table__cell">
+                          {{fact['value']}}
+                        </td>
+                        <td class="govuk-table__cell app-table__cell">
+                          {{fact['latest-entry-date']}}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% endcall %}
+
+              {% if prev_url and next_url %}
+                <div class="app-pagination__wrapper govuk-!-margin-bottom-7">
+                {{ appPagination({
+                  "next": {
+                    "href": next_url,
+                    "text": "Show next "+ limit|string + " entities"
+                  },
+                  "prev":{
+                    "href":prev_url,
+                    "text": "Show previous "+ limit|string + " entities"
+                  }
+                }) }}
+                </div>
+              {% elif next_url %}
+              <div class="app-pagination__wrapper govuk-!-margin-bottom-7">
+                {{ appPagination({
+                  "next": {
+                    "href": next_url,
+                    "text": "Show next "+ limit|string + " entities"
+                  }
+                }) }}
+              </div>
+              {% elif prev_url %}
+              <div class="app-pagination__wrapper govuk-!-margin-bottom-7">
+                {{ appPagination({
+                  "prev": {
+                    "href": prev_url,
+                    "text": "Show previous "+ limit|string + " entities"
+                  }
+                }) }}
+              </div>
+              {% endif %}
+
+              {# Anything within this div becomes 'sticky' to the bottom upon scroll #}
+              <div class="app-results-footer app-results-footer--sticky">
+
+                <div class="app-results-actions">
+                  <h3 class="app-results-actions__title govuk-heading-s">Download these results</h3>
+                  <div class="app-results-actions__row">
+                    <div class="app-results-actions__row-title">
+                      <p class="govuk-body">Format:</p>
+                    </div>
+                    <div class="app-results-actions__row-content">
+                      <ul class="app-list app-list--files">
+                        <li class="app-list__item">
+                          {% if query_params_str == "" %}
+                          <a href="/fact.json" class="govuk-link">JSON</a>
+                          {% else %}
+                          <a href="/fact.json?{{ query_params_str }}" class="govuk-link">JSON</a>
+                          {% endif %}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}
