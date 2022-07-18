@@ -1,6 +1,9 @@
 name: security-scan
 
 on:
+  push:
+    branches:
+      - feat/security-scans
   schedule:
     - cron: "45 8 * * 1"
   workflow_dispatch:
