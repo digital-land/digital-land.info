@@ -193,14 +193,6 @@ def search_entities(
         next_url = links["next"]
     else:
         next_url = None
-    logging.error(params.items())
-    logging.error(
-        [
-            filter_name
-            for filter_name, values in params.items()
-            if filter_name != "limit" and values is not None
-        ]
-    )
     # default is HTML
     return templates.TemplateResponse(
         "search.html",
