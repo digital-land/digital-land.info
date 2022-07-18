@@ -7,14 +7,12 @@
   <div class="govuk-form-group">
     {% set checkboxesHTML %}
       {% for field in dataset_fields %}
-        {% if field['field'] != field['dataset'] %}
-          <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="field-{{loop.index}}" name="field" type="checkbox" value="{{ field['field'] }}" {% if query_params.get('field') and field['field'] in query_params.get('field') %}checked="checked"{% endif %}>
-            <label class="govuk-label govuk-checkboxes__label" for="field-{{loop.index}}">
-              {{ field['field'] }}
-            </label>
-          </div>
-        {% endif %}
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="field-{{loop.index}}" name="field" type="checkbox" value="{{ field }}" {% if query_params.get('field') and field in query_params.get('field') %}checked="checked"{% endif %}>
+          <label class="govuk-label govuk-checkboxes__label" for="field-{{loop.index}}">
+            {{ field }}
+          </label>
+        </div>
       {% endfor %}
       <input type="hidden" id="dataset-1" name="dataset" value="{{query_params['dataset']}}">
       <input type="hidden" id="entity-1" name="entity" value="{{query_params['entity']}}">
