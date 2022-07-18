@@ -1,0 +1,178 @@
+name: security-scan
+
+on:
+  schedule:
+    - cron: "45 8 * * 1"
+  workflow_dispatch:
+
+env:
+  APPLICATION: digital-land-platform
+  DOCKER_REPO: public.ecr.aws/l6z6v3j6
+  ZAP_VERSION: 2.11.1
+
+jobs:
+  dynamic-audit:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_APPLICATION_TAG: latest
+    outputs:
+      alerts_info: ${{ steps.report.outputs.alerts_info }}
+      alerts_low: ${{ steps.report.outputs.alerts_low }}
+      alerts_medium: ${{ steps.report.outputs.alerts_medium }}
+      alerts_high: ${{ steps.report.outputs.alerts_high }}
+      alerts_total: ${{ steps.report.outputs.alerts_total }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+          docker pull ${DOCKER_REPO}/${APPLICATION}:${DOCKER_APPLICATION_TAG}
+
+      - name: attack
+        run: |
+          make docker-security-scan
+          cat zap-working-dir/zap-report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: upload log
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: zap.log
+          path: zap-working-dir/zap.log
+
+      - name: parse report
+        id: report
+        run: |
+          echo "::set-output name=alerts_info::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "0") | .riskcode ] | length' zap-working-dir/zap-report.json)"
+          echo "::set-output name=alerts_low::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "1") | .riskcode ] | length' zap-working-dir/zap-report.json)"
+          echo "::set-output name=alerts_medium::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "2") | .riskcode ] | length' zap-working-dir/zap-report.json)"
+          echo "::set-output name=alerts_high::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "3") | .riskcode ] | length' zap-working-dir/zap-report.json)"
+          echo "::set-output name=alerts_total::$(jq -rc '[ .site[0].alerts[] ] | length' zap-working-dir/zap-report.json)"
+
+  static-audit:
+    runs-on: ubuntu-latest
+    outputs:
+      alerts_undefined: ${{ steps.report.outputs.alerts_undefined }}
+      alerts_low: ${{ steps.report.outputs.alerts_low }}
+      alerts_medium: ${{ steps.report.outputs.alerts_medium }}
+      alerts_high: ${{ steps.report.outputs.alerts_high }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: setup
+        run: |
+          sudo apt-get update && sudo apt-get install -y rsync
+          pip install git+https://github.com/acodeninja/bandit_markdown_formatter@main
+          npm install
+
+      - name: audit
+        run: |
+          bandit -x ./tests/,./node_modules/ -r -f markdown -o bandit-report.md . || true
+          bandit -x ./tests/,./node_modules/ -r -f json -o bandit-report.json . || true
+          cat bandit-report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: parse report
+        id: report
+        run: |
+          echo ::set-output name=alerts_undefined::$(jq -rc '.metrics._totals."SEVERITY.UNDEFINED"' bandit-report.json)
+          echo ::set-output name=alerts_low::$(jq -rc '.metrics._totals."SEVERITY.LOW"' bandit-report.json)
+          echo ::set-output name=alerts_medium::$(jq -rc '.metrics._totals."SEVERITY.MEDIUM"' bandit-report.json)
+          echo ::set-output name=alerts_high::$(jq -rc '.metrics._totals."SEVERITY.HIGH"' bandit-report.json)
+
+  send-report:
+    runs-on: ubuntu-latest
+    needs:
+      - dynamic-audit
+      - static-audit
+    steps:
+      - name: send report notification
+        uses: slackapi/slack-github-action@v1
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: 'dl-developers'
+          payload: |
+            {
+              "text": "Security Scan: digital-land.info",
+              "icon_emoji": ":lock:",
+              "username": "SecurityScanner",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Security Scan: digital-land.info"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Dynamic Audit*"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*TOTAL* ${{ needs.dynamic-audit.outputs.alerts_total }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*HIGH* ${{ needs.dynamic-audit.outputs.alerts_high }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*MEDIUM* ${{ needs.dynamic-audit.outputs.alerts_medium }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*LOW* ${{ needs.dynamic-audit.outputs.alerts_low }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*INFO* ${{ needs.dynamic-audit.outputs.alerts_info }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Static Audit*"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*HIGH* ${{ needs.static-audit.outputs.alerts_high }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*MEDIUM* ${{ needs.static-audit.outputs.alerts_medium }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*LOW* ${{ needs.static-audit.outputs.alerts_low }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*UNDEFINED* ${{ needs.static-audit.outputs.alerts_undefined }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "The report for this scan is available on <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|GitHub>"
+                  }
+                }
+              ]
+            }

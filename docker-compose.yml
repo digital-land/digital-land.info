@@ -10,10 +10,16 @@ services:
       - .:/src
       - .env.test.docker:/src/.env.test
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file: ./.env.dev.docker
+    healthcheck:
+      test: curl -v -i -f http://localhost:8000
+      interval: 1s
+      timeout: 3s
+      retries: 60
 
   db:
     image: postgis/postgis:13-master
@@ -33,3 +39,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    name: digital-land

@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG-staging}
+    environment:
+      ENVIRONMENT: production
+      S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
+      S3_COLLECTION_BUCKET: https://digital-land-production-collection-dataset.s3.eu-west-2.amazonaws.com
+      DATABASE_URL: postgres://postgres:postgres@db/digital_land
+      DATASETTE_URL: https://datasette.digital-land.info
+      PORT: 8000
+      WEB_CONCURRENCY: 1
+    healthcheck:
+      test: curl -v -i -f http://localhost:8000
+      interval: 1s
+      timeout: 3s
+      retries: 60
+
+  db:
+    image: postgis/postgis:13-master
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - ${DB_HOST_PORT-5432:}5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=digital_land
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zap:
+    image: owasp/zap2docker-stable:${ZAP_VERSION-2.11.1}
+    command: bash -c "zap.sh -cmd -addonupdate; zap.sh -cmd -autorun /zap/wrk/zap.yaml"
+    volumes:
+      - .:/zap/wrk
+      - ./zap-working-dir/zap.log:/home/zap/.ZAP/zap.log
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: digital-land
