@@ -1,5 +1,5 @@
 from digital_land_frontend.filters import is_list_filter
-
+from urllib.parse import urlencode
 from application.data_access.entity_queries import get_entity_query
 from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
@@ -35,6 +35,60 @@ def make_param_str_filter(exclude_value, exclude_param, all):
             if exclude_param != param[0] or exclude_value != param[1]
         ]
     )
+
+
+def _remove_value_from_list(list_input, values):
+    """specific function that returns a new list with values removed,
+    allows input of lists and elements"""
+    if isinstance(values, list):
+        output_list = [val for val in list_input if val not in values]
+    else:
+        output_list = [val for val in list_input if val != values]
+    return output_list
+
+
+def remove_values_from_param_dict(param_dict, exclude_values):
+    # create new dict so that values aren't changed in the original
+    new_dict = dict(param_dict)
+    for key in exclude_values.keys():
+        if new_dict[key]:
+            if isinstance(new_dict[key], list):
+                new_dict[key] = _remove_value_from_list(
+                    new_dict[key], exclude_values[key]
+                )
+            else:
+                if isinstance(exclude_values[key], list):
+                    if new_dict[key] in exclude_values[key]:
+                        new_dict = remove_param_from_param_dict(new_dict, key)
+                else:
+                    if new_dict[key] == exclude_values[key]:
+                        new_dict = remove_param_from_param_dict(new_dict, key)
+    return new_dict
+
+
+def remove_param_from_param_dict(param_dict, exclude_params):
+    if isinstance(exclude_params, list):
+        output_dict = {k: v for k, v in param_dict.items() if k not in exclude_params}
+    else:
+        output_dict = {k: v for k, v in param_dict.items() if k != exclude_params}
+
+    return output_dict
+
+
+def make_url_param_str(param_dict, exclude_values=None, exclude_params=None):
+    """
+    A new function to make a parameter string from a dictionary of parameters. Uses url encode
+    rather than us formatting a string. We specifically don't want to alter the original dict
+    """
+    output_dict = dict(param_dict)
+
+    if exclude_values:
+        output_dict = remove_values_from_param_dict(output_dict, exclude_values)
+
+    if exclude_params:
+        output_dict = remove_param_from_param_dict(output_dict, exclude_params)
+
+    return urlencode(output_dict, doseq=True)
 
 
 def render_markdown(text, govAttributes=False, makeSafe=True):

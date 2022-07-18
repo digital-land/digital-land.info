@@ -20,6 +20,7 @@ from application.core.filters import (
     debug,
     digital_land_to_json,
     uri_encode,
+    make_url_param_str,
 )
 
 from application.core.utils import model_dumps
@@ -60,3 +61,4 @@ templates.env.filters["get_entity_name"] = get_entity_name_filter
 templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
+templates.env.filters["make_url_param_str"] = make_url_param_str

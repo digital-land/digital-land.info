@@ -109,8 +109,9 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
 
         # get field specifications and convert to dictionary to easily access
         fields = get_field_specifications(e_dict_sorted.keys())
-        fields = [field.dict(by_alias=True) for field in fields]
-        fields = {field["field"]: field for field in fields}
+        if fields:
+            fields = [field.dict(by_alias=True) for field in fields]
+            fields = {field["field"]: field for field in fields}
 
         # get dictionary of fields which have linked datasets
         dataset_fields = get_datasets(datasets=fields.keys())
@@ -192,7 +193,14 @@ def search_entities(
         next_url = links["next"]
     else:
         next_url = None
-
+    logging.error(params.items())
+    logging.error(
+        [
+            filter_name
+            for filter_name, values in params.items()
+            if filter_name != "limit" and values is not None
+        ]
+    )
     # default is HTML
     return templates.TemplateResponse(
         "search.html",
