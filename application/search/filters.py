@@ -223,19 +223,24 @@ class QueryFilters:
 
 
 # need separate classes for fact pages as dataset is not optional, this should be easy by expanding classes
+def get_dataset_names():
+    with get_context_session() as session:
+        dataset_names = [
+            result[0]
+            for result in session.query(DatasetOrm.dataset)
+            .where(DatasetOrm.typology != "specification")
+            .all()
+        ]
+    return dataset_names
+
+
 @dataclass
 class FactDatasetQueryFilters:
     dataset: str
 
     @validator("dataset", pre=True)
     def datasets_exist(cls, dataset: str):
-        with get_context_session() as session:
-            dataset_names = [
-                result[0]
-                for result in session.query(DatasetOrm.dataset)
-                .where(DatasetOrm.typology != "specification")
-                .all()
-            ]
+        dataset_names = get_dataset_names()
         if dataset not in dataset_names:
             raise DatasetValueNotFound(
                 f"Requested dataset does not exist: {dataset}. "

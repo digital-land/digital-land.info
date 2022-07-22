@@ -7,3 +7,4 @@ pytest-playwright
 black>=22.3.0
 pytest-pudb
 SQLAlchemy-Utils
+pytest-mock
