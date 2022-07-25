@@ -8,7 +8,7 @@ attrs==21.4.0
     # via
     #   -c requirements/requirements.txt
     #   pytest
-backports.entry-points-selectable==1.1.1
+backports-entry-points-selectable==1.1.1
     # via virtualenv
 black==22.3.0
     # via -r requirements/dev-requirements.in
@@ -34,7 +34,6 @@ flake8==4.0.1
     # via -r requirements/dev-requirements.in
 greenlet==1.1.2
     # via
-    #   -c requirements/requirements.txt
     #   playwright
     #   sqlalchemy
 identify==2.4.0
@@ -94,10 +93,13 @@ pytest==6.2.5
     # via
     #   -r requirements/dev-requirements.in
     #   pytest-base-url
+    #   pytest-mock
     #   pytest-playwright
     #   pytest-pudb
 pytest-base-url==1.4.2
     # via pytest-playwright
+pytest-mock==3.8.2
+    # via -r requirements/dev-requirements.in
 pytest-playwright==0.2.2
     # via -r requirements/dev-requirements.in
 pytest-pudb==0.7.0

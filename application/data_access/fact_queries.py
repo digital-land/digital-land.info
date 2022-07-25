@@ -82,10 +82,15 @@ def get_fact_query(fact: str, dataset: str) -> Optional[FactModel]:
                 if not val:
                     r[key] = None
         facts = [FactModel(**fact) for fact in rows]
-        return facts
+
     except Exception as e:
         logger.warning(e)
         return None
+
+    if len(facts) > 1:
+        raise Exception("Multiple facts returned when one or zero is expected")
+
+    return facts[0]
 
 
 def get_search_facts_query(query_params: List) -> Optional[FactModel]:
@@ -143,4 +148,4 @@ def get_search_facts_query(query_params: List) -> Optional[FactModel]:
         return facts
     except Exception as e:
         logger.warning(e)
-        return []
+        return None

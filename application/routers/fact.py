@@ -51,8 +51,7 @@ def get_fact(
     query_params = asdict(query_filters)
     fact = get_fact_query(fact, query_params["dataset"])
 
-    if fact is not None and len(fact) > 0:
-        fact = fact[0]
+    if fact is not None:
 
         if extension is not None and extension.value == "json":
             return fact.dict(by_alias=True, exclude={"geojson"})
@@ -98,6 +97,10 @@ def search_facts(
 
     facts = get_search_facts_query(query_params)
 
+    if facts is None:
+        logging.warning("facts cannot be retrieved")
+        facts = []
+
     if extension is not None and extension.value == "json":
         return facts
 
@@ -107,13 +110,17 @@ def search_facts(
         dataset=query_params["dataset"], entity=query_params["entity"]
     )
     dataset_fields_dicts = _convert_model_to_dict(dataset_fields)
+
+    if dataset_fields_dicts is None:
+        logging.warning("dataset fields cannot be retrieved")
+        dataset_fields_dicts = []
+
     dataset_fields_list = [field["field"] for field in dataset_fields_dicts]
 
     if query_params.get("field"):
         for field in query_params["field"]:
-            if field not in dataset_fields:
+            if field not in dataset_fields_list:
                 dataset_fields_list.append(field)
-
     if len(facts) > 0:
         entity_name = facts_dicts[0]["entity-name"]
         entity_prefix = facts_dicts[0]["entity-prefix"]
