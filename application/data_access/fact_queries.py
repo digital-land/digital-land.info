@@ -89,8 +89,10 @@ def get_fact_query(fact: str, dataset: str) -> Optional[FactModel]:
 
     if len(facts) > 1:
         raise Exception("Multiple facts returned when one or zero is expected")
-
-    return facts[0]
+    elif len(facts) == 0:
+        return None
+    else:
+        return facts[0]
 
 
 def get_search_facts_query(query_params: List) -> Optional[FactModel]:
