@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digital-land-platform
+  labels:
+    app: digital-land-platform
+spec:
+  selector:
+    matchLabels:
+      app: digital-land-platform
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: digital-land-platform
+    spec:
+      containers:
+        - name: digital-land-db
+          image: postgis/postgis:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: digital-land-platform-database
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: digital-land-platform-postgis-data
+        - name: digital-land-platform
+          image: public.ecr.aws/l6z6v3j6/digital-land-platform:staging
+          env:
+            - name: S3_HOISTED_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: digital-land-platform
+                  key: S3_HOISTED_BUCKET
+            - name: S3_COLLECTION_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: digital-land-platform
+                  key: S3_COLLECTION_BUCKET
+            - name: WRITE_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: digital-land-platform
+                  key: WRITE_DATABASE_URL
+            - name: READ_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: digital-land-platform
+                  key: READ_DATABASE_URL
+            - name: ENVIRONMENT
+              valueFrom:
+                secretKeyRef:
+                  name: digital-land-platform
+                  key: ENVIRONMENT
+            - name: DATASETTE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: digital-land-platform
+                  key: DATASETTE_URL
+            - name: PORT
+              value: '80'
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          imagePullPolicy: Always
+      volumes:
+        - name: digital-land-platform-postgis-data
+          persistentVolumeClaim:
+            claimName: digital-land-platform-postgis-data-claim
