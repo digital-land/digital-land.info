@@ -120,3 +120,21 @@ docker-security-scan:
 	docker-compose \
 		-f docker-compose.security.yml \
 		run --rm zap
+
+.PHONY: local-kube
+local-kube-up: local-kube-down
+	kubectl apply -f ./deployment/local.secrets.yml
+	kubectl apply -f ./deployment/local.database.secrets.yml
+	kubectl apply -f ./deployment/local.database.pv.yml
+	kubectl apply -f ./deployment/local.database.pvc.yml
+	kubectl apply -f ./deployment/local.yml
+	kubectl wait --for=condition=ready --timeout=120s pod -l app=digital-land-platform
+	kubectl port-forward deployment/digital-land-platform 5000:80
+
+.PHONY: local-kube-down
+local-kube-down:
+	kubectl delete -f ./deployment/local.yml || echo "NOT ACTIONED"
+	kubectl delete -f ./deployment/local.database.secrets.yml || echo "NOT ACTIONED"
+	kubectl delete -f ./deployment/local.secrets.yml || echo "NOT ACTIONED"
+	kubectl delete -f ./deployment/local.database.pvc.yml || echo "NOT ACTIONED"
+	kubectl delete -f ./deployment/local.database.pv.yml || echo "NOT ACTIONED"
