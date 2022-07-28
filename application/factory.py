@@ -141,7 +141,7 @@ def add_base_routes(app):
     @app.get("/cookies", response_class=HTMLResponse, include_in_schema=False)
     def cookies(request: Request):
         return templates.TemplateResponse(
-            "page.cookies.html",
+            "pages/cookies.html",
             {"request": request},
         )
 
@@ -150,7 +150,7 @@ def add_base_routes(app):
     )
     def accessibility_statement(request: Request):
         return templates.TemplateResponse(
-            "page.accessibility-statement.html",
+            "pages/accessibility-statement.html",
             {"request": request},
         )
 

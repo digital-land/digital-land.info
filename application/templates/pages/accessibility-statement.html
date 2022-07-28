@@ -1,0 +1,13 @@
+{% extends "layouts/layout.html" %}
+{% block pageTitle %}Accessibility statement - Digital Land{% endblock %}
+{% set mainClasses = "govuk-main-wrapper--l" %}
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <div class="app-prose">
+      {%- set page_content -%}{%- include "pages/accessibility-statement.md" -%}{%- endset -%}
+      {{ page_content | render_markdown }}
+    </div>
+  </div>
+</div>
+{% endblock %}
