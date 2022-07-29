@@ -22,11 +22,11 @@ async def catch_all(request: Request, url_path: str):
     elif url_path[-1] == "/":
         url_path += indexFile
 
-    # build string of the system path to the template file
+    # build string of the URL path and then the system path to the template file
     urlPathTofile = "pages/guidance/" + url_path
     sysPathToFile = "application/templates/" + urlPathTofile
 
-    # if path matches a folder assume looking for index file
+    # if matched path is to a directory assume looking for index file
     if os.path.isdir(sysPathToFile):
         urlPathTofile += indexFile
         sysPathToFile += indexFile
