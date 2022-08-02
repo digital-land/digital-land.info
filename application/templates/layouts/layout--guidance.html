@@ -1,0 +1,95 @@
+{% extends "layouts/layout.html" %}
+{% from "components/sub-navigation/macro.jinja" import appSubNavigation %}
+{% block pageTitle %}Guidance &ndash; {% endblock %}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+      {% block content_secondary %}
+
+        {% set themes = [
+          'Guidance for Local Planning Authorities',
+          'Data specification guidance',
+          'Other guidance'
+        ] %}
+
+        {% set sectionPath = '/guidance/' %}
+
+        {{
+          appSubNavigation({
+          'visuallyHiddenTitle': 'Navigation',
+          'sort': false,
+          'links': [
+            {
+              'text': 'Guidance home',
+              'href': sectionPath + 'index.html',
+              'theme': themes[0],
+              'current': true if pageData.name == 'home' else false,
+            },
+            {
+              'text': 'Introduction',
+              'href': sectionPath + 'introduction.html',
+              'theme': themes[0],
+              'current': true if pageData.name == 'introduction' else false,
+            },
+            {
+              'text': 'How to provide data',
+              'theme': themes[0],
+              'href': sectionPath + 'how-to-provide-data.html',
+              'current': true if pageData.name == 'how-to-provide-data' else false,
+            },
+            {
+              'text': 'Data specifications guidance',
+              'theme': themes[0],
+              'href': sectionPath + 'specifications/',
+              'current': true if pageData.name == 'specifications' else false,
+              'parent': true,
+              'children': [
+                {
+                  'text': "Conservation area data",
+                  'href': sectionPath + 'specifications/conservation-area.html',
+                  'child': true,
+                  'current': true if pageData.name == '4' else false,
+                },
+                {
+                  'text': "Listed building data",
+                  'href': sectionPath + 'specifications/listed-building.html',
+                  'child': true,
+                  'current': true if pageData.name == '5' else false,
+                },
+                {
+                  'text': "Article 4 Direction data",
+                  'href': sectionPath + 'specifications/article-4-direction.html',
+                  'child': true,
+                  'current': true if pageData.name == '6' else false,
+                },
+                {
+                  'text': "Tree preservation order data",
+                  'href': sectionPath + 'specifications/tree-preservation-order.html',
+                  'child': true,
+                  'current': true if pageData.name == '7' else false,
+                }
+              ]
+            },
+            {
+              'text': 'Technical specifications',
+              'theme': 'Related links',
+              'href': 'https://digital-land.github.io/specification/specification/',
+              'current': true if pageData.name == '8' else false,
+            }
+          ]
+        })
+        }}
+      {% endblock %}
+    </div>
+    <!-- /.govuk-grid-column-one-third -->
+    <div class="govuk-grid-column-two-thirds">
+      <div class="app-prose">
+        {% block content_primary %}{% endblock %}
+      </div>
+      <!-- /.app-prose -->
+    </div>
+    <!-- /.govuk-grid-column-two-thirds -->
+  </div>
+  <!-- /.govuk-grid-row -->
+  {{ pageData | debug | safe }}
+{% endblock %}
