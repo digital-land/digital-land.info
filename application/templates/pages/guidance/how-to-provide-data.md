@@ -1,3 +1,5 @@
+The Planning Data platform gathers data from local planning authorities (LPAs) across England. We do this in order to make the data more open and accessible, so better planning decisions are made.
+
 This guidance will take you through the process of publishing data that meets the technical specifications required by the Planning Data platform.
 
 ---

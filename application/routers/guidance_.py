@@ -45,6 +45,9 @@ def get_breadcrumbs(path):
         # if it is not an index page
         if text != "index.html":
             if index == 1:
+                # if to a subsection index page
+                # (because less that total items in list of split
+                # url which has been reversed)
                 if index < totalItems:
                     href = "../" + splitPath[-1] + "/"
                 else:
@@ -90,9 +93,10 @@ async def catch_all(request: Request, url_path: str):
     if os.path.exists(sysPathToFile) and os.path.isfile(sysPathToFile):
 
         return templates.TemplateResponse(
-            urlPathTofile,
+            urlPathTofile,  # path to the template file we wish to render
             {
                 "request": request,
+                # a dictionary of useful data used by the tempaltes and layouts
                 "pageData": {
                     "root_url": rootURLPath,
                     "url_path": url_path,
