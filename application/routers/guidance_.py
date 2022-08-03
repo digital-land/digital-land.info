@@ -21,7 +21,7 @@ def get_pagename(path):
 
 
 # using the url path construct a breadcrumb dictionary for use in the view
-def get_breadcrumb(path):
+def get_breadcrumbs(path):
     splitPath = path.split("/")
     splitPath.reverse()
     totalItems = len(splitPath)
@@ -96,7 +96,7 @@ async def catch_all(request: Request, url_path: str):
                     "url_path": url_path,
                     "url_path_page": urlPathTofile,
                     "name": get_pagename(url_path),
-                    "breadcrumb": get_breadcrumb(url_path),
+                    "breadcrumbs": get_breadcrumbs(url_path),
                 },
             },
         )
