@@ -162,13 +162,6 @@ def add_base_routes(app):
             {"request": request},
         )
 
-    # @app.get("/guidance", response_class=HTMLResponse, include_in_schema=False)
-    # def guidance_index(request: Request):
-    #     return templates.TemplateResponse(
-    #         "pages/guidance/index.html",
-    #         {"request": request},
-    #     )
-
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(
         request: Request, exc: StarletteHTTPException

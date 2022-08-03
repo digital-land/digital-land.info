@@ -76,7 +76,8 @@ async def catch_all(request: Request, url_path: str):
         url_path += indexFile
 
     # build string of the URL path and then the system path to the template file
-    urlPathTofile = "pages/guidance/" + url_path
+    rootURLPath = "pages/guidance/"
+    urlPathTofile = rootURLPath + url_path
     sysPathToFile = "application/templates/" + urlPathTofile
 
     # if matched path is to a directory assume looking for index file
@@ -93,6 +94,7 @@ async def catch_all(request: Request, url_path: str):
             {
                 "request": request,
                 "pageData": {
+                    "root_url": rootURLPath,
                     "url_path": url_path,
                     "url_path_page": urlPathTofile,
                     "name": get_pagename(url_path),

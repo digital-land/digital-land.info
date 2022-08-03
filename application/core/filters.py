@@ -9,8 +9,11 @@ import json
 import jsonpickle
 from bs4 import BeautifulSoup
 from slugify import slugify
-
 from uritemplate import URITemplate
+
+
+def to_slug(string):
+    return slugify(string)
 
 
 def generate_query_param_str(v, filter_name, current_str):
