@@ -1,9 +1,15 @@
 {% extends "layouts/layout.html" %}
 {% from "components/sub-navigation/macro.jinja" import appSubNavigation %}
 {% block pageTitle %}Guidance &ndash; {% endblock %}
+
+{%- block breadcrumbs -%}
+  {{- govukBreadcrumbs({ 'items': pageData.breadcrumb }) -}}
+{%- endblock -%}
+
 {% block content %}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-third" id="content_secondary">
+      <a href="#content_primary" class="govuk-visually-hidden">Skip guidance navigation</a>
       {% block content_secondary %}
 
         {% set themes = [
@@ -16,7 +22,8 @@
 
         {{
           appSubNavigation({
-          'visuallyHiddenTitle': 'Navigation',
+          'hideChildrenWhenParentIsCurrent': false,
+          'visuallyHiddenTitle': 'Guidance navigation',
           'sort': false,
           'links': [
             {
@@ -82,14 +89,17 @@
       {% endblock %}
     </div>
     <!-- /.govuk-grid-column-one-third -->
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-two-thirds" id="content_primary">
       <div class="app-prose">
-        {% block content_primary %}{% endblock %}
+        {% block content_primary %}
+
+        {% endblock %}
       </div>
       <!-- /.app-prose -->
     </div>
     <!-- /.govuk-grid-column-two-thirds -->
   </div>
   <!-- /.govuk-grid-row -->
+  {%- do pageData.update({ 'willBeAddedTo': 'thisDictionary' }) %}
   {{ pageData | debug | safe }}
 {% endblock %}

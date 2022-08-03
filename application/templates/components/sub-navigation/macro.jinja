@@ -8,10 +8,17 @@
     {% endif %}
     <ul class="app-sub-navigation__section">
       {% for item in items %}
+        {# check if child item is also the current item #}
         {% set isChildItemCurrentItem = (item.children | selectattr('current', 'true') | list | length > 0)  %}
+        {# if there is a not a parameter telling us to hide the chidren of a parent until actually viewing a child page #}
+        {% if not params.hideChildrenWhenParentIsCurrent %}
+          {% set showChildrenLogic = (item.parent and item.children | length > 0 and isChildItemCurrentItem) or (item.parent and item.children | length > 0 and item.current) %}
+        {% else %}
+          {% set showChildrenLogic = (item.parent and item.children | length > 0 and isChildItemCurrentItem) %}
+        {% endif %}
         <li class="app-sub-navigation__section-item{% if item.current or (item.parent and isChildItemCurrentItem) %} app-sub-navigation__section-item--current{% endif %}">
           <a class="app-sub-navigation__link" href="{{ item.href }}"{% if item.current %} aria-current="true"{% endif %}>{{ item.text }}</a>
-          {% if item.parent and item.children | length > 0 and isChildItemCurrentItem %}
+          {% if showChildrenLogic %}
             <ul class="app-sub-navigation__section app-sub-navigation__section--nested">
               {% for child in item.children %}
                 <li class="app-sub-navigation__section-item govuk-!-font-size-16">

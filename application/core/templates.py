@@ -62,3 +62,5 @@ templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
 templates.env.filters["make_url_param_str"] = make_url_param_str
+
+templates.env.add_extension("jinja2.ext.do")
