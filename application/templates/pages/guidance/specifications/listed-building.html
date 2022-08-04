@@ -1,5 +1,5 @@
 {%- do pageData.update({
-  'pageTitle': ((pageData.name | replace('-',' ')) + ' data') | sentence_case
+  'pageTitle': ((pageData.name | replace('-',' ')) + ' data') | capitalize
 }) %}
 {% extends "layouts/layout--guidance.html" %}
 {% block content_primary %}

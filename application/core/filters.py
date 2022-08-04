@@ -12,11 +12,6 @@ from slugify import slugify
 from uritemplate import URITemplate
 
 
-def to_sentence_case(string):
-    text = string[0].upper() + string[1:]
-    return text
-
-
 def to_slug(string):
     return slugify(string)
 
