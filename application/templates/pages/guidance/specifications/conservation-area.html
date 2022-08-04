@@ -1,0 +1,13 @@
+{%- do pageData.update({
+  'pageTitle': ((pageData.name | replace('-',' ')) + ' data') | capitalize
+}) %}
+{% extends "layouts/layout--guidance.html" %}
+{% block content_primary %}
+
+    {% set markdown_content %}
+    {%- include pageData.root_url + "specifications/" + pageData.name  + ".md" with context -%}
+    {% endset %}
+
+    {{ markdown_content | render_markdown(govAttributes=True) }}
+
+{% endblock %}

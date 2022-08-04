@@ -21,7 +21,15 @@ from http import HTTPStatus
 from application.core.templates import templates
 from application.db.models import EntityOrm
 from application.exceptions import DigitalLandValidationError
-from application.routers import entity, dataset, map_, curie, organisation, fact
+from application.routers import (
+    entity,
+    dataset,
+    map_,
+    curie,
+    organisation,
+    fact,
+    guidance_,
+)
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -141,7 +149,7 @@ def add_base_routes(app):
     @app.get("/cookies", response_class=HTMLResponse, include_in_schema=False)
     def cookies(request: Request):
         return templates.TemplateResponse(
-            "page.cookies.html",
+            "pages/cookies.html",
             {"request": request},
         )
 
@@ -150,7 +158,7 @@ def add_base_routes(app):
     )
     def accessibility_statement(request: Request):
         return templates.TemplateResponse(
-            "page.accessibility-statement.html",
+            "pages/accessibility-statement.html",
             {"request": request},
         )
 
@@ -232,6 +240,7 @@ def add_routers(app):
 
     # not added to /docs
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
+    app.include_router(guidance_.router, prefix="/guidance", include_in_schema=False)
 
 
 def add_static(app):

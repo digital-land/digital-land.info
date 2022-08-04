@@ -1,0 +1,27 @@
+{% extends "layouts/layout--guidance.html" %}
+{%- do pageData.update({
+  'pageTitle': 'Guidance for Local Planning Authorities'
+}) %}
+{% block content_primary %}
+
+    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+      <a href="introduction.html">Introduction</a>
+    </h2>
+    <p>A brief overview of the process of providing data and how it’s used to reduce invalid planning applications.</p>
+
+    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+      <a href="how-to-provide-data.html">How to provide data for Planning Data</a>
+    </h2>
+    <p>Step-by-step instructions on how to publish your data.</p>
+
+    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+      <a href="specifications/">Data specifications guidance</a>
+    </h2>
+    <p>What to include in each dataset.</p>
+
+    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+      <a href="https://digital-land.github.io/specification/specification/">Technical specifications</a>
+    </h2>
+    <p>Technical guidance on what to include in each dataset.</p>
+    {# <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--l"> #}
+{% endblock %}

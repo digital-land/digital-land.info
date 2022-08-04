@@ -1,0 +1,15 @@
+{%- do pageData.update({
+  'pageTitle': 'Introduction for local planning authorities'
+}) %}
+{% extends "layouts/layout--guidance.html" %}
+{% block content_primary %}
+
+    <p class="govuk-body-l">The Planning Data platform gathers data from local planning authorities (LPAs) across England. We do this in order to make the data more open and accessible, so better planning decisions are made.</p>
+
+    {% set markdown_content %}
+    {%- include pageData.root_url + "introduction.md" with context -%}
+    {% endset %}
+
+    {{ markdown_content | render_markdown }}
+
+{% endblock %}

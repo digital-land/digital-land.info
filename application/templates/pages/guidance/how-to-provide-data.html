@@ -1,0 +1,13 @@
+{%- do pageData.update({
+  'pageTitle': 'How to provide data for local planning authorities'
+}) %}
+{% extends "layouts/layout--guidance.html" %}
+{% block content_primary %}
+
+    {% set markdown_content %}
+    {%- include pageData.root_url + "how-to-provide-data.md" with context -%}
+    {% endset %}
+
+    {{ markdown_content | render_markdown(govAttributes=True) }}
+
+{% endblock %}

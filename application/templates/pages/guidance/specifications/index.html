@@ -1,0 +1,16 @@
+{%- do pageData.update({
+  'pageTitle': 'Data specifications for local planning authorities'
+}) %}
+{% extends "layouts/layout--guidance.html" %}
+{% block content_primary %}
+
+  <p class="govuk-body-l">Guidance about how to collate each dataset including examples of data for each of the fields (rows).</p>
+
+  <ul class="govuk-list govuk-list--spaced">
+    <li><a href="conservation-area.html">Conservation area data</a></li>
+    <li><a href="listed-building.html">Listed building data</a></li>
+    <li><a href="article-4-direction.html">Article 4 Direction data</a></li>
+    <li><a href="tree-preservation-order.html">Tree preservation order data</a></li>
+  </ul>
+
+{% endblock %}
