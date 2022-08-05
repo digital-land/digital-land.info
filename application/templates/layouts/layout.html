@@ -27,3 +27,11 @@
 {% block phaseBanner %}
   {% include 'partials/phase-banner.html' %}
 {% endblock %}
+
+{#
+  leaving these empty means they remove them from the inherited layout
+  which is what we want for now until we decide to add tracking into
+  the site again.
+#}
+{% block cookieBanner %}{% endblock cookieBanner %}
+{% block analyticScripts %}{% endblock analyticScripts %}
