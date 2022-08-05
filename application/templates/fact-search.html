@@ -19,7 +19,7 @@
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
           <span class="govuk-caption-xl">
-            <a href="/curie/{{entity_prefix}}:{{entity_reference}}" class="govuk-link">{{entity_name}}</a>
+            <a href="/curie/{{entity_prefix}}:{{entity_reference}}" class="govuk-link">{%  if entity_name %}{{entity_name}}{% else %}{{entity_prefix}}:{{entity_reference}}{% endif %}</a>
           </span>
           <div class="govuk-heading-xl">Provenance</div>
         </div>

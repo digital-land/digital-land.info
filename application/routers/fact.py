@@ -97,60 +97,67 @@ def search_facts(
 
     facts = get_search_facts_query(query_params)
 
-    if facts is None:
-        logging.warning("facts cannot be retrieved")
-        facts = []
+    if facts is not None:
 
-    if extension is not None and extension.value == "json":
-        return facts
+        if extension is not None and extension.value == "json":
+            return facts
 
-    facts_dicts = _convert_model_to_dict(facts)
+        facts_dicts = _convert_model_to_dict(facts)
 
-    dataset_fields = get_dataset_fields(
-        dataset=query_params["dataset"], entity=query_params["entity"]
-    )
-    dataset_fields_dicts = _convert_model_to_dict(dataset_fields)
+        dataset_fields = get_dataset_fields(
+            dataset=query_params["dataset"], entity=query_params["entity"]
+        )
+        dataset_fields_dicts = _convert_model_to_dict(dataset_fields)
 
-    if dataset_fields_dicts is None:
-        logging.warning("dataset fields cannot be retrieved")
-        dataset_fields_dicts = []
+        if dataset_fields_dicts is None:
+            logging.warning("dataset fields cannot be retrieved")
+            dataset_fields_dicts = []
 
-    dataset_fields_list = [field["field"] for field in dataset_fields_dicts]
+        dataset_fields_list = [field["field"] for field in dataset_fields_dicts]
 
-    if query_params.get("field"):
-        for field in query_params["field"]:
-            if field not in dataset_fields_list:
-                dataset_fields_list.append(field)
-    if len(facts) > 0:
-        entity_name = facts_dicts[0]["entity-name"]
-        entity_prefix = facts_dicts[0]["entity-prefix"]
-        entity_reference = facts_dicts[0]["entity-reference"]
-    else:
-        e, old_entity_status, new_entity_id = get_entity_query(query_params["entity"])
-        if e:
-            entity_name = e.name
-            entity_prefix = e.prefix
-            entity_reference = e.reference
+        if query_params.get("field"):
+            for field in query_params["field"]:
+                if field not in dataset_fields_list:
+                    dataset_fields_list.append(field)
+        if len(facts) > 0:
+            entity_name = facts_dicts[0]["entity-name"]
+            entity_prefix = facts_dicts[0]["entity-prefix"]
+            entity_reference = facts_dicts[0]["entity-reference"]
         else:
-            entity_name = None
-            entity_prefix = None
-            entity_reference = None
+            e, old_entity_status, new_entity_id = get_entity_query(
+                query_params["entity"]
+            )
+            if e:
+                entity_name = e.name
+                entity_prefix = e.prefix
+                entity_reference = e.reference
+            else:
+                entity_name = None
+                entity_prefix = None
+                entity_reference = None
 
-    return templates.TemplateResponse(
-        "fact-search.html",
-        {
-            "request": request,
-            "facts": facts_dicts,
-            "dataset_fields": dataset_fields_list,
-            "query_params": query_params,
-            "query_params_str": urlencode(
-                {k: v for k, v in query_params.items()}, doseq=True
-            ),
-            "entity_name": entity_name,
-            "entity_prefix": entity_prefix,
-            "entity_reference": entity_reference,
-        },
-    )
+        return templates.TemplateResponse(
+            "fact-search.html",
+            {
+                "request": request,
+                "facts": facts_dicts,
+                "dataset_fields": dataset_fields_list,
+                "query_params": query_params,
+                "query_params_str": urlencode(
+                    {k: v for k, v in query_params.items()}, doseq=True
+                ),
+                "entity_name": entity_name,
+                "entity_prefix": entity_prefix,
+                "entity_reference": entity_reference,
+            },
+        )
+    else:
+        logging.warning("facts cannot be retrieved")
+
+        if extension is not None and extension.value == "json":
+            return []
+        else:
+            raise HTTPException(status_code=404, detail="fact not found")
 
 
 router.add_api_route(
