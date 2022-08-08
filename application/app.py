@@ -5,7 +5,7 @@ import yaml
 from application.factory import create_app
 
 with open("log_config.yml") as f:
-    config = yaml.load(f, Loader=yaml.FullLoader)
+    config = yaml.safe_load(f)
     logging.config.dictConfig(config)
 
 app = create_app()
