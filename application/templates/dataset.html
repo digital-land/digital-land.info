@@ -57,14 +57,14 @@
             <dt class="govuk-summary-list__key govuk-!-width-one-half">Collector last ran on</dt>
             <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
           </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Licence</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.licence }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Attribution</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.attribution.replace('-', ' ').capitalize() }}</dd>
-          </div>
+{#          <div class="govuk-summary-list__row">#}
+{#            <dt class="govuk-summary-list__key govuk-!-width-one-half">Licence</dt>#}
+{#            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.licence }}</dd>#}
+{#          </div>#}
+{#          <div class="govuk-summary-list__row">#}
+{#            <dt class="govuk-summary-list__key govuk-!-width-one-half">Attribution</dt>#}
+{#            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.attribution.replace('-', ' ').title() }}</dd>#}
+{#          </div>#}
         </dl>
       {% endcall %}
 
