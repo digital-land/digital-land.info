@@ -66,6 +66,10 @@
       </div>
       {% endif %}
 
+{#      TODO: Paul S. The following items are not available on dataset object #}
+{#      {{ dataset.licence }}#}
+{#      {{ dataset.attribution }}#}
+
       {% if categories %}
         {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
           <table class="govuk-table">
