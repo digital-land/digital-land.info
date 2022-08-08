@@ -7,9 +7,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from application.core.models import GeoJSON, EntityModel
-from application.data_access.datasette_digital_land_queries import (
-    get_field_specifications,
-)
 from application.data_access.digital_land_queries import (
     get_datasets,
     get_local_authorities,
@@ -107,14 +104,16 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
         else:
             geojson_dict = None
 
+        # need to remove any dependency on facts this should be changed when fields added to postgis
+        fields = None
         # get field specifications and convert to dictionary to easily access
-        fields = get_field_specifications(e_dict_sorted.keys())
-        if fields:
-            fields = [field.dict(by_alias=True) for field in fields]
-            fields = {field["field"]: field for field in fields}
+        # fields = get_field_specifications(e_dict_sorted.keys())
+        # if fields:
+        #     fields = [field.dict(by_alias=True) for field in fields]
+        #     fields = {field["field"]: field for field in fields}
 
         # get dictionary of fields which have linked datasets
-        dataset_fields = get_datasets(datasets=fields.keys())
+        dataset_fields = get_datasets(datasets=e_dict_sorted.keys())
         dataset_fields = [
             dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
         ]
