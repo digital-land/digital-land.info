@@ -33,6 +33,8 @@ def _transform_dataset_to_response(dataset, is_geojson=False):
         dataset["text"] = dataset["text"] or ""
         dataset["paint-options"] = dataset.pop("paint_options") or ""
         dataset.pop("key_field")
+        dataset["attribution"] = dataset.pop("attribution") or ""
+        dataset["licence"] = dataset.pop("licence") or ""
     return dataset
 
 
@@ -336,3 +338,12 @@ def test_get_dataset_as_json_returns_json(client, exclude_middleware):
     response = client.get("/dataset/greenspace.json")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
+
+
+def test_dataset_json_has_licence_and_attribution(client):
+    response = client.get("/dataset/greenspace.json")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["dataset"] == "greenspace"
+    assert data["attribution"] == "crown-copyright"
+    assert data["licence"] == "ogl3"

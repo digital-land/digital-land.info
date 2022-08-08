@@ -88,6 +88,8 @@ class DatasetOrm(Base):
     wikidata = Column(Text, nullable=True)
     wikipedia = Column(Text, nullable=True)
     themes = Column(ARRAY(Text), nullable=True)
+    attribution = Column(Text, nullable=True)
+    licence = Column(Text, nullable=True)
 
 
 class TypologyOrm(Base):

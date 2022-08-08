@@ -77,6 +77,8 @@ class DatasetModel(DigitalLandDateFieldsModel):
     themes: Optional[List[str]]
     entity_count: int = None
     paint_options: dict = Field(None)
+    attribution: str = None
+    licence: str = None
 
 
 class TypologyModel(DigitalLandDateFieldsModel):
