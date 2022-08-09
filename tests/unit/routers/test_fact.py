@@ -10,16 +10,28 @@ from application.core.models import DatasetFieldModel, EntityModel, FactModel
 from application.search.filters import FactDatasetQueryFilters, FactQueryFilters
 
 
-def test__convert_model_to_dict_single_model():
+def test_convert_model_to_dict_single_model():
     model = BaseModel()
     result = _convert_model_to_dict(model)
     assert result == {}
 
 
-def test__convert_model_to_dict_list_of_model():
+def test_convert_model_to_dict_list_of_model():
     models = [BaseModel(), BaseModel(), BaseModel()]
     result = _convert_model_to_dict(models)
     assert result == [{}, {}, {}]
+
+
+def test_convert_model_handles_empty_list():
+    models = []
+    result = _convert_model_to_dict(models)
+    assert result == []
+
+
+def test_convert_model_handles_none():
+    models = None
+    result = _convert_model_to_dict(models)
+    assert result == []
 
 
 # create fixture that represents the fact models returned by get_fact_query
