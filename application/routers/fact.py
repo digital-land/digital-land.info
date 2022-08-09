@@ -32,6 +32,8 @@ def _convert_resources_to_dict(fact):
 
 
 def _convert_model_to_dict(models):
+    if models is None:
+        return []
     if isinstance(models, list):
         if len(models) > 0:
             return [m.dict(by_alias=True) for m in models]
@@ -107,11 +109,11 @@ def search_facts(
         dataset_fields = get_dataset_fields(
             dataset=query_params["dataset"], entity=query_params["entity"]
         )
+
         dataset_fields_dicts = _convert_model_to_dict(dataset_fields)
 
-        if dataset_fields_dicts is None:
+        if dataset_fields_dicts is None or len(dataset_fields_dicts) == 0:
             logging.warning("dataset fields cannot be retrieved")
-            dataset_fields_dicts = []
 
         dataset_fields_list = [field["field"] for field in dataset_fields_dicts]
 
