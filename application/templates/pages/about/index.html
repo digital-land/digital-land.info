@@ -1,0 +1,8 @@
+{% extends "layouts/layout--about.html" %}
+{%- do pageData.update({
+  'pageTitle': 'About the Planning Data Platform'
+}) %}
+{% block content_primary %}
+    {%- set page_content -%}{%- include pageData.root_url + "about.md" -%}{%- endset -%}
+    {{ page_content | render_markdown }}
+{% endblock %}

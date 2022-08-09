@@ -1,13 +1,6 @@
-{% macro appSubNavigation(params) %}
-<nav class="app-sub-navigation{%- if params.classes %} {{ params.classes }}{% endif %}" aria-labelledby="app-sub-navigation-heading"
-  {%- for attribute, value in params.attributes %} {{ attribute }}="{{value}}"{% endfor %}>
-  <h2 class="govuk-visually-hidden" id="app-sub-navigation-heading">{{ params.visuallyHiddenTitle or "Pages in this section" }}</h2>
-  {% for theme, items in params.links | groupby("theme") | sort(reverse=params.sort | default(False)) %}
-    {% if theme != "undefined" %}
-      <h3 class="app-sub-navigation__theme">{{ theme }}</h3>
-    {% endif %}
+{% macro _generateItems(params) %}
     <ul class="app-sub-navigation__section">
-      {% for item in items %}
+      {% for item in params['items'] %}
         {# check if child item is also the current item #}
         {% set isChildItemCurrentItem = (item.children | selectattr('current', 'true') | list | length > 0)  %}
         {# if there is a not a parameter telling us to hide the chidren of a parent until actually viewing a child page #}
@@ -30,6 +23,27 @@
         </li>
       {% endfor %}
     </ul>
-  {% endfor %}
+{% endmacro %}
+
+{% macro appSubNavigation(params) %}
+<nav class="app-sub-navigation{%- if params.classes %} {{ params.classes }}{% endif %}" aria-labelledby="app-sub-navigation-heading"
+  {%- for attribute, value in params.attributes %} {{ attribute }}="{{value}}"{% endfor %}>
+  <h2 class="govuk-visually-hidden" id="app-sub-navigation-heading">{{ params.visuallyHiddenTitle or "Pages in this section" }}</h2>
+  {% if params.themed %}
+    {% for theme, items in params.links | groupby("theme") | sort(reverse=params.sort | default(False)) %}
+      <h3 class="app-sub-navigation__theme">{{ theme }}</h3>
+      {{ _generateItems({
+          'items': items,
+          'hideChildrenWhenParentIsCurrent': params.hideChildrenWhenParentIsCurrent
+        })
+      }}
+    {% endfor %}
+  {% else %}
+    {{ _generateItems({
+        'items': params.links,
+        'hideChildrenWhenParentIsCurrent': params.hideChildrenWhenParentIsCurrent
+      })
+    }}
+  {% endif %}
 </nav>
 {% endmacro %}

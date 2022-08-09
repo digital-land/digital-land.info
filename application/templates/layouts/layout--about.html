@@ -1,0 +1,75 @@
+{% extends "layouts/layout.html" %}
+{% from "components/sub-navigation/macro.jinja" import appSubNavigation %}
+{% block pageTitle %}{{ pageData.pageTitle }}{% endblock %}
+
+{%- block breadcrumbs -%}
+  {{- govukBreadcrumbs({ 'items': pageData.breadcrumbs }) -}}
+{%- endblock -%}
+
+{% set pageTitleHTML %}
+  <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">{{ pageData.pageTitle }}</h1>
+  {% if pageData.lede %}{{ pageData.lede }}{% endif %}
+  <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visibler">
+{% endset %}
+
+{% block content %}
+
+  {% if pageData.fullPageTitle %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {{ pageTitleHTML }}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third" id="content_secondary">
+      <a href="#content_primary" class="govuk-visually-hidden">Skip guidance navigation</a>
+      {% block content_secondary %}
+
+        {% set sectionPath = '/about/' %}
+        {% set theme = 'In this section' %}
+
+        {{
+          appSubNavigation({
+            'hideChildrenWhenParentIsCurrent': True,
+            'visuallyHiddenTitle': 'Guidance navigation',
+            'sort': False,
+            'themed': True,
+            'links': [
+              {
+                'text': 'About',
+                'href': sectionPath + 'index.html',
+                'current': true if pageData.name == 'home' else false,
+                'theme': theme,
+              },
+              {
+                'text': 'Roadmap',
+                'href': sectionPath + 'roadmap.html',
+                'current': true if pageData.name == 'roadmap' else false,
+                'theme': theme,
+              }
+            ],
+        })
+        }}
+      {% endblock %}
+    </div>
+    <!-- /.govuk-grid-column-one-third -->
+    <div class="govuk-grid-column-two-thirds" id="content_primary">
+
+      {% if not pageData.fullPageTitle %}
+        {% if pageData.pageTitle %}
+          {{ pageTitleHTML }}
+        {% endif %}
+      {% endif %}
+
+      <div class="app-prose">
+        {% block content_primary %}
+        {% endblock %}
+      </div>
+      <!-- /.app-prose -->
+    </div>
+    <!-- /.govuk-grid-column-two-thirds -->
+  </div>
+  <!-- /.govuk-grid-row -->
+{% endblock %}
