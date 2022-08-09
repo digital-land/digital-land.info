@@ -28,23 +28,26 @@
       {% block content_secondary %}
 
         {% set sectionPath = '/about/' %}
+        {% set theme = 'In this section' %}
 
         {{
           appSubNavigation({
             'hideChildrenWhenParentIsCurrent': True,
             'visuallyHiddenTitle': 'Guidance navigation',
             'sort': False,
-            'themed': False,
+            'themed': True,
             'links': [
               {
                 'text': 'About',
                 'href': sectionPath + 'index.html',
                 'current': true if pageData.name == 'home' else false,
+                'theme': theme,
               },
               {
                 'text': 'Roadmap',
                 'href': sectionPath + 'roadmap.html',
                 'current': true if pageData.name == 'roadmap' else false,
+                'theme': theme,
               }
             ],
         })
