@@ -11,6 +11,7 @@ from application.data_access.digital_land_queries import (
     get_datasets,
     get_local_authorities,
     get_typologies,
+    get_dataset_query,
 )
 from application.data_access.entity_queries import get_entity_query, get_entity_search
 
@@ -119,6 +120,8 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
         ]
         dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
+        dataset = get_dataset_query(e.dataset)
+
         return templates.TemplateResponse(
             "entity.html",
             {
@@ -135,6 +138,7 @@ def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] 
                 "geojson": geojson_dict,
                 "fields": fields,
                 "dataset_fields": dataset_fields,
+                "dataset": dataset,
             },
         )
     else:

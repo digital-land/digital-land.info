@@ -60,13 +60,13 @@
           {%  if dataset.licence %}
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key govuk-!-width-one-half">Licence</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.licence_text | set_current_year | render_markdown }}</dd>
+              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.licence_text | render_markdown }}</dd>
             </div>
           {%  endif %}
           {%  if dataset.attribution %}
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key govuk-!-width-one-half">Attribution</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.attribution_text | set_current_year | render_markdown}}</dd>
+              <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ dataset.attribution_text | render_markdown}}</dd>
             </div>
           {%  endif %}
         </dl>
