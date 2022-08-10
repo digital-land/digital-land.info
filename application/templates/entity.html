@@ -59,7 +59,7 @@
     </div>
 
     <div class="govuk-grid-column-three-quarters">
-      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-2' }) %}
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0' }) %}
         <table class="govuk-table">
           <thead class="govuk-table__head">
             <tr class="govuk-table_row">
@@ -85,6 +85,8 @@
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
                         <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
                       </td>
+                    {% else %}
+                      <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
                     {% endif %}
                   </tr>
                 {%- endif %}
@@ -95,10 +97,10 @@
       {% endcall %}
 
       {% set jsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block-overflow">{{row|digital_land_to_json}}</code></pre>
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow">{{row|digital_land_to_json}}</code></pre>
       {% endset %}
       {% set geojsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block-overflow">{{geojson|digital_land_to_json}}</code></pre>
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow">{{geojson|digital_land_to_json}}</code></pre>
       {% endset %}
 
       {% if geojson %}
@@ -115,21 +117,31 @@
                 "html":geojsonHTML
               }
             }
-          ]
+          ],
+          "classes": "govuk-tabs--entity  govuk-!-margin-bottom-0"
         } %}
       {% else %}
         {% set params = {
-          "title":"Hello",
           "items":[
             {
               "label":"JSON","id":"json","panel":{
                 "html":jsonHTML
               }
             }
-          ]
+          ],
+          "classes": "govuk-tabs--entity govuk-!-margin-bottom-0"
         } %}
       {% endif %}
       {{ govukTabs(params) }}
+
+      {% if dataset %}
+      <div class="app-c-sources-panel govuk-!-margin-bottom-6">
+        {# Data provided by <a href="#">Historic England</a> and <a href="#">Lambeth Council</a> #}
+          {{ dataset.attribution_text | render_markdown}}
+          {{ dataset.licence_text  | render_markdown}}
+      </div>
+      {% endif %}
+
     </div>
 
     <div class="govuk-grid-column-full">
@@ -137,20 +149,18 @@
       {%- if includesMap %}
         <h2 class="govuk-heading-m">Geographical area</h2>
 
-        {% set noteHTML %}
-        <a class="js-hidden dl-link-national-map" href="#">See on national map.</a>
-        {% endset %}
+        {% set noteHTML %}<a class="js-hidden dl-link-national-map" href="#">See on national map.</a>{% endset %}
 
         {{- dlLeafletMap({
-        "id": "dlMap",
-        "wrapper_classes": "govuk-!-margin-top-4",
-        "attributes": {
-            "data-geojson-urls": geometry_url
-        },
-        "height": "460",
-        "notePanel": {
-            "html": noteHTML
-        }
+          "id": "dlMap",
+          "wrapper_classes": "govuk-!-margin-top-4",
+          "attributes": {
+              "data-geojson-urls": geometry_url
+          },
+          "height": "460",
+          "notePanel": {
+              "html": noteHTML
+          }
         }) -}}
 
         <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
@@ -198,11 +208,6 @@
         </div>
       {% endif %}
     {% endblock recordReferences -%}
-
-{#  {%  if dataset %}#}
-{#    <p>{{ dataset.attribution_text | render_markdown}}</p>#}
-{#    <p>{{ dataset.licence_text  | render_markdown}}</p>#}
-{#  {% endif %}#}
 
   </div>
 {%- endblock content %}}
