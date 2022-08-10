@@ -78,7 +78,9 @@ class DatasetModel(DigitalLandDateFieldsModel):
     entity_count: int = None
     paint_options: dict = Field(None)
     attribution: str = None
+    attribution_text: str = None
     licence: str = None
+    licence_text: str = None
 
 
 class TypologyModel(DigitalLandDateFieldsModel):

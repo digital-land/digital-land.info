@@ -10,7 +10,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from application.db.models import DatasetOrm, EntityOrm, OldEntityOrm, LookupOrm
+from application.db.models import (
+    DatasetOrm,
+    EntityOrm,
+    OldEntityOrm,
+    LookupOrm,
+    AttributionOrm,
+    LicenceOrm,
+)
 from application.settings import Settings, get_settings
 
 
@@ -65,6 +72,17 @@ def test_data(apply_migrations, db_session: Session):
         themes = dataset.pop("themes").split(",")
         ds = DatasetOrm(**dataset)
         ds.themes = themes
+
+        attribution = dataset.get("attribution", None)
+        if attribution and db_session.query(AttributionOrm).get(attribution) is None:
+            db_session.add(
+                AttributionOrm(attribution=attribution, text="attribution text")
+            )
+
+        licence = dataset.get("licence", None)
+        if licence and db_session.query(LicenceOrm).get(licence) is None:
+            db_session.add(LicenceOrm(licence=licence, text="licence text"))
+
         db_session.add(ds)
         dataset_models.append(ds)
 

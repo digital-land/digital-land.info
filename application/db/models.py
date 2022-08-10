@@ -88,8 +88,44 @@ class DatasetOrm(Base):
     wikidata = Column(Text, nullable=True)
     wikipedia = Column(Text, nullable=True)
     themes = Column(ARRAY(Text), nullable=True)
-    attribution = Column(Text, nullable=True)
-    licence = Column(Text, nullable=True)
+    attribution_id = Column(Text, nullable=True)
+    licence_id = Column(Text, nullable=True)
+
+    _attribution = relationship(
+        "AttributionOrm",
+        foreign_keys=[attribution_id],
+        primaryjoin="DatasetOrm.attribution_id == AttributionOrm.attribution",
+    )
+
+    _licence = relationship(
+        "LicenceOrm",
+        foreign_keys=[licence_id],
+        primaryjoin="DatasetOrm.licence_id == LicenceOrm.licence",
+    )
+
+    @property
+    def attribution(self):
+        return self._attribution.attribution
+
+    @attribution.setter
+    def attribution(self, value):
+        self.attribution_id = value
+
+    @property
+    def licence(self):
+        return self._licence.licence
+
+    @licence.setter
+    def licence(self, value):
+        self.licence_id = value
+
+    @property
+    def attribution_text(self):
+        return self._attribution.text
+
+    @property
+    def licence_text(self):
+        return self._licence.text
 
 
 class TypologyOrm(Base):
@@ -162,3 +198,25 @@ class LookupOrm(Base):
     value = Column(Text, nullable=True)
     entry_date = Column(Date, nullable=True)
     start_date = Column(Date, nullable=True)
+
+
+class AttributionOrm(Base):
+
+    __tablename__ = "attribution"
+
+    attribution = Column(Text, primary_key=True)
+    text = Column(Text, nullable=True)
+    entry_date = Column(Date, nullable=True)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
+
+
+class LicenceOrm(Base):
+
+    __tablename__ = "licence"
+
+    licence = Column(Text, primary_key=True)
+    text = Column(Text, nullable=True)
+    entry_date = Column(Date, nullable=True)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)

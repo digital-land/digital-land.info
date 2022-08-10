@@ -1,3 +1,5 @@
+import datetime
+
 from digital_land_frontend.filters import is_list_filter
 from urllib.parse import urlencode
 from application.data_access.entity_queries import get_entity_query
@@ -169,3 +171,10 @@ def digital_land_to_json(dict):
 def uri_encode(uri_template, kwarg_list):
     uri = URITemplate(uri_template)
     return uri.expand(**kwarg_list)
+
+
+def set_current_year(text):
+    if "[year]" in text:
+        current_year = datetime.datetime.today().strftime("%Y")
+        return text.replace("[year]", current_year)
+    return text

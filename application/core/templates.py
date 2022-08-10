@@ -22,6 +22,7 @@ from application.core.filters import (
     uri_encode,
     make_url_param_str,
     to_slug,
+    set_current_year,
 )
 
 from application.core.utils import model_dumps
@@ -64,5 +65,6 @@ templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
 templates.env.filters["make_url_param_str"] = make_url_param_str
 templates.env.filters["slugify"] = to_slug
+templates.env.filters["set_current_year"] = set_current_year
 
 templates.env.add_extension("jinja2.ext.do")

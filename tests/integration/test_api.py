@@ -2,7 +2,6 @@ from copy import deepcopy
 
 import pytest as pytest
 
-from tests.test_data import datasets
 from tests.test_data.wkt_data import (
     random_location_lambeth,
     intersects_with_greenspace_entity,
@@ -33,8 +32,6 @@ def _transform_dataset_to_response(dataset, is_geojson=False):
         dataset["text"] = dataset["text"] or ""
         dataset["paint-options"] = dataset.pop("paint_options") or ""
         dataset.pop("key_field")
-        dataset["attribution"] = dataset.pop("attribution") or ""
-        dataset["licence"] = dataset.pop("licence") or ""
     return dataset
 
 
@@ -136,7 +133,10 @@ def test_old_entity_gone_shown(test_data_old_entities, client, exclude_middlewar
     )
 
 
-def test_dataset_json_endpoint_returns_as_expected(client):
+def test_dataset_json_endpoint_returns_as_expected(client, test_data):
+
+    from tests.test_data import datasets
+
     response = client.get("/dataset.json")
     assert response.status_code == 200
     data = response.json()
@@ -147,6 +147,10 @@ def test_dataset_json_endpoint_returns_as_expected(client):
         assert dataset.pop("entity-count")
         assert "entities" in dataset
         dataset.pop("entities")
+        attribution_txt = dataset.pop("attribution-text")
+        assert attribution_txt == "attribution text"
+        licence_txt = dataset.pop("licence-text")
+        assert licence_txt == "licence text"
 
     assert sorted(data["datasets"], key=lambda x: x["name"]) == sorted(
         _transform_dataset_fixture_to_response(deepcopy(datasets)),
