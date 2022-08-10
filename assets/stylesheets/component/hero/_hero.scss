@@ -1,0 +1,55 @@
+$app-hero-background-colour: $govuk-brand-colour;
+$app-hero-border-colour: govuk-tint($govuk-brand-colour, 25%);
+$app-hero-colour: govuk-colour("white");
+
+@import "./breadcrumbs";
+@import "./button";
+@import "./phase-banner";
+@import "./tag";
+
+.app-hero {
+  @include govuk-responsive-padding(7, "bottom");
+  padding-top: 0;
+  color: $app-hero-colour;
+  background-color: $app-hero-background-colour;
+  margin-top: govuk-spacing(-2);
+  @include govuk-font($size: false);
+}
+
+.app-hero__title {
+  @include govuk-font($size: 36, $weight: bold);
+  @include govuk-responsive-padding(6, "top");
+  margin-top: 0;
+}
+
+.app-hero__description {
+  @include govuk-font($size: 19);
+  color: inherit;
+  margin-bottom: 0;
+
+  a:not(:focus) {
+    color: inherit;
+  }
+}
+
+.app-hero__image {
+  @include govuk-responsive-padding(6, "top");
+
+  img {
+    max-width: 100%;
+  }
+
+  @include govuk-media-query($until: desktop) {
+    display: none;
+  }
+}
+
+.app-hero--large {
+  .app-hero__title {
+    @include govuk-font($size: 48, $weight: "bold");
+  }
+
+  .app-hero__description {
+    @include govuk-font($size: 24);
+  }
+}

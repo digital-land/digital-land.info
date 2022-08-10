@@ -1,28 +1,39 @@
 {% set opengraphImage = opengraphImage | d(false) %}
+{% from "components/hero/macro.jinja" import appHero %}
 {% extends "layouts/layout.html" %}
 {% block page_title %}Homepage prototype{% endblock %}
 
 {% block main %}
-
-  <div class="govuk-width-container">
-    {% include 'partials/phase-banner.html' %}
-  </div>
-
   <main id="content" role="main">
-
-    <section class="app-hero" id="intro">
-      <div class="app-hero__content govuk-width-container">
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Find planning and housing data that is easy to understand, use and trust</h1>
-            <p class="govuk-body-l">A platform to help you create services to inform planning and housing decisions in England.</p>
-          </div>
-          <div class="govuk-grid-column-one-third">
-            <img src="{{url_for("static", path="/images/proposition-image.png")}}" srcset="/static/images/proposition-image.svg" alt="A graphic represent the data platform, showing a map and different types of data file such as CSV and JSON" class="app-hero__image">
-          </div>
-        </div>
-      </div>
-    </section>
+    {{
+      appHero({
+        'title': {
+          'text': 'Find planning and housing data that is easy to understand, use and trust'
+        },
+        'description': {
+          'html': 'A platform to help you create services to inform planning and housing decisions in England.',
+        },
+        'image': {
+          'src': '/static/images/proposition-image.svg',
+        },
+        'cta': {
+          'text': 'Learn more',
+          'link': {
+            'text': 'about the platform',
+            'href': '/about',
+          }
+        },
+        'classes': 'app-hero--large govuk-!-margin-bottom-9',
+        'phaseBanner': {
+          'classes': 'test',
+          'text': 'This is a prototype. Please provide <a class="govuk-link" href="mailto:digitalland@levellingup.gov.uk?subject=Prototype feedback">feedback to the Digital Land team</a>.',
+          'tag': {
+            'text': 'Prototype',
+            'classes': 'test',
+          },
+        },
+      })
+    }}
 
     <section id="feature-list" class="govuk-width-container">
 
