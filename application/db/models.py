@@ -1,3 +1,4 @@
+from datetime import datetime
 from geoalchemy2 import Geometry
 from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer, cast
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
@@ -121,10 +122,20 @@ class DatasetOrm(Base):
 
     @property
     def attribution_text(self):
+
+        if "[year]" in self._attribution.text:
+            current_year = datetime.today().strftime("%Y")
+            return self._attribution.text.replace("[year]", current_year)
+
         return self._attribution.text
 
     @property
     def licence_text(self):
+
+        if "[year]" in self._licence.text:
+            current_year = datetime.today().strftime("%Y")
+            return self._licence.text.replace("[year]", current_year)
+
         return self._licence.text
 
 

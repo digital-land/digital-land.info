@@ -306,26 +306,34 @@ def single_entity_model():
 
 
 @pytest.fixture
-def multiple_dataset_models():
-    model_1 = DatasetModel(
+def ancient_woodland_dataset():
+    return DatasetModel(
         collection="ancient-woodland",
         dataset="ancient-woodland",
         name="Ancient woodland",
         plural="Ancient woodlands",
         typology="geography",
     )
-    model_2 = DatasetModel(
+
+
+@pytest.fixture
+def historic_england_dataset():
+    return DatasetModel(
         collection="historic-england",
         dataset="battlefield",
         name="Battlefield",
         plural="Battlefields",
         typology="geography",
     )
-    return [model_1, model_2]
+
+
+@pytest.fixture
+def multiple_dataset_models(ancient_woodland_dataset, historic_england_dataset):
+    return [ancient_woodland_dataset, historic_england_dataset]
 
 
 def test_get_entity_entity_returned_html(
-    mocker, single_entity_model, multiple_dataset_models
+    mocker, single_entity_model, multiple_dataset_models, ancient_woodland_dataset
 ):
     mocker.patch(
         "application.routers.entity.get_entity_query",
@@ -333,6 +341,10 @@ def test_get_entity_entity_returned_html(
     )
     mocker.patch(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=ancient_woodland_dataset,
     )
     request = MagicMock()
     result = get_entity(request=request, entity="11000000", extension=None)
@@ -361,6 +373,10 @@ def test_get_entity_entity_returned_json(
     mocker.patch(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
     )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=ancient_woodland_dataset,
+    )
     request = MagicMock()
     extension = MagicMock()
     extension.value = "json"
@@ -381,6 +397,10 @@ def test_get_entity_entity_returned_geojson(
     )
     mocker.patch(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=ancient_woodland_dataset,
     )
     request = MagicMock()
     extension = MagicMock()
