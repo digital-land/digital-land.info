@@ -42,6 +42,9 @@
         border-left: 0;
         border-right: 0;
       }
+      &:last-child {
+        border-right: 1px solid $govuk-border-colour;
+      }
     }
     .govuk-tabs__list {
       z-index: 2;
