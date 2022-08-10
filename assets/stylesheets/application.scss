@@ -17,7 +17,8 @@ $govuk-assets-path: "/static/govuk/assets/";
 // digital-land.info components
 // --------------------------------------------------------
 // components
-@import "component/hero";
+// @import "component/hero";
+@import "component/hero/hero";
 @import "component/attachment";
 @import "component/summary-list";
 @import "component/search";

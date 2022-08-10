@@ -1,0 +1,15 @@
+.app-breadcrumbs--inverse {
+  @include govuk-responsive-padding(3, "bottom");
+  @include govuk-responsive-padding(4, "top");
+  border-bottom: 1px solid $app-hero-border-colour;
+  color: $app-hero-colour;
+  margin-top: 0;
+
+  .govuk-breadcrumbs__list-item:before {
+    border-color: $app-hero-colour;
+  }
+
+  .govuk-breadcrumbs__link:not(:focus) {
+    color: inherit;
+  }
+}

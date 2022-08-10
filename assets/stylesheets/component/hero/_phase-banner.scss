@@ -1,0 +1,7 @@
+.app-phase-banner--inverse {
+  border-bottom-color: $app-hero-border-colour;
+  .govuk-link,
+  .govuk-phase-banner__content {
+    color: $app-hero-colour;
+  }
+}
