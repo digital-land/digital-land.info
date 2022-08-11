@@ -37,67 +37,95 @@
 
     <section id="feature-list" class="govuk-width-container">
 
-      <div class="govuk-grid-row govuk-!-margin-bottom-8" id="explore">
-        <div class="govuk-grid-column-one-half">
-          <h2 class="govuk-heading-l">Explore data on a map</h2>
-          <p class="govuk-body">View planning and housing datasets with geographic location data on an interactive map.</p>
-          <p class="govuk-body">
-            <a href="/map" class="govuk-link">Explore the national map of planning</a>
-          </p>
+      {% macro _feature(params) %}
+        <div class="govuk-grid-row govuk-!-margin-bottom-8" id="{{ params.title | slugify }}">
+          <div class="govuk-grid-column-one-half">
+            {% if params.title %}{% else %}{% endif %}
+            <h2 class="govuk-heading-m">{% if params.title %}{{ params.title }}{% else %}Please add a title{% endif %}</h2>
+            {% if caller %}
+              {{ caller( )}}
+            {% else %}
+              <p class="govuk-body">{% if params.description %}{{ params.description }}{% else %}Please describe this feature{% endif %}</p>
+            {% endif %}
+            {% if params.link %}
+              <p class="govuk-body">
+                <a href="{{ params.link.href }}" class="govuk-link">{{ params.link.text }}</a>
+              </p>
+            {% endif %}
+          </div>
+          <!-- /.govuk-grid-column-one-half -->
+          {% if params.image %}
+            <div class="govuk-grid-column-one-half">
+              <img src="{{url_for("static", path="{{ params.image.src + '.png' }}")}}" srcset="/static/{{ params.image.src + '.svg' }}" {{ ('alt="' + params.image.alt + '"') if params.image.alt else 'role="presentational"' }} class="app-max-width--100">
+            </div>
+            <!-- /.govuk-grid-column-one-half -->
+          {% endif %}
         </div>
-        <!-- /.govuk-grid-column-one-half -->
-        <div class="govuk-grid-column-one-half">
-          <img src="{{url_for("static", path="/images/explore.png")}}" srcset="/static/images/explore.svg" alt="An illustration depicting the national map of planning" class="app-max-width--100">
-        </div>
-        <!-- /.govuk-grid-column-one-half -->
-      </div>
-      <!-- /#explore.govuk-grid-row -->
+        <!-- /#explore.govuk-grid-row -->
+        {% if not params.sectionBreak == False %}
+          <hr class="govuk-section-break govuk-width-container govuk-section-break--visible govuk-section-break--xl">
+        {% endif %}
+      {% endmacro %}
 
-      <div class="govuk-grid-row govuk-!-margin-bottom-8" id="search">
-        <div class="govuk-grid-column-one-half">
-          <h2 class="govuk-heading-l">Search and filter data</h2>
-          <p class="govuk-body">Explore, filter and download the data you want in bulk.</p>
-          <p class="govuk-body">
-            <a href="/entity/" class="govuk-link">Search planning and housing data</a>
-          </p>
-        </div>
-        <!-- /.govuk-grid-column-one-half -->
-        <div class="govuk-grid-column-one-half">
-          <img src="{{url_for("static", path="/images/search.png")}}" srcset="/static/images/search.svg" alt="" class="app-max-width--100">
-        </div>
-        <!-- /.govuk-grid-column-one-half -->
-      </div>
-      <!-- /#search.govuk-grid-row -->
+      {{
+        _feature({
+          'title': 'Explore data on a map',
+          'description': 'View planning and housing datasets with geographic location data on an interactive map.',
+          'image': {
+            'src': '/images/explore',
+          },
+          'link': {
+            'href': '/map/',
+            'text': 'Explore the national map of planning'
+          },
+        })
+      }}
+
+      {{
+        _feature({
+          'title': 'Search and filter data',
+          'description': 'Find and download the data you want in bulk.',
+          'image': {
+            'src': '/images/search',
+          },
+          'link': {
+            'href': '/entity/',
+            'text': 'Search planning and housing data'
+          },
+        })
+      }}
+
+      {{
+        _feature({
+          'title': 'Understand the data',
+          'description': 'Read about why data is important to planning and how the data is created.',
+          'image': {
+            'src': '/images/datasets',
+          },
+          'link': {
+            'href': '/dataset/',
+            'text': 'Find planning and housing datasets'
+          },
+        })
+      }}
+
+      {{
+        _feature({
+          'title': 'Use the data',
+          'description': 'Integrate the Digital Land API with your web application or back office system.',
+          'image': {
+            'src': '/images/api',
+          },
+          'link': {
+            'href': '/docs/',
+            'text': 'View the API documentation'
+          },
+          'sectionBreak': False
+        })
+      }}
 
     </section>
     <!-- /#feature-list -->
-
-    <hr class="govuk-section-break govuk-width-container govuk-section-break--visible govuk-section-break--xl">
-
-    <section id="other-features" class="govuk-width-container">
-
-      <div class="govuk-grid-row govuk-!-margin-bottom-8">
-        <div class="govuk-grid-column-one-half">
-          <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Understand the data</h2>
-          <p class="govuk-body">Read about why data is important to planning and how the data is created.</p>
-          <p class="govuk-body"><img src="{{url_for("static", path="/images/datasets.png")}}" srcset="/static/images/datasets.svg" alt="An illustration depicting a dataset page with a title of 'What is this data about'" class="app-max-width--100"></p>
-          <p class="govuk-body">
-            <a href="/dataset/" class="govuk-link">Find planning and housing datasets</a>
-          </p>
-        </div>
-        <!-- /.govuk-grid-column-one-half -->
-        <div class="govuk-grid-column-one-half">
-          <h2 class="govuk-heading-l govuk-!-margin-bottom-4">Use the data</h2>
-          <p class="govuk-body">Integrate the Digital Land API with your web application or back office system.</p>
-          <p class="govuk-body"><img src="{{url_for("static", path="/images/api.png")}}" srcset="/static/images/api.svg" alt="An illustration depicting an API, showing a terminal command prompt" class="app-max-width--100"></p>
-          <p class="govuk-body">
-            <a href="/docs" class="govuk-link">View the API documentation</a>
-          </p>
-        </div>
-      </div>
-      <!-- /#search.govuk-grid-row -->
-
-    </section>
 
   </main>
 {% endblock %}
