@@ -30,7 +30,10 @@ We work with LPAs that received funding to improve their planning services throu
 Data collections
 ----------------
 
-You can view the data we currently have as [text](/dataset/) or on a [map](/map/).
+You can view the data we currently have as:
+
+- [text](/dataset/)
+- on a [map](/map/)
 
 LPAs store data in different ways. We're working with our partners on how to collect the data in a way that the platform understands, with minimum work and technical expertise for LPAs. This means ongoing work on the platform and data collection pipeline, as well as creating data standards.
 
