@@ -7,9 +7,25 @@ We believe this will lead to:
 -   more new digital services for property and planning
 -   better relationships between communities and developments
 
-Our platform collects planning and housing data from local planning authorities (LPAs) and transforms it into a consistent state, across England. Anyone can view, download and analyse the data we hold. We are currently working with a set number of LPAs to collect data.
+Our platform collects planning and housing data from local planning authorities (LPAs) and transforms it into a consistent state, across England. Anyone can view, download and analyse the data we hold. We are currently working with a set of LPAs to collect data according to our draft standards, that will be collected by the platform.
 
 To find out how our platform is developing, please see our [roadmap](roadmap.html).
+
+LPAs
+----------------
+
+We work with LPAs that received funding to improve their planning services through the [Local Digital Fund](https://www.localdigital.gov.uk/fund/). We are currently working with:
+
+-   Bolsover District Council and North East Derbyshire District Council (joint project team)
+-   Buckinghamshire
+-   London Borough of Camden
+-   Dacorum Borough Council
+-   Doncaster Metropolitan Borough Council
+-   Gloucester City Council
+-   Lambeth
+-   Medway Council
+-   Newcastle City Council
+-   Southwark
 
 Data collections
 ----------------
@@ -29,7 +45,7 @@ We want to minimise the work LPAs will need to do to contribute their data. We h
 How the data will be used
 -------------------------
 
-The data is openly available for anyone to download, analyse, interpret, and use to develop tools and services.
+The data is available for anyone to download, analyse, interpret, and use to develop tools and services, under the terms of the open licence and attribution for each dataset.
 
 There are 2 services already in development:
 
