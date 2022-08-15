@@ -38,20 +38,20 @@
           'links': [
             {
               'text': 'Guidance home',
-              'href': sectionPath + 'index.html',
+              'href': sectionPath,
               'theme': themes[0],
               'current': true if pageData.name == 'home' else false,
             },
             {
               'text': 'Introduction',
-              'href': sectionPath + 'introduction.html',
+              'href': sectionPath + 'introduction',
               'theme': themes[0],
               'current': true if pageData.name == 'introduction' else false,
             },
             {
               'text': 'How to provide data',
               'theme': themes[0],
-              'href': sectionPath + 'how-to-provide-data.html',
+              'href': sectionPath + 'how-to-provide-data',
               'current': true if pageData.name == 'how-to-provide-data' else false,
             },
             {
@@ -63,25 +63,25 @@
               'children': [
                 {
                   'text': "Conservation area data",
-                  'href': sectionPath + 'specifications/conservation-area.html',
+                  'href': sectionPath + 'specifications/conservation-area',
                   'child': true,
                   'current': true if pageData.name == 'conservation-area' else false,
                 },
                 {
                   'text': "Listed building data",
-                  'href': sectionPath + 'specifications/listed-building.html',
+                  'href': sectionPath + 'specifications/listed-building',
                   'child': true,
                   'current': true if pageData.name == 'listed-building' else false,
                 },
                 {
                   'text': "Article 4 Direction data",
-                  'href': sectionPath + 'specifications/article-4-direction.html',
+                  'href': sectionPath + 'specifications/article-4-direction',
                   'child': true,
                   'current': true if pageData.name == 'article-4-direction' else false,
                 },
                 {
                   'text': "Tree preservation order data",
-                  'href': sectionPath + 'specifications/tree-preservation-order.html',
+                  'href': sectionPath + 'specifications/tree-preservation-order',
                   'child': true,
                   'current': true if pageData.name == 'tree-preservation-order' else false,
                 }

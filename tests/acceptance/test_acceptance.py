@@ -93,11 +93,11 @@ def test_guidance_pages(server_process, page):
     assert page.text_content("h1") == "Guidance for Local Planning Authorities"
 
     page.click("text=Introduction")
-    assert page.url == f"{BASE_URL}/guidance/introduction.html"
+    assert page.url == f"{BASE_URL}/guidance/introduction"
     page.click("text=Introduction for local planning authorities")
 
     page.click("text=How to provide data")
-    assert page.url == f"{BASE_URL}/guidance/how-to-provide-data.html"
+    assert page.url == f"{BASE_URL}/guidance/how-to-provide-data"
 
     page.click("text=How to provide data for local planning authorities")
 

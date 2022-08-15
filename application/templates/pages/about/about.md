@@ -9,7 +9,7 @@ We believe this will lead to:
 
 Our platform collects planning and housing data from local planning authorities (LPAs) and transforms it into a consistent state, across England. Anyone can view, download and analyse the data we hold. We are currently working with a set of LPAs to collect data according to our draft standards, that will be collected by the platform.
 
-To find out how our platform is developing, please see our [roadmap](roadmap.html).
+To find out how our platform is developing, please see our [roadmap](roadmap).
 
 LPAs
 ----------------

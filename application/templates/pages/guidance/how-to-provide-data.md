@@ -24,10 +24,10 @@ Step 1: Prepare your data
 
 The data needed for the Digital Planning Services are:
 
--   [Conservation area data](specifications/conservation-area.html)
--   [Listed building data](specifications/listed-building.html)
--   [Article 4 direction data](specifications/article-4-direction.html)
--   [Tree preservation order data](specifications/tree-preservation-order.html)
+-   [Conservation area data](specifications/conservation-area)
+-   [Listed building data](specifications/listed-building)
+-   [Article 4 direction data](specifications/article-4-direction)
+-   [Tree preservation order data](specifications/tree-preservation-order)
 
 You may need to create more than one set of data for each subject. Guidance on what to include is in the [data specifications guidance](specifications/).
 

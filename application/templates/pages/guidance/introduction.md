@@ -3,16 +3,16 @@ How to provide data
 
 This is a brief overview of our process for LPAs that are considering getting involved.
 
-When you want to start, there is [step-by-step guidance on how to provide your data](how-to-provide-data.html). 
+When you want to start, there is [step-by-step guidance on how to provide your data](how-to-provide-data).
 
-The data we collect is likely to be held by your LPA already. However, it may need some work to get ready for publishing. This will likely mean: 
+The data we collect is likely to be held by your LPA already. However, it may need some work to get ready for publishing. This will likely mean:
 
 -   digitising any data that is currently held in a paper format
 -   formatting your data so it meets our specifications
 
 Your data then needs to be published on a trustworthy website that is open to the public. Normally, it will be on your organisational website.
 
-The Planning Data platform will access that data and routinely collect anything that is new or has changed. 
+The Planning Data platform will access that data and routinely collect anything that is new or has changed.
 
 Benefits to LPAs
 ----------------
@@ -37,12 +37,12 @@ Planning Data collects [data about a range of subjects](https://www.digital-land
 
 There are 4 main data subjects that are needed for the RIPA service:
 
--   [Conservation area data](specifications/conservation-area.html)
--   [Listed building data](specifications/listed-building.html)
--   [Article 4 direction data](specifications/article-4-direction.html)
--   [Tree preservation order data](specifications/tree-preservation-order.html)
+-   [Conservation area data](specifications/conservation-area)
+-   [Listed building data](specifications/listed-building)
+-   [Article 4 direction data](specifications/article-4-direction)
+-   [Tree preservation order data](specifications/tree-preservation-order)
 
-We recommend publishing at least this data to benefit from RIPA and to allow developers to use it in your area. 
+We recommend publishing at least this data to benefit from RIPA and to allow developers to use it in your area.
 
 ### Data formats
 

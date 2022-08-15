@@ -14,7 +14,7 @@ You can provide data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data.html).
+For more information, see [how to provide your data](../how-to-provide-data).
 
 Tree preservation order dataset
 -------------------------------
@@ -27,12 +27,12 @@ It must containing the following fields (columns):
 
 ### reference
 
-A reference or ID for each tree preservation order that is: 
+A reference or ID for each tree preservation order that is:
 
 -   unique within your dataset
 -   permanent - it doesn't change when the dataset is updated
 
-If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers. 
+If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers.
 
 Example: `TPO1`
 
@@ -104,7 +104,7 @@ It must containing the following fields (columns):
 
 ### reference
 
-A reference or ID for each tree preservation area that is: 
+A reference or ID for each tree preservation area that is:
 
 -   unique within your dataset
 -   permanent - it doesn't change when the dataset is updated
@@ -130,7 +130,7 @@ The reference for the tree preservation order that covers this area.
 
 The boundary for the tree preservation area as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
 
-This should be in GeoJSON format. 
+This should be in GeoJSON format.
 
 Example:
 `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
@@ -170,12 +170,12 @@ It must containing the following fields (columns):
 
 ### reference
 
-A reference or ID for each tree that is: 
+A reference or ID for each tree that is:
 
 -   unique within your dataset
 -   permanent - it doesn't change when the dataset is updated
 
-If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers. 
+If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers.
 
 Example: `T1`
 
@@ -249,4 +249,4 @@ Example: `2022-12-20`
 
 ---
 
-Go to [how to provide your data](../how-to-provide-data.html).
+Go to [how to provide your data](../how-to-provide-data).

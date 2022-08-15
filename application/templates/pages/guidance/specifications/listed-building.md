@@ -10,7 +10,7 @@ You can provide data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data.html).
+For more information, see [how to provide your data](../how-to-provide-data).
 
 Listed buildings dataset
 ------------------------
@@ -23,12 +23,12 @@ It must containing the following fields (columns):
 
 ### reference
 
-A reference or ID for each listed building that is: 
+A reference or ID for each listed building that is:
 
 -   unique within your dataset
 -   permanent - it doesn't change when the dataset is updated
 
-If you don't use a reference already, you will need to create one. It can be the Historic England reference used in the [register of listed buildings](https://historicengland.org.uk/listing/the-list/), or a short set of letters or numbers. 
+If you don't use a reference already, you will need to create one. It can be the Historic England reference used in the [register of listed buildings](https://historicengland.org.uk/listing/the-list/), or a short set of letters or numbers.
 
 Example: `LB1`
 
@@ -80,4 +80,4 @@ Example: `2022-12-20`
 
 ---
 
-Go to [how to provide your data](../how-to-provide-data.html).
+Go to [how to provide your data](../how-to-provide-data).
