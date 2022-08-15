@@ -14,7 +14,7 @@ def get_pagename(path):
     split_path = path.split("/")
     page_name = split_path[-1]
     if len(split_path) >= 2:
-        if split_path[-1] == "index.html" or split_path[-1] == "":
+        if split_path[-1] == "index" or split_path[-1] == "":
             page_name = split_path[-2]
     if page_name == "" or page_name == "index" or page_name == f"index{file_extension}":
         page_name = "home"
