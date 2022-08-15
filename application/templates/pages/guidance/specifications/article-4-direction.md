@@ -13,7 +13,7 @@ You can provide data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data.html).
+For more information, see [how to provide your data](../how-to-provide-data).
 
 ---
 
@@ -163,4 +163,4 @@ Example: `2022-12-20`
 
 ---
 
-Go to [how to provide your data](../how-to-provide-data.html).
+Go to [how to provide your data](../how-to-provide-data).

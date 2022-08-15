@@ -97,7 +97,7 @@ def test_guidance_pages(server_process, page):
     page.click("text=Introduction for local planning authorities")
 
     page.click("text=How to provide data")
-    assert page.url == f"{BASE_URL}/guidance/how-to-provide-data.html"
+    assert page.url == f"{BASE_URL}/guidance/how-to-provide-data"
 
     page.click("text=How to provide data for local planning authorities")
 

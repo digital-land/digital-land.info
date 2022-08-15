@@ -13,7 +13,7 @@ You can provide data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data.html).
+For more information, see [how to provide your data](../how-to-provide-data).
 
 Conservation area dataset
 -------------------------
@@ -25,7 +25,7 @@ The dataset must contain at least one entry (row) for each conservation area.
 It must containing the following fields (columns):
 
 ### reference
-A reference or ID for each conservation area that is: 
+A reference or ID for each conservation area that is:
 
 -   unique within your dataset
 -   permanent - it doesn't change when the dataset is updated
@@ -92,7 +92,7 @@ The dataset must contain at least one entry (row) for each conservation area doc
 It must containing the following fields (columns):
 
 ### reference
-A reference or ID for each document that is: 
+A reference or ID for each document that is:
 
 - unique within your dataset
 - permanent - it doesn't change when the dataset is updated
@@ -143,4 +143,4 @@ Example: `1984-03-28`
 
 ---
 
-Go to [how to provide your data](../how-to-provide-data.html).
+Go to [how to provide your data](../how-to-provide-data).

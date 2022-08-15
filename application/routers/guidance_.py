@@ -5,6 +5,7 @@ from application.core.templates import templates
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+file_extension = ".html"
 
 
 # get the 'page name' for use in tracking current page in
@@ -15,9 +16,9 @@ def get_pagename(path):
     if len(split_path) >= 2:
         if split_path[-1] == "index.html" or split_path[-1] == "":
             page_name = split_path[-2]
-    if page_name == "" or page_name == "index.html":
+    if page_name == "" or page_name == "index" or page_name == f"index{file_extension}":
         page_name = "home"
-    return page_name.replace(".html", "")
+    return page_name.replace(file_extension, "")
 
 
 # using the url path construct a breadcrumb dictionary for use in the view
@@ -34,7 +35,7 @@ def get_breadcrumbs(path):
         text = split_path[-index]
         href = split_path[-index]
 
-        if text == "index.html":
+        if text == "index":
             if index == 1:
                 text = split_path[-1]
                 href = split_path[-1]
@@ -43,7 +44,7 @@ def get_breadcrumbs(path):
                 href = split_path[i]
 
         # if it is not an index page
-        if text != "index.html":
+        if text != "index":
             if index == 1:
                 # if to a subsection index page
                 # (because less that total items in list of split
@@ -58,8 +59,8 @@ def get_breadcrumbs(path):
             # finally add the link if it is not an index page
             crumb_dict.append(
                 {
-                    "text": text.replace(".html", "").replace("-", " "),
-                    "href": href,
+                    "text": text.replace(file_extension, "").replace("-", " "),
+                    "href": href.replace(file_extension, ""),
                 }
             )
 
@@ -69,7 +70,7 @@ def get_breadcrumbs(path):
 @router.get("/{url_path:path}")
 async def catch_all(request: Request, url_path: str):
 
-    index_file = "index.html"
+    index_file = "index"
 
     # if URL path in this route is empty
     if url_path == "":
@@ -81,7 +82,7 @@ async def catch_all(request: Request, url_path: str):
     # build string of the URL path and then the system path to the template file
     root_url_path = "pages/guidance/"
     url_path_to_file = root_url_path + url_path
-    sys_path_to_file = f"application/templates/{url_path_to_file}"
+    sys_path_to_file = f"application/templates/{url_path_to_file}{file_extension}"
 
     # if matched path is to a directory assume looking for index file
     if os.path.isdir(sys_path_to_file):
@@ -93,7 +94,7 @@ async def catch_all(request: Request, url_path: str):
     if os.path.exists(sys_path_to_file) and os.path.isfile(sys_path_to_file):
 
         return templates.TemplateResponse(
-            url_path_to_file,  # path to the template file we wish to render
+            f"{url_path_to_file}{file_extension}",  # path to the template file we wish to render
             {
                 "request": request,
                 # a dictionary of useful data used by the tempaltes and layouts
