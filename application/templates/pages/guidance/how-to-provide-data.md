@@ -22,16 +22,16 @@ Publishing is a 4 step process:
 Step 1: Prepare your data
 -------------------------------------
 
-The data needed for the Digital Planning Services are:
+The data needed for the Digital Planning Services such as [RIPA](https://www.ripa.digital) are:
 
 -   [Conservation area data](specifications/conservation-area)
 -   [Listed building data](specifications/listed-building)
 -   [Article 4 direction data](specifications/article-4-direction)
 -   [Tree preservation order data](specifications/tree-preservation-order)
 
-You may need to create more than one set of data for each subject. Guidance on what to include is in the [data specifications guidance](specifications/).
+You may need to create more than one set of data for each subject. You'll find what to include in the [data specifications guidance](specifications/).
 
-You can present this data using different formats. We will accept data supplied as:
+We will accept data supplied as either:
 
 -   CSV
 -   GeoJSON
@@ -72,21 +72,21 @@ You may want to use an alias to create a short URL that is easy to remember. For
 
 Add a short description of the data on the page. We recommend including these descriptors as a minimum:
 
-### Summary
+**Summary**
 
 Briefly explain what the data is about. For example:
 
 This dataset shows the locations of conservation areas. Conservation areas are designated to safeguard areas of special architectural and historic interest, the character and appearance of which it is desirable to preserve or enhance. Within these areas special planning controls operate which need to be considered when undertaking development.
 
-### Licensing
+**Licensing**
 
 State that the data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
-### Last updated
+**Last updated**
 
-State the date you are creating or updating the webpage.
+The date you are creating or updating the webpage.
 
-### Link to your data
+**Link to your data**
 
 Publish the links to your data on this page. Depending on what format you supply the data in, this could be the uploaded CSV, GeoJSON or GML files, or the link to the OGC WFS service.
 
