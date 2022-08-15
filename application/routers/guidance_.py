@@ -83,11 +83,13 @@ async def catch_all(request: Request, url_path: str):
     root_url_path = "pages/guidance/"
     url_path_to_file = root_url_path + url_path
     sys_path_to_file = f"application/templates/{url_path_to_file}{file_extension}"
+    sys_path_directory = sys_path_to_file.replace(".html", "")
 
     # if matched path is to a directory assume looking for index file
-    if os.path.isdir(sys_path_to_file):
-        url_path_to_file += index_file
-        sys_path_to_file += index_file
+    if os.path.isdir(sys_path_directory):
+        if url_path_to_file[-1] != "/":
+            url_path_to_file += f"/{index_file}"
+            sys_path_to_file = sys_path_directory + f"/{index_file}.html"
 
     # if template file exists use it to render the page based
     # on the corresponding URL Path
