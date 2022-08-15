@@ -46,7 +46,7 @@ We recommend publishing at least this data to benefit from RIPA and to allow dev
 
 Planning Data can take data in different formats, although some are preferred. Preferred formats will give the most accurate results.
 
-The [specifications for each dataset](specifications/index.html)  will tell you which formats to use.
+The [specifications guidance](specifications/)  will tell you which formats to use for each dataset.
 
 ### Checking your data
 
