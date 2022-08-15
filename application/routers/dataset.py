@@ -61,6 +61,8 @@ def get_dataset(
 ):
     collection_bucket = settings.S3_COLLECTION_BUCKET
     hoisted_bucket = settings.S3_HOISTED_BUCKET
+    data_file_url = settings.DATA_FILE_URL
+
     try:
         _dataset = get_dataset_query(dataset)
         if _dataset is None:
@@ -103,6 +105,7 @@ def get_dataset(
                 if latest_resource
                 else None,
                 "categories": categories,
+                "data_file_url": data_file_url,
             },
         )
 

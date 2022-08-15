@@ -17,7 +17,8 @@ class Settings(BaseSettings):
     SENTRY_TRACE_SAMPLE_RATE: Optional[float] = 0.1
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
-    DATASETTE_URL: str
+    DATASETTE_URL: HttpUrl
+    DATA_FILE_URL: HttpUrl
 
 
 @lru_cache()
