@@ -1,9 +1,7 @@
 How to provide data
 -------------------
 
-This is a brief overview of our process for LPAs that are considering getting involved.
-
-When you want to start, there is [step-by-step guidance on how to provide your data](how-to-provide-data).
+This is a brief overview of our process for LPAs that are considering getting involved. We are currently only collecting data from select LPAs, but if you are interested in providing your data in future, please let us know at <digitalland@levellingup.gov.uk>.
 
 The data we collect is likely to be held by your LPA already. However, it may need some work to get ready for publishing. This will likely mean:
 
