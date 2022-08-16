@@ -137,8 +137,8 @@
       {% if dataset %}
       <div class="app-c-sources-panel govuk-!-margin-bottom-6">
         {# Data provided by <a href="#">Historic England</a> and <a href="#">Lambeth Council</a> #}
-          {{ dataset.attribution_text | render_markdown}}
-          {{ dataset.licence_text  | render_markdown}}
+          {{ dataset.attribution_text | render_markdown(govAttributes=True)}}
+          {{ dataset.licence_text  | render_markdown(govAttributes=True)}}
       </div>
       {% endif %}
 
