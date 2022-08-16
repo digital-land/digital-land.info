@@ -86,14 +86,11 @@
       {% if categories %}
         {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
           <table class="govuk-table">
-            <caption class="govuk-table__caption govuk-table__caption--m">Categories</caption>
+            <caption class="govuk-table__caption govuk-table__caption--m">{{ 'Entries' if categories| length > 1 else 'Entry' }}</caption>
             <thead class="govuk-table__head">
               <tr class="govuk-table__row">
                 <th scope="col" class="govuk-table__header">
                   Name
-                </th>
-                <th scope="col" class="govuk-table__header">
-                  Entry Date
                 </th>
               </tr>
             </thead>
@@ -102,9 +99,6 @@
                 <tr class="govuk-table__row">
                   <td class="govuk-table__cell app-table__cell">
                       <a class="govuk-link"  href="/curie/{{dataset['dataset']}}:{{category['reference']}}">{{category['name']}}</a>
-                  </td>
-                  <td class="govuk-table__cell app-table__cell">
-                      {{category['entry-date']}}
                   </td>
                 </tr>
               {% endfor %}
