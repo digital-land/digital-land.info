@@ -50,7 +50,7 @@
       <p class="app-hero__description">
         {% if params.cta.text %}{{ params.cta.text }} {% endif %}
         {% if params.cta.link %}
-          <a href="{{ params.cta.link.href }}">{{ params.cta.link.text }}</a>
+          <a href="{{ params.cta.link.href }}" class="govuk-link app-hero__cta-link">{{ params.cta.link.text }}</a>
         {% endif %}
       </p>
       {% endif %}
