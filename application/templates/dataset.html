@@ -43,7 +43,10 @@
         <dl class="govuk-summary-list govuk-!-margin-bottom-0">
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-width-one-half">Total</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ entity_count|commanum }} <br><span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></dd>
+            <dd class="govuk-summary-list__value govuk-!-width-one-half">
+              <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">{{ entity_count|commanum }} <br>
+              <span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></a>
+            </dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-width-one-half">Publishers</dt>
@@ -61,7 +64,7 @@
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key govuk-!-width-one-half">Licence</dt>
               <dd class="govuk-summary-list__value govuk-!-width-one-half govuk-summary-list__value--markdown">
-                {{ dataset.licence_text | render_markdown }}
+                {{ dataset.licence_text | render_markdown(govAttributes=True) }}
               </dd>
             </div>
           {%  endif %}
