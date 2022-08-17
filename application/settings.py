@@ -18,7 +18,6 @@ class Settings(BaseSettings):
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
     DATASETTE_URL: HttpUrl
-    DATA_FILE_URL: HttpUrl
 
 
 @lru_cache()
