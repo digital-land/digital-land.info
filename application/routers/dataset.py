@@ -1,9 +1,8 @@
 import logging
 from typing import Optional
-from urllib.parse import urljoin
 
-from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Request, HTTPException
+from fastapi.responses import HTMLResponse
 
 from application.data_access.digital_land_queries import (
     get_dataset_query,
@@ -14,9 +13,8 @@ from application.data_access.digital_land_queries import (
 from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
-from application.search.enum import SuffixDataset, SuffixLinkableFiles
-from application.search.filters import DatasetQueryFilters
-from application.settings import get_settings, Settings
+from application.search.enum import SuffixDataset
+
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -56,11 +54,8 @@ def get_dataset(
     request: Request,
     dataset: str,
     limit: int = 50,
-    settings: Settings = Depends(get_settings),
     extension: Optional[SuffixDataset] = None,
 ):
-    collection_bucket = settings.S3_COLLECTION_BUCKET
-    hoisted_bucket = settings.S3_HOISTED_BUCKET
 
     try:
         _dataset = get_dataset_query(dataset)
@@ -92,8 +87,6 @@ def get_dataset(
             {
                 "request": request,
                 "dataset": _dataset,
-                "collection_bucket": collection_bucket,
-                "hoisted_bucket": hoisted_bucket,
                 "entity_count": entity_count[1] if entity_count else 0,
                 "publishers": {
                     "expected": publisher_coverage.expected_publisher_count,
@@ -118,19 +111,6 @@ def get_dataset(
         )
 
 
-def link_dataset(
-    request: Request,
-    extension: SuffixLinkableFiles,
-    dataset: DatasetQueryFilters = Depends(),
-    settings: Settings = Depends(get_settings),
-):
-    hoisted_collection_bucket = settings.S3_HOISTED_BUCKET
-    return RedirectResponse(
-        urljoin(hoisted_collection_bucket, f"{dataset.dataset}-hoisted.csv"),
-        status_code=302,
-    )
-
-
 router.add_api_route(
     ".{extension}",
     endpoint=list_datasets,
@@ -153,11 +133,4 @@ router.add_api_route(
     endpoint=get_dataset,
     response_class=HTMLResponse,
     include_in_schema=False,
-)
-
-router.add_api_route(
-    "/{dataset}.{extension}/link",
-    endpoint=link_dataset,
-    response_class=RedirectResponse,
-    tags=["Link dataset"],
 )

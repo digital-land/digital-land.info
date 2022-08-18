@@ -9,8 +9,6 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    S3_HOISTED_BUCKET: HttpUrl
-    S3_COLLECTION_BUCKET: HttpUrl
     WRITE_DATABASE_URL: PostgresDsn
     READ_DATABASE_URL: PostgresDsn
     SENTRY_DSN: Optional[str] = None
