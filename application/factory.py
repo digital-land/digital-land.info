@@ -77,6 +77,8 @@ def create_app():
             "url": "https://opensource.org/licenses/MIT",
         },
         openapi_tags=tags_metadata,
+        docs_url=None,
+        redoc_url=None,
     )
     add_base_routes(app)
     add_routers(app)
@@ -160,6 +162,13 @@ def add_base_routes(app):
     def accessibility_statement(request: Request):
         return templates.TemplateResponse(
             "pages/accessibility-statement.html",
+            {"request": request},
+        )
+
+    @app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
+    def docs(request: Request):
+        return templates.TemplateResponse(
+            "pages/docs.html",
             {"request": request},
         )
 
