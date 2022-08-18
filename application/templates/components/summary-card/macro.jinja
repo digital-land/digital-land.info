@@ -13,11 +13,11 @@
     {%- for attribute, value in params.attributes %} {{attribute}}="{{value}}"{% endfor %}>
     {% if params.titleHtml or params.titleText or params.actions %}
     <header class="app-summary-card__header">
-      {% set headingLevel = params.headingLevel if params.headingLevel else 2 %}
+      {% set headingLevel = params.headingLevel if params.headingLevel else '2' %}
       <h{{ headingLevel }} class="app-summary-card__title">
         {{ params.titleHtml | safe if params.titleHtml else params.titleText }}
       </h{{ headingLevel }}>
-      {% if params.actions.items.length %}
+      {% if params.actions and params.actions.items.length %}
         <div class="app-summary-card__actions">
           {% if params.actions.items.length == 1 %}
             {{ _actionLink(params.actions.items[0]) | indent(12) | trim }}

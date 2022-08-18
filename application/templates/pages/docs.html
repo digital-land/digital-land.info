@@ -1,10 +1,35 @@
 {% extends "layouts/layout.html" %}
+{% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 {% block pageTitle %}Documentation - Digital Land{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l">Documentation</h1>
+    <div class="govuk-caption-xl">Planning Data</div>
+    <h1 class="govuk-heading-xl">Technical documentation</h1>
+    <p class="govuk-body">Use this technical documentation to find out:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>planning data API Endpoints</li>
+      <li>how to use the planning data API</li>
+      <li>how to generate a client library from our <a href="https://github.com/OAI/OpenAPI-Specification#readme">OpenAPI</a> endpoint</li>
+    </ul>
+    <hr class="govuk-section-break govuk-section-break--l">
+    <p class="govuk-body">You can read non-technical information about:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li><a href="/about/">About the planning data platform</a></li>
+      <li><a href="/guidance/how-to-provide-data">how to provide data</a></li>
+      <li><a href="/about/roadmap">A list of things we are working on</a></li>
+    </ul>
+    <hr class="govuk-section-break govuk-section-break--l">
+    <h2 class="govuk-heading-l">API Endpoints</h2>
+
+    {% call appSummaryCard({
+      'titleText': 'meg',
+      'actions': False
+    }) %}
+      dkjkdjdkjd
+    {% endcall %}
+
   </div>
 </div>
 {% endblock %}
