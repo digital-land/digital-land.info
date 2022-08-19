@@ -1,4 +1,6 @@
 {% extends "layouts/layout.html" %}
+{% from "govuk_frontend_jinja/components/table/macro.html" import govukTable -%}
+{% from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 {% block pageTitle %}Documentation - Digital Land{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
@@ -14,21 +16,189 @@
       <li>how to generate a client library from our <a href="https://github.com/OAI/OpenAPI-Specification#readme">OpenAPI</a> endpoint</li>
     </ul>
     <hr class="govuk-section-break govuk-section-break--l">
-    <p class="govuk-body">You can read non-technical information about:</p>
+    {# <p class="govuk-body">You can read non-technical information about:</p>
     <ul class="govuk-list govuk-list--bullet">
       <li><a href="/about/">About the planning data platform</a></li>
       <li><a href="/guidance/how-to-provide-data">how to provide data</a></li>
       <li><a href="/about/roadmap">A list of things we are working on</a></li>
-    </ul>
-    <hr class="govuk-section-break govuk-section-break--l">
-    <h2 class="govuk-heading-l">API Endpoints</h2>
+    </ul> #}
+    <hr class="govuk-section-break govuk-section-break--m">
+    <h2 class="govuk-heading-l">Planning Data OpenAPI</h2>
+
+    <p class="govuk-body">You can generate a client library from our OpenAPI file using <a href="https://editor-next.swagger.io/">Swagger Editor</a>.</p>
+    <p class="govuk-body">This may be an easier way for you to integrate your service with the planning data platform than writing a client library from scratch.</p>
 
     {% call appSummaryCard({
-      'titleText': 'meg',
-      'actions': False
     }) %}
-      dkjkdjdkjd
+
+      {{ govukTable({
+        'head': [
+          {
+            'text': "Request type"
+          },
+          {
+            'text': "URL"
+          }
+        ],
+        'rows': [
+          [
+            {
+              'html': govukTag({ 'text': 'GET', 'classes': 'govuk-tag--green'})
+            },
+            {
+              'html': '<span class="app-code-block">https://www.digital-land.info/openapi.json</span>'
+            }
+          ]
+        ]
+      }) }}
+
     {% endcall %}
+
+    <hr class="govuk-section-break govuk-section-break--l">
+
+    <h2 class="govuk-heading-l">Planning Data Endpoints</h2>
+
+    {% macro _parameterName(params={}) %}
+      {% if params.name %}<span class="app-code-block app-code-block--inline">{{ params.name }}</span>{% endif %}
+      <span class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint">({% if params.required == True %}required{% else%}optional{% endif %})</span>
+    {% endmacro %}
+
+    {% macro _renderEndpoint(params={})  %}
+
+      {% set _parameterRows = [] %}
+
+      {% for row in params.parameters.rows %}
+        {{
+          _parameterRows.append([
+            {
+              'html': _parameterName({ 'name': row.name, 'required': row.required }) | safe
+            },
+            {
+              'html': row.type | safe,
+              'classes': 'govuk-!-font-size-14'
+            },
+            {
+              'html': row.description | safe,
+              'classes': 'govuk-!-font-size-14'
+            }
+          ]) | debug | safe
+        }}
+      {% endfor %}
+
+      {% call appSummaryCard({
+          'titleText': params.name,
+          'classes': 'govuk-!-margin-bottom-6'
+        }) %}
+        {{
+          govukTable({
+            'head': [
+              {
+                'text': "Request type",
+                'classes': 'govuk-!-width-one-third'
+              },
+              {
+                'text': "URL"
+              }
+            ],
+            'rows': [
+              [
+                {
+                  'html': govukTag({ 'text': params.requestType, 'classes': ('govuk-tag--red' if (params.requestType | lower) == 'delete' else 'govuk-tag--green') })
+                },
+                {
+                  'html': ('<span class="app-code-block">' + params.url + '</span>'),
+                  'classes': 'govuk-!-font-size-16'
+                }
+              ]
+            ]
+          })
+        }}
+
+        {{
+          govukTable({
+            'caption': "Parameters",
+            'captionClasses': "govuk-table__caption--s govuk-hint",
+            'head': [
+              {
+                'text': "Name",
+                'classes': 'govuk-!-font-size-16'
+              },
+              {
+                'text': "Type",
+                'classes': 'govuk-!-font-size-16'
+              },
+              {
+                'text': "Description",
+                'classes': 'govuk-!-width-one-half govuk-!-font-size-16'
+              }
+            ],
+            'rows': _parameterRows
+          })
+        }}
+
+      {% endcall %}
+
+    {% endmacro %}
+
+    {{
+      _renderEndpoint({
+        'name': 'Name here',
+        'requestType': 'get',
+        'url': '/path/here',
+        'parameters': {
+          'rows': [
+            {
+              'name': 'Param name',
+              'required': True,
+              'type': 'string',
+              'description': 'a description here...'
+            },
+            {
+              'name': 'Param name',
+              'required': False,
+              'type': 'string',
+              'description': 'a description here...'
+            },
+            {
+              'name': 'Param name',
+              'required': False,
+              'type': 'string',
+              'description': 'a description here...'
+            }
+          ]
+        }
+      })
+    }}
+
+    {{
+      _renderEndpoint({
+        'name': 'Name here',
+        'requestType': 'get',
+        'url': '/path/here',
+        'parameters': {
+          'rows': [
+            {
+              'name': 'Param name',
+              'required': True,
+              'type': 'string',
+              'description': 'a description here...'
+            },
+            {
+              'name': 'Param name',
+              'required': False,
+              'type': 'string',
+              'description': 'a description here...'
+            },
+            {
+              'name': 'Param name',
+              'required': False,
+              'type': 'string',
+              'description': 'a description here...'
+            }
+          ]
+        }
+      })
+    }}
 
   </div>
 </div>
