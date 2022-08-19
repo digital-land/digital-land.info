@@ -12,48 +12,8 @@
     <p class="govuk-body">Use this technical documentation to find out:</p>
     <ul class="govuk-list govuk-list--bullet">
       <li>planning data API Endpoints</li>
-      <li>how to use the planning data API</li>
       <li>how to generate a client library from our <a href="https://github.com/OAI/OpenAPI-Specification#readme">OpenAPI</a> endpoint</li>
     </ul>
-    <hr class="govuk-section-break govuk-section-break--l">
-    {# <p class="govuk-body">You can read non-technical information about:</p>
-    <ul class="govuk-list govuk-list--bullet">
-      <li><a href="/about/">About the planning data platform</a></li>
-      <li><a href="/guidance/how-to-provide-data">how to provide data</a></li>
-      <li><a href="/about/roadmap">A list of things we are working on</a></li>
-    </ul> #}
-    <hr class="govuk-section-break govuk-section-break--m">
-    <h2 class="govuk-heading-l">Planning Data OpenAPI</h2>
-
-    <p class="govuk-body">You can generate a client library from our OpenAPI file using <a href="https://editor-next.swagger.io/">Swagger Editor</a>.</p>
-    <p class="govuk-body">This may be an easier way for you to integrate your service with the planning data platform than writing a client library from scratch.</p>
-
-    {% call appSummaryCard({
-    }) %}
-
-      {{ govukTable({
-        'head': [
-          {
-            'text': "Request type"
-          },
-          {
-            'text': "URL"
-          }
-        ],
-        'rows': [
-          [
-            {
-              'html': govukTag({ 'text': 'GET', 'classes': 'govuk-tag--green'})
-            },
-            {
-              'html': '<span class="app-code-block">https://www.digital-land.info/openapi.json</span>'
-            }
-          ]
-        ]
-      }) }}
-
-    {% endcall %}
-
     <hr class="govuk-section-break govuk-section-break--l">
 
     <h2 class="govuk-heading-l">Planning Data Endpoints</h2>
@@ -199,6 +159,48 @@
         }
       })
     }}
+
+<hr class="govuk-section-break govuk-section-break--l">
+
+    <h2 class="govuk-heading-l">Planning Data OpenAPI</h2>
+
+    <p class="govuk-body">You can generate a client library from our OpenAPI file using <a href="https://editor-next.swagger.io/">Swagger Editor</a>.</p>
+    <p class="govuk-body">This may be an easier way for you to integrate your service with the planning data platform than writing a client library from scratch.</p>
+
+    {% call appSummaryCard({
+    }) %}
+
+      {{ govukTable({
+        'head': [
+          {
+            'text': "Request type"
+          },
+          {
+            'text': "URL"
+          }
+        ],
+        'rows': [
+          [
+            {
+              'html': govukTag({ 'text': 'GET', 'classes': 'govuk-tag--green'})
+            },
+            {
+              'html': '<span class="app-code-block">https://www.digital-land.info/openapi.json</span>'
+            }
+          ]
+        ]
+      }) }}
+
+    {% endcall %}
+
+    <hr class="govuk-section-break govuk-section-break--l">
+
+    <p class="govuk-body">You can also read non-technical information about:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li><a href="/about/">the planning data platform</a></li>
+      <li><a href="/guidance/how-to-provide-data">how to provide data</a></li>
+      <li><a href="/about/roadmap">A list of things we are working on</a></li>
+    </ul>
 
   </div>
 </div>
