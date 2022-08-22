@@ -15,7 +15,15 @@
     "type": "git",
     "url": "git+https://github.com/digital-land/digital-land.info.git"
   },
-  "keywords": ["Data", "digital", "land", "python", "open", "jinja", "FastAPI"],
+  "keywords": [
+    "Data",
+    "digital",
+    "land",
+    "python",
+    "open",
+    "jinja",
+    "FastAPI"
+  ],
   "author": "Digital Land Team - DLUHC",
   "license": "MIT",
   "bugs": {
