@@ -167,9 +167,14 @@ def add_base_routes(app):
 
     @app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
     def docs(request: Request):
+        open_api_dict = app.openapi()
         return templates.TemplateResponse(
             "pages/docs.html",
-            {"request": request},
+            {
+                "request": request,
+                "paths": open_api_dict["paths"],
+                "components": open_api_dict["components"],
+            },
         )
 
     @app.exception_handler(StarletteHTTPException)
