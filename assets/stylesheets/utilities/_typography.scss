@@ -54,6 +54,12 @@
   font-size: 1rem;
 }
 
+.app-code-block--inline{
+  display: inline-block;
+  padding: govuk-spacing(1) govuk-spacing(2);
+  vertical-align: middle;
+}
+
 .app-code-block-overflow{
   max-height:330px;
   overflow-y: auto;
@@ -87,3 +93,7 @@
   width: 1em;
   height: 1em;
   background: white; }
+
+.app-u-vertical-align--top {
+  vertical-align: top;
+}
