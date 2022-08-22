@@ -51,8 +51,6 @@ jobs:
         make test-acceptance
       env:
         DATASETTE_URL:  https://datasette.digital-land.info
-        S3_COLLECTION_BUCKET: https://digital-land-production-collection-dataset.s3.eu-west-2.amazonaws.com
-        S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
         READ_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
         WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
         ENVIRONMENT: development

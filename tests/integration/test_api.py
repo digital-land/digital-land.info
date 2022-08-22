@@ -158,20 +158,6 @@ def test_dataset_json_endpoint_returns_as_expected(client, test_data):
     )
 
 
-def test_link_dataset_endpoint_returns_as_expected(
-    test_data, test_settings, client, exclude_middleware
-):
-    """
-    Test link dataset endpoint returns a 302 response code with the S3_HOISTED_BUCKET domain
-    """
-    response = client.get("/dataset/greenspace.csv/link", allow_redirects=False)
-    assert response.status_code == 302
-    assert (
-        response.headers["location"]
-        == f"{test_settings.S3_HOISTED_BUCKET}/greenspace-hoisted.csv"
-    )
-
-
 wkt_params = [
     ("POINT (-0.33753991127014155 53.74458682618967)", 200),
     ("'POINT (-0.33753991127014155 53.74458682618967)'", 400),
