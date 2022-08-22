@@ -47,18 +47,35 @@ class DatasetQueryFilters:
 class QueryFilters:
 
     # base filters
-    theme: Optional[List[str]] = Query(None)
-    typology: Optional[List[str]] = Query(None)
-    dataset: Optional[List[str]] = Query(None)
+    theme: Optional[List[str]] = Query(None, include_in_schema=False)
+    typology: Optional[List[str]] = Query(
+        None,
+        description="Returns entities where the typology is included withing those provided",
+    )
+    dataset: Optional[List[str]] = Query(
+        None,
+        description="Returns entities which come from one of the provided datasets",
+    )
 
     # TODO implement this like curie and subselect
-    organisation: Optional[List[str]] = Query(None)
+    organisation: Optional[List[str]] = Query(None, include_in_schema=False)
 
-    organisation_entity: Optional[List[int]] = Query(None)
-    entity: Optional[List[int]] = Query(None)
-    curie: Optional[List[str]] = Query(None)
-    prefix: Optional[List[str]] = Query(None)
-    reference: Optional[List[str]] = Query(None)
+    organisation_entity: Optional[List[int]] = Query(
+        None,
+        description="Returns entities which are associated with the given organisation entities",
+    )
+    entity: Optional[List[int]] = Query(
+        None, description="Returns entities who's id is in the given list"
+    )
+    curie: Optional[List[str]] = Query(
+        None, description="Returns entities with curies which match those provided"
+    )
+    prefix: Optional[List[str]] = Query(
+        None, description="Returns entities with prefixes which match those provided"
+    )
+    reference: Optional[List[str]] = Query(
+        None, description="Returns entities with references which match those provided"
+    )
 
     # TODO remove not implemented
     # related_entity: Optional[List[str]] = Query(
@@ -70,45 +87,101 @@ class QueryFilters:
     )
 
     # date filters
-    start_date: Optional[datetime.date] = None
-    start_date_year: Optional[str] = None
-    start_date_month: Optional[str] = None
-    start_date_day: Optional[str] = None
-    start_date_match: Optional[DateOption] = None
+    start_date: Optional[datetime.date] = Query(None, include_in_schema=False)
+    start_date_year: Optional[int] = Query(
+        None,
+        description="""Returns entities where the start date is either before or after the given year depending on the
+         value for start_date_match""",
+    )
+    start_date_month: Optional[int] = Query(
+        None,
+        description="""Returns entities where the start date is either before or after the given month depending on the
+         value for start_date_match""",
+    )
+    start_date_day: Optional[str] = Query(
+        None,
+        description="""Returns entities where the start date is either before or after the given day depending on the
+        value for start_date_match""",
+    )
+    start_date_match: Optional[DateOption] = Query(
+        None,
+        description="Decides on how to filter against the start_date_* values provided",
+    )
 
-    end_date: Optional[datetime.date] = None
-    end_date_year: Optional[str] = None
-    end_date_month: Optional[str] = None
-    end_date_day: Optional[str] = None
-    end_date_match: Optional[DateOption] = None
+    end_date: Optional[datetime.date] = Query(None, include_in_schema=False)
+    end_date_year: Optional[str] = Query(
+        None,
+        description="""Returns entities where the end date is either before or after the given year depending on the
+        value for end_date_match""",
+    )
+    end_date_month: Optional[str] = Query(
+        None,
+        description="""Returns entities where the end date is either before or after the given month depending on
+        the value for end_date_match""",
+    )
+    end_date_day: Optional[str] = Query(
+        None,
+        description="""Returns entities where the end date is either before or after the given day depending on the
+        value for end_date_match""",
+    )
+    end_date_match: Optional[DateOption] = Query(
+        None,
+        description="""Decides on how to filter against the end_date_* values provided""",
+    )
 
-    entry_date: Optional[datetime.date] = None
-    entry_date_year: Optional[str] = None
-    entry_date_month: Optional[str] = None
-    entry_date_day: Optional[str] = None
-    entry_date_match: Optional[DateOption] = None
+    entry_date: Optional[datetime.date] = Query(None, include_in_schema=False)
+    entry_date_year: Optional[str] = Query(
+        None,
+        description="""Returns entities where the entry date is either before or after the given year depending on the
+        value for entry_date_match""",
+    )
+    entry_date_month: Optional[str] = Query(
+        None,
+        description="""Returns entities where the entry date is either before or after the given month depending on the
+         value for entry_date_match""",
+    )
+    entry_date_day: Optional[str] = Query(
+        None,
+        description="""Returns entities where the entry date is either before or after the given day depending on the
+         value for entry_date_match""",
+    )
+    entry_date_match: Optional[DateOption] = Query(
+        None,
+        description="Decides on how to filter against the end_date_* values provided",
+    )
 
     # spatial filters
     longitude: Optional[float] = Query(
-        None, description="construct a point with this longitude"
+        None,
+        description="""Returns entities which intersect with a point constructed with this longitude, requires latitude
+         to be provided""",
     )
     latitude: Optional[float] = Query(
-        None, description="construct a point with this latitude"
+        None,
+        description="""Returns entities which intersect with a point constructed with this latitude, requires longitude
+         to be provided""",
     )
     geometry: Optional[List[str]] = Query(
-        None, description="one or more geometries in WKT format"
+        None,
+        description="""Returns entities which intersect with one or more geometries provided in WKT format""",
     )
     geometry_entity: Optional[List[int]] = Query(
-        None, description="take the geometry from each of these entities"
+        None,
+        description="""Returns entities which intersect with one or more geometries taken from each of the provided
+         entities""",
     )
     geometry_reference: Optional[List[str]] = Query(
-        None, description="take the geometry from the entities with these references"
+        None,
+        description="""Returns entities which intersect with one or more geometries taken from each of the entities
+         associated with the provided references""",
+    )
+    geometry_curie: Optional[List[str]] = Query(
+        None,
+        description="""Returns entities which intersect with one or more geometries taken from each of the entities
+         associated with the provided curies""",
     )
     geometry_relation: Optional[GeometryRelation] = Query(
         None, description="DE-9IM spatial relationship, default is 'within'"
-    )
-    geometry_curie: Optional[List[str]] = Query(
-        None, description="take the geometry from the entities with these curies"
     )
 
     # pagination filters
@@ -119,10 +192,10 @@ class QueryFilters:
 
     # response format filters
     accept: Optional[str] = Header(
-        None, description="accepted content-type for results"
+        None, description="accepted content-type for results", include_in_schema=False
     )
     suffix: Optional[SuffixEntity] = Query(
-        None, description="file format for the results"
+        None, description="file format for the results", include_in_schema=False
     )
     field: Optional[List[str]] = Query(
         None, description="fields to be included in response"
