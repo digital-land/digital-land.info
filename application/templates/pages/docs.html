@@ -4,6 +4,20 @@
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 {% block pageTitle %}Documentation - Digital Land{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
+{%- block breadcrumbs -%}
+  {{- govukBreadcrumbs({
+    "items": [
+        {
+          "text": "Digital Land",
+          "href": "/"
+        },
+        {
+          "text": "Documentation",
+          "href": "/docs/"
+        }
+    ]
+    }) -}}
+{%- endblock -%}
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
