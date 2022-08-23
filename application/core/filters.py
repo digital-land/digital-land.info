@@ -171,3 +171,7 @@ def digital_land_to_json(dict):
 def uri_encode(uri_template, kwarg_list):
     uri = URITemplate(uri_template)
     return uri.expand(**kwarg_list)
+
+
+def extract_component_key(json_ref):
+    return json_ref.split("/")[-1]

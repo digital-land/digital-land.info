@@ -32,27 +32,46 @@
 
     <h2 class="govuk-heading-l">Planning Data Endpoints</h2>
 
+    <!-- openapi schema generally has info,paths and components -->
+
     {% macro _parameterName(params={}) %}
       {% if params.name %}<span class="app-code-block app-code-block--inline">{{ params.name }}</span>{% endif %}
       <span class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint">({% if params.required == True %}required{% else%}optional{% endif %})</span>
     {% endmacro %}
 
-    {% macro _renderEndpoint(params={})  %}
+    {% macro _parameterType(params={}) %}
+      {% if "$ref" in params.parameter['schema'].keys() %}
+        {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
+        {% set _schema = params.components['schemas'][_parameterComponentName] %}
+      {% elif "allOf" in params.parameter['schema'].keys()%}
+        {% set _parameterComponentName = params.parameter['schema']["allOf"][0]["$ref"]|extract_component_key %}
+        {% set _schema = params.components['schemas'][_parameterComponentName] %}
+      {% else %}
+        {% set _schema = params.parameter['schema'] %}
+      {% endif %}
 
+      {% if 'items' in _schema.keys() %}
+        {{_schema['type']}}({{_schema['items']['type']}})
+      {% else %}
+        {{_schema.type}}
+      {% endif %}
+    {% endmacro %}
+
+    {% macro _renderEndpoint(params={}) %}
       {% set _parameterRows = [] %}
-
-      {% for row in params.parameters.rows %}
+      <!-- for path in params.paths.keys() -->
+      {% for parameter in params.parameters %}
         {{
           _parameterRows.append([
             {
-              'html': _parameterName({ 'name': row.name, 'required': row.required }) | safe
+              'html': _parameterName({ 'name': parameter.name, 'required': parameter.required }) | safe
             },
             {
-              'html': row.type | safe,
+              'html': _parameterType({'parameter':parameter,'components':components}) | safe,
               'classes': 'govuk-!-font-size-14'
             },
             {
-              'html': row.description | safe,
+              'html': parameter.description | safe,
               'classes': 'govuk-!-font-size-14'
             }
           ]) | debug | safe
@@ -114,65 +133,18 @@
 
     {% endmacro %}
 
-    {{
-      _renderEndpoint({
-        'name': 'Name here',
-        'requestType': 'get',
-        'url': '/path/here',
-        'parameters': {
-          'rows': [
-            {
-              'name': 'Param name',
-              'required': True,
-              'type': 'string',
-              'description': 'a description here...'
-            },
-            {
-              'name': 'Param name',
-              'required': False,
-              'type': 'string',
-              'description': 'a description here...'
-            },
-            {
-              'name': 'Param name',
-              'required': False,
-              'type': 'string',
-              'description': 'a description here...'
-            }
-          ]
-        }
-      })
-    }}
-
-    {{
-      _renderEndpoint({
-        'name': 'Name here',
-        'requestType': 'get',
-        'url': '/path/here',
-        'parameters': {
-          'rows': [
-            {
-              'name': 'Param name',
-              'required': True,
-              'type': 'string',
-              'description': 'a description here...'
-            },
-            {
-              'name': 'Param name',
-              'required': False,
-              'type': 'string',
-              'description': 'a description here...'
-            },
-            {
-              'name': 'Param name',
-              'required': False,
-              'type': 'string',
-              'description': 'a description here...'
-            }
-          ]
-        }
-      })
-    }}
+    {% for path in paths.keys() %}
+      {% for method in paths[path].keys() %}
+        {{
+          _renderEndpoint({
+            'name': paths[path][method]['summary'],
+            'requestType': method,
+            'url': path,
+            'parameters':paths[path][method]['parameters'],
+          })
+        }}
+      {% endfor %}
+    {% endfor %}
 
 <hr class="govuk-section-break govuk-section-break--l">
 

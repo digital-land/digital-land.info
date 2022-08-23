@@ -63,6 +63,7 @@ router.add_api_route(
     endpoint=get_organisations,
     response_class=DigitalLandJSONResponse,
     tags=["List of organisations by type"],
+    include_in_schema=False,
 )
 
 router.add_api_route(

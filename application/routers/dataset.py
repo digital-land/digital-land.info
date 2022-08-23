@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Path
 from fastapi.responses import HTMLResponse
 
 from application.data_access.digital_land_queries import (
@@ -10,6 +10,8 @@ from application.data_access.digital_land_queries import (
     get_latest_resource,
     get_publisher_coverage,
 )
+
+from pydantic import Required
 from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
@@ -20,7 +22,10 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def list_datasets(request: Request, extension: Optional[SuffixDataset] = None):
+def list_datasets(
+    request: Request,
+    extension: Optional[SuffixDataset] = None,
+):
     datasets = get_datasets()
     entity_counts_response = get_entity_count()
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
@@ -52,8 +57,8 @@ def list_datasets(request: Request, extension: Optional[SuffixDataset] = None):
 
 def get_dataset(
     request: Request,
-    dataset: str,
-    limit: int = 50,
+    dataset: str = Path(default=Required, description="Specify which dataset"),
+    # limit: int = Path(default=50,description="Limit number of rows in the response"),
     extension: Optional[SuffixDataset] = None,
 ):
 

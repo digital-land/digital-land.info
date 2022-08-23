@@ -3,7 +3,8 @@ import logging
 from dataclasses import asdict
 from typing import Optional, List, Set, Dict, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Path
+from pydantic import Required
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from application.core.models import GeoJSON, EntityModel
@@ -55,8 +56,11 @@ def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
     return entities
 
 
-def get_entity(request: Request, entity: int, extension: Optional[SuffixEntity] = None):
-
+def get_entity(
+    request: Request,
+    entity: int = Path(default=Required, description="Entity id"),
+    extension: Optional[SuffixEntity] = None,
+):
     e, old_entity_status, new_entity_id = get_entity_query(entity)
 
     if old_entity_status == 410:

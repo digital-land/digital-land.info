@@ -167,6 +167,7 @@ router.add_api_route(
     endpoint=search_facts,
     response_class=DigitalLandJSONResponse,
     tags=["Search entity"],
+    include_in_schema=False,
 )
 router.add_api_route(
     "/",
@@ -190,6 +191,7 @@ router.add_api_route(
     get_fact,
     response_class=DigitalLandJSONResponse,
     tags=["Get a single fact"],
+    include_in_schema=False,
 )
 router.add_api_route(
     "/{fact}",
