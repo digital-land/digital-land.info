@@ -140,14 +140,14 @@
         <nav role="navigation" aria-labelledby="download-the-data">
           <ul class="govuk-list govuk-!-font-size-16">
             <li>
-              <a class="govuk-link" href="/data/{{ dataset["dataset"] }}.csv">CSV</a>
+              <a class="govuk-link" href="{{ data_file_url }}/data/{{ dataset["dataset"] }}.csv">CSV</a>
             </li>
             <li>
-              <a class="govuk-link" href="/data/{{ dataset['dataset'] }}.json">JSON</a>
+              <a class="govuk-link" href="{{ data_file_url }}/data/{{ dataset['dataset'] }}.json">JSON</a>
             </li>
             {% if dataset['typology'] == 'geography' %}
             <li>
-              <a class="govuk-link" href="/data/{{ dataset['dataset'] }}.geojson">GeoJSON</a>
+              <a class="govuk-link" href="{{ data_file_url }}/data/{{ dataset['dataset'] }}.geojson">GeoJSON</a>
             </li>
             {% endif %}
           </ul>

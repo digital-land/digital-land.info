@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Request, HTTPException, Path
+from fastapi import APIRouter, Request, HTTPException, Path, Depends
 from fastapi.responses import HTMLResponse
 
 from application.data_access.digital_land_queries import (
@@ -16,6 +16,7 @@ from application.data_access.entity_queries import get_entity_count, get_entity_
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.search.enum import SuffixDataset
+from application.settings import get_settings, Settings
 
 
 router = APIRouter()
@@ -58,10 +59,11 @@ def list_datasets(
 def get_dataset(
     request: Request,
     dataset: str = Path(default=Required, description="Specify which dataset"),
+    settings: Settings = Depends(get_settings),
     # limit: int = Path(default=50,description="Limit number of rows in the response"),
     extension: Optional[SuffixDataset] = None,
 ):
-
+    data_file_url = settings.DATA_FILE_URL
     try:
         _dataset = get_dataset_query(dataset)
         if _dataset is None:
@@ -102,6 +104,7 @@ def get_dataset(
                 if latest_resource
                 else None,
                 "categories": categories,
+                "data_file_url": data_file_url,
             },
         )
 
