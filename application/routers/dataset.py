@@ -24,9 +24,7 @@ logger = logging.getLogger(__name__)
 
 def list_datasets(
     request: Request,
-    extension: Optional[SuffixDataset] = Path(
-        None, description="Format of the response"
-    ),
+    extension: Optional[SuffixDataset] = None,
 ):
     datasets = get_datasets()
     entity_counts_response = get_entity_count()
@@ -61,9 +59,7 @@ def get_dataset(
     request: Request,
     dataset: str = Path(default=Required, description="Specify which dataset"),
     # limit: int = Path(default=50,description="Limit number of rows in the response"),
-    extension: Optional[SuffixDataset] = Path(
-        default=None, description="Format of the response"
-    ),
+    extension: Optional[SuffixDataset] = None,
 ):
 
     try:
