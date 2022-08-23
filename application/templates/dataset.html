@@ -147,7 +147,7 @@
             </li>
             {% if dataset['typology'] == 'geography' %}
             <li>
-              <a class="govuk-link" href="/entity.geojson?dataset={{ dataset['dataset'] }}">GeoJSON</a>
+              <a class="govuk-link" href="/data/{{ dataset['dataset'] }}.geojson">GeoJSON</a>
             </li>
             {% endif %}
           </ul>
