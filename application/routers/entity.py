@@ -59,9 +59,7 @@ def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
 def get_entity(
     request: Request,
     entity: int = Path(default=Required, description="Entity id"),
-    extension: Optional[SuffixEntity] = Path(
-        None, description="Format for the response"
-    ),
+    extension: Optional[SuffixEntity] = None,
 ):
     e, old_entity_status, new_entity_id = get_entity_query(entity)
 
@@ -154,9 +152,7 @@ def get_entity(
 def search_entities(
     request: Request,
     query_filters: QueryFilters = Depends(),
-    extension: Optional[SuffixEntity] = Path(
-        None, description="Format for the response"
-    ),
+    extension: Optional[SuffixEntity] = None,
 ):
     query_params = asdict(query_filters)
     data = get_entity_search(query_params)

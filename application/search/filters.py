@@ -88,12 +88,12 @@ class QueryFilters:
 
     # date filters
     start_date: Optional[datetime.date] = Query(None, include_in_schema=False)
-    start_date_year: Optional[int] = Query(
+    start_date_year: Optional[str] = Query(
         None,
         description="""Returns entities where the start date is either before or after the given year depending on the
          value for start_date_match""",
     )
-    start_date_month: Optional[int] = Query(
+    start_date_month: Optional[str] = Query(
         None,
         description="""Returns entities where the start date is either before or after the given month depending on the
          value for start_date_match""",
