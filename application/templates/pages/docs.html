@@ -22,15 +22,21 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <div class="govuk-caption-xl">Planning Data</div>
-    <h1 class="govuk-heading-xl">Technical documentation</h1>
-    <p class="govuk-body">Use this technical documentation to find out:</p>
+    <h1 class="govuk-heading-xl">API documentation</h1>
+
+    <p class="govuk-body">You can download datasets in bulk in various formats from each <a href="/datasets">dataset page</a>.</p>
+    <p class="govuk-body">We are also developing an experiment API which may chane. You can read about below. This is intended for prototyping, get in touch with the team if you are interested in building a service using the planning data API.</p>
+
+    <hr class="govuk-section-break govuk-section-break--m">
+
+    <p class="govuk-body">Contents:</p>
     <ul class="govuk-list govuk-list--bullet">
-      <li>planning data API Endpoints</li>
-      <li>how to generate a client library from our <a href="https://github.com/OAI/OpenAPI-Specification#readme">OpenAPI</a> endpoint</li>
+      <li><a href="#api">Planning data API</a></li>
+      <li><a href="#openapi">Planning data OpenAPI</a></li>
     </ul>
     <hr class="govuk-section-break govuk-section-break--l">
 
-    <h2 class="govuk-heading-l">Planning Data Endpoints</h2>
+    <h2 class="govuk-heading-l" id="api">Planning Data API</h2>
 
     <!-- openapi schema generally has info,paths and components -->
 
@@ -82,6 +88,9 @@
           'titleText': params.name,
           'classes': 'govuk-!-margin-bottom-6'
         }) %}
+
+        <p class="govuk-body">{{ params.description }}</p>
+
         {{
           govukTable({
             'head': [
@@ -137,7 +146,8 @@
       {% for method in paths[path].keys() %}
         {{
           _renderEndpoint({
-            'name': paths[path][method]['summary'],
+            'name': paths[path][method]['tags'][0],
+            'description': paths[path][method]['summary'],
             'requestType': method,
             'url': path,
             'parameters':paths[path][method]['parameters'],
@@ -148,7 +158,7 @@
 
 <hr class="govuk-section-break govuk-section-break--l">
 
-    <h2 class="govuk-heading-l">Planning Data OpenAPI</h2>
+    <h2 class="govuk-heading-l" id="openapi">Planning Data OpenAPI</h2>
 
     <p class="govuk-body">You can generate a client library from our OpenAPI file using <a href="https://editor-next.swagger.io/">Swagger Editor</a>.</p>
     <p class="govuk-body">This may be an easier way for you to integrate your service with the planning data platform than writing a client library from scratch.</p>
@@ -178,15 +188,6 @@
       }) }}
 
     {% endcall %}
-
-    <hr class="govuk-section-break govuk-section-break--l">
-
-    <p class="govuk-body">You can also read non-technical information about:</p>
-    <ul class="govuk-list govuk-list--bullet">
-      <li><a href="/about/">the planning data platform</a></li>
-      <li><a href="/guidance/how-to-provide-data">how to provide data</a></li>
-      <li><a href="/about/roadmap">A list of things we are working on</a></li>
-    </ul>
 
   </div>
 </div>

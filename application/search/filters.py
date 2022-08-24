@@ -54,7 +54,7 @@ class QueryFilters:
     )
     dataset: Optional[List[str]] = Query(
         None,
-        description="Returns entities which come from one of the provided datasets",
+        description="Returns entities from one of the provided datasets",
     )
 
     # TODO implement this like curie and subselect
@@ -62,19 +62,17 @@ class QueryFilters:
 
     organisation_entity: Optional[List[int]] = Query(
         None,
-        description="Returns entities which are associated with the given organisation entities",
+        description="Search for entities managed by organisation",
     )
     entity: Optional[List[int]] = Query(
-        None, description="Returns entities who's id is in the given list"
+        None, description="Search for entities by entity number"
     )
-    curie: Optional[List[str]] = Query(
-        None, description="Returns entities with curies which match those provided"
-    )
+    curie: Optional[List[str]] = Query(None, description="Search for entities by CURIE")
     prefix: Optional[List[str]] = Query(
-        None, description="Returns entities with prefixes which match those provided"
+        None, description="Search for entities by prefix"
     )
     reference: Optional[List[str]] = Query(
-        None, description="Returns entities with references which match those provided"
+        None, description="Search for entities by reference"
     )
 
     # TODO remove not implemented
