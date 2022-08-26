@@ -49,16 +49,16 @@
             </dd>
           </div>
           <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Publishers</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ publishers['current'] }} of {{ publishers['expected'] }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Latest resource collected on</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
+            <dt class="govuk-summary-list__key govuk-!-width-one-half">Data providers</dt>
+            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ publishers['current'] }}<!-- of {{ publishers['expected'] }}--></dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key govuk-!-width-one-half">Collector last ran on</dt>
             <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key govuk-!-width-one-half">Latest resource collected on</dt>
+            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
           </div>
           {%  if dataset.licence %}
             <div class="govuk-summary-list__row">
