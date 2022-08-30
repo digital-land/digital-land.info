@@ -2,6 +2,7 @@
 {% from "govuk_frontend_jinja/components/table/macro.html" import govukTable -%}
 {% from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
+{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
 {% block pageTitle %}Documentation - Digital Land{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
 {%- block breadcrumbs -%}
@@ -102,7 +103,8 @@
             'head': [
               {
                 'text': "Request type",
-                'classes': 'govuk-!-width-one-third'
+                'classes': 'govuk-!-width-one-third',
+                'data': 'data-modules'
               },
               {
                 'text': "URL"
@@ -122,27 +124,33 @@
           })
         }}
 
-        {{
-          govukTable({
-            'caption': "Parameters",
-            'captionClasses': "govuk-table__caption--s govuk-hint",
-            'head': [
-              {
-                'text': "Name",
-                'classes': 'govuk-!-font-size-16'
-              },
-              {
-                'text': "Type",
-                'classes': 'govuk-!-font-size-16'
-              },
-              {
-                'text': "Description",
-                'classes': 'govuk-!-width-one-half govuk-!-font-size-16'
-              }
-            ],
-            'rows': _parameterRows
-          })
-        }}
+        {% set parametersHTML %}
+          {{
+            govukTable({
+              'caption': "Parameters",
+              'captionClasses': "govuk-table__caption--s govuk-hint",
+              'head': [
+                {
+                  'text': "Name",
+                  'classes': 'govuk-!-font-size-16'
+                },
+                {
+                  'text': "Type",
+                  'classes': 'govuk-!-font-size-16'
+                },
+                {
+                  'text': "Description",
+                  'classes': 'govuk-!-width-one-half govuk-!-font-size-16'
+                }
+              ],
+              'rows': _parameterRows
+            })
+          }}
+        {% endset %}
+
+        {{ dlDataTableWrapper({
+          "tableHTML": parametersHTML
+        }) }}
 
       {% endcall %}
 
