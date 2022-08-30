@@ -41,15 +41,22 @@
       <li><a href="#api">Planning data API</a></li>
       <li><a href="#openapi">Planning data OpenAPI</a></li>
     </ul>
+
     <hr class="govuk-section-break govuk-section-break--l">
+
+  </div>
+</div>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-three-quarters">
 
     <h2 class="govuk-heading-l" id="api">Planning Data API</h2>
 
     <!-- openapi schema generally has info,paths and components -->
 
     {% macro _parameterName(params={}) %}
-      {% if params.name %}<span class="app-code-block app-code-block--inline">{{ params.name }}</span>{% endif %}
-      <span class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint">({% if params.required == True %}required{% else%}optional{% endif %})</span>
+      {% if params.name %}<div class="app-code-block app-code-block--inline govuk-!-margin-bottom-2">{{ params.name }}</div>{% endif %}
+      <div class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint">{% if params.required == True %}Required{% else%}Optional{% endif %}</div>
     {% endmacro %}
 
     {% macro _parameterType(params={}) %}
@@ -85,7 +92,7 @@
             },
             {
               'html': parameter.description | safe,
-              'classes': 'govuk-!-font-size-14'
+              'classes': 'govuk-!-font-size-16'
             }
           ]) | debug | safe
         }}
@@ -202,6 +209,7 @@
       }) }}
 
     {% endcall %}
+
 
   </div>
 </div>
