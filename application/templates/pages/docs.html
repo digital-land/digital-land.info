@@ -69,7 +69,6 @@
       {% else %}
         {% set _schema = params.parameter['schema'] %}
       {% endif %}
-
       {% if 'items' in _schema.keys() %}
         {{_schema['type']}}({{_schema['items']['type']}})
       {% else %}
@@ -77,8 +76,19 @@
       {% endif %}
     {% endmacro %}
 
+    {% macro _parameterDescription(params={}) %}
+      {% if "$ref" in params.parameter['schema'].keys() %}
+        {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
+        {% set _schema = params.components['schemas'][_parameterComponentName] %}
+        Must be one of: {{ _schema["enum"][:-1] | join(", ") }} or {{ _schema["enum"] | last }}
+      {%  else %}
+        {{ params.parameter["description"] }}
+      {%  endif %}
+    {% endmacro %}
+
     {% macro _renderEndpoint(params={}) %}
       {% set _parameterRows = [] %}
+
       <!-- for path in params.paths.keys() -->
       {% for parameter in params.parameters %}
         {{
@@ -91,7 +101,7 @@
               'classes': 'govuk-!-font-size-14'
             },
             {
-              'html': parameter.description | safe,
+              'html': _parameterDescription({'parameter':parameter,'components':components})| safe,
               'classes': 'govuk-!-font-size-16'
             }
           ]) | debug | safe
