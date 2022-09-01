@@ -36,82 +36,63 @@
   <!-- /.govuk-grid-row -->
 
   <div class="govuk-grid-row">
-
     <div class="govuk-grid-column-two-thirds">
 
-      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-6' }) %}
-        <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Total</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">
-              <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">{{ entity_count|commanum }} <br>
-              <span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></a>
-            </dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Data providers</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ publishers['current'] }}<!-- of {{ publishers['expected'] }}--></dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Collector last ran on</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key govuk-!-width-one-half">Latest resource collected on</dt>
-            <dd class="govuk-summary-list__value govuk-!-width-one-half">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
-          </div>
-          {%  if dataset.licence %}
+     {% call appSummaryCard({
+        'classes': 'govuk-!-margin-bottom-1',
+        'titleText': 'About this dataset'
+      }) %}
+
+          <dl class="govuk-summary-list govuk-!-margin-bottom-0">
             <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">Licence</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half govuk-summary-list__value--markdown">
-                {{ dataset.licence_text | render_markdown(govAttributes=True) }}
+              <dt class="govuk-summary-list__key">Total</dt>
+              <dd class="govuk-summary-list__value">
+                <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">{{ entity_count|commanum }} <br>
+                <span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></a>
               </dd>
             </div>
-          {%  endif %}
-          {%  if dataset.attribution %}
             <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">Attribution</dt>
-              <dd class="govuk-summary-list__value govuk-!-width-one-half govuk-summary-list__value--markdown">
-                {{ dataset.attribution_text | render_markdown }}
-              </dd>
+              <dt class="govuk-summary-list__key">Data providers</dt>
+              <dd class="govuk-summary-list__value">{{ publishers['current'] }}<!-- of {{ publishers['expected'] }}--></dd>
             </div>
-          {%  endif %}
-        </dl>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Collector <br>  last ran on</dt>
+              <dd class="govuk-summary-list__value">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">New data <br> last found on</dt>
+              <dd class="govuk-summary-list__value">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
+            </div>
+            {%  if dataset.licence %}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Licence</dt>
+                <dd class="govuk-summary-list__value govuk-summary-list__value--markdown">
+                  {{ dataset.licence_text | render_markdown(govAttributes=True) }}
+                </dd>
+              </div>
+            {%  endif %}
+            {%  if dataset.attribution %}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Attribution</dt>
+                <dd class="govuk-summary-list__value govuk-summary-list__value--markdown">
+                  {{ dataset.attribution_text | render_markdown(govAttributes=True) }}
+                </dd>
+              </div>
+            {%  endif %}
+            {% if dataset.text %}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Summary</dt>
+                <dd class="govuk-summary-list__value govuk-summary-list__value--markdown">
+                  {{ dataset.text | render_markdown(govAttributes=True) }}
+                </dd>
+              </div>
+            {%  endif %}
+          </dl>
+
       {% endcall %}
 
-      {% if dataset.text %}
-      <div class="app-prose">
-        {{ dataset.text | render_markdown }}
-      </div>
-      {% endif %}
-
-
-      {% if categories %}
-        {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-9' }) %}
-          <table class="govuk-table">
-            <caption class="govuk-table__caption govuk-table__caption--m">{{ 'Entries' if categories| length > 1 else 'Entry' }}</caption>
-            <thead class="govuk-table__head">
-              <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">
-                  Name
-                </th>
-              </tr>
-            </thead>
-            <tbody class="govuk-table__body">
-              {% for category in categories %}
-                <tr class="govuk-table__row">
-                  <td class="govuk-table__cell app-table__cell">
-                      <a class="govuk-link"  href="/curie/{{dataset['dataset']}}:{{category['reference']}}">{{category['name']}}</a>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% endcall %}
-      {% endif %}
-
     </div>
-    <!-- / grid-column-two-thirds -->
+    <!-- /. govuk-grid-column -->
 
     <div class="govuk-grid-column-one-third">
 
@@ -167,6 +148,7 @@
       </aside>
 
     </div>
+
   </div>
 
   <div class="govuk-grid-row">
