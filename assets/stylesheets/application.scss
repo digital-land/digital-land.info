@@ -7,7 +7,7 @@ $govuk-link-underline-offset: .2em;
 // import all govuk frontend scss
 @import "node_modules/digital-land-frontend/digital-land-frontend/dl-frontend";
 
-// digital-land.info specific styles
+// planning.data.gov.uk specific styles
 // --------------------------------------------------------
 // ITCSS levels
 @import "base";
@@ -16,7 +16,7 @@ $govuk-link-underline-offset: .2em;
 @import "utilities/typography";
 @import "utilities/list";
 
-// digital-land.info components
+// planning.data.gov.uk components
 // --------------------------------------------------------
 // components
 // @import "component/hero";
