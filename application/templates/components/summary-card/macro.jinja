@@ -1,5 +1,5 @@
 {%- macro _actionLink(action) %}
-  <a class="govuk-link {%- if action.classes %} {{ action.classes }}{% endif %}" href="{{ action.href }}" {%- for attribute, value in action.attributes %} {{attribute}}="{{value}}"{% endfor %}>
+  <a class="govuk-link {%- if action.classes %} {{ action.classes }}{% endif %}" href="{{ action.href }}" {%- for attribute in action.attributes %} {{ attribute.key }}="{{ attribute.value }}"{% endfor %}>
     {{ action.html | safe if action.html else action.text }}
     {%- if action.visuallyHiddenText -%}
       <span class="govuk-visually-hidden"> {{ action.visuallyHiddenText }}</span>
@@ -17,13 +17,14 @@
       <h{{ headingLevel }} class="app-summary-card__title">
         {{ params.titleHtml | safe if params.titleHtml else params.titleText }}
       </h{{ headingLevel }}>
-      {% if params.actions and params.actions.items.length %}
+      {% if params.actions %}
         <div class="app-summary-card__actions">
-          {% if params.actions.items.length == 1 %}
+          {% if params.actions.get('items', []).length == 1 %}
+          {{ params.actions.get('items', []) | debug | safe }}
             {{ _actionLink(params.actions.items[0]) | indent(12) | trim }}
           {% else %}
             <ul class="app-summary-card__actions-list">
-            {% for action in params.actions.items %}
+            {% for action in params.actions.get('items', []) | list %}
               {% if action %}
                 <li class="app-summary-card__actions-list-item">
                   {{ _actionLink(action) | indent(18) | trim }}

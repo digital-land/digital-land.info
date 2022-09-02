@@ -3,7 +3,7 @@
 
 {%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
 {%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
-{%- from "digital-land-frontend/components/map/macro.jinja" import dlMap %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
 {%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
@@ -144,11 +144,29 @@
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
       {%- if includesMap %}
-        <h2 class="govuk-heading-m">Geographical area</h2>
+
+      {% call appSummaryCard({
+        'classes': 'govuk-!-margin-bottom-0',
+        'titleText': 'Geographical area',
+        'actions': {
+          'items': [
+            {
+              'text': 'Download geojson',
+              'href': '/entity/' + row["entity"] | string + '.geojson',
+              'attributes': [
+                {
+                  'key': 'download',
+                  'value': 'true'
+                }
+              ]
+            }
+          ],
+        }
+      }) %}
 
         {% set noteHTML %}<a class="js-hidden dl-link-national-map" href="#">See on national map.</a>{% endset %}
 
-        {{- dlMap({
+        {{- dlLeafletMap({
           "id": "dlMap",
           "wrapper_classes": "govuk-!-margin-top-4",
           "attributes": {
@@ -159,10 +177,8 @@
               "html": noteHTML
           }
         }) -}}
+      {% endcall %}
 
-        <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
-          <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
-        </div>
       {%- endif %}
     {%- endblock recordGeometry %}
     </div>
