@@ -23,6 +23,18 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+def get_datasets_by_typology(datasets):
+
+    typologies = {}
+    for ds in (d for d in datasets if d.typology):
+        typology = ds.typology
+        typologies.setdefault(typology, {"dataset": []})
+        if ds.entity_count > 0:
+            typologies[typology]["dataset"].append(ds)
+
+    return typologies
+
+
 def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
@@ -39,15 +51,9 @@ def list_datasets(
         )
         dataset.entity_count = count
 
-    themes = {}
+    typologies = get_datasets_by_typology(datasets)
 
-    for ds in (d for d in datasets if d.themes):
-        for theme in ds.themes:
-            themes.setdefault(theme, {"dataset": []})
-            if ds.entity_count > 0:
-                themes[theme]["dataset"].append(ds)
-
-    data = {"datasets": datasets, "themes": themes}
+    data = {"datasets": datasets, "typologies": typologies}
     if extension is not None and extension.value == "json":
         return data
     else:

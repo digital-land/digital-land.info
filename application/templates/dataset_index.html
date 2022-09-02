@@ -31,13 +31,13 @@
 
 		<h1 class="govuk-heading-xl">Datasets</h1>
 
-		<p class="govuk-body">Digital land have collected data across a number of datasets. These have been grouped by theme.</p>
+		<p class="govuk-body">Digital land have collected data across a number of datasets. These have been grouped by type</p>
 
     	<p class="govuk-body govuk-visually-hidden">Contents</p>
 		<ul class="govuk-list govuk-list--bullet">
-		{% for theme in themes.keys() %}
-			{% if theme != "" and themes[theme]['dataset']|length > 0 %}
-			<li><a class="govuk-link" href="#{{ theme }}">{{ theme | capitalize }}</a></li>
+		{% for typology in typologies.keys() %}
+			{% if typology != "" and typologies[typology]['dataset']|length > 0 %}
+				<li><a class="govuk-link" href="#{{ typology }}">{{ typology |replace("-"," ")| title }}</a></li>
 			{% endif %}
 		{% endfor %}
 		</ul>
@@ -52,25 +52,25 @@
 		<input class="dl-list-filter__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Ramsar site">
 	</form>
 
-	{% for theme in themes.keys() %}
-	{% if theme != "" and themes[theme]['dataset']|length > 0 %}
+	{% for typology in typologies.keys() %}
+	{% if theme != "" and typologies[typology]['dataset']|length > 0 %}
 	<div class="govuk-grid-row dl-list-filter__count">
 		<div class="govuk-grid-column-one-third">
-		{% set plural = theme | capitalize %}
+		{% set plural = typology | replace("-"," ")| title %}
 			<h2 class="govuk-heading-m list-filter__count__name" id="{{theme}}">{{plural}}</h2>
 			<div class="dl-list-filter__count__wrapper">
-				<p class="govuk-visually-hidden">There {{"is" if themes[theme]['dataset']|length == 1 else "are"}}
-					<span class="js-accessible-list-filter__count">{{ themes[theme]['dataset']|length }}</span>
+				<p class="govuk-visually-hidden">There {{"is" if typologies[typology]['dataset']|length == 1 else "are"}}
+					<span class="js-accessible-list-filter__count">{{ typologies[typology]['dataset']|length }}</span>
 					{{plural}}
 				</p>
-				<span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-filter__count" aria-hidden="true">{{ themes[theme]['dataset']|length }}</span>
+				<span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-filter__count" aria-hidden="true">{{ typologies[typology]['dataset']|length }}</span>
 			</div>
 		</div>
 
 		<div class="govuk-grid-column-two-thirds">
 
 			<ol class="dl-list-filter__list" data-filter="list">
-			{% for dataset in themes[theme]['dataset']|sort(attribute='name')  %}
+			{% for dataset in typologies[typology]['dataset']|sort(attribute='name')  %}
 				<li class="dl-list-filter__item" data-filter="item">
 					<a href="{{ dataset.dataset }}" class="govuk-link dl-list-filter__item-title">{{ dataset.name }}</a>
 					{%- if dataset['entity_count'] == 0 %}
