@@ -1,13 +1,19 @@
 .app-c-sources-panel {
   background-color: govuk-colour("light-grey");
   border: 1px solid $govuk-border-colour;
-  padding: 0 govuk-spacing(3);
+  padding: govuk-spacing(3) govuk-spacing(3);
   @include govuk-font($size: 14);
 
   @include govuk-media-query($from: desktop) {
-    // display: flex;
-    // justify-content: space-between;
+    display: flex;
     align-items: start;
+    flex-direction: column;
+  }
+  * {
+    margin: 0 0 .25em 0;
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 }
 
