@@ -3,7 +3,7 @@
 
 {%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
 {%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
-{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
+{%- from "digital-land-frontend/components/map/macro.jinja" import dlMap %}
 {%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
 {%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
@@ -56,6 +56,7 @@
     <div class="govuk-grid-column-full">
       <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
+      {{ row | debug | safe }}
     </div>
 
     <div class="govuk-grid-column-three-quarters">
@@ -77,9 +78,7 @@
                       {{ entityField(field,fields,dataset_fields) }}
                     </th>
                     <td class="govuk-table__cell app-table__cell">
-                      <!-- <span class="u-data-value"> -->
                       {{ entityValue(field,row[field],fields,dataset_fields)}}
-                      <!-- </span> -->
                     </td>
                     {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
@@ -136,7 +135,6 @@
 
       {% if dataset %}
       <div class="app-c-sources-panel govuk-!-margin-bottom-6">
-        {# Data provided by <a href="#">Historic England</a> and <a href="#">Lambeth Council</a> #}
           {{ dataset.attribution_text | render_markdown(govAttributes=True)}}
           {{ dataset.licence_text  | render_markdown(govAttributes=True)}}
       </div>
@@ -151,11 +149,11 @@
 
         {% set noteHTML %}<a class="js-hidden dl-link-national-map" href="#">See on national map.</a>{% endset %}
 
-        {{- dlLeafletMap({
+        {{- dlMap({
           "id": "dlMap",
           "wrapper_classes": "govuk-!-margin-top-4",
           "attributes": {
-              "data-geojson-urls": geometry_url
+              "data-geojson-urls": geometry_url,
           },
           "height": "460",
           "notePanel": {
@@ -216,9 +214,14 @@
   {%- if includesMap %}
     <script>
       const datasetName = "{{ pipeline_name }}"
+      const hasPoint = ("{{ row.point }}" != "None" ? true : false);
+      const hasGeometry = ("{{ row.geometry }}" == "None" ? false : true);
+      // if it has a point but not a geometry then we want a maximum zoom to prevent vast nothingness
+      const setMaxZoom = (hasPoint && !hasGeometry ? 14 : false);
       const $mapElement = document.querySelector('[data-module="boundary-map"]')
       const $nationalMapLink = document.querySelector('.dl-link-national-map')
       const mapParams = {
+        maxZoom: setMaxZoom,
         initZoomCallback: function (featureGroup, map) {
           console.log("initial load completed")
           // do we need to check there isn't more than one shape?
@@ -226,9 +229,7 @@
             .getBounds()
             .getCenter()
           const zoom = map.getZoom()
-          let url = `http://digital-land.github.io/map?layer=${datasetName}#${center
-            .lat},${center
-            .lng},${zoom}z`
+          let url = `http://digital-land.info/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
             console
             .log(url)
           if ($nationalMapLink) {

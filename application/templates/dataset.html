@@ -56,11 +56,11 @@
               <dd class="govuk-summary-list__value">{{ publishers['current'] }}<!-- of {{ publishers['expected'] }}--></dd>
             </div>
             <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">Collector <br>  last ran on</dt>
+              <dt class="govuk-summary-list__key">Collector last ran on</dt>
               <dd class="govuk-summary-list__value">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
             </div>
             <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">New data <br> last found on</dt>
+              <dt class="govuk-summary-list__key">New data last found on</dt>
               <dd class="govuk-summary-list__value">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
             </div>
             {%  if dataset.licence %}
