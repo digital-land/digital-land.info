@@ -320,7 +320,9 @@
       }
       const mapElementId = result.entity + "-map"
       const $mapElement = document.getElementById(mapElementId)
-      const dlmap = new DLMaps.Map($mapElement).init({})
+      const dlmap = new DLMaps.Map($mapElement).init({
+        maxZoom: 13
+      })
       // create a named map layer so we can use that to fitbounds
       var mapLayer = L.geoJSON().addTo(dlmap.map);
       mapLayer.addData(result.geojson);
