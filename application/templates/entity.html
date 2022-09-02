@@ -77,9 +77,7 @@
                       {{ entityField(field,fields,dataset_fields) }}
                     </th>
                     <td class="govuk-table__cell app-table__cell">
-                      <!-- <span class="u-data-value"> -->
                       {{ entityValue(field,row[field],fields,dataset_fields)}}
-                      <!-- </span> -->
                     </td>
                     {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
@@ -136,9 +134,8 @@
 
       {% if dataset %}
       <div class="app-c-sources-panel govuk-!-margin-bottom-6">
-        {# Data provided by <a href="#">Historic England</a> and <a href="#">Lambeth Council</a> #}
-          {{ dataset.attribution_text | render_markdown(govAttributes=True)}}
-          {{ dataset.licence_text  | render_markdown(govAttributes=True)}}
+          {{ dataset.attribution_text | render_markdown() }}
+          {{ dataset.licence_text  | render_markdown()}}
       </div>
       {% endif %}
 
@@ -147,7 +144,25 @@
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
       {%- if includesMap %}
-        <h2 class="govuk-heading-m">Geographical area</h2>
+
+      {% call appSummaryCard({
+        'classes': 'govuk-!-margin-bottom-0',
+        'titleText': 'Geographical area',
+        'actions': {
+          'items': [
+            {
+              'text': 'Download geojson',
+              'href': '/entity/' + row["entity"] | string + '.geojson',
+              'attributes': [
+                {
+                  'key': 'download',
+                  'value': 'true'
+                }
+              ]
+            }
+          ],
+        }
+      }) %}
 
         {% set noteHTML %}<a class="js-hidden dl-link-national-map" href="#">See on national map.</a>{% endset %}
 
@@ -155,17 +170,15 @@
           "id": "dlMap",
           "wrapper_classes": "govuk-!-margin-top-4",
           "attributes": {
-              "data-geojson-urls": geometry_url
+              "data-geojson-urls": geometry_url,
           },
           "height": "460",
           "notePanel": {
               "html": noteHTML
           }
         }) -}}
+      {% endcall %}
 
-        <div class="govuk-!-margin-top-2 govuk-!-margin-bottom-6">
-          <a download class="app-page-action-button" href="/entity/{{row["entity"]}}.geojson">Download geojson</a>
-        </div>
       {%- endif %}
     {%- endblock recordGeometry %}
     </div>
@@ -216,9 +229,14 @@
   {%- if includesMap %}
     <script>
       const datasetName = "{{ pipeline_name }}"
+      const hasPoint = ("{{ row.point }}" != "None" ? true : false);
+      const hasGeometry = ("{{ row.geometry }}" == "None" ? false : true);
+      // if it has a point but not a geometry then we want a maximum zoom to prevent vast nothingness
+      const setMaxZoom = (hasPoint && !hasGeometry ? 14 : false);
       const $mapElement = document.querySelector('[data-module="boundary-map"]')
       const $nationalMapLink = document.querySelector('.dl-link-national-map')
       const mapParams = {
+        maxZoom: setMaxZoom,
         initZoomCallback: function (featureGroup, map) {
           console.log("initial load completed")
           // do we need to check there isn't more than one shape?
@@ -226,9 +244,7 @@
             .getBounds()
             .getCenter()
           const zoom = map.getZoom()
-          let url = `http://digital-land.github.io/map?layer=${datasetName}#${center
-            .lat},${center
-            .lng},${zoom}z`
+          let url = `http://digital-land.info/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
             console
             .log(url)
           if ($nationalMapLink) {
