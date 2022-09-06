@@ -5,6 +5,7 @@ from fastapi import Query, Header
 from pydantic import validator
 from pydantic.dataclasses import dataclass
 from sqlalchemy import text
+import re
 
 from application.db.models import DatasetOrm
 from application.db.session import get_context_session
@@ -343,3 +344,19 @@ class FactDatasetQueryFilters:
 class FactQueryFilters(FactDatasetQueryFilters):
     entity: int
     field: Optional[List[str]] = Query(None)
+
+
+@dataclass
+class FactPathParams:
+    fact: str
+
+    @validator("fact", pre=True)
+    def hash_sha256_validator(cls, fact: str):
+        regex_exp = "^[a-f0-9]{64}"
+        regex_ind = bool(re.match(regex_exp, fact))
+        if not regex_ind:
+            raise DigitalLandValidationError(
+                "fact must be a hash produced using the SHA256 hashing algorithm"
+            )
+        else:
+            return fact

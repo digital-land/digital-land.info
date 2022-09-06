@@ -7,7 +7,11 @@ from pydantic import BaseModel
 import pytest
 from application.routers.fact import _convert_model_to_dict, get_fact, search_facts
 from application.core.models import DatasetFieldModel, EntityModel, FactModel
-from application.search.filters import FactDatasetQueryFilters, FactQueryFilters
+from application.search.filters import (
+    FactDatasetQueryFilters,
+    FactQueryFilters,
+    FactPathParams,
+)
 
 
 def test_convert_model_to_dict_single_model():
@@ -46,13 +50,22 @@ def query_params(mocker):
     return output
 
 
-def test_get_fact_no_fact_returned_for_html(mocker, query_params):
+@pytest.fixture
+def path_params(mocker):
+    # need to mock validation so dataset isn't queried
+    output = FactPathParams(
+        fact="180b185fbe277e7ae6d0da63b57eb46549d21fd6424e9890c4cd73f9490dde93"
+    )
+    return output
+
+
+def test_get_fact_no_fact_returned_for_html(mocker, query_params, path_params):
     mocker.patch("application.routers.fact.get_fact_query", return_value=None)
     request = MagicMock()
     try:
         get_fact(
             request=request,
-            fact="180b185fbe277e7ae6d0da63b57eb46549d21fd6424e9890c4cd73f9490dde93",
+            path_params=path_params,
             query_filters=query_params,
             extension=None,
         )
@@ -61,7 +74,7 @@ def test_get_fact_no_fact_returned_for_html(mocker, query_params):
         assert True
 
 
-def test_get_fact_no_facts_returned_for_json(mocker, query_params):
+def test_get_fact_no_facts_returned_for_json(mocker, query_params, path_params):
     mocker.patch("application.routers.fact.get_fact_query", return_value=None)
     request = MagicMock()
     extension = MagicMock()
@@ -69,7 +82,7 @@ def test_get_fact_no_facts_returned_for_json(mocker, query_params):
     try:
         get_fact(
             request=request,
-            fact="180b185fbe277e7ae6d0da63b57eb46549d21fd6424e9890c4cd73f9490dde93",
+            path_params=path_params,
             query_filters=query_params,
             extension=extension,
         )
@@ -103,14 +116,16 @@ def single_fact_model():
     return output
 
 
-def test_get_fact_fact_returned_for_html(mocker, single_fact_model, query_params):
+def test_get_fact_fact_returned_for_html(
+    mocker, single_fact_model, query_params, path_params
+):
     mocker.patch(
         "application.routers.fact.get_fact_query", return_value=single_fact_model
     )
     request = MagicMock()
     result = get_fact(
         request=request,
-        fact="180b185fbe277e7ae6d0da63b57eb46549d21fd6424e9890c4cd73f9490dde93",
+        path_params=path_params,
         query_filters=query_params,
         extension=None,
     )
@@ -125,7 +140,9 @@ def test_get_fact_fact_returned_for_html(mocker, single_fact_model, query_params
         assert False, "template unable to render, missing variable(s) from context"
 
 
-def test_get_fact_fact_returned_for_json(mocker, single_fact_model, query_params):
+def test_get_fact_fact_returned_for_json(
+    mocker, single_fact_model, query_params, path_params
+):
     mocker.patch(
         "application.routers.fact.get_fact_query", return_value=single_fact_model
     )
@@ -134,7 +151,7 @@ def test_get_fact_fact_returned_for_json(mocker, single_fact_model, query_params
     extension.value = "json"
     result = get_fact(
         request=request,
-        fact="180b185fbe277e7ae6d0da63b57eb46549d21fd6424e9890c4cd73f9490dde93",
+        path_params=path_params,
         query_filters=query_params,
         extension=extension,
     )
