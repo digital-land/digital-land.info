@@ -4,10 +4,7 @@ This guidance will take you through the process of publishing data that meets th
 
 ---
 
-How to provide your data
-------------------------
-
-Publishing is a 4 step process:
+## Steps
 
 1.  [Prepare your data](#{{ 'Step 1: Prepare your data' | slugify }})
 
