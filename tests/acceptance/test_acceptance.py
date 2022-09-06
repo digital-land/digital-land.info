@@ -80,24 +80,3 @@ def test_get_healthcheck(server_process):
     data = resp.json()
 
     assert data["status"] == "OK"
-
-
-def test_guidance_pages(server_process, page):
-
-    page.goto(BASE_URL)
-
-    page.click("text=Guidance")
-    assert page.url == f"{BASE_URL}/guidance/"
-    assert page.text_content("h1") == "Guidance for local planning authorities"
-
-    page.click("text=Introduction")
-    assert page.url == f"{BASE_URL}/guidance/introduction"
-    page.click("text=Introduction for local planning authorities")
-
-    page.click("text=How to provide data")
-    assert page.url == f"{BASE_URL}/guidance/how-to-provide-data"
-
-    page.click("text=Data specifications guidance")
-    assert page.url == f"{BASE_URL}/guidance/specifications/"
-
-    page.click("text=Data specifications for local planning authorities")
