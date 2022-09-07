@@ -87,7 +87,7 @@ This runs a browser based test of main pages, and a test of a json endpoint for 
 If you want to see the acceptance tests in action run the following:
 
     playwright install chromium
-    pytest tests/acceptance  --headed --slowmo 1000
+    python -m pytest tests/acceptance  --headed --slowmo 1000
 
 
 --headed opens browser and --slowmo slows down interactions by the specified number of milliseconds

@@ -37,8 +37,7 @@
 
     {% macro layerControlItem(layer) %}
       <li class="dl-map__layer-item govuk-!-margin-bottom-2" data-layer-control="{{ layer.dataset }}"
-  {% if layer.paint_options.type %}data-layer-data-type={{layer.paint_options.type}}{% endif %}
-   data-style-options="{% if layer.paint_options %}{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}{% endif %}">
+      {% if layer.paint_options.type %}data-layer-data-type={{layer.paint_options.type}}{% endif %} data-style-options="{% if layer.paint_options %}{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}{% endif %}">
         <div class="govuk-checkboxes__item">
           <input class="govuk-checkboxes__input" id="{{ layer.dataset }}" name="{{ layer.dataset }}" type="checkbox" value="{{ layer.dataset }}" {{ "checked='checked'" if layer.checked }}>
           <label class="govuk-label govuk-checkboxes__label" for="{{ layer.dataset }}">
@@ -76,6 +75,10 @@
     </div>
   </div>
 </div>
+
+  <div class="app-c-sources-panel govuk-!-margin-bottom-0">
+      <p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>
+  </div>
 {% endblock %}
 
 {% block feedbackPrompt %}
