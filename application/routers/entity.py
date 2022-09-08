@@ -201,6 +201,7 @@ def search_entities(
     else:
         next_url = None
     # default is HTML
+    has_geographies = any((e.typology == "geography" for e in data["entities"]))
     return templates.TemplateResponse(
         "search.html",
         {
@@ -228,6 +229,7 @@ def search_entities(
             },
             "next_url": next_url,
             "prev_url": prev_url,
+            "has_geographies": has_geographies,
         },
     )
 

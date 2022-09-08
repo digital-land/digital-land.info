@@ -283,13 +283,15 @@
                       <a href="/entity.json?{{ url_query_params.str }}" class="govuk-link">JSON</a>
                       {% endif %}
                     </li>
-                    <li class="app-list__item">
-                      {% if url_query_params.str == "" %}
-                      <a href="/entity.geojson" class="govuk-link">GeoJSON</a>
-                      {% else %}
-                      <a href="/entity.geojson?{{ url_query_params.str }}" class="govuk-link">GeoJSON</a>
-                      {% endif %}
-                    </li>
+                    {% if has_geographies %}
+                      <li class="app-list__item">
+                        {% if url_query_params.str == "" %}
+                        <a href="/entity.geojson" class="govuk-link">GeoJSON</a>
+                        {% else %}
+                        <a href="/entity.geojson?{{ url_query_params.str }}" class="govuk-link">GeoJSON</a>
+                        {% endif %}
+                      </li>
+                    {% endif %}
                   </ul>
                 </div>
               </div>
