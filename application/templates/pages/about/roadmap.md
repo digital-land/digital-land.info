@@ -2,6 +2,8 @@
 
 We're working with 12 LPAs to help them provide data through our platform, so they can use the [RIPA](https://www.ripa.digital) and [BoPS](https://bops.digital) digital planning products.
 
+**Nine of these are currently publishing data.**
+
 #### Now
 
 - We're working to onboard 6 more LPAs.
