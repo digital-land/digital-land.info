@@ -2,7 +2,7 @@
 
 This accessibility statement applies to the planning.data.gov.uk website: <https://www.planning.data.gov.uk>.
 
-This website is run by the Digital Land team in the Department for Levelling Up, Housing and Communities
+This website is run by the Planning Data team in the Department for Levelling Up, Housing and Communities
 
 We are always working to improve our website and want as many people as possible to be able to access and use it. For example, that means you should be able to:
 
@@ -88,7 +88,7 @@ The Equality and Human Rights Commission (EHRC) is responsible for enforcing the
 
 ## Technical information about this website's accessibility
 
-The Digital Land team is committed to making its website accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
+The Planning Data team is committed to making its website accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
 
 ### Compliance status
 
@@ -98,4 +98,4 @@ This website is partially compliant with the [Web Content Accessibility Guideli
 
 This statement was prepared on 08 September 2020. It was last reviewed on 08 July 2022.
 
-This website was last tested on 08 July 2022. The test was carried out by the Digital Land team.
+This website was last tested on 08 July 2022. The test was carried out by the Planning Data team.

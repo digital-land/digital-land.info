@@ -1,7 +1,7 @@
 {% extends "layouts/layout.html" %}
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 
-{% block pageTitle %}{{ dataset["name"] }} Dataset | Digital Land{% endblock %}
+{% block pageTitle %}{{ dataset["name"] }} Dataset | Planning Data{% endblock %}
 
 {% block headStart %}
   <meta name="generated-date" content="{{ now }}"/>
@@ -11,7 +11,7 @@
   {{- govukBreadcrumbs({
     "items": [
         {
-          "text": "Digital Land",
+          "text": "Planning Data",
           "href": "/"
         },
         {

@@ -3,13 +3,13 @@
 {% from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
-{% block pageTitle %}Documentation - Digital Land{% endblock %}
+{% block pageTitle %}Documentation - Planning Data{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
 {%- block breadcrumbs -%}
   {{- govukBreadcrumbs({
     "items": [
         {
-          "text": "Digital Land",
+          "text": "Planning Data",
           "href": "/"
         },
         {

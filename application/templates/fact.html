@@ -8,13 +8,13 @@
 {%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 
-{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Digital Land{% endblock -%}
+{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Planning Data{% endblock -%}
 
 {%- block breadcrumbs -%}
   {{- govukBreadcrumbs({
     "items": [
         {
-          "text": "Digital Land",
+          "text": "Planning Data",
           "href": "/"
         },
         {

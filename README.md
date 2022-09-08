@@ -1,9 +1,9 @@
 [![Build and deploy](https://github.com/digital-land/digital-land.info/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/digital-land/digital-land.info/actions/)
-[![Digital land smoke test](https://github.com/digital-land/smoke-test/actions/workflows/smoke-test.yml/badge.svg)](https://github.com/digital-land/smoke-test/actions/)
+[![planning.data.gov.uk smoke test](https://github.com/digital-land/smoke-test/actions/workflows/smoke-test.yml/badge.svg)](https://github.com/digital-land/smoke-test/actions/)
 
-# Digital land web application
+# planning.data.gov.uk web application
 
-This is the repository for the [digital land application](https://www.planning.data.gov.uk)
+This is the repository for the [planning.data.gov.uk application](https://www.planning.data.gov.uk)
 
 ## Running locally
 
@@ -127,7 +127,7 @@ docker-compose file builds.
 
 The docker container for use in production can be built with the following command (NB this tag can be anything):
 
-In order to push the application container or deploy to the digital land AWS infrastructure you'll need to be authenticated.
+In order to push the application container or deploy to the Planning Data AWS infrastructure you'll need to be authenticated.
 
 ### AWS Authentication
 
