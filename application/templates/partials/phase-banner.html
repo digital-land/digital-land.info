@@ -1,10 +1,10 @@
 {% from "digital-land-frontend/components/phase-banner/macro.jinja" import dlPhaseBanner %}
-{% set _beta = False  %}
+{% set _beta = True %}
 {% if _beta %}
   {{
     dlPhaseBanner({
-      'phase': 'beta',
-      'html': 'This is a beta service. Please provide <a class="govuk-link" href="mailto:digitalland@levellingup.gov.uk?subject=Prototype feedback">feedback to the Digital Land team</a>.'
+      'phase': 'Prototype',
+      'html': 'This is a prototype. Your <a class="govuk-link" href="mailto:digitalland@levellingup.gov.uk?subject=Prototype%20feedback">feedback</a> will help us to improve it.'
     })
   }}
 {% else %}

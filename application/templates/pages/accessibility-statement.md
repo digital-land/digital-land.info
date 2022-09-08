@@ -1,6 +1,6 @@
 # Accessibility statement
 
-This accessibility statement applies to the Digital Land website: <https://digital-land.info>.
+This accessibility statement applies to the planning.data.gov.uk website: <https://www.planning.data.gov.uk>.
 
 This website is run by the Digital Land team in the Department for Levelling Up, Housing and Communities
 

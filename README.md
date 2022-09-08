@@ -3,7 +3,7 @@
 
 # Digital land web application
 
-This is the repository for the [digital land info application](https://www.digital-land.info)
+This is the repository for the [digital land application](https://www.planning.data.gov.uk)
 
 ## Running locally
 
