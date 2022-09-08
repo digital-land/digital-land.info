@@ -208,12 +208,14 @@ def add_base_routes(app):
                 extension_path_param = None
             if extension_path_param in ["json", "geojson"]:
                 return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     content=jsonable_encoder({"detail": exc.errors()}),
                 )
             else:
                 return templates.TemplateResponse(
-                    "404.html", {"request": request}, status_code=404
+                    "404.html",
+                    {"request": request},
+                    status_code=status.HTTP_404_NOT_FOUND,
                 )
 
         else:

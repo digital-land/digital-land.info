@@ -160,12 +160,12 @@ def test_dataset_json_endpoint_returns_as_expected(client, test_data):
 
 wkt_params = [
     ("POINT (-0.33753991127014155 53.74458682618967)", 200),
-    ("'POINT (-0.33753991127014155 53.74458682618967)'", 400),
-    ('"POINT (-0.33753991127014155 53.74458682618967)"', 400),
-    ("POINT (-0.33753991127014155)", 400),
-    ("POLYGON ((-0.33753991127014155)", 400),
-    ("MULTIPOLYGON ((-0.33753991127014155)))", 400),
-    ("\t", 400),
+    ("'POINT (-0.33753991127014155 53.74458682618967)'", 422),
+    ('"POINT (-0.33753991127014155 53.74458682618967)"', 422),
+    ("POINT (-0.33753991127014155)", 422),
+    ("POLYGON ((-0.33753991127014155)", 422),
+    ("MULTIPOLYGON ((-0.33753991127014155)))", 422),
+    ("\t", 422),
 ]
 
 
@@ -198,23 +198,23 @@ def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_da
 
 date_params = [
     (
-        ["entry_date_day"],
+        ["query", "entry_date_day"],
         {"entry_date_year": 2022, "entry_date_month": 11, "entry_date_day": -1},
     ),
     (
-        ["entry_date_day"],
+        ["query", "entry_date_day"],
         {"entry_date_year": 2022, "entry_date_month": 11, "entry_date_day": 32},
     ),
     (
-        ["entry_date_month"],
+        ["query", "entry_date_month"],
         {"entry_date_year": 2022, "entry_date_month": -1, "entry_date_day": 1},
     ),
     (
-        ["entry_date_month"],
+        ["query", "entry_date_month"],
         {"entry_date_year": 2022, "entry_date_month": 13, "entry_date_day": 1},
     ),
     (
-        ["entry_date_year"],
+        ["query", "entry_date_year"],
         {
             "entry_date_year": "twenty_twenty_two",
             "entry_date_month": 1,
@@ -222,23 +222,23 @@ date_params = [
         },
     ),
     (
-        ["start_date_day"],
+        ["query", "start_date_day"],
         {"star_date_year": 2022, "start_date_month": 11, "start_date_day": -1},
     ),
     (
-        ["start_date_day"],
+        ["query", "start_date_day"],
         {"start_date_year": 2022, "start_date_month": 11, "start_date_day": 32},
     ),
     (
-        ["start_date_month"],
+        ["query", "start_date_month"],
         {"start_date_year": 2022, "start_date_month": -1, "start_date_day": 1},
     ),
     (
-        ["start_date_month"],
+        ["query", "start_date_month"],
         {"start_date_year": 2022, "start_date_month": 13, "start_date_day": 1},
     ),
     (
-        ["start_date_year"],
+        ["query", "start_date_year"],
         {
             "start_date_year": "twenty_twenty_two",
             "start_date_month": 1,
@@ -246,31 +246,31 @@ date_params = [
         },
     ),
     (
-        ["end_date_day"],
+        ["query", "end_date_day"],
         {"end_date_year": 2022, "end_date_month": 11, "end_date_day": -1},
     ),
     (
-        ["end_date_day"],
+        ["query", "end_date_day"],
         {"end_date_year": 2022, "end_date_month": 11, "end_date_day": 32},
     ),
     (
-        ["end_date_month"],
+        ["query", "end_date_month"],
         {"end_date_year": 2022, "end_date_month": -1, "end_date_day": 1},
     ),
     (
-        ["end_date_month"],
+        ["query", "end_date_month"],
         {"end_date_year": 2022, "end_date_month": 13, "end_date_day": 1},
     ),
     (
-        ["end_date_year"],
+        ["query", "end_date_year"],
         {"end_date_year": "twenty_twenty_two", "end_date_month": 1, "end_date_day": 1},
     ),
     (
-        ["end_date_month"],
+        ["query", "end_date_month"],
         {"end_date_year": 2022, "end_date_month": "-1", "end_date_day": 1},
     ),
     (
-        ["end_date_day"],
+        ["query", "end_date_day"],
         {"end_date_year": 2022, "end_date_month": 1, "end_date_day": "33"},
     ),
 ]
@@ -279,7 +279,7 @@ date_params = [
 @pytest.mark.parametrize("expected, params", date_params)
 def test_api_requires_numeric_date_fields_in_range(expected, params, client):
     response = client.get("/entity.geojson", params=params)
-    assert response.status_code == 400
+    assert response.status_code == 422
     data = response.json()
     assert expected == data["detail"][0]["loc"]
 
@@ -291,7 +291,7 @@ curie_params = ["", ":", "broken", "bro-ken", "bro;ken", "bro\tken"]
 def test_search_entity_rejects_invalid_curie(curie, client):
     params = {"curie": curie}
     response = client.get("/entity.json", params=params)
-    assert response.status_code == 400
+    assert response.status_code == 422
     data = response.json()
     assert "curie must be in form 'prefix:reference'" == data["detail"][0]["msg"]
     assert "curie" == data["detail"][0]["loc"][0]

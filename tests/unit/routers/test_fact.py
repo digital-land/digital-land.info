@@ -43,7 +43,7 @@ def test_convert_model_handles_none():
 def query_params(mocker):
     # need to mock validation so dataset isn't queried
     mocker.patch(
-        "application.search.filters.get_dataset_names",
+        "application.search.validators.get_dataset_names",
         return_value=["ancient-woodland"],
     )
     output = FactDatasetQueryFilters(dataset="ancient-woodland")
@@ -236,7 +236,7 @@ def search_query_parameters(mocker):
         return dataset
 
     mocker.patch(
-        "application.search.filters.get_dataset_names",
+        "application.search.validators.get_dataset_names",
         return_value=["ancient-woodland"],
     )
     output = FactQueryFilters(
