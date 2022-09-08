@@ -87,6 +87,6 @@ While the data for this site has been designed for the modernisation of public s
 
 We are keen to hear from and potentially highlight external users of this data, and to get feedback about how we can improve this service. To get in touch with the team, contact [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk).  
 
-A number of companies already provide access to public sector planning data. If you are looking for commercial services providing national data coverage, access to historic data, or insights and services.
+A number of companies already provide access to public sector planning data. If you are looking for commercial services providing national data coverage, access to historic data, or insights and services , have a look at companies such as [LandTech](https://land.tech/), [Glenigan](https://www.glenigan.com/), [Nimbus](https://www.nimbusmaps.co.uk/), [Urban Intelligence](https://urbanintelligence.co.uk/) and [Realyse](https://www.realyse.com/) among others.
 
 <hr class="govuk-section-break govuk-section-break--m">
