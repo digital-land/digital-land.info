@@ -127,7 +127,7 @@ docker-compose file builds.
 
 The docker container for use in production can be built with the following command (NB this tag can be anything):
 
-In order to push the application container or deploy to the digital land AWS infrastructure you'll need to be authenticated.
+In order to push the application container or deploy to the Planning Data AWS infrastructure you'll need to be authenticated.
 
 ### AWS Authentication
 
