@@ -24,7 +24,7 @@
     "jinja",
     "FastAPI"
   ],
-  "author": "Digital Land Team - DLUHC",
+  "author": "planning.data.gov.uk Team - DLUHC",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/digital-land/digital-land.info/issues"

@@ -65,11 +65,11 @@ tags_metadata = [
 
 def create_app():
     app = FastAPI(
-        title="Digital land API",
+        title="planning.data.gov.uk API",
         description=description,
         version="0.1.0",
         contact={
-            "name": "Digital land team",
+            "name": "planning.data.gov.uk team",
             "email": "#",
         },
         license_info={
