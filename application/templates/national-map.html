@@ -12,7 +12,7 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      <h1 class="govuk-heading-xl">National map of planning data</h1>
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">National map of planning data</h1>
     </div>
   </div>
 
@@ -75,23 +75,12 @@
     </div>
   </div>
 </div>
+<div class="app-c-sources-panel govuk-!-margin-bottom-4">
+    <p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>
+</div>
 
-  <div class="app-c-sources-panel govuk-!-margin-bottom-0">
-      <p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>
-  </div>
-{% endblock %}
+<p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">This prototype map is automatically created using data from planning.data.gov.uk. Find out more <a href="/about">about the Planning Data Platform</a></p>
 
-{% block feedbackPrompt %}
-{%- from "digital-land-frontend/components/feedback/macro.html" import dlFeedback %}
-{{ dlFeedback({
-        "text": "Spotted an issue? Let us know so we can improve the map.",
-        "action": {
-            "text": "There is something wrong with the map",
-            "href": "mailto:" + templateVar.email,
-        },
-        "container": true
-        })
-    }}
 {% endblock %}
 
 {% block bodyEnd %}
