@@ -1,9 +1,16 @@
+import json
 from datetime import datetime
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer, cast
+from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer, cast, func
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, foreign, remote
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import (
+    relationship,
+    foreign,
+    remote,
+    column_property,
+)
 
 Base = declarative_base()
 
@@ -23,9 +30,16 @@ class EntityOrm(Base):
     prefix = Column(Text, nullable=True)
     reference = Column(Text, nullable=True)
     typology = Column(Text, nullable=True)
-    geojson = Column(JSONB, nullable=True)
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True)
     point = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    _geojson = column_property(func.ST_AsGeoJSON(geometry))
+
+    @hybrid_property
+    def geojson(self):
+        if self._geojson is not None:
+            geometry = json.loads(self._geojson)
+            return {"geometry": geometry, "type": "Feature"}
+        return None
 
 
 # Note geoalchemy2 automatically indexes Geometry columns

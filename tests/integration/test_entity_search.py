@@ -496,7 +496,7 @@ def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
         e for e in test_data["entities"] if e["dataset"] == "conservation-area"
     ][0]
     test_trees = set(
-        [e["entity"] for e in test_data["entities"] if e["dataset"] == "tree"]
+        [int(e["entity"]) for e in test_data["entities"] if e["dataset"] == "tree"]
     )
 
     params["geometry_entity"] = [test_conservation_area.get("entity")]
