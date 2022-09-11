@@ -58,8 +58,12 @@
             <a class ="govuk-link" href="{{ 'https://statistics.data.gov.uk/id/statistical-geography/' + value }}">{{ value }}</a>
         {%- elif field in ["ramsar-site"] %}
             <a class ="govuk-link" href="{{ 'https://rsis.ramsar.org/ris/' + value }}">{{ value }}</a>
-        {%- elif field in ["typology"] and value in ["organisation"] %}
+        {%- elif field in ["typology"] %}
+            {%- if value in ["organisation"] %}
             <a class ="govuk-link" href="{{ '/' + value }}">{{ value }}</a>
+            {%- else %}
+            <a class ="govuk-link" href="{{ '/dataset#' + value }}">{{ value }}</a>
+            {%- endif %}
         {%- elif field == "twitter" %}
             <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
         {%- elif field in ["website","opendatacommunities","documentation-url","document-url","site-plan-url"] %}
