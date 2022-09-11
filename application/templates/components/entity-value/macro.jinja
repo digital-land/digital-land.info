@@ -61,7 +61,7 @@
         {%- elif field in ["typology"] %}
             {%- if value in ["organisation"] %}
             <a class ="govuk-link" href="{{ '/' + value }}">{{ value }}</a>
-            {%- else %}
+            {%- elif value %}
             <a class ="govuk-link" href="{{ '/dataset#' + value }}">{{ value }}</a>
             {%- endif %}
         {%- elif field == "twitter" %}
