@@ -66,14 +66,6 @@ def get_typologies() -> List[TypologyModel]:
         return [TypologyModel.from_orm(t) for t in typologies]
 
 
-def get_typology_names():
-    with get_context_session() as session:
-        typology_names = [
-            result[0] for result in session.query(TypologyOrm.typology).all()
-        ]
-    return typology_names
-
-
 def get_local_authorities(local_authority_region) -> List[OrganisationModel]:
     with get_context_session() as session:
         organisations = (

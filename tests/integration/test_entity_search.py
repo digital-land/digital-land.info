@@ -58,7 +58,7 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
     test_data, client, exclude_middleware
 ):
     response = client.get("/entity.json?dataset=not-exists")
-    assert response.status_code == 422
+    assert response.status_code == 400
     assert response.json() == {
         "detail": [
             {
@@ -86,7 +86,7 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
     test_data, client, exclude_middleware
 ):
     response = client.get("/entity.json?dataset=not-exists&dataset=greenspace")
-    assert response.status_code == 422
+    assert response.status_code == 400
 
     assert response.json() == {
         "detail": [
