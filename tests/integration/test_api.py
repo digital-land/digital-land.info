@@ -46,21 +46,14 @@ def test_app_returns_valid_geojson_list(client):
 
 
 def test_app_returns_valid_populated_geojson_list(client, test_data):
-    expected_response = []
-    for entity in test_data["entities"]:
-        geojson_dict = entity["geojson"]
-        if geojson_dict:
-            geojson_dict["properties"] = _transform_dataset_to_response(
-                entity, is_geojson=True
-            )
-            expected_response.append(geojson_dict)
     response = client.get("/entity.geojson", headers={"Origin": "localhost"})
     data = response.json()
     assert "type" in data
     assert "features" in data
     assert "FeatureCollection" == data["type"]
-    assert len(expected_response) == len(data["features"])
-    assert expected_response == data["features"]
+    assert len(
+        [e for e in test_data["entities"] if e.get("geometry", None) is not None]
+    ) == len(data["features"])
 
 
 def test_lasso_geo_search_finds_results(client, test_data):
