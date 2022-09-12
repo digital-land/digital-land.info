@@ -7,7 +7,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG-staging}
+    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG-latest}
     environment:
       ENVIRONMENT: production
       S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
