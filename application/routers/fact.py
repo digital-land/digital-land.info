@@ -7,11 +7,7 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse
-from application.search.filters import (
-    FactPathParams,
-    FactDatasetQueryFilters,
-    FactQueryFilters,
-)
+from application.search.filters import FactDatasetQueryFilters, FactQueryFilters
 
 from application.data_access.entity_queries import get_entity_query
 from application.data_access.fact_queries import (
@@ -49,14 +45,13 @@ def _convert_model_to_dict(models):
 
 def get_fact(
     request: Request,
-    path_params: FactPathParams = Depends(),
+    fact: str,
     query_filters: FactDatasetQueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
 ):
 
     query_params = asdict(query_filters)
-    path_params = asdict(path_params)
-    fact = get_fact_query(path_params["fact"], query_params["dataset"])
+    fact = get_fact_query(fact, query_params["dataset"])
 
     if fact is not None:
 
