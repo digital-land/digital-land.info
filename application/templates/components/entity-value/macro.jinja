@@ -46,13 +46,27 @@
             <a class="govuk-link" href="{{ '/' + field + '/' + value }}">{{ value|replace("-", " ")|capitalize }}</a>
         {%- elif field in ["geometry","point"] %}
             <div class="app-code-block">{{ value }}</div>
+        {%- elif field in ["local-resilience-forum","local-authority-type","ownership-status","planning-permission-type","planning-permission-type","planning-permission-status","green-belt-core","ancient-woodland-status","design-code-category","design-code-status","listed-building-grade","park-and-garden-grade"] %}
+            <a class ="govuk-link" href="{{ '/prefix/' + field + "/reference/" + value }}">{{ value }}</a>
+        {%- elif field in ["combined-authority","local-authority"] %}
+            <a class ="govuk-link" href="{{ '/prefix/local-authority/reference/' + value }}">{{ value }}</a>
         {%- elif field in ["organisation-entity"] %}
             <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ value|get_entity_name }}</a>
+        {%- elif field in ["parliament-thesaurus"] %}
+            <a class ="govuk-link" href="{{ 'https://lda.data.parliament.uk/terms/' + value }}">{{ value }}</a>
+        {%- elif field in ["local-authority-district","local-planning-authority","statistical-geography"] %}
+            <a class ="govuk-link" href="{{ 'https://statistics.data.gov.uk/id/statistical-geography/' + value }}">{{ value }}</a>
         {%- elif field in ["ramsar-site"] %}
             <a class ="govuk-link" href="{{ 'https://rsis.ramsar.org/ris/' + value }}">{{ value }}</a>
+        {%- elif field in ["typology"] %}
+            {%- if value in ["organisation"] %}
+            <a class ="govuk-link" href="{{ '/' + value }}">{{ value }}</a>
+            {%- elif value %}
+            <a class ="govuk-link" href="{{ '/dataset#' + value }}">{{ value }}</a>
+            {%- endif %}
         {%- elif field == "twitter" %}
             <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
-        {%- elif field in ["website","opendatacommunities","documentation-url","document-url"] %}
+        {%- elif field in ["website","opendatacommunities","documentation-url","document-url","site-plan-url"] %}
             <a class ="govuk-link" href="{{ value }}">{{ value }}</a>
         {%- elif field in ["wikipedia"] %}
             <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + value }}">{{ value }}</a>
