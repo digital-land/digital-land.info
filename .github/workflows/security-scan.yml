@@ -176,3 +176,42 @@ jobs:
                 }
               ]
             }
+
+  check-audit-errors:
+    runs-on: ubuntu-latest
+    needs:
+      - dynamic-audit
+      - static-audit
+    if: always() && contains(join(needs.*.result, ','), 'failure')
+    steps:
+      - name: send failure notification
+        uses: slackapi/slack-github-action@v1
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: 'dl-developers'
+          payload: |
+            {
+              "text": "Security Scan: digital-land.info",
+              "icon_emoji": ":alert:",
+              "username": "SecurityScanner",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Security Scan Failed: digital-land.info"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "The report for this scan is available on <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|GitHub>"
+                  }
+                }
+              ]
+            }
