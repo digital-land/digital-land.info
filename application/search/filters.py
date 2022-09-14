@@ -19,6 +19,13 @@ from application.search.enum import (
     GeometryRelation,
     SuffixEntity,
 )
+from application.search.custom_data_types import FormInt
+from application.search.validators import (
+    validate_dataset_name,
+    validate_day_integer,
+    validate_month_integer,
+    validate_year_integer,
+)
 
 
 @dataclass
@@ -84,21 +91,34 @@ class QueryFilters:
         None, description="Results to include current, or all entries"
     )
 
-    # date filters
+    # date filters all use our custom FormIn data type, this allows empty strings to be submitted as parameter values
+    # this does not need to be used for required parameters or path parameters
     start_date: Optional[datetime.date] = Query(None, include_in_schema=False)
+<<<<<<< HEAD
     start_date_year: Optional[str] = Query(
+=======
+    start_date_year: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities by start date year before or after the given year. Depends on start_date_match
         """,
     )
+<<<<<<< HEAD
     start_date_month: Optional[str] = Query(
+=======
+    start_date_month: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities by start date month before or after the given year. Depends on start_date_match
         """,
     )
+<<<<<<< HEAD
     start_date_day: Optional[str] = Query(
+=======
+    start_date_day: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities by start date day before or after the given day. Depends on start_date_match
@@ -110,17 +130,29 @@ class QueryFilters:
     )
 
     end_date: Optional[datetime.date] = Query(None, include_in_schema=False)
+<<<<<<< HEAD
     end_date_year: Optional[str] = Query(
         None,
         description="""Search by end date year before or after the given year. Depends on end_date_match""",
     )
     end_date_month: Optional[str] = Query(
+=======
+    end_date_year: Optional[FormInt] = Query(
+        None,
+        description="""Search by end date year before or after the given year. Depends on end_date_match""",
+    )
+    end_date_month: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities by end date month before or after the given month.Depends on end_date_match
         """,
     )
+<<<<<<< HEAD
     end_date_day: Optional[str] = Query(
+=======
+    end_date_day: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities by end date day before or after the given day. Depends on end_date_match
@@ -132,19 +164,32 @@ class QueryFilters:
     )
 
     entry_date: Optional[datetime.date] = Query(None, include_in_schema=False)
+<<<<<<< HEAD
     entry_date_year: Optional[str] = Query(
+=======
+    entry_date_year: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities by entry date year before or after the given year. Depends on entry_date_match
         """,
     )
+<<<<<<< HEAD
     entry_date_month: Optional[str] = Query(
+=======
+    entry_date_month: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities for entities by entry date month before or after the given month.Depends on entry_date_match
         """,
     )
+<<<<<<< HEAD
     entry_date_day: Optional[str] = Query(
+=======
+
+    entry_date_day: Optional[FormInt] = Query(
+>>>>>>> fix form validation issues add acceptance test for running blank search
         None,
         description="""
         Search for entities by entry date day before or after the given day. Depends on entry_date_match
@@ -215,6 +260,37 @@ class QueryFilters:
     )
     field: Optional[List[str]] = Query(
         None, description="fields to be included in response"
+    )
+
+    # validators
+    _validate_entry_date_year = validator("entry_date_year", allow_reuse=True)(
+        validate_year_integer
+    )
+    _validate_entry_date_month = validator("entry_date_month", allow_reuse=True)(
+        validate_month_integer
+    )
+    _validate_entry_date_day = validator("entry_date_day", allow_reuse=True)(
+        validate_day_integer
+    )
+
+    _validate_start_date_year = validator("start_date_year", allow_reuse=True)(
+        validate_year_integer
+    )
+    _validate_start_date_month = validator("start_date_month", allow_reuse=True)(
+        validate_month_integer
+    )
+    _validate_start_date_day = validator("start_date_day", allow_reuse=True)(
+        validate_day_integer
+    )
+
+    _validate_end_date_year = validator("end_date_year", allow_reuse=True)(
+        validate_year_integer
+    )
+    _validate_end_date_month = validator("end_date_month", allow_reuse=True)(
+        validate_month_integer
+    )
+    _validate_end_date_day = validator("end_date_day", allow_reuse=True)(
+        validate_day_integer
     )
 
     @validator("dataset", pre=True)
