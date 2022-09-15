@@ -70,7 +70,8 @@ def create_app():
         version="0.1.0",
         contact={
             "name": "planning.data.gov.uk team",
-            "email": "#",
+            "email": "digitalland@levellingup.gov.uk",
+            "url": "https://www.planning.data.gov.uk",
         },
         license_info={
             "name": "MIT",
@@ -79,6 +80,7 @@ def create_app():
         openapi_tags=tags_metadata,
         docs_url=None,
         redoc_url=None,
+        servers=[{"url": "https://www.planning.data.gov.uk"}],
     )
     add_base_routes(app)
     add_routers(app)
