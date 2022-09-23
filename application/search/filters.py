@@ -13,7 +13,6 @@ from application.exceptions import (
     DatasetValueNotFound,
     TypologyValueNotFound,
     InvalidGeometry,
-    DigitalLandValidationError,
 )
 from application.search.enum import (
     EntriesOption,
@@ -27,6 +26,7 @@ from application.search.validators import (
     validate_day_integer,
     validate_month_integer,
     validate_year_integer,
+    validate_curies,
 )
 
 
@@ -248,6 +248,12 @@ class QueryFilters:
         validate_day_integer
     )
 
+    _validate_curie = validator("curie", allow_reuse=True)(validate_curies)
+
+    _validate_geometry_curie = validator("geometry_curie", allow_reuse=True)(
+        validate_curies
+    )
+
     @validator("dataset", pre=True)
     def validate_dataset_names(cls, v: Optional[list]):
         if not v:
@@ -292,18 +298,6 @@ class QueryFilters:
                 except Exception:
                     raise InvalidGeometry(f"Invalid geometry {geometry}")
         return v
-
-    @validator("curie", "geometry_curie", pre=True)
-    def validate_curies(cls, values: Optional[list]):
-        if not values:
-            return values
-        for v in values:
-            parts = v.split(":")
-            if len(parts) < 2 or not all(parts):
-                raise DigitalLandValidationError(
-                    "curie must be in form 'prefix:reference'"
-                )
-        return values
 
 
 @dataclass

@@ -1,8 +1,11 @@
+import pytest
+
 from application.search.validators import (
     validate_dataset_name,
     validate_day_integer,
     validate_month_integer,
     validate_year_integer,
+    validate_curies,
 )
 
 from application.exceptions import DigitalLandValidationError, DatasetValueNotFound
@@ -98,3 +101,57 @@ def test_validate_year_integer_valid_value_provided():
         assert (
             False
         ), f"valid integer value {valid_integer} is being labelled as invalid"
+
+
+valid_curies = [
+    "prefix:reference",
+    "PREFIX:REFERENCE",
+    "01234:56789",
+    "prefix01234:reference56789",
+    "01234prefix:56789reference",
+    "a:b",
+    "1:2",
+]
+
+
+@pytest.mark.parametrize("curie", valid_curies)
+def test_validate_valid_curie(curie):
+    try:
+        validate_curies([curie])
+        assert True
+    except DigitalLandValidationError:
+        assert False, f"valid curie value {curie} should not be rejected as invalid"
+
+
+invalid_curies = [
+    "",
+    "prefix",
+    "prefix:",
+    ":reference",
+    "prefix::reference",
+    "prefix : reference",
+    " prefix:reference",
+    "prefix:reference ",
+    "just-a-to-z-and-numbers-allowed",
+    "null",
+    "and no : spaces allowed",
+    "eval(print('malicious code'))",
+    "@:&",
+]
+
+
+@pytest.mark.parametrize("curie", invalid_curies)
+def test_validate_invalid_curie(curie):
+
+    with pytest.raises(DigitalLandValidationError):
+        validate_curies([curie])
+
+
+def test_validate_curies_rejects_all_if_any_invalid():
+    curies = [
+        "prefix:reference",
+        "01234:56789",
+        "this is an invalid:curie",
+    ]
+    with pytest.raises(DigitalLandValidationError):
+        validate_curies(curies)

@@ -108,10 +108,12 @@ def _apply_base_filters(query, params):
     if params.get("curie") is not None:
         curies = params.get("curie")
         for curie in curies:
-            prefix, reference = curie.split(":")
-            query = query.filter(
-                EntityOrm.prefix == prefix, EntityOrm.reference == reference
-            )
+            parts = curie.split(":")
+            if len(parts) == 2:
+                prefix, reference = parts
+                query = query.filter(
+                    EntityOrm.prefix == prefix, EntityOrm.reference == reference
+                )
 
     return query
 

@@ -1,3 +1,6 @@
+import re
+from typing import Optional
+
 from application.data_access.dataset_queries import get_dataset_names
 from application.exceptions import DatasetValueNotFound, DigitalLandValidationError
 
@@ -38,3 +41,13 @@ def validate_year_integer(integer):
         raise DigitalLandValidationError(
             "ensure this value is greater than or equal to 1"
         )
+
+
+def validate_curies(curies: Optional[list]):
+    if not curies:
+        return curies
+    for curie in curies:
+        result = re.match("(?i)^[a-z0-9]+:[a-z0-9]+$", curie)
+        if result is None:
+            raise DigitalLandValidationError("curie must be in form 'prefix:reference'")
+    return curies
