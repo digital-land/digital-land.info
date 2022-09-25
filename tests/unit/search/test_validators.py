@@ -105,12 +105,14 @@ def test_validate_year_integer_valid_value_provided():
 
 valid_curies = [
     "prefix:reference",
+    "prefix:reference#and-something",
     "PREFIX:REFERENCE",
     "01234:56789",
     "prefix01234:reference56789",
     "01234prefix:56789reference",
-    "a:b",
-    "1:2",
+    "pre:fix",
+    "pre1:fix2",
+    "_a:b#c",
 ]
 
 

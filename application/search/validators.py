@@ -47,7 +47,7 @@ def validate_curies(curies: Optional[list]):
     if not curies:
         return curies
     for curie in curies:
-        result = re.match("(?i)^[a-z0-9]+:[a-z0-9]+$", curie)
+        result = re.match(r"(?i)^[a-zA-Z_|\d]+:{1}\w\S+$", curie)
         if result is None:
             raise DigitalLandValidationError("curie must be in form 'prefix:reference'")
     return curies
