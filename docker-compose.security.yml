@@ -2,16 +2,12 @@ version: "3.8"
 
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG-staging}
+    image: public.ecr.aws/l6z6v3j6/digital-land-platform:${DOCKER_APPLICATION_TAG-latest}
     environment:
       ENVIRONMENT: production
       S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
@@ -20,6 +16,7 @@ services:
       DATASETTE_URL: https://datasette.digital-land.info
       PORT: 8000
       WEB_CONCURRENCY: 1
+      DATA_FILE_URL: https://data.digital-land.info
     healthcheck:
       test: curl -v -i -f http://localhost:8000
       interval: 1s

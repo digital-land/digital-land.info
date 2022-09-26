@@ -9,20 +9,6 @@ env:
     progressToStdout: true
 
 jobs:
-  - type: addOns
-    install:
-      - ascanrules
-      - ascanrulesAlpha
-      - ascanrulesBeta
-      - pscanrulesBeta
-      - pscanrulesAlpha
-      - automation
-      - domxss
-      - openapi
-      - reflect
-      - reports
-      - spiderAjax
-
   - type: passiveScan-config
     parameters:
       maxAlertsPerRule: 10
