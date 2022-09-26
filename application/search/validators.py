@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from typing import Optional, List
 
 from application.data_access.dataset_queries import get_dataset_names
 from application.exceptions import DatasetValueNotFound, DigitalLandValidationError
@@ -43,7 +43,7 @@ def validate_year_integer(integer):
         )
 
 
-def validate_curies(curies: Optional[list]):
+def validate_curies(curies: Optional[List[str]]):
     if not curies:
         return curies
     for curie in curies:
