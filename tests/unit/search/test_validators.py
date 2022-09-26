@@ -113,6 +113,7 @@ valid_curies = [
     "pre:fix",
     "pre1:fix2",
     "_a:b#c",
+    "local-authority:Some Borough Council",
 ]
 
 
@@ -129,6 +130,7 @@ invalid_curies = [
     "",
     "prefix",
     "prefix:",
+    "-prefix:reference",
     ":reference",
     "prefix::reference",
     "prefix : reference",
@@ -136,9 +138,7 @@ invalid_curies = [
     "prefix:reference ",
     "just-a-to-z-and-numbers-allowed",
     "null",
-    "and no : spaces allowed",
-    "eval(print('malicious code'))",
-    "@:&",
+    "and no spaces allowed in prefix:reference",
 ]
 
 

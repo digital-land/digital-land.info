@@ -47,7 +47,16 @@ def validate_curies(curies: Optional[list]):
     if not curies:
         return curies
     for curie in curies:
-        result = re.match(r"(?i)^[a-zA-Z_|\d]+:{1}\w\S+$", curie)
-        if result is None:
+        parts = curie.split(":")
+        if len(parts) != 2:
             raise DigitalLandValidationError("curie must be in form 'prefix:reference'")
+        else:
+            prefix, reference = parts
+            prefix_match = re.match(r"(?i)^[a-zA-Z_\d]+[a-zA-Z_\-\d]+$", prefix)
+            reference_match = re.match(r"^\S+.*\S$", reference)
+            if prefix_match is None or reference_match is None:
+                raise DigitalLandValidationError(
+                    "curie must be in form 'prefix:reference'"
+                )
+            # TODO - references a bit too lax, should they be more restricted?
     return curies
