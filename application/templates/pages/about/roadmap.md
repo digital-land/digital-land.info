@@ -14,30 +14,30 @@ We're working with 12 LPAs to help them provide data through our platform, so th
 
 ## Data
 
-We are developing data standards and collecting data that is valuable to housing and planning.
+We are developing data standards and collecting data that is valuable to housing and planning, and improving the quantity and quality of data on the platform.
 
 #### Now
 
 We are working with LPA partners for these areas:
 
--   Conservation areas
--   Listed buildings
--   Article 4 directions
--   Tree preservation orders
+-   [Conservation areas](/dataset/conservation-area)
+-   [Listed buildings](/dataset/listed-building) and their [outlines](/dataset/listed-building-outline)
+-   [Article 4 directions](/dataset/article-4-direction) and their [areas](/dataset/article-4-direction-area)
+-   [Tree preservation orders](/dataset/tree-preservation-order)
 
 #### Next
 
 We will continue to develop standards in the following areas:
 
+-   [Design codes](/dataset/design-code)
 -   Local plans
--   Design codes
 -   Planning applications and decisions
 
 ## Platform
 
 #### Now
 
-- We are preparing to launch the beta platform on a GOV.UK domain.
+- We are improving how we host and operate the platform following moving into beta on a GOV.UK domain.
 
 #### Next
 
