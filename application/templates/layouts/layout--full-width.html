@@ -13,3 +13,8 @@
 {% block phaseBanner %}
   {% include 'partials/phase-banner.html' %}
 {% endblock %}
+
+{% block footer %}
+  {% set fullFooter = True %}
+  {% include 'partials/footer.html' with context %}
+{% endblock %}
