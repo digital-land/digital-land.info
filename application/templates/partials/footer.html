@@ -1,0 +1,12 @@
+{% from "govuk_frontend_jinja/components/footer/macro.html" import govukFooter %}
+{{ govukFooter({
+    "containerClasses": ("dl-container--full-width" if fullFooter == True else ''),
+    "meta": {
+        "items": [
+            {"href": "/about/roadmap", "text": "Roadmap"},
+            {"href": "/guidance", "text": "Guidance for publishers"},
+            {"href": "/accessibility-statement", "text": "Accessibility statement"},
+        ],
+        "html": 'Built by the <a href="https://www.gov.uk/government/organisations/department-for-levelling-up-housing-and-communities" class="govuk-footer__link">Department for Levelling Up, Housing and Communities</a>',
+    }
+}) }}
