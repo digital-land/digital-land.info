@@ -3,7 +3,7 @@ There are 2 datasets you must provide for design codes:
 - [design code dataset](#{{ 'design code dataset' | slugify }})
 - [design code area dataset](#{{ 'design code area dataset' | slugify }})
 
-_These datasets may be provided as a single file by adding the geometry field to the design code dataset, or as two separate files linked by the design-code-area reference._
+_These datasets may be provided as a single file by adding a single geometry field to the design code dataset, or as two separate files linked by the design-code reference._
 
 Format
 ------
@@ -58,10 +58,6 @@ The website URL should be unique for design code, either by creating a separate 
 
 Example: `http://www.borchester.gov.uk/design-codes/#dc01`
 
-### design-code-area
-
-The reference of the design code area where this design code applies.
-
 ### notes
 
 Optional text on how this data was made or produced, or how it can be interpreted.
@@ -112,6 +108,10 @@ Example: `DCA01`
 This will be the display name of the page hosting data about this design code area on our website.
 
 Example: `Felpersham town centre`
+
+### design-code
+
+The reference of the design code which applies to this area.
 
 ### geometry
 
