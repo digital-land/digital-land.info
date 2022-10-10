@@ -7,7 +7,8 @@ There are 3 datasets you must provide for tree preservation orders:
 Format
 ------
 
-You can provide data in one of these formats:
+The tree preservation order dataset should be provided as a CSV file.
+You can provide the area and individual tree data in one of these formats:
 
 -   CSV
 -   GeoJSON
@@ -44,15 +45,6 @@ This will be the title of the page hosting data about this TPO on our website. T
 -   reference
 -   address
 -   blank
-
-### geometry
-
-The boundary for the tree preservation order as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
-
-This should be in GeoJSON format.
-
-Example:
-`MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
 
 ### document-url
 
