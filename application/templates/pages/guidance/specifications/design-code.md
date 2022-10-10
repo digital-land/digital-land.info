@@ -3,13 +3,12 @@ There are 2 datasets you must provide for design codes:
 - [design code dataset](#{{ 'design code dataset' | slugify }})
 - [design code area dataset](#{{ 'design code area dataset' | slugify }})
 
-_The datasets may be provided as a single file by adding the geometry field to the design code dataset, or as two separate files._
+_These datasets may be provided as a single file by adding the geometry field to the design code dataset, or as two separate files linked by the design-code-area reference._
 
 Format
 ------
 
-The design code dataset should be provided as a CSV file.
-You can provide the area data in one of these formats:
+You can provide data in one of these formats:
 
 -   CSV
 -   GeoJSON
@@ -23,7 +22,7 @@ Design code dataset
 
 This dataset is a list of design codes. These are policies made by local planning authorities to describe design codes which reflect local character and design preferences for buildings.
 
-The dataset must contain at least one entry (row) for each design code document.
+The dataset must contain at least one entry (row) for each design code.
 
 It must containing the following fields (columns):
 
@@ -42,7 +41,7 @@ Example: `DCO1`
 
 This will be the title of the design code displayed on our website.
 
-Example: `Design of chimneys in Borchester`
+Example: `The design of chimneys in Borchester`
 
 ### document-url
 
@@ -57,7 +56,7 @@ The URL of the webpage citing the design code document.
 Each document should be linked to on a documentation webpage that includes a short description of the design code.
 The website URL should be unique for design code, either by creating a separate page or a separate anchor (fragment identifier) for each design code.
 
-Example: `http://www.borchester.gov.uk/design-codes#dc01`
+Example: `http://www.borchester.gov.uk/design-codes/#dc01`
 
 ### design-code-area
 
@@ -104,15 +103,15 @@ A reference or ID for each design code area that is:
 -   permanent - it doesn't change when the dataset is updated
 
 If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers.
-The design code area may have the same reference as the design code.
+This reference may be the same as the design code if only one design code applies to the area.
 
-Example: `DC01`
+Example: `DCA01`
 
 ### name
 
 This will be the display name of the page hosting data about this design code area on our website.
 
-Example: `Felpersham town centre design code area`
+Example: `Felpersham town centre`
 
 ### geometry
 
