@@ -134,11 +134,11 @@ Example: `A4D1`
 
 ### article-4-direction-rules
 
-The references of the article 4 direction rules that apply to this area, as found in the Planning Data article 4 direction list.
+The list of references of article 4 direction rules which apply to this area, as found in the [article 4 direction rule dataset](https://www.planning.data.gov.uk/dataset/article-4-direction-rule). In many cases the article 4 direction rule is a reference to the permitted development right removed by the rule.
 
 If the rule you need does not exist in our list, please contact [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
 
-Example: `A4Dr1;A4Dr2`
+Example: `P3CD;P3CM;P11CB`
 
 ### notes
 
