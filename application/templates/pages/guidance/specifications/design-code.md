@@ -43,6 +43,12 @@ This will be the title of the design code displayed on our website.
 
 Example: `The design of chimneys in Borchester`
 
+### description
+
+An optional short description of the design code.
+
+Example: `A design code for urban development in Felpersham consistent with vernacular buildings in Borchester.`
+
 ### document-url
 
 The URL of the HTML, PDF or other document documenting the design code.
