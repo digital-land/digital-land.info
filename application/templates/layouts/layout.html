@@ -12,7 +12,7 @@
   <meta name="msapplication-TileColor" content="#062058">
   <meta name="msapplication-config" content="{{ assetPath | default('/assets') }}/images/browserconfig.xml">
   <meta name="theme-color" content="#062058">
-  {% if opengraphImage %}<meta property="og:image" content="{{ assetPath | default('/assets') }}/images/opengraph.png">{% endif %}
+  {% if opengraph_image %}<meta property="og:image" content="{{ assetPath | default('/assets') }}/images/opengraph.png">{% endif %}
 {% endblock %}
 
 {% block stylesheets %}

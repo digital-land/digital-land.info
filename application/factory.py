@@ -2,7 +2,6 @@ import logging
 import sentry_sdk
 
 from datetime import timedelta
-from pickle import TRUE
 
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -93,7 +92,7 @@ def add_base_routes(app):
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def home(request: Request):
         return templates.TemplateResponse(
-            "homepage.html", {"request": request, "opengraphImage": TRUE}
+            "homepage.html", {"request": request, "opengraph_image": True}
         )
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
