@@ -4,7 +4,7 @@ from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
 from application.search.enum import EntriesOption, GeometryRelation
 
-NUMBER_OF_ENTITIES_IN_TEST_FIXTURE = 9
+NUMBER_OF_ENTITIES_IN_TEST_FIXTURE = 10
 
 
 @pytest.fixture(scope="module")
@@ -147,8 +147,8 @@ def test_search_entity_by_date_since(test_data, params):
             "historical-monument",
             "tree",
             "conservation-area",
+            "local-authority",
         ]
-        assert "geography" == e.typology
 
     params["entry_date_year"] = 2020
     result = get_entity_search(params)
@@ -160,6 +160,7 @@ def test_search_entity_by_date_since(test_data, params):
             "historical-monument",
             "conservation-area",
             "tree",
+            "local-authority",
         ]
         assert e.dataset != "greenspace"
 
@@ -167,14 +168,19 @@ def test_search_entity_by_date_since(test_data, params):
     result = get_entity_search(params)
     assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 3
     for e in result["entities"]:
-        assert e.dataset in ["brownfield-site", "historical-monument", "tree"]
+        assert e.dataset in [
+            "brownfield-site",
+            "historical-monument",
+            "tree",
+            "local-authority",
+        ]
         assert e.dataset not in ["greenspace", "forest"]
 
     params["entry_date_year"] = 2022
     result = get_entity_search(params)
     assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE - 7
     for e in result["entities"]:
-        assert e.dataset in ["historical-monument"]
+        assert e.dataset in ["historical-monument", "local-authority"]
         assert e.dataset not in [
             "greenspace",
             "forest",
@@ -221,6 +227,7 @@ def test_search_entity_by_date_before(test_data, params):
             "historical-monument",
             "conservation-area",
             "tree",
+            "local-authority",
         ]
 
 
@@ -314,6 +321,7 @@ def test_search_all_entities(test_data, params):
             "historical-monument",
             "tree",
             "conservation-area",
+            "local-authority",
         ]
 
 
@@ -323,7 +331,7 @@ def test_search_current_entries(test_data, params):
     params["entries"] = EntriesOption.current
 
     result = get_entity_search(params)
-    assert result["count"] == 8
+    assert result["count"] == 9
     for e in result["entities"]:
         assert e.dataset in [
             "forest",
@@ -331,6 +339,7 @@ def test_search_current_entries(test_data, params):
             "historical-monument",
             "tree",
             "conservation-area",
+            "local-authority",
         ]
 
 
@@ -514,6 +523,27 @@ def test_search_entity_by_curie(test_data, params):
         e
         for e in test_data["entities"]
         if e["prefix"] == "greenspace" and e["reference"] == "Q1234567"
+    ][0]
+
+    curie = f"{expected_entity['prefix']}:{expected_entity['reference']}"
+    params["curie"] = [curie]
+
+    result = get_entity_search(params)
+
+    assert result["count"] == 1
+
+    entity = result["entities"][0]
+
+    assert entity.prefix == expected_entity["prefix"]
+    assert entity.reference == expected_entity["reference"]
+
+
+def test_search_entity_by_organisation_curie(test_data, params):
+
+    expected_entity = [
+        e
+        for e in test_data["entities"]
+        if e["prefix"] == "local-authority" and e["reference"] == "DAC"
     ][0]
 
     curie = f"{expected_entity['prefix']}:{expected_entity['reference']}"

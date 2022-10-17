@@ -19,9 +19,6 @@ from application.search.enum import GeometryRelation, EntriesOption
 logger = logging.getLogger(__name__)
 
 
-# TODO - organisation not implemented yet
-
-
 def get_entity_query(
     id: int,
 ) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
@@ -113,6 +110,16 @@ def _apply_base_filters(query, params):
                 prefix, reference = parts
                 query = query.filter(
                     EntityOrm.prefix == prefix, EntityOrm.reference == reference
+                )
+
+    if params.get("organisation") is not None:
+        organisation_curies = params.get("organisation")
+        for curie in organisation_curies:
+            parts = curie.split(":")
+            if len(parts) == 2:
+                dataset, reference = parts
+                query = query.filter(
+                    EntityOrm.dataset == dataset, EntityOrm.reference == reference
                 )
 
     return query

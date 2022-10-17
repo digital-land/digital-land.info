@@ -53,8 +53,6 @@ class QueryFilters:
         description="Search for entities by dataset",
     )
 
-    # TODO implement this like curie and subselect
-    # Do not think included in the query yet
     organisation: Optional[List[str]] = Query(None, include_in_schema=False)
 
     organisation_entity: Optional[List[int]] = Query(
@@ -251,6 +249,10 @@ class QueryFilters:
     _validate_curie = validator("curie", allow_reuse=True)(validate_curies)
 
     _validate_geometry_curie = validator("geometry_curie", allow_reuse=True)(
+        validate_curies
+    )
+
+    _validate_organisation_curie = validator("organisation", allow_reuse=True)(
         validate_curies
     )
 
