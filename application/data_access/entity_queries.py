@@ -105,23 +105,23 @@ def _apply_base_filters(query, params):
     if params.get("curie") is not None:
         curies = params.get("curie")
         for curie in curies:
-            parts = curie.split(":")
-            if len(parts) == 2:
-                prefix, reference = parts
-                query = query.filter(
-                    EntityOrm.prefix == prefix, EntityOrm.reference == reference
-                )
+            query = _add_curie_filter(curie, query)
 
     if params.get("organisation") is not None:
         organisation_curies = params.get("organisation")
         for curie in organisation_curies:
-            parts = curie.split(":")
-            if len(parts) == 2:
-                dataset, reference = parts
-                query = query.filter(
-                    EntityOrm.dataset == dataset, EntityOrm.reference == reference
-                )
+            query = _add_curie_filter(curie, query)
 
+    return query
+
+
+def _add_curie_filter(curie, query):
+    parts = curie.split(":")
+    if len(parts) == 2:
+        prefix, reference = parts
+        query = query.filter(
+            EntityOrm.prefix == prefix, EntityOrm.reference == reference
+        )
     return query
 
 
