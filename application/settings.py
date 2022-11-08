@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
     DATASETTE_URL: HttpUrl
+    DATASETTE_TILES_URL: Optional[HttpUrl]
     DATA_FILE_URL: HttpUrl
 
 
