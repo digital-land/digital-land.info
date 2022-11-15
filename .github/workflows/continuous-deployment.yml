@@ -1,4 +1,4 @@
-name: Deploy to ECS
+name: Continuous Deployment
 
 on:
   push:
@@ -60,17 +60,20 @@ jobs:
       - name: Unit Tests
         run: |
           make test-unit
-          cat unit-tests.md >> $GITHUB_STEP_SUMMARY
-
-      - name: Acceptance Tests
-        run: |
-          make test-acceptance
+          echo "## Unit Tests" >> $GITHUB_STEP_SUMMARY
           cat unit-tests.md >> $GITHUB_STEP_SUMMARY
 
       - name: Integration Tests
         run: |
           make test-integration
+          echo "## Integration Tests" >> $GITHUB_STEP_SUMMARY
           cat integration-tests.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Acceptance Tests
+        run: |
+          make test-acceptance
+          echo "## Acceptance Tests" >> $GITHUB_STEP_SUMMARY
+          cat unit-tests.md >> $GITHUB_STEP_SUMMARY
 
   detect-environments:
     runs-on: ubuntu-latest
