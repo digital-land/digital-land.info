@@ -51,15 +51,15 @@ docker-login:
 
 test-acceptance:
 	python -m playwright install chromium
-	python -m pytest -p no:warnings tests/acceptance
+	python -m pytest --md-report -p no:warnings tests/acceptance
 
 test: test-unit test-integration
 
 test-unit:
-	python -m pytest tests/unit --junitxml=.junitxml/unit.xml
+	python -m pytest --md-report --md-report-output=unit-tests.md tests/unit
 
 test-integration:
-	python -m pytest tests/integration --junitxml=.junitxml/integration.xml
+	python -m pytest --md-report --md-report-output=integration-tests.md tests/integration
 
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
