@@ -1,0 +1,32 @@
+.app-service-alert {
+  background: govuk-colour('yellow');
+  padding: govuk-spacing(3);
+  display: block;
+  &__text {
+    margin: 0;
+    @include govuk-font($size: 19);
+  }
+  &__icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.4em;
+    text-align: center;
+    line-height: 1;
+    background: black;
+    border-radius: 300px;
+    color: white;
+    @include govuk-font($size: 24);
+    font-weight: bold;
+    vertical-align: middle;
+    margin-right: 0.25em;
+    // font-family: Georgia, 'Times New Roman', Times, serif;
+  }
+  &__link {
+    &:link,
+    &:visited,
+    &:active,
+    &:hover {
+      color: black;
+    }
+  }
+}
