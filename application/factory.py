@@ -166,6 +166,13 @@ def add_base_routes(app):
             {"request": request},
         )
 
+    @app.get("/service-status", response_class=HTMLResponse, include_in_schema=False)
+    def service_status(request: Request):
+        return templates.TemplateResponse(
+            "pages/service-status.html",
+            {"request": request},
+        )
+
     @app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
     def docs(request: Request):
         open_api_dict = app.openapi()
