@@ -94,8 +94,9 @@
   // init national map
   const mapController = new MapController($controlsList, $zoomMod).init({
     baseTileStyleFilePath: "/static/javascripts/base-tile.json",
+    vectorSource: "{{ settings.DATASETTE_TILES_URL }}/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf",
     LayerControlOptions: {
-      layerURLParamName: "dataset"
+      layerURLParamName: "dataset",
     }
   })
 

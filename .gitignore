@@ -42,3 +42,4 @@ docker-compose.override.yml
 .env.sandbox
 .env.production
 coverage.xml
+.secrets
