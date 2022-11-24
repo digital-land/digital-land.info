@@ -1,17 +1,26 @@
+{% from "govuk_frontend_jinja/components/panel/macro.html" import govukPanel %}
+{% from "govuk_frontend_jinja/components/tag/macro.html" import govukTag %}
 {% extends "layouts/layout.html" %}
 {% block pageTitle %}Service status - Planning Data{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">Service status</h1>
-    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+    <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">Service status</h1>
+    {% if serviceStatus %}
     <div class="app-prose">
       {%- set page_content -%}{%- include "pages/service-status.md" -%}{%- endset -%}
       {{ page_content | render_markdown }}
     </div>
+    {% else %}
+    <p class="govuk-body">{{ govukTag({ 'text': 'Operational', 'classes': 'govuk-tag--green' }) }}</p>
+    <p class="govuk-body">As far as we are aware all services are fully operational.</p>
     <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-    <p class="govuk-body">For a live service status information you can view our dedicated <a href="https://service-status.planning.data.gov.uk/">service up-time monitoring website</a>.</p>
+    {% endif %}
+    <p class="govuk-body">For live service status information you can view our dedicated <a href="https://service-status.planning.data.gov.uk/">service monitoring website</a>.</p>
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+    <h2 class="govuk-heading-m">Need to report a problem?</h2>
+    <p class="govuk-body">You can email: <a href="mailto:{{ templateVar.email }}">{{ templateVar.email }}</a></p>
   </div>
 </div>
 {% endblock %}
