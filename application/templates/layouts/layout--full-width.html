@@ -7,15 +7,7 @@
 
 {% block mastHead %}
   {% set fullWidthHeader = true %}
-  <article class="app-service-alert">
-    <div class="govuk-width-container">
-      <p class="app-service-alert__text">
-        <span class="app-service-alert__icon" aria-hidden="true">!</span>
-        <strong>Planned maintenance for: </strong>
-        <a href="/service-status" class="app-service-alert__link">Tuesday 22nd November 2022 at 14:00 GMT</a>.
-      </p>
-    </div>
-  </article>
+  {% include 'partials/service-status-banner.html' %}
   {% include 'partials/mast-head.html' %}
 {% endblock mastHead %}
 

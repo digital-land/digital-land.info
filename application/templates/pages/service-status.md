@@ -1,10 +1,9 @@
-## Planned maintenance
+### 24th November 2022
 
-### When
-Tuesday 22nd November 2022 at 2PM (14:00 GMT)
+#### Incident
 
-### What is the impact?
-The planning.data.gov.uk site and some related services will be unavailable (down) for up to two hours.
+We are currently investigating an issue with our DNS which may be preventing some users from being able to visit the site.
 
-### Why are we doing this work?
-This work is needed to improve our current service infrastructure.
+#### When will this be fixed?
+
+We anticipate this issue could last until 26th November 2022 (48 hours) which is due to the nature of the domain name system.

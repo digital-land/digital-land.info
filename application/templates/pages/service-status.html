@@ -4,10 +4,14 @@
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">Service status</h1>
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
     <div class="app-prose">
       {%- set page_content -%}{%- include "pages/service-status.md" -%}{%- endset -%}
       {{ page_content | render_markdown }}
     </div>
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+    <p class="govuk-body">For a live service status information you can view our dedicated <a href="https://service-status.planning.data.gov.uk/">service up-time monitoring website</a>.</p>
   </div>
 </div>
 {% endblock %}
