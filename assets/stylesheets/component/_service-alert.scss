@@ -29,4 +29,8 @@
       color: black;
     }
   }
+  &__tag {
+    background: govuk-colour('black');
+    margin-right: 0.5em;
+  }
 }
