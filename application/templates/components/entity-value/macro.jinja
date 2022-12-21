@@ -54,7 +54,7 @@
             <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ value|get_entity_name }}</a>
         {%- elif field in ["parliament-thesaurus"] %}
             <a class ="govuk-link" href="{{ 'https://lda.data.parliament.uk/terms/' + value }}">{{ value }}</a>
-        {%- elif field in ["local-authority-district","local-planning-authority","statistical-geography"] %}
+        {%- elif field in ["statistical-geography"] %}
             <a class ="govuk-link" href="{{ 'https://statistics.data.gov.uk/id/statistical-geography/' + value }}">{{ value }}</a>
         {%- elif field in ["ramsar-site"] %}
             <a class ="govuk-link" href="{{ 'https://rsis.ramsar.org/ris/' + value }}">{{ value }}</a>
