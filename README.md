@@ -182,6 +182,8 @@ docker push 955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-info
 
 ### Deployment
 
+The deploy workflow should handle deploying to aws however any deployment will require approval before being pushed into the production environmnet.
+
 If you have pushed a new container, and want to initiate a deployment of the ECS service in order to start using it,
 you can do so directly with an AWS command.
 
