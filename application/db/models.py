@@ -32,12 +32,16 @@ class EntityOrm(Base):
     typology = Column(Text, nullable=True)
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True)
     point = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    _geojson = column_property(func.ST_AsGeoJSON(geometry))
+    _geometry_geojson = column_property(func.ST_AsGeoJSON(geometry))
+    _point_geojson = column_property(func.ST_AsGeoJSON(point))
 
     @hybrid_property
     def geojson(self):
-        if self._geojson is not None:
-            geometry = json.loads(self._geojson)
+        if self._geometry_geojson is not None:
+            geometry = json.loads(self._geometry_geojson)
+            return {"geometry": geometry, "type": "Feature"}
+        elif self._point_geojson is not None:
+            geometry = json.loads(self._point_geojson)
             return {"geometry": geometry, "type": "Feature"}
         return None
 
