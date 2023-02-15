@@ -52,7 +52,11 @@ def test_app_returns_valid_populated_geojson_list(client, test_data):
     assert "features" in data
     assert "FeatureCollection" == data["type"]
     assert len(
-        [e for e in test_data["entities"] if e.get("geometry", None) is not None]
+        [
+            e
+            for e in test_data["entities"]
+            if e.get("geometry", None) is not None or e.get("point", None) is not None
+        ]
     ) == len(data["features"])
 
 
