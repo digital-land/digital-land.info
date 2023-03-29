@@ -117,16 +117,17 @@ def test_data_old_entities(
         db_session.query(EntityOrm).get(test_datum["entity"])
         for test_datum in test_data["entities"]
     ]
+    
     old_entity_redirect = [
         OldEntityOrm(
             old_entity=entity_models[0],
             new_entity=entity_models[0],
             status=301,
-            dataset=entity_models[5]
+            dataset="greenspace"
         )
     ]
     db_session.add(old_entity_redirect[0])
-    old_entity_gone = [OldEntityOrm(old_entity=entity_models[1], status=410, dataset=entity_models[5])]
+    old_entity_gone = [OldEntityOrm(old_entity=entity_models[1], status=410, dataset="greenspace")]
     db_session.add(old_entity_gone[0])
     db_session.commit()
 
