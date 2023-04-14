@@ -56,7 +56,74 @@
           </tr>
         </tbody>
       </table>
+      <h3 class="govuk-heading-m" id="google-analytics-cookies">Google Analytics cookies</h3>
+      <p class="govuk-body">We use Google Analytics to measure how you use the Planning Data website. This helps us to improve the website experience and make sure it’s meeting your needs.</p>
+      <p class="govuk-body">Google Analytics sets cookies that store information about:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>the pages you visit on this website</li>
+        <li>how long you spend on each page</li>
+        <li>how you got to the site</li>
+        <li>what you click on whilst on the website</li>
+      </ul>
 
+      <div class="govuk-inset-text">
+      We do not allow Google to use or share our analytics data.
+      </div>
+
+      <p class="govuk-body">Google Analytics sets the following cookies.</p>
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">Name</th>
+            <th scope="row" class="govuk-table__header">Purpose</th>
+            <th scope="row" class="govuk-table__header">Expires</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">_ga</td>
+            <td class="govuk-table__cell">Counts the number of visitors by tracking if you've visited this website before.</td>
+            <td class="govuk-table__cell">2 years</td>
+          </tr>
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">_gid</td>
+            <td class="govuk-table__cell">Counts the number of visitors in the UK by tracking if you've visited this website before.</td>
+            <td class="govuk-table__cell">24 hours</td>
+          </tr>
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">_gat</td>
+            <td class="govuk-table__cell">Used to manage the rate at which page view requests are made.</td>
+            <td class="govuk-table__cell">10 minutes</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- section for cookie options HTML -->
+      <form id="cookie-form" class="govuk-form govuk-!-margin-top-9" onsubmit="return false;">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-bottom-6">Change your cookie options</legend>
+          <div class="govuk-form-group govuk-radios">
+            <div class="govuk-radios__item" data-children-count="1">
+              <input type="radio" name="cookies-usage" id="radio-ga-on" value="on" class="govuk-radios__input" onclick="cookiePrefs.setUsage(true);">
+              <label for="radio-ga-on" class="govuk-label govuk-radios__label">Use cookies that measure my website use</label>
+            </div>
+            <div class="govuk-radios__item" data-children-count="1">
+              <input type="radio" name="cookies-usage" id="radio-ga-off" value="off" class="govuk-radios__input" onclick="cookiePrefs.setUsage(false);">
+              <label for="radio-ga-off" class="govuk-label govuk-radios__label">Do not use cookies that measure my website use</label>
+            </div>
+          </div>
+        </fieldset>
+
+        <button class="govuk-button" type="submit" onclick="cookiePrefs.save();showSuccessBanner();">Save changes</button>
+      </form>
+
+      <script>
+        function showSuccessBanner() {
+          const popup = document.querySelector('[data-cookie-confirmation]');
+          popup.style.display = 'block';
+          popup.scrollIntoView();
+        }
+      </script>
 
     </div>
   </div>
