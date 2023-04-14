@@ -1,6 +1,6 @@
 name: Deploy
 
-on: 
+on:
   push:
   workflow_dispatch:
     inputs:
@@ -80,7 +80,7 @@ jobs:
     needs: [test, lint]
     outputs:
       environments: ${{ steps.environments.outputs.result }}
-    if: github.ref_name == 'main'
+    if: github.ref_name == 'CN24-Google-Analytics'
     steps:
       - uses: actions/github-script@v6
         id: environments
@@ -89,7 +89,7 @@ jobs:
           result-encoding: json
           script: |
             if (context.payload?.inputs?.environment) return [context.payload?.inputs?.environment];
-            const {data: {environments}} = 
+            const {data: {environments}} =
               await github.request(`GET /repos/${process.env.GITHUB_REPOSITORY}/environments`);
             return environments.map(e => e.name)
 
@@ -102,7 +102,7 @@ jobs:
     environment: ${{ matrix.environment }}
     env:
       DOCKER_REPO: ${{ secrets.DEPLOY_DOCKER_REPOSITORY }}
-    if: github.ref_name == 'main'
+    if: github.ref_name == 'CN24-Google-Analytics'
     steps:
       - uses: actions/checkout@v3
 
