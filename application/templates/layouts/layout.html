@@ -1,5 +1,11 @@
 {% extends "digital-land-frontend/layouts/base.jinja" %}
 
+{% from 'govuk_frontend_jinja/components/cookie-banner/macro.html' import govukCookieBanner %}
+
+{% set html %}
+  <p class="govuk-body">We use some essential cookies to make this service work.</p>
+{% endset %}
+
 {% block headIcons %}
   <link rel="icon" type="image/svg+xml" href="{{ assetPath | default('/assets') }}/images/favicon.svg">
   <link rel="shortcut icon" href="{{ assetPath | default('/assets') }}/images/favicon.ico" type="image/x-icon">
@@ -21,6 +27,34 @@
 {% endblock %}
 
 {% block mastHead %}
+
+  {{ govukCookieBanner({
+    "ariaLabel": "Cookies on planning.data.gov.uk",
+    "attributes": {
+      "id": "cookie-banner",
+    },
+    "messages": [
+      {
+        'headingText': "Cookies on planning.data.gov.uk",
+        'html': html,
+        'actions': [
+          {
+            'text': "Hide cookie message",
+            'href': "#",
+            'type': "button",
+            'attributes': {
+              'onclick': 'acceptCookies({ essential: true, settings: false, usage: false, campaigns: false });'
+            }
+          },
+          {
+            'text': "Customise cookie preferences",
+            'href': "cookies"
+          }
+        ]
+      },
+    ]
+  }) }}
+
   {% include 'partials/service-status-banner.html' %}
   {% include 'partials/mast-head.html' %}
 {% endblock mastHead %}
@@ -36,6 +70,14 @@
 #}
 {% block cookieBanner %}{% endblock cookieBanner %}
 {% block analyticScripts %}{% endblock analyticScripts %}
+{% block bodyScripts %}
+  <script src="{{ assetPath }}/javascripts/digital-land-frontend.js"></script>
+  <script src="{{ assetPath }}/javascripts/digital-land-cookies.js"></script>
+  <script>
+    cookiePrefs.get();
+  </script>
+{% endblock bodyScripts %}
+
 
 {% block footer %}
   {% set fullFooter = False %}
