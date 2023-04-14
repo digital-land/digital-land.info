@@ -13,6 +13,18 @@
   </p>
 {% endset %}
 
+{% block headStart %}
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QLS9NBMSYF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-QLS9NBMSYF');
+</script>
+{% endblock headStart %}
+
 {% block headIcons %}
   <link rel="icon" type="image/svg+xml" href="{{ assetPath | default('/assets') }}/images/favicon.svg">
   <link rel="shortcut icon" href="{{ assetPath | default('/assets') }}/images/favicon.ico" type="image/x-icon">
