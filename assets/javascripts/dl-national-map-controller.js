@@ -44,15 +44,32 @@ MapController.prototype.createMap = function () {
 
 MapController.prototype.setup = function () {
   // add source to map
-  this.addSource(); // add zoom controls
+  this.addSource();
+  this.addDatasetVectorSources(this.datasetVectorUrl, this.datasets);
 
+  // add zoom controls
   this.zoomControl = new DLMaps.ZoomControls(this.$zoomControls, this.map, this.map.getZoom()).init({}); // setup layers
 
+  // sourceName is supplied here, however it's not used as far as I can tell in other bits of the code
   this.layerControlsComponent = new DLMaps.LayerControls(this.$layerControlsList, this.map, this.sourceName).init(this.LayerControlOptions); // register click handler
 
   var boundClickHandler = this.clickHandler.bind(this);
   this.map.on('click', boundClickHandler);
 };
+
+MapController.prototype.addDatasetVectorSources = function (sourceUrl,datasets) {
+  // set up source for each dataset on the tiles server
+    for (let i = 0; i < datasets.length; i++) {
+      var sourceName = datasets[i] + '-source';
+      this.map.addSource(sourceName, {
+        type: 'vector',
+        tiles: [sourceUrl + datasets[i] + '/{z}/{x}/{y}.vector.pbf'],
+        minzoom: this.minMapZoom,
+        maxzoom: this.maxMapZoom
+      });
+    }
+
+  };
 
 MapController.prototype.addSource = function () {
   var sourceName = this.sourceName;
@@ -173,6 +190,8 @@ MapController.prototype.setupOptions = function (params) {
   this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
   this.sourceName = params.sourceName || 'dl-vectors';
   this.vectorSource = params.vectorSource || 'https://datasette-tiles.digital-land.info/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf';
+  this.datasetVectorUrl = params.datasetVectorUrl;
+  this.datasets = params.datasets
   this.minMapZoom = params.minMapZoom || 5;
   this.maxMapZoom = params.maxMapZoom || 15;
   this.baseURL = params.baseURL || 'https://digital-land.github.io';
