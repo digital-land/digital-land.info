@@ -31,6 +31,6 @@
   },
   "homepage": "https://github.com/digital-land/digital-land.info#readme",
   "dependencies": {
-    "digital-land-frontend": "https://gitpkg.now.sh/digital-land/digital-land-frontend/package?cookie-code"
+    "digital-land-frontend": "https://gitpkg.now.sh/digital-land/digital-land-frontend/package?main"
   }
 }
