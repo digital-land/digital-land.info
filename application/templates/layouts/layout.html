@@ -61,7 +61,16 @@
             'name': "cookies",
             'value': "accept",
             'attributes': {
-              'onclick': 'acceptCookies();',
+              'onclick': 'acceptCookies({ essential: true, settings: false, usage: true, campaigns: false });',
+            }
+          },
+          {
+            'text': "Accept only essential cookies",
+            'type': "button",
+            'name': "cookies",
+            'value': "accept",
+            'attributes': {
+              'onclick': 'acceptCookies({ essential: true, settings: false, usage: false, campaigns: false });',
             }
           },
           {
