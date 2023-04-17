@@ -17,8 +17,10 @@
 <!-- Google tag (gtag.js) -->
 <script>
   window.gaMeasurementId = 'G-H6Y6SVFXMH';
+  var scriptElement = document.createElement("script");
+  scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
+  document.head.appendChild(scriptElement);
 </script>
-<script async src=`https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`></script>
 {% endblock headStart %}
 
 {% block headIcons %}
