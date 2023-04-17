@@ -1,5 +1,28 @@
 {% extends "digital-land-frontend/layouts/base.jinja" %}
 
+{% from 'govuk_frontend_jinja/components/cookie-banner/macro.html' import govukCookieBanner %}
+
+{% set html %}
+  <p class="govuk-body">We use some essential cookies to make this service work.</p>
+  <p class="govuk-body">We’d also like to use analytics cookies so we can understand how you use the service and make improvements.</p>
+{% endset %}
+
+{% set acceptHtml %}
+  <p class="govuk-notification-banner__heading">
+    You have accepted additional cookies. You can <a class="govuk-notification-banner__link" href="/cookies">change your cookie settings</a> at any time.
+  </p>
+{% endset %}
+
+{% block headStart %}
+<!-- Google tag (gtag.js) -->
+<script>
+  window.gaMeasurementId = 'G-H6Y6SVFXMH';
+  var scriptElement = document.createElement("script");
+  scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
+  document.head.appendChild(scriptElement);
+</script>
+{% endblock headStart %}
+
 {% block headIcons %}
   <link rel="icon" type="image/svg+xml" href="{{ assetPath | default('/assets') }}/images/favicon.svg">
   <link rel="shortcut icon" href="{{ assetPath | default('/assets') }}/images/favicon.ico" type="image/x-icon">
@@ -21,6 +44,67 @@
 {% endblock %}
 
 {% block mastHead %}
+
+  {{ govukCookieBanner({
+    "ariaLabel": "Cookies on planning.data.gov.uk",
+    "attributes": {
+      "id": "cookie-banner",
+    },
+    "messages": [
+      {
+        'headingText': "Cookies on planning.data.gov.uk",
+        'html': html,
+        'actions': [
+          {
+            'text': "Accept analytics cookies",
+            'type': "button",
+            'name': "cookies",
+            'value': "accept",
+            'attributes': {
+              'onclick': 'acceptCookies({ essential: true, settings: false, usage: true, campaigns: false });',
+            }
+          },
+          {
+            'text': "Reject analytics cookies",
+            'type': "button",
+            'name': "cookies",
+            'value': "reject",
+            'attributes': {
+              'onclick': 'acceptCookies({ essential: true, settings: false, usage: false, campaigns: false });',
+            }
+          },
+          {
+            'text': "Customise cookie preferences",
+            'href': "cookies"
+          }
+        ]
+      }
+    ]
+  }) }}
+
+  {{ govukCookieBanner({
+    'ariaLabel': "Cookies on planning.data.gov.uk",
+    'attributes': {
+      'id': 'cookie-confirmation',
+      'style': 'display: none'
+    },
+    'messages': [
+      {
+        'html': acceptHtml,
+        'actions': [
+        {
+          'text': "Hide cookie message",
+          'href': "#",
+          'type': "button",
+          'attributes': {
+            'onclick': 'hideCookieConfirmation();'
+          }
+        }
+        ]
+      }
+    ]
+  }) }}
+
   {% include 'partials/service-status-banner.html' %}
   {% include 'partials/mast-head.html' %}
 {% endblock mastHead %}
@@ -36,6 +120,14 @@
 #}
 {% block cookieBanner %}{% endblock cookieBanner %}
 {% block analyticScripts %}{% endblock analyticScripts %}
+{% block bodyScripts %}
+  <script src="{{ assetPath }}/javascripts/digital-land-frontend.js"></script>
+  <script src="{{ assetPath }}/javascripts/digital-land-cookies.js"></script>
+  <script>
+    cookiePrefs.get();
+  </script>
+{% endblock bodyScripts %}
+
 
 {% block footer %}
   {% set fullFooter = False %}

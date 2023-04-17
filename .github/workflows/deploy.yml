@@ -1,6 +1,6 @@
 name: Deploy
 
-on: 
+on:
   push:
   workflow_dispatch:
     inputs:
@@ -89,7 +89,7 @@ jobs:
           result-encoding: json
           script: |
             if (context.payload?.inputs?.environment) return [context.payload?.inputs?.environment];
-            const {data: {environments}} = 
+            const {data: {environments}} =
               await github.request(`GET /repos/${process.env.GITHUB_REPOSITORY}/environments`);
             return environments.map(e => e.name)
 

@@ -1,10 +1,27 @@
 {% extends "layouts/layout.html" %}
+
+{% from "govuk_frontend_jinja/components/notification-banner/macro.html" import govukNotificationBanner %}
+
+{% set htmlgovukNotificationBanner %}
+  <p class="govuk-notification-banner__heading">
+    You’ve set your cookie preferences. <a class="govuk-notification-banner__link" href="javascript:history.back()">Go back to the page you were looking at</a>.
+  </p>
+{% endset %}
+
 {% block pageTitle %}Cookies - Planning Data{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
 
 {% block content %}
+
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      <div data-cookie-confirmation="true" style="display: none">
+        {{ govukNotificationBanner({
+          "type": "success",
+          "html": htmlgovukNotificationBanner
+        }) }}
+      </div>
       <h1 class="govuk-heading-xl">Cookies on the Planning Data website</h1>
       <p class="govuk-body">The Planning Data website puts cookies onto your computer to collect information about how you browse the site. This helps us to:</p>
       <ul class="govuk-list govuk-list--bullet">
@@ -13,8 +30,10 @@
       </ul>
       <p class="govuk-body">We do not collect any personal information that could be used to identify you.</p>
       <p class="govuk-body">Find out more about <a href="https://ico.org.uk/your-data-matters/online/cookies/">how to manage cookies</a>.</p>
+      <h3 class="govuk-heading-m" id="essential-cookies">Essential cookies</h3>
+      <p class="govuk-body">Essential cookies are needed for the service to work. We do not need to ask for permission to use them.</p>
       <h2 class="govuk-heading-l" id="how-cookies-are-used-on-the-digital-land-website">How cookies are used on the Planning Data website</h2>
-      <h3 class="govuk-heading-m" id="our-cookie-banner">Our cookie banner</h3>
+      <h3 class="govuk-heading-m" id="our-cookie-banner">Our cookie banner (essential)</h3>
       <p class="govuk-body">When you first visit the Planning Data website, you will see a banner asking if you accept cookies. We’ll store a cookie to remember which option you selected. You can always change your mind and change your choice on this page.</p>
       <p class="govuk-body">Next time you visit the site, we will remember your preference and not show the banner again.</p>
       <p class="govuk-body">To do this, the Planning Data website sets the following cookies:</p>
@@ -30,16 +49,16 @@
           <tr class="govuk-table__row">
             <td class="govuk-table__cell">cookies_preferences_set</td>
             <td class="govuk-table__cell">Lets us know you've seen our cookie message.</td>
-            <td class="govuk-table__cell">1 month</td>
+            <td class="govuk-table__cell">1 year</td>
           </tr>
           <tr class="govuk-table__row">
             <td class="govuk-table__cell">cookies_policy</td>
             <td class="govuk-table__cell">Saves your cookie choices.</td>
-            <td class="govuk-table__cell">1 month</td>
+            <td class="govuk-table__cell">1 year</td>
           </tr>
         </tbody>
       </table>
-      {# <h3 class="govuk-heading-m" id="google-analytics-cookies">Google Analytics cookies</h3>
+      <h3 class="govuk-heading-m" id="google-analytics-cookies">Google Analytics cookies (optional)</h3>
       <p class="govuk-body">We use Google Analytics to measure how you use the Planning Data website. This helps us to improve the website experience and make sure it’s meeting your needs.</p>
       <p class="govuk-body">Google Analytics sets cookies that store information about:</p>
       <ul class="govuk-list govuk-list--bullet">
@@ -87,18 +106,26 @@
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-bottom-6">Change your cookie options</legend>
           <div class="govuk-form-group govuk-radios">
             <div class="govuk-radios__item" data-children-count="1">
-              <input type="radio" name="cookies-usage" id="radio-ga-on" value="on" class="govuk-radios__input">
+              <input type="radio" name="cookies-usage" id="radio-ga-on" value="on" class="govuk-radios__input" onclick="cookiePrefs.setUsage(true);">
               <label for="radio-ga-on" class="govuk-label govuk-radios__label">Use cookies that measure my website use</label>
             </div>
             <div class="govuk-radios__item" data-children-count="1">
-              <input type="radio" name="cookies-usage" id="radio-ga-off" value="off" class="govuk-radios__input">
+              <input type="radio" name="cookies-usage" id="radio-ga-off" value="off" class="govuk-radios__input" onclick="cookiePrefs.setUsage(false);">
               <label for="radio-ga-off" class="govuk-label govuk-radios__label">Do not use cookies that measure my website use</label>
             </div>
           </div>
         </fieldset>
 
-        <button class="govuk-button" type="submit" onclick="saveCookiePrefs();">Save changes</button>
-      </form> #}
+        <button class="govuk-button" type="submit" onclick="cookiePrefs.save();showSuccessBanner();">Save changes</button>
+      </form>
+
+      <script>
+        function showSuccessBanner() {
+          const popup = document.querySelector('[data-cookie-confirmation]');
+          popup.style.display = 'block';
+          popup.scrollIntoView();
+        }
+      </script>
 
     </div>
   </div>
