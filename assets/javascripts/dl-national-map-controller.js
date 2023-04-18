@@ -61,6 +61,7 @@ MapController.prototype.addDatasetVectorSources = function (sourceUrl,datasets) 
   if (sourceUrl === null || datasets === null){
     console.log("dataset vector sources not added, will default to vectorSource")
   } else {
+    console.log("dataset vector sources added")
   // set up source for each dataset on the tiles server
     for (let i = 0; i < datasets.length; i++) {
       var sourceName = datasets[i] + '-source';
