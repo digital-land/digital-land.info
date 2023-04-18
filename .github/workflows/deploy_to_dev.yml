@@ -1,6 +1,9 @@
 name: Deploy To Development
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    tags:
+        description: 'deploy workflow to the development environment'
 jobs:
   lint:
     runs-on: ubuntu-latest
