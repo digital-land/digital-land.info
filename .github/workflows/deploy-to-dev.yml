@@ -1,12 +1,5 @@
-name: Deploy v2
-
-on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        type: environment
-        description: The environment to deploy.
-
+name: Deploy To Development
+on: [workflow_dispatch]
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -79,7 +72,6 @@ jobs:
     needs: [test, lint]
     outputs:
       environments: ${{ steps.environments.outputs.result }}
-    if: github.ref_name == 'main'
     steps:
       - uses: actions/github-script@v6
         id: environments
@@ -87,10 +79,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-encoding: json
           script: |
-            if (context.payload?.inputs?.environment) return [context.payload?.inputs?.environment];
             const {data: {environments}} =
               await github.request(`GET /repos/${process.env.GITHUB_REPOSITORY}/environments`);
-            return environments.map(e => e.name)
+            if (environments.filter(e => e.name === "development").Length === 1) {
+              return environments.filter(e => e.name === "development")
+            } else {
+              return null
+            }
 
   deploy:
     runs-on: ubuntu-latest
@@ -101,7 +96,6 @@ jobs:
     environment: ${{ matrix.environment }}
     env:
       DOCKER_REPO: ${{ secrets.DEPLOY_DOCKER_REPOSITORY }}
-    if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v3
 
