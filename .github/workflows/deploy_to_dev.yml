@@ -1,9 +1,7 @@
 name: Deploy To Development
 
 on:
-  push:
-  workflow_dispatch:
-
+  workflow_dispatch
 jobs:
   lint:
     runs-on: ubuntu-latest
