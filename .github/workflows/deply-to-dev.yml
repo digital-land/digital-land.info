@@ -67,33 +67,9 @@ jobs:
           echo "## Acceptance Tests" >> $GITHUB_STEP_SUMMARY
           cat unit-tests.md >> $GITHUB_STEP_SUMMARY
 
-  detect-environments:
-    runs-on: ubuntu-latest
-    needs: [test, lint]
-    outputs:
-      environments: ${{ steps.environments.outputs.result }}
-    steps:
-      - uses: actions/github-script@v6
-        id: environments
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-encoding: json
-          script: |
-            const {data: {environments}} =
-              await github.request(`GET /repos/${process.env.GITHUB_REPOSITORY}/environments`);
-            if (environments.filter(e => e.name === "development").Length === 1) {
-              return environments.filter(e => e.name === "development")
-            } else {
-              return null
-            }
-
   deploy:
     runs-on: ubuntu-latest
-    needs: [detect-environments]
-    strategy:
-      matrix:
-        environment: ${{ fromJSON(needs.detect-environments.outputs.environments) }}
-    environment: ${{ matrix.environment }}
+    environment: development
     env:
       DOCKER_REPO: ${{ secrets.DEPLOY_DOCKER_REPOSITORY }}
     steps:
