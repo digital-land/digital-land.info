@@ -84,7 +84,7 @@ jobs:
             if (environments.filter(e => e.name === "development").Length === 1) {
               return environments.filter(e => e.name === "development")
             } else {
-              return null
+              return "development"
             }
 
   deploy:
