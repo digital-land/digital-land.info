@@ -58,6 +58,9 @@ MapController.prototype.setup = function () {
 };
 
 MapController.prototype.addDatasetVectorSources = function (sourceUrl,datasets) {
+  if (sourceUrl === null || datasets === null){
+    console.log("dataset vector sources not added, will default to vectorSource")
+  } else {
   // set up source for each dataset on the tiles server
     for (let i = 0; i < datasets.length; i++) {
       var sourceName = datasets[i] + '-source';
@@ -68,8 +71,8 @@ MapController.prototype.addDatasetVectorSources = function (sourceUrl,datasets) 
         maxzoom: this.maxMapZoom
       });
     }
-
-  };
+  }
+};
 
 MapController.prototype.addSource = function () {
   var sourceName = this.sourceName;
@@ -190,8 +193,8 @@ MapController.prototype.setupOptions = function (params) {
   this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
   this.sourceName = params.sourceName || 'dl-vectors';
   this.vectorSource = params.vectorSource || 'https://datasette-tiles.digital-land.info/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf';
-  this.datasetVectorUrl = params.datasetVectorUrl;
-  this.datasets = params.datasets
+  this.datasetVectorUrl = params.datasetVectorUrl || None;
+  this.datasets = params.datasets || None;
   this.minMapZoom = params.minMapZoom || 5;
   this.maxMapZoom = params.maxMapZoom || 15;
   this.baseURL = params.baseURL || 'https://digital-land.github.io';
