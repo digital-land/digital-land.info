@@ -126,6 +126,8 @@
   <script>
     cookiePrefs.get();
   </script>
+  <!-- when adding bodyscripts need to call super so page scripts are still ran -->
+  {{ super() }}
 {% endblock bodyScripts %}
 
 
