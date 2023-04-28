@@ -3,6 +3,7 @@ from application.core.filters import (
     remove_param_from_param_dict,
     remove_values_from_param_dict,
     make_url_param_str,
+    cacheBust,
 )
 
 
@@ -74,6 +75,29 @@ def test_remove_values_from_param_dict_lists_provided():
     }
     result = remove_values_from_param_dict(input_param_dict, exclude_values)
     assert result == expected
+
+
+def test_cacheBust_no_params():
+    input_uri = "static/javascript/myCoolScript.js"
+    result = cacheBust(input_uri)
+    sections = result.split("?")
+    assert input_uri == sections[0]
+
+    hash = sections[1].split("=")[1]
+    assert len(hash) == 40
+
+
+def test_cacheBust_params():
+    input_uri = "static/javascript/myCoolScript.js?fakeParam=myFakeParam"
+    result = cacheBust(input_uri)
+    sections = result.split("?")
+    assert "static/javascript/myCoolScript.js" == sections[0]
+
+    params = sections[1].split("&")
+    assert params[0] == "fakeParam=myFakeParam"
+
+    hash = params[1].split("=")[1]
+    assert len(hash) == 40
 
 
 def test_make_url_param_str_all_arguements():
