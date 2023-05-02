@@ -43,3 +43,4 @@ docker-compose.override.yml
 .env.production
 coverage.xml
 .secrets
+unit-tests.md
