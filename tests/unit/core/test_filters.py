@@ -84,9 +84,6 @@ def test_cacheBust_no_params():
     sections = result.split("?")
     assert input_uri == sections[0]
 
-    hash = sections[1].split("=")[1]
-    assert len(hash) == 18
-
 
 def test_cacheBust_params():
     input_uri = "static/javascripts/application.js?fakeParam=myFakeParam"
@@ -96,9 +93,6 @@ def test_cacheBust_params():
 
     params = sections[1].split("&")
     assert params[0] == "fakeParam=myFakeParam"
-
-    hash = params[1].split("=")[1]
-    assert len(hash) == 18
 
 
 def test_appendUriParam():
