@@ -80,7 +80,7 @@ jobs:
     needs: [test, lint]
     outputs:
       environments: ${{ steps.environments.outputs.result }}
-    if: github.ref_name == 'T-196-CacheBusting'
+    if: github.ref_name == 'main'
     steps:
       - uses: actions/github-script@v6
         id: environments
@@ -102,7 +102,7 @@ jobs:
     environment: ${{ matrix.environment }}
     env:
       DOCKER_REPO: ${{ secrets.DEPLOY_DOCKER_REPOSITORY }}
-    if: github.ref_name == 'T-196-CacheBusting'
+    if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v3
 
