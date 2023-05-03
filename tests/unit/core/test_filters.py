@@ -5,6 +5,7 @@ from application.core.filters import (
     make_url_param_str,
     cacheBust,
     appendUriParam,
+    hash_file,
 )
 
 
@@ -84,6 +85,9 @@ def test_cacheBust_no_params():
     sections = result.split("?")
     assert input_uri == sections[0]
 
+    hash = sections[1].split("=")[1]
+    assert len(hash) == 40
+
 
 def test_cacheBust_params():
     input_uri = "static/javascripts/application.js?fakeParam=myFakeParam"
@@ -94,20 +98,29 @@ def test_cacheBust_params():
     params = sections[1].split("&")
     assert params[0] == "fakeParam=myFakeParam"
 
+    hash = params[1].split("=")[1]
+    assert len(hash) == 40
+
 
 def test_appendUriParam():
-    uri = "static/javascripts/myCookScript.js"
+    uri = "static/javascript/myCookScript.js"
     param = {"key": "value"}
     result = appendUriParam(uri, param)
-    assert result == "static/javascripts/myCookScript.js?key=value"
+    assert result == "static/javascript/myCookScript.js?key=value"
 
-    uri = "static/javascripts/myCookScript.js?key=value"
+    uri = "static/javascript/myCookScript.js?key=value"
     param = {"differentKey": "differentValue"}
     result = appendUriParam(uri, param)
     assert (
         result
-        == "static/javascripts/myCookScript.js?key=value&differentKey=differentValue"
+        == "static/javascript/myCookScript.js?key=value&differentKey=differentValue"
     )
+
+
+def test_hash_file():
+    result = hash_file("static/javascripts/application.js")
+    print(result)
+    assert len(result) == 40
 
 
 def test_make_url_param_str_all_arguements():
