@@ -9,9 +9,9 @@ import jsonpickle
 from bs4 import BeautifulSoup
 from slugify import slugify
 from uritemplate import URITemplate
-import git
 import urllib.parse as urlparse
 from urllib.parse import urlencode
+import os
 
 
 def to_slug(string):
@@ -185,14 +185,13 @@ def appendUriParam(uri, param):
 
 
 # gets the current git commit sha hash
-def getGitCommitHash():
-    repo = git.Repo()
-    return repo.head.object.hexsha
+def getFileLastModified(uri):
+    return os.path.getmtime(os.path.dirname(__file__) + "/../../" + uri)
 
 
 # Takes the URI and appends a param containing the current git hash
 def cacheBust(uri):
-    sha = getGitCommitHash()
+    sha = getFileLastModified(uri)
     return appendUriParam(uri, {"v": sha})
 
 
