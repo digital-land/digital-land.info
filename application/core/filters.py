@@ -186,7 +186,8 @@ def appendUriParam(uri, param):
 
 # gets the current git commit sha hash
 def getFileLastModified(uri):
-    return os.path.getmtime(os.path.dirname(__file__) + "/../../" + uri)
+    filePath = uri.split("?")[0]
+    return os.path.getmtime(os.path.dirname(__file__) + "/../../" + filePath)
 
 
 # Takes the URI and appends a param containing the current git hash

@@ -5,7 +5,6 @@ from application.core.filters import (
     make_url_param_str,
     cacheBust,
     appendUriParam,
-    getGitCommitHash,
 )
 
 
@@ -80,46 +79,41 @@ def test_remove_values_from_param_dict_lists_provided():
 
 
 def test_cacheBust_no_params():
-    input_uri = "static/javascript/myCoolScript.js"
+    input_uri = "static/javascripts/application.js"
     result = cacheBust(input_uri)
     sections = result.split("?")
     assert input_uri == sections[0]
 
     hash = sections[1].split("=")[1]
-    assert len(hash) == 40
+    assert len(hash) == 18
 
 
 def test_cacheBust_params():
-    input_uri = "static/javascript/myCoolScript.js?fakeParam=myFakeParam"
+    input_uri = "static/javascripts/application.js?fakeParam=myFakeParam"
     result = cacheBust(input_uri)
     sections = result.split("?")
-    assert "static/javascript/myCoolScript.js" == sections[0]
+    assert "static/javascripts/application.js" == sections[0]
 
     params = sections[1].split("&")
     assert params[0] == "fakeParam=myFakeParam"
 
     hash = params[1].split("=")[1]
-    assert len(hash) == 40
+    assert len(hash) == 18
 
 
 def test_appendUriParam():
-    uri = "static/javascript/myCookScript.js"
+    uri = "static/javascripts/myCookScript.js"
     param = {"key": "value"}
     result = appendUriParam(uri, param)
-    assert result == "static/javascript/myCookScript.js?key=value"
+    assert result == "static/javascripts/myCookScript.js?key=value"
 
-    uri = "static/javascript/myCookScript.js?key=value"
+    uri = "static/javascripts/myCookScript.js?key=value"
     param = {"differentKey": "differentValue"}
     result = appendUriParam(uri, param)
     assert (
         result
-        == "static/javascript/myCookScript.js?key=value&differentKey=differentValue"
+        == "static/javascripts/myCookScript.js?key=value&differentKey=differentValue"
     )
-
-
-def test_getGitCommitHash():
-    result = getGitCommitHash()
-    assert len(result) == 40
 
 
 def test_make_url_param_str_all_arguements():
