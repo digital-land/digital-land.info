@@ -20,6 +20,7 @@ from application.core.filters import (
     debug,
     digital_land_to_json,
     uri_encode,
+    cacheBust,
     make_url_param_str,
     to_slug,
     extract_component_key,
@@ -64,6 +65,7 @@ templates.env.filters["get_entity_name"] = get_entity_name_filter
 templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
+templates.env.globals["cacheBust"] = cacheBust
 templates.env.filters["make_url_param_str"] = make_url_param_str
 templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key

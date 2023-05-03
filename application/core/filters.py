@@ -1,5 +1,4 @@
 from digital_land_frontend.filters import is_list_filter
-from urllib.parse import urlencode
 from application.data_access.entity_queries import get_entity_query
 from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
@@ -10,6 +9,9 @@ import jsonpickle
 from bs4 import BeautifulSoup
 from slugify import slugify
 from uritemplate import URITemplate
+import git
+import urllib.parse as urlparse
+from urllib.parse import urlencode
 
 
 def to_slug(string):
@@ -171,6 +173,27 @@ def digital_land_to_json(dict):
 def uri_encode(uri_template, kwarg_list):
     uri = URITemplate(uri_template)
     return uri.expand(**kwarg_list)
+
+
+# Takes a URI and appends a specified parameter to it
+def appendUriParam(uri, param):
+    uri_parts = list(urlparse.urlparse(uri))
+    query = dict(urlparse.parse_qsl(uri_parts[4]))
+    query.update(param)
+    uri_parts[4] = urlencode(query)
+    return urlparse.urlunparse(uri_parts)
+
+
+# gets the current git commit sha hash
+def getGitCommitHash():
+    repo = git.Repo()
+    return repo.head.object.hexsha
+
+
+# Takes the URI and appends a param containing the current git hash
+def cacheBust(uri):
+    sha = getGitCommitHash()
+    return appendUriParam(uri, {"v": sha})
 
 
 def extract_component_key(json_ref):

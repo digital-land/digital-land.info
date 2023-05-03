@@ -13,7 +13,8 @@
 {% endblock headStart %}
 {% block stylesheets %}
   <!-- local generated css -->
-  <link href="{{ assetPath }}/stylesheets/application.css" rel="stylesheet"/>
+
+  <link href="{{ cacheBust(assetPath + '/stylesheets/application.css') }}" rel="stylesheet"/>
 {% endblock %}
 
 {% block mastHead %}
