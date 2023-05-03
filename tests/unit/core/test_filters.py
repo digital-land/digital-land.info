@@ -4,6 +4,8 @@ from application.core.filters import (
     remove_values_from_param_dict,
     make_url_param_str,
     cacheBust,
+    appendUriParam,
+    getGitCommitHash,
 )
 
 
@@ -98,6 +100,26 @@ def test_cacheBust_params():
 
     hash = params[1].split("=")[1]
     assert len(hash) == 40
+
+
+def test_appendUriParam():
+    uri = "static/javascript/myCookScript.js"
+    param = {"key": "value"}
+    result = appendUriParam(uri, param)
+    assert result == "static/javascript/myCookScript.js?key=value"
+
+    uri = "static/javascript/myCookScript.js?key=value"
+    param = {"differentKey": "differentValue"}
+    result = appendUriParam(uri, param)
+    assert (
+        result
+        == "static/javascript/myCookScript.js?key=value&differentKey=differentValue"
+    )
+
+
+def test_getGitCommitHash():
+    result = getGitCommitHash()
+    assert len(result) == 40
 
 
 def test_make_url_param_str_all_arguements():
