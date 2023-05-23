@@ -79,6 +79,7 @@ class OldEntityOrm(Base):
     status = Column(Integer, nullable=False)
     notes = Column(Text, nullable=True)
     new_entity_id = Column(BIGINT, name="entity", nullable=True)
+    dataset = Column(Text, nullable=False)
     new_entity = relationship(
         EntityOrm,
         primaryjoin=remote(EntityOrm.entity) == foreign(new_entity_id),
