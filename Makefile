@@ -30,6 +30,8 @@ piptool-compile::
 	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
 	python -m piptools compile requirements/dev-requirements.in
 
+postgresql::
+	sudo service postgresql start
 
 server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
