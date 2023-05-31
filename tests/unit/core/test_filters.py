@@ -5,7 +5,7 @@ from application.core.filters import (
     make_url_param_str,
     cacheBust,
     appendUriParam,
-    getGitCommitHash,
+    hash_file,
 )
 
 
@@ -80,7 +80,7 @@ def test_remove_values_from_param_dict_lists_provided():
 
 
 def test_cacheBust_no_params():
-    input_uri = "static/javascript/myCoolScript.js"
+    input_uri = "static/javascripts/application.js"
     result = cacheBust(input_uri)
     sections = result.split("?")
     assert input_uri == sections[0]
@@ -90,10 +90,10 @@ def test_cacheBust_no_params():
 
 
 def test_cacheBust_params():
-    input_uri = "static/javascript/myCoolScript.js?fakeParam=myFakeParam"
+    input_uri = "static/javascripts/application.js?fakeParam=myFakeParam"
     result = cacheBust(input_uri)
     sections = result.split("?")
-    assert "static/javascript/myCoolScript.js" == sections[0]
+    assert "static/javascripts/application.js" == sections[0]
 
     params = sections[1].split("&")
     assert params[0] == "fakeParam=myFakeParam"
@@ -117,8 +117,9 @@ def test_appendUriParam():
     )
 
 
-def test_getGitCommitHash():
-    result = getGitCommitHash()
+def test_hash_file():
+    result = hash_file("static/javascripts/application.js")
+    print(result)
     assert len(result) == 40
 
 
