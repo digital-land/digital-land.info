@@ -78,7 +78,7 @@ frontend:
 	javascripts
 	rsync -r assets/images static/
 
-frontend-all: clean digital-land-frontend-init frontend
+frontend-all: clean frontend
 
 black:
 	black .
