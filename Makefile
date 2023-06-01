@@ -71,10 +71,10 @@ clean::
 	rm -rf static/
 
 javascripts:
-	cp -R assets/javascripts/* static/javascripts/
+	rsync -r assets/javascripts static/
 
 frontend:
-	javascripts
+	make javascripts
 	rsync -r assets/images static/
 
 frontend-all: clean frontend
