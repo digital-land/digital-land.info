@@ -1,0 +1,17 @@
+{% macro dlFilterGroup(params) %}
+<details class="dl-filter-group" {% if params.is_open %}open{% endif %} {% if not params.no_count %}data-module="selected-counter"{% endif %}>
+	<summary class="dl-filter-group__summary"><h3 class="govuk-heading-s dl-filter-group__heading">{{ params.title }}</h3>
+		{%- if params.selected %}<span class="dl-filter-group__selected-text"><span class="dl-filter-group__selected-text__count">{{ params.selected }}</span> selected</span>{% endif -%}
+		<svg version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" class="dl-filter-group__icon dl-filter-group__icon--up"><path d="m798.16 609.84l-256-256c-16.683-16.683-43.691-16.683-60.331 0l-256 256c-16.683 16.683-16.683 43.691 0 60.331s43.691 16.683 60.331 0l225.84-225.84 225.84 225.84c16.683 16.683 43.691 16.683 60.331 0s16.683-43.691 0-60.331z"></path></svg>
+		<svg version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" class="dl-filter-group__icon dl-filter-group__icon--down"><path d="m225.84 414.16l256 256c16.683 16.683 43.691 16.683 60.331 0l256-256c16.683-16.683 16.683-43.691 0-60.331s-43.691-16.683-60.331 0l-225.84 225.84-225.84-225.84c-16.683-16.683-43.691-16.683-60.331 0s-16.683 43.691 0 60.331z"></path></svg>
+	</summary>
+	<fieldset class="govuk-fieldset dl-filter-group__fieldset">
+		<legend class="govuk-fieldset__legend govuk-fieldset__legend--m govuk-visually-hidden">
+		  <h1 class="govuk-fieldset__heading">
+			{{ params.title }}
+		  </h1>
+		</legend>
+		{{ caller() }}
+	</fieldset>
+</details>
+{% endmacro %}

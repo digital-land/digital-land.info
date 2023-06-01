@@ -1,0 +1,18 @@
+{% macro dlFilterCheckboxes(params) %}
+<div class="govuk-checkboxes" data-module="filter-checkboxes">
+  <div class="dl-filter-group__auto-filter">
+    <label for="input-{{ params.uniqueID }}" class="govuk-label govuk-visually-hidden">
+    Filter Show only
+    </label>
+    <input id="input-{{ params.uniqueID }}" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-{{ params.uniqueID }}" aria-controls="checkboxes-{{ params.uniqueID }}">
+  </div>
+
+  <div role="group">
+    <span id="checkbox-filter-{{ params.uniqueID }}" class="dl-filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">How many showing</span>
+
+    <div id="checkboxes-{{ params.uniqueID }}" class="checkbox-list">
+      {{ params.checkboxesHTML|safe }}
+    </div>
+  </div>
+</div>
+{% endmacro %}

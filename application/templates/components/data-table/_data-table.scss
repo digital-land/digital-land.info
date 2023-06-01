@@ -1,0 +1,287 @@
+.dl-data-table__viewer,
+.wide-table {
+  // To do: get rid of .wide-table class
+  padding-left: 10px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+
+  .js-enabled & {
+    padding-left: 0;
+  }
+}
+
+.dl-data-table__wrapper {
+  position: relative;
+}
+
+.dl-data-table {
+  @include govuk-font($size: 16);
+
+  th {
+    position: relative;
+    background: govuk-colour("mid-grey");
+    font-weight: normal;
+    vertical-align: middle;
+  }
+
+  th,
+  td {
+    padding: 15px;
+  }
+
+  td {
+    white-space: nowrap;
+  }
+
+  tr:nth-child(2n) td {
+    background: govuk-colour("light-grey");
+
+    .dl-data-table__missing__label {
+      border-right: 1px solid govuk-colour("light-grey");
+      border-bottom: 1px solid govuk-colour("light-grey");
+      border-left: 1px solid govuk-colour("light-grey");
+    }
+  }
+
+  .dl-data-table__missing {
+    padding: 29px 0 0;
+    text-align: center;
+  }
+
+  .dl-data-table__cell--max-width {
+    box-sizing: content-box;
+    min-width: govuk-em(270, 16);
+    max-width: govuk-em(330, 16);
+    white-space: break-spaces;
+  }
+
+  tr.dl-data-table__row-selected { // sass-lint:disable-line no-qualifying-elements
+
+    td {
+      background: $warning-tint-colour;
+    }
+
+    td:first-child {
+      background: govuk-colour("yellow");
+
+      a {
+        color: govuk-colour("black");
+        box-shadow: 0 -2px govuk-colour("yellow"), 0 4px govuk-colour("black");
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+
+/// Data tables should have an associated caption as the first thing
+/// after the opening <table> tag
+///
+/// Hide caption visually, but have it available for screen readers
+.dl-data-table__caption {
+  @include govuk-visually-hidden;
+}
+
+.dl-data-table-right-shadow,
+.dl-data-table-left-shadow {
+  // sass-lint:disable-block no-duplicate-properties
+  position: absolute;
+  z-index: 200;
+  top: 2px;
+  width: 5px;
+  height: 100%;
+  height: calc(100% - 4px);
+
+  &.with-transition {
+    transition: box-shadow .4s ease-out;
+  }
+
+  .table-sort--active & {
+    $status-component-height: 20px + 2px;
+    $status-component-height-w-border: 20px + 4px;
+    top: $status-component-height;
+    height: calc(100% - #{govuk-em($status-component-height-w-border, 16)});
+  }
+}
+
+.dl-data-table-left-shadow {
+  left: 0;
+
+  &.visible {
+    box-shadow: inset 1px 0 0 0 govuk-colour("mid-grey"), inset 3px 0 2px 1px rgba(govuk-colour("dark-grey"), .4);
+  }
+}
+
+.dl-data-table-right-shadow {
+  right: 0;
+
+  &.visible {
+    box-shadow: inset -1px 0 0 0 govuk-colour("mid-grey"), inset -3px 0 2px 1px rgba(govuk-colour("dark-grey"), .4);
+  }
+}
+
+.dl-data-table__missing__label {
+  display: block;
+  padding: 0 15px;
+  @include govuk-font($size: 14);
+  border-right: 1px solid govuk-colour("white");
+  border-bottom: 1px solid govuk-colour("white");
+  border-left: 1px solid govuk-colour("white");
+  color: govuk-colour("white");
+  background: rgba(darken(govuk-colour("red"), 5), .9);
+  text-transform: uppercase;
+}
+
+
+.dl-data-table__row-link {
+  a {
+    @include govuk-font($size: 14);
+    padding: govuk-em(2, 14);
+    color: govuk-colour("black") !important;
+  }
+}
+
+$triangle-size: 8px;
+
+.dl-data-table__issue {
+  position: relative;
+
+  &:after {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 1px;
+    left: 1px;
+    width: $triangle-size;
+    height: $triangle-size;
+    border: $triangle-size solid govuk-colour("mid-grey");
+    border-top-color: transparent;
+    border-right-color: transparent;
+  }
+
+  .dl-data-table__issue__item {
+    display: none;
+    position: absolute;
+    z-index: 10;
+    top: calc(100% - 1px);
+    left: 0;
+    padding: 5px;
+    border-top: 1px solid govuk-colour("dark-grey");
+    background: govuk-colour("white");
+    box-shadow: 0 1px 4px 1px rgba(govuk-colour("dark-grey"), .4);
+  }
+
+  &:hover,
+  &:focus {
+    padding-left: 14px;
+    //border-left: 1px solid govuk-colour("black");
+    background: $govuk-blue-25 !important;
+
+    &:after {
+      left: 0;
+      border-bottom-color: govuk-colour("black");
+      border-left-color: govuk-colour("black");
+    }
+
+    .dl-data-table__issue__item {
+      display: block;
+    }
+  }
+}
+
+.dl-data-table__issue--wide {
+  .dl-data-table__issue__item {
+    min-width: govuk-em(450, 16);
+    max-width: govuk-em(540, 16);
+  }
+
+  .dl-data-table__issue__info {
+    white-space: normal;
+  }
+}
+
+.dl-data-table__row--bottom {
+  .dl-data-table__issue {
+    &:hover,
+    &:focus {
+      left: -1px;
+      border-left: 1px solid govuk-colour("black");
+
+      .dl-data-table__issue__item {
+        left: -1px;
+        border-top: 0;
+        border-left: 1px solid govuk-colour("black");
+      }
+    }
+  }
+
+  .dl-data-table__issue__item {
+    top: unset;
+    bottom: 100%;
+  }
+}
+
+.dl-data-table__issue__info {
+  // sass-lint:disable-block no-duplicate-properties
+  display: block;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid govuk-colour("dark-grey");
+  // use flex if available
+  display: flex;
+  align-items: flex-start;
+}
+
+.dl-data-table__issue__info:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.dl-data-table__issue__item__text {
+  display: block;
+
+  .secondary-text {
+    padding-right: 5px;
+  }
+}
+
+.issue__part {
+  display: flex;
+  white-space: normal;
+}
+
+.dl-data-table__cell--min-width {
+  .issue__part {
+    min-width: 30em;
+  }
+}
+
+// TO DO: add function to output multiple min-width classes
+$cell-multiplier: 50px;
+
+.dl-data-table__cell--min-width-4 {
+  min-width: $cell-multiplier * 4;
+}
+
+.issue__part__label {
+  flex-shrink: 0;
+}
+
+.dl-data-table__notes-cell {
+  white-space: normal !important;
+
+  .govuk-details {
+    margin-bottom: 0;
+    @include govuk-font($size: 16);
+  }
+
+  .govuk-details__summary::before {
+    left: -2px;
+  }
+
+  .govuk-details__text {
+    margin-left: 2px;
+    padding-right: 12px;
+  }
+}

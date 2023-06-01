@@ -1,0 +1,31 @@
+.dl-hero {
+  background: $govuk-brand-colour;
+  position: relative;
+  color: #fff;
+  padding: govuk-spacing(6) 0;
+  margin-bottom: govuk-spacing(9);
+}
+
+.dl-hero__content {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.dl-hero * {
+  color: inherit;
+}
+
+.dl-hero__image {
+  max-width: 100%;
+}
+
+.dl-hero__cta-link:link,
+.dl-hero__cta-link:visited {
+  background: #fff;
+  color: $govuk-brand-colour;
+}
+
+.dl-hero__button {
+  @include govuk-style-button($button-text-colour: govuk-colour("blue"), $button-colour: govuk-colour("white"), $button-shadow-colour: govuk-colour("black"));
+  font-weight: bold;
+}

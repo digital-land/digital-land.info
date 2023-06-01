@@ -1,0 +1,35 @@
+.dl-data-record {
+  padding: 15px 0 0;
+  overflow: hidden;
+  border: 1px solid $lowlight-border;
+  background: $lowlight;
+}
+
+.dl-data-record__identifier {
+  margin-bottom: 0;
+  padding: 0 15px 15px;
+  border-bottom: 2px solid govuk-colour("dark-grey");
+  word-wrap: break-word;
+}
+
+$data-record-panel-padding: $govuk-gutter-half;
+
+.dl-data-record__body {
+  padding: 0 $data-record-panel-padding;
+}
+
+.dl-data-record__properties {
+  .govuk-summary-list__row:last-of-type {
+    .govuk-summary-list__key,
+    .govuk-summary-list__value {
+      border-bottom: 0;
+    }
+  }
+}
+
+.dl-data-record__resource {
+  @include govuk-font(16);
+  margin-bottom: 15px;
+  padding: $data-record-panel-padding $data-record-panel-padding 0;
+  border-top: 1px solid govuk-colour("dark-grey");
+}

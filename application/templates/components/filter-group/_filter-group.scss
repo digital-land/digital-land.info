@@ -1,0 +1,89 @@
+.dl-filter-group {
+  padding: 5px;
+  background: govuk-colour("light-grey");
+}
+
+.dl-filter-group__summary {
+  display: block;
+  position: relative;
+  padding: 5px 50px 5px 10px;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:focus {
+    @include govuk-focused-text;
+  }
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.dl-filter-group__icon {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  width: 30px;
+  height: 35px;
+  fill: currentColor;
+}
+
+.dl-filter-group__icon--up {
+  display: none;
+}
+
+.dl-filter-group[open] {
+  .dl-filter-group__summary {
+    padding-bottom: 10px;
+  }
+
+  .dl-filter-group__icon--down {
+    display: none;
+  }
+
+  .dl-filter-group__icon--up {
+    display: inline-block;
+  }
+}
+
+.dl-filter-group__fieldset {
+  max-height: 200px;
+  padding: 10px 10px 5px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: $govuk-body-background-colour;
+}
+
+.dl-filter-group__heading {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+.dl-filter-group__selected-text {
+  display: block;
+  @include govuk-text-colour;
+  @include govuk-font($size: 14);
+  //padding-left: 8px;
+}
+
+.dl-filter-group__auto-filter {
+  display: none;
+  padding-bottom: 15px;
+}
+
+.js-enabled .dl-filter-group__auto-filter {
+  display: block;
+}
+
+.dl-filter-group__auto-filter__input {
+  padding-left: 30px;
+  // sass-lint:disable indentation
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' width='40' height='40'%3E%3Cpath d='M25.7 24.8L21.9 21c.7-1 1.1-2.2 1.1-3.5 0-3.6-2.9-6.5-6.5-6.5S10 13.9 10 17.5s2.9 6.5 6.5 6.5c1.6 0 3-.6 4.1-1.5l3.7 3.7 1.4-1.4zM12 17.5c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5-2 4.5-4.5 4.5-4.5-2-4.5-4.5z' fill='currentColor'%3E%3C/path%3E%3C/svg%3E")
+    $govuk-body-background-colour
+    no-repeat
+    -5px -3px;
+  // sass-lint:enable indentation
+}
