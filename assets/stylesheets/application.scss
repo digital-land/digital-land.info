@@ -4,9 +4,6 @@ $govuk-assets-path: "/static/govuk/assets/";
 $govuk-new-link-styles: true;
 $govuk-link-underline-offset: .2em;
 
-// import all govuk frontend scss
-@import "node_modules/digital-land-frontend/digital-land-frontend/dl-frontend";
-
 // planning.data.gov.uk specific styles
 // --------------------------------------------------------
 // ITCSS levels
