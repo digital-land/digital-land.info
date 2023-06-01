@@ -276,9 +276,10 @@ def _apply_entries_option_filter(query, params):
 
 
 def _apply_limit_and_pagination_filters(query, params):
-    query = query.order_by(EntityOrm.entity)
-    if params.get("limit") is not None:
-        query = query.limit(params["limit"])
+    # Use offset passed in to filter records with greater
+    # entity id. Possibly more efficient than using a database offset.
     if params.get("offset") is not None:
-        query = query.offset(params["offset"])
+        query = query.filter(EntityOrm.entity > params["offset"])
+    query = query.order_by(EntityOrm.entity)
+    query = query.limit(params.get("limit"))
     return query
