@@ -22,7 +22,6 @@ init::
 	python -m pip install pip-tools
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 	python -m pre_commit install
-	npm install
 
 init:: frontend-all
 
