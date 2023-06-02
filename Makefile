@@ -70,14 +70,25 @@ lint:	black-check flake8
 clean::
 	rm -rf static/
 
+digital-land-frontend-init:
+	npm run nps build.stylesheets
+	npm run nps copy.javascripts
+	npm run nps copy.images
+	npm run nps copy.govukAssets
+
 javascripts:
+	npm run nps build.javascripts
 	rsync -r assets/javascripts static/
 
 frontend:
 	make javascripts
+	npm run nps build.stylesheets
 	rsync -r assets/images static/
 
 frontend-all: clean frontend
+
+frontend-watch:
+	npm run nps watch.assets & npm run nps watch.pages
 
 black:
 	black .
