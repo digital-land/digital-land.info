@@ -22,6 +22,7 @@ init::
 	python -m pip install pip-tools
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 	python -m pre_commit install
+	npm install
 
 init:: frontend-all
 
@@ -85,7 +86,7 @@ frontend:
 	npm run nps build.stylesheets
 	rsync -r assets/images static/
 
-frontend-all: clean frontend
+frontend-all: clean digital-land-frontend-init frontend
 
 frontend-watch:
 	npm run nps watch.assets & npm run nps watch.pages
