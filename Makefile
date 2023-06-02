@@ -79,7 +79,12 @@ javascripts:
 	npm run nps build.javascripts
 	cp assets/javascripts/dl-national-map-controller.js static/javascripts/
 
-frontend: javascripts
+robots:
+	cp assets/robots.txt static/robots.txt
+
+frontend:
+	make javascripts
+	make robots
 	npm run nps build.stylesheets
 	rsync -r assets/images static/
 

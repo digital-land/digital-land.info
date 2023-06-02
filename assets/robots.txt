@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: https://datasette.planning.data.gov.uk/
+Disallow: http://www.planning.data.gov.uk/entity/?dataset
