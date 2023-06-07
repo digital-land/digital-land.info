@@ -29,6 +29,7 @@ from application.routers import (
     fact,
     guidance_,
     about_,
+    tiles_,
 )
 from application.settings import get_settings
 
@@ -267,6 +268,7 @@ def add_routers(app):
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
     app.include_router(guidance_.router, prefix="/guidance", include_in_schema=False)
     app.include_router(about_.router, prefix="/about", include_in_schema=False)
+    app.include_router(tiles_.router, include_in_schema=False)
 
 
 def add_static(app):
