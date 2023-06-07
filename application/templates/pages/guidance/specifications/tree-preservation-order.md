@@ -233,7 +233,7 @@ If applicable, the date from which the tree preservation order no longer affects
 
 Example: `1999-01-20`
 
-entry-date
+### entry-date
 
 The date this dataset was created or last updated, written in `YYYY-MM-DD` format.
 
