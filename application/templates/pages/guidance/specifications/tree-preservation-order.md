@@ -1,14 +1,14 @@
 There are 3 datasets you must provide for tree preservation orders:
 
 - [tree preservation order dataset](#{{ 'tree preservation order dataset' | slugify }})
-- [tree preservation area dataset](#{{ 'tree preservation area dataset' | slugify }})
+- [tree preservation zone dataset](#{{ 'tree preservation zone dataset' | slugify }})
 - [tree dataset](#{{ 'tree dataset' | slugify }})
 
 Format
 ------
 
 The tree preservation order dataset should be provided as a CSV file.
-You can provide the area and individual tree data in one of these formats:
+You can provide the zone and individual tree data in one of these formats:
 
 -   CSV
 -   GeoJSON
@@ -84,19 +84,19 @@ Example: `2022-12-20`
 
 ---
 
-Tree preservation area dataset
+Tree preservation zone dataset
 ------------------------------
 
-This dataset is about tree preservation areas. These are areas of trees that are under a TPO. You may also know them as tree preservation
+This dataset is about tree preservation zones. These are areas of trees that are under a TPO. You may also know them as tree preservation
 zones or groups.
 
-The dataset must contain at least one entry (row) for each tree preservation area.
+The dataset must contain at least one entry (row) for each tree preservation zone.
 
 It must containing the following fields (columns):
 
 ### reference
 
-A reference or ID for each tree preservation area that is:
+A reference or ID for each tree preservation zone that is:
 
 -   unique within your dataset
 -   permanent - it doesn't change when the dataset is updated
@@ -107,7 +107,7 @@ Example: `TPA1`
 
 ### name
 
-This will be the display name of the page hosting data about this tree preservation area on our website. This can be:
+This will be the display name of the page hosting data about this tree preservation zone on our website. This can be:
 
 -   name
 -   reference
@@ -116,11 +116,11 @@ This will be the display name of the page hosting data about this tree preservat
 
 ### tree-preservation-order
 
-The reference for the tree preservation order that covers this area.
+The reference for the tree preservation order that covers this zone.
 
 ### geometry
 
-The boundary for the tree preservation area as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
+The boundary for the tree preservation zone as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
 
 This should be in GeoJSON format.
 
@@ -233,7 +233,7 @@ If applicable, the date from which the tree preservation order no longer affects
 
 Example: `1999-01-20`
 
-entry-date
+### entry-date
 
 The date this dataset was created or last updated, written in `YYYY-MM-DD` format.
 
