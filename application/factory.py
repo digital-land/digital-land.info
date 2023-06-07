@@ -8,7 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
@@ -270,6 +270,10 @@ def add_routers(app):
 
 
 def add_static(app):
+    @app.get("/robots.txt", response_class=FileResponse)
+    def robots():
+        return FileResponse("static/robots.txt")
+
     app.mount(
         "/static",
         StaticFiles(directory="static"),

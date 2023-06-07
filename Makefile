@@ -81,8 +81,12 @@ javascripts:
 	npm run nps build.javascripts
 	rsync -r assets/javascripts static/
 
+robots:
+	cp assets/robots.txt static/robots.txt
+
 frontend:
 	make javascripts
+	make robots
 	npm run nps build.stylesheets
 	rsync -r assets/images static/
 
