@@ -12,7 +12,7 @@ You can provide data in one of these formats:
 
 For more information, see [how to provide your data](../how-to-provide-data).
 
-Listed buildings dataset
+Listed buildings outline dataset
 ------------------------
 
 This dataset is about buildings listed on the National Heritage List for England because of their historical or architectural importance.
