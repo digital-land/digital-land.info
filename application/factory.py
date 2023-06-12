@@ -185,6 +185,10 @@ def add_base_routes(app):
             },
         )
 
+    @app.get("/robots.txt", response_class=FileResponse, include_in_schema=False)
+    def robots():
+        return FileResponse("static/robots.txt")
+
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(
         request: Request, exc: StarletteHTTPException
@@ -270,9 +274,6 @@ def add_routers(app):
 
 
 def add_static(app):
-    @app.get("/robots.txt", response_class=FileResponse)
-    def robots():
-        return FileResponse("static/robots.txt")
 
     app.mount(
         "/static",
