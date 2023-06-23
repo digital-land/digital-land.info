@@ -97,6 +97,13 @@
         </script>
     {% endblock govScripts %}
 
+    {% block digitalLandScripts %}
+    <script src="{{ assetPath | default('/assets') }}/javascripts/digital-land-frontend.js"></script>
+    <script>
+      window.DLFrontend.initAll();
+    </script>
+    {% endblock digitalLandScripts %}
+
     {% block pageScripts %}{% endblock pageScripts %}
   {% endblock bodyScripts %}
 
