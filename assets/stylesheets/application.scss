@@ -42,7 +42,3 @@ $govuk-link-underline-offset: .2em;
 // very bespoke styles for specific pages/areas of the site
 @import "pages/entity";
 @import "pages/dataset";
-
-.govuk-header {
-    background-color: red;
-}
