@@ -3,10 +3,11 @@ import time
 import pytest
 import requests
 import uvicorn
+import re
 
 from multiprocessing.context import Process
 from application.settings import get_settings
-
+from playwright.sync_api import Page, expect
 
 settings = get_settings()
 
@@ -80,3 +81,20 @@ def test_get_healthcheck(server_process):
     data = resp.json()
 
     assert data["status"] == "OK"
+
+
+def test_documentation_page(page: Page):
+    page.goto(BASE_URL)
+    expect(page).to_have_title(re.compile("Planning Data"))
+    documentation = page.get_by_role("link", name="Documentation", exact=True)
+    expect(documentation).to_have_attribute("href", "/docs")
+    documentation.click()
+
+    documentation_url = page.url
+    response = requests.get(documentation_url)
+
+    assert response.status_code == 200, "Unexpected status code: {}".format(
+        response.status_code
+    )
+    expect(page).to_have_url(re.compile(".*docs"))
+    expect(page).to_have_title(re.compile("Documentation - Planning Data"))
