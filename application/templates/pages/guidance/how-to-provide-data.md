@@ -48,6 +48,8 @@ For most data subjects, you must also publish links to supporting documentation 
 
 See the [data specifications guidance](specifications/) for how to provide this for each different subject.
 
+We have preferred formats for each field. We automatically change the formats of some fields, for example the dates.
+
 ---
 
 Step 3: Create or update the webpage hosting your data
