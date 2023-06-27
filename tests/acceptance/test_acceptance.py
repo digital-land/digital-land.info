@@ -62,6 +62,11 @@ def test_acceptance(server_process, page, test_data):
     page.click("text=Datasets")
     assert page.url == f"{BASE_URL}/dataset/"
 
+    page.click("text=Documentation")
+    assert page.url == f"{BASE_URL}/docs"
+    assert page.text_content("h1") == "Documentation"
+    page.goto(BASE_URL)
+
 
 @pytest.mark.skip(reason="fixture to populate of data in test db not implemented yet")
 def test_get_json(server_process):
@@ -98,3 +103,11 @@ def test_documentation_page(page: Page):
     )
     expect(page).to_have_url(re.compile(".*docs"))
     expect(page).to_have_title(re.compile("Documentation - Planning Data"))
+
+
+def test_documentation_page_error(page: Page):
+    page.goto(BASE_URL + "/docs")
+
+    expect(page).not_to_have_title(
+        re.compile("There is a problem with the service - Planning Data")
+    )
