@@ -38,7 +38,7 @@ filelock==3.4.0
     # via virtualenv
 flake8==4.0.1
     # via -r requirements/dev-requirements.in
-greenlet==1.1.2
+greenlet==2.0.2
     # via
     #   -c requirements/requirements.txt
     #   playwright
@@ -80,7 +80,7 @@ platformdirs==2.4.0
     # via
     #   black
     #   virtualenv
-playwright==1.17.2
+playwright==1.35.0
     # via
     #   -r requirements/dev-requirements.in
     #   pytest-playwright
@@ -94,7 +94,7 @@ py==1.11.0
     # via pytest
 pycodestyle==2.8.0
     # via flake8
-pyee==8.2.2
+pyee==9.0.4
     # via playwright
 pyflakes==2.4.0
     # via flake8
