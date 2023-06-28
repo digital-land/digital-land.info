@@ -1,0 +1,12 @@
+{% macro dlDataReferenceCell(params) %}
+{% if params.url %}
+<a href="{{ params.url }}" class="govuk-link">{{ params.display_name }}</a>
+{% else %}
+{{ params.display_name }}
+{% endif %}
+{% if params.display_name != params.identifier %}
+<span title="{{ params.type }} identifier: {{ params.identifier }}" class="govuk-!-font-size-16 dl-data-reference-cell">
+  (<span class="govuk-visually-hidden">{{ params.type }} identifier is </span>{{ params.identifier }})
+</span>
+{% endif %}
+{% endmacro %}

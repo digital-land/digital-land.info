@@ -1,4 +1,7 @@
-{% from 'digital-land-frontend/components/filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
+{% from 'components/filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
+{%- from "components/filter-group/macro.jinja" import dlFilterGroup %}
+{%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton %}
+
 <form action="{{ fact_search_form_url }}" method="get">
 
   <h3 class="govuk-heading-m">Filters</h3>

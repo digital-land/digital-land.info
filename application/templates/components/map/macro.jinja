@@ -1,0 +1,60 @@
+{%- macro dlMap(params) %}
+{#- REQUIRES: global random_int function #}
+{%- set height = params.height|string + "px" if params.height else "350px"  %}
+<div class="dl-map__wrapper{{ ' ' + params.wrapper_classes if params.wrapper_classes }} {{ ' dl-map__wrapper--bottom-margin' if params.notePanel }}" style="min-height: {{ height }};">
+    {%- if params.arialabelledby %}
+    {%- set ariaId = "aria-label-" + random_int(4) %}
+    <span id="{{ ariaId }}" class="govuk-visually-hidden">{{ params.arialabelledby }}</span>
+    {% endif -%}
+    <div
+        class="dl-map{{ ' ' + params.classes if params.classes }}"
+        id="{{ params.id if params.id else 'map' }}"
+        data-module="{{ params.dataModule if params.dataModule else 'boundary-map' }}"
+        {%- if params.arialabelledby %} aria-labelledby="{{ ariaId }}"{% endif -%}
+        {% if params.attributes -%}
+        {%- for attribute, value in params.attributes.items() %} {{ attribute }}="{{ value if not value|is_list else value|join(';') }}"{% endfor %}
+        {%- endif %}
+    >
+        <noscript>To view this map, you need to enable JavaScript.</noscript>
+    </div>
+    {% if params.loader -%}
+    <div class="dl-map__loader">
+        <div class="dl-map__loader-msg">
+            <div class="dl-map__spinning-loader"></div>
+            <span class="govuk-!-font-size-24 govuk-!-margin-top-6">{{ params.loader.text }}</span>
+        </div>
+    </div>
+    {% endif -%}
+
+    {% if params.sidePanel %}
+    <div class="dl-map__side-panel{{ ' ' + params.sidePanel.classes if params.sidePanel.classes }}">
+        {{ params.sidePanel.html }}
+    </div>
+    {% endif %}
+
+    {% if params.notePanel %}
+    {{ params.notePanel.html }}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{%- macro dlLeafletMap(params) %}
+{#- REQUIRES: global random_int function #}
+{%- set height = params.height|string + "px" if params.height else "350px"  %}
+{%- if params.arialabelledby %}
+{%- set ariaId = "aria-label-" + random_int(4) %}
+<span id="{{ ariaId }}" class="govuk-visually-hidden">{{ params.arialabelledby }}</span>
+{% endif -%}
+<div
+    class="dl-map{{ ' ' + params.classes if params.classes }}"
+    id="{{ params.id if params.id else 'map' }}"
+    data-module="{{ params.dataModule if params.dataModule else 'boundary-map' }}"
+    style="height: {{ height }};"
+    {%- if params.arialabelledby %} aria-labelledby="{{ ariaId }}"{% endif -%}
+    {% if params.attributes -%}
+    {%- for attribute, value in params.attributes.items() %} {{ attribute }}="{{ value if not value|is_list else value|join(';') }}"{% endfor %}
+    {%- endif %}
+>
+    <noscript>To view this map, you need to enable JavaScript.</noscript>
+</div>
+{% endmacro -%}

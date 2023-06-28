@@ -1,8 +1,11 @@
 {% extends "layouts/layout.html" %}
+
+{% set templateName = 'dl-info/pages/docs.html' %}
+
 {% from "govuk_frontend_jinja/components/table/macro.html" import govukTable -%}
 {% from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
-{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+{%- from "components/data-table/macro.jinja" import dlDataTableWrapper %}
 {% block pageTitle %}Documentation - Planning Data{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
 {%- block breadcrumbs -%}

@@ -1,0 +1,11 @@
+{% macro dlDataTableWrapper(params) %}
+{% if params.tableHTML %}
+<div class="dl-data-table__wrapper{{ ' ' + params.classes if params.classes }}" data-module="{{ params.module|default('scrollable-table') }}">
+    <div class="dl-data-table-left-shadow with-transition"></div>
+    <div class="wide-table">
+        {{ params.tableHTML }}
+    </div>
+    <div class="dl-data-table-right-shadow visible with-transition"></div>
+</div>
+{% endif %}
+{% endmacro %}

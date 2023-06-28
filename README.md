@@ -11,6 +11,9 @@ This is the repository for the [planning.data.gov.uk application](https://www.pl
 
     - python 3.8 or above
     - postgresql 13 or above with postgis extensions enabled
+    - Node 16
+      - You can install this with `nvm use 16` if you have nvm installed
+      - If you don't have nvm installed, you can install it with `brew install nvm` and then run `nvm install 16`
 
 
 ### Running the application
