@@ -1,0 +1,27 @@
+{% macro dlFeedback(params) %}
+{% set feedbackPromptHTML %}
+<div class="dl-feedback{{ ' ' + params.classes if params.classes }}">
+    <div class="dl-feedback__prompt">
+        <div class="dl-feedback__prompt-content">
+            {% if params.html %}
+                {{ params.html|safe }}
+            {% else %}
+            <span class="dl-feedback__prompt-content__text">{{ params.text }}</span>
+            {% endif %}
+        </div>
+        {% if params.action %}
+        <div class="dl-feedback__prompt-action">
+            <a href="{{ params.action.href }}" class="govuk-button dl-feedback__prompt__link">{{ params.action.text }}</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endset %}
+{% if params.container -%}
+<div class="dl-feedback__wrapper">
+    {{ feedbackPromptHTML }}
+</div>
+{%- else %}
+{{ feedbackPromptHTML }}
+{%- endif %}
+{% endmacro %}

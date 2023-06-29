@@ -1,12 +1,8 @@
 {% extends "layouts/layout.html" %}
 {% set templateName = "dl-info/entity.html" %}
 
-{%- from "govuk_frontend_jinja/components/details/macro.html" import govukDetails %}
 {%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
-{%- from "digital-land-frontend/components/map/macro.jinja" import dlLeafletMap %}
-{%- from "digital-land-frontend/components/data-record/macro.jinja" import dlDataRecordPanel %}
-{%- from "digital-land-frontend/components/data-reference-cell/macro.jinja" import dlDataReferenceCell %}
-{%- from "digital-land-frontend/components/data-table/macro.jinja" import dlDataTableWrapper %}
+{%- from "components/map/macro.jinja" import dlLeafletMap %}
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 {%- from "components/entity-value/macro.jinja" import entityValue %}
 {%- from "components/entity-field/macro.jinja" import entityField %}

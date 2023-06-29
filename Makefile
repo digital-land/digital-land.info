@@ -30,6 +30,8 @@ piptool-compile::
 	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
 	python -m piptools compile requirements/dev-requirements.in
 
+postgresql::
+	sudo service postgresql start
 
 server:
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
@@ -77,7 +79,7 @@ digital-land-frontend-init:
 
 javascripts:
 	npm run nps build.javascripts
-	cp assets/javascripts/dl-national-map-controller.js static/javascripts/
+	rsync -r assets/javascripts static/
 
 robots:
 	cp assets/robots.txt static/robots.txt

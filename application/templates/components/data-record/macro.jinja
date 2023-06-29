@@ -1,0 +1,26 @@
+{% macro dlDataRecordPanel(params) %}
+<article class="dl-data-record{{ ' ' + params.classes if params.classes }}">
+    <h4 class="govuk-heading-s dl-data-record__identifier">#{{ params.identifier }}</h4>
+    <div class="dl-data-record__body">
+      <dl class="govuk-summary-list">
+      {%- if params.html %}
+      {{ params.html|safe }}
+      {%- else %}
+      {%- for k, v in params.data.items() %}
+          <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">
+              {{ k }}
+              </dt>
+              <dd class="govuk-summary-list__value">
+              {{ v }}
+              </dd>
+          </div>
+      {%- endfor %}
+      {%- endif %}
+      </dl>
+    </div>
+    {%- if params.resource %}
+    <footer class="govuk-!-font-size-16 dl-data-record__resource">From resource <a href="{{ params.resource.url }}" class="govuk-link">{{ params.resource.identifier|truncate(20) }}</a></footer>
+    {% endif -%}
+</article>
+{% endmacro %}

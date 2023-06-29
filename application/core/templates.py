@@ -36,7 +36,6 @@ templates.env.loader = jinja2.ChoiceLoader(
         jinja2.PrefixLoader(
             {
                 "govuk_frontend_jinja": jinja2.PackageLoader("govuk_frontend_jinja"),
-                "digital-land-frontend": jinja2.PackageLoader("digital_land_frontend"),
             }
         ),
     ]

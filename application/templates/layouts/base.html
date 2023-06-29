@@ -1,0 +1,111 @@
+{% extends "govuk_frontend_jinja/template.html" %}
+{% from "govuk_frontend_jinja/components/phase-banner/macro.html" import govukPhaseBanner %}
+{% from "govuk_frontend_jinja/components/breadcrumbs/macro.html" import govukBreadcrumbs %}
+
+{%- block pageTitle %}Planning data you can find, use and trust{% endblock -%}
+
+{% block headIcons %}
+  <link rel="icon" type="image/svg+xml" href="{{ cacheBust((assetPath | default('/assets')) + '/images/favicon.svg') }}">
+  <link rel="shortcut icon" href="{{ cacheBust((assetPath | default('/assets')) + '/images/favicon.ico') }}" type="image/x-icon">
+  <link rel="mask-icon" href="{{ cacheBust((assetPath | default('/assets')) + '/images/safari-pinned-tab.svg') }}" color="#062058">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ cacheBust((assetPath | default('/assets')) + '/images/dl-apple-touch-icon-152.png') }}">
+  <link rel="apple-touch-icon" sizes="167x167" href="{{ cacheBust((assetPath | default('/assets')) + '/images/dl-apple-touch-icon-167.png') }}">
+  <link rel="apple-touch-icon" sizes="152x152" href="{{ cacheBust((assetPath | default('/assets')) + '/images/dl-apple-touch-icon-152.png') }}">
+  <link rel="apple-touch-icon" href="{{ cacheBust((assetPath | default('/assets')) + '/images/apple-touch-icon.png') }}">
+  <link rel="manifest" href="{{ cacheBust((assetPath | default('/assets')) + '/images/site.webmanifest') }}">
+  <meta name="msapplication-TileColor" content="#062058">
+  <meta name="msapplication-config" content="{{ cacheBust((assetPath | default('/assets')) + '/images/browserconfig.xml') }}">
+  <meta name="theme-color" content="#062058">
+  {% if opengraph_image %}<meta property="og:image" content="{{ cacheBust((assetPath | default('/assets')) + '/images/opengraph.png') }}">{% endif %}
+{% endblock %}
+
+{% block head %}
+	<meta name="digital-land:template" content="{{ templateName|default('base.html') }}">
+
+    {% block stylesheets %}
+        <link href="{{ cacheBust(assetPath + '/stylesheets/application.css') }}" rel="stylesheet"/>
+    {% endblock %}
+
+  {%- block headStart %}{% endblock headStart -%}
+
+  {% block pageAssets %}
+    {% block mapAssets %}
+      {%- if includesMap -%}
+        {% include 'partials/map-assets.html' %}
+      {%- endif %}
+    {% endblock mapAssets %}
+  {% endblock pageAssets %}
+
+  {%- block headEnd %}{% endblock headEnd -%}
+{% endblock head %}
+
+{% block header %}
+    {% block cookieBanner %}
+        {% include 'partials/cookie-banner.html' %}
+    {% endblock cookieBanner %}
+
+    {% block mastHead %}
+        {% include 'partials/service-status-banner.html' %}
+        {% include 'partials/mast-head.html' %}
+    {% endblock mastHead %}
+
+{% endblock header %}
+
+{% block beforeContent %}
+  {% block phaseBanner %}
+    {% include 'partials/phase-banner.html' %}
+  {% endblock %}
+	{% block breadcrumbs %}{% endblock breadcrumbs %}
+{% endblock beforeContent %}
+
+{% block footer %}
+	{% block footerStart %}{% endblock footerStart %}
+	{% include 'partials/footer.html' with context %}
+{% endblock %}
+
+{% block bodyEnd %}
+  {% block bodyScriptsStart %}{% endblock bodyScriptsStart %}
+
+  {% block bodyScripts %}
+    <script src="{{ cacheBust(assetPath + '/javascripts/cookies.js') }}"></script>
+    <script>
+        cookiePrefs.get();
+    </script>
+
+    {% block analyticScripts %}
+        <script async src='https://www.google-analytics.com/analytics.js'></script>
+        <!-- Google tag (gtag.js) -->
+        <script>
+            window.gaMeasurementId = 'G-H6Y6SVFXMH';
+            var scriptElement = document.createElement("script");
+            scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
+            document.head.appendChild(scriptElement);
+        </script>
+    {% endblock analyticScripts %}
+
+    {% block libraryScripts %}
+    	{%- if includeJQuery == "true" -%}
+	      <script src="{{ staticPath | default('/static') }}/javascripts/vendor/jquery-3.4.1.min.js"></script>
+	    {% endif %}
+    {% endblock libraryScripts %}
+
+    {% block govScripts %}
+        <script src="{{ assetPath | default('/assets') }}/javascripts/govuk/govuk-frontend.js"></script>
+        <script>
+        // initiate all GOVUK components
+        window.GOVUKFrontend.initAll();
+        </script>
+    {% endblock govScripts %}
+
+    {% block digitalLandScripts %}
+    <script src="{{ assetPath | default('/assets') }}/javascripts/digital-land-frontend.js"></script>
+    <script>
+      window.DLFrontend.initAll();
+    </script>
+    {% endblock digitalLandScripts %}
+
+    {% block pageScripts %}{% endblock pageScripts %}
+  {% endblock bodyScripts %}
+
+  {% block bodyScriptsEnd %}{% endblock bodyScriptsEnd %}
+{% endblock %}
