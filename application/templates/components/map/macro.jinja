@@ -10,6 +10,7 @@
         class="dl-map{{ ' ' + params.classes if params.classes }}"
         id="{{ params.id if params.id else 'map' }}"
         data-module="{{ params.dataModule if params.dataModule else 'boundary-map' }}"
+        data-testid="{{ params.testid if params.testid else 'map' }}"
         {%- if params.arialabelledby %} aria-labelledby="{{ ariaId }}"{% endif -%}
         {% if params.attributes -%}
         {%- for attribute, value in params.attributes.items() %} {{ attribute }}="{{ value if not value|is_list else value|join(';') }}"{% endfor %}
@@ -50,6 +51,7 @@
     id="{{ params.id if params.id else 'map' }}"
     data-module="{{ params.dataModule if params.dataModule else 'boundary-map' }}"
     style="height: {{ height }};"
+    data-testid="{{ params.testid if params.testid else 'map' }}"
     {%- if params.arialabelledby %} aria-labelledby="{{ ariaId }}"{% endif -%}
     {% if params.attributes -%}
     {%- for attribute, value in params.attributes.items() %} {{ attribute }}="{{ value if not value|is_list else value|join(';') }}"{% endfor %}

@@ -39,10 +39,8 @@ def test_correctly_loads_the_entity_root(server_process, page):
     # check if the leafletjs script has been loaded
     page.evaluate_handle("L")
 
-    # check if the map control elements have been made (indicating the leaflet js has been loaded)
-    # this is quite long, perhaps consider a better way to do this
-    mapControls = page.locator(
-        "//*[contains(@class, 'app-card app-card--result')]//div[contains(@class, 'app-card__media')]//div//div//div[contains(@class, 'leaflet-control-container')]"  # noqa: E501
+    mapControls = page.get_by_test_id("map").locator(
+        "//div[contains(@class, 'leaflet-control-container')]"
     )
     assert mapControls.count() > 1
 
@@ -60,4 +58,11 @@ def test_correctly_loads_an_entity_page(server_process, page):
     mapControls = page.locator(
         "//div[@id='dlMap']//div[contains(@class, 'leaflet-control-container')]"
     )
+    mapControls = page.get_by_test_id("map").locator(
+        "//div[contains(@class, 'leaflet-control-container')]"
+    )
     assert mapControls.count() == 1
+
+
+def test_filter_entities(server_process, page):
+    assert page.title() == "Search for planning data"
