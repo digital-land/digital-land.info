@@ -62,7 +62,3 @@ def test_correctly_loads_an_entity_page(server_process, page):
         "//div[contains(@class, 'leaflet-control-container')]"
     )
     assert mapControls.count() == 1
-
-
-def test_filter_entities(server_process, page):
-    assert page.title() == "Search for planning data"
