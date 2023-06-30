@@ -39,6 +39,7 @@ def test_correctly_loads_the_entity_root(server_process, page):
     # check if the leafletjs script has been loaded
     page.evaluate_handle("L")
 
+    # check if the mapControls element has been added to the page, indicating the js has been executed
     mapControls = page.get_by_test_id("map").locator(
         "//div[contains(@class, 'leaflet-control-container')]"
     )
@@ -51,13 +52,7 @@ def test_correctly_loads_an_entity_page(server_process, page):
     # check if the leafletjs script has been loaded
     page.evaluate_handle("L")
 
-    # check if the map js object has been made
-    page.evaluate_handle("mapComponent")
-
-    # check if the map control element have been made (indicating the leaflet js has been loaded)
-    mapControls = page.locator(
-        "//div[@id='dlMap']//div[contains(@class, 'leaflet-control-container')]"
-    )
+    # check if the mapControls element has been added to the page, indicating the js has been executed
     mapControls = page.get_by_test_id("map").locator(
         "//div[contains(@class, 'leaflet-control-container')]"
     )
