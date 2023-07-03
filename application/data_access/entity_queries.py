@@ -66,19 +66,23 @@ def get_entities(dataset: str, limit: int) -> List[EntityModel]:
         return [entity_factory(e) for e in entities]
 
 
+def build_entity_search(session, parameters: dict):
+    params = normalised_params(parameters)
+    query_args = [EntityOrm, func.count(EntityOrm.entity).over().label("count")]
+    query = session.query(*query_args)
+    query = _apply_base_filters(query, params)
+    query = _apply_date_filters(query, params)
+    query = _apply_location_filters(session, query, params)
+    query = _apply_entries_option_filter(query, params)
+    query = _apply_limit_and_pagination_filters(query, params)
+    return query
+
+
 def get_entity_search(parameters: dict):
     params = normalised_params(parameters)
 
     with get_context_session() as session:
-
-        query_args = [EntityOrm, func.count(EntityOrm.entity).over().label("count")]
-        query = session.query(*query_args)
-        query = _apply_base_filters(query, params)
-        query = _apply_date_filters(query, params)
-        query = _apply_location_filters(session, query, params)
-        query = _apply_entries_option_filter(query, params)
-        query = _apply_limit_and_pagination_filters(query, params)
-
+        query = build_entity_search(session, parameters)
         entities = query.all()
         if entities:
             count = entities[0].count

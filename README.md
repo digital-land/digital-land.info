@@ -32,6 +32,11 @@ That will install all dependencies, both python and node front end build tools a
 The pre commit hooks will lint and run black and abort a commit on failure.  This will save you lots of broken builds
 and subsequent "lint fix" commit messages.
 
+NOTE: If you see an error like
+>Error: Node Sass does not yet support your current environment: Linux 64-bit with Unsupported runtime (111)<
+
+then the chances are that you version of Node is wrong for this project. Run `nvm install`  which will install the version listed in the .nvmrc file. re-run `make init` afterwards.
+
 ### Postgres setup
 
 **Mac users**
