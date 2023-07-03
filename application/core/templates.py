@@ -2,12 +2,13 @@ import jinja2
 
 from fastapi.templating import Jinja2Templates
 
-from digital_land_frontend.filters import (
+from filters import (
     is_list_filter,
     hex_to_rgb_string_filter,
     make_link_filter,
     commanum_filter,
 )
+
 from digital_land_frontend.globals import random_int
 
 from application.core.filters import (

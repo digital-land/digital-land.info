@@ -1,4 +1,3 @@
-from digital_land_frontend.filters import is_list_filter
 from application.data_access.entity_queries import get_entity_query
 from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
@@ -13,6 +12,8 @@ import urllib.parse as urlparse
 from urllib.parse import urlencode
 import os
 import hashlib
+import validators
+import numbers
 
 
 def to_slug(string):
@@ -206,3 +207,54 @@ def cacheBust(uri):
 
 def extract_component_key(json_ref):
     return json_ref.split("/")[-1]
+
+
+# adding these filters from digital-land-frontend
+
+
+def is_list_filter(v):
+    """
+    Check if variable is list
+    """
+    return isinstance(v, list)
+
+
+def hex_to_rgb_string_filter(hex):
+    """
+    Given hex will return rgb string
+
+    E.g. #0b0c0c ==> "11, 12, 12"
+    """
+    h = hex.lstrip("#")
+    rgb = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+    return f"{rgb[0]},{rgb[1]},{rgb[2]}"
+
+
+@pass_eval_context
+def make_link_filter(eval_ctx, url, **kwargs):
+    """
+    Converts a url string into an anchor element.
+
+    Requires autoescaping option to be set to True
+    """
+    css_classes = "govuk-link"
+    if "css_classes" in kwargs:
+        css_classes = kwargs.get("css_classes")
+
+    if url is not None:
+        if validators.url(str(url)):
+            anchor = f'<a class="{css_classes}" href="{url}">{url}</a>'
+            if eval_ctx.autoescape:
+                return Markup(anchor)
+    return url
+
+
+def commanum_filter(v):
+    """
+    Makes large numbers readable by adding commas
+
+    E.g. 1000000 -> 1,000,000
+    """
+    if isinstance(v, numbers.Number):
+        return "{:,}".format(v)
+    return v
