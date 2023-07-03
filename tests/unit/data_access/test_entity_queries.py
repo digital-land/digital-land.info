@@ -1,3 +1,4 @@
+import pytest
 from sqlalchemy.orm import Query
 from application.data_access.entity_queries import (
     _apply_limit_and_pagination_filters,
@@ -17,13 +18,15 @@ dataset_name = "test-dataset"
 base_id = 1000
 
 
-def tidy():
+@pytest.fixture
+def remove_entities():
     with get_context_session() as session:
         session.query(EntityOrm).filter(EntityOrm.dataset == dataset_name).delete()
         session.commit()
 
 
-def setupDB():
+@pytest.fixture
+def create_entities():
     """
     Create a dataset with
     + a discontinuous series of IDs (entity column)
@@ -53,14 +56,16 @@ def setupDB():
         session.commit()
 
 
-def test__apply_limit_and_pagination_filters_only():
+def test__apply_limit_and_pagination_filters_only(
+    test_data, remove_entities, create_entities
+):
     """
     Create a dataset, and page through it, gathering the entity values (IDs) for each row.
     Make sure no values are seen twice.
     Make sure all values in db are actually collected in paged data.
     """
-    tidy()
-    setupDB()
+    # tidy()
+    # setupDB()
 
     allSeen = []  # Add the entities we have seen whilst paging through the dataset
     last = 0  # tracks the last entity id we got. Used in get_entity_search below.
@@ -104,5 +109,3 @@ def test__apply_limit_and_pagination_filters_only():
     diffs = list(set(allEntityIds).difference(allSeen))
     assert len(diffs) == 0
     assert len(allEntityIds) == len(allSeen)
-
-    tidy()
