@@ -1,0 +1,90 @@
+@import "scss/all";
+
+.dl-map__wrapper {
+
+  border: 1px solid $govuk-border-colour;
+  position: relative;
+  min-height: 700px;
+
+  .dl-map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+  }
+}
+
+.dl-map__wrapper--bottom-margin {
+  margin-bottom: 50px;
+}
+
+.dl-map__loader {
+  position: absolute;
+  z-index: 1001;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: rgba(govuk-colour("light-grey"), .9);
+  @include govuk-font($size: 24);
+}
+
+.dl-map__loader-msg {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.dl-map__spinning-loader {
+  // sass-lint:disable-block no-duplicate-properties
+  width: 60px;
+  height: 60px;
+  margin: -30px auto 0 auto;
+  border: 8px solid rgba(govuk-colour("light-blue"), .4);
+  border-radius: 50%;
+  border-top-color: rgba(govuk-colour("blue"), .5);
+  border-top-color: govuk-colour("blue");
+  animation: loader-rotate 1s linear infinite;
+}
+
+@keyframes loader-rotate {
+  0% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+%dl-map-panel {
+  position: absolute;
+  z-index: 1000;
+  box-shadow: 0 0 3px 0 rgba(govuk-colour("dark-grey"), .75);
+}
+
+.dl-map__panel-bottom-left {
+  @extend %dl-map-panel;
+  bottom: 10px;
+  left: 10px;
+}
+
+.dl-map__panel-top-left {
+  @extend %dl-map-panel;
+  top: 10px;
+  left: 10px;
+}
+
+.dl-map__highlight--yellow {
+  display: block;
+  margin-left: -7px;
+  padding: 4px 7px;
+  color: govuk-shade(govuk-colour("yellow"), 65);
+  background: govuk-tint(govuk-colour("yellow"), 75);
+}
+
+.dl-map__error {
+  color: govuk-colour("red");
+  @include govuk-font($size: 16);
+}

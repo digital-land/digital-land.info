@@ -8,9 +8,6 @@
       "distDir": "static"
     }
   },
-  "scripts": {
-    "nps": "nps -c ./node_modules/digital-land-frontend/package-scripts.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/digital-land/digital-land.info.git"
@@ -31,6 +28,9 @@
   },
   "homepage": "https://github.com/digital-land/digital-land.info#readme",
   "dependencies": {
-    "digital-land-frontend": "https://gitpkg.now.sh/digital-land/digital-land-frontend/package?main"
+    "copyfiles": "^2.4.1",
+    "govuk-frontend": "4.2.0",
+    "node-sass": "^9.0.0",
+    "nps": "^5.10.0"
   }
 }

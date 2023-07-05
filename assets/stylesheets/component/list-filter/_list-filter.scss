@@ -1,0 +1,45 @@
+.dl-list-filter__label {
+  display: inline;
+  padding-right: 5px;
+}
+
+.dl-list-filter__input {
+  max-width: 200px;
+  @include govuk-media-query($from: tablet) {
+    max-width: 400px;
+  }
+}
+
+.js-enabled {
+  .dl-list-filter__no-filter-match {
+    display: block;
+    @include govuk-font($size: 19);
+  }
+}
+
+.dl-list-filter__count + .dl-list-filter__count {
+  margin-top: $govuk-gutter * 1.5;
+}
+
+.dl-list-filter__count__name {
+  margin-bottom: 0;
+}
+
+.dl-list-filter__count__wrapper {
+  margin-top: -5px;
+}
+
+.dl-list-filter__list {
+  padding-left: 0;
+
+  .dl-list-filter__item-title {
+    @include govuk-font($size: 19);
+  }
+}
+
+.dl-list-filter__item {
+  list-style: none;
+  @include govuk-responsive-margin(3, "bottom");
+  @include govuk-responsive-padding(3, "bottom");
+  border-bottom: 1px solid $govuk-border-colour;
+}
