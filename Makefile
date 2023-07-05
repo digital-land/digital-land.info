@@ -71,14 +71,13 @@ lint:	black-check flake8
 clean::
 	rm -rf static/
 
-digital-land-frontend-init:
-	npm run nps build.stylesheets
-	npm run nps copy.javascripts
-	npm run nps copy.images
-	npm run nps copy.govukAssets
+stylesheets::
+	npx nps build.stylesheets
+
+govukAssets::
+	npx nps copy.govukAssets
 
 javascripts:
-	npm run nps build.javascripts
 	rsync -r assets/javascripts static/
 
 robots:
@@ -87,10 +86,11 @@ robots:
 frontend:
 	make javascripts
 	make robots
-	npm run nps build.stylesheets
+	make stylesheets
+	make govukAssets
 	rsync -r assets/images static/
 
-frontend-all: clean digital-land-frontend-init frontend
+frontend-all: clean frontend
 
 frontend-watch:
 	npm run nps watch.assets & npm run nps watch.pages
