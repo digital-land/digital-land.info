@@ -84,6 +84,7 @@ robots:
 	cp assets/robots.txt static/robots.txt
 
 frontend:
+	npm i
 	make javascripts
 	make robots
 	make stylesheets
