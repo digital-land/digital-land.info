@@ -188,8 +188,12 @@ def appendUriParam(uri, param):
 
 def hash_file(filename):
     # open file for reading in binary mode
-    with open(os.path.dirname(__file__) + "/../../" + filename, "rb") as openedFile:
-        content = openedFile.read()
+    try:
+        with open(os.path.dirname(__file__) + "/../../" + filename, "rb") as openedFile:
+            content = openedFile.read()
+    except FileNotFoundError:
+        print("File not found when creating a hash: " + filename)
+        return ""
 
     sha1Hash = hashlib.sha1(content)
     sha1Hashed = sha1Hash.hexdigest()
