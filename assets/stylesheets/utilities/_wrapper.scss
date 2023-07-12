@@ -1,0 +1,3 @@
+.dl-container--full-width {
+  @include govuk-width-container($width: 1920px);
+}

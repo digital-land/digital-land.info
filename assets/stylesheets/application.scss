@@ -4,9 +4,8 @@ $govuk-assets-path: "/static/govuk/assets/";
 $govuk-new-link-styles: true;
 $govuk-link-underline-offset: .2em;
 
-// // import all govuk frontend scss
-// ideally we would remove this dependence on frontend
-@import "node_modules/digital-land-frontend/digital-land-frontend/dl-frontend";
+// import all govuk frontend scss
+@import "node_modules/govuk-frontend/govuk/all";
 
 // planning.data.gov.uk specific styles
 // --------------------------------------------------------
@@ -38,6 +37,13 @@ $govuk-link-underline-offset: .2em;
 @import "component/table";
 @import "component/sub-navigation";
 @import "component/service-alert";
+
+@import "component/map/map";
+@import "component/header-bar";
+@import "component/list-filter/list-filter";
+
+@import "utilities/wrapper";
+@import "utilities/js-hidden";
 
 // very bespoke styles for specific pages/areas of the site
 @import "pages/entity";
