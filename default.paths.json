@@ -1,0 +1,14 @@
+{
+  "digitalLandFrontendPath": "node_modules/digital-land-frontend/",
+  "govukFrontendPath": "node_modules/govuk-frontend/",
+  "scssPath": "./src/scss",
+  "templatesPath": "'application/templates'",
+  "staticFilesPath": "'application/static'",
+  "watchPaths": "'./src/scss/**/*.scss' './src/javascripts/**/*.js'",
+  "stylesheetsOutputPath": "assets/stylesheets",
+  "jsOutputPath": "assets/javascripts",
+  "imagesOutputPath": "assets/images",
+  "govukOutputPath": "assets/",
+  "rollupConfig": "./rollup.config.js",
+  "serverURL": "http://localhost:5000"
+}

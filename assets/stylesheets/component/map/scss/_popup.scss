@@ -1,0 +1,25 @@
+.dl-popup {
+  padding-left: 5px;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.dl-popup-heading {
+  @include govuk-font($size: 16, $weight: bold);
+  margin: 5px 5px 5px 0;
+}
+
+.dl-popup-list {
+  max-height: 190px;
+  margin-left: 0;
+  padding-left: 0;
+  overflow-y: auto;
+}
+
+.dl-popup-item {
+  margin-bottom: 5px;
+  padding-left: 10px;
+  list-style: none;
+}

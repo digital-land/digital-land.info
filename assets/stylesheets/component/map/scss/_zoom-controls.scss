@@ -1,0 +1,42 @@
+$control-size: 45px;
+
+.zoom-controls {
+  position: absolute;
+  z-index: 1001;
+  top: $govuk-gutter-half;
+  left: $govuk-gutter-half;
+  width: $control-size;
+  background: transparent;
+}
+
+.zoom-controls__btn,
+.zoom-controls__count-container {
+  display: block;
+  min-height: $control-size;
+  margin-bottom: 3px;
+  background: govuk-colour("white");
+  box-shadow: 0 0 3px rgba(govuk-colour("black"), .8);
+  @include govuk-font(19, $weight: bold);
+}
+
+.zoom-controls__btn {
+  width: 100%;
+  border: 0;
+  text-transform: none;
+  @include govuk-font(24, $weight: bold);
+
+  &:hover {
+    background: darken(govuk-colour("white"), 5);
+    cursor: pointer;
+  }
+
+  &:focus,
+  &:active {
+    @include govuk-focused-text;
+  }
+}
+
+.zoom-controls__count-container {
+  line-height: $control-size;
+  text-align: center;
+}

@@ -1,0 +1,26 @@
+$leaflet-bg-colour: #ffffff;
+
+.leaflet-control-recentre a {
+  background: $leaflet-bg-colour url("recentre.png") no-repeat 0 0;
+  background-size: 26px 52px;
+}
+
+.leaflet-touch .leaflet-control-recentre a {
+  background-position: 2px 2px;
+}
+
+.leaflet-recentred--no-layer.leaflet-control-recentre a {
+  background-position: 0 -26px;
+}
+
+.leaflet-touch .leaflet-recentred--no-layer.leaflet-control-recentre a {
+  background-position: 2px -24px;
+}
+
+@media
+(-webkit-min-device-pixel-ratio: 2),
+  (min-resolution: 192dpi) {
+    .leaflet-control-recentre a {
+      background-image: url("recentre@2x.png");
+    }
+  }
