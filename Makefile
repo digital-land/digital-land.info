@@ -55,6 +55,10 @@ test-acceptance:
 	python -m playwright install chromium
 	python -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
 
+test-acceptance-show:
+	python -m playwright install chromium
+	python3 -m pytest --browser webkit --headed --slowmo 500 --pdb
+
 test: test-unit test-integration
 
 test-unit:

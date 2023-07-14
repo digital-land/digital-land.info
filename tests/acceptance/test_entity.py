@@ -46,6 +46,43 @@ def test_correctly_loads_the_entity_root(server_process, page):
     assert mapControls.count() > 1
 
 
+def test_find_an_entity_via_the_search_page(server_process, page):
+    # Home page
+    breakpoint()
+    page.goto(BASE_URL)
+    page.click("text=Search")
+
+    page.wait_for_selector(
+        '//h1[contains(text(), "Search for planning and housing data")]'
+    )
+
+    resultsCountText = page.locator(
+        "//h2[contains(@class, 'app-results-summary__title')]"
+    ).first.text_content()
+    numberOfResults = int("".join(filter(str.isdigit, resultsCountText)))
+    assert numberOfResults > 0
+
+    time.sleep(5)
+
+    # Search page
+    page.locator('//label[contains(text(), "Address")]/preceding-sibling::input').click(
+        timeout=60000
+    )
+    # page.click('//label[normalize-space(text())="Ancient woodland"]/following-sibling::input[@type="textbox"]')
+    page.click("button:has-text('Search')")
+
+    with page.expect_response("**/entity/**") as response:
+        page.click("button:has-text('Search')")
+
+    assert response.value.ok
+
+    resultsCountText = page.locator(
+        "//h2[contains(@class, 'app-results-summary__title')]"
+    ).first()
+
+    print(resultsCountText.text())
+
+
 # This test is currently failing on the pipeline due to line 51 timing out
 # ========================================================================
 # def test_correctly_loads_an_entity_page(server_process, page):
