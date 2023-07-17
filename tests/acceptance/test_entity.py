@@ -47,14 +47,9 @@ def test_correctly_loads_the_entity_root(server_process, page):
 
 
 def test_find_an_entity_via_the_search_page(server_process, page):
-    # Home page
-    breakpoint()
-    page.goto(BASE_URL)
-    page.click("text=Search")
 
-    page.wait_for_selector(
-        '//h1[contains(text(), "Search for planning and housing data")]'
-    )
+    page.goto(BASE_URL)
+    page.get_by_role("link", name="Search", exact=True).click()
 
     resultsCountText = page.locator(
         "//h2[contains(@class, 'app-results-summary__title')]"
@@ -62,25 +57,48 @@ def test_find_an_entity_via_the_search_page(server_process, page):
     numberOfResults = int("".join(filter(str.isdigit, resultsCountText)))
     assert numberOfResults > 0
 
-    time.sleep(5)
+    with page.expect_navigation() as navigation_info:
+        page.get_by_label("Brownfield site").check()
+        page.get_by_role("button", name="Search").click()
 
-    # Search page
-    page.locator('//label[contains(text(), "Address")]/preceding-sibling::input').click(
-        timeout=60000
-    )
-    # page.click('//label[normalize-space(text())="Ancient woodland"]/following-sibling::input[@type="textbox"]')
-    page.click("button:has-text('Search')")
+    response = navigation_info.value
+    assert response.status == 200
 
-    with page.expect_response("**/entity/**") as response:
-        page.click("button:has-text('Search')")
-
-    assert response.value.ok
+    page.get_by_label("Forest").check()
+    page.get_by_label("Brownfield site").uncheck()
+    page.get_by_label("Day").click()
+    page.get_by_label("Day").fill("01")
+    page.get_by_label("Day").press("Tab")
+    page.get_by_label("Month").fill("01")
+    page.get_by_label("Month").press("Tab")
+    page.get_by_label("Year").fill("2010")
+    page.get_by_label("Since").check()
+    page.get_by_role("button", name="Search").click()
 
     resultsCountText = page.locator(
         "//h2[contains(@class, 'app-results-summary__title')]"
-    ).first()
+    ).first.text_content()
+    numberOfResults = int("".join(filter(str.isdigit, resultsCountText)))
+    assert numberOfResults > 0
 
-    print(resultsCountText.text())
+    page.get_by_role("group").filter(
+        has_text="Entries1 selected Entries Which type of entries do you want to see? All Current "
+    ).get_by_role("img").click()
+    page.get_by_label("Current").check()
+    page.get_by_role("button", name="Search").click()
+    page.get_by_role("link", name="current").click()
+    page.get_by_role("link", name="current").click()
+    page.get_by_role("link", name="current").click()
+    page.get_by_role("link", name="current").click()
+    page.get_by_role("link", name="DateOption.since").click()
+    page.get_by_role("button", name="Search").click()
+
+    with page.expect_navigation() as navigation_info:
+        page.get_by_label("Brownfield site").check()
+        page.get_by_role("button", name="Search").click()
+
+    response = navigation_info.value
+    assert response.status == 200
 
 
 # This test is currently failing on the pipeline due to line 51 timing out
