@@ -63,7 +63,7 @@ Run the following command to load data into the database used by docker compose:
 make load-db
 ```
 
-Note that you will have to be authenticated with AWS ECR in order to pull the` ``digital-land-postgres` image. If you are following the [AWS Authentication](#aws-authentication) instructions from below, it would be better to run:
+Note that you will have to be authenticated with AWS ECR in order to pull the `digital-land-postgres` image. If you are following the [AWS Authentication](#aws-authentication) instructions from below, it would be better to run:
 
 ```
 aws-vault exec dl-dev -- make load-db
@@ -92,8 +92,20 @@ If you want to see the acceptance tests in action run the following:
     playwright install chromium
     python -m pytest tests/acceptance  --headed --slowmo 1000
 
+(--headed opens browser and --slowmo slows down interactions by the specified number of milliseconds)
 
---headed opens browser and --slowmo slows down interactions by the specified number of milliseconds
+If you want to step through the acceptance tests line by line using playwrights inspector, you can call
+
+    make test-acceptance-debug
+
+Note: if you are using WSL, playwright inspector wont work by default. you will need to disable gpu support in you `%UserProfile%/.wslconfig` file by adding the following lines:
+
+    gpuSupport=false
+
+(you may need to create the file if it doesn't exist)
+
+
+
 
 ### Run the application
 
