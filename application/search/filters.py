@@ -41,7 +41,6 @@ class DatasetQueryFilters:
 
 @dataclass
 class QueryFilters:
-
     # base filters
     theme: Optional[List[str]] = Query(None, include_in_schema=False)
     typology: Optional[List[str]] = Query(

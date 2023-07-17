@@ -69,7 +69,6 @@ def params(raw_params):
 
 
 def test_search_geometry_reference_excludes_invalid_data(invalid_test_data, params):
-
     invalid = [
         int(entity["entity"])
         for entity in invalid_test_data["entities"]
@@ -90,7 +89,6 @@ def test_search_geometry_reference_excludes_invalid_data(invalid_test_data, para
 def test_search_by_dataset_and_lasso_excludes_invalid_geometry(
     invalid_test_data, params
 ):
-
     params["dataset"] = ["world-heritage-site"]
     params["geometry_relation"] = GeometryRelation.intersects.name
     params["geometry"] = [handrians_wall_search]

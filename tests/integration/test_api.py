@@ -9,7 +9,6 @@ from tests.test_data.wkt_data import (
 
 
 def _transform_dataset_fixture_to_response(datasets, is_geojson=False):
-
     for dataset in datasets:
         _transform_dataset_to_response(dataset)
     return datasets
@@ -36,7 +35,6 @@ def _transform_dataset_to_response(dataset, is_geojson=False):
 
 
 def test_app_returns_valid_geojson_list(client):
-
     response = client.get("/entity.geojson", headers={"Origin": "localhost"})
     data = response.json()
     assert "type" in data
@@ -131,7 +129,6 @@ def test_old_entity_gone_shown(test_data_old_entities, client, exclude_middlewar
 
 
 def test_dataset_json_endpoint_returns_as_expected(client, test_data):
-
     from tests.test_data import datasets
 
     response = client.get("/dataset.json")
@@ -168,7 +165,6 @@ wkt_params = [
 
 @pytest.mark.parametrize("point, expected_status_code", wkt_params)
 def test_api_handles_invalid_wkt(point, expected_status_code, client, test_data):
-
     params = {"geometry_relation": "intersects", "geometry": point}
     response = client.get("/entity.geojson", params=params)
     assert response.status_code == expected_status_code

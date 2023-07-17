@@ -53,13 +53,11 @@ def get_fact(
     query_filters: FactDatasetQueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
 ):
-
     query_params = asdict(query_filters)
     path_params = asdict(path_params)
     fact = get_fact_query(path_params["fact"], query_params["dataset"])
 
     if fact is not None:
-
         if extension is not None and extension.value == "json":
             return fact.dict(by_alias=True, exclude={"geojson"})
 
@@ -105,7 +103,6 @@ def search_facts(
     facts = get_search_facts_query(query_params)
 
     if facts is not None:
-
         if extension is not None and extension.value == "json":
             return facts
 

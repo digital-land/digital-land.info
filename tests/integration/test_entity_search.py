@@ -112,7 +112,6 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
 
 
 def test_search_entity_by_single_dataset_name(test_data, params):
-
     params["dataset"] = ["greenspace"]
     result = get_entity_search(params)
     assert 1 == result["count"]
@@ -122,7 +121,6 @@ def test_search_entity_by_single_dataset_name(test_data, params):
 
 
 def test_search_entity_by_list_of_dataset_names(test_data, params):
-
     params["dataset"] = ["greenspace", "brownfield-site"]
     result = get_entity_search(params)
     assert 2 == result["count"]
@@ -132,7 +130,6 @@ def test_search_entity_by_list_of_dataset_names(test_data, params):
 
 
 def test_search_entity_by_date_since(test_data, params):
-
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
@@ -195,7 +192,6 @@ def test_search_entity_by_date_since(test_data, params):
 
 
 def test_search_entity_by_date_before(test_data, params):
-
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
@@ -232,7 +228,6 @@ def test_search_entity_by_date_before(test_data, params):
 
 
 def test_search_entity_by_date_equal(test_data, params):
-
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
@@ -249,7 +244,6 @@ def test_search_entity_by_date_equal(test_data, params):
 
 
 def test_search_entity_by_point(test_data, params):
-
     params["longitude"] = -1.64794921875
     params["latitude"] = 50.51342652633956
 
@@ -266,7 +260,6 @@ def test_search_entity_by_point(test_data, params):
 
 
 def test_search_entity_by_single_polygon_intersects(test_data, params):
-
     from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
     from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
 
@@ -286,7 +279,6 @@ def test_search_entity_by_single_polygon_intersects(test_data, params):
 
 
 def test_search_entity_by_list_of_polygons_that_intersect(test_data, params):
-
     from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
     from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
 
@@ -298,7 +290,6 @@ def test_search_entity_by_list_of_polygons_that_intersect(test_data, params):
 
 
 def test_search_entity_by_polygon_with_no_intersection(test_data, params):
-
     from tests.test_data.wkt_data import no_intersection
 
     params["geometry"] = [no_intersection]
@@ -309,7 +300,6 @@ def test_search_entity_by_polygon_with_no_intersection(test_data, params):
 
 
 def test_search_all_entities(test_data, params):
-
     # default is EntriesOption.all - already in params
     result = get_entity_search(params)
     assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
@@ -326,7 +316,6 @@ def test_search_all_entities(test_data, params):
 
 
 def test_search_current_entries(test_data, params):
-
     # entries without an end date
     params["entries"] = EntriesOption.current
 
@@ -344,7 +333,6 @@ def test_search_current_entries(test_data, params):
 
 
 def test_search_historical_entries(test_data, params):
-
     # entries with an end date
     params["entries"] = EntriesOption.historical
 
@@ -402,7 +390,6 @@ def test_search_filtering_does_affect_count(test_data, client, exclude_middlewar
 
 
 def test_search_entity_equal_to_a_polygon(test_data, params):
-
     from tests.test_data.wkt_data import equals_brownfield_site_entity
 
     params["geometry"] = [equals_brownfield_site_entity]
@@ -414,7 +401,6 @@ def test_search_entity_equal_to_a_polygon(test_data, params):
 
 
 def test_search_entity_disjoint_from_a_polygon(test_data, params):
-
     from tests.test_data.wkt_data import no_intersection
 
     params["geometry"] = [no_intersection]
@@ -425,7 +411,6 @@ def test_search_entity_disjoint_from_a_polygon(test_data, params):
 
 
 def test_search_entity_that_polygon_touches(test_data, params):
-
     from tests.test_data.wkt_data import touches_forest_entity
 
     params["geometry"] = [touches_forest_entity]
@@ -437,7 +422,6 @@ def test_search_entity_that_polygon_touches(test_data, params):
 
 
 def test_search_entity_that_contains_a_polygon(test_data, params):
-
     from tests.test_data.wkt_data import contained_by_greenspace_entity
 
     params["geometry"] = [contained_by_greenspace_entity]
@@ -450,7 +434,6 @@ def test_search_entity_that_contains_a_polygon(test_data, params):
 
 # when dealing with polygons contains and covers are synonymous
 def test_search_entity_that_covers_a_polygon(test_data, params):
-
     from tests.test_data.wkt_data import contained_by_greenspace_entity
 
     params["geometry"] = [contained_by_greenspace_entity]
@@ -462,7 +445,6 @@ def test_search_entity_that_covers_a_polygon(test_data, params):
 
 
 def test_search_entity_covered_by_a_polygon(test_data, params):
-
     from tests.test_data.wkt_data import covers_historical_monument_entity
 
     params["geometry"] = [covers_historical_monument_entity]
@@ -474,7 +456,6 @@ def test_search_entity_covered_by_a_polygon(test_data, params):
 
 
 def test_search_entity_that_overlaps_a_polygon(test_data, params):
-
     from tests.test_data.wkt_data import intersects_with_brownfield_entity
 
     params["geometry"] = [intersects_with_brownfield_entity]
@@ -486,7 +467,6 @@ def test_search_entity_that_overlaps_a_polygon(test_data, params):
 
 
 def test_search_entity_that_is_crossed_by_a_line(test_data, params):
-
     from tests.test_data.wkt_data import crosses_historical_entity
 
     params["geometry"] = [crosses_historical_entity]
@@ -500,7 +480,6 @@ def test_search_entity_that_is_crossed_by_a_line(test_data, params):
 def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
     test_data, params
 ):
-
     test_conservation_area = [
         e for e in test_data["entities"] if e["dataset"] == "conservation-area"
     ][0]
@@ -518,7 +497,6 @@ def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
 
 
 def test_search_entity_by_curie(test_data, params):
-
     expected_entity = [
         e
         for e in test_data["entities"]
@@ -539,7 +517,6 @@ def test_search_entity_by_curie(test_data, params):
 
 
 def test_search_entity_by_organisation_curie(test_data, params):
-
     expected_entity = [
         e
         for e in test_data["entities"]

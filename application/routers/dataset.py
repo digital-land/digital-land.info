@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 
 def get_datasets_by_typology(datasets):
-
     typologies = {}
     for ds in (d for d in datasets if d.typology):
         typology = ds.typology

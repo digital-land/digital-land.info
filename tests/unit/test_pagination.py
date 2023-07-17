@@ -25,7 +25,6 @@ def test_pagination_links_should_be_empty_if_count_results_less_than_limit():
 
 
 def test_pagination_links_should_have_all_links_except_previous_on_first_page():
-
     data = {"count": 11, "params": {"limit": 10}}
     params = {}
     links = make_links(scheme, netloc, path, params, data)
@@ -46,7 +45,6 @@ def test_pagination_links_should_have_all_links_except_previous_on_first_page():
 
 
 def test_pagination_links_should_have_previous_link_if_not_on_last_page():
-
     data = {"count": 45, "params": {"limit": 10, "offset": 10}}
     params = {}
     links = make_links(scheme, netloc, path, params, data)

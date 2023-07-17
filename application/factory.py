@@ -118,7 +118,6 @@ def add_base_routes(app):
         "/invalid-geometries", response_class=JSONResponse, include_in_schema=False
     )
     def invalid_geometries():
-
         from application.db.session import get_context_session
         from application.core.models import entity_factory
         from sqlalchemy import func
@@ -259,7 +258,6 @@ def add_base_routes(app):
 
 
 def add_routers(app):
-
     app.include_router(entity.router, prefix="/entity")
     app.include_router(dataset.router, prefix="/dataset")
     app.include_router(curie.router, prefix="/curie")
@@ -274,7 +272,6 @@ def add_routers(app):
 
 
 def add_static(app):
-
     app.mount(
         "/static",
         StaticFiles(directory="static"),
@@ -283,7 +280,6 @@ def add_static(app):
 
 
 def add_middleware(app):
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],

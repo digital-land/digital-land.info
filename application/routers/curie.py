@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 def get_entity_redirect_by_curie(request: Request, prefix: str, reference: str):
-
     with get_context_session() as session:
         lookup = (
             session.query(LookupOrm.entity.label("entity"))
