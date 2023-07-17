@@ -1,10 +1,7 @@
-gitpython
 fastapi==0.75.2
-aiofiles
 uvicorn
 gunicorn
 jinja2
-aiohttp[speedups]
 PyYAML
 python-dotenv
 requests
@@ -22,3 +19,4 @@ beautifulsoup4
 python-slugify
 govuk-frontend-jinja
 validators
+pre-commit

@@ -144,7 +144,6 @@ invalid_curies = [
 
 @pytest.mark.parametrize("curie", invalid_curies)
 def test_validate_invalid_curie(curie):
-
     with pytest.raises(DigitalLandValidationError):
         validate_curies([curie])
 

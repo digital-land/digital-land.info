@@ -9,3 +9,4 @@ pytest-pudb
 SQLAlchemy-Utils
 pytest-mock
 pytest-md-report
+pre-commit

@@ -41,7 +41,6 @@ def server_process():
 
 
 def test_acceptance(server_process, page, test_data):
-
     page.goto(BASE_URL)
 
     page.click("text=Datasets")

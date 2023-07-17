@@ -29,7 +29,6 @@ def get_breadcrumbs(path):
     crumb_dict = [{"href": "/guidance/", "text": "Guidance"}]
     # loop for the number of times there are items in the split_path list
     for i in range(total_items):
-
         # instantiate some variables
         index = i + 1
         text = split_path[-index]
@@ -69,7 +68,6 @@ def get_breadcrumbs(path):
 
 @router.get("/{url_path:path}")
 async def catch_all(request: Request, url_path: str):
-
     index_file = "index"
 
     # if URL path in this route is empty
@@ -94,7 +92,6 @@ async def catch_all(request: Request, url_path: str):
     # if template file exists use it to render the page based
     # on the corresponding URL Path
     if os.path.exists(sys_path_to_file) and os.path.isfile(sys_path_to_file):
-
         return templates.TemplateResponse(
             f"{url_path_to_file}{file_extension}",  # path to the template file we wish to render
             {

@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 AS production
+FROM tiangolo/uvicorn-gunicorn:python3.9 AS production
 
 COPY . /src
 WORKDIR /src
