@@ -16,7 +16,6 @@ Base = declarative_base()
 
 
 class EntityOrm(Base):
-
     __tablename__ = "entity"
 
     entity = Column(BIGINT, primary_key=True, autoincrement=False)
@@ -61,7 +60,6 @@ idx_entity_typology = Index("idx_entity_typology", EntityOrm.typology)
 
 
 class OldEntityOrm(Base):
-
     __tablename__ = "old_entity"
 
     old_entity_id = Column(
@@ -89,7 +87,6 @@ class OldEntityOrm(Base):
 
 
 class DatasetOrm(Base):
-
     __tablename__ = "dataset"
 
     dataset = Column(Text, primary_key=True)
@@ -141,7 +138,6 @@ class DatasetOrm(Base):
 
     @property
     def attribution_text(self):
-
         if "[year]" in self._attribution.text:
             current_year = datetime.today().strftime("%Y")
             return self._attribution.text.replace("[year]", current_year)
@@ -150,7 +146,6 @@ class DatasetOrm(Base):
 
     @property
     def licence_text(self):
-
         if "[year]" in self._licence.text:
             current_year = datetime.today().strftime("%Y")
             return self._licence.text.replace("[year]", current_year)
@@ -159,7 +154,6 @@ class DatasetOrm(Base):
 
 
 class TypologyOrm(Base):
-
     __tablename__ = "typology"
 
     typology = Column(Text, primary_key=True)
@@ -175,7 +169,6 @@ class TypologyOrm(Base):
 
 
 class OrganisationOrm(Base):
-
     __tablename__ = "organisation"
 
     organisation = Column(Text, primary_key=True)
@@ -196,7 +189,6 @@ class OrganisationOrm(Base):
 
 
 class DatasetCollectionOrm(Base):
-
     __tablename__ = "dataset_collection"
 
     dataset_collection = Column(Text, primary_key=True)
@@ -208,7 +200,6 @@ class DatasetCollectionOrm(Base):
 
 
 class DatasetPublicationCountOrm(Base):
-
     __tablename__ = "dataset_publication"
 
     dataset_publication = Column(Text, primary_key=True)
@@ -217,7 +208,6 @@ class DatasetPublicationCountOrm(Base):
 
 
 class LookupOrm(Base):
-
     __tablename__ = "lookup"
 
     id = Column(BIGINT, primary_key=True, autoincrement=False)
@@ -231,7 +221,6 @@ class LookupOrm(Base):
 
 
 class AttributionOrm(Base):
-
     __tablename__ = "attribution"
 
     attribution = Column(Text, primary_key=True)
@@ -242,7 +231,6 @@ class AttributionOrm(Base):
 
 
 class LicenceOrm(Base):
-
     __tablename__ = "licence"
 
     licence = Column(Text, primary_key=True)

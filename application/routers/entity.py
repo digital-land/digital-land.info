@@ -79,7 +79,6 @@ def get_entity(
         else:
             return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
     elif e is not None:
-
         if extension is not None and extension.value == "json":
             return e.dict(by_alias=True, exclude={"geojson"})
 
@@ -167,7 +166,6 @@ def search_entities(
     links = make_links(scheme, netloc, path, query, data)
 
     if extension is not None and extension.value == "json":
-
         if params.get("field") is not None:
             include = set([to_snake(field) for field in params.get("field")])
             entities = _get_entity_json(data["entities"], include=include)

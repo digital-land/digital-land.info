@@ -2,7 +2,7 @@ import jinja2
 
 from fastapi.templating import Jinja2Templates
 
-from digital_land_frontend.globals import random_int
+import random
 
 from application.core.filters import (
     generate_query_param_str,
@@ -25,6 +25,11 @@ from application.core.filters import (
 )
 
 from application.core.utils import model_dumps
+
+
+def random_int(n=1):
+    return "".join([str(random.randint(0, 9)) for i in range(n)])
+
 
 templates = Jinja2Templates("application/templates")
 
