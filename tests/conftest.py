@@ -22,7 +22,7 @@ from application.settings import Settings, get_settings
 from tests.utils.database import (
     add_base_datasets_to_database,
     add_base_typology_to_database,
-    add_entities_to_database,
+    add_base_entities_to_database,
     reset_database,
 )
 
@@ -194,7 +194,7 @@ def empty_database():
 @pytest.fixture()
 def add_base_entities_to_database_yield_reset():
     reset_database()
-    add_entities_to_database()
+    add_base_entities_to_database()
     add_base_datasets_to_database()
     add_base_typology_to_database()
     yield
