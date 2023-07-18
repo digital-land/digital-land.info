@@ -47,7 +47,6 @@ def test_correctly_loads_the_entity_root(server_process, page):
 
 
 def test_find_an_entity_via_the_search_page(server_process, page):
-
     page.goto(BASE_URL)
     page.get_by_role("link", name="Search", exact=True).click()
 
