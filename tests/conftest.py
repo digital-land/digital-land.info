@@ -19,6 +19,12 @@ from application.db.models import (
     LicenceOrm,
 )
 from application.settings import Settings, get_settings
+from tests.utils.database import (
+    add_base_datasets_to_database,
+    add_base_typology_to_database,
+    add_base_entities_to_database,
+    reset_database,
+)
 
 
 @pytest.fixture(scope="session")
@@ -164,3 +170,32 @@ def exclude_middleware(app):
     yield
     app.user_middleware = user_middleware
     app.middleware_stack = app.build_middleware_stack()
+
+
+# this function ensures that a database is empty for a test by...
+#   - resets the database
+#   - adds the base datasets and typology to the database
+#   - yields back to the test
+#   - resets the database
+@pytest.fixture()
+def empty_database():
+    reset_database()
+    add_base_datasets_to_database()
+    add_base_typology_to_database()
+    yield
+    reset_database()
+
+
+# this function ensures that a database has only the base elements
+#   - resets the database
+#   - adds the entities and datasets from tests/test_data/datasets.csv and tests/test_data/entities.csv to the database
+#   - yields back to the test
+#   - resets the database
+@pytest.fixture()
+def add_base_entities_to_database_yield_reset():
+    reset_database()
+    add_base_entities_to_database()
+    add_base_datasets_to_database()
+    add_base_typology_to_database()
+    yield
+    reset_database()
