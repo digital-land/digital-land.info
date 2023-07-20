@@ -71,6 +71,24 @@ aws-vault exec dl-dev -- make load-db
 
 Once the database is loaded, run `docker-compose up` to start the service with a fresh database
 
+### Loading test data
+
+alternately, you can load a smaller set of data for testing purposes by running:
+
+```
+make insertBaseData
+```
+
+which will insert the entities, and datasets specified in tests/test_data/entities.csv and tests/test_data/datasets.csv
+
+you can then clear the database by running:
+
+```
+make emptyDatabase
+```
+
+
+
 ### Run integration tests
 
 Setup a test database
