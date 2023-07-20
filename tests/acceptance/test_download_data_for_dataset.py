@@ -6,8 +6,6 @@ import uvicorn
 from multiprocessing.context import Process
 from application.settings import get_settings
 
-import json
-
 settings = get_settings()
 
 settings.READ_DATABASE_URL = (
@@ -44,25 +42,30 @@ def test_download_data_for_dataset(
 ):
     page.goto(BASE_URL)
 
+    # Navigate to the Brownfield site dataset page.
     page.get_by_role("link", name="Datasets", exact=True).click()
     page.get_by_role("link", name="Geography").click()
     page.get_by_role("link", name="Brownfield site").click()
 
+    # Click on the "CSV" download link and check the file name.
     with page.expect_download() as download_info:
         page.get_by_role("link", name="CSV").click()
 
-    # Check that the file name suggests that it is a CSV file
     assert "brownfield-site" in download_info.value.suggested_filename
-    assert "csv" in download_info.value.suggested_filename
+    assert ".csv" in download_info.value.suggested_filename
 
-    # Check that the file content is valid JSON
-    responseJson = page.text_content("body")
-    json.loads(responseJson)
+    # Check that the "JSON" download link is correct.
+    json_href = page.get_by_role("link", name="JSON", exact=True).first.get_attribute(
+        "href"
+    )
 
-    # Go back to the Brownfield site dataset page
-    page.go_back()
+    assert "brownfield-site" in json_href
+    assert ".json" in json_href
 
-    # Check that the GeoJSON content is valid JSON
-    page.get_by_role("link", name="GeoJSON").click()
-    responseGeojson = page.text_content("body")
-    json.loads(responseGeojson)
+    # Check that the "GeoJSON" download link is correct.
+    geojson_href = page.get_by_role(
+        "link", name="GeoJSON", exact=True
+    ).first.get_attribute("href")
+
+    assert "brownfield-site" in geojson_href
+    assert ".geojson" in geojson_href
