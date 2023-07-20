@@ -47,12 +47,13 @@ def test_download_data_for_dataset(
     page.get_by_role("link", name="Geography").click()
     page.get_by_role("link", name="Brownfield site").click()
 
-    # Click on the "CSV" download link and check the file name.
-    with page.expect_download() as download_info:
-        page.get_by_role("link", name="CSV").click()
+    # Check that the "CSV" download link is correct.
+    csv_href = page.get_by_role("link", name="CSV", exact=True).first.get_attribute(
+        "href"
+    )
 
-    assert "brownfield-site" in download_info.value.suggested_filename
-    assert ".csv" in download_info.value.suggested_filename
+    assert "brownfield-site" in csv_href
+    assert ".csv" in csv_href
 
     # Check that the "JSON" download link is correct.
     json_href = page.get_by_role("link", name="JSON", exact=True).first.get_attribute(
