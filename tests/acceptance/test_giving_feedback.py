@@ -51,6 +51,8 @@ def test_give_feedback_on_a_dataset(
     assert "docs.google.com" in page.url
     assert page.get_by_role("heading", name="Give feedback on this dataset")
 
+    page.wait_for_timeout(500)
+
     # ensure the form has the correct dataset name
     assert (
         page.get_by_role(
