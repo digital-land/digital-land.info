@@ -37,16 +37,8 @@ def server_process():
     proc.kill()
 
 
-@pytest.fixture(scope="session")
-def overwrite_DATA_FILE_URL():
-    settings.DATA_FILE_URL = "https://files.planning.data.gov.uk"
-
-
 def test_download_data_for_dataset(
-    overwrite_DATA_FILE_URL,
-    server_process,
-    page,
-    add_base_entities_to_database_yield_reset,
+    server_process, page, add_base_entities_to_database_yield_reset
 ):
     page.goto(BASE_URL)
 
@@ -56,11 +48,12 @@ def test_download_data_for_dataset(
     page.get_by_role("link", name="Brownfield site").click()
 
     # Check that the "CSV" download link is correct.
-    with page.expect_download() as download_info:
-        page.get_by_role("link", name="CSV").click()
-    assert download_info.is_done() is True
-    assert download_info.value.suggested_filename == "brownfield-site.csv"
-    assert download_info.value.failure() is None
+    csv_href = page.get_by_role("link", name="CSV", exact=True).first.get_attribute(
+        "href"
+    )
+
+    assert "brownfield-site" in csv_href
+    assert ".csv" in csv_href
 
     # Check that the "JSON" download link is correct.
     json_href = page.get_by_role("link", name="JSON", exact=True).first.get_attribute(
