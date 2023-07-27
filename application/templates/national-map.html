@@ -1,6 +1,8 @@
 {% extends "layouts/layout--full-width.html" %}
 {% set templateName = "dl-info/national-map.html" %}
 
+{%- from "components/map2/macro.jinja" import map %}
+
 {% set containerClasses = 'dl-container--full-width' %}
 {% set fullWidthHeader = true %}
 
@@ -22,100 +24,19 @@
 
   <p id="aria-label-national-map" class="govuk-body-l">National map of the planning data collected and collated by Planning Data.</p>
 
-  <div class="dl-map__wrapper" style="min-height: 700px;">
-
-    <div class="zoom-controls" data-module="zoom-controls">
-      <button class="zoom-controls__btn" data-zoom-control="in">
-        <span class="govuk-visually-hidden">Zoom in</span>
-        <span>+</span>
-      </button>
-      <span class="zoom-controls__count-container" aria-live="polite">
-        <span class="govuk-visually-hidden">The map is at zoom level </span>
-        <span class="zoom-controls__count">6</span>
-      </span>
-      <button class="zoom-controls__btn" data-zoom-control="out">
-        <span class="govuk-visually-hidden">Zoom out</span>
-        <span>-</span>
-      </button>
-    </div>
-
-    {% macro layerControlItem(layer) %}
-      <li class="dl-map__layer-item govuk-!-margin-bottom-2" data-layer-control="{{ layer.dataset }}"
-      {% if layer.paint_options.type %}data-layer-data-type={{layer.paint_options.type}}{% endif %} data-style-options="{% if layer.paint_options %}{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}{% endif %}">
-        <div class="govuk-checkboxes__item">
-          <input class="govuk-checkboxes__input" id="{{ layer.dataset }}" name="{{ layer.dataset }}" type="checkbox" value="{{ layer.dataset }}" {{ "checked='checked'" if layer.checked }}>
-          <label class="govuk-label govuk-checkboxes__label" for="{{ layer.dataset }}">
-            <span class="dl-label__key">
-              <span class="dl-label__key__symbol{{ ' dl-label__key__symbol--circle' if layer.paint_options.type and layer.paint_options.type == 'point' }}"
-          style="border-color: {{layer.paint_options.colour|default('#003078')}}; background: rgba({{layer.paint_options.colour|default('#003078')|hex_to_rgb}},{{ layer.paint_options.opacity|default('0.5') }});"></span>
-              {{ layer.name }}
-            </span>
-          </label>
-        </div>
-      </li>
-    {% endmacro %}
-
-    <div id="mapid" class="dl-map" aria-labelledby="aria-label-national-map"></div>
-    <div class="dl-map__side-panel dl-map__side-panel--full js-hidden" tabindex="-1" role="dialog" aria-hidden="false" open="true" aria-modal="true">
-      <div class="dl-map__side-panel__heading">
-        <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Data layers</h3>
-      </div>
-      <div class="dl-map__side-panel__content">
-        <div class="govuk-checkboxes" data-module="filter-checkboxes">
-          <div class="dl-filter-group__auto-filter">
-            <label for="input-71108" class="govuk-label govuk-visually-hidden">
-          Filter Show only
-          </label>
-            <input id="input-71108" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-71108" aria-controls="checkboxes-71108">
-          </div>
-          <ul class="govuk-list govuk-!-margin-bottom-0" data-module="layer-controls" role="group">
-            <span id="checkbox-filter-71108" class="dl-filter-group__auto-filter__desc govuk-visually-hidden" aria-live="polite" data-single="option found" data-multiple="options found" data-selected="selected">{{ layers|length }} options found, 0 selected</span>
-            <span class="app-filter-group__status-update js-hidden govuk-!-padding-bottom-3 dl-secondary-text" aria-live="polite" data-single="dataset" data-multiple="datasets">0 datasets hidden</span>
-            {% for layer in layers %}
-              {{ layerControlItem(layer) }}
-            {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="app-c-sources-panel govuk-!-margin-bottom-4">
-    <p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>
-</div>
-
-<p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">This prototype map is automatically created using data from planning.data.gov.uk. Find out more <a href="/about">about the Planning Data Platform</a></p>
+  {{
+    map({
+      "id": 'test',
+      'height': 700,
+      'layers': layers,
+      'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
+    })
+  }}
 
 {% endblock %}
 
 {% block bodyEnd %}
 {{ super() }}
-<script src="/static/javascripts/dl-national-map-controller.js"></script>
-<script src="/static/javascripts/filter-checkbox-extension.js"></script>
-<script>
-  // grab html elements
-  const $controlsList = document.querySelector('[data-module="layer-controls"]')
-  const $zoomMod = document.querySelector('[data-module="zoom-controls"]')
-  // init national map
-  const mapController = new MapController($controlsList, $zoomMod).init({
-    baseTileStyleFilePath: "/static/javascripts/base-tile.json",
-    vectorSource: "{{ settings.DATASETTE_TILES_URL }}/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf",
-    datasetVectorUrl: "{{ settings.DATASETTE_TILES_URL }}/-/tiles/",
-    datasets: {{layers|tojson}}.map(d => d.dataset),
-    LayerControlOptions: {
-      layerURLParamName: "dataset",
-    }
-  })
 
-  // extend the filter checkbox component to work with the map
-  const $fgStatusUpdate = $controlsList.querySelector('.app-filter-group__status-update')
-  extendFilterCheckboxes($fgStatusUpdate)
 
-  var $filterCheckboxes = document.querySelectorAll('[data-module="filter-checkboxes"]')
-  $filterCheckboxes.forEach(el => {
-    new window
-      .DLFrontend
-      .FilterCheckboxes(el)
-      .init()
-  })
-</script>
 {% endblock %}
