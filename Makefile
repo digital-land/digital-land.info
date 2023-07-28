@@ -103,9 +103,6 @@ frontend:
 
 frontend-all: clean frontend
 
-frontend-watch:
-	npm run nps watch.assets & npm run nps watch.pages
-
 black:
 	black .
 
