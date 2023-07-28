@@ -9,6 +9,10 @@
 {% set includesMap = true %}
 {% block pageTitle %}National map of planning data | Planning Data{% endblock %}
 
+{%
+  set notePanel = '<p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>'
+%}
+
 {%- block mapAssets %}
   <script src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"></script>
   <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet"/>
@@ -30,6 +34,8 @@
       'height': 700,
       'layers': layers,
       'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
+      'notePanel': notePanel,
+      'enableZoomControls': true,
     })
   }}
 
