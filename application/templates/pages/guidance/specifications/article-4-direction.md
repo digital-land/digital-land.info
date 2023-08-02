@@ -105,7 +105,8 @@ Example: `A4Da1`
 
 The official name of the article 4 direction.
 Example: Old Market
-geometry
+
+### geometry
 
 The boundary for the article 4 direction area as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
 
