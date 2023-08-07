@@ -675,9 +675,6 @@ class LayerControls {
 
     onControlChkbxChange = function (e) {
         console.log('Has been toggled', e.target, this);
-        // get the control containing changed checkbox
-        // var $clickedControl = e.target.closest(this.layerControlSelector)
-
         // when a control is changed update the URL params
         this.updateUrl();
     };
