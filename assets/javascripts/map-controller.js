@@ -13,7 +13,7 @@ class MapController {
         params = params || {};
         this.mapId = params.mapId || 'mapid';
         this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
-        this.sources = params.sources || [{
+        this.vectorTileSources = params.vectorTileSources || [{
             name: 'dl-vectors',
             vectorSource: 'https://datasette-tiles.digital-land.info/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf'
         }];
@@ -28,6 +28,7 @@ class MapController {
         this.LayerControlOptions = params.LayerControlOptions || {enabled: false};
         this.ZoomControlsOptions = params.ZoomControlsOptions || {enabled: false};
         this.FullscreenControl = params.FullscreenControl || {enabled: false};
+        this.geojsons = params.geojsons || [];
     }
 
     createMap() {
@@ -55,9 +56,30 @@ class MapController {
 
     setup() {
         // add sources to map
-        this.sources.forEach(source => {
-            this.addSource(source.name, source.vectorSource);
+        this.vectorTileSources.forEach(source => {
+            this.addVectorTileSource(source.name, source.vectorSource);
         });
+
+        this.geojsons.forEach(geojson => {
+          if(geojson.data.type == 'Point')
+            this.addPoint(geojson.name, geojson.data);
+          else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
+            this.addPolygon(geojson.name, geojson.data);
+        });
+
+        if(this.geojsons.length == 1){
+          if(this.geojsons[0].data.type == 'Point'){
+            this.map.flyTo({
+              center: this.geojsons[0].data.coordinates,
+              essential: true,
+              animate: false
+            });
+          } else {
+            var bbox = turf.extent(this.geojsons[0].data);
+            let padding = this.geojsons[0].data.type == 'Point' ? 500 : 20;
+            this.map.fitBounds(bbox, {padding, animate: false});
+          }
+        }
 
         // ToDo: this should be done using addSource
         // this.addDatasetVectorSources(this.datasetVectorUrl, this.datasets);
@@ -67,6 +89,60 @@ class MapController {
         // var boundClickHandler = this.clickHandler.bind(this);
         // this.map.on('click', boundClickHandler);
     };
+
+    addPolygon(id, geometry) {
+      this.map.addSource(id, {
+        'type': 'geojson',
+        'data': {
+          'type': 'Feature',
+          'geometry': geometry
+        }
+      });
+      this.map.addLayer({
+        'id': id,
+        'type': 'fill',
+        'source': id,
+        'layout': {},
+        'paint': {
+          'fill-color': '#088',
+          'fill-opacity': 0.5
+        }
+      });
+    }
+
+    addPoint(id, geometry, imageSrc='https://maplibre.org/maplibre-gl-js/docs/assets/osgeo-logo.png') {
+      this.map.loadImage(
+        imageSrc,
+        (error, image) => {
+          if (error) throw error;
+          this.map.addImage('custom-marker', image);
+          this.map.addSource(id, {
+            'type': 'geojson',
+            'data': {
+              'type': 'Feature',
+              'geometry': geometry
+            }
+          });
+          // Add a symbol layer
+          this.map.addLayer({
+            'id': id,
+            'type': 'symbol',
+            'source': id,
+            'layout': {
+                'icon-image': 'custom-marker',
+                // get the year from the source's "year" property
+                'text-field': ['get', 'year'],
+                'text-font': [
+                    'Open Sans Semibold',
+                    'Arial Unicode MS Bold'
+                ],
+                'text-offset': [0, 1.25],
+                'text-anchor': 'top'
+            }
+          });
+        }
+      );
+    }
 
     addControls() {
         // add zoom controls
@@ -83,36 +159,26 @@ class MapController {
         }
     }
 
-    addSource(name, vectorSource) {
+    addVectorTileSource(name, vectorSource) {
         this.map.addSource(name, {
           type: 'vector',
           tiles: [vectorSource],
           minzoom: this.minMapZoom,
           maxzoom: this.maxMapZoom
         });
-    }
-
-    addDatasetVectorSources(sourceUrl,datasets) {
-        if (sourceUrl === null || datasets === null){
-          console.log("dataset vector sources not added, will default to vectorSource")
-        } else {
-          console.log("dataset vector sources added")
-        // set up source for each dataset on the tiles server
-          for (let i = 0; i < datasets.length; i++) {
-            var sourceName = datasets[i] + '-source';
-            this.map.addSource(sourceName, {
-              type: 'vector',
-              tiles: [sourceUrl + datasets[i] + '/{z}/{x}/{y}.vector.pbf'],
-              minzoom: this.minMapZoom,
-              maxzoom: this.maxMapZoom
-            });
+        this.map.addLayer({
+          'id': `${name}-layer-id`,
+          'type': 'fill',
+          'source': name,
+          'source-layer': `${name}-layer`,
+          'layout': {},
+          'paint': {
+            'fill-color': '#088',
+            'fill-opacity': 0.5
           }
-        }
-      };
-
-
+        });
+    }
 }
-
 
 class ZoomControls {
     constructor($module, leafletMap, initialZoom, options) {
@@ -140,7 +206,7 @@ class ZoomControls {
         this.$buttons = Array.prototype.slice.call($buttons);
 
         this.$counter = this.$module.querySelector(this.counterSelector);
-        this.$counter.textContent = this.initialZoom;
+        this.zoomHandler(); // call at the start to enforce rounding
 
         const boundClickHandler = this.clickHandler.bind(this);
         this.$buttons.forEach(function ($button) {

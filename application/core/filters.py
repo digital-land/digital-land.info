@@ -168,6 +168,13 @@ def get_entity_name_filter(eval_ctx, id):
     return id
 
 
+def get_entity_name(entity):
+    if entity.name:
+        return entity.name
+    else:
+        return entity.reference
+
+
 def digital_land_to_json(dict):
     return json.dumps(dict, default=str, indent=4, cls=NoneToEmptyStringEncoder)
 
@@ -251,6 +258,13 @@ def make_link_filter(eval_ctx, url, **kwargs):
             if eval_ctx.autoescape:
                 return Markup(anchor)
     return url
+
+
+def get_entity_geometry(entity):
+    return {
+        "name": get_entity_name(entity),
+        "data": entity.geojson.geometry,
+    }
 
 
 def commanum_filter(v):

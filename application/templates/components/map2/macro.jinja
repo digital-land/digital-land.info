@@ -19,15 +19,12 @@
 {%- macro map(params) %}
 
     {#- Set the default params #}
+    {%- do params.update({'layers': params.layers|default([])}) -%}
     {%- set enableLayerControls = false %}
-    {%- set datasets = [] %}
-
-    {%- if params.layers is defined %}
-      {%- set datasets = params.layers %}
-      {%- if datasets|length > 0 %}
-        {%- set enableLayerControls = true %}
-      {%- endif %}
+    {%- if params.layers|length > 0 %}
+      {%- set enableLayerControls = true %}
     {%- endif %}
+
 
     {#- REQUIRES: global random_int function #}
 
@@ -37,7 +34,7 @@
     <div class="dl-map__wrapper{{ ' ' + params.wrapper_classes if params.wrapper_classes }}" style="min-height: {{ height }};">
 
       {% if params.enableZoomControls -%}
-        <div class="zoom-controls" data-module="zoom-controls-{{ params.id if params.id else 'map' }}">
+        <div class="zoom-controls" data-module="zoom-controls-{{ params.mapId if params.mapId else 'map' }}">
             <button class="zoom-controls__btn" data-zoom-control="in">
               <span class="govuk-visually-hidden">Zoom in</span>
               <span>+</span>
@@ -56,7 +53,7 @@
         {#- Set the map div attributes #}
         <div
             class="dl-map{{ ' ' + params.classes if params.classes }}"
-            id="{{ params.id if params.id else 'map' }}"
+            id="{{ params.mapId if params.mapId else 'map' }}"
             data-module="{{ params.dataModule if params.dataModule else 'boundary-map' }}"
             data-testid="{{ params.testid if params.testid else 'map' }}"
             {% if params.attributes -%}
@@ -79,8 +76,8 @@
                 </label>
                   <input id="input-71108" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-71108" aria-controls="checkboxes-71108">
                 </div>
-                <ul class="govuk-list govuk-!-margin-bottom-0" data-module="layer-controls-{{ params.id if params.id else 'map' }}" role="group">
-                  {% for layer in datasets %}
+                <ul class="govuk-list govuk-!-margin-bottom-0" data-module="layer-controls-{{ params.mapId if params.mapId else 'map' }}" role="group">
+                  {% for layer in params.layers %}
                     {{ layerControlItem(layer) }}
                   {% endfor %}
               </ul>
@@ -103,38 +100,48 @@
       {{params.notePanel|safe}}
     </div>
 
-    <script src="/static/javascripts/map-controller.js"></script>
+
     <script>
-        // init national map
-        const mapController = new MapController({
-            baseTileStyleFilePath: "/static/javascripts/base-tile.json",
-            vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf",
-            datasetVectorUrl: "{{ params.DATASETTE_TILES_URL }}/-/tiles/",
-            datasets: {{datasets|tojson}}.map(d => d.dataset),
-            sources: {{datasets|tojson}}.map(d => {
-              return {
-                name: d.dataset + '-source',
-                vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/" + d.dataset + "/{z}/{x}/{y}.vector.pbf",
-              }
-            }),
-            LayerControlOptions: {
-                layerURLParamName: "dataset",
-            },
-            mapId: "{{ params.id if params.id else 'map' }}",
-            ZoomControlsOptions: {
-              enabled: {{params.enableZoomControls|lower if params.enableZoomControls else 'false'}},
-            },
-            LayerControlOptions: {
-              enabled: {{enableLayerControls|lower}},
-            },
-            FullscreenControl: {
-              enabled: true,
+      window.addEventListener('load',(e) => {
+        {% if params.layers is defined %}
+          {% set layers = params.pop('layers') %}
+        {% endif %}
+        let params = {{params|tojson}};
+        const layers = {{layers|tojson}};
+
+        params = {
+          ...params,
+          baseTileStyleFilePath: "/static/javascripts/base-tile.json",
+          vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf",
+          datasetVectorUrl: "{{ params.DATASETTE_TILES_URL }}/-/tiles/",
+          datasets: {{layers|tojson}}.map(d => d.dataset),
+          vectorTileSources: {{layers|tojson}}.map(d => {
+            return {
+              name: d.dataset + '-source',
+              vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/" + d.dataset + "/{z}/{x}/{y}.vector.pbf",
             }
-        })
+          }),
+          LayerControlOptions: {
+              layerURLParamName: "dataset",
+          },
+          mapId: "{{ params.mapId if params.mapId else 'map' }}",
+          ZoomControlsOptions: {
+            enabled: {{params.enableZoomControls|lower if params.enableZoomControls else 'false'}},
+          },
+          LayerControlOptions: {
+            enabled: {{enableLayerControls|lower}},
+          },
+          FullscreenControl: {
+            enabled: true,
+          }
+        };
 
-        // extend the filter checkbox component to work with the map
 
 
+        window.mapControllers = window.mapControllers || {};
+        // ToDo: should handle cleaning this up
+        window.mapControllers["{{ params.mapId if params.mapId else 'map' }}"] = newMapController({...params, layers});
+      })
 
     </script>
 
