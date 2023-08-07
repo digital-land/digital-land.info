@@ -408,7 +408,7 @@ class LayerControls {
         console.log(this.availableLayers);
 
         // listen for changes to URL
-        var boundSetControls = this.setControls.bind(this);
+        var boundSetControls = this.toggleLayersBasedOnUrl.bind(this);
         window.addEventListener('popstate', function (event) {
           console.log('URL has changed - back button');
           boundSetControls();
@@ -420,18 +420,17 @@ class LayerControls {
         if (!urlParams.has(this.layerURLParamName)) {
           // if not set then use default checked controls
           console.log('NO layer params exist');
-          this.updateURL();
+          this.updateUrl();
         } else {
           // use URL params if available
           console.log('layer params exist');
-          this.setControls();
+          this.toggleLayersBasedOnUrl();
           this._initialLoadWithLayers = true;
         }
 
         // listen for changes on each checkbox and change the URL
         const boundControlChkbxChangeHandler = this.onControlChkbxChange.bind(this);
         this.$controls.forEach(function ($control) {
-          console.log(this);
           $control.addEventListener('change', boundControlChkbxChangeHandler, true);
         }, this);
 
@@ -569,8 +568,8 @@ class LayerControls {
         }
     };
 
-    // toggles visibility of elements based on URL params
-    setControls() {
+    // toggles visibility of elements/entities based on URL params
+    toggleLayersBasedOnUrl() {
         // Get the URL parameters
         const urlParams = (new URL(document.location)).searchParams;
 
@@ -580,33 +579,39 @@ class LayerControls {
         if (urlParams.has(this.layerURLParamName)) {
             enabledLayerNames = urlParams.getAll(this.layerURLParamName).filter(name => this.datasetNames.indexOf(name) > -1);
         }
-        console.log('Enable:', enabledLayerNames);
 
-        const datasetNamesClone = [].concat(this.datasetNames);
-        const disabledLayerNames = datasetNamesClone.filter(name => enabledLayerNames.indexOf(name) === -1);
-        console.log('Disable:', disabledLayerNames);
+        this.showEntitiesForLayers(enabledLayerNames);
 
-        // map the names to the controls
-        const toEnable = enabledLayerNames.map(name => this.getControlByName(name));
-        const toDisable = disabledLayerNames.map(name => this.getControlByName(name));
-        console.log(toEnable, toDisable);
-
-        // pass correct this arg
-        toEnable.forEach(this.enable, this);
-        toDisable.forEach(this.disable, this);
     };
 
-    updateURL() {
+    showEntitiesForLayers(enabledLayerNames) {
+      console.log('Enable:', enabledLayerNames);
+
+      const datasetNamesClone = [].concat(this.datasetNames);
+      const disabledLayerNames = datasetNamesClone.filter(name => enabledLayerNames.indexOf(name) === -1);
+      console.log('Disable:', disabledLayerNames);
+
+      // map the names to the controls
+      const toEnable = enabledLayerNames.map(name => this.getControlByName(name));
+      const toDisable = disabledLayerNames.map(name => this.getControlByName(name));
+      console.log(toEnable, toDisable);
+
+      // pass correct this arg
+      toEnable.forEach(this.enable, this);
+      toDisable.forEach(this.disable, this);
+    }
+
+    updateUrl() {
+        // set the url params based on the enabled layers
         const urlParams = (new URL(document.location)).searchParams;
         const enabledLayers = this.enabledLayers().map($control => this.getDatasetName($control));
-
         urlParams.delete(this.layerURLParamName);
         enabledLayers.forEach(name => urlParams.append(this.layerURLParamName, name));
-        console.log(urlParams.toString());
         const newURL = window.location.pathname + '?' + urlParams.toString() + window.location.hash;
-        // add entry to history, does not fire event so need to call setControls
+
+        // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
         window.history.pushState({}, '', newURL);
-        this.setControls();
+        this.toggleLayersBasedOnUrl();
     };
 
     enabledLayers() {
@@ -674,7 +679,7 @@ class LayerControls {
         // var $clickedControl = e.target.closest(this.layerControlSelector)
 
         // when a control is changed update the URL params
-        this.updateURL();
+        this.updateUrl();
     };
 
 }
