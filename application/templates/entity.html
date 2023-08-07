@@ -2,7 +2,7 @@
 {% set templateName = "dl-info/entity.html" %}
 
 {%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
-{%- from "components/map/macro.jinja" import dlLeafletMap %}
+{%- from "components/map2/macro.jinja" import map %}
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 {%- from "components/entity-value/macro.jinja" import entityValue %}
 {%- from "components/entity-field/macro.jinja" import entityField %}
@@ -26,6 +26,13 @@
   <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/stackoverflow-light.min.css">
   <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
 {% endblock %}
+
+{%- block mapAssets %}
+  <script src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet"/>
+  <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
+  {{ super() }}
+{% endblock -%}
 
 {%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Planning Data{% endblock -%}
 
@@ -161,18 +168,15 @@
       }) %}
 
         {% set noteHTML %}<a class="js-hidden dl-link-national-map" href="#">See on national map.</a>{% endset %}
-
-        {{- dlLeafletMap({
-          "id": "dlMap",
-          "wrapper_classes": "govuk-!-margin-top-4",
-          "attributes": {
-              "data-geojson-urls": geometry_url,
-          },
-          "height": "460",
-          "notePanel": {
-              "html": noteHTML
-          }
-        }) -}}
+        {{
+          map({
+            "mapId": "map",
+            'height': 460,
+            'enableZoomControls': true,
+            'geojsons': [entity|get_entity_geometry],
+            'notePanel': noteHTML,
+          })
+        }}
       {% endcall %}
 
       {%- endif %}
@@ -222,51 +226,5 @@
 {%- endblock content %}}
 
 {%- block pageScripts %}
-  {%- if includesMap %}
-    <script>
-      const datasetName = "{{ pipeline_name }}"
-      const hasPoint = ("{{ row.point }}" != "None" ? true : false);
-      const hasGeometry = ("{{ row.geometry }}" == "None" ? false : true);
-      // if it has a point but not a geometry then we want a maximum zoom to prevent vast nothingness
-      const setMaxZoom = (hasPoint && !hasGeometry ? 14 : false);
-      const $mapElement = document.querySelector('[data-module="boundary-map"]')
-      const $nationalMapLink = document.querySelector('.dl-link-national-map')
-      const mapParams = {
-        maxZoom: setMaxZoom,
-        initZoomCallback: function (featureGroup, map) {
-          console.log("initial load completed")
-          // do we need to check there isn't more than one shape?
-          const center = featureGroup
-            .getBounds()
-            .getCenter()
-          const zoom = map.getZoom()
-          let url = `http://digital-land.info/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
-            console
-            .log(url)
-          if ($nationalMapLink) {
-            // only show this for the datasets we've added to the national map
-            $nationalMapLink.href = url
-            $nationalMapLink
-              .classList
-              .remove("js-hidden")
-          }
-        }
-      }
-
-      {% if geometry_url %}
-        mapParams.geojsonURLs = ["{{ geometry_url }}"]
-      {% elif geojson_features %}
-        mapParams.geojsonFeatures = [{{ geojson_features|tojson }}]
-      {% endif %}
-
-      const mapComponent = new DLMaps
-        .Map($mapElement)
-        .init(mapParams)
-    </script>
-  {% endif %}
-
-  <script>
-    hljs.initHighlightingOnLoad();
-  </script>
 
 {%- endblock %}

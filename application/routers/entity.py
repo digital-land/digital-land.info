@@ -130,7 +130,7 @@ def get_entity(
             {
                 "request": request,
                 "row": e_dict_sorted,
-                "entity": e_dict_sorted,
+                "entity": e,
                 "pipeline_name": e.dataset,
                 "references": [],
                 "breadcrumb": [],
