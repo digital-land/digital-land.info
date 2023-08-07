@@ -365,7 +365,7 @@ class ZoomControls {
         const zoomLevel = this.map.getZoom();
         let zl = parseFloat(zoomLevel);
         if (zl % 1 !== 0) {
-          zl = parseFloat(zoomLevel).toFixed(2);
+          zl = parseFloat(zoomLevel).toFixed(1);
         }
         this.$counter.textContent = zl;
       };
