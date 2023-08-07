@@ -4,6 +4,8 @@ class MapController {
 
         this.map = this.createMap();
 
+        this.geojsonLayers = [];
+
         var boundSetup = this.setup.bind(this);
         this.map.on('load', boundSetup);
 
@@ -62,9 +64,9 @@ class MapController {
 
         this.geojsons.forEach(geojson => {
           if(geojson.data.type == 'Point')
-            this.addPoint(geojson.name, geojson.data);
+            this.addPoint(geojson);
           else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
-            this.addPolygon(geojson.name, geojson.data);
+            this.addPolygon(geojson);
         });
 
         if(this.geojsons.length == 1){
@@ -81,53 +83,74 @@ class MapController {
           }
         }
 
-        // ToDo: this should be done using addSource
-        // this.addDatasetVectorSources(this.datasetVectorUrl, this.datasets);
-
         this.addControls()
 
-        // var boundClickHandler = this.clickHandler.bind(this);
-        // this.map.on('click', boundClickHandler);
+        var boundClickHandler = this.clickHandler.bind(this);
+        this.map.on('click', boundClickHandler);
     };
 
-    addPolygon(id, geometry) {
-      this.map.addSource(id, {
+    addControls() {
+      // add zoom controls
+      if(this.ZoomControlsOptions.enabled){
+          this.$zoomControls = document.querySelector(`[data-module="zoom-controls-${this.mapId}"]`)
+          this.zoomControl = new ZoomControls(this.$zoomControls, this.map, this.map.getZoom(), this.ZoomControlsOptions);
+      }
+
+      // add layer controls
+      if(this.LayerControlOptions.enabled){
+          this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
+          this.layerControlsComponent = new LayerControls(this.$layerControlsList, this.map, this.sourceName, this.LayerControlOptions);
+
+      }
+  }
+
+    addPolygon(geometry) {
+      this.map.addSource(geometry.name, {
         'type': 'geojson',
         'data': {
           'type': 'Feature',
-          'geometry': geometry
-        }
+          'geometry': geometry.data,
+          'properties': {
+            'entity': geometry.entity,
+            'name': geometry.name,
+          }
+        },
       });
-      this.map.addLayer({
-        'id': id,
+      let layer = this.map.addLayer({
+        'id': geometry.name,
         'type': 'fill',
-        'source': id,
+        'source': geometry.name,
         'layout': {},
         'paint': {
           'fill-color': '#088',
           'fill-opacity': 0.5
         }
       });
+      this.geojsonLayers.push(geometry.name);
     }
 
-    addPoint(id, geometry, imageSrc='https://maplibre.org/maplibre-gl-js/docs/assets/osgeo-logo.png') {
+    addPoint(geometry, imageSrc='https://maplibre.org/maplibre-gl-js/docs/assets/osgeo-logo.png') {
       this.map.loadImage(
         imageSrc,
         (error, image) => {
           if (error) throw error;
           this.map.addImage('custom-marker', image);
-          this.map.addSource(id, {
+          this.map.addSource(geometry.name, {
             'type': 'geojson',
             'data': {
               'type': 'Feature',
-              'geometry': geometry
+              'geometry': geometry.data,
+              'properties': {
+                'entity': geometry.entity,
+                'name': geometry.name,
+              }
             }
           });
           // Add a symbol layer
-          this.map.addLayer({
-            'id': id,
+          let layer = this.map.addLayer({
+            'id': geometry.name,
             'type': 'symbol',
-            'source': id,
+            'source': geometry.name,
             'layout': {
                 'icon-image': 'custom-marker',
                 // get the year from the source's "year" property
@@ -140,44 +163,140 @@ class MapController {
                 'text-anchor': 'top'
             }
           });
+          this.geojsonLayers.push(geometry.name);
         }
       );
     }
 
-    addControls() {
-        // add zoom controls
-        if(this.ZoomControlsOptions.enabled){
-            this.$zoomControls = document.querySelector(`[data-module="zoom-controls-${this.mapId}"]`)
-            this.zoomControl = new ZoomControls(this.$zoomControls, this.map, this.map.getZoom(), this.ZoomControlsOptions);
-        }
-
-        // add layer controls
-        if(this.LayerControlOptions.enabled){
-            this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-            this.layerControlsComponent = new LayerControls(this.$layerControlsList, this.map, this.sourceName, this.LayerControlOptions);
-
-        }
-    }
-
     addVectorTileSource(name, vectorSource) {
-        this.map.addSource(name, {
-          type: 'vector',
-          tiles: [vectorSource],
-          minzoom: this.minMapZoom,
-          maxzoom: this.maxMapZoom
-        });
-        this.map.addLayer({
-          'id': `${name}-layer-id`,
-          'type': 'fill',
-          'source': name,
-          'source-layer': `${name}-layer`,
-          'layout': {},
-          'paint': {
-            'fill-color': '#088',
-            'fill-opacity': 0.5
-          }
-        });
+      this.map.addSource(name, {
+        type: 'vector',
+        tiles: [vectorSource],
+        minzoom: this.minMapZoom,
+        maxzoom: this.maxMapZoom
+      });
+      this.map.addLayer({
+        'id': `${name}-layer-id`,
+        'type': 'fill',
+        'source': name,
+        'source-layer': `${name}-layer`,
+        'layout': {},
+        'paint': {
+          'fill-color': '#088',
+          'fill-opacity': 0.5
+        }
+      });
     }
+
+    clickHandler(e) {
+      var map = this.map;
+      var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
+      var that = this; // returns a list of layer ids we want to be 'clickable'
+
+      const clickableLayers = this.getClickableLayers();
+
+      var features = map.queryRenderedFeatures(bbox, {
+        layers: clickableLayers
+      });
+      var coordinates = e.lngLat;
+
+      if (features.length) {
+        // no need to show popup if not clicking on feature
+        var popupHTML = that.createFeaturesPopup(this.removeDuplicates(features));
+        var popup = new maplibregl.Popup({
+          maxWidth: this.popupWidth
+        }).setLngLat(coordinates).setHTML(popupHTML).addTo(map);
+      }
+    };
+
+    getClickableLayers() {
+      var clickableLayers = [];
+      if(this.layerControlsComponent){
+        var that = this;
+        var enabledControls = this.layerControlsComponent.enabledLayers();
+        var enabledLayers = enabledControls.map(function ($control) {
+          return that.layerControlsComponent.getDatasetName($control);
+        });
+        var clickableLayers = enabledLayers.map(function (layer) {
+          var components = that.layerControlsComponent.availableLayers[layer];
+
+          if (components.includes(layer + 'Fill')) {
+            return layer + 'Fill';
+          }
+
+          return components[0];
+        });
+      }
+      if (window.DEBUG) console.log('Clickable layers: ', [...clickableLayers, ...this.geojsonLayers]);
+      return [...clickableLayers, ...this.geojsonLayers];
+    }
+
+    removeDuplicates(features) {
+      var uniqueEntities = [];
+
+      return features.filter(function (feature) {
+        if (uniqueEntities.indexOf(feature.properties.entity) === -1) {
+          uniqueEntities.push(feature.properties.entity);
+          return true;
+        }
+
+        return false;
+      });
+
+    };
+
+    createFeaturesPopup(features) {
+      var featureCount = features.length;
+      var wrapperOpen = '<div class="app-popup">';
+      var wrapperClose = '</div>';
+      var featureOrFeatures = featureCount > 1 ? 'features' : 'feature';
+      var headingHTML = "<h3 class=\"app-popup-heading\">".concat(featureCount, " ").concat(featureOrFeatures, " selected</h3>");
+
+      if (featureCount > this.popupMaxListLength) {
+        headingHTML = '<h3 class="app-popup-heading">Too many features selected</h3>';
+        var tooMany = "<p class=\"govuk-body-s\">You clicked on ".concat(featureCount, " features.</p><p class=\"govuk-body-s\">Zoom in or turn off layers to narrow down your choice.</p>");
+        return wrapperOpen + headingHTML + tooMany + wrapperClose;
+      }
+
+      var itemsHTML = '<ul class="app-popup-list">\n';
+      var that = this;
+      features.forEach(function (feature) {
+        var featureType = capitalizeFirstLetter(feature.sourceLayer || feature.source).replaceAll('-', ' ');
+        var fillColour = that.getFillColour(feature);
+
+        var featureName = feature.properties.name
+        var featureReference = feature.properties.reference
+        if (featureName === ''){
+          if (featureReference === ''){
+            featureName = 'Not Named'
+          } else {
+            featureName = featureReference
+          }
+        }
+
+        var itemHTML = [
+          "<li class=\"app-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"),
+          "<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"),
+          '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">',
+          "<a class='govuk-link' href=\"/entity/".concat(feature.properties.entity, "\">").concat(featureName, "</a>"),
+          '</p>',
+          '</li>'
+        ];
+        itemsHTML = itemsHTML + itemHTML.join('\n');
+      });
+      itemsHTML = headingHTML + itemsHTML + '</ul>';
+      return wrapperOpen + itemsHTML + wrapperClose;
+    };
+
+    getFillColour(feature) {
+      if(this.layerControlsComponent){
+        var l = this.layerControlsComponent.getControlByName(feature.sourceLayer || feature.source);
+        var styles = this.layerControlsComponent.getStyle(l);
+        return styles.colour;
+      }
+      return '#000000';
+    };
+
 }
 
 class ZoomControls {
