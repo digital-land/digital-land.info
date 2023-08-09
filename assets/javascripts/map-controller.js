@@ -129,12 +129,12 @@ class MapController {
       this.geojsonLayers.push(geometry.name);
     }
 
-    addPoint(geometry, imageSrc='https://maplibre.org/maplibre-gl-js/docs/assets/osgeo-logo.png') {
+    addPoint(geometry, imageSrc='/static/images/location-pointer-sdf.png') {
       this.map.loadImage(
         imageSrc,
         (error, image) => {
           if (error) throw error;
-          this.map.addImage('custom-marker', image);
+          this.map.addImage('custom-marker', image, {sdf: true});
           this.map.addSource(geometry.name, {
             'type': 'geojson',
             'data': {
@@ -147,12 +147,16 @@ class MapController {
             }
           });
           // Add a symbol layer
+          let iconColor = 'blue';
+          if(this.$layerControlsList)
+            iconColor = this.$layerControlsList.getFillColour(geometry.name) || 'blue';
           let layer = this.map.addLayer({
             'id': geometry.name,
             'type': 'symbol',
             'source': geometry.name,
             'layout': {
                 'icon-image': 'custom-marker',
+                'icon-anchor': 'bottom',
                 // get the year from the source's "year" property
                 'text-field': ['get', 'year'],
                 'text-font': [
@@ -161,7 +165,10 @@ class MapController {
                 ],
                 'text-offset': [0, 1.25],
                 'text-anchor': 'top'
-            }
+            },
+            'paint': {
+              'icon-color': iconColor,
+            },
           });
           this.geojsonLayers.push(geometry.name);
         }
@@ -362,13 +369,15 @@ class ZoomControls {
     };
 
     zoomHandler(e) {
+      if(this.enableZoomCounter){
         const zoomLevel = this.map.getZoom();
         let zl = parseFloat(zoomLevel);
         if (zl % 1 !== 0) {
           zl = parseFloat(zoomLevel).toFixed(1);
         }
         this.$counter.textContent = zl;
-      };
+      }
+    };
 }
 
 class LayerControls {
@@ -509,20 +518,22 @@ class LayerControls {
           if (dataType === 'point') {
             // set options for points as circle markers
             const paintOptions = {
-              'circle-color': styleProps.colour,
-              'circle-opacity': styleProps.opacity,
-              'circle-radius': {
-                base: 1.5,
-                stops: [
-                  [6, 1],
-                  [22, 180]
-                ]
-              },
-              'circle-stroke-color': styleProps.colour,
-              'circle-stroke-width': styleProps.weight
+              'icon-color': styleProps.colour,
+            };
+            const layoutOptions = {
+                'icon-image': 'custom-marker',
+                'icon-anchor': 'bottom',
+                // get the year from the source's "year" property
+                'text-field': ['get', 'year'],
+                'text-font': [
+                    'Open Sans Semibold',
+                    'Arial Unicode MS Bold'
+                ],
+                'text-offset': [0, 1.25],
+                'text-anchor': 'top'
             };
             // create the layer
-            that.createVectorLayer(datasetName, datasetName, 'circle', paintOptions);
+            that.createVectorLayer(datasetName, datasetName, 'symbol', paintOptions, layoutOptions);
             layers = [datasetName];
           } else {
             // create fill layer
@@ -542,7 +553,7 @@ class LayerControls {
         return availableDatasets
     };
 
-    createVectorLayer(layerId, datasetName, _type, paintOptions) {
+    createVectorLayer(layerId, datasetName, _type, paintOptions, layoutOptions = {}) {
         // if there is a tileSource for the layer use that or default to the group one
         const tileSource = this.map.getSource(datasetName + '-source') ? datasetName + '-source' : this.tileSource;
         console.log('TileSource:', tileSource);
@@ -551,7 +562,8 @@ class LayerControls {
           type: _type,
           source: tileSource,
           'source-layer': datasetName,
-          paint: paintOptions
+          paint: paintOptions,
+          layout: layoutOptions
         });
     };
 

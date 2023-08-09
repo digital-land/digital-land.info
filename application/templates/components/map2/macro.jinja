@@ -39,10 +39,12 @@
               <span class="govuk-visually-hidden">Zoom in</span>
               <span>+</span>
             </button>
+            {% if params.enableZoomCounter %}
             <span class="zoom-controls__count-container" aria-live="polite">
               <span class="govuk-visually-hidden">The map is at zoom level </span>
               <span class="zoom-controls__count">6</span>
             </span>
+            {% endif %}
             <button class="zoom-controls__btn" data-zoom-control="out">
               <span class="govuk-visually-hidden">Zoom out</span>
               <span>-</span>
@@ -127,6 +129,7 @@
           mapId: "{{ params.mapId if params.mapId else 'map' }}",
           ZoomControlsOptions: {
             enabled: {{params.enableZoomControls|lower if params.enableZoomControls else 'false'}},
+            useCounter: {{params.enableZoomCounter|lower if params.enableZoomCounter else 'false'}},
           },
           LayerControlOptions: {
             enabled: {{enableLayerControls|lower}},
@@ -149,7 +152,7 @@
 
 
 {% macro layerControlItem(layer) %}
-    <li class="dl-map__layer-item govuk-!-margin-bottom-2" data-layer-control="{{ layer.dataset }}"
+    <li class="dl-map__layer-item govuk-!-margin-bottom-1" data-layer-control="{{ layer.dataset }}"
     {% if layer.paint_options.type %}data-layer-data-type={{layer.paint_options.type}}{% endif %} data-style-options="{% if layer.paint_options %}{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}{% endif %}">
     <div class="govuk-checkboxes__item">
         <input class="govuk-checkboxes__input" id="{{ layer.dataset }}" name="{{ layer.dataset }}" type="checkbox" value="{{ layer.dataset }}" {{ "checked='checked'" if layer.checked }}>
