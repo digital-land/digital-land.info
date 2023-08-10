@@ -11,6 +11,167 @@ class MapController {
 
     }
 
+	testEarchquake() {
+		// Add a new source from our GeoJSON data and
+	// set the 'cluster' option to true. GL-JS will
+	// add the point_count property to your source data.
+		this.map.addSource('earthquakes', {
+			type: 'geojson',
+			// Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+			// from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+			data: 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson',
+			cluster: true,
+			clusterMaxZoom: 14, // Max zoom to cluster points on
+			clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+		});
+
+		this.map.addLayer({
+			id: 'clusters',
+			type: 'circle',
+			source: 'earthquakes',
+			filter: ['has', 'point_count'],
+			paint: {
+			// Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+			// with three steps to implement three types of circles:
+			//   * Blue, 20px circles when point count is less than 100
+			//   * Yellow, 30px circles when point count is between 100 and 750
+			//   * Pink, 40px circles when point count is greater than or equal to 750
+			'circle-color': [
+			'step',
+			['get', 'point_count'],
+			'#51bbd6',
+			100,
+			'#f1f075',
+			750,
+			'#f28cb1'
+			],
+			'circle-radius': [
+			'step',
+			['get', 'point_count'],
+			20,
+			100,
+			30,
+			750,
+			40
+			]
+			}
+		});
+
+		this.map.addLayer({
+			id: 'cluster-count',
+			type: 'symbol',
+			source: 'earthquakes',
+			filter: ['has', 'point_count'],
+			layout: {
+			'text-field': ['get', 'point_count_abbreviated'],
+			'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+			'text-size': 12
+			}
+		});
+
+		const paintOptions = {
+			'icon-color': '#ff0000',
+		  };
+		  const layoutOptions = {
+			  'icon-image': 'custom-marker',
+			  'icon-anchor': 'bottom',
+			  'symbol-placement': 'point',
+			  'icon-allow-overlap': true,
+			  'icon-ignore-placement': true,
+		  };
+
+		this.map.addLayer({
+			id: 'unclustered-point',
+			type: 'symbol',
+			source: 'earthquakes',
+			filter: ['!', ['has', 'point_count']],
+			paint: paintOptions,
+			layout: layoutOptions,
+		});
+	}
+
+    testAddTrees() {
+      // add the source
+      this.map.addSource('treeTest', {
+        type: 'vector',
+        tiles: ['https://datasette-tiles.planning.data.gov.uk/-/tiles/tree/{z}/{x}/{y}.vector.pbf'],
+        minzoom: this.minMapZoom,
+        maxzoom: this.maxMapZoom,
+		cluster: true,
+		clusterMaxZoom: 14, // Max zoom to cluster points on
+		clusterRadius: 50
+      });
+
+      // add the layer
+      const paintOptions = {
+        'icon-color': '#ff0000',
+      };
+      const layoutOptions = {
+          'icon-image': 'custom-marker',
+          'icon-anchor': 'bottom',
+          'symbol-placement': 'point',
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+      };
+
+	  this.map.addLayer({
+		id: 'clusters',
+		type: 'circle',
+		source: 'treeTest',
+		'source-layer': 'tree',
+		filter: ['has', 'point_count'],
+		paint: {
+			// Use step expressions (https://maplibre.org/maplibre-style-spec/#expressions-step)
+			// with three steps to implement three types of circles:
+			//   * Blue, 20px circles when point count is less than 100
+			//   * Yellow, 30px circles when point count is between 100 and 750
+			//   * Pink, 40px circles when point count is greater than or equal to 750
+			'circle-color': [
+				'step',
+				['get', 'point_count'],
+				'#51bbd6',
+				100,
+				'#f1f075',
+				750,
+				'#f28cb1'
+			],
+			'circle-radius': [
+				'step',
+				['get', 'point_count'],
+				20,
+				100,
+				30,
+				750,
+				40
+			]
+		}
+	});
+
+	this.map.addLayer({
+		id: 'cluster-count',
+		type: 'symbol',
+		source: 'treeTest',
+		'source-layer': 'tree',
+		filter: ['has', 'point_count'],
+		layout: {
+			'text-field': '{point_count_abbreviated}',
+			'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+			'text-size': 12
+		}
+	});
+
+
+      this.map.addLayer({
+        id: 'treeTest-layer',
+        type: 'symbol',
+        source: 'treeTest',
+        'source-layer': 'tree',
+        paint: paintOptions,
+        layout: layoutOptions,
+      });
+
+    }
+
     setParams(params) {
         params = params || {};
         this.mapId = params.mapId || 'mapid';
@@ -57,10 +218,24 @@ class MapController {
     };
 
     setup() {
-        // add sources to map
+		const that = this;
+        this.addPinImage(() => {
+			that.addSources();
+			that.addControls()
+
+			var boundClickHandler = that.clickHandler.bind(that);
+			that.map.on('click', boundClickHandler);
+		});
+    };
+
+	addSources() {
+		// add sources to map
+        let availableLayers = {};
         this.vectorTileSources.forEach(source => {
-            this.addVectorTileSource(source.name, source.vectorSource);
+          let layers = this.addVectorTileSourceAndLayer(source);
+          availableLayers[source.name] = layers;
         });
+		this.availableLayers = availableLayers;
 
         this.geojsons.forEach(geojson => {
           if(geojson.data.type == 'Point')
@@ -82,27 +257,21 @@ class MapController {
             this.map.fitBounds(bbox, {padding, animate: false});
           }
         }
-
-        this.addControls()
-
-        var boundClickHandler = this.clickHandler.bind(this);
-        this.map.on('click', boundClickHandler);
-    };
+	}
 
     addControls() {
-      // add zoom controls
-      if(this.ZoomControlsOptions.enabled){
-          this.$zoomControls = document.querySelector(`[data-module="zoom-controls-${this.mapId}"]`)
-          this.zoomControl = new ZoomControls(this.$zoomControls, this.map, this.map.getZoom(), this.ZoomControlsOptions);
-      }
+		// add zoom controls
+		if(this.ZoomControlsOptions.enabled){
+			this.$zoomControls = document.querySelector(`[data-module="zoom-controls-${this.mapId}"]`)
+			this.zoomControl = new ZoomControls(this.$zoomControls, this.map, this.map.getZoom(), this.ZoomControlsOptions);
+		}
 
-      // add layer controls
-      if(this.LayerControlOptions.enabled){
-          this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-          this.layerControlsComponent = new LayerControls(this.$layerControlsList, this.map, this.sourceName, this.LayerControlOptions);
-
-      }
-  }
+		// add layer controls
+		if(this.LayerControlOptions.enabled){
+			this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
+			this.layerControlsComponent = new LayerControls(this.$layerControlsList, this.map, this.sourceName, this.availableLayers,  this.LayerControlOptions);
+		}
+  	}
 
     addPolygon(geometry) {
       this.map.addSource(geometry.name, {
@@ -175,24 +344,97 @@ class MapController {
       );
     }
 
-    addVectorTileSource(name, vectorSource) {
-      this.map.addSource(name, {
-        type: 'vector',
-        tiles: [vectorSource],
-        minzoom: this.minMapZoom,
-        maxzoom: this.maxMapZoom
-      });
-      this.map.addLayer({
-        'id': `${name}-layer-id`,
-        'type': 'fill',
-        'source': name,
-        'source-layer': `${name}-layer`,
-        'layout': {},
-        'paint': {
-          'fill-color': '#088',
-          'fill-opacity': 0.5
+    addPinImage(callback, imageSrc='/static/images/location-pointer-sdf.png') {
+      this.map.loadImage(
+        imageSrc,
+        (error, image) => {
+          if (error) throw error;
+          this.map.addImage('custom-marker', image, {sdf: true});
+		  console.log('Image added');
+		  if(callback)
+			callback();
         }
+      );
+    }
+
+    createVectorLayer(layerId, datasetName, _type, paintOptions = {}, layoutOptions = {}, additionalOptions = {}) {
+      // if there is a tileSource for the layer use that or default to the group one
+      const tileSource = this.map.getSource(datasetName + '-source') ? datasetName + '-source' : this.tileSource;
+      console.log('TileSource:', tileSource);
+      this.map.addLayer({
+        id: layerId,
+        type: _type,
+        source: tileSource,
+        'source-layer': datasetName,
+        paint: paintOptions,
+		layout: layoutOptions,
+		...additionalOptions
       });
+    };
+
+    addVectorTileSourceAndLayer(source) {
+
+		const defaultPaintOptions = {
+			'fill-color': '#003078',
+			'fill-opacity': 0.5,
+			'weight': 1,
+		};
+
+
+		// add source
+		this.map.addSource(`${source.name}-source`, {
+			type: 'vector',
+			tiles: [source.vectorSource],
+			minzoom: this.minMapZoom,
+			maxzoom: this.maxMapZoom
+		});
+
+		// add layer
+		let layers;
+		if (source.dataType === 'point') {
+
+			// set options for points as circle markers
+			const paintOptions = {
+				'icon-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+				'icon-opacity': 0.8,
+			};
+			const layoutOptions = {
+				'icon-image': 'custom-marker',
+				'icon-anchor': 'bottom',
+				'symbol-placement': 'point',
+				'icon-allow-overlap': true,
+				'icon-size': 0.7,
+			};
+
+			this.createVectorLayer(source.name+'-symbol', source.name, 'symbol', paintOptions, layoutOptions, {minzoom: 11});
+
+			// set options for points as circle markers
+			const paintOptionsCircle = {
+				'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+				'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
+				'circle-radius': 5,
+				'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+				'circle-stroke-width': source.styleProps.weight || defaultPaintOptions['weight']
+			};
+			// create the layer
+			this.createVectorLayer(source.name+'-circle', source.name, 'circle', paintOptionsCircle, {}, {maxzoom: 11});
+			layers = [source.name+'-symbol', source.name+'-circle'];
+		} else {
+			const fillName = `${source.name}-Fill`;
+			const lineName = `${source.name}-Line`;
+			// create fill layer
+			this.createVectorLayer(fillName, source.name, 'fill', {
+				'fill-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+				'fill-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity']
+			},{});
+			// create line layer
+			this.createVectorLayer(lineName, source.name, 'line', {
+				'line-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+				'line-width': source.styleProps.weight || defaultPaintOptions['weight']
+			},{});
+			layers = [fillName, lineName];
+		}
+		return layers;
     }
 
     clickHandler(e) {
@@ -298,7 +540,7 @@ class MapController {
     getFillColour(feature) {
       if(this.layerControlsComponent){
         var l = this.layerControlsComponent.getControlByName(feature.sourceLayer || feature.source);
-        var styles = this.layerControlsComponent.getStyle(l);
+        var styles = this.layerControlsComponent.getStyle(l); // ToDo: function no longer exists
         return styles.colour;
       }
       return '#000000';
@@ -350,6 +592,7 @@ class ZoomControls {
         params = params || {};
         this.buttonClass = params.buttonClass || 'zoom-controls__btn';
         this.counterSelector = params.counterSelector || '.zoom-controls__count';
+		this.useCounter = params.useCounter || false;
     };
 
     clickHandler(e) {
@@ -369,7 +612,7 @@ class ZoomControls {
     };
 
     zoomHandler(e) {
-      if(this.enableZoomCounter){
+      if(this.useCounter){
         const zoomLevel = this.map.getZoom();
         let zl = parseFloat(zoomLevel);
         if (zl % 1 !== 0) {
@@ -381,10 +624,11 @@ class ZoomControls {
 }
 
 class LayerControls {
-    constructor ($module, map, source, options) {
+    constructor ($module, map, source, availableLayers, options) {
         this.$module = $module;
         this.map = map;
         this.tileSource = source;
+		this.availableLayers = availableLayers;
         // if the element is loaded then init, otherwise wait for load event
         if(this.$module){
             this.init(options);
@@ -411,10 +655,6 @@ class LayerControls {
 
         // list all datasets names
         this.datasetNames = this.$controls.map($control => $control.dataset.layerControl);
-
-        // create mapping between dataset and layer, one per control item
-        this.availableLayers = this.createAllFeatureLayers();
-        console.log(this.availableLayers);
 
         // listen for changes to URL
         var boundSetControls = this.toggleLayersBasedOnUrl.bind(this);
@@ -505,80 +745,6 @@ class LayerControls {
         }
     };
 
-    createAllFeatureLayers() {
-        const availableDatasets = [];
-        const that = this;
-
-        this.$controls.forEach(function ($control) {
-          const datasetName = $control.dataset.layerControl;
-          const dataType = $control.dataset.layerType;
-          const styleProps = that.getStyle($control);
-          let layers;
-
-          if (dataType === 'point') {
-            // set options for points as circle markers
-            const paintOptions = {
-              'icon-color': styleProps.colour,
-            };
-            const layoutOptions = {
-                'icon-image': 'custom-marker',
-                'icon-anchor': 'bottom',
-                // get the year from the source's "year" property
-                'text-field': ['get', 'year'],
-                'text-font': [
-                    'Open Sans Semibold',
-                    'Arial Unicode MS Bold'
-                ],
-                'text-offset': [0, 1.25],
-                'text-anchor': 'top'
-            };
-            // create the layer
-            that.createVectorLayer(datasetName, datasetName, 'symbol', paintOptions, layoutOptions);
-            layers = [datasetName];
-          } else {
-            // create fill layer
-            that.createVectorLayer(datasetName + 'Fill', datasetName, 'fill', {
-              'fill-color': styleProps.colour,
-              'fill-opacity': styleProps.opacity
-            });
-            // create line layer
-            that.createVectorLayer(datasetName + 'Line', datasetName, 'line', {
-              'line-color': styleProps.colour,
-              'line-width': styleProps.weight
-            });
-            layers = [datasetName + 'Fill', datasetName + 'Line'];
-          }
-          availableDatasets[datasetName] = layers;
-        });
-        return availableDatasets
-    };
-
-    createVectorLayer(layerId, datasetName, _type, paintOptions, layoutOptions = {}) {
-        // if there is a tileSource for the layer use that or default to the group one
-        const tileSource = this.map.getSource(datasetName + '-source') ? datasetName + '-source' : this.tileSource;
-        console.log('TileSource:', tileSource);
-        this.map.addLayer({
-          id: layerId,
-          type: _type,
-          source: tileSource,
-          'source-layer': datasetName,
-          paint: paintOptions,
-          layout: layoutOptions
-        });
-    };
-
-    getStyle($control) {
-        const defaultColour = '#003078';
-        const defaultOpacity = 0.5;
-        const defaultWeight = 2;
-        const s = $control.dataset.styleOptions;
-        const parts = s.split(',');
-        return {
-          colour: parts[0] || defaultColour,
-          opacity: parseFloat(parts[1]) || defaultOpacity,
-          weight: parseInt(parts[2]) || defaultWeight
-        }
-    };
 
     // toggles visibility of elements/entities based on URL params
     toggleLayersBasedOnUrl() {

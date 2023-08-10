@@ -116,19 +116,7 @@
                 vectorSource: `${datasetUrl}/-/tiles/"${d.dataset}/{z}/{x}/{y}.vector.pbf`,
               }
             }),
-            LayerControlOptions: {
-                layerURLParamName: "dataset",
-            },
             mapId: params.mapId || 'map',
-            ZoomControlsOptions: {
-              enabled: params.enableZoomControls || false,
-            },
-            LayerControlOptions: {
-              enabled: params.enableLayerControls || false,
-            },
-            FullscreenControl: {
-              enabled: params.enableFullScreen || true,
-            }
           };
           return new MapController(mapParams);
         }
