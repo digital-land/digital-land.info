@@ -3,7 +3,7 @@ There are 2 datasets you must provide for article 4 directions:
 - [article 4 direction dataset](#{{ 'article 4 direction dataset' | slugify }})
 - [article 4 direction area dataset](#{{ 'Article 4 direction area' | slugify }})
 
-Format
+Format 
 ------
 
 You can provide data in one of these formats:
