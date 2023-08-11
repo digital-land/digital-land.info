@@ -93,6 +93,7 @@
           datasetVectorUrl: "{{ params.DATASETTE_TILES_URL }}/-/tiles/",
           datasets: {{layers|tojson}}.map(d => d.dataset),
           vectorTileSources: {{layers|tojson}}.map(d => {
+            d.paint_options = d.paint_options || {};
             return {
               name: d.dataset,
               vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/" + d.dataset + "/{z}/{x}/{y}.vector.pbf",
@@ -118,8 +119,6 @@
             enabled: true,
           }
         };
-
-
 
         window.mapControllers = window.mapControllers || {};
         // ToDo: should handle cleaning this up
