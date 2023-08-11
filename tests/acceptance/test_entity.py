@@ -89,14 +89,8 @@ def test_correctly_loads_the_entity_root(
     resultsText = page.locator(".app-results-summary__title").inner_text()
     assert re.match(r"\d+ results", resultsText)
 
-    # check if the leafletjs script has been loaded
-    page.evaluate_handle("L")
-
-    # check if the mapControls element has been added to the page, indicating the js has been executed
-    mapControls = page.get_by_test_id("map").locator(
-        "//div[contains(@class, 'leaflet-control-container')]"
-    )
-    assert mapControls.count() > 1
+    # check that the mapControllers array has been made and it isn't empty
+    assert page.evaluate("Object.keys(window.mapControllers).length") > 0
 
 
 def test_find_an_entity_via_the_search_page(server_process, page, empty_database):

@@ -195,18 +195,17 @@ class MapController {
     }
 
     createMap() {
-        var mappos = DLMaps.Permalink.getMapLocation(6, [0, 52]);
         var map = new maplibregl.Map({
           container: this.mapId,
           // container id
           style: this.baseTileStyleFilePath,
           // open source tiles?
-          center: mappos.center,
-          // starting position [lng, lat]
-          zoom: mappos.zoom // starting zoom
+          center: [-0.5, 52.6],
+          // // starting position [lng, lat]
+          zoom: 5.5
+          // // starting zoom
 
         });
-        DLMaps.Permalink.setup(map); // add fullscreen control
 
         if(this.FullscreenControl.enabled){
             map.addControl(new maplibregl.ScaleControl({
