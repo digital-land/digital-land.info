@@ -27,26 +27,6 @@
     {%- set height = params.height|string + "px" if params.height else "350px"  %}
 
     <div class="dl-map__wrapper{{ ' ' + params.wrapper_classes if params.wrapper_classes }}" style="min-height: {{ height }};">
-
-      {% if params.enableZoomControls -%}
-        <div class="zoom-controls" data-module="zoom-controls-{{ params.mapId if params.mapId else 'map' }}">
-            <button class="zoom-controls__btn" data-zoom-control="in">
-              <span class="govuk-visually-hidden">Zoom in</span>
-              <span>+</span>
-            </button>
-            {% if params.enableZoomCounter %}
-            <span class="zoom-controls__count-container" aria-live="polite">
-              <span class="govuk-visually-hidden">The map is at zoom level </span>
-              <span class="zoom-controls__count">6</span>
-            </span>
-            {% endif %}
-            <button class="zoom-controls__btn" data-zoom-control="out">
-              <span class="govuk-visually-hidden">Zoom out</span>
-              <span>-</span>
-            </button>
-        </div>
-      {% endif -%}
-
         {#- Set the map div attributes #}
         <div
             class="dl-map{{ ' ' + params.classes if params.classes }}"

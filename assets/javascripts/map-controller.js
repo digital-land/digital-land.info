@@ -212,6 +212,14 @@ class MapController {
             map.addControl(new maplibregl.FullscreenControl({
               container: document.querySelector(this.mapContainerSelector)
             }), 'bottom-left');
+
+            map.addControl(new maplibregl.NavigationControl({
+              container: document.querySelector(this.mapContainerSelector)
+            }), 'top-left');
+
+            map.addControl(new maplibregl.ScaleControl({
+              container: document.querySelector(this.mapContainerSelector)
+            }), 'bottom-right');
         }
 
         return map;
@@ -260,12 +268,6 @@ class MapController {
 	}
 
     addControls() {
-		// add zoom controls
-		if(this.ZoomControlsOptions.enabled){
-			this.$zoomControls = document.querySelector(`[data-module="zoom-controls-${this.mapId}"]`)
-			this.zoomControl = new ZoomControls(this.$zoomControls, this.map, this.map.getZoom(), this.ZoomControlsOptions);
-		}
-
 		// add layer controls
 		if(this.LayerControlOptions.enabled){
 			this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
@@ -538,89 +540,14 @@ class MapController {
     };
 
     getFillColour(feature) {
-      if(this.layerControlsComponent){
-        var l = this.layerControlsComponent.getControlByName(feature.sourceLayer || feature.source);
-        var styles = this.layerControlsComponent.getStyle(l); // ToDo: function no longer exists
-        return styles.colour;
-      }
-      return '#000000';
+      if(feature.layer.type === 'symbol')
+        return this.map.getLayer(feature.layer.id).getPaintProperty('icon-color');
+      else if(feature.layer.type === 'fill')
+        return this.map.getLayer(feature.layer.id).getPaintProperty('fill-color');
+      else
+        throw new Error("could not get fill colour for feature of type " + feature.layer.type);
     };
 
-}
-
-class ZoomControls {
-    constructor($module, leafletMap, initialZoom, options) {
-        this.$module = $module;
-        this.map = leafletMap;
-        this.initialZoom = initialZoom;
-        // if the element is loaded then init, otherwise wait for load event
-        if(this.$module){
-            this.init(options);
-        }else{
-            this.$module.addEventListener('load', this.init.bind(this, options));
-        }
-    }
-
-    init(params) {
-        this.setupOptions(params);
-
-        if (!this.$module) {
-            return undefined
-        }
-
-        this.$module.classList.remove('js-hidden');
-
-        const $buttons = this.$module.querySelectorAll('.' + this.buttonClass);
-        this.$buttons = Array.prototype.slice.call($buttons);
-
-        this.$counter = this.$module.querySelector(this.counterSelector);
-        this.zoomHandler(); // call at the start to enforce rounding
-
-        const boundClickHandler = this.clickHandler.bind(this);
-        this.$buttons.forEach(function ($button) {
-            $button.addEventListener('click', boundClickHandler);
-        });
-
-        const boundZoomHandler = this.zoomHandler.bind(this);
-        // use on() not addEventListener()
-        this.map.on('zoomend', boundZoomHandler);
-
-        return this
-    }
-
-    setupOptions(params) {
-        params = params || {};
-        this.buttonClass = params.buttonClass || 'zoom-controls__btn';
-        this.counterSelector = params.counterSelector || '.zoom-controls__count';
-		this.useCounter = params.useCounter || false;
-    };
-
-    clickHandler(e) {
-        e.preventDefault();
-        const $clickedEl = e.target;
-        let $clickedControl = $clickedEl;
-        // check if button was pressed
-        // if contained span then find button
-        if (!$clickedEl.classList.contains(this.buttonClass)) {
-          $clickedControl = $clickedEl.closest('.' + this.buttonClass);
-        }
-        this.zoom($clickedControl.dataset.zoomControl);
-    };
-
-    zoom(direction) {
-        (direction === 'in') ? this.map.zoomIn(1) : this.map.zoomOut(1);
-    };
-
-    zoomHandler(e) {
-      if(this.useCounter){
-        const zoomLevel = this.map.getZoom();
-        let zl = parseFloat(zoomLevel);
-        if (zl % 1 !== 0) {
-          zl = parseFloat(zoomLevel).toFixed(1);
-        }
-        this.$counter.textContent = zl;
-      }
-    };
 }
 
 class LayerControls {
@@ -857,4 +784,19 @@ class LayerControls {
         this.updateUrl();
     };
 
+}
+
+class HelloWorldControl {
+  onAdd(map) {
+      this._map = map;
+      this._container = document.createElement('div');
+      this._container.className = 'maplibregl-ctrl';
+      this._container.textContent = 'Hello, world';
+      return this._container;
+  }
+
+  onRemove() {
+      this._container.parentNode.removeChild(this._container);
+      this._map = undefined;
+  }
 }
