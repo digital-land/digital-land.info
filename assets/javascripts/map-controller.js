@@ -393,7 +393,7 @@ class MapController {
 		// add layer
 		let layers;
 		if (source.dataType === 'point') {
-      minPinZoom = 11;
+      let minPinZoom = 11;
 			// set options for points as circle markers
 			const paintOptions = {
 				'icon-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
