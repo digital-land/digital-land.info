@@ -393,7 +393,7 @@ class MapController {
 		// add layer
 		let layers;
 		if (source.dataType === 'point') {
-
+      minPinZoom = 11;
 			// set options for points as circle markers
 			const paintOptions = {
 				'icon-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
@@ -407,7 +407,7 @@ class MapController {
 				'icon-size': 0.7,
 			};
 
-			this.createVectorLayer(source.name+'-symbol', source.name, 'symbol', paintOptions, layoutOptions, {minzoom: 11});
+			this.createVectorLayer(source.name+'-symbol', source.name, 'symbol', paintOptions, layoutOptions, {minzoom: minPinZoom});
 
 			// set options for points as circle markers
 			const paintOptionsCircle = {
@@ -418,7 +418,7 @@ class MapController {
 				'circle-stroke-width': source.styleProps.weight || defaultPaintOptions['weight']
 			};
 			// create the layer
-			this.createVectorLayer(source.name+'-circle', source.name, 'circle', paintOptionsCircle, {}, {maxzoom: 11});
+			this.createVectorLayer(source.name+'-circle', source.name, 'circle', paintOptionsCircle, {}, {maxzoom: minPinZoom});
 			layers = [source.name+'-symbol', source.name+'-circle'];
 		} else {
 			const fillName = `${source.name}-Fill`;
