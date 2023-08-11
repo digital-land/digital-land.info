@@ -200,7 +200,7 @@ class MapController {
           // container id
           style: this.baseTileStyleFilePath,
           // open source tiles?
-          center: [-0.5, 52.6],
+          center: [-0.61, 53.1],
           // // starting position [lng, lat]
           zoom: 5.5
           // // starting zoom
