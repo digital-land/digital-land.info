@@ -209,6 +209,9 @@ class MapController {
         DLMaps.Permalink.setup(map); // add fullscreen control
 
         if(this.FullscreenControl.enabled){
+            map.addControl(new maplibregl.ScaleControl({
+              container: document.querySelector(this.mapContainerSelector)
+            }), 'bottom-left');
             map.addControl(new maplibregl.FullscreenControl({
               container: document.querySelector(this.mapContainerSelector)
             }), 'bottom-left');
@@ -217,9 +220,6 @@ class MapController {
               container: document.querySelector(this.mapContainerSelector)
             }), 'top-left');
 
-            map.addControl(new maplibregl.ScaleControl({
-              container: document.querySelector(this.mapContainerSelector)
-            }), 'bottom-right');
         }
 
         return map;
