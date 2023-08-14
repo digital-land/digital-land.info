@@ -27,10 +27,18 @@
     "url": "https://github.com/digital-land/digital-land.info/issues"
   },
   "homepage": "https://github.com/digital-land/digital-land.info#readme",
+  "scripts": {
+    "test": "vitest",
+    "test-unit": "vitest --dir tests/javascript/unit",
+    "test-integration": "vitest --dir tests/javascript/integration"
+  },
   "dependencies": {
     "copyfiles": "^2.4.1",
     "govuk-frontend": "4.2.0",
     "node-sass": "^9.0.0",
     "nps": "^5.10.0"
+  },
+  "devDependencies": {
+    "vitest": "^0.34.1"
   }
 }
