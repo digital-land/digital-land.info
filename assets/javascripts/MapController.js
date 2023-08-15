@@ -320,6 +320,7 @@ export default class MapController {
     }
   };
 
+  // map.queryRenderedFeatures() can return duplicate features so we need to remove them
   removeDuplicates(features) {
     var uniqueEntities = [];
 
@@ -383,6 +384,14 @@ export default class MapController {
       return this.map.getLayer(feature.layer.id).getPaintProperty('fill-color');
     else
       throw new Error("could not get fill colour for feature of type " + feature.layer.type);
+  };
+
+  setLayerVisibility(layerName, visibility) {
+    this.map.setLayoutProperty(
+      layerId,
+      'visibility',
+      visibility
+    );
   };
 
 }

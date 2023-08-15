@@ -3,25 +3,19 @@ export default class LayerControls {
       this.$module = $module;
       this.map = map;
       this.tileSource = source;
-          this.availableLayers = availableLayers;
-        // if the element is loaded then init, otherwise wait for load event
-        if(this.$module){
-            this.init(options);
-        }else{
-            this.$module.addEventListener('load', this.init.bind(this, options));
-        }
-      }
+      this.availableLayers = availableLayers;
+      this.init(options);
+    }
 
     init(params) {
       this.setupOptions(params);
-      this._initialLoadWithLayers = false;
 
       // returns a node list so convert to array
-      var $controls = this.$module.querySelectorAll(this.layerControlSelector);
+      var $controls = this.$module.querySelectorAll(params.layerControlSelector || '[data-layer-control]');
       this.$controls = Array.prototype.slice.call($controls);
 
       // find parent
-      this.$container = this.$module.closest('.' + this.controlsContainerClass);
+      this.$container = this.$module.closest('.' + (params.controlsContainerClass || 'dl-map__side-panel'));
       this.$container.classList.remove('js-hidden');
 
       // add buttons to open and close panel
@@ -49,7 +43,6 @@ export default class LayerControls {
         // use URL params if available
         console.log('layer params exist');
         this.toggleLayersBasedOnUrl();
-        this._initialLoadWithLayers = true;
       }
 
       // listen for changes on each checkbox and change the URL
@@ -63,11 +56,7 @@ export default class LayerControls {
 
     setupOptions(params) {
       params = params || {};
-      this.layerControlSelector = params.layerControlSelector || '[data-layer-control]';
       this.layerControlDeactivatedClass = params.layerControlDeactivatedClass || 'deactivated-control';
-      this.onEachFeature = params.onEachFeature || this.defaultOnEachFeature;
-      this.baseUrl = params.baseUrl || 'http://digital-land.github.io';
-      this.controlsContainerClass = params.controlsContainerClass || 'dl-map__side-panel',
       this.layerURLParamName = params.layerURLParamName || 'layer';
     };
 
@@ -214,15 +203,7 @@ export default class LayerControls {
       console.log('toggle layer', datasetName);
       const visibility = (toEnable) ? 'visible' : 'none';
       const layers = this.availableLayers[datasetName];
-      layers.forEach(layerId => this._toggleLayer(layerId, visibility));
-    };
-
-    _toggleLayer(layerId, visibility) {
-      this.map.setLayoutProperty(
-        layerId,
-        'visibility',
-        visibility
-      );
+      layers.forEach(layerId => this.map.setLayerVisibility(layerId, visibility));
     };
 
     onControlChkbxChange = function (e) {
