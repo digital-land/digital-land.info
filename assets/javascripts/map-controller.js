@@ -142,7 +142,7 @@ export default class MapController {
       layerType,
       paintOptions={},
       layoutOptions={},
-      sourceLayer,
+      sourceLayer='',
       additionalOptions={}
     } = params;
     const layerName = `${sourceName}-${layerType}`;
@@ -234,7 +234,7 @@ export default class MapController {
         }
       })
     }
-    this.geojsonLayers.push(sourceName);
+    this.geojsonLayers.push(layerName);
   }
 
   addVectorTileSourceAndLayer(source) {
