@@ -1,4 +1,5 @@
 import TiltControl from "./TiltControl.js";
+import { capitalizeFirstLetter } from "./utils.js";
 
 export default class MapController {
   constructor(params) {
@@ -54,19 +55,16 @@ export default class MapController {
   };
 
   setup() {
-    const that = this;
     this.loadImages(this.images);
-    that.addSources(this.vectorTileSources);
-    that.addControls()
+    this.addSources(this.vectorTileSources);
+    this.addControls()
 
-    var boundClickHandler = that.clickHandler.bind(that);
-    that.map.on('click', boundClickHandler);
+    this.map.on('click', this.clickHandler.bind(this));
   };
 
-  loadImages(callback = false, imageSrc=[]) {
-    const that = this;
+  loadImages(imageSrc=[]) {
     imageSrc.forEach(({src, name}) => {
-      that.map.loadImage(
+      this.map.loadImage(
         src,
         (error, image) => {
           if (error) throw error;
@@ -299,7 +297,6 @@ export default class MapController {
   clickHandler(e) {
     var map = this.map;
     var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
-    var that = this; // returns a list of layer ids we want to be 'clickable'
 
     const clickableLayers = this.getClickableLayers();
 
@@ -310,7 +307,7 @@ export default class MapController {
 
     if (features.length) {
       // no need to show popup if not clicking on feature
-      var popupHTML = that.createFeaturesPopup(this.removeDuplicates(features));
+      var popupHTML = this.createFeaturesPopup(this.removeDuplicates(features));
       var popup = new maplibregl.Popup({
         maxWidth: this.popupWidth
       }).setLngLat(coordinates).setHTML(popupHTML).addTo(map);
@@ -320,13 +317,12 @@ export default class MapController {
   getClickableLayers() {
     var clickableLayers = [];
     if(this.layerControlsComponent){
-      var that = this;
       var enabledControls = this.layerControlsComponent.enabledLayers();
-      var enabledLayers = enabledControls.map(function ($control) {
-        return that.layerControlsComponent.getDatasetName($control);
+      var enabledLayers = enabledControls.map(($control) => {
+        return this.layerControlsComponent.getDatasetName($control);
       });
-      var clickableLayers = enabledLayers.map(function (layer) {
-        var components = that.layerControlsComponent.availableLayers[layer];
+      var clickableLayers = enabledLayers.map((layer) => {
+        var components = this.layerControlsComponent.availableLayers[layer];
 
         if (components.includes(layer + 'Fill')) {
           return layer + 'Fill';
@@ -367,10 +363,9 @@ export default class MapController {
     }
 
     var itemsHTML = '<ul class="app-popup-list">\n';
-    var that = this;
-    features.forEach(function (feature) {
+    features.forEach((feature) => {
       var featureType = capitalizeFirstLetter(feature.sourceLayer || feature.source).replaceAll('-', ' ');
-      var fillColour = that.getFillColour(feature);
+      var fillColour = this.getFillColour(feature);
 
       var featureName = feature.properties.name
       var featureReference = feature.properties.reference
