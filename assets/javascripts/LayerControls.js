@@ -231,4 +231,21 @@ export default class LayerControls {
       this.updateUrl();
     };
 
-  }
+    getClickableLayers() {
+      var clickableLayers = [];
+      var enabledLayers = this.enabledLayers().map(layer => this.getDatasetName(layer));
+
+      var clickableLayers = enabledLayers.map((layer) => {
+        var components = this.availableLayers[layer];
+
+        if (components.includes(layer + 'Fill')) {
+          return layer + 'Fill';
+        }
+
+        return components[0];
+      });
+
+      return clickableLayers;
+    }
+
+}

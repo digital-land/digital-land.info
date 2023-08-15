@@ -57,10 +57,13 @@ export default class MapController {
 
   setup() {
     this.loadImages(this.images);
-    this.addSources(this.vectorTileSources);
+    this.addVectorTileSources(this.vectorTileSources);
+    this.addGeojsonSources(this.geojsons);
+    if(this.geojsonLayers.length == 1){
+      this.flyTo(this.geojsons[0]);
+    }
     this.addControls()
-
-    this.map.on('click', this.clickHandler.bind(this));
+    this.addClickHandlers();
   };
 
   loadImages(imageSrc=[]) {
@@ -74,6 +77,26 @@ export default class MapController {
         }
       );
     })
+  }
+
+	addVectorTileSources(vectorTileSources = []) {
+    let availableLayers = {};
+		// add vector tile sources to map
+    vectorTileSources.forEach(source => {
+      let layers = this.addVectorTileSource(source);
+      availableLayers[source.name] = layers;
+    });
+		this.availableLayers = availableLayers;
+	}
+
+  addGeojsonSources(geojsons = []) {
+    // add geojsons sources to map
+    this.geojsons.forEach(geojson => {
+      if(geojson.data.type == 'Point')
+        this.geojsonLayers.push(this.addPoint(geojson));
+      else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
+        this.geojsonLayers.push(this.addPolygon(geojson));
+    });
   }
 
   addControls() {
@@ -99,29 +122,12 @@ export default class MapController {
     }
   }
 
-	addSources(sources) {
-    let availableLayers = {};
-		// add vector tile sources to map
-    sources.forEach(source => {
-      let layers = this.addVectorTileSourceAndLayer(source);
-      availableLayers[source.name] = layers;
-    });
-		this.availableLayers = availableLayers;
+  addClickHandlers() {
+    this.map.on('click', this.clickHandler.bind(this));
+  }
 
-    // add geojsons sources to map
-    this.geojsons.forEach(geojson => {
-      if(geojson.data.type == 'Point')
-        this.addPoint(geojson);
-      else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
-        this.addPolygon(geojson);
-    });
 
-    if(this.geojsons.length == 1){
-      this.flyToGeometry(this.geojsons[0]);
-    }
-	}
-
-  flyToGeometry(geometry){
+  flyTo(geometry){
     if(geometry.data.type == 'Point'){
       this.map.flyTo({
         center: geometry.data.coordinates,
@@ -233,11 +239,10 @@ export default class MapController {
         }
       })
     }
-    this.geojsonLayers.push(layerName);
+    return layerName;
   }
 
-  addVectorTileSourceAndLayer(source) {
-
+  addVectorTileSource(source) {
 		const defaultPaintOptions = {
 			'fill-color': '#003078',
 			'fill-opacity': 0.8,
@@ -299,7 +304,7 @@ export default class MapController {
     var map = this.map;
     var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
 
-    const clickableLayers = this.getClickableLayers();
+    let clickableLayers = this.layerControlsComponent.getClickableLayers() || [];
 
     var features = map.queryRenderedFeatures(bbox, {
       layers: clickableLayers
@@ -314,27 +319,6 @@ export default class MapController {
       }).setLngLat(coordinates).setHTML(popupHTML).addTo(map);
     }
   };
-
-  getClickableLayers() {
-    var clickableLayers = [];
-    if(this.layerControlsComponent){
-      var enabledControls = this.layerControlsComponent.enabledLayers();
-      var enabledLayers = enabledControls.map(($control) => {
-        return this.layerControlsComponent.getDatasetName($control);
-      });
-      var clickableLayers = enabledLayers.map((layer) => {
-        var components = this.layerControlsComponent.availableLayers[layer];
-
-        if (components.includes(layer + 'Fill')) {
-          return layer + 'Fill';
-        }
-
-        return components[0];
-      });
-    }
-    if (window.DEBUG) console.log('Clickable layers: ', [...clickableLayers, ...this.geojsonLayers]);
-    return [...clickableLayers, ...this.geojsonLayers];
-  }
 
   removeDuplicates(features) {
     var uniqueEntities = [];
