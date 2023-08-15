@@ -1,22 +1,7 @@
 import {describe, expect, test} from 'vitest'
+import MapController from '../../../assets/javascripts/MapController'
 
 describe('Map Controller', () => {
-    test('constructor() correctly calls createMap() and setParams then adds an onload event handler to the map', () => {
-
-    })
-
-    test('setParams() correctly sets params, applying defaults where needed', () => {
-
-    })
-
-    test('createMap() correctly creates a map', () => {
-
-    })
-
-    test('setup() calls the appropriate methods', () => {
-
-    })
-
     test('loadImages() correctly loads images', () => {
 
     })
@@ -45,10 +30,6 @@ describe('Map Controller', () => {
 
     })
 
-    test('addClickHandlers() correctly adds click handlers', () => {
-
-    })
-
     test('flyTo() correctly executes', () => {
 
     })
@@ -57,15 +38,11 @@ describe('Map Controller', () => {
 
     })
 
-    test('createFeaturesPopup() correctly creates a popup', () => {
+    test('createFeaturesPopupHtml() correctly creates a popup', () => {
 
     })
 
     test('getFillColour() correctly returns a fill colour', () => {
-
-    })
-
-    test('setLayerVisibility() correctly sets layer visibility', () => {
 
     })
 })
