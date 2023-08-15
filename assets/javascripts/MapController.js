@@ -57,8 +57,8 @@ export default class MapController {
 
   setup() {
     this.loadImages(this.images);
-    this.addVectorTileSources(this.vectorTileSources);
-    this.addGeojsonSources(this.geojsons);
+    this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
+    this.geojsonLayers = this.addGeojsonSources(this.geojsons);
     if(this.geojsonLayers.length == 1){
       this.flyTo(this.geojsons[0]);
     }
@@ -86,17 +86,19 @@ export default class MapController {
       let layers = this.addVectorTileSource(source);
       availableLayers[source.name] = layers;
     });
-		this.availableLayers = availableLayers;
+		return availableLayers;
 	}
 
   addGeojsonSources(geojsons = []) {
     // add geojsons sources to map
+    addedLayers = [];
     this.geojsons.forEach(geojson => {
       if(geojson.data.type == 'Point')
-        this.geojsonLayers.push(this.addPoint(geojson));
+        addedLayers.push(this.addPoint(geojson));
       else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
-        this.geojsonLayers.push(this.addPolygon(geojson));
+        addedLayers.push(this.addPolygon(geojson));
     });
+    return addedLayers;
   }
 
   addControls() {
@@ -136,8 +138,7 @@ export default class MapController {
       });
     } else {
       var bbox = turf.extent(geometry.data);
-      let padding = geometry.data.type == 'Point' ? 500 : 20;
-      this.map.fitBounds(bbox, {padding, animate: false});
+      this.map.fitBounds(bbox, {padding: 20, animate: false});
     }
   }
 
@@ -313,7 +314,7 @@ export default class MapController {
 
     if (features.length) {
       // no need to show popup if not clicking on feature
-      var popupHTML = this.createFeaturesPopup(this.removeDuplicates(features));
+      var popupHTML = this.createFeaturesPopupHtml(this.removeDuplicates(features));
       var popup = new maplibregl.Popup({
         maxWidth: this.popupWidth
       }).setLngLat(coordinates).setHTML(popupHTML).addTo(map);
@@ -335,7 +336,7 @@ export default class MapController {
 
   };
 
-  createFeaturesPopup(features) {
+  createFeaturesPopupHtml(features) {
     var featureCount = features.length;
     var wrapperOpen = '<div class="app-popup">';
     var wrapperClose = '</div>';
