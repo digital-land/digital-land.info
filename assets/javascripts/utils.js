@@ -1,4 +1,4 @@
-import MapController from './map-controller.js';
+import MapController from './MapController.js';
 
 export const newMapController = (params) => {
 
