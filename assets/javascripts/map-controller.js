@@ -1,65 +1,17 @@
-class TiltControl {
-  constructor(options = {}) {
-    this.tilted = false;
+import TiltControl from "./TiltControl.js";
 
-    this._container = document.createElement('div');
-
-    const styleClasses = this._container.classList;
-
-    styleClasses.add('maplibregl-ctrl');
-
-    this._container.addEventListener('mouseenter', () => {
-      styleClasses.add('maplibregl-ctrl-active');
-    });
-
-    this._container.addEventListener('mouseleave', () => {
-      styleClasses.remove('maplibregl-ctrl-active');
-    });
-  }
-
-  onAdd(map) {
-    this._map = map;
-    this.button = document.createElement('button');
-    this.button.classList.add([
-      'dl-map__tilt-toggle'
-    ]);
-    this.button.textContent = '3D';
-    this.button.addEventListener('click', this.clickHandler.bind(this));
-    this._container.appendChild(this.button);
-
-    this._map.on('pitch', this.tiltHandler.bind(this));
-
-    return this._container;
-  }
-
-  onRemove() {
-    this._container.parentNode.removeChild(this._container);
-    this._map.removeEventListener('pitch', this.tiltHandler);
-    this.button.removeEventListener('click', this.clickHandler);
-    this._map = undefined;
-  }
-
-  tiltHandler(){
-    this.tilted = this._map.getPitch() != 0;
-    this.button.textContent = this.tilted ? '2D' : '3D';
-  }
-
-  clickHandler() {
-    this._map.easeTo({
-      pitch: this.tilted ? 0 : 45,
-      duration: 200
-    });
-  }
-}
-
-class MapController {
+export default class MapController {
   constructor(params) {
+    // set the params applying default values where none were provided
     this.setParams(params);
 
-    this.map = this.createMap();
-
+    // create an array to store the geojson layers
     this.geojsonLayers = [];
 
+    // create the maplibre map
+    this.map = this.createMap();
+
+    // once the maplibre map has loaded call the setup function
     var boundSetup = this.setup.bind(this);
     this.map.on('load', boundSetup);
   }
@@ -77,13 +29,14 @@ class MapController {
     this.minMapZoom = params.minMapZoom || 5;
     this.maxMapZoom = params.maxMapZoom || 15;
     this.baseURL = params.baseURL || 'https://digital-land.github.io';
-    this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tile.json';
+    this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tiles-2.json';
     this.popupWidth = params.popupWidth || '260px';
     this.popupMaxListLength = params.popupMaxListLength || 10;
     this.LayerControlOptions = params.LayerControlOptions || {enabled: false};
     this.ZoomControlsOptions = params.ZoomControlsOptions || {enabled: false};
     this.FullscreenControl = params.FullscreenControl || {enabled: false};
     this.geojsons = params.geojsons || [];
+    this.images = params.images || [{src: '/static/images/location-pointer-sdf.png', name: 'custom-marker'}];
   }
 
   createMap() {
@@ -97,44 +50,66 @@ class MapController {
       zoom: 5.5
       // // starting zoom
     });
-
-    if(this.FullscreenControl.enabled){
-      map.addControl(new maplibregl.ScaleControl({
-        container: document.querySelector(this.mapContainerSelector)
-      }), 'bottom-left');
-      map.addControl(new maplibregl.FullscreenControl({
-        container: document.querySelector(this.mapContainerSelector)
-      }), 'bottom-left');
-
-      map.addControl(new TiltControl(), 'top-left');
-      map.addControl(new maplibregl.NavigationControl({
-        container: document.querySelector(this.mapContainerSelector)
-      }), 'top-left');
-    }
-
     return map;
   };
 
   setup() {
     const that = this;
-    this.addPinImage(() => {
-      that.addSources();
-      that.addControls()
+    this.loadImages(this.images);
+    that.addSources(this.vectorTileSources);
+    that.addControls()
 
-      var boundClickHandler = that.clickHandler.bind(that);
-      that.map.on('click', boundClickHandler);
-    });
+    var boundClickHandler = that.clickHandler.bind(that);
+    that.map.on('click', boundClickHandler);
   };
 
-	addSources() {
-		// add sources to map
+  loadImages(callback = false, imageSrc=[]) {
+    const that = this;
+    imageSrc.forEach(({src, name}) => {
+      that.map.loadImage(
+        src,
+        (error, image) => {
+          if (error) throw error;
+          this.map.addImage(name, image, {sdf: true});
+          console.log('Image added');
+        }
+      );
+    })
+  }
+
+  addControls() {
+    this.map.addControl(new maplibregl.ScaleControl({
+      container: document.querySelector(this.mapContainerSelector)
+    }), 'bottom-left');
+    this.map.addControl(new TiltControl(), 'top-left');
+    this.map.addControl(new maplibregl.NavigationControl({
+      container: document.querySelector(this.mapContainerSelector)
+    }), 'top-left');
+
+		// add layer controls
+		if(this.LayerControlOptions.enabled){
+			this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
+			this.layerControlsComponent = new LayerControls(this.$layerControlsList, this.map, this.sourceName, this.availableLayers,  this.LayerControlOptions);
+		}
+
+    if(this.FullscreenControl.enabled){
+      this.map.addControl(new maplibregl.FullscreenControl({
+        container: document.querySelector(this.mapContainerSelector)
+      }), 'bottom-left');
+
+    }
+  }
+
+	addSources(sources) {
     let availableLayers = {};
-    this.vectorTileSources.forEach(source => {
+		// add vector tile sources to map
+    sources.forEach(source => {
       let layers = this.addVectorTileSourceAndLayer(source);
       availableLayers[source.name] = layers;
     });
 		this.availableLayers = availableLayers;
 
+    // add geojsons sources to map
     this.geojsons.forEach(geojson => {
       if(geojson.data.type == 'Point')
         this.addPoint(geojson);
@@ -143,26 +118,44 @@ class MapController {
     });
 
     if(this.geojsons.length == 1){
-      if(this.geojsons[0].data.type == 'Point'){
-        this.map.flyTo({
-          center: this.geojsons[0].data.coordinates,
-          essential: true,
-          animate: false
-        });
-      } else {
-        var bbox = turf.extent(this.geojsons[0].data);
-        let padding = this.geojsons[0].data.type == 'Point' ? 500 : 20;
-        this.map.fitBounds(bbox, {padding, animate: false});
-      }
+      this.flyToGeometry(this.geojsons[0]);
     }
 	}
 
-  addControls() {
-		// add layer controls
-		if(this.LayerControlOptions.enabled){
-			this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-			this.layerControlsComponent = new LayerControls(this.$layerControlsList, this.map, this.sourceName, this.availableLayers,  this.LayerControlOptions);
-		}
+  flyToGeometry(geometry){
+    if(geometry.data.type == 'Point'){
+      this.map.flyTo({
+        center: geometry.data.coordinates,
+        essential: true,
+        animate: false
+      });
+    } else {
+      var bbox = turf.extent(geometry.data);
+      let padding = geometry.data.type == 'Point' ? 500 : 20;
+      this.map.fitBounds(bbox, {padding, animate: false});
+    }
+  }
+
+  addLayer(params){
+    const {
+      sourceName,
+      layerType,
+      paintOptions={},
+      layoutOptions={},
+      sourceLayer,
+      additionalOptions={}
+    } = params;
+    const layerName = `${sourceName}-${layerType}`;
+    this.map.addLayer({
+      id: layerName,
+      type: layerType,
+      source: sourceName,
+      'source-layer': sourceLayer,
+      paint: paintOptions,
+      layout: layoutOptions,
+      ...additionalOptions
+    });
+    return layerName;
   }
 
   addPolygon(geometry) {
@@ -177,101 +170,80 @@ class MapController {
         }
       },
     });
-    let layer = this.map.addLayer({
-      'id': geometry.name,
-      'type': 'fill',
-      'source': geometry.name,
-      'layout': {},
-      'paint': {
+    let layer = this.addLayer({
+      sourceName: geometry.name,
+      layerType: 'fill',
+      paintOptions: {
         'fill-color': '#088',
         'fill-opacity': 0.5
-      }
+      },
     });
     this.geojsonLayers.push(geometry.name);
   }
 
-  addPoint(geometry, imageSrc='/static/images/location-pointer-sdf.png') {
-    this.map.loadImage(
-      imageSrc,
-      (error, image) => {
-        if (error) throw error;
-        this.map.addImage('custom-marker', image, {sdf: true});
-        this.map.addSource(geometry.name, {
-          'type': 'geojson',
-          'data': {
-            'type': 'Feature',
-            'geometry': geometry.data,
-            'properties': {
-              'entity': geometry.entity,
-              'name': geometry.name,
-            }
-          }
-        });
-        // Add a symbol layer
-        let iconColor = 'blue';
-        if(this.$layerControlsList)
-          iconColor = this.$layerControlsList.getFillColour(geometry.name) || 'blue';
-        let layer = this.map.addLayer({
-          'id': geometry.name,
-          'type': 'symbol',
-          'source': geometry.name,
-          'layout': {
-              'icon-image': 'custom-marker',
-              'icon-anchor': 'bottom',
-              // get the year from the source's "year" property
-              'text-field': ['get', 'year'],
-              'text-font': [
-                  'Open Sans Semibold',
-                  'Arial Unicode MS Bold'
-              ],
-              'text-offset': [0, 1.25],
-              'text-anchor': 'top'
-          },
-          'paint': {
+  addPoint(geometry, imageName=undefined){
+    this.map.addSource(geometry.name, {
+      'type': 'geojson',
+      'data': {
+        'type': 'Feature',
+        'geometry': geometry.data,
+        'properties': {
+          'entity': geometry.entity,
+          'name': geometry.name,
+        }
+      }
+    });
+
+    let iconColor = 'blue';
+    if(this.$layerControlsList)
+      iconColor = this.$layerControlsList.getFillColour(geometry.name) || 'blue';
+
+    let layerName
+    // if an image is provided use that otherwise use a circle
+    if(imageName){
+      if(!this.map.hasImage(imageName)){
+        throw new Error('Image not loaded');
+      }
+      layerName = this.addLayer(
+        {
+          sourceName: geometry.name,
+          layerType: 'symbol',
+          paintOptions: {
             'icon-color': iconColor,
           },
-        });
-        this.geojsonLayers.push(geometry.name);
-      }
-    );
+          layoutOptions: {
+            'icon-image': 'custom-marker',
+            'icon-anchor': 'bottom',
+            // get the year from the source's "year" property
+            'text-field': ['get', 'year'],
+            'text-font': [
+                'Open Sans Semibold',
+                'Arial Unicode MS Bold'
+            ],
+            'text-offset': [0, 1.25],
+            'text-anchor': 'top'
+          },
+        })
+    }else{
+      layerName = this.addLayer({
+        sourceName: geometry.name,
+        layerType: 'circle',
+        paintOptions: {
+          'circle-color': iconColor,
+          'circle-radius': 5,
+        }
+      })
+    }
+    this.geojsonLayers.push(sourceName);
   }
-
-  addPinImage(callback, imageSrc='/static/images/location-pointer-sdf.png') {
-    this.map.loadImage(
-      imageSrc,
-      (error, image) => {
-        if (error) throw error;
-        this.map.addImage('custom-marker', image, {sdf: true});
-    console.log('Image added');
-    if(callback)
-    callback();
-      }
-    );
-  }
-
-  createVectorLayer(layerId, datasetName, _type, paintOptions = {}, layoutOptions = {}, additionalOptions = {}) {
-    // if there is a tileSource for the layer use that or default to the group one
-    const tileSource = this.map.getSource(datasetName + '-source') ? datasetName + '-source' : this.tileSource;
-    console.log('TileSource:', tileSource);
-    this.map.addLayer({
-      id: layerId,
-      type: _type,
-      source: tileSource,
-      'source-layer': datasetName,
-      paint: paintOptions,
-  layout: layoutOptions,
-  ...additionalOptions
-    });
-  };
 
   addVectorTileSourceAndLayer(source) {
 
 		const defaultPaintOptions = {
 			'fill-color': '#003078',
-			'fill-opacity': 0.5,
+			'fill-opacity': 0.8,
 			'weight': 1,
 		};
-
 
 		// add source
 		this.map.addSource(`${source.name}-source`, {
@@ -284,47 +256,42 @@ class MapController {
 		// add layer
 		let layers;
 		if (source.dataType === 'point') {
-      let minPinZoom = 11;
-			// set options for points as circle markers
-			const paintOptions = {
-				'icon-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-				'icon-opacity': 0.8,
-			};
-			const layoutOptions = {
-				'icon-image': 'custom-marker',
-				'icon-anchor': 'bottom',
-				'symbol-placement': 'point',
-				'icon-allow-overlap': true,
-				'icon-size': 0.7,
-			};
+      let layerName = this.addLayer({
+        sourceName: `${source.name}-source`,
+        layerType: 'circle',
+        paintOptions: {
+          'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
+          'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'circle-radius': 8,
+        },
+        sourceLayer: `${source.name}`,
+      });
 
-			this.createVectorLayer(source.name+'-symbol', source.name, 'symbol', paintOptions, layoutOptions, {minzoom: minPinZoom});
-
-			// set options for points as circle markers
-			const paintOptionsCircle = {
-				'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-				'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
-				'circle-radius': 5,
-				'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-				'circle-stroke-width': source.styleProps.weight || defaultPaintOptions['weight']
-			};
-			// create the layer
-			this.createVectorLayer(source.name+'-circle', source.name, 'circle', paintOptionsCircle, {}, {maxzoom: minPinZoom});
-			layers = [source.name+'-symbol', source.name+'-circle'];
+			layers = [layerName];
 		} else {
-			const fillName = `${source.name}-Fill`;
-			const lineName = `${source.name}-Line`;
 			// create fill layer
-			this.createVectorLayer(fillName, source.name, 'fill', {
-				'fill-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-				'fill-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity']
-			},{});
+      let fillLayerName = this.addLayer({
+        sourceName: `${source.name}-source`,
+        layerType: 'fill',
+        paintOptions: {
+          'fill-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'fill-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity']
+        },
+        sourceLayer: `${source.name}`,
+      });
+
 			// create line layer
-			this.createVectorLayer(lineName, source.name, 'line', {
-				'line-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-				'line-width': source.styleProps.weight || defaultPaintOptions['weight']
-			},{});
-			layers = [fillName, lineName];
+      let lineLayerName = this.addLayer({
+        sourceName: `${source.name}-source`,
+        layerType: 'line',
+        paintOptions: {
+          'line-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'line-width': source.styleProps.weight || defaultPaintOptions['weight']
+        },
+        sourceLayer: `${source.name}`,
+      });
+			layers = [fillLayerName, lineLayerName];
 		}
 		return layers;
   }
