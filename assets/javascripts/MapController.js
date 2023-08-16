@@ -91,12 +91,14 @@ export default class MapController {
 
   addGeojsonSources(geojsons = []) {
     // add geojsons sources to map
-    addedLayers = [];
-    this.geojsons.forEach(geojson => {
+    const addedLayers = [];
+    geojsons.forEach(geojson => {
       if(geojson.data.type == 'Point')
         addedLayers.push(this.addPoint(geojson));
       else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
         addedLayers.push(this.addPolygon(geojson));
+      else
+        throw new Error('Unsupported geometry type');
     });
     return addedLayers;
   }
@@ -113,7 +115,7 @@ export default class MapController {
 		// add layer controls
 		if(this.LayerControlOptions.enabled){
 			this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-			this.layerControlsComponent = new LayerControls(this.$layerControlsList, this.map, this.sourceName, this.availableLayers,  this.LayerControlOptions);
+			this.layerControlsComponent = new LayerControls(this.$layerControlsList, this, this.sourceName, this.availableLayers,  this.LayerControlOptions);
 		}
 
     if(this.FullscreenControl.enabled){
@@ -142,15 +144,14 @@ export default class MapController {
     }
   }
 
-  addLayer(params){
-    const {
-      sourceName,
-      layerType,
-      paintOptions={},
-      layoutOptions={},
-      sourceLayer='',
-      additionalOptions={}
-    } = params;
+  addLayer({
+    sourceName,
+    layerType,
+    paintOptions={},
+    layoutOptions={},
+    sourceLayer='',
+    additionalOptions={}
+  }){
     const layerName = `${sourceName}-${layerType}`;
     this.map.addLayer({
       id: layerName,
@@ -243,6 +244,14 @@ export default class MapController {
     return layerName;
   }
 
+  // param: source - object containing name and vectorSource
+  //        source.name - name of the source
+  //        source.vectorSource - url of the vector source
+  //        source.dataType - point or polygon
+  //        source.styleProps - object containing style properties
+  //        source.styleProps.colour - colour of the fill
+  //        source.styleProps.opacity - opacity of the fill
+  //        source.styleProps.weight - weight of the line
   addVectorTileSource(source) {
 		const defaultPaintOptions = {
 			'fill-color': '#003078',
@@ -337,15 +346,14 @@ export default class MapController {
   };
 
   createFeaturesPopupHtml(features) {
-    var featureCount = features.length;
     var wrapperOpen = '<div class="app-popup">';
     var wrapperClose = '</div>';
-    var featureOrFeatures = featureCount > 1 ? 'features' : 'feature';
-    var headingHTML = "<h3 class=\"app-popup-heading\">".concat(featureCount, " ").concat(featureOrFeatures, " selected</h3>");
+    var featureOrFeatures = features.length > 1 ? 'features' : 'feature';
+    var headingHTML = `<h3 class=\"app-popup-heading\">${features.length} ${featureOrFeatures} selected</h3>`;
 
-    if (featureCount > this.popupMaxListLength) {
+    if (features.length > this.popupMaxListLength) {
       headingHTML = '<h3 class="app-popup-heading">Too many features selected</h3>';
-      var tooMany = "<p class=\"govuk-body-s\">You clicked on ".concat(featureCount, " features.</p><p class=\"govuk-body-s\">Zoom in or turn off layers to narrow down your choice.</p>");
+      var tooMany = `<p class=\"govuk-body-s\">You clicked on ${features.length} features.</p><p class="govuk-body-s">Zoom in or turn off layers to narrow down your choice.</p>`;
       return wrapperOpen + headingHTML + tooMany + wrapperClose;
     }
 
@@ -365,10 +373,10 @@ export default class MapController {
       }
 
       var itemHTML = [
-        "<li class=\"app-popup-item\" style=\"border-left: 5px solid ".concat(fillColour, "\">"),
-        "<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">".concat(featureType, "</p>"),
+        `<li class=\"app-popup-item\" style=\"border-left: 5px solid ${fillColour}">`,
+        `<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">${featureType}</p>`,
         '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">',
-        "<a class='govuk-link' href=\"/entity/".concat(feature.properties.entity, "\">").concat(featureName, "</a>"),
+        `<a class='govuk-link' href="/entity/${feature.properties.entity}">${featureName}</a>`,
         '</p>',
         '</li>'
       ];
@@ -383,13 +391,15 @@ export default class MapController {
       return this.map.getLayer(feature.layer.id).getPaintProperty('icon-color');
     else if(feature.layer.type === 'fill')
       return this.map.getLayer(feature.layer.id).getPaintProperty('fill-color');
+    else if(feature.layer.type === 'circle')
+      return this.map.getLayer(feature.layer.id).getPaintProperty('circle-color');
     else
       throw new Error("could not get fill colour for feature of type " + feature.layer.type);
   };
 
   setLayerVisibility(layerName, visibility) {
     this.map.setLayoutProperty(
-      layerId,
+      layerName,
       'visibility',
       visibility
     );

@@ -1,7 +1,7 @@
 export default class LayerControls {
-    constructor ($module, map, source, availableLayers, options) {
+    constructor ($module, mapController, source, availableLayers, options) {
       this.$module = $module;
-      this.map = map;
+      this.mapController = mapController;
       this.tileSource = source;
       this.availableLayers = availableLayers;
       this.init(options);
@@ -83,7 +83,7 @@ export default class LayerControls {
       label.textContent = 'Open layer panel';
       label.classList.add('govuk-visually-hidden');
       button.appendChild(label);
-      this.map.getContainer().appendChild(button);
+      this.mapController.map.getContainer().appendChild(button);
 
       const boundTogglePanel = this.togglePanel.bind(this);
       button.addEventListener('click', boundTogglePanel);
@@ -183,7 +183,7 @@ export default class LayerControls {
       $chkbx.checked = true;
       $control.dataset.layerControlActive = 'true';
       $control.classList.remove(this.layerControlDeactivatedClass);
-      this.toggleLayerVisibility(this.map, this.getDatasetName($control), true);
+      this.toggleLayerVisibility(this.mapController.map, this.getDatasetName($control), true);
     };
 
     disable($control) {
@@ -192,7 +192,7 @@ export default class LayerControls {
       $chkbx.checked = false;
       $control.dataset.layerControlActive = 'false';
       $control.classList.add(this.layerControlDeactivatedClass);
-      this.toggleLayerVisibility(this.map, this.getDatasetName($control), false);
+      this.toggleLayerVisibility(this.mapController.map, this.getDatasetName($control), false);
     };
 
     getDatasetName($control) {
@@ -203,7 +203,7 @@ export default class LayerControls {
       console.log('toggle layer', datasetName);
       const visibility = (toEnable) ? 'visible' : 'none';
       const layers = this.availableLayers[datasetName];
-      layers.forEach(layerId => this.map.setLayerVisibility(layerId, visibility));
+      layers.forEach(layerId => this.mapController.setLayerVisibility(layerId, visibility));
     };
 
     onControlChkbxChange = function (e) {
