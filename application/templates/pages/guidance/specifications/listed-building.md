@@ -42,7 +42,7 @@ Example: `10 and 12, Lower Clapton Road E5`
 
 The outline of the listed building as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
 
-This should be in GeoJSON format.
+This should be provided as well-known text (WKT).
 
 Example: `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
 
