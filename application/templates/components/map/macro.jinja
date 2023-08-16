@@ -91,7 +91,7 @@
 
         params = {
           ...params,
-          baseTileStyleFilePath: "/static/javascripts/base-tiles-2.json",
+          baseTileStyleFilePath: "/static/javascripts/base-tile.json",
           vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf",
           datasetVectorUrl: "{{ params.DATASETTE_TILES_URL }}/-/tiles/",
           datasets: {{layers|tojson}}.map(d => d.dataset),
