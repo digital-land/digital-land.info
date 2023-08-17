@@ -1,5 +1,5 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
-import TiltControl from '../../../assets/javascripts/TiltControl.js'
+import TiltControl from '../../assets/javascripts/TiltControl.js'
 
 const addEventListenerMock = vi.fn()
 const removeEventListenerMock = vi.fn()

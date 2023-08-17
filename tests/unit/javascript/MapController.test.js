@@ -1,5 +1,5 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
-import MapController from '../../../assets/javascripts/MapController'
+import MapController from '../../assets/javascripts/MapController'
 
 describe('Map Controller', () => {
 
