@@ -183,7 +183,7 @@ def search_entities(
     typologies = [t.dict() for t in typologies]
     # dataset facet
     response = get_datasets()
-    columns = ["dataset", "name", "plural", "typology", "themes"]
+    columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
     local_authorities = get_local_authorities("local-authority-eng")

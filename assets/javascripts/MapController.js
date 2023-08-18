@@ -39,6 +39,7 @@ export default class MapController {
     this.FullscreenControl = params.FullscreenControl || {enabled: false};
     this.geojsons = params.geojsons || [];
     this.images = params.images || [{src: '/static/images/location-pointer-sdf.png', name: 'custom-marker'}];
+    this.paint_options = params.paint_options || null;
   }
 
   createMap() {
@@ -192,11 +193,18 @@ export default class MapController {
         }
       },
     });
+
+    let colour = 'blue';
+    if(this.paint_options)
+      colour = this.paint_options.colour;
+    if(this.$layerControlsList)
+      colour = this.$layerControlsList.getFillColour(geometry.name) || 'blue';
+
     let layer = this.addLayer({
       sourceName: geometry.name,
       layerType: 'fill',
       paintOptions: {
-        'fill-color': '#088',
+        'fill-color': colour,
         'fill-opacity': 0.5
       },
     });
@@ -217,6 +225,8 @@ export default class MapController {
     });
 
     let iconColor = 'blue';
+    if(this.paint_options)
+      iconColor = this.paint_options.colour;
     if(this.$layerControlsList)
       iconColor = this.$layerControlsList.getFillColour(geometry.name) || 'blue';
 

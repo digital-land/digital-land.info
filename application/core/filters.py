@@ -1,4 +1,5 @@
 from application.data_access.entity_queries import get_entity_query
+from application.data_access.digital_land_queries import get_dataset_query
 from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
 from markdown import markdown
@@ -266,6 +267,11 @@ def get_entity_geometry(entity):
         "data": entity.geojson.geometry,
         "entity": entity.entity,
     }
+
+
+def get_entity_paint_options(entity):
+    dataset = get_dataset_query(entity.dataset)
+    return dataset.paint_options
 
 
 def commanum_filter(v):
