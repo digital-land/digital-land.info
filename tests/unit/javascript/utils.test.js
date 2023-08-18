@@ -1,5 +1,5 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
-import {newMapController, capitalizeFirstLetter} from '../../assets/javascripts/utils.js'
+import {newMapController, capitalizeFirstLetter} from '../../../assets/javascripts/utils.js'
 
 vi.stubGlobal('maplibregl', {
     Map: vi.fn().mockImplementation(() => {
