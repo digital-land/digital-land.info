@@ -55,8 +55,8 @@ export default class MapController {
     return map;
   };
 
-  setup() {
-    this.loadImages(this.images);
+  async setup() {
+    await this.loadImages(this.images);
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
     if(this.geojsonLayers.length == 1){
@@ -67,15 +67,29 @@ export default class MapController {
   };
 
   loadImages(imageSrc=[]) {
-    imageSrc.forEach(({src, name}) => {
-      this.map.loadImage(
-        src,
-        (error, image) => {
-          if (error) throw error;
-          this.map.addImage(name, image, {sdf: true});
-          console.log('Image added');
-        }
-      );
+    return new Promise((resolve, reject) => {
+      const promiseArray = imageSrc.map(({src, name}) => {
+        return new Promise((resolve, reject) => {
+          this.map.loadImage(
+            src,
+            (error, image) => {
+              if (error){
+                reject(error);
+              }
+              this.map.addImage(name, image, {sdf: true});
+              console.log(`Image added ${name}`);
+              resolve();
+            }
+          );
+        })
+      });
+      Promise.all(promiseArray).then(() => {
+        console.log('Images loaded');
+        resolve();
+      }).catch((error) => {
+        console.log(error);
+        reject(error);
+      });
     })
   }
 
@@ -94,7 +108,7 @@ export default class MapController {
     const addedLayers = [];
     geojsons.forEach(geojson => {
       if(geojson.data.type == 'Point')
-        addedLayers.push(this.addPoint(geojson));
+        addedLayers.push(this.addPoint(geojson, 'custom-marker'));
       else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
         addedLayers.push(this.addPolygon(geojson));
       else
@@ -136,7 +150,8 @@ export default class MapController {
       this.map.flyTo({
         center: geometry.data.coordinates,
         essential: true,
-        animate: false
+        animate: false,
+        zoom: 15
       });
     } else {
       var bbox = turf.extent(geometry.data);
@@ -209,7 +224,7 @@ export default class MapController {
     // if an image is provided use that otherwise use a circle
     if(imageName){
       if(!this.map.hasImage(imageName)){
-        throw new Error('Image not loaded');
+        throw new Error('Image not loaded, imageName: ' + imageName + ' not found');
       }
       layerName = this.addLayer(
         {
