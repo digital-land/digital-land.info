@@ -112,6 +112,11 @@ export default class LayerControls {
 
       // toggles visibility of elements/entities based on URL params
     toggleLayersBasedOnUrl() {
+      const enabledLayerNames = this.getEnabledLayerNamesFromUrl();
+      this.showEntitiesForLayers(enabledLayerNames);
+    };
+
+    getEnabledLayerNamesFromUrl() {
       // Get the URL parameters
       const urlParams = (new URL(document.location)).searchParams;
 
@@ -122,8 +127,8 @@ export default class LayerControls {
           enabledLayerNames = urlParams.getAll(this.layerURLParamName).filter(name => this.datasetNames.indexOf(name) > -1);
       }
 
-      this.showEntitiesForLayers(enabledLayerNames);
-    };
+      return enabledLayerNames;
+    }
 
     showEntitiesForLayers(enabledLayerNames) {
       console.log('Enable:', enabledLayerNames);
@@ -183,7 +188,7 @@ export default class LayerControls {
       $chkbx.checked = true;
       $control.dataset.layerControlActive = 'true';
       $control.classList.remove(this.layerControlDeactivatedClass);
-      this.toggleLayerVisibility(this.mapController.map, this.getDatasetName($control), true);
+      this.toggleLayerVisibility(this.getDatasetName($control), true);
     };
 
     disable($control) {
@@ -192,14 +197,14 @@ export default class LayerControls {
       $chkbx.checked = false;
       $control.dataset.layerControlActive = 'false';
       $control.classList.add(this.layerControlDeactivatedClass);
-      this.toggleLayerVisibility(this.mapController.map, this.getDatasetName($control), false);
+      this.toggleLayerVisibility(this.getDatasetName($control), false);
     };
 
     getDatasetName($control) {
       return $control.dataset.layerControl
     };
 
-    toggleLayerVisibility(map, datasetName, toEnable) {
+    toggleLayerVisibility(datasetName, toEnable) {
       console.log('toggle layer', datasetName);
       const visibility = (toEnable) ? 'visible' : 'none';
       const layers = this.availableLayers[datasetName];
