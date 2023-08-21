@@ -139,7 +139,9 @@ export default class MapController {
   }
 
   addClickHandlers() {
-    this.map.on('click', this.clickHandler.bind(this));
+    if(this.layerControlsComponent){
+      this.map.on('click', this.clickHandler.bind(this));
+    }
   }
 
 
