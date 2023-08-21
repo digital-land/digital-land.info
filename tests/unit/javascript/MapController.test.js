@@ -209,10 +209,9 @@ describe('Map Controller - Unit', () => {
             mapController.addLayer = vi.fn().mockImplementation((layerOptions) => {
                 return `${layerOptions.sourceName}-${layerOptions.layerType}`
             })
-            mapController.$layerControlsList = [1,2,3]
-            mapController.$layerControlsList.getFillColour = vi.fn().mockImplementation(() => {
-                return 'red'
-            })
+            mapController.paint_options = {
+                colour: 'red'
+            }
 
             const layerName = mapController.addPoint({
                 name: 'testName-source',
