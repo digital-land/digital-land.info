@@ -28,9 +28,9 @@
   },
   "homepage": "https://github.com/digital-land/digital-land.info#readme",
   "scripts": {
-    "test": "vitest",
-    "test-unit": "vitest --dir tests/javascript/unit",
-    "test-integration": "vitest --dir tests/javascript/integration"
+    "test": "vitest run",
+    "test-unit": "vitest run --dir tests/unit/javascript",
+    "test-integration": "vitest run --dir tests/integration/javascript"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
