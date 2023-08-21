@@ -271,7 +271,9 @@ def get_entity_geometry(entity):
 
 def get_entity_paint_options(entity):
     dataset = get_dataset_query(entity.dataset)
-    return dataset.paint_options
+    if dataset:
+        return dataset.paint_options
+    return None
 
 
 def commanum_filter(v):
