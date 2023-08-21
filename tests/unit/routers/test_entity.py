@@ -539,6 +539,10 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
         "application.routers.entity.get_local_authorities",
         return_value=local_authorities,
     )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=ancient_woodland_dataset,
+    )
 
     request = MagicMock()
     result = search_entities(
