@@ -1,7 +1,7 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
 
-describe('Map Controller', () => {
+describe('Map Controller - Unit', () => {
 
     vi.stubGlobal('maplibregl', {
             Map: vi.fn().mockImplementation(() => {
@@ -264,6 +264,9 @@ describe('Map Controller', () => {
         mapController.addLayer = vi.fn().mockImplementation((layerOptions) => {
             return `${layerOptions.sourceName}-${layerOptions.layerType}`
         })
+        mapController.paint_options = {
+            colour: '#088'
+        }
 
         let geometry = {
             name: 'testName-source',
@@ -353,7 +356,8 @@ describe('Map Controller', () => {
             expect(mapController.map.flyTo).toHaveBeenCalledWith({
                 center: fakeGeometry.data.coordinates,
                 essential: true,
-                animate: false
+                animate: false,
+                zoom: 15,
             })
 
             expect(mapController.map.fitBounds).toHaveBeenCalledTimes(0)
