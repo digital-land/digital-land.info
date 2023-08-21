@@ -22,10 +22,7 @@ export default class MapController {
     params = params || {};
     this.mapId = params.mapId || 'mapid';
     this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
-    this.vectorTileSources = params.vectorTileSources || [{
-      name: 'dl-vectors',
-      vectorSource: 'https://datasette-tiles.digital-land.info/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf'
-    }];
+    this.vectorTileSources = params.vectorTileSources || [];
     this.datasetVectorUrl = params.datasetVectorUrl || null;
     this.datasets = params.datasets || null;
     this.minMapZoom = params.minMapZoom || 5;
@@ -129,8 +126,8 @@ export default class MapController {
 
 		// add layer controls
 		if(this.LayerControlOptions.enabled){
-			this.$layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-			this.layerControlsComponent = new LayerControls(this.$layerControlsList, this, this.sourceName, this.availableLayers,  this.LayerControlOptions);
+			const layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
+			this.layerControlsComponent = new LayerControls(layerControlsList, this, this.sourceName, this.availableLayers,  this.LayerControlOptions);
 		}
 
     if(this.FullscreenControl.enabled){
@@ -197,8 +194,6 @@ export default class MapController {
     let colour = 'blue';
     if(this.paint_options)
       colour = this.paint_options.colour;
-    if(this.$layerControlsList)
-      colour = this.$layerControlsList.getFillColour(geometry.name) || 'blue';
 
     let layer = this.addLayer({
       sourceName: geometry.name,
@@ -227,8 +222,6 @@ export default class MapController {
     let iconColor = 'blue';
     if(this.paint_options)
       iconColor = this.paint_options.colour;
-    if(this.$layerControlsList)
-      iconColor = this.$layerControlsList.getFillColour(geometry.name) || 'blue';
 
     let layerName
     // if an image is provided use that otherwise use a circle
