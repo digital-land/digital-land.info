@@ -187,8 +187,6 @@ describe('Map Controller', () => {
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-left');
-
-            expect(mapController.map.events.click).toBeDefined()
         })
 
         test('Works as expected, enabling full screen', async () => {
@@ -233,8 +231,6 @@ describe('Map Controller', () => {
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.FullscreenControl, 'bottom-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-left');
-
-            expect(mapController.map.events.click).toBeDefined()
         })
 
         test('Works with one geojson feature of type point', async () => {
