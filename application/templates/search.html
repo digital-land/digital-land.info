@@ -11,8 +11,8 @@
 {% from 'components/pagination/macro.jinja' import appPagination %}
 
 {%- block mapAssets %}
-  <script src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"></script>
-  <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet"/>
+  <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+  <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
   <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
   {{ super() }}
 {% endblock -%}
