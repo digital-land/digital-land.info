@@ -12,7 +12,6 @@ $app-hero-colour: govuk-colour("white");
   padding-top: 0;
   color: $app-hero-colour;
   background-color: $app-hero-background-colour;
-  margin-top: govuk-spacing(-2);
   @include govuk-font($size: false);
 }
 

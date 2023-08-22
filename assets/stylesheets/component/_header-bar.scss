@@ -12,7 +12,7 @@
 }
 
 .dl-header--full {
-  border-color: govuk-colour("blue");
+  // border-color: govuk-colour("blue");
 
   // alter header layout when bigger than standard screen width
   @include govuk-media-query($from: $govuk-page-width) {
