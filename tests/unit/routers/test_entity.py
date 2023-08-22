@@ -344,9 +344,14 @@ def test_get_entity_entity_returned_html(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
     )
     mocker.patch(
+        "application.core.filters.get_dataset_query",
+        return_value=ancient_woodland_dataset,
+    )
+    mocker.patch(
         "application.routers.entity.get_dataset_query",
         return_value=ancient_woodland_dataset,
     )
+
     request = MagicMock()
     result = get_entity(request=request, entity="11000000", extension=None)
 
@@ -390,7 +395,7 @@ def test_get_entity_entity_returned_json(
 
 
 def test_get_entity_entity_returned_geojson(
-    mocker, single_entity_model, multiple_dataset_models
+    mocker, single_entity_model, multiple_dataset_models, ancient_woodland_dataset
 ):
     mocker.patch(
         "application.routers.entity.get_entity_query",
