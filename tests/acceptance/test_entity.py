@@ -93,7 +93,7 @@ def test_correctly_loads_the_entity_root(
     assert page.evaluate("Object.keys(window.mapControllers).length") > 0
 
 
-def test_find_an_entity_via_the_search_page(server_process, page, empty_database):
+async def test_find_an_entity_via_the_search_page(server_process, page, empty_database):
     add_entities_to_database(mockEntities)
 
     page.goto(BASE_URL)
@@ -112,6 +112,9 @@ def test_find_an_entity_via_the_search_page(server_process, page, empty_database
     assert numberOfResults == mockEntities.__len__()
 
     # check that A and B space has a map and C space doesn't
+    await page.wait_for_selector("[id='106-map']")
+    await page.wait_for_selector("[id='107-map']")
+
     assert page.locator("[id='106-map']").count() == 1
     assert page.locator("[id='107-map']").count() == 1
     assert page.locator("[id='108-map']").count() == 0
