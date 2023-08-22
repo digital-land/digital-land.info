@@ -313,6 +313,7 @@ def ancient_woodland_dataset():
         name="Ancient woodland",
         plural="Ancient woodlands",
         typology="geography",
+        paint_options={"colour": "#78AA00"},
     )
 
 
@@ -364,7 +365,7 @@ def test_get_entity_entity_returned_html(
 
 
 def test_get_entity_entity_returned_json(
-    mocker, single_entity_model, multiple_dataset_models
+    mocker, single_entity_model, multiple_dataset_models, ancient_woodland_dataset
 ):
     mocker.patch(
         "application.routers.entity.get_entity_query",
@@ -521,6 +522,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     typologies,
     local_authorities,
     multiple_dataset_models,
+    ancient_woodland_dataset,
 ):
     normalised_query_params = normalised_params(asdict(QueryFilters()))
     mocker.patch(
@@ -540,7 +542,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
         return_value=local_authorities,
     )
     mocker.patch(
-        "application.data_access.digital_land_queries",
+        "application.core.filters.get_dataset_query",
         return_value=ancient_woodland_dataset,
     )
 
