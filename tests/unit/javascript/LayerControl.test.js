@@ -1,81 +1,30 @@
 import {describe, expect, test, it, beforeEach, vi} from 'vitest'
 
 import LayerControls from '../../../assets/javascripts/LayerControls.js'
+import {
+    getDomElementMock,
+    getMapMock,
+    getUrlDeleteMock,
+    getUrlAppendMock,
+    stubGlobalDocument,
+    stubGlobalUrl,
+    stubGlobalWindow
+} from '../../utils/mockUtils.js';
 
 describe('Layer Control', () => {
     let layerControls;
-    let domElementMock = {
-        querySelector: vi.fn(),
-        querySelectorAll: vi.fn().mockImplementation(() => {
-            return []
-        }),
-        closest: vi.fn().mockImplementation(() => {
-            return domElementMock;
-        }),
-        classList: {
-            remove: vi.fn(),
-            add: vi.fn(),
-        },
-        dataset: {
-            layerControl: 'testLayer1',
-        },
-        appendChild: vi.fn(),
-        addEventListener: vi.fn(),
-        setAttribute: vi.fn(),
-        focus: vi.fn(),
-    }
-    let mapMock = {
-        map: {
-            getContainer: vi.fn().mockImplementation(() => {
-                return domElementMock
-            }),
-        },
-    }
+    const domElementMock = getDomElementMock();
+    const mapMock = getMapMock();
+    const urlDeleteMock = getUrlDeleteMock();
+    const urlAppendMock = getUrlAppendMock();
 
-    vi.stubGlobal('document', {
-        createElement: vi.fn().mockImplementation(() => {
-            return domElementMock
-        }),
-    })
-
-    vi.stubGlobal('window', {
-        addEventListener: vi.fn(),
-        location: {
-            pathname: '/test',
-            hash: 'testHash',
-        },
-        history: {
-            pushState: vi.fn(),
-        },
-    })
-
-
-    const urlDeleteMock = vi.fn();
-    const urlAppendMock = vi.fn().mockImplementation(() => {
-        console.log('run');
-    })
-    vi.stubGlobal('URL', vi.fn(() => {
-        return {
-            searchParams: {
-                params: [],
-                toString: vi.fn().mockImplementation(() => {
-                    return 'layer=Layer1-domElement&layer=Layer2-domElement'
-                }),
-                has: vi.fn().mockImplementation(() => {
-                    return false
-                }),
-                delete: vi.fn(),
-                getAll: vi.fn().mockImplementation(() => {
-                    return ['testLayer1', 'testLayer2']
-                }),
-                append: vi.fn(),
-            },
-        }
-    }))
+    stubGlobalDocument();
+    stubGlobalWindow('http://localhost:3000', 'testHash');
+    stubGlobalUrl();
 
     beforeEach(() => {
         const module = document.createElement('div');
-        layerControls = new LayerControls(module, mapMock, 'fakeTileSource', ['testLayer1', 'testLayer2'], { layerControlSelector: '[data-layer-control]' });
+        layerControls = new LayerControls(module, {map: mapMock}, 'fakeTileSource', ['testLayer1', 'testLayer2'], { layerControlSelector: '[data-layer-control]' });
         vi.clearAllMocks();
     });
 
@@ -211,7 +160,7 @@ describe('Layer Control', () => {
         expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer1-domElement');
         expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer2-domElement');
         expect(window.history.pushState).toHaveBeenCalled();
-        expect(window.history.pushState).toHaveBeenCalledWith({}, '', '/test?layer=Layer1-domElement&layer=Layer2-domElementtestHash');
+        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?layer=Layer1-domElement&layer=Layer2-domElementtestHash');
         expect(layerControls.toggleLayersBasedOnUrl).toHaveBeenCalled();
     })
 

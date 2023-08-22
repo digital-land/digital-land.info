@@ -1,22 +1,9 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import TiltControl from '../../../assets/javascripts/TiltControl.js'
+import { getDomElementMock, stubGlobalDocument } from '../../utils/mockUtils.js'
 
-const addEventListenerMock = vi.fn()
-const removeEventListenerMock = vi.fn()
-
-vi.stubGlobal('document', {
-    createElement: () => {
-        return {
-            addEventListener: addEventListenerMock,
-            removeEventListener: removeEventListenerMock,
-            style: {},
-            classList: {
-                add: () => {},
-            },
-            appendChild: () => {},
-        }
-    }
-})
+stubGlobalDocument();
+const domElementMock = getDomElementMock();
 
 describe('Tilt Control', () => {
 
@@ -32,7 +19,7 @@ describe('Tilt Control', () => {
             on: vi.fn(),
         }
         tiltControl.onAdd(map)
-        expect(addEventListenerMock).toHaveBeenCalledTimes(1)
+        expect(domElementMock.addEventListener).toHaveBeenCalledTimes(1)
         expect(map.on).toHaveBeenCalledTimes(1)
     })
 
@@ -48,7 +35,7 @@ describe('Tilt Control', () => {
         tiltControl.button = document.createElement('button')
         tiltControl.onRemove()
         expect(tiltControl._container.parentNode.removeChild).toHaveBeenCalledTimes(1)
-        expect(removeEventListenerMock).toHaveBeenCalledTimes(1)
+        expect(domElementMock.removeEventListener).toHaveBeenCalledTimes(1)
         expect(tiltControl._map).toBe(undefined)
     })
 

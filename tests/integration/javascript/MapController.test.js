@@ -3,144 +3,34 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
 import TiltControl from '../../../assets/javascripts/TiltControl';
+import {
+    getDomElementMock,
+    getMapMock,
+    getUrlDeleteMock,
+    getUrlAppendMock,
+    getPopupMock,
+    stubGlobalMapLibre,
+    stubGlobalWindow,
+    stubGlobalUrl,
+    stubGlobalDocument
+} from '../../utils/mockUtils';
 
-vi.stubGlobal('window', {
-    addEventListener: vi.fn(),
-    location: {
-        pathname: '/test',
-        hash: 'testHash',
-    },
-    history: {
-        pushState: vi.fn(),
-    },
-})
 
-const urlDeleteMock = vi.fn();
-    const urlAppendMock = vi.fn().mockImplementation(() => {
-        console.log('run');
-    })
-    vi.stubGlobal('URL', vi.fn(() => {
-        return {
-            searchParams: {
-                params: [],
-                toString: vi.fn().mockImplementation(() => {
-                    return 'layer=Layer1-domElement&layer=Layer2-domElement'
-                }),
-                has: vi.fn().mockImplementation(() => {
-                    return false
-                }),
-                delete: vi.fn(),
-                getAll: vi.fn().mockImplementation(() => {
-                    return ['testLayer1', 'testLayer2']
-                }),
-                append: vi.fn(),
-            },
-        }
-    }))
 
-let domElementMock = {
-    querySelector: vi.fn(),
-    querySelectorAll: vi.fn().mockImplementation(() => {
-        return []
-    }),
-    closest: vi.fn().mockImplementation(() => {
-        return domElementMock;
-    }),
-    classList: {
-        remove: vi.fn(),
-        add: vi.fn(),
-    },
-    dataset: {
-        layerControl: 'testLayer1',
-    },
-    appendChild: vi.fn(),
-    addEventListener: vi.fn(),
-    setAttribute: vi.fn(),
-    focus: vi.fn(),
-}
 
-const mapMock = {
-    events: {},
-    on: vi.fn().mockImplementation((event, callback) => {
-        mapMock.events[event] = callback;
-    }),
-    loadImage: vi.fn().mockImplementation(vi.fn().mockImplementation((src, callback) => {
-        callback(false, 'the Image');
-    })),
-    addImage: vi.fn(),
-    hasImage: vi.fn().mockImplementation(() => {
-        return true;
-    }),
-    addSource: vi.fn(),
-    addLayer: vi.fn(),
-    addControl: vi.fn(),
-    flyTo: vi.fn(),
-    getContainer: vi.fn().mockImplementation(() => {
-        return domElementMock;
-    }),
-    queryRenderedFeatures: vi.fn().mockImplementation(() => {
-        return [
-            {
-                sourceLayer: 'testSourceLayer',
-                source: 'testSource',
-                properties: {
-                    name: 'testName',
-                    entity: 'testEntity',
-                    reference: 'testReference',
-                },
-                layer: {
-                    type: 'symbol',
-                }
-            },
-            {
-                sourceLayer: 'testSourceLayer',
-                source: 'testSource2',
-                properties: {
-                    name: 'testName2',
-                    entity: 'testEntity2',
-                    reference: 'testReference2',
-                },
-                layer: {
-                    type: 'fill',
-                }
-            },
-        ];
-    }),
-    getLayer: vi.fn().mockImplementation(() => {
-        return {
-            getPaintProperty: vi.fn().mockImplementation(() => {
-                return 'red'
-            })
-        }
-    }),
-}
+stubGlobalMapLibre();
+stubGlobalWindow('http://localhost', '')
+stubGlobalUrl();
+stubGlobalDocument();
 
-const popupMock = {
-    setLngLat: vi.fn().mockImplementation(() => popupMock),
-    setHTML: vi.fn().mockImplementation(() => popupMock),
-    addTo: vi.fn().mockImplementation(() => popupMock),
-}
 
-vi.stubGlobal('maplibregl', {
-    Map: vi.fn().mockImplementation(() => {
-        return mapMock
-    }),
-    ScaleControl: vi.fn(),
-    NavigationControl: vi.fn(),
-    FullscreenControl: vi.fn(),
-    Popup: vi.fn().mockImplementation(() => {
-        return popupMock
-    }),
-})
+let domElementMock = getDomElementMock();
+let mapMock = getMapMock();
+let popupMock = getPopupMock();
+let urlDeleteMock = getUrlDeleteMock();
+let urlAppendMock = getUrlAppendMock();
 
-vi.stubGlobal('document', {
-    createElement: vi.fn().mockImplementation(() => {
-        return domElementMock
-    }),
-    querySelector: vi.fn().mockImplementation(() => {
-        return domElementMock
-    })
-})
+
 
 beforeEach(() => {
     vi.clearAllMocks()

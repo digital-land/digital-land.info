@@ -1,19 +1,8 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import {newMapController, capitalizeFirstLetter} from '../../../assets/javascripts/utils.js'
+import { stubGlobalMapLibre } from '../../utils/mockUtils.js'
 
-vi.stubGlobal('maplibregl', {
-    Map: vi.fn().mockImplementation(() => {
-        return {
-            on: vi.fn(),
-            loadImage: vi.fn().mockImplementation(vi.fn().mockImplementation((src, callback) => {
-                callback(false, 'the Image');
-            })),
-            addImage: vi.fn(),
-            addSource: vi.fn(),
-        }
-    })
-}
-)
+stubGlobalMapLibre();
 
 describe('utils', () => {
     test('newMapController works as expected', () => {

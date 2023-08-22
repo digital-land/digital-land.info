@@ -2,6 +2,7 @@
 
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import LayerControls from '../../../assets/javascripts/LayerControls'
+import { getDomElementMock, getMapControllerMock, getMapMock, stubGlobalDocument, stubGlobalUrl, stubGlobalWindow } from '../../utils/mockUtils'
 
 
 /*
@@ -12,60 +13,15 @@ import LayerControls from '../../../assets/javascripts/LayerControls'
         - getClickableLayers
 */
 
-const domElementMock = {
-    classList: {
-        add: vi.fn(),
-        remove: vi.fn()
-    },
-    dataset: {},
-    appendChild: vi.fn(),
-    addEventListener: vi.fn(),
-}
+const domElementMock = getDomElementMock();
+const mapControllerMock = getMapControllerMock();
 
-const mapControllerMock = {
-    map: {
-        getContainer: vi.fn().mockImplementation(() => domElementMock)
-    },
-    setLayerVisibility: vi.fn(),
-}
+stubGlobalDocument();
 
-vi.stubGlobal('document', {
-    createElement: vi.fn().mockImplementation(() => domElementMock),
-    location: ''
-})
-
-vi.stubGlobal('window', {
-    addEventListener: vi.fn(),
-    location: {
-        pathname: 'http://localhost:3000/',
-        hash: ''
-    },
-    history: {
-        pushState: vi.fn()
-    }
-})
+stubGlobalWindow('http://localhost:3000/', '');
 
 const urlParams = [];
-
-vi.stubGlobal('URL', vi.fn(() => {
-    return {
-        searchParams: {
-            has: vi.fn().mockImplementation(() => true),
-            getAll: vi.fn().mockImplementation(() => ['layer1', 'layer2']),
-            delete: vi.fn(),
-            append: vi.fn().mockImplementation((name, value) => {
-                urlParams.push({name, value})
-            }),
-            toString: vi.fn().mockImplementation(() => {
-                let toReturn = ''
-                urlParams.forEach((param, index) => {
-                    toReturn += `${index > 0 ? '&' : ''}${param.name}=${param.value}`
-                })
-                return toReturn;
-            })
-        }
-    }
-}))
+stubGlobalUrl([{name: 'layer', value: 'layer1'}, {name: 'layer', value: 'layer2'}]);
 
 const availableLayers = {
     layer1: ['layer1-fill', 'layer1-line'],
@@ -129,11 +85,6 @@ const moduleMock = {
     }),
     closest: vi.fn().mockImplementation(() => domElementMock)
 }
-
-vi.stubGlobal('document', {
-    createElement: vi.fn().mockImplementation(() => domElementMock),
-    location: 'http://localhost:3000/?layers=layer1&layers=layer2'
-})
 
 describe('LayerControls', () => {
     test('toggleLayersBasedOnUrl', () => {
