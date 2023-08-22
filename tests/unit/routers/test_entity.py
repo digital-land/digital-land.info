@@ -540,7 +540,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
         return_value=local_authorities,
     )
     mocker.patch(
-        "application.routers.entity.get_dataset_query",
+        "application.data_access.digital_land_queries",
         return_value=ancient_woodland_dataset,
     )
 
