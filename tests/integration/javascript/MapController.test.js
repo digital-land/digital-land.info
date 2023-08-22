@@ -17,14 +17,12 @@ import {
 
 stubGlobalMapLibre();
 stubGlobalWindow('http://localhost', '')
-stubGlobalUrl();
+const [urlDeleteMock, urlAppendMock] = stubGlobalUrl();
 stubGlobalDocument();
 
 let domElementMock = getDomElementMock();
 let mapMock = getMapMock();
 let popupMock = getPopupMock();
-let urlDeleteMock = getUrlDeleteMock();
-let urlAppendMock = getUrlAppendMock();
 
 beforeEach(() => {
     vi.clearAllMocks()

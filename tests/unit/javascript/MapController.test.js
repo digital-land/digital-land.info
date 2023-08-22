@@ -1,7 +1,7 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
 import {
-    stubGlobalMapLibre
+    stubGlobalMapLibre, stubGlobalTurf
 } from '../../utils/mockUtils.js';
 
 describe('Map Controller - Unit', () => {
@@ -329,9 +329,7 @@ describe('Map Controller - Unit', () => {
         test('correctly executes flying to a point', () => {
             mapController.map.flyTo = vi.fn()
             mapController.map.fitBounds = vi.fn()
-            vi.stubGlobal('turf', {
-                extent: vi.fn().mockReturnValue([1,2,3,4])
-            })
+            stubGlobalTurf();
 
             const fakeGeometry = {
                 data: {
@@ -359,9 +357,7 @@ describe('Map Controller - Unit', () => {
 
 
             const mockBoundingBox = [1,2,3,4]
-            vi.stubGlobal('turf', {
-                extent: vi.fn().mockReturnValue(mockBoundingBox)
-            })
+            stubGlobalTurf(mockBoundingBox);
 
             const fakeGeometry = {
                 data: {

@@ -90,19 +90,6 @@ const popupMock = {
     addTo: vi.fn().mockImplementation(() => popupMock),
 }
 
-const urlDeleteMock = vi.fn();
-
-const urlAppendMock = vi.fn();
-
-
-
-export const getUrlDeleteMock = () => {
-    return urlDeleteMock;
-}
-
-export const getUrlAppendMock = () => {
-    return urlAppendMock;
-}
 
 export const getMapMock = () => {
     return mapMock;
@@ -151,6 +138,14 @@ let urlParams = [];
 
 export const stubGlobalUrl = (urlParams = []) => {
     urlParams = urlParams || [];
+    const deleteMock = vi.fn().mockImplementation((key) => {
+        urlParams = urlParams.filter((param) => {
+            return param.name !== key
+        })
+    })
+    const appendMock = vi.fn().mockImplementation((name, value) => {
+        urlParams.push({name, value})
+    })
     vi.stubGlobal('URL', vi.fn(() => {
         return {
             searchParams: {
@@ -166,14 +161,8 @@ export const stubGlobalUrl = (urlParams = []) => {
                         return param.value
                     })
                 }),
-                delete: vi.fn().mockImplementation((key) => {
-                    urlParams = urlParams.filter((param) => {
-                        return param.name !== key
-                    })
-                }),
-                append: vi.fn().mockImplementation((name, value) => {
-                    urlParams.push({name, value})
-                }),
+                delete: deleteMock,
+                append: appendMock,
                 toString: vi.fn().mockImplementation(() => {
                     let toReturn = ''
                     urlParams.forEach((param, index) => {
@@ -184,6 +173,7 @@ export const stubGlobalUrl = (urlParams = []) => {
             }
         }
     }))
+    return [deleteMock, appendMock]
 }
 
 export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=layer1&layers=layer2') => {
@@ -195,5 +185,11 @@ export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=lay
             return domElementMock
         }),
         location: location
+    })
+}
+
+export const stubGlobalTurf = (boundingBox) => {
+    vi.stubGlobal('turf', {
+        extent: vi.fn().mockReturnValue(boundingBox || [1,2,3,4])
     })
 }

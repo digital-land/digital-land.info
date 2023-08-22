@@ -1,6 +1,6 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import TiltControl from '../../../assets/javascripts/TiltControl.js'
-import { getDomElementMock, stubGlobalDocument } from '../../utils/mockUtils.js'
+import { getDomElementMock, getMapMock, stubGlobalDocument } from '../../utils/mockUtils.js'
 
 stubGlobalDocument();
 const domElementMock = getDomElementMock();
@@ -15,12 +15,10 @@ describe('Tilt Control', () => {
 
     test('onAdd() correctly executes', () => {
         tiltControl.clickHandler = vi.fn()
-        const map = {
-            on: vi.fn(),
-        }
-        tiltControl.onAdd(map)
+        const mapMock = getMapMock()
+        tiltControl.onAdd(mapMock)
         expect(domElementMock.addEventListener).toHaveBeenCalledTimes(1)
-        expect(map.on).toHaveBeenCalledTimes(1)
+        expect(mapMock.on).toHaveBeenCalledTimes(1)
     })
 
     test('onRemove() correctly executes', () => {

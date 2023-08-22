@@ -30,52 +30,38 @@ let layer3Checkbox = {
     checked: true
 };
 
-const moduleMock = {
-    querySelectorAll: vi.fn().mockImplementation(() => {
-        return [
-            {
-                dataset: {
-                    layerControl: 'layer1'
-                },
-                querySelector: vi.fn().mockImplementation(() => {
-                    return layer1Checkbox
-                }),
-                classList: {
-                    add: vi.fn(),
-                    remove: vi.fn()
-                },
-                addEventListener: vi.fn()
+const moduleMock = {...domElementMock};
+moduleMock.querySelectorAll.mockImplementation(() => {
+    return [
+        {
+            ...domElementMock,
+            dataset: {
+                layerControl: 'layer1'
             },
-            {
-                dataset: {
-                    layerControl: 'layer2'
-                },
-                querySelector: vi.fn().mockImplementation(() => {
-                    return layer2Checkbox
-                }),
-                classList: {
-                    add: vi.fn(),
-                    remove: vi.fn()
-                },
-                addEventListener: vi.fn()
+            querySelector: vi.fn().mockImplementation(() => {
+                return layer1Checkbox
+            }),
+        },
+        {
+            ...domElementMock,
+            dataset: {
+                layerControl: 'layer2'
             },
-            {
-                dataset: {
-                    layerControl: 'layer3'
-                },
-                querySelector: vi.fn().mockImplementation(() => {
-                    return layer3Checkbox
-                }),
-                classList: {
-                    add: vi.fn(),
-                    remove: vi.fn()
-                },
-                addEventListener: vi.fn()
-            }
-        ];
-    }),
-    closest: vi.fn().mockImplementation(() => domElementMock)
-}
+            querySelector: vi.fn().mockImplementation(() => {
+                return layer2Checkbox
+            }),
+        },
+        {
+            ...domElementMock,
+            dataset: {
+                layerControl: 'layer3'
+            },
+            querySelector: vi.fn().mockImplementation(() => {
+                return layer3Checkbox
+            }),
+        }
+    ];
+});
 
 describe('LayerControls', () => {
     test('toggleLayersBasedOnUrl', () => {

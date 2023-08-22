@@ -1,4 +1,4 @@
-import {describe, expect, test, vi, beforeEach} from 'vitest'
+import {describe, expect, test, beforeEach} from 'vitest'
 import {newMapController, capitalizeFirstLetter} from '../../../assets/javascripts/utils.js'
 import { stubGlobalMapLibre } from '../../utils/mockUtils.js'
 
