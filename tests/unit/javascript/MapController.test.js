@@ -1,21 +1,12 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
+import {
+    stubGlobalMapLibre
+} from '../../utils/mockUtils.js';
 
 describe('Map Controller - Unit', () => {
 
-    vi.stubGlobal('maplibregl', {
-            Map: vi.fn().mockImplementation(() => {
-                return {
-                    on: vi.fn(),
-                    loadImage: vi.fn().mockImplementation(vi.fn().mockImplementation((src, callback) => {
-                        callback(false, 'the Image');
-                    })),
-                    addImage: vi.fn(),
-                    addSource: vi.fn(),
-                }
-            })
-        }
-    )
+    stubGlobalMapLibre();
 
     let mapController;
 

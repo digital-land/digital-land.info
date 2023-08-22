@@ -15,14 +15,10 @@ import {
     stubGlobalDocument
 } from '../../utils/mockUtils';
 
-
-
-
 stubGlobalMapLibre();
 stubGlobalWindow('http://localhost', '')
 stubGlobalUrl();
 stubGlobalDocument();
-
 
 let domElementMock = getDomElementMock();
 let mapMock = getMapMock();
@@ -30,15 +26,11 @@ let popupMock = getPopupMock();
 let urlDeleteMock = getUrlDeleteMock();
 let urlAppendMock = getUrlAppendMock();
 
-
-
 beforeEach(() => {
     vi.clearAllMocks()
 })
 
-
 describe('Map Controller', () => {
-
     describe('Constructor', () => {
         test('Works as expected, applying default params', async () => {
             const mapController = new MapController()
@@ -177,7 +169,6 @@ describe('Map Controller', () => {
                     'text-anchor': 'top'
                 }
             })
-
         })
 
         test('Works with many geojson features of type point', async () => {

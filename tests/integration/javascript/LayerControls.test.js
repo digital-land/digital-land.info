@@ -4,15 +4,6 @@ import {describe, expect, test, vi, beforeEach} from 'vitest'
 import LayerControls from '../../../assets/javascripts/LayerControls'
 import { getDomElementMock, getMapControllerMock, getMapMock, stubGlobalDocument, stubGlobalUrl, stubGlobalWindow } from '../../utils/mockUtils'
 
-
-/*
-    key integration tests for the layer controller
-        - toggleLayersBasedOnUrl
-        - onControlChkbxChange
-            - will need to mock URL and window global objects
-        - getClickableLayers
-*/
-
 const domElementMock = getDomElementMock();
 const mapControllerMock = getMapControllerMock();
 

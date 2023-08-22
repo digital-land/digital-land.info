@@ -62,7 +62,6 @@ describe('Layer Control', () => {
         })
     })
 
-
     test('toggleLayersBasedOnUrl() correctly executes',() => {
         layerControls.getEnabledLayerNamesFromUrl = vi.fn().mockImplementation(() => {
             return ['testLayer1', 'testLayer2']
@@ -307,5 +306,4 @@ describe('Layer Control', () => {
 
         expect(clickableLayers).toEqual(['testLayer1-1', 'testLayer2Fill']);
     })
-
 })
