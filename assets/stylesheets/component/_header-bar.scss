@@ -16,11 +16,6 @@
 
   // alter header layout when bigger than standard screen width
   @include govuk-media-query($from: $govuk-page-width) {
-    .govuk-header__content nav {
-      display: inline-block;
-      margin-left: govuk-spacing(9);
-    }
-
     .govuk-header__navigation-item .govuk-header__link {
       font-weight: 400;
     }
