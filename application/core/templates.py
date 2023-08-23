@@ -4,8 +4,6 @@ from fastapi.templating import Jinja2Templates
 
 import random
 
-import os
-
 from application.core.filters import (
     generate_query_param_str,
     geometry_reference_count,
@@ -27,6 +25,7 @@ from application.core.filters import (
 )
 
 from application.core.utils import model_dumps
+from application.settings import get_settings
 
 
 def random_int(n=1):
@@ -48,7 +47,8 @@ templates.env.loader = jinja2.ChoiceLoader(
 
 
 def getGaMeasurementId():
-    return os.getenv("GA_MEASUREMENT_ID")
+    settings = get_settings()
+    return settings.GA_MEASUREMENT_ID
 
 
 # Used to customize jinja tojson filter
