@@ -1,6 +1,7 @@
 {% extends "layouts/layout.html" %}
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 {% set templateName = 'dl-info/dataset.html' %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
 
 {% block pageTitle %}{{ dataset["name"] }} Dataset | Planning Data{% endblock %}
 
@@ -9,21 +10,9 @@
 {% endblock headStart %}
 
 {%- block breadcrumbs -%}
-  {{- govukBreadcrumbs({
-    "items": [
-        {
-          "text": "Planning Data",
-          "href": "/"
-        },
-        {
-          "text": "Datasets",
-          "href": "/dataset/"
-        },
-        {
-          "text": dataset["name"]
-        }
-    ]
-    }) -}}
+    {{ dlBackButton({
+      "href": '/dataset/'
+    })}}
 {%- endblock -%}
 
 {% block content %}

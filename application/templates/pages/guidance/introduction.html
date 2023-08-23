@@ -3,6 +3,14 @@
 }) %}
 {% set templateName = 'dl-info/guidance/introduction.html' %}
 {% extends "layouts/layout--guidance.html" %}
+
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "href": '/guidance/'
+  })}}
+{% endblock %}
+
 {% block content_primary %}
 
     <p class="govuk-body-l">The Planning Data platform gathers data from local planning authorities (LPAs) across England. We do this in order to make the data more open and accessible, so better planning decisions are made.</p>

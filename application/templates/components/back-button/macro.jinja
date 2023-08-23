@@ -1,0 +1,16 @@
+{% macro dlBackButton(params) %}
+<script src="/static/javascripts/back-button.js"></script>
+
+<div class="dlBackButtonWrapper">
+    <a
+        class="dlBackButton {{params.classNames}}"
+        {% for attribute, value in (params.attributes.items() if params.attributes else {}.items()) %}
+            {{attribute}}="{{value}}"
+        {% endfor %}
+        href="{{ params.href }}"
+        onclick="return goBack('{{ params.href }}');"
+    >
+        < Back
+    </a>
+</div>
+{% endmacro %}

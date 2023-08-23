@@ -3,6 +3,14 @@
 }) %}
 {% set templateName = 'dl-info/guidance/specification/conservation-area.html' %}
 {% extends "layouts/layout--guidance.html" %}
+
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "href": '/guidance/specifications/'
+  })}}
+{% endblock %}
+
 {% block content_primary %}
 
     {% set markdown_content %}

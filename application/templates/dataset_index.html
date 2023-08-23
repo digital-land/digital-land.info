@@ -1,5 +1,6 @@
 {% extends "layouts/layout.html" %}
 {% set templateName = 'dl-info/dataset_index.html' %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
 
 {% block head %}
 	{{ super() }}
@@ -7,20 +8,10 @@
 	<link rel="stylesheet" href="/static/stylesheets/application.css">
 {% endblock head %}
 
-{%- block beforeContent -%}
-    {{ super() }}
-
-    {{- govukBreadcrumbs({
-    "items": [
-        {
-        "text": "Planning Data",
-        "href": "/"
-        },
-        {
-        "text": "Datasets"
-        }
-    ]
-    }) -}}
+{%- block breadcrumbs -%}
+    {{ dlBackButton({
+      "href": '/'
+    })}}
 {%- endblock -%}
 
 {% block pageTitle %}Datasets | Planning Data{% endblock %}
