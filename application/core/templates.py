@@ -4,6 +4,8 @@ from fastapi.templating import Jinja2Templates
 
 import random
 
+import logging
+
 from application.core.filters import (
     generate_query_param_str,
     geometry_reference_count,
@@ -45,10 +47,11 @@ templates.env.loader = jinja2.ChoiceLoader(
     ]
 )
 
+settings = get_settings()
 
-def getGaMeasurementId():
-    settings = get_settings()
-    return settings.GA_MEASUREMENT_ID
+logger = logging.getLogger(__name__)
+
+logger.info("GA Measurement ID loaded from env as: " + settings.GA_MEASUREMENT_ID)
 
 
 # Used to customize jinja tojson filter
@@ -60,7 +63,7 @@ templates.env.globals["includeAutocomplete"] = True
 templates.env.globals["random_int"] = random_int
 templates.env.globals["templateVar"] = {"email": "digitalland@levellingup.gov.uk"}
 templates.env.globals["serviceStatus"] = False
-templates.env.globals["gaMeasurementId"] = getGaMeasurementId
+templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
 
 templates.env.filters["is_list"] = is_list_filter
 templates.env.filters["commanum"] = commanum_filter
