@@ -7,6 +7,7 @@ export default class TiltControl {
 		const styleClasses = this._container.classList;
 
 		styleClasses.add('maplibregl-ctrl');
+		styleClasses.add('maplibregl-ctrl-group');
 
 		this._container.addEventListener('mouseenter', () => {
 			styleClasses.add('maplibregl-ctrl-active');
