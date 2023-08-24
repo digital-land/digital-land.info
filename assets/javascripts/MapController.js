@@ -264,14 +264,6 @@ export default class MapController {
     return layerName;
   }
 
-  // param: source - object containing name and vectorSource
-  //        source.name - name of the source
-  //        source.vectorSource - url of the vector source
-  //        source.dataType - point or polygon
-  //        source.styleProps - object containing style properties
-  //        source.styleProps.colour - colour of the fill
-  //        source.styleProps.opacity - opacity of the fill
-  //        source.styleProps.weight - weight of the line
   addVectorTileSource(source) {
 		const defaultPaintOptions = {
 			'fill-color': '#003078',
