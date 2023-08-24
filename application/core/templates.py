@@ -51,7 +51,10 @@ settings = get_settings()
 
 logger = logging.getLogger(__name__)
 
-logger.info("GA Measurement ID loaded from env as: " + settings.GA_MEASUREMENT_ID)
+if settings.GA_MEASUREMENT_ID is not None:
+    logger.info("GA Measurement ID loaded from env as: " + settings.GA_MEASUREMENT_ID)
+else:
+    logger.info("GA Measurement ID not set")
 
 
 # Used to customize jinja tojson filter
