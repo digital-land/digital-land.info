@@ -67,11 +67,22 @@ test-acceptance-debug:
 
 test: test-unit test-integration
 
+test-js:
+	npm run test
+
+test-js-unit:
+	npm run test-unit
+
+test-js-integration:
+	npm run test-integration
+
 test-unit:
 	python -m pytest --md-report --md-report-color=never --md-report-output=unit-tests.md tests/unit
+	npm run test-unit
 
 test-integration:
 	python -m pytest --md-report --md-report-color=never --md-report-output=integration-tests.md tests/integration
+	npm run test-integration
 
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
