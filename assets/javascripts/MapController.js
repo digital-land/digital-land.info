@@ -75,17 +75,14 @@ export default class MapController {
                 reject(error);
               }
               this.map.addImage(name, image, {sdf: true});
-              console.log(`Image added ${name}`);
               resolve();
             }
           );
         })
       });
       Promise.all(promiseArray).then(() => {
-        console.log('Images loaded');
         resolve();
       }).catch((error) => {
-        console.log(error);
         reject(error);
       });
     })

@@ -28,20 +28,16 @@ export default class LayerControls {
       // listen for changes to URL
       var boundSetControls = this.toggleLayersBasedOnUrl.bind(this);
       window.addEventListener('popstate', function (event) {
-        console.log('URL has changed - back button');
         boundSetControls();
       });
 
       // initial set up of controls (default or urlParams)
       const urlParams = (new URL(document.location)).searchParams;
-      console.log('PARAMS', urlParams);
       if (!urlParams.has(this.layerURLParamName)) {
         // if not set then use default checked controls
-        console.log('NO layer params exist');
         this.updateUrl();
       } else {
         // use URL params if available
-        console.log('layer params exist');
         this.toggleLayersBasedOnUrl();
       }
 
@@ -131,16 +127,13 @@ export default class LayerControls {
     }
 
     showEntitiesForLayers(enabledLayerNames) {
-      console.log('Enable:', enabledLayerNames);
 
       const datasetNamesClone = [].concat(this.datasetNames);
       const disabledLayerNames = datasetNamesClone.filter(name => enabledLayerNames.indexOf(name) === -1);
-      console.log('Disable:', disabledLayerNames);
 
       // map the names to the controls
       const toEnable = enabledLayerNames.map(name => this.getControlByName(name));
       const toDisable = disabledLayerNames.map(name => this.getControlByName(name));
-      console.log(toEnable, toDisable);
 
       // pass correct this arg
       toEnable.forEach(this.enable, this);
@@ -183,7 +176,6 @@ export default class LayerControls {
     };
 
     enable($control) {
-      console.log('enable', this.getDatasetName($control));
       const $chkbx = $control.querySelector('input[type="checkbox"]');
       $chkbx.checked = true;
       $control.dataset.layerControlActive = 'true';
@@ -192,7 +184,6 @@ export default class LayerControls {
     };
 
     disable($control) {
-      console.log('disable', this.getDatasetName($control));
       const $chkbx = $control.querySelector('input[type="checkbox"]');
       $chkbx.checked = false;
       $control.dataset.layerControlActive = 'false';
@@ -205,14 +196,12 @@ export default class LayerControls {
     };
 
     toggleLayerVisibility(datasetName, toEnable) {
-      console.log('toggle layer', datasetName);
       const visibility = (toEnable) ? 'visible' : 'none';
       const layers = this.availableLayers[datasetName];
       layers.forEach(layerId => this.mapController.setLayerVisibility(layerId, visibility));
     };
 
     onControlChkbxChange = function (e) {
-      console.log('Has been toggled', e.target, this);
       // when a control is changed update the URL params
       this.updateUrl();
     };
