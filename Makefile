@@ -82,7 +82,6 @@ test-unit:
 
 test-integration:
 	python -m pytest --md-report --md-report-color=never --md-report-output=integration-tests.md tests/integration
-	npm run test-integration
 
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
