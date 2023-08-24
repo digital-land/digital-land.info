@@ -47,14 +47,14 @@
     {% block mastHead %}
         {% include 'partials/service-status-banner.html' %}
         {% include 'partials/mast-head.html' %}
+        {% include 'partials/phase-banner.html' %}
     {% endblock mastHead %}
 
 {% endblock header %}
 
+
+
 {% block beforeContent %}
-  {% block phaseBanner %}
-    {% include 'partials/phase-banner.html' %}
-  {% endblock %}
 	{% block breadcrumbs %}{% endblock breadcrumbs %}
 {% endblock beforeContent %}
 
