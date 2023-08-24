@@ -56,13 +56,6 @@ if settings.GA_MEASUREMENT_ID is not None:
 else:
     logger.info("GA Measurement ID not set")
 
-if settings.DATASETTE_TILES_URL is not None:
-    logger.info(
-        "DATASETTE_TILES_URL loaded from env as: " + settings.DATASETTE_TILES_URL
-    )
-else:
-    logger.info("DATASETTE_TILES_URL not set")
-
 
 # Used to customize jinja tojson filter
 templates.env.policies["json.dumps_function"] = model_dumps
@@ -74,8 +67,6 @@ templates.env.globals["random_int"] = random_int
 templates.env.globals["templateVar"] = {"email": "digitalland@levellingup.gov.uk"}
 templates.env.globals["serviceStatus"] = False
 templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
-templates.env.globals["DATASETTE_TILES_URL"] = str(settings.DATASETTE_TILES_URL)
-
 
 templates.env.filters["is_list"] = is_list_filter
 templates.env.filters["commanum"] = commanum_filter
