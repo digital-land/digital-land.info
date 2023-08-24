@@ -35,7 +35,7 @@ export default class MapController {
     this.ZoomControlsOptions = params.ZoomControlsOptions || {enabled: false};
     this.FullscreenControl = params.FullscreenControl || {enabled: false};
     this.geojsons = params.geojsons || [];
-    this.images = params.images || [{src: '/static/images/location-pointer-sdf.png', name: 'custom-marker'}];
+    this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
     this.paint_options = params.paint_options || null;
   }
 
@@ -103,7 +103,7 @@ export default class MapController {
     const addedLayers = [];
     geojsons.forEach(geojson => {
       if(geojson.data.type == 'Point')
-        addedLayers.push(this.addPoint(geojson, 'custom-marker'));
+        addedLayers.push(this.addPoint(geojson, this.images[0]));
       else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
         addedLayers.push(this.addPolygon(geojson));
       else
@@ -114,11 +114,11 @@ export default class MapController {
 
   addControls() {
     this.map.addControl(new maplibregl.ScaleControl({
-      container: document.querySelector(this.mapContainerSelector)
+      container: document.getElementById(this.mapId)
     }), 'bottom-left');
     this.map.addControl(new TiltControl(), 'top-left');
     this.map.addControl(new maplibregl.NavigationControl({
-      container: document.querySelector(this.mapContainerSelector)
+      container: document.getElementById(this.mapId)
     }), 'top-left');
 
 		// add layer controls
@@ -129,7 +129,7 @@ export default class MapController {
 
     if(this.FullscreenControl.enabled){
       this.map.addControl(new maplibregl.FullscreenControl({
-        container: document.querySelector(this.mapContainerSelector)
+        container: document.getElementById(this.mapId)
       }), 'bottom-left');
 
     }
@@ -205,7 +205,7 @@ export default class MapController {
     this.geojsonLayers.push(geometry.name);
   }
 
-  addPoint(geometry, imageName=undefined){
+  addPoint(geometry, image=undefined){
     this.map.addSource(geometry.name, {
       'type': 'geojson',
       'data': {
@@ -224,9 +224,9 @@ export default class MapController {
 
     let layerName
     // if an image is provided use that otherwise use a circle
-    if(imageName){
-      if(!this.map.hasImage(imageName)){
-        throw new Error('Image not loaded, imageName: ' + imageName + ' not found');
+    if(image){
+      if(!this.map.hasImage(image.name)){
+        throw new Error('Image not loaded, imageName: ' + image.name + ' not found');
       }
       layerName = this.addLayer(
         {
@@ -234,9 +234,11 @@ export default class MapController {
           layerType: 'symbol',
           paintOptions: {
             'icon-color': iconColor,
+            'icon-opacity': 1,
           },
           layoutOptions: {
-            'icon-image': 'custom-marker',
+            'icon-image': image.name,
+            'icon-size': 256 / image.size * 0.15,
             'icon-anchor': 'bottom',
             // get the year from the source's "year" property
             'text-field': ['get', 'year'],
