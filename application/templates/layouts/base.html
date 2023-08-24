@@ -67,8 +67,10 @@
   {% block bodyScriptsStart %}{% endblock bodyScriptsStart %}
 
   {% block bodyScripts %}
-
-
+    <script src="{{ cacheBust(assetPath + '/javascripts/cookies.js') }}"></script>
+    <script>
+      cookiePrefs.get();
+    </script>
 
     {% block analyticScripts %}
         <script async src='https://www.google-analytics.com/analytics.js'></script>
@@ -78,12 +80,6 @@
             var scriptElement = document.createElement("script");
             scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
             document.head.appendChild(scriptElement);
-        </script>
-
-        <script src="{{ cacheBust(assetPath + '/javascripts/cookies.js') }}"></script>
-
-        <script>
-          cookiePrefs.get();
         </script>
     {% endblock analyticScripts %}
 
