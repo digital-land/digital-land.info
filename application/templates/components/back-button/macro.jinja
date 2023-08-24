@@ -7,8 +7,8 @@
         {% for attribute, value in (params.attributes.items() if params.attributes else {}.items()) %}
             {{attribute}}="{{value}}"
         {% endfor %}
-        href="{{ params.href }}"
-        onclick="return goBack('{{ params.href }}');"
+        href="{{ params.parentHref }}"
+        onclick="return goBack('{{ params.parentHref }}');"
     >
         < Back
     </a>
