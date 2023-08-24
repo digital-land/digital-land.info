@@ -167,14 +167,12 @@
         }
       }) %}
 
-        {% set noteHTML %}<a class="js-hidden dl-link-national-map" href="#">See on national map.</a>{% endset %}
         {{
           map({
             "mapId": "map",
             'height': 460,
             'enableZoomControls': true,
             'geojsons': [entity|get_entity_geometry],
-            'notePanel': noteHTML,
             'paint_options': entity|get_entity_paint_options,
           })
         }}

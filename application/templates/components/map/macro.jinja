@@ -55,9 +55,11 @@
             </div>
         {% endif -%}
     </div>
-    <div class="app-c-sources-panel govuk-!-margin-bottom-4">
-      {{params.notePanel|safe}}
-    </div>
+    {% if params.notePanel is defined %}
+      <div class="app-c-sources-panel govuk-!-margin-bottom-4">
+        {{params.notePanel|safe}}
+      </div>
+    {% endif %}
 
 
     <script type="module">
