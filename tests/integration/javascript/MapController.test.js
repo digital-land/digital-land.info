@@ -31,7 +31,14 @@ beforeEach(() => {
 describe('Map Controller', () => {
     describe('Constructor', () => {
         test('Works as expected, applying default params', async () => {
-            const mapController = new MapController()
+            const mapController = new MapController({
+                images: [
+                    {
+                        src: '/static/images/location-pointer-sdf.png',
+                        name: 'custom-marker',
+                    }
+                ]
+            })
 
             expect(mapController.map.events.load).toBeDefined()
 
@@ -98,13 +105,13 @@ describe('Map Controller', () => {
             expect(mapController.ZoomControlsOptions).toEqual({enabled: false});
             expect(mapController.FullscreenControl).toEqual({enabled: true});
             expect(mapController.geojsons).toEqual([]);
-            expect(mapController.images).toEqual([{src: '/static/images/location-pointer-sdf.png', name: 'custom-marker'}]);
+            expect(mapController.images).toEqual([{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}]);
             expect(mapController.paint_options).toEqual(null);
 
             expect(mapController.map.loadImage).toHaveBeenCalledOnce();
             expect(mapController.map.addImage).toHaveBeenCalledOnce();
-            expect(mapController.map.loadImage).toHaveBeenCalledWith('/static/images/location-pointer-sdf.png', expect.any(Function));
-            expect(mapController.map.addImage).toHaveBeenCalledWith('custom-marker', 'the Image', {sdf: true});
+            expect(mapController.map.loadImage).toHaveBeenCalledWith('/static/images/location-pointer-sdf-256.png', expect.any(Function));
+            expect(mapController.map.addImage).toHaveBeenCalledWith('custom-marker-256', 'the Image', {sdf: true});
 
             expect(mapController.map.addControl).toHaveBeenCalledTimes(4);
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'top-left');
@@ -153,9 +160,11 @@ describe('Map Controller', () => {
                 'source-layer': '',
                 paint: {
                     'icon-color': params.paint_options.colour,
+                    'icon-opacity': 1,
                 },
                 layout: {
-                    'icon-image': 'custom-marker',
+                    'icon-image': 'custom-marker-256',
+                    'icon-size': 0.15,
                     'icon-anchor': 'bottom',
                     // get the year from the source's "year" property
                     'text-field': ['get', 'year'],
@@ -219,9 +228,11 @@ describe('Map Controller', () => {
                     'source-layer': '',
                     paint: {
                         'icon-color': 'blue',
+                        'icon-opacity': 1,
                     },
                     layout: {
-                        'icon-image': 'custom-marker',
+                        'icon-image': 'custom-marker-256',
+                        'icon-size': 0.15,
                         'icon-anchor': 'bottom',
                         // get the year from the source's "year" property
                         'text-field': ['get', 'year'],

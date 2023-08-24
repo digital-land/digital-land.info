@@ -233,12 +233,19 @@ describe('Map Controller - Unit', () => {
                 return 'red'
             })
 
-            const layerName = mapController.addPoint({
-                name: 'testName-source',
-                data: {
-                    type: 'Point',
+            const layerName = mapController.addPoint(
+                {
+                    name: 'testName-source',
+                    data: {
+                        type: 'Point',
+                    }
+                },
+                {
+                    name: 'myTestImageId',
+                    src: 'myTestImageSrc',
+                    size: 256,
                 }
-            }, 'myTestImageId')
+            )
 
             expect(mapController.map.addSource).toHaveBeenCalledTimes(1)
             expect(mapController.addLayer).toHaveBeenCalledTimes(1)

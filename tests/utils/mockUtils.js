@@ -184,7 +184,10 @@ export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=lay
         querySelector: vi.fn().mockImplementation(() => {
             return domElementMock
         }),
-        location: location
+        location: location,
+        getElementById: vi.fn().mockImplementation(() => {
+            return domElementMock
+        }),
     })
 }
 
