@@ -7,6 +7,8 @@
 {%- from "components/entity-value/macro.jinja" import entityValue %}
 {%- from "components/entity-field/macro.jinja" import entityField %}
 
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+
 {% if row['name'] %}
   {%- set row_name = row['name'] %}
 {%- elif row['reference'] %}
@@ -37,21 +39,9 @@
 {%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Planning Data{% endblock -%}
 
 {%- block breadcrumbs -%}
-  {{- govukBreadcrumbs({
-    "items": [
-        {
-          "text": "Planning Data",
-          "href": "/"
-        },
-        {
-          "text": "Entity",
-          "href": "/entity"
-        },
-        {
-          "text": row["entity"]
-        }
-      ]
-    }) -}}
+    {{ dlBackButton({
+      "parentHref": '/entity/'
+    })}}
 {%- endblock -%}
 
 {%- block content %}
