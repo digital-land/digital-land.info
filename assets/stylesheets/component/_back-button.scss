@@ -1,0 +1,30 @@
+.dlBackButton {
+    all: unset;
+    margin: 10px 0px;
+    display: block;
+    color: #0b0c0c;
+    text-decoration: underline;
+    font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    float: left;
+}
+
+.dlBackButton:hover {
+    color: rgba(11, 12, 12, 0.99);
+    text-decoration-thickness: 3px;
+    cursor: pointer;
+}
+
+.dlBackButton:focus {
+    outline: 3px solid #ffbf47;
+    outline-offset: 0px;
+    box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+    text-decoration: none;
+    background-color: #ffbf47;
+}
+
+.dlBackButtonWrapper {
+    display: block;
+    margin-bottom: 10px;
+}

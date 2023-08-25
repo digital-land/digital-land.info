@@ -1,8 +1,14 @@
 {% extends "layouts/layout--guidance.html" %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
 {% set templateName = 'dl-info/guidance/index.html' %}
 {%- do pageData.update({
   'pageTitle': 'Guidance for local planning authorities'
 }) %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/'
+  })}}
+{% endblock %}
 {% block content_primary %}
 
     <h2 class="govuk-heading-s govuk-!-margin-bottom-1">

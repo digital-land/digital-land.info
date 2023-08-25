@@ -3,6 +3,14 @@
 }) %}
 {% set templateName = 'dl-info/guidance/how-to-provide-data.html' %}
 {% extends "layouts/layout--guidance.html" %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/guidance/'
+  })}}
+{% endblock %}
+
 {% block content_primary %}
 
     {% set markdown_content %}
