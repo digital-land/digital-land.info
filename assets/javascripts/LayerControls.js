@@ -25,6 +25,16 @@ export default class LayerControls {
       // list all datasets names
       this.datasetNames = this.$controls.map($control => $control.dataset.layerControl);
 
+      // find the search box
+      this.$textbox = this.$module.querySelector('.dl-filter-group__auto-filter__input');
+      this.$textbox.addEventListener('input', this.filterCheckboxes.bind(this));
+
+      // find all checkboxes
+      this.checkboxArr = [...this.$module.querySelectorAll(this.listItemSelector)];
+
+      // get the aria description element
+      this.ariaDescription = this.$module.querySelector('.dl-filter-group__auto-filter__desc');
+
       // listen for changes to URL
       var boundSetControls = this.toggleLayersBasedOnUrl.bind(this);
       window.addEventListener('popstate', function (event) {
@@ -54,6 +64,7 @@ export default class LayerControls {
       params = params || {};
       this.layerControlDeactivatedClass = params.layerControlDeactivatedClass || 'deactivated-control';
       this.layerURLParamName = params.layerURLParamName || 'layer';
+      this.listItemSelector = params.listItemSelector || '.govuk-checkboxes__item';
     };
 
     createCloseButton() {
@@ -223,4 +234,32 @@ export default class LayerControls {
       return clickableLayers;
     }
 
+    filterCheckboxes(e) {
+      // get the value of the search box
+      // get an array of filtered controls based on the value
+      // render those controls to the layer control panel
+
+      var query = e.target.value;
+      var filteredCheckboxes = this.filterCheckboxesArr(query);
+      this.displayMatchingCheckboxes(filteredCheckboxes)
+    };
+
+    filterCheckboxesArr(query) {
+      var checkboxArr = this.checkboxArr;
+      return checkboxArr.filter((el) => {
+        const checkbox = el.querySelector('label');
+        return checkbox.textContent.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      })
+    };
+
+    displayMatchingCheckboxes(checkboxArray, cb) {
+      // hide all
+      this.checkboxArr.forEach((checkBox) => {checkBox.style.display = 'none';});
+      // re show those in filtered array
+      checkboxArray.forEach((checkBox) => {checkBox.style.display = 'block';});
+
+      if (cb) {
+        cb();
+      }
+    };
 }
