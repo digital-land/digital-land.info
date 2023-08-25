@@ -28,7 +28,7 @@ export default class MapController {
     this.minMapZoom = params.minMapZoom || 5;
     this.maxMapZoom = params.maxMapZoom || 15;
     this.baseURL = params.baseURL || 'https://digital-land.github.io';
-    this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tiles-2.json';
+    this.baseTileStyleFilePath = params.baseTileStyleFilePath || '/static/javascripts/base-tile.json';
     this.popupWidth = params.popupWidth || '260px';
     this.popupMaxListLength = params.popupMaxListLength || 10;
     this.LayerControlOptions = params.LayerControlOptions || {enabled: false};
@@ -39,16 +39,32 @@ export default class MapController {
     this.paint_options = params.paint_options || null;
   }
 
+
+
   createMap() {
+    const apiKey = 'OnQaJky59mwTnFEW6KCMEewo8Vyb8Qm6';
+
+    // Define the custom JSON style.
+    // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
+    const customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
+
     var map = new maplibregl.Map({
-      container: this.mapId,
-      // container id
-      style: this.baseTileStyleFilePath,
-      // open source tiles?
-      center: [-0.61, 53.1],
-      // // starting position [lng, lat]
-      zoom: 5.5
-      // // starting zoom
+      container: 'map',
+      minZoom: 6,
+      maxZoom: 18,
+      style: customStyleJson,
+      maxBounds: [
+          [ -12.76418, 47.528423 ],
+          [ 3.9134116, 63.331151 ]
+      ],
+      center: [ -2.968, 54.425 ],
+      zoom: 13,
+      transformRequest: url => {
+          if(! /[?&]key=/.test(url) ) url += '?key=' + apiKey
+          return {
+              url: url + '&srs=3857'
+          }
+      }
     });
     return map;
   };
