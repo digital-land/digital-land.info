@@ -17,7 +17,7 @@ Benefits to LPAs
 
 Sharing data in this way will help planners and developers gain a better understanding of the potential for development in each participating authority.
 
-The data will be used in the [Reduce Invalid Planning Applications (RIPA) ](https://www.ripa.digital)service, which can:
+The data will be used in the [Reduce Invalid Planning Applications (RIPA)](https://www.ripa.digital) service, which can:
 
 -   show potential development sites that fit local planning requirements
 -   help people to plan developments that meet those requirements
