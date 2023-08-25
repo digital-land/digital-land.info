@@ -254,4 +254,64 @@ describe('Layer Control', () => {
 
         expect(clickableLayers).toEqual(['testLayer1-1', 'testLayer2Fill']);
     })
+
+    test('filterCheckboxesArray() correctly executes',() => {
+        const generateCheckboxWithName = (name) => {
+            return {
+                querySelector: vi.fn().mockImplementation(() => {
+                    return {
+                        textContent: name,
+                    }
+                })
+            }
+        }
+
+        const BrownfieldLandCheckbox = generateCheckboxWithName('Brownfield-land');
+        const GreenBeltCheckbox = generateCheckboxWithName('Green-belt');
+        const TreeCheckbox = generateCheckboxWithName('Tree');
+
+        layerControls.checkboxArr = [
+            BrownfieldLandCheckbox,
+            GreenBeltCheckbox,
+            TreeCheckbox
+        ]
+
+        let filteredCheckboxes = layerControls.filterCheckboxesArr('l');
+        expect(filteredCheckboxes).toEqual([BrownfieldLandCheckbox, GreenBeltCheckbox]);
+
+        filteredCheckboxes = layerControls.filterCheckboxesArr('la');
+        expect(filteredCheckboxes).toEqual([BrownfieldLandCheckbox]);
+
+        filteredCheckboxes = layerControls.filterCheckboxesArr('nothing Should Return');
+        expect(filteredCheckboxes).toEqual([]);
+
+        filteredCheckboxes = layerControls.filterCheckboxesArr('');
+        expect(filteredCheckboxes).toEqual([BrownfieldLandCheckbox, GreenBeltCheckbox, TreeCheckbox]);
+    })
+
+    test('displayMatchingCheckboxes() correctly executes',() => {
+        const generateCheckboxWithName = (name) => {
+            return {
+                style: {
+                    display: '',
+                },
+            }
+        }
+
+        const BrownfieldLandCheckbox = generateCheckboxWithName('Brownfield-land');
+        const GreenBeltCheckbox = generateCheckboxWithName('Green-belt');
+        const TreeCheckbox = generateCheckboxWithName('Tree');
+
+        layerControls.checkboxArr = [
+            BrownfieldLandCheckbox,
+            GreenBeltCheckbox,
+            TreeCheckbox
+        ]
+
+        layerControls.displayMatchingCheckboxes([BrownfieldLandCheckbox, GreenBeltCheckbox]);
+        expect(BrownfieldLandCheckbox.style.display).toBe('block');
+        expect(GreenBeltCheckbox.style.display).toBe('block');
+        expect(TreeCheckbox.style.display).toBe('none');
+
+    })
 })
