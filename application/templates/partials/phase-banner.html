@@ -2,6 +2,10 @@
 {{
   dlPhaseBanner({
     'phase': 'Beta',
-    'html': 'This is a new service.'
+    'html': 'This is a new service – to help us improve it, <a href="https://docs.google.com/forms/d/e/1FAIpQLSc1yzvw1Duv6nQRS56p379IxxMdAC5EfklMfUnCVMikgbi0Xw/viewform">sign up to take part in research</a>',
+    'classes': 'govuk-width-container govuk-width-container' if not fullWidthHeader else 'govuk-width-container govuk-grid-column-full',
+    'attributes': {
+      'style': '' if not fullWidthHeader else 'margin: 0px 15px 0px 15px;'
+    }
   })
 }}

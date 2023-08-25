@@ -27,6 +27,7 @@ from application.core.filters import (
 )
 
 from application.core.utils import model_dumps
+from application.settings import get_settings
 
 
 def random_int(n=1):
@@ -46,6 +47,8 @@ templates.env.loader = jinja2.ChoiceLoader(
     ]
 )
 
+settings = get_settings()
+
 # Used to customize jinja tojson filter
 templates.env.policies["json.dumps_function"] = model_dumps
 
@@ -55,6 +58,7 @@ templates.env.globals["includeAutocomplete"] = True
 templates.env.globals["random_int"] = random_int
 templates.env.globals["templateVar"] = {"email": "digitalland@levellingup.gov.uk"}
 templates.env.globals["serviceStatus"] = False
+templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
 
 templates.env.filters["is_list"] = is_list_filter
 templates.env.filters["commanum"] = commanum_filter
