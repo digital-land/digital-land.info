@@ -63,7 +63,9 @@ const mapControllerMock = {
 }
 
 const domElementMock = {
-    querySelector: vi.fn(),
+    querySelector: vi.fn().mockImplementation(() => {
+        return {...domElementMock};
+    }),
     querySelectorAll: vi.fn().mockImplementation(() => {
         return []
     }),
