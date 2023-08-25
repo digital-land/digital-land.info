@@ -11,15 +11,6 @@
 
 }
 
-.dl-header--full {
-  // alter header layout when bigger than standard screen width
-  @include govuk-media-query($from: $govuk-page-width) {
-    .govuk-header__navigation-item .govuk-header__link {
-      font-weight: 400;
-    }
-  }
-}
-
 .dl-header__service-name {
   @include govuk-font($size: 24);
   padding-left: $govuk-gutter-half;
