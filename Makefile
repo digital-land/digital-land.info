@@ -82,6 +82,7 @@ test-unit:
 
 test-integration:
 	python -m pytest --md-report --md-report-color=never --md-report-output=integration-tests.md tests/integration
+	npm run test-integration
 
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
@@ -112,9 +113,6 @@ frontend:
 	rsync -r assets/images static/
 
 frontend-all: clean frontend
-
-frontend-watch:
-	npm run nps watch.assets & npm run nps watch.pages
 
 black:
 	black .

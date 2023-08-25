@@ -88,3 +88,14 @@
   color: govuk-colour("red");
   @include govuk-font($size: 16);
 }
+
+.dl-map__tilt-toggle{
+  box-shadow: 0 0 0 2px rgba(0,0,0,.1);
+  border-radius: 4px;
+  background-color: #fff;
+  width: 29px;
+  height: 29px;
+  font-weight: bold;
+  padding: 0px;
+  border: 0px;
+}

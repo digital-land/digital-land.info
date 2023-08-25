@@ -22,6 +22,8 @@ from application.core.filters import (
     hex_to_rgb_string_filter,
     make_link_filter,
     commanum_filter,
+    get_entity_geometry,
+    get_entity_paint_options,
 )
 
 from application.core.utils import model_dumps
@@ -75,5 +77,7 @@ templates.env.globals["cacheBust"] = cacheBust
 templates.env.filters["make_url_param_str"] = make_url_param_str
 templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key
+templates.env.filters["get_entity_geometry"] = get_entity_geometry
+templates.env.filters["get_entity_paint_options"] = get_entity_paint_options
 
 templates.env.add_extension("jinja2.ext.do")

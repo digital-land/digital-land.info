@@ -30,9 +30,7 @@
 
   {% block pageAssets %}
     {% block mapAssets %}
-      {%- if includesMap -%}
-        {% include 'partials/map-assets.html' %}
-      {%- endif %}
+
     {% endblock mapAssets %}
   {% endblock pageAssets %}
 
@@ -98,10 +96,7 @@
     {% endblock govScripts %}
 
     {% block digitalLandScripts %}
-    <script src="{{ assetPath | default('/assets') }}/javascripts/digital-land-frontend.js"></script>
-    <script>
-      window.DLFrontend.initAll();
-    </script>
+
     {% endblock digitalLandScripts %}
 
     {% block pageScripts %}{% endblock pageScripts %}

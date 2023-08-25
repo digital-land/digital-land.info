@@ -46,7 +46,9 @@ $govuk-checkboxes-size: 40px;
   display: block;
   position: relative;
   margin-left: 53px;
+  font-size: 1rem;
 }
+
 
 .dl-label__key__symbol {
   box-sizing: border-box;
@@ -59,6 +61,11 @@ $govuk-checkboxes-size: 40px;
   margin-left: -53px;
   border: $govuk-border-width-form-element solid govuk-colour("mid-grey");
   background: rgba(govuk-colour("light-grey"), .5);
+}
+.dl-label__key__symbol--pin {
+  border: none;
+  background: none;
+  @extend .dl-label__key__symbol;
 }
 
 .dl-label__key__symbol--circle {

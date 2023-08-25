@@ -6,10 +6,17 @@
 {%- from "govuk_frontend_jinja/components/fieldset/macro.html" import govukFieldset %}
 {%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton %}
 {%- from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
-{%- from "components/map/macro.jinja" import dlMap %}
+{%- from "components/map/macro.jinja" import map %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
 {% from 'components/pagination/macro.jinja' import appPagination %}
+
+{%- block mapAssets %}
+  <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+  <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+  <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
+  {{ super() }}
+{% endblock -%}
 
 {% block breadcrumbs %}
   {{ dlBackButton({
@@ -27,11 +34,6 @@
       <div class="govuk-grid-column-one-third">
         {% set search_form_url = "/entity" %}
         {% include 'partials/search-facets.html' %}
-
-        <!--<form action="/entity" method="get" class="app-search">
-          {{ govukInput({ "label": { "text": "Latitude", }, "id": "latitude", "name": "latitude" }) }} {{ govukInput({ "label": { "text": "Longitude", }, "id": "longitude", "name": "longitude" }) }}
-          {{ govukButton({ "text": "Search", "classes": "govuk-!-margin-bottom-0" }) }}
-        </form>-->
       </div>
       <!-- /.govuk-grid-column-one-third -->
       <div class="govuk-grid-column-two-thirds">
@@ -184,7 +186,17 @@
 
                 {# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
                 {% if e["geojson"] and "geometry" in e["geojson"] %}
-                <div class="app-card__media">{% set mapId = e["entity"] ~ "-map" %} {{ dlMap({ "id": mapId, "wrapper_classes": "app-card__map-container" }) }}</div>
+                <div class="app-card__media">
+                  {{
+                    map({
+                      "mapId": e["entity"] ~ "-map",
+                      'height': 350,
+                      'enableZoomControls': true,
+                      'geojsons': [row|get_entity_geometry],
+                      'paint_options': row|get_entity_paint_options,
+                    })
+                  }}
+                </div>
                 {% endif %}
                 <div class="app-card__body">
                   {% if e["description"] %}
@@ -308,22 +320,6 @@
 
 {% block pageScripts %}
 {% if data and data|count > 0 %}
-<script>
-  const results = {{ data|tojson }};
-  results.forEach(function (result) {
-      if (!result.geojson || !result.geojson.hasOwnProperty("geometry")) {
-        return;
-      }
-      const mapElementId = result.entity + "-map"
-      const $mapElement = document.getElementById(mapElementId)
-      const dlmap = new DLMaps.Map($mapElement).init({
-        maxZoom: 13
-      })
-      // create a named map layer so we can use that to fitbounds
-      var mapLayer = L.geoJSON().addTo(dlmap.map);
-      mapLayer.addData(result.geojson);
-      dlmap.map.fitBounds(mapLayer.getBounds())
-  })
-</script>
+
 {% endif %}
 {% endblock pageScripts %}
