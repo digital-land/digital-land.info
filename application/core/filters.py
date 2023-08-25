@@ -273,7 +273,6 @@ def get_entity_paint_options(entity):
     dataset = get_dataset_query(entity.dataset)
     if dataset:
         return dataset.paint_options
-    return None
 
 
 def commanum_filter(v):
