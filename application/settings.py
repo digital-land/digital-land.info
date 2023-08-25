@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     DATASETTE_URL: HttpUrl
     DATASETTE_TILES_URL: Optional[HttpUrl]
     DATA_FILE_URL: HttpUrl
+    GA_MEASUREMENT_ID: Optional[str] = None
 
 
 @lru_cache()
