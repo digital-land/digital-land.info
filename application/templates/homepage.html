@@ -27,10 +27,10 @@
       })
     }}
 
-    <section id="feature-list" class="govuk-width-container">
+    <div id="feature-list" class="govuk-width-container">
 
       {% macro _feature(params) %}
-        <div class="govuk-grid-row govuk-!-margin-bottom-8" id="{{ params.title | slugify }}">
+        <section aria-label="{{ params.title }}" class="govuk-grid-row govuk-!-margin-bottom-8" id="{{ params.title | slugify }}">
           <div class="govuk-grid-column-one-half">
             {% if params.title %}{% else %}{% endif %}
             <h2 class="govuk-heading-m">{% if params.title %}{{ params.title }}{% else %}Please add a title{% endif %}</h2>
@@ -48,14 +48,14 @@
           <!-- /.govuk-grid-column-one-half -->
           {% if params.image %}
             <div class="govuk-grid-column-one-half">
-              <img src="{{ url_for("static", path=params.image.src) }}.png" srcset="/static{{ params.image.src }}.svg" {{ ('alt="' + params.image.alt + '"') if params.image.alt else 'role="presentation" alt=""' | safe }} class="app-max-width--100">
+              <img src="{{ url_for("static", path=params.image.src) }}.png" srcset="/static{{ params.image.src }}.svg" role="{{ 'img' if params.image.alt else 'presentation' }}" alt="{{ params.image.alt if params.image.alt else '' }}" class="app-max-width--100">
             </div>
             <!-- /.govuk-grid-column-one-half -->
           {% endif %}
-        </div>
+        </section>
         <!-- /#explore.govuk-grid-row -->
         {% if not params.sectionBreak == False %}
-          <hr class="govuk-section-break govuk-width-container govuk-section-break--visible govuk-section-break--xl">
+          <hr class="govuk-section-break govuk-width-container govuk-section-break--visible govuk-section-break--xl" role="presentation">
         {% endif %}
       {% endmacro %}
 
@@ -116,7 +116,7 @@
         })
       }}
 
-    </section>
+    </div>
     <!-- /#feature-list -->
 
   </main>
