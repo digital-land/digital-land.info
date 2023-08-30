@@ -7,11 +7,145 @@
 {% from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 {%- from "components/data-table/macro.jinja" import dlDataTableWrapper %}
+
+{% macro _parameterName(params={}) %}
+  {% if params.name %}<div class="app-code-block app-code-block--inline govuk-!-margin-bottom-2">{{ params.name }}</div>{% endif %}
+  <div class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint" aria-description="Is required?">{% if params.required == True %}Required{% else%}Optional{% endif %}</div>
+{% endmacro %}
+
+{% macro _parameterType(params={}) %}
+  {% if "$ref" in params.parameter['schema'].keys() %}
+    {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
+    {% set _schema = params.components['schemas'][_parameterComponentName] %}
+  {% elif "allOf" in params.parameter['schema'].keys()%}
+    {% set _parameterComponentName = params.parameter['schema']["allOf"][0]["$ref"]|extract_component_key %}
+    {% set _schema = params.components['schemas'][_parameterComponentName] %}
+  {% else %}
+    {% set _schema = params.parameter['schema'] %}
+  {% endif %}
+  {% if 'items' in _schema.keys() %}
+    {{_schema['type']}}({{_schema['items']['type']}})
+  {% else %}
+    {{_schema.type}}
+  {% endif %}
+{% endmacro %}
+
+{% macro _parameterDescription(params={}) %}
+  {% if "$ref" in params.parameter['schema'].keys() %}
+    {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
+    {% set _schema = params.components['schemas'][_parameterComponentName] %}
+    Must be one of: {{ _schema["enum"][:-1] | join(", ") }} or {{ _schema["enum"] | last }}
+  {%  else %}
+    {{ params.parameter["description"] }}
+  {%  endif %}
+{% endmacro %}
+
+{% macro _renderEndpoint(params={}) %}
+  {% set _parameterRows = [] %}
+
+  <!-- for path in params.paths.keys() -->
+  {% for parameter in params.parameters %}
+    {{
+      _parameterRows.append([
+        {
+          'html': _parameterName({ 'name': parameter.name, 'required': parameter.required }) | safe
+        },
+        {
+          'html': _parameterType({'parameter':parameter,'components':components}) | safe,
+          'classes': 'govuk-!-font-size-14'
+        },
+        {
+          'html': _parameterDescription({'parameter':parameter,'components':components})| safe,
+          'classes': 'govuk-!-font-size-16'
+        }
+      ]) | debug | safe
+    }}
+  {% endfor %}
+
+  {% call appSummaryCard({
+      'titleText': params.name,
+      'classes': 'govuk-!-margin-bottom-6',
+      'attributes': [
+        {
+          'attribute': 'aria-label',
+          'value': params.name,
+        }
+      ]
+    }) %}
+
+    <p class="govuk-body">{{ params.description }}</p>
+
+    {{
+      govukTable({
+        'caption': 'Request details',
+        'captionClasses': "govuk-table__caption--s govuk-hint",
+        'attributes': {
+          'aria-label': 'Request details'
+        },
+        'head': [
+          {
+            'text': "Request type",
+            'classes': 'govuk-!-width-one-third',
+            'data': 'data-modules'
+          },
+          {
+            'text': "URL"
+          }
+        ],
+        'rows': [
+          [
+            {
+              'html': govukTag({ 'text': params.requestType, 'classes': ('govuk-tag--red' if (params.requestType | lower) == 'delete' else 'govuk-tag--green') })
+            },
+            {
+              'html': ('<span class="app-code-block">' + params.url + '</span>'),
+              'classes': 'govuk-!-font-size-16'
+            }
+          ]
+        ]
+      })
+    }}
+
+    {% set parametersHTML %}
+      {{
+        govukTable({
+          'caption': "Parameters",
+          'captionClasses': "govuk-table__caption--s govuk-hint",
+          'attributes': {
+            'aria-label': 'Parameters'
+          },
+          'head': [
+            {
+              'text': "Name",
+              'classes': 'govuk-!-font-size-16'
+            },
+            {
+              'text': "Type",
+              'classes': 'govuk-!-font-size-16'
+            },
+            {
+              'text': "Description",
+              'classes': 'govuk-!-width-one-half govuk-!-font-size-16'
+            }
+          ],
+          'rows': _parameterRows
+        })
+      }}
+    {% endset %}
+
+    {{ dlDataTableWrapper({
+      "tableHTML": parametersHTML
+    }) }}
+
+  {% endcall %}
+{% endmacro %}
+
+
 {% block pageTitle %}Documentation - Planning Data{% endblock %}
 {% set mainClasses = "govuk-main-wrapper--l" %}
 {%- block breadcrumbs -%}
   {{ dlBackButton({
-    "parentHref": '/'
+    "parentHref ": '/'
   })}}
 {%- endblock -%}
 {% block content %}
@@ -32,7 +166,7 @@
     <hr class="govuk-section-break govuk-section-break--m">
 
     <p class="govuk-body">Contents:</p>
-    <ul class="govuk-list govuk-list--bullet">
+    <ul class="govuk-list govuk-list--bullet" aria-label="Contents">
       <li><a href="#api">Planning data API</a></li>
       <li><a href="#openapi">Planning data OpenAPI</a></li>
     </ul>
@@ -48,125 +182,6 @@
     <h2 class="govuk-heading-l" id="api">Planning Data API</h2>
 
     <!-- openapi schema generally has info,paths and components -->
-
-    {% macro _parameterName(params={}) %}
-      {% if params.name %}<div class="app-code-block app-code-block--inline govuk-!-margin-bottom-2">{{ params.name }}</div>{% endif %}
-      <div class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint">{% if params.required == True %}Required{% else%}Optional{% endif %}</div>
-    {% endmacro %}
-
-    {% macro _parameterType(params={}) %}
-      {% if "$ref" in params.parameter['schema'].keys() %}
-        {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
-        {% set _schema = params.components['schemas'][_parameterComponentName] %}
-      {% elif "allOf" in params.parameter['schema'].keys()%}
-        {% set _parameterComponentName = params.parameter['schema']["allOf"][0]["$ref"]|extract_component_key %}
-        {% set _schema = params.components['schemas'][_parameterComponentName] %}
-      {% else %}
-        {% set _schema = params.parameter['schema'] %}
-      {% endif %}
-      {% if 'items' in _schema.keys() %}
-        {{_schema['type']}}({{_schema['items']['type']}})
-      {% else %}
-        {{_schema.type}}
-      {% endif %}
-    {% endmacro %}
-
-    {% macro _parameterDescription(params={}) %}
-      {% if "$ref" in params.parameter['schema'].keys() %}
-        {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
-        {% set _schema = params.components['schemas'][_parameterComponentName] %}
-        Must be one of: {{ _schema["enum"][:-1] | join(", ") }} or {{ _schema["enum"] | last }}
-      {%  else %}
-        {{ params.parameter["description"] }}
-      {%  endif %}
-    {% endmacro %}
-
-    {% macro _renderEndpoint(params={}) %}
-      {% set _parameterRows = [] %}
-
-      <!-- for path in params.paths.keys() -->
-      {% for parameter in params.parameters %}
-        {{
-          _parameterRows.append([
-            {
-              'html': _parameterName({ 'name': parameter.name, 'required': parameter.required }) | safe
-            },
-            {
-              'html': _parameterType({'parameter':parameter,'components':components}) | safe,
-              'classes': 'govuk-!-font-size-14'
-            },
-            {
-              'html': _parameterDescription({'parameter':parameter,'components':components})| safe,
-              'classes': 'govuk-!-font-size-16'
-            }
-          ]) | debug | safe
-        }}
-      {% endfor %}
-
-      {% call appSummaryCard({
-          'titleText': params.name,
-          'classes': 'govuk-!-margin-bottom-6'
-        }) %}
-
-        <p class="govuk-body">{{ params.description }}</p>
-
-        {{
-          govukTable({
-            'head': [
-              {
-                'text': "Request type",
-                'classes': 'govuk-!-width-one-third',
-                'data': 'data-modules'
-              },
-              {
-                'text': "URL"
-              }
-            ],
-            'rows': [
-              [
-                {
-                  'html': govukTag({ 'text': params.requestType, 'classes': ('govuk-tag--red' if (params.requestType | lower) == 'delete' else 'govuk-tag--green') })
-                },
-                {
-                  'html': ('<span class="app-code-block">' + params.url + '</span>'),
-                  'classes': 'govuk-!-font-size-16'
-                }
-              ]
-            ]
-          })
-        }}
-
-        {% set parametersHTML %}
-          {{
-            govukTable({
-              'caption': "Parameters",
-              'captionClasses': "govuk-table__caption--s govuk-hint",
-              'head': [
-                {
-                  'text': "Name",
-                  'classes': 'govuk-!-font-size-16'
-                },
-                {
-                  'text': "Type",
-                  'classes': 'govuk-!-font-size-16'
-                },
-                {
-                  'text': "Description",
-                  'classes': 'govuk-!-width-one-half govuk-!-font-size-16'
-                }
-              ],
-              'rows': _parameterRows
-            })
-          }}
-        {% endset %}
-
-        {{ dlDataTableWrapper({
-          "tableHTML": parametersHTML
-        }) }}
-
-      {% endcall %}
-
-    {% endmacro %}
 
     {% for path in paths.keys() %}
       {% for method in paths[path].keys() %}
