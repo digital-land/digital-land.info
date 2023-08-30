@@ -66,10 +66,7 @@
       'titleText': params.name,
       'classes': 'govuk-!-margin-bottom-6',
       'attributes': [
-        {
-          'attribute': 'aria-label',
-          'value': params.name,
-        }
+        ['aria-label', params.name]
       ]
     }) %}
 
@@ -197,38 +194,46 @@
       {% endfor %}
     {% endfor %}
 
-<hr class="govuk-section-break govuk-section-break--l">
+    <hr class="govuk-section-break govuk-section-break--l">
 
-    <h2 class="govuk-heading-l" id="openapi">Planning Data OpenAPI</h2>
+    <section aria-label="Planning data openAPI">
+      <h2 class="govuk-heading-l" id="openapi">Planning Data OpenAPI</h2>
 
-    <p class="govuk-body">You can generate a client library from our OpenAPI file using <a href="https://editor.swagger.io/">Swagger Editor</a>.</p>
-    <p class="govuk-body">This may be an easier way for you to integrate your service with the planning data platform than writing a client library from scratch.</p>
+      <p class="govuk-body">You can generate a client library from our OpenAPI file using <a href="https://editor.swagger.io/">Swagger Editor</a>.</p>
+      <p class="govuk-body">This may be an easier way for you to integrate your service with the planning data platform than writing a client library from scratch.</p>
 
-    {% call appSummaryCard({
-    }) %}
+      {% call appSummaryCard({
+      }) %}
 
-      {{ govukTable({
-        'head': [
-          {
-            'text': "Request type"
+        {{ govukTable({
+          'caption': 'OpenAPI details',
+          'captionClasses': "govuk-table__caption--s govuk-hint",
+          'attributes': {
+            'aria-label': 'OpenAPI details'
           },
-          {
-            'text': "URL"
-          }
-        ],
-        'rows': [
-          [
+          'head': [
             {
-              'html': govukTag({ 'text': 'GET', 'classes': 'govuk-tag--green'})
+              'text': "Request type"
             },
             {
-              'html': '<span class="app-code-block"><a href="https://www.planning.data.gov.uk/openapi.json">https://www.planning.data.gov.uk/openapi.json</a></span>'
+              'text': "URL"
             }
+          ],
+          'rows': [
+            [
+              {
+                'html': govukTag({ 'text': 'GET', 'classes': 'govuk-tag--green'})
+              },
+              {
+                'html': '<span class="app-code-block"><a href="https://www.planning.data.gov.uk/openapi.json">https://www.planning.data.gov.uk/openapi.json</a></span>'
+              }
+            ]
           ]
-        ]
-      }) }}
+        }) }}
 
-    {% endcall %}
+      {% endcall %}
+    </section>
+
 
 
   </div>
