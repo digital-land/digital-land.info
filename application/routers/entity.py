@@ -238,7 +238,7 @@ router.add_api_route(
     endpoint=search_entities,
     response_class=DigitalLandJSONResponse,
     tags=["Search entity"],
-    summary="Search for data on the planning data platform by the parameters listed.",
+    summary="This endpoint searches for a subset of entities from all entities filtered by specified parameters returning the entity set in the format specified.",  # noqa: E501
 )
 router.add_api_route(
     "/",
@@ -262,6 +262,7 @@ router.add_api_route(
     get_entity,
     response_class=DigitalLandJSONResponse,
     tags=["Get entity"],
+    summary="This endpoint returns data on one specific entity matching the specified ID in the format requested.",
 )
 router.add_api_route(
     "/{entity}",
