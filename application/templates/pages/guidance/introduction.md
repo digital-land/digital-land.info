@@ -48,11 +48,7 @@ Planning Data can take data in different formats, although some are preferred. P
 
 The [specifications guidance](specifications/)  will tell you which formats to use for each dataset.
 
-### Checking your data
-
-Once we have collected your data, it will be processed through our feedback tool.
-
-You can use this to make sure it meets the specifications and make any necessary corrections.
+### Updating your data
 
 If you think our version of your data is out of date or needs changing, you can email us at <digitalland@levellingup.gov.uk>.
 
