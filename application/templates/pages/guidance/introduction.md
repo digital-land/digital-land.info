@@ -17,12 +17,12 @@ Benefits to LPAs
 
 Sharing data in this way will help planners and developers gain a better understanding of the potential for development in each participating authority.
 
-The data will be used in the [Reduce Invalid Planning Applications (RIPA)](https://www.ripa.digital) service, which can:
+The data will be used in the [PlanX](https://opendigitalplanning.org/services) service, which can:
 
 -   show potential development sites that fit local planning requirements
 -   help people to plan developments that meet those requirements
 
-RIPA has the potential to save LPAs time by reducing the number of invalid planning applications they receive by [up to 80%](https://www.ripa.digital/objectives). This could [save £179 million](https://www.ripa.digital/understanding-the-problem) in costs to LPAs nationally.
+PlanX has the potential to save LPAs time by reducing the number of invalid planning applications they receive by [up to 80%](https://www.ripa.digital/objectives). This could [save £179 million](https://www.ripa.digital/understanding-the-problem) in costs to LPAs nationally.
 
 It will also make the planning application process easier for homeowners and businesses.
 
