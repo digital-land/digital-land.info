@@ -72,9 +72,9 @@ The data is available for anyone to download, analyse, interpret, and use to dev
 There are 2 public services already in development that are making use of this data: 
 
 -   [Back Office Planning System (BoPS)](https://bops.digital/) 
--   [Reduce Invalid Planning Applications (RIPA)](https://www.ripa.digital/understanding-the-problem) 
+-   [PlanX](https://opendigitalplanning.org/services)
 
-Services like RIPA and BOPS have the potential to save LPAs millions each year, as well as improving the planning process for homeowners and developers. 
+Services like PlanX and BOPS have the potential to save LPAs millions each year, as well as improving the planning process for homeowners and developers. 
 
 <hr class="govuk-section-break govuk-section-break--m">
 
