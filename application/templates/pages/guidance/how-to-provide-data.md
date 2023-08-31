@@ -19,7 +19,7 @@ This guidance will take you through the process of publishing data that meets th
 Step 1: Prepare your data
 -------------------------------------
 
-The data needed for the Digital Planning Services such as [RIPA](https://www.ripa.digital) are:
+The data needed for the Digital Planning Services such as [PlanX](https://opendigitalplanning.org/services) are:
 
 -   [Conservation area data](specifications/conservation-area)
 -   [Listed building data](specifications/listed-building)
