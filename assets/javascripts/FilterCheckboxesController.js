@@ -2,6 +2,9 @@ export default class FilterCheckboxesController{
     constructor(id){
         this.checkboxContainer = document.getElementById(`checkboxes-${id}`);
         this.searchBox = document.getElementById(`input-${id}`);
+        this.searchBoxContainer = document.getElementById(`input-container-${id}`);
+
+        this.searchBoxContainer.style.display = "block";
 
         // get the checkboxes, and checkbox values
         // make sure we are working with an array and not a node list
