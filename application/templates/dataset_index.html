@@ -25,8 +25,7 @@
 
 		<p class="govuk-body">Planning Data have collected data across a number of datasets. These have been grouped by type:</p>
 
-    	<p class="govuk-body govuk-visually-hidden">Contents</p>
-		<ul class="govuk-list govuk-list--bullet">
+		<ul class="govuk-list govuk-list--bullet" aria-description="contents">
 		{% for typology in typologies.keys() %}
 			{% if typology != "" and typologies[typology]['dataset']|length > 0 %}
 				<li><a class="govuk-link" href="#{{ typology }}">{{ typology |replace("-"," ")| title }}</a></li>
@@ -37,7 +36,7 @@
 	</div>
 </div>
 
-	<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
+	<hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible" role="'presentation">
 
 	<form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form">
 		<label class="dl-list-filter__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
