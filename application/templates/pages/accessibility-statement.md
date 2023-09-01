@@ -2,7 +2,7 @@
 
 This accessibility statement applies to the planning.data.gov.uk website: <https://www.planning.data.gov.uk>.
 
-This website is run by the Planning Data team in the Department for Levelling Up, Housing and Communities
+This website is run by the Planning Data team in the Department for Levelling Up, Housing and Communities.
 
 We are always working to improve our website and want as many people as possible to be able to access and use it. For example, that means you should be able to:
 
@@ -16,7 +16,7 @@ We've also made the website text as simple as possible to understand. [ AbilityN
 
 ## How accessible this website is
 
-We have performed an internal accessibility audit following the Web Content Accessibility Guidelines Evaluation Method (WCAG-EM)
+We have performed an internal accessibility audit following the Web Content Accessibility Guidelines Evaluation Method (WCAG-EM).
 
 On 50 of 50 WCAG 2.1 AA Success Criteria, at the time of writing this website:
 
@@ -34,7 +34,7 @@ Aspects of the National Map show do not have a text alternative such as street l
 
 #### 1.3.2: Meaningful Sequence
 
-Some pages need heading levels and reading order adjusted to make comprehension and way finding easier
+Some pages need heading levels and reading order adjusted to make comprehension and way finding easier.
 
 #### 1.3.3: Sensory Characteristics
 
