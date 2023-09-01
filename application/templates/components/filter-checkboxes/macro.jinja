@@ -2,9 +2,7 @@
 <script type="module">
   import FilterCheckboxesController from '/static/javascripts/FilterCheckboxesController.js'
   const initFilterCheckbox = () => {
-    let checkboxContainer = document.getElementById('checkboxes-{{ params.uniqueID }}');
-    let searchBox = document.getElementById('input-{{ params.uniqueID }}');
-    return new FilterCheckboxesController(checkboxContainer, searchBox)
+    return new FilterCheckboxesController('{{ params.uniqueID }}')
   }
   initFilterCheckbox();
 </script>

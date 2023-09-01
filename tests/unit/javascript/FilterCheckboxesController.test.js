@@ -7,19 +7,24 @@ describe('FilterCheckboxesController', () => {
         vi.restoreAllMocks();
     })
 
-    test('it correctly constructs', () => {
-        let makeCheckboxMock = (value) => {
-            return {
-                querySelector: vi.fn(() => {
-                    return {
-                        value: value,
-                    }
-                }),
-                style: {
-                    display: 'block'
+
+
+    let makeCheckboxMock = (value) => {
+        return {
+            querySelector: vi.fn(() => {
+                return {
+                    value: value,
                 }
+            }),
+            style: {
+                display: 'block'
             }
-        };
+        }
+    };
+
+
+
+    test('it correctly constructs', () => {
 
         let fooCheckboxMock = makeCheckboxMock('foo');
         let barCheckboxMock = makeCheckboxMock('bar');
@@ -36,9 +41,25 @@ describe('FilterCheckboxesController', () => {
             value: ''
         }
 
+        vi.stubGlobal('document', {
+            getElementById: vi.fn((id) => {
+                if(id === 'checkboxes-123'){
+                    return checkboxContainer;
+                } else if(id === 'input-123'){
+                    return searchBox;
+                } else {
+                    throw new Error('Unexpected id: ' + id);
+                }
+            })
+        })
+
+
+
+
+
         vi.spyOn(FilterCheckboxesController.prototype, 'filterCheckboxes');
 
-        const filterCheckboxController = new FilterCheckboxesController(checkboxContainer, searchBox);
+        const filterCheckboxController = new FilterCheckboxesController('123');
 
         expect(fooCheckboxMock.querySelector).toHaveBeenCalledTimes(1);
         expect(barCheckboxMock.querySelector).toHaveBeenCalledTimes(1);
@@ -53,19 +74,6 @@ describe('FilterCheckboxesController', () => {
     })
 
     test('it correctly filters checkboxes', () => {
-        let makeCheckboxMock = (value) => {
-            return {
-                querySelector: vi.fn(() => {
-                    return {
-                        value: value
-                    }
-                }),
-                style: {
-                    display: 'block'
-                }
-            }
-        };
-
         let fooCheckboxMock = makeCheckboxMock('foo');
         let barCheckboxMock = makeCheckboxMock('bar');
         let fobaCheckboxMock = makeCheckboxMock('foba');
@@ -83,7 +91,19 @@ describe('FilterCheckboxesController', () => {
             value: ''
         }
 
-        const filterCheckboxController = new FilterCheckboxesController(checkboxContainer, searchBox);
+        vi.stubGlobal('document', {
+            getElementById: vi.fn((id) => {
+                if(id === 'checkboxes-123'){
+                    return checkboxContainer;
+                } else if(id === 'input-123'){
+                    return searchBox;
+                } else {
+                    throw new Error('Unexpected id: ' + id);
+                }
+            })
+        })
+
+        const filterCheckboxController = new FilterCheckboxesController('123');
 
         filterCheckboxController.filterCheckboxes();
 

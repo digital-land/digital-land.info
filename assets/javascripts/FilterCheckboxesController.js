@@ -1,6 +1,7 @@
 export default class FilterCheckboxesController{
-    constructor(checkboxContainer, searchBox){
-        this.checkboxContainer = checkboxContainer;
+    constructor(id){
+        this.checkboxContainer = document.getElementById(`checkboxes-${id}`);
+        this.searchBox = document.getElementById(`input-${id}`);
 
         // get the checkboxes, and checkbox values
         // make sure we are working with an array and not a node list
@@ -12,8 +13,6 @@ export default class FilterCheckboxesController{
             this.checkboxStrings.push(datasetName);
         })
 
-        // get the search box
-        this.searchBox = searchBox;
         this.searchBox.addEventListener('keyup', this.filterCheckboxes.bind(this));
 
         // call filter checkboxes to set the initial state
