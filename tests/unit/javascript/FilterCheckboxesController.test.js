@@ -41,12 +41,20 @@ describe('FilterCheckboxesController', () => {
             value: ''
         }
 
+        let container = {
+            style: {
+                display: 'none'
+            }
+        }
+
         vi.stubGlobal('document', {
             getElementById: vi.fn((id) => {
                 if(id === 'checkboxes-123'){
                     return checkboxContainer;
                 } else if(id === 'input-123'){
                     return searchBox;
+                } else if(id === 'input-container-123'){
+                    return container;
                 } else {
                     throw new Error('Unexpected id: ' + id);
                 }
@@ -60,6 +68,8 @@ describe('FilterCheckboxesController', () => {
         vi.spyOn(FilterCheckboxesController.prototype, 'filterCheckboxes');
 
         const filterCheckboxController = new FilterCheckboxesController('123');
+
+        expect(container.style.display).toEqual('block');
 
         expect(fooCheckboxMock.querySelector).toHaveBeenCalledTimes(1);
         expect(barCheckboxMock.querySelector).toHaveBeenCalledTimes(1);
@@ -91,12 +101,20 @@ describe('FilterCheckboxesController', () => {
             value: ''
         }
 
+        let container = {
+            style: {
+                display: 'none'
+            }
+        }
+
         vi.stubGlobal('document', {
             getElementById: vi.fn((id) => {
                 if(id === 'checkboxes-123'){
                     return checkboxContainer;
                 } else if(id === 'input-123'){
                     return searchBox;
+                } else if(id === 'input-container-123'){
+                    return container;
                 } else {
                     throw new Error('Unexpected id: ' + id);
                 }
