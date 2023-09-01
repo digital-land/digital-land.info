@@ -1,4 +1,14 @@
 {% macro dlFilterCheckboxes(params) %}
+<script type="module">
+  import FilterCheckboxesController from '/static/javascripts/FilterCheckboxesController.js'
+  const initFilterCheckbox = () => {
+    let checkboxContainer = document.getElementById('checkboxes-{{ params.uniqueID }}');
+    let searchBox = document.getElementById('input-{{ params.uniqueID }}');
+    return new FilterCheckboxesController(checkboxContainer, searchBox)
+  }
+  initFilterCheckbox();
+</script>
+
 <div class="govuk-checkboxes" data-module="filter-checkboxes">
   <div class="dl-filter-group__auto-filter">
     <label for="input-{{ params.uniqueID }}" class="govuk-label govuk-visually-hidden">
