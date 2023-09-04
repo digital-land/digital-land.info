@@ -219,14 +219,17 @@ export default class MapController {
       },
     });
 
-    // move this layer before the 3D buildings layer
-    try{
-      this.map.moveLayer(layer, 'OS/TopographicArea_1/Building/1_3D');
-    } catch (e) {
-      console.log('Could not move layer behind buildings: ', e);
-    }
+    this.moveLayerBehindBuildings(layer)
 
     return layer;
+  }
+
+  moveLayerBehindBuildings(layer, buildingsLayer = 'OS/TopographicArea_1/Building/1_3D') {
+    try{
+      this.map.moveLayer(layer, buildingsLayer);
+    } catch (e) {
+      console.log(`Could not move layer behind ${buildingsLayer}: `, e);
+    }
   }
 
   addPoint(geometry, image=undefined){
@@ -331,6 +334,8 @@ export default class MapController {
         },
         sourceLayer: `${source.name}`,
       });
+
+      this.moveLayerBehindBuildings(fillLayerName)
 
 			// create line layer
       let lineLayerName = this.addLayer({
