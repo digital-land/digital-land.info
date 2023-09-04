@@ -218,7 +218,15 @@ export default class MapController {
         'fill-extrusion-opacity': 0.5
       },
     });
-    this.geojsonLayers.push(geometry.name);
+
+    // move this layer before the 3D buildings layer
+    try{
+      this.map.moveLayer(layer, 'OS/TopographicArea_1/Building/1_3D');
+    } catch (e) {
+      console.log('Could not move layer behind buildings: ', e);
+    }
+
+    return layer;
   }
 
   addPoint(geometry, image=undefined){
