@@ -280,10 +280,10 @@ describe('Map Controller - Unit', () => {
 
         expect(mapController.addLayer).toHaveBeenCalledWith({
             sourceName: geometry.name,
-            layerType: 'fill',
+            layerType: 'fill-extrusion',
             paintOptions: {
-              'fill-color': '#088',
-              'fill-opacity': 0.5
+              'fill-extrusion-color': '#088',
+              'fill-extrusion-opacity': 0.5
             },
         })
 
