@@ -1,11 +1,11 @@
 {
     "version": 8,
-    "sprite": "https://api.os.uk/maps/vector/v1/vts/resources/sprites/sprite",
-    "glyphs": "https://api.os.uk/maps/vector/v1/vts/resources/fonts/{fontstack}/{range}.pbf",
+    "sprite": "https://api.os.uk/maps/vector/v1/vts/resources/sprites/sprite?key=tIMfN0AH2mMegKbNtjvKYkxQYiAmeGVc",
+    "glyphs": "https://api.os.uk/maps/vector/v1/vts/resources/fonts/{fontstack}/{range}.pbf?key=tIMfN0AH2mMegKbNtjvKYkxQYiAmeGVc",
     "sources": {
         "esri": {
             "type": "vector",
-            "url": "https://api.os.uk/maps/vector/v1/vts"
+            "url": "https://api.os.uk/maps/vector/v1/vts?key=tIMfN0AH2mMegKbNtjvKYkxQYiAmeGVc"
         }
     },
     "layers": [
