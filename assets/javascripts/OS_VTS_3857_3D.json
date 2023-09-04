@@ -6324,7 +6324,7 @@
                     16.05,
                     [ "get", "RelHMax" ]
                 ],
-                "fill-extrusion-opacity": 0.7
+                "fill-extrusion-opacity": 0.5
             }
         },
         {
