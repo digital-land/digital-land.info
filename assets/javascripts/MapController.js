@@ -54,8 +54,8 @@ export default class MapController {
       maxZoom: 18,
       style: customStyleJson,
       maxBounds: [
-          [ -12.76418, 47.528423 ],
-          [ 3.9134116, 62.331151 ]
+        [ -10, 49 ],
+        [ 7, 56 ]
       ],
       center: [ -2.968, 54.425 ],
       zoom: 13,
