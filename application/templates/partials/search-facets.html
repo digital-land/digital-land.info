@@ -30,7 +30,7 @@
   <div class="govuk-form-group">
     {% set checkboxesHTML %}
       {% for dataset in datasets %}
-      <div class="govuk-checkboxes__item">
+      <div class="govuk-checkboxes__item" id="dataset-{{dataset['name']}}">
         <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}" {% if query.params.get('dataset') and dataset['dataset'] in query.params.get('dataset') %}checked="checked"{% endif %}>
         <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
           {{ dataset['name'] }}

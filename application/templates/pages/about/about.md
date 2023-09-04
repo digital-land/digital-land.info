@@ -21,7 +21,7 @@ You can tell us if something doesn't look right by emailing [digitalland@levelli
 
 We are currently working with a set of LPAs to collect data according to our draft standards, that will be collected by the platform. The number of LPAs and datasets covered is growing all the time. You can find out how the platform is due to develop in our [roadmap](/about/roadmap). 
 
-<hr class="govuk-section-break govuk-section-break--m">
+<hr class="govuk-section-break govuk-section-break--m" role='presentation'>
 
 LPAs 
 ---
@@ -41,7 +41,7 @@ We are currently supporting a set of LPAs to develop our data standards and get 
 -   Newcastle City Council 
 -   Southwark 
 
-<hr class="govuk-section-break govuk-section-break--m">
+<hr class="govuk-section-break govuk-section-break--m" role='presentation'>
 
 Data collections 
 ---
@@ -62,7 +62,7 @@ For example, we need all LPAs to enter dates in the same way, so our platform kn
 
 We want to minimise the work LPAs will need to do to contribute their data. We have created guidance on how to meet the standards, and will continue to revise this through user testing. 
 
-<hr class="govuk-section-break govuk-section-break--m">
+<hr class="govuk-section-break govuk-section-break--m" role='presentation'>
 
 How the data will be used
 ---
@@ -72,11 +72,11 @@ The data is available for anyone to download, analyse, interpret, and use to dev
 There are 2 public services already in development that are making use of this data: 
 
 -   [Back Office Planning System (BoPS)](https://bops.digital/) 
--   [Reduce Invalid Planning Applications (RIPA)](https://www.ripa.digital/understanding-the-problem) 
+-   [PlanX](https://opendigitalplanning.org/services)
 
-Services like RIPA and BOPS have the potential to save LPAs millions each year, as well as improving the planning process for homeowners and developers. 
+Services like PlanX and BOPS have the potential to save LPAs millions each year, as well as improving the planning process for homeowners and developers. 
 
-<hr class="govuk-section-break govuk-section-break--m">
+<hr class="govuk-section-break govuk-section-break--m" role='presentation'>
 
 UK PropTech
 ---
@@ -89,4 +89,4 @@ We are keen to hear from and potentially highlight external users of this data, 
 
 A number of companies already provide access to public sector planning data. If you are looking for commercial services providing national data coverage, access to historic data, or insights and services, have a look at companies such as [LandTech](https://land.tech/), [Glenigan](https://www.glenigan.com/), [Nimbus](https://www.nimbusmaps.co.uk/), [Urban Intelligence](https://urbanintelligence.co.uk/) and [Realyse](https://www.realyse.com/) among others.
 
-<hr class="govuk-section-break govuk-section-break--m">
+<hr class="govuk-section-break govuk-section-break--m" role='presentation'>

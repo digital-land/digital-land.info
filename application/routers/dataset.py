@@ -129,6 +129,7 @@ router.add_api_route(
     endpoint=list_datasets,
     response_class=DigitalLandJSONResponse,
     tags=["List datasets"],
+    summary="This endpoint lists all datasets, returning the results in the file format specified.",
 )
 
 router.add_api_route(
@@ -140,6 +141,7 @@ router.add_api_route(
     endpoint=get_dataset,
     response_class=DigitalLandJSONResponse,
     tags=["Get dataset"],
+    summary="This endpoint returns a specific dataset in the file format specified.",
 )
 router.add_api_route(
     "/{dataset}",

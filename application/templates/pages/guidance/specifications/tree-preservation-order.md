@@ -122,10 +122,12 @@ The reference for the tree preservation order that covers this zone.
 
 The boundary for the tree preservation zone as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
 
-This should be provided as well-known text (WKT).
+If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
 Example:
 `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
+
+If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
 ### notes
 
@@ -196,12 +198,14 @@ Example: `TPO1`
 
 The boundary of the tree as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
 
-This should be provided as well-known text (WKT).
+If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
 You must provide a point or geometry for each tree. You may provide both.
 
 Example:
 `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
+
+If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
 ### uprn
 
