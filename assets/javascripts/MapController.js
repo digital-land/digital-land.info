@@ -327,7 +327,7 @@ export default class MapController {
           'fill-extrusion-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
           'fill-extrusion-height': 1,
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity']
+          'fill-extrusion-opacity': parseFloat(source.styleProps.opacity) || defaultPaintOptions['fill-opacity']
         },
         sourceLayer: `${source.name}`,
       });
@@ -428,6 +428,8 @@ export default class MapController {
       return this.map.getLayer(feature.layer.id).getPaintProperty('icon-color');
     else if(feature.layer.type === 'fill')
       return this.map.getLayer(feature.layer.id).getPaintProperty('fill-color');
+      else if(feature.layer.type === 'fill-extrusion')
+      return this.map.getLayer(feature.layer.id).getPaintProperty('fill-extrusion-color');
     else if(feature.layer.type === 'circle')
       return this.map.getLayer(feature.layer.id).getPaintProperty('circle-color');
     else
