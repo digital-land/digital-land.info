@@ -49,13 +49,13 @@ export default class MapController {
     const customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
 
     var map = new maplibregl.Map({
-      container: 'map',
+      container: this.mapId,
       minZoom: 6,
       maxZoom: 18,
       style: customStyleJson,
       maxBounds: [
           [ -12.76418, 47.528423 ],
-          [ 3.9134116, 63.331151 ]
+          [ 3.9134116, 62.331151 ]
       ],
       center: [ -2.968, 54.425 ],
       zoom: 13,
@@ -212,10 +212,10 @@ export default class MapController {
 
     let layer = this.addLayer({
       sourceName: geometry.name,
-      layerType: 'fill',
+      layerType: 'fill-extrusion',
       paintOptions: {
-        'fill-color': colour,
-        'fill-opacity': 0.5
+        'fill-extrusion-color': colour,
+        'fill-extrusion-opacity': 0.5
       },
     });
     this.geojsonLayers.push(geometry.name);
@@ -282,7 +282,7 @@ export default class MapController {
   addVectorTileSource(source) {
 		const defaultPaintOptions = {
 			'fill-color': '#003078',
-			'fill-opacity': 0.8,
+			'fill-opacity': 0.6,
 			'weight': 1,
 		};
 
@@ -314,10 +314,12 @@ export default class MapController {
 			// create fill layer
       let fillLayerName = this.addLayer({
         sourceName: `${source.name}-source`,
-        layerType: 'fill',
+        layerType: 'fill-extrusion',
         paintOptions: {
-          'fill-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-          'fill-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity']
+          'fill-extrusion-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity']
         },
         sourceLayer: `${source.name}`,
       });
