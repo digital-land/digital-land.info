@@ -1,20 +1,15 @@
 import { convertNodeListToArray } from './utils.js';
 
-export const initAll = (options) => {
-    // Set the options to an empty object by default if no options are passed.
-    options = typeof options !== 'undefined' ? options : {};
-
-    // Allow the user to initialise Digital Land Frontend in only certain sections of the page
-    // Defaults to the entire document if nothing is set.
-    var scope = typeof options.scope !== 'undefined' ? options.scope : document;
-
-    var $formToFilterList = scope.querySelector('[data-module="dl-list-filter-form"]');
-    if ($formToFilterList) {
-    new ListFilter($formToFilterList).init();
+export class ListFilter{
+    static makeFromForm($form){
+      if($form){
+        const lf = new ListFilter($form);
+        lf.init();
+        return lf;
+      }
+      throw new Error('ListFilter.makeFilterable requires a form element');
     }
-}
 
-class ListFilter{
     constructor($form) {
         this.$form = $form;
         this.filterTimeout = null;
