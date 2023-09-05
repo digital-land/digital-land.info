@@ -58,7 +58,8 @@ export default class MapController {
       ],
       center: [ -1.5, 53.1 ],
       zoom: 4,
-      transformRequest: url => {
+      transformRequest: (url, resourceType) => {
+        if((resourceType === 'Source' || resourceType === 'Tile' || resourceType === 'Glyphs') && url.indexOf('api.os.uk') > -1){
           if(! /[?&]key=/.test(url) ) url += '?key=null'
           return {
               url: url + '&srs=3857',
@@ -66,6 +67,7 @@ export default class MapController {
                 'Authorization': 'Bearer ' + this.apiToken,
               }
           }
+        }
       }
     });
     return map;
