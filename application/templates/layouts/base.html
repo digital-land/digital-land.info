@@ -93,6 +93,11 @@
         // initiate all GOVUK components
         window.GOVUKFrontend.initAll();
         </script>
+        <script type="module" async>
+          import {ListFilter} from "{{ assetPath | default('/assets') }}/javascripts/ListFilter.js";
+          var $formToFilterList = document.querySelector('[data-module="dl-list-filter-form"]');
+          ListFilter.makeFromForm($formToFilterList)
+        </script>
     {% endblock govScripts %}
 
     {% block digitalLandScripts %}
