@@ -23,3 +23,7 @@ export const newMapController = (params = { layers: []}) => {
 export const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+export const convertNodeListToArray = (nl) => {
+  return Array.prototype.slice.call(nl)
+}
