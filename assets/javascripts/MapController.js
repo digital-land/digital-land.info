@@ -50,15 +50,15 @@ export default class MapController {
 
     var map = new maplibregl.Map({
       container: this.mapId,
-      minZoom: 6,
+      minZoom: 4,
       maxZoom: 18,
       style: customStyleJson,
       maxBounds: [
-        [ -10, 49 ],
-        [ 7, 56 ]
+        [ -11, 49 ],
+        [ 8, 57 ]
       ],
-      center: [ -2.968, 54.425 ],
-      zoom: 13,
+      center: [ -1.5, 53.1 ],
+      zoom: 4,
       transformRequest: url => {
           if(! /[?&]key=/.test(url) ) url += '?key=' + apiKey
           return {
