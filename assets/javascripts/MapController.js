@@ -37,13 +37,12 @@ export default class MapController {
     this.geojsons = params.geojsons || [];
     this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
     this.paint_options = params.paint_options || null;
+    this.apiToken = params.apiToken || null;
   }
 
 
 
   createMap() {
-    const apiKey = 'OnQaJky59mwTnFEW6KCMEewo8Vyb8Qm6';
-
     // Define the custom JSON style.
     // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
     const customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
@@ -60,9 +59,12 @@ export default class MapController {
       center: [ -1.5, 53.1 ],
       zoom: 4,
       transformRequest: url => {
-          if(! /[?&]key=/.test(url) ) url += '?key=' + apiKey
+          if(! /[?&]key=/.test(url) ) url += '?key=null'
           return {
-              url: url + '&srs=3857'
+              url: url + '&srs=3857',
+              headers: {
+                'Authorization': 'Bearer ' + this.apiToken,
+              }
           }
       }
     });
