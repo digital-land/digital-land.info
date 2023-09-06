@@ -1,3 +1,5 @@
+import BrandImageControl from "./BrandImageControl.js";
+import CopyrightControl from "./CopyrightControl.js";
 import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter } from "./utils.js";
@@ -133,9 +135,21 @@ export default class MapController {
   }
 
   addControls() {
+
+
+
     this.map.addControl(new maplibregl.ScaleControl({
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
+    this.map.addControl(new BrandImageControl({
+      imageSrc: '/static/images/os-logo-maps.png'
+    }), 'bottom-left');
+
+    if(this.FullscreenControl.enabled){
+      this.map.addControl(new maplibregl.FullscreenControl({
+        container: document.getElementById(this.mapId)
+      }), 'top-left');
+    }
     this.map.addControl(new TiltControl(), 'top-left');
     this.map.addControl(new maplibregl.NavigationControl({
       container: document.getElementById(this.mapId)
@@ -147,12 +161,9 @@ export default class MapController {
 			this.layerControlsComponent = new LayerControls(layerControlsList, this, this.sourceName, this.availableLayers,  this.LayerControlOptions);
 		}
 
-    if(this.FullscreenControl.enabled){
-      this.map.addControl(new maplibregl.FullscreenControl({
-        container: document.getElementById(this.mapId)
-      }), 'bottom-left');
+    this.map.addControl(new CopyrightControl(), 'bottom-right');
 
-    }
+
   }
 
   addClickHandlers() {
