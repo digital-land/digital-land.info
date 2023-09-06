@@ -20,3 +20,4 @@ python-slugify
 govuk-frontend-jinja
 validators
 pre-commit
+urllib3<2
