@@ -225,7 +225,9 @@ export default class MapController {
       layerType: 'fill-extrusion',
       paintOptions: {
         'fill-extrusion-color': colour,
-        'fill-extrusion-opacity': 0.5
+        'fill-extrusion-opacity': 0.5,
+        'fill-extrusion-height': 1,
+        'fill-extrusion-base': 0,
       },
     });
 
