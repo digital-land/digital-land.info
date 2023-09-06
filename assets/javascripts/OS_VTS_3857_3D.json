@@ -6311,7 +6311,7 @@
                 "_symbol",
                 33
             ],
-            "minzoom": 16,
+            "minzoom": 14,
             "layout": {},
             "paint": {
                 "fill-extrusion-color": "#DCD7C6",
