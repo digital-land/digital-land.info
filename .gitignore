@@ -44,3 +44,4 @@ docker-compose.override.yml
 coverage.xml
 .secrets
 unit-tests.md
+integration-tests.md

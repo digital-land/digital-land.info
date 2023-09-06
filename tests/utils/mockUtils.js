@@ -198,3 +198,33 @@ export const stubGlobalTurf = (boundingBox) => {
         extent: vi.fn().mockReturnValue(boundingBox || [1,2,3,4])
     })
 }
+
+export const stubGlobalFetch = () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => {
+        return Promise.resolve({
+            json: vi.fn().mockImplementation(() => {
+                return Promise.resolve({
+                    access_token: 'testToken',
+                    expires_in: 1000,
+                    issued_at: 1000,
+                })
+            })
+        })
+    }))
+}
+
+export const waitForMapCreation = (mapController, callCount = 0) => {
+    return new Promise((resolve, reject) => {
+        if(callCount > 2)
+            reject('Map creation timeout')
+        setTimeout(() => {
+            if(mapController.map) {
+                resolve();
+            } else {
+                waitForMapCreation(mapController, callCount+1).then(() => {
+                    resolve();
+                })
+            }
+        }, callCount * 25)
+    })
+}

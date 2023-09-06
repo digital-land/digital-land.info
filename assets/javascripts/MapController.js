@@ -1,6 +1,9 @@
+import BrandImageControl from "./BrandImageControl.js";
+import CopyrightControl from "./CopyrightControl.js";
 import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter } from "./utils.js";
+import { getApiToken, getFreshApiToken } from "./osApiToken.js";
 
 export default class MapController {
   constructor(params) {
@@ -11,11 +14,7 @@ export default class MapController {
     this.geojsonLayers = [];
 
     // create the maplibre map
-    this.map = this.createMap();
-
-    // once the maplibre map has loaded call the setup function
-    var boundSetup = this.setup.bind(this);
-    this.map.on('load', boundSetup);
+    this.createMap();
   }
 
   setParams(params) {
@@ -28,7 +27,7 @@ export default class MapController {
     this.minMapZoom = params.minMapZoom || 5;
     this.maxMapZoom = params.maxMapZoom || 15;
     this.baseURL = params.baseURL || 'https://digital-land.github.io';
-    this.baseTileStyleFilePath = params.baseTileStyleFilePath || './base-tiles-2.json';
+    this.baseTileStyleFilePath = params.baseTileStyleFilePath || '/static/javascripts/base-tile.json';
     this.popupWidth = params.popupWidth || '260px';
     this.popupMaxListLength = params.popupMaxListLength || 10;
     this.LayerControlOptions = params.LayerControlOptions || {enabled: false};
@@ -37,20 +36,52 @@ export default class MapController {
     this.geojsons = params.geojsons || [];
     this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
     this.paint_options = params.paint_options || null;
+    this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
+    this.useOAuth2 = params.useOAuth2 || false;
   }
 
-  createMap() {
+  async createMap() {
+    // Define the custom JSON style.
+    // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
+
+    await getFreshApiToken();
+
     var map = new maplibregl.Map({
       container: this.mapId,
-      // container id
-      style: this.baseTileStyleFilePath,
-      // open source tiles?
-      center: [-0.61, 53.1],
-      // // starting position [lng, lat]
-      zoom: 5.5
-      // // starting zoom
+      minZoom: 4,
+      maxZoom: 18,
+      style: this.customStyleJson,
+      maxBounds: [
+        [ -11, 49 ],
+        [ 8, 57 ]
+      ],
+      center: [ -1.5, 53.1 ],
+      zoom: 4,
+      transformRequest: (url, resourceType) => {
+        if(url.indexOf('api.os.uk') > -1){
+          if(! /[?&]key=/.test(url) ) url += '?key=null'
+
+          const requestToMake = {
+            url: url + '&srs=3857',
+          }
+
+          if(this.useOAuth2){
+            const token = getApiToken();
+            requestToMake.headers = {
+              'Authorization': 'Bearer ' + token,
+            }
+          }
+
+          return requestToMake;
+        }
+      }
     });
-    return map;
+
+    this.map = map;
+    // once the maplibre map has loaded call the setup function
+    var boundSetup = this.setup.bind(this);
+    this.map.on('load', boundSetup);
+
   };
 
   async setup() {
@@ -113,9 +144,16 @@ export default class MapController {
   }
 
   addControls() {
+
     this.map.addControl(new maplibregl.ScaleControl({
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
+
+    if(this.FullscreenControl.enabled){
+      this.map.addControl(new maplibregl.FullscreenControl({
+        container: document.getElementById(this.mapId)
+      }), 'top-left');
+    }
     this.map.addControl(new TiltControl(), 'top-left');
     this.map.addControl(new maplibregl.NavigationControl({
       container: document.getElementById(this.mapId)
@@ -127,12 +165,9 @@ export default class MapController {
 			this.layerControlsComponent = new LayerControls(layerControlsList, this, this.sourceName, this.availableLayers,  this.LayerControlOptions);
 		}
 
-    if(this.FullscreenControl.enabled){
-      this.map.addControl(new maplibregl.FullscreenControl({
-        container: document.getElementById(this.mapId)
-      }), 'bottom-left');
+    this.map.addControl(new CopyrightControl(), 'bottom-right');
 
-    }
+
   }
 
   addClickHandlers() {
@@ -196,13 +231,26 @@ export default class MapController {
 
     let layer = this.addLayer({
       sourceName: geometry.name,
-      layerType: 'fill',
+      layerType: 'fill-extrusion',
       paintOptions: {
-        'fill-color': colour,
-        'fill-opacity': 0.5
+        'fill-extrusion-color': colour,
+        'fill-extrusion-opacity': 0.5,
+        'fill-extrusion-height': 1,
+        'fill-extrusion-base': 0,
       },
     });
-    this.geojsonLayers.push(geometry.name);
+
+    this.moveLayerBehindBuildings(layer)
+
+    return layer;
+  }
+
+  moveLayerBehindBuildings(layer, buildingsLayer = 'OS/TopographicArea_1/Building/1_3D') {
+    try{
+      this.map.moveLayer(layer, buildingsLayer);
+    } catch (e) {
+      console.log(`Could not move layer behind ${buildingsLayer}: `, e);
+    }
   }
 
   addPoint(geometry, image=undefined){
@@ -266,7 +314,7 @@ export default class MapController {
   addVectorTileSource(source) {
 		const defaultPaintOptions = {
 			'fill-color': '#003078',
-			'fill-opacity': 0.8,
+			'fill-opacity': 0.6,
 			'weight': 1,
 		};
 
@@ -298,13 +346,17 @@ export default class MapController {
 			// create fill layer
       let fillLayerName = this.addLayer({
         sourceName: `${source.name}-source`,
-        layerType: 'fill',
+        layerType: 'fill-extrusion',
         paintOptions: {
-          'fill-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-          'fill-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity']
+          'fill-extrusion-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': parseFloat(source.styleProps.opacity) || defaultPaintOptions['fill-opacity']
         },
         sourceLayer: `${source.name}`,
       });
+
+      this.moveLayerBehindBuildings(fillLayerName)
 
 			// create line layer
       let lineLayerName = this.addLayer({
@@ -402,6 +454,8 @@ export default class MapController {
       return this.map.getLayer(feature.layer.id).getPaintProperty('icon-color');
     else if(feature.layer.type === 'fill')
       return this.map.getLayer(feature.layer.id).getPaintProperty('fill-color');
+      else if(feature.layer.type === 'fill-extrusion')
+      return this.map.getLayer(feature.layer.id).getPaintProperty('fill-extrusion-color');
     else if(feature.layer.type === 'circle')
       return this.map.getLayer(feature.layer.id).getPaintProperty('circle-color');
     else
