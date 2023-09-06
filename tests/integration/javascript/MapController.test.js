@@ -56,7 +56,7 @@ describe('Map Controller', () => {
             expect(mapController.minMapZoom).toEqual(5);
             expect(mapController.maxMapZoom).toEqual(15);
             expect(mapController.baseURL).toEqual('https://digital-land.github.io');
-            expect(mapController.baseTileStyleFilePath).toEqual('./base-tiles-2.json');
+            expect(mapController.baseTileStyleFilePath).toEqual('/static/javascripts/base-tile.json');
             expect(mapController.popupWidth).toEqual('260px');
             expect(mapController.popupMaxListLength).toEqual(10);
             expect(mapController.LayerControlOptions).toEqual({enabled: false});
@@ -100,7 +100,7 @@ describe('Map Controller', () => {
             expect(mapController.minMapZoom).toEqual(5);
             expect(mapController.maxMapZoom).toEqual(15);
             expect(mapController.baseURL).toEqual('https://digital-land.github.io');
-            expect(mapController.baseTileStyleFilePath).toEqual('./base-tiles-2.json');
+            expect(mapController.baseTileStyleFilePath).toEqual('/static/javascripts/base-tile.json');
             expect(mapController.popupWidth).toEqual('260px');
             expect(mapController.popupMaxListLength).toEqual(10);
             expect(mapController.LayerControlOptions).toEqual({enabled: false});
@@ -115,11 +115,12 @@ describe('Map Controller', () => {
             expect(mapController.map.loadImage).toHaveBeenCalledWith('/static/images/location-pointer-sdf-256.png', expect.any(Function));
             expect(mapController.map.addImage).toHaveBeenCalledWith('custom-marker-256', 'the Image', {sdf: true});
 
-            expect(mapController.map.addControl).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addControl).toHaveBeenCalledTimes(5);
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.FullscreenControl, 'bottom-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-left');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new CopyrightControl, 'bottom-right');
         })
 
         test('Works with one geojson feature of type point', async () => {
@@ -291,15 +292,17 @@ describe('Map Controller', () => {
                       }
                     }
                 });
-                const layerName = `${params.geojsons[index].name}-fill`;
+                const layerName = `${params.geojsons[index].name}-fill-extrusion`;
                 expect(mapController.map.addLayer).toHaveBeenCalledWith({
                     id: layerName,
-                    type: 'fill',
+                    type: 'fill-extrusion',
                     source: params.geojsons[index].name,
                     'source-layer': '',
                     paint: {
-                        'fill-color': 'blue',
-                        'fill-opacity': 0.5
+                        'fill-extrusion-color': 'blue',
+                        'fill-extrusion-opacity': 0.5,
+                        'fill-extrusion-height': 1,
+                        'fill-extrusion-base': 0,
                     },
                     layout: {}
                 })
@@ -424,13 +427,15 @@ describe('Map Controller', () => {
                 maxzoom: maxMapZoom
             });
             expect(mapController.map.addLayer).toHaveBeenCalledWith({
-                id: `${params.vectorTileSources[0].name}-source-fill`,
-                type: 'fill',
+                id: `${params.vectorTileSources[0].name}-source-fill-extrusion`,
+                type: 'fill-extrusion',
                 source: `${params.vectorTileSources[0].name}-source`,
                 'source-layer': `${params.vectorTileSources[0].name}`,
                 paint: {
-                    'fill-color': params.vectorTileSources[0].styleProps.colour,
-                    'fill-opacity': params.vectorTileSources[0].styleProps.opacity,
+                    'fill-extrusion-color': params.vectorTileSources[0].styleProps.colour,
+                    'fill-extrusion-opacity': params.vectorTileSources[0].styleProps.opacity,
+                    'fill-extrusion-height': 1,
+                    'fill-extrusion-base': 0,
                 },
                 layout: {}
             });
@@ -446,7 +451,7 @@ describe('Map Controller', () => {
                 layout: {}
             });
             expect(mapController.availableLayers).toEqual({
-                [params.vectorTileSources[0].name]: [`${params.vectorTileSources[0].name}-source-fill`, `${params.vectorTileSources[0].name}-source-line`]
+                [params.vectorTileSources[0].name]: [`${params.vectorTileSources[0].name}-source-fill-extrusion`, `${params.vectorTileSources[0].name}-source-line`]
             })
         })
     })

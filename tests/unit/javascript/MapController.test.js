@@ -282,8 +282,10 @@ describe('Map Controller - Unit', () => {
             sourceName: geometry.name,
             layerType: 'fill-extrusion',
             paintOptions: {
-              'fill-extrusion-color': '#088',
-              'fill-extrusion-opacity': 0.5
+                'fill-extrusion-color': '#088',
+                'fill-extrusion-opacity': 0.5,
+                'fill-extrusion-height': 1,
+                'fill-extrusion-base': 0,
             },
         })
 
