@@ -1,17 +1,20 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
 import {
-    stubGlobalMapLibre, stubGlobalTurf
+    stubGlobalFetch,
+    stubGlobalMapLibre, stubGlobalTurf, waitForMapCreation
 } from '../../utils/mockUtils.js';
 
 describe('Map Controller - Unit', () => {
 
     stubGlobalMapLibre();
+    stubGlobalFetch();
 
     let mapController;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         mapController = new MapController()
+        await waitForMapCreation(mapController)
     })
 
     test('loadImages() correctly loads images', () => {

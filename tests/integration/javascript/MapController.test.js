@@ -12,7 +12,9 @@ import {
     stubGlobalMapLibre,
     stubGlobalWindow,
     stubGlobalUrl,
-    stubGlobalDocument
+    stubGlobalDocument,
+    stubGlobalFetch,
+    waitForMapCreation
 } from '../../utils/mockUtils';
 import CopyrightControl from '../../../assets/javascripts/CopyrightControl';
 
@@ -20,6 +22,7 @@ stubGlobalMapLibre();
 stubGlobalWindow('http://localhost', '')
 const [urlDeleteMock, urlAppendMock] = stubGlobalUrl();
 stubGlobalDocument();
+stubGlobalFetch();
 
 let domElementMock = getDomElementMock();
 let mapMock = getMapMock();
@@ -40,7 +43,7 @@ describe('Map Controller', () => {
                     }
                 ]
             })
-
+            await waitForMapCreation(mapController)
             expect(mapController.map.events.load).toBeDefined()
 
             await mapController.map.events.load() // initiate the load event
@@ -84,7 +87,7 @@ describe('Map Controller', () => {
                     enabled: true,
                 }
             })
-
+            await waitForMapCreation(mapController)
             expect(mapController.map.events.load).toBeDefined()
 
             await mapController.map.events.load() // initiate the load event
@@ -140,6 +143,7 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.map.addSource).toHaveBeenCalledOnce();
@@ -206,6 +210,7 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.map.addSource).toHaveBeenCalledTimes(3);
@@ -275,6 +280,7 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.map.addSource).toHaveBeenCalledTimes(3);
@@ -337,6 +343,7 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.layerControlsComponent).toBeDefined();
@@ -365,6 +372,7 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.map.addSource).toHaveBeenCalledOnce();
@@ -416,6 +424,8 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
+
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.map.addSource).toHaveBeenCalledOnce();
@@ -462,6 +472,11 @@ describe('Map Controller', () => {
                 enabled: true,
             },
         })
+
+        await waitForMapCreation(mapController)
+
+        await new Promise(resolve => setTimeout(resolve, 1000)) // wait for the map to load
+
         await mapController.map.events.load() // initiate the load event
 
         const mockClickEvent = {
