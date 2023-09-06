@@ -136,13 +136,8 @@ export default class MapController {
 
   addControls() {
 
-
-
     this.map.addControl(new maplibregl.ScaleControl({
       container: document.getElementById(this.mapId)
-    }), 'bottom-left');
-    this.map.addControl(new BrandImageControl({
-      imageSrc: '/static/images/os-logo-maps.png'
     }), 'bottom-left');
 
     if(this.FullscreenControl.enabled){
