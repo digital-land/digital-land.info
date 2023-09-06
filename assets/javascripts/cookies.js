@@ -50,11 +50,20 @@ function hideCookieBanner () {
   }
 }
 
+function showCookieBanner () {
+  var cookieBanner = document.getElementById('cookie-banner')
+  if(cookieBanner){
+    cookieBanner.style.display = 'block'
+    cookieBanner.ariaHidden = false
+  }
+}
+
 function hideCookieConfirmation () {
   hideCookieBanner ()
   var cookieBanner = document.getElementById('cookie-confirmation')
   if(cookieBanner){
     cookieBanner.style.display = 'none'
+    cookieBanner.ariaHidden = true
   }
 }
 
@@ -62,6 +71,7 @@ function showCookieConfirmation () {
   var cookieBanner = document.getElementById('cookie-confirmation')
   if(cookieBanner){
     cookieBanner.style.display = 'block'
+    cookieBanner.ariaHidden = false
   }
 }
 
@@ -136,7 +146,7 @@ class cookiePrefs{
   }
 }
 
-
+showCookieBanner()
 if (getCookie('cookies_preferences_set')) {
   hideCookieBanner()
 }
