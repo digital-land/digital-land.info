@@ -309,4 +309,4 @@ def get_os_oauth2_token():
         logger.error(jsonResult["Error"])
         return "null"
     else:
-        return jsonResult["access_token"]
+        return jsonResult

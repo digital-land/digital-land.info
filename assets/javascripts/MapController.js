@@ -3,6 +3,7 @@ import CopyrightControl from "./CopyrightControl.js";
 import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter } from "./utils.js";
+import { getApiToken, getFreshApiToken } from "./osApiToken.js";
 
 export default class MapController {
   constructor(params) {
@@ -13,11 +14,7 @@ export default class MapController {
     this.geojsonLayers = [];
 
     // create the maplibre map
-    this.map = this.createMap();
-
-    // once the maplibre map has loaded call the setup function
-    var boundSetup = this.setup.bind(this);
-    this.map.on('load', boundSetup);
+    this.createMap();
   }
 
   setParams(params) {
@@ -39,21 +36,20 @@ export default class MapController {
     this.geojsons = params.geojsons || [];
     this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
     this.paint_options = params.paint_options || null;
-    this.apiToken = params.apiToken || null;
+    this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
   }
 
-
-
-  createMap() {
+  async createMap() {
     // Define the custom JSON style.
     // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
-    const customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
+
+    await getFreshApiToken();
 
     var map = new maplibregl.Map({
       container: this.mapId,
       minZoom: 4,
       maxZoom: 18,
-      style: customStyleJson,
+      style: this.customStyleJson,
       maxBounds: [
         [ -11, 49 ],
         [ 8, 57 ]
@@ -61,18 +57,24 @@ export default class MapController {
       center: [ -1.5, 53.1 ],
       zoom: 4,
       transformRequest: (url, resourceType) => {
-        if((resourceType === 'Source' || resourceType === 'Tile' || resourceType === 'Glyphs') && url.indexOf('api.os.uk') > -1){
+        if(url.indexOf('api.os.uk') > -1){
           if(! /[?&]key=/.test(url) ) url += '?key=null'
+          const token = getApiToken();
           return {
               url: url + '&srs=3857',
               headers: {
-                'Authorization': 'Bearer ' + this.apiToken,
+                'Authorization': 'Bearer ' + token,
               }
           }
         }
       }
     });
-    return map;
+
+    this.map = map;
+    // once the maplibre map has loaded call the setup function
+    var boundSetup = this.setup.bind(this);
+    this.map.on('load', boundSetup);
+
   };
 
   async setup() {
