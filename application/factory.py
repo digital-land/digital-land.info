@@ -265,9 +265,9 @@ def add_routers(app):
     app.include_router(curie.router, prefix="/prefix")
     app.include_router(organisation.router, prefix="/organisation")
     app.include_router(fact.router, prefix="/fact")
-    app.include_router(osMapOAuth.router, prefix="/os")
 
     # not added to /docs
+    app.include_router(osMapOAuth.router, prefix="/os", include_in_schema=False)
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
     app.include_router(guidance_.router, prefix="/guidance", include_in_schema=False)
     app.include_router(about_.router, prefix="/about", include_in_schema=False)
