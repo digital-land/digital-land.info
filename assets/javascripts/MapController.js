@@ -37,6 +37,7 @@ export default class MapController {
     this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
     this.paint_options = params.paint_options || null;
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
+    this.useOAuth2 = params.useOAuth2 || false;
   }
 
   async createMap() {
@@ -59,13 +60,19 @@ export default class MapController {
       transformRequest: (url, resourceType) => {
         if(url.indexOf('api.os.uk') > -1){
           if(! /[?&]key=/.test(url) ) url += '?key=null'
-          const token = getApiToken();
-          return {
-              url: url + '&srs=3857',
-              headers: {
-                'Authorization': 'Bearer ' + token,
-              }
+
+          const requestToMake = {
+            url: url + '&srs=3857',
           }
+
+          if(this.useOAuth2){
+            const token = getApiToken();
+            requestToMake.headers = {
+              'Authorization': 'Bearer ' + token,
+            }
+          }
+
+          return requestToMake;
         }
       }
     });
