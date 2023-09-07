@@ -73,9 +73,13 @@ def get_typologies_with_dataset() -> List[TypologyModel]:
         if len(typologiesNamesRes) == 0:
             return []
 
+        typologiesNamesDict = [
+            typologiesNamesRes[i][0] for i in range(len(typologiesNamesRes))
+        ]
+
         typologies = (
             session.query(TypologyOrm)
-            .filter(TypologyOrm.typology.in_(typologiesNamesRes[0]))
+            .filter(TypologyOrm.typology.in_(typologiesNamesDict))
             .order_by(TypologyOrm.typology)
             .all()
         )
