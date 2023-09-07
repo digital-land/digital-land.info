@@ -1,17 +1,20 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
 import {
-    stubGlobalMapLibre, stubGlobalTurf
+    stubGlobalFetch,
+    stubGlobalMapLibre, stubGlobalTurf, waitForMapCreation
 } from '../../utils/mockUtils.js';
 
 describe('Map Controller - Unit', () => {
 
     stubGlobalMapLibre();
+    stubGlobalFetch();
 
     let mapController;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         mapController = new MapController()
+        await waitForMapCreation(mapController)
     })
 
     test('loadImages() correctly loads images', () => {
@@ -280,10 +283,12 @@ describe('Map Controller - Unit', () => {
 
         expect(mapController.addLayer).toHaveBeenCalledWith({
             sourceName: geometry.name,
-            layerType: 'fill',
+            layerType: 'fill-extrusion',
             paintOptions: {
-              'fill-color': '#088',
-              'fill-opacity': 0.5
+                'fill-extrusion-color': '#088',
+                'fill-extrusion-opacity': 0.5,
+                'fill-extrusion-height': 1,
+                'fill-extrusion-base': 0,
             },
         })
 

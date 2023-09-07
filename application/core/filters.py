@@ -11,10 +11,17 @@ from slugify import slugify
 from uritemplate import URITemplate
 import urllib.parse as urlparse
 from urllib.parse import urlencode
+import requests
 import os
 import hashlib
 import validators
 import numbers
+from application.settings import get_settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+settings = get_settings()
 
 
 def to_slug(string):
@@ -284,3 +291,22 @@ def commanum_filter(v):
     if isinstance(v, numbers.Number):
         return "{:,}".format(v)
     return v
+
+
+def get_os_oauth2_token():
+    if not settings.OS_CLIENT_KEY or not settings.OS_CLIENT_SECRET:
+        logger.error("OS_CLIENT_KEY or OS_CLIENT_SECRET not set")
+        return "null"
+
+    result = requests.post(
+        "https://api.os.uk/oauth2/token/v1",
+        data={"grant_type": "client_credentials"},
+        headers={},
+        auth=(settings.OS_CLIENT_KEY, settings.OS_CLIENT_SECRET),
+    )
+    jsonResult = result.json()
+    if "Error" in jsonResult:
+        logger.error(jsonResult["Error"])
+        return "null"
+    else:
+        return jsonResult
