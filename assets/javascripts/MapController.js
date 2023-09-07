@@ -386,10 +386,10 @@ export default class MapController {
 
     if (features.length) {
       // no need to show popup if not clicking on feature
-      var popupHTML = this.createFeaturesPopupHtml(this.removeDuplicates(features));
+      var popupDomElement = this.createFeaturesPopup(this.removeDuplicates(features));
       var popup = new maplibregl.Popup({
         maxWidth: this.popupWidth
-      }).setLngLat(coordinates).setHTML(popupHTML).addTo(map);
+      }).setLngLat(coordinates).setDOMContent(popupDomElement).addTo(map);
     }
   };
 
@@ -408,45 +408,61 @@ export default class MapController {
 
   };
 
-  createFeaturesPopupHtml(features) {
-    var wrapperOpen = '<div class="app-popup">';
-    var wrapperClose = '</div>';
-    var featureOrFeatures = features.length > 1 ? 'features' : 'feature';
-    var headingHTML = `<h3 class=\"app-popup-heading\">${features.length} ${featureOrFeatures} selected</h3>`;
+  createFeaturesPopup(features) {
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('app-popup');
+    wrapper.onwheel = (e) => {
+      e.preventDefault();
+    };
+
+    const featureOrFeatures = features.length > 1 ? 'features' : 'feature';
+    const heading = document.createElement('h3');
+    heading.classList.add('app-popup-heading');
+    heading.textContent = `${features.length} ${featureOrFeatures} selected`;
+    wrapper.appendChild(heading);
 
     if (features.length > this.popupMaxListLength) {
-      headingHTML = '<h3 class="app-popup-heading">Too many features selected</h3>';
-      var tooMany = `<p class=\"govuk-body-s\">You clicked on ${features.length} features.</p><p class="govuk-body-s">Zoom in or turn off layers to narrow down your choice.</p>`;
-      return wrapperOpen + headingHTML + tooMany + wrapperClose;
+      const tooMany = document.createElement('p');
+      tooMany.classList.add('govuk-body-s');
+      tooMany.textContent = `You clicked on ${features.length} features.`;
+      const tooMany2 = document.createElement('p');
+      tooMany2.classList.add('govuk-body-s');
+      tooMany2.textContent = 'Zoom in or turn off layers to narrow down your choice.';
+      wrapper.appendChild(tooMany);
+      wrapper.appendChild(tooMany2);
+      return wrapper;
     }
 
-    var itemsHTML = '<ul class="app-popup-list">\n';
+    const list = document.createElement('ul');
+    list.classList.add('app-popup-list');
     features.forEach((feature) => {
-      var featureType = capitalizeFirstLetter(feature.sourceLayer || feature.source).replaceAll('-', ' ');
-      var fillColour = this.getFillColour(feature);
+      const featureType = capitalizeFirstLetter(feature.sourceLayer || feature.source).replaceAll('-', ' ');
+      const fillColour = this.getFillColour(feature);
 
-      var featureName = feature.properties.name
-      var featureReference = feature.properties.reference
-      if (featureName === ''){
-        if (featureReference === ''){
-          featureName = 'Not Named'
-        } else {
-          featureName = featureReference
-        }
-      }
+      const featureName = feature.properties.name || feature.properties.reference || 'Not Named';
+      const item = document.createElement('li');
+      item.classList.add('app-popup-item');
+      item.style.borderLeft = `5px solid ${fillColour}`;
 
-      var itemHTML = [
-        `<li class=\"app-popup-item\" style=\"border-left: 5px solid ${fillColour}">`,
-        `<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">${featureType}</p>`,
-        '<p class="dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0">',
-        `<a class='govuk-link' href="/entity/${feature.properties.entity}">${featureName}</a>`,
-        '</p>',
-        '</li>'
-      ];
-      itemsHTML = itemsHTML + itemHTML.join('\n');
+      const secondaryText = document.createElement('p');
+      secondaryText.classList.add('app-u-secondary-text', 'govuk-!-margin-bottom-0', 'govuk-!-margin-top-0');
+      secondaryText.textContent = featureType;
+      item.appendChild(secondaryText);
+
+      const link = document.createElement('a');
+      link.classList.add('govuk-link');
+      link.href = `/entity/${feature.properties.entity}`;
+      link.textContent = featureName;
+      const smallText = document.createElement('p');
+      smallText.classList.add('dl-small-text', 'govuk-!-margin-top-0', 'govuk-!-margin-bottom-0');
+      smallText.appendChild(link);
+      item.appendChild(smallText);
+
+      list.appendChild(item);
     });
-    itemsHTML = headingHTML + itemsHTML + '</ul>';
-    return wrapperOpen + itemsHTML + wrapperClose;
+
+    wrapper.appendChild(list);
+    return wrapper;
   };
 
   getFillColour(feature) {
