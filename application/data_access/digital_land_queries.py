@@ -66,6 +66,26 @@ def get_typologies() -> List[TypologyModel]:
         return [TypologyModel.from_orm(t) for t in typologies]
 
 
+# returns all typologies with at least one dataset that falls under that typology
+def get_typologies_with_entities() -> List[TypologyModel]:
+    with get_context_session() as session:
+        typologiesNamesRes = session.query(EntityOrm.typology).distinct().all()
+        if len(typologiesNamesRes) == 0:
+            return []
+
+        typologiesNamesDict = [
+            typologiesNamesRes[i][0] for i in range(len(typologiesNamesRes))
+        ]
+
+        typologies = (
+            session.query(TypologyOrm)
+            .filter(TypologyOrm.typology.in_(typologiesNamesDict))
+            .order_by(TypologyOrm.typology)
+            .all()
+        )
+        return [TypologyModel.from_orm(t) for t in typologies]
+
+
 def get_typology_names():
     with get_context_session() as session:
         typology_names = [
