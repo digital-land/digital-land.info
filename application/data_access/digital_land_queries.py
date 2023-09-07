@@ -67,9 +67,9 @@ def get_typologies() -> List[TypologyModel]:
 
 
 # returns all typologies with at least one dataset that falls under that typology
-def get_typologies_with_dataset() -> List[TypologyModel]:
+def get_typologies_with_entities() -> List[TypologyModel]:
     with get_context_session() as session:
-        typologiesNamesRes = session.query(DatasetOrm.typology).distinct().all()
+        typologiesNamesRes = session.query(EntityOrm.typology).distinct().all()
         if len(typologiesNamesRes) == 0:
             return []
 
