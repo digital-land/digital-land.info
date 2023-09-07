@@ -494,24 +494,11 @@ describe('Map Controller', () => {
 
         expect(maplibregl.Popup).toHaveBeenCalledOnce();
         expect(popupMock.setLngLat).toHaveBeenCalledOnce();
-        expect(popupMock.setHTML).toHaveBeenCalledOnce();
+        expect(popupMock.setDOMContent).toHaveBeenCalledOnce();
         expect(popupMock.addTo).toHaveBeenCalledOnce();
         expect(popupMock.setLngLat).toHaveBeenCalledWith(mockClickEvent.lngLat);
 
-        const expectedHTML = `<div class=\"app-popup\"><h3 class=\"app-popup-heading\">2 features selected</h3><ul class=\"app-popup-list\">
-<li class=\"app-popup-item\" style=\"border-left: 5px solid red\">
-<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">TestSourceLayer</p>
-<p class=\"dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0\">
-<a class='govuk-link' href=\"/entity/testEntity\">testName</a>
-</p>
-</li><li class=\"app-popup-item\" style=\"border-left: 5px solid red\">
-<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">TestSourceLayer</p>
-<p class=\"dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0\">
-<a class='govuk-link' href=\"/entity/testEntity2\">testName2</a>
-</p>
-</li></ul></div>`;
-
-        expect(popupMock.setHTML).toHaveBeenCalledWith(expectedHTML);
+        expect(popupMock.setDOMContent).toHaveBeenCalledOnce();
         expect(popupMock.addTo).toHaveBeenCalledWith(mapController.map);
     })
 })

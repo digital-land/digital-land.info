@@ -1,6 +1,7 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
 import {
+    stubGlobalDocument,
     stubGlobalFetch,
     stubGlobalMapLibre, stubGlobalTurf, waitForMapCreation
 } from '../../utils/mockUtils.js';
@@ -412,6 +413,9 @@ describe('Map Controller - Unit', () => {
     })
 
     describe('createFeaturesPopupHtml()', () => {
+
+        stubGlobalDocument();
+
         test('correctly creates a popup', () => {
             mapController.getFillColour = vi.fn().mockImplementation(() => {
                 return 'red'
@@ -428,10 +432,10 @@ describe('Map Controller - Unit', () => {
                 },
             ]
 
-            const html = mapController.createFeaturesPopupHtml(mockFeatures)
+            const popup = mapController.createFeaturesPopup(mockFeatures)
 
-            expect(html).toContain('testName1')
-            expect(html).toContain(`href="/entity/${mockFeatures[0].properties.entity}`)
+            expect(popup.textContent).toContain('testName1')
+            expect(popup.href).toContain(`/entity/${mockFeatures[0].properties.entity}`)
         })
 
         test('correctly creates a popup for a feature without a name', () => {
@@ -450,11 +454,12 @@ describe('Map Controller - Unit', () => {
                 },
             ]
 
-            const html = mapController.createFeaturesPopupHtml(mockFeatures)
+            const popup = mapController.createFeaturesPopup(mockFeatures)
 
-            expect(html).toContain('testReference1')
-            expect(html).toContain(`href="/entity/${mockFeatures[0].properties.entity}`)
-            expect(html).toContain('border-left: 5px solid red')
+            expect(popup.textContent).toEqual('testReference1')
+            expect(popup.href).toEqual(`/entity/${mockFeatures[0].properties.entity}`)
+            expect(popup.style).toHaveProperty('borderLeft')
+            expect(popup.style.borderLeft).toEqual('5px solid red')
         })
 
         test('correctly creates a popup for a feature without a name or reference', () => {
@@ -473,10 +478,10 @@ describe('Map Controller - Unit', () => {
                 },
             ]
 
-            const html = mapController.createFeaturesPopupHtml(mockFeatures)
+            const domElement = mapController.createFeaturesPopup(mockFeatures)
 
-            expect(html).toContain('Not Named')
-            expect(html).toContain(`href="/entity/${mockFeatures[0].properties.entity}`)
+            expect(domElement.textContent).toEqual('Not Named')
+            expect(domElement.href).toEqual(`/entity/${mockFeatures[0].properties.entity}`)
         })
 
     })

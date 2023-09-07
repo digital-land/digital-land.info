@@ -76,6 +76,9 @@ const domElementMock = {
         remove: vi.fn(),
         add: vi.fn(),
     },
+    style: {
+
+    },
     dataset: {
         layerControl: 'testLayer1',
     },
@@ -90,6 +93,7 @@ const popupMock = {
     setLngLat: vi.fn().mockImplementation(() => popupMock),
     setHTML: vi.fn().mockImplementation(() => popupMock),
     addTo: vi.fn().mockImplementation(() => popupMock),
+    setDOMContent: vi.fn().mockImplementation(() => popupMock),
 }
 
 
