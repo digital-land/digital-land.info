@@ -412,7 +412,16 @@ export default class MapController {
     const wrapper = document.createElement('div');
     wrapper.classList.add('app-popup');
     wrapper.onwheel = (e) => {
-      e.preventDefault();
+      let list = e.target.closest('.app-popup-list');
+
+      if(!list){
+        e.preventDefault();
+        return
+      }
+
+      var verticalScroll = list.scrollHeight > list.clientHeight;
+      if(!verticalScroll)
+        e.preventDefault();
     };
 
     const featureOrFeatures = features.length > 1 ? 'features' : 'feature';
