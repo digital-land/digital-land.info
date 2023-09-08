@@ -42,7 +42,7 @@ Example: `Old Market`
 
 ### geometry
 
-The boundary for the conservation area as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
+The boundary for the conservation area as a single polygon or multipolygon value. All points in the polygon must be in the WGS84 coordinate reference system.
 
 If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
