@@ -46,9 +46,9 @@ We are currently supporting a set of LPAs to develop our data standards and get 
 Data collections 
 ---
 
-You can view the data we currently have as: 
+You can view the data we currently have: 
 
--   [text](/dataset) 
+-   as [text](/dataset) 
 -   on a [map](/map) 
 
 LPAs store data in different ways. We're working with our partners on how to collect the data in a way that the platform understands, with minimum work and technical expertise for LPAs. This means ongoing work on the platform and data collection pipeline, as well as creating data standards. 
@@ -81,7 +81,7 @@ Services like PlanX and BOPS have the potential to save LPAs millions each year,
 UK PropTech
 ---
 
-The UK has a growing Property Technology sector with global ambitions.  DLUHC is working closely with the sector, including through [Digital Citizen Engagement](https://dluhcdigital.blog.gov.uk/2021/08/03/new-fund-to-enhance-community-engagement-in-planning/) pilots and the [PropTech Advisory Council](https://www.gov.uk/government/news/proptech-dragons-form-new-expert-property-innovation-council).   
+The UK has a growing Property Technology sector with global ambitions. DLUHC is working closely with the sector, including through [Digital Citizen Engagement](https://dluhcdigital.blog.gov.uk/2021/08/03/new-fund-to-enhance-community-engagement-in-planning/) pilots and the [PropTech Advisory Council](https://www.gov.uk/government/news/proptech-dragons-form-new-expert-property-innovation-council).   
 
 While the data for this site has been designed for the modernisation of public sector planning services, we are exposing it so it can also be used by the UK PropTech sector without expensive and complex workarounds to scrape, acquire or deduce the data from the state.  
 
