@@ -144,6 +144,10 @@ If the rule you need does not exist in our list, please contact [digitalland@lev
 
 Example: `P3CD;P3CM;P11CB`
 
+### documentation-url
+
+An optional URL of a document providing the authoritative source of the boundary. For example, a PDF containing a map of the area, indicated with a red-line boundary.
+
 ### notes
 
 Optional text on how this data was made or produced, or how it can be interpreted.
