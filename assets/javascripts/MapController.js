@@ -4,6 +4,7 @@ import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter } from "./utils.js";
 import { getApiToken, getFreshApiToken } from "./osApiToken.js";
+import {defaultPaintOptions} from "./defaultPaintOptions.js";
 
 export default class MapController {
   constructor(params) {
@@ -168,7 +169,7 @@ export default class MapController {
     this.map.addControl(new CopyrightControl(), 'bottom-right');
 
     const layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-    this.map.addControl(new LayerControls(layerControlsList, this, this.sourceName, this.layers,  this.LayerControlOptions), 'top-right');
+    this.map.addControl(new LayerControls(layerControlsList, this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions), 'top-right');
 
 
   }
@@ -315,12 +316,6 @@ export default class MapController {
   }
 
   addVectorTileSource(source) {
-		const defaultPaintOptions = {
-			'fill-color': '#003078',
-			'fill-opacity': 0.6,
-			'weight': 1,
-		};
-
 		// add source
 		this.map.addSource(`${source.name}-source`, {
 			type: 'vector',
