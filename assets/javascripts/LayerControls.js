@@ -213,19 +213,6 @@ export default class LayerControls {
       disabledLayers.forEach(layer => layer.disable());
     }
 
-    updateUrl() {
-      // set the url params based on the enabled layers
-      const urlParams = (new URL(document.location)).searchParams;
-      const enabledLayers = this.enabledLayers();
-      urlParams.delete(this.layerURLParamName);
-      enabledLayers.forEach(layer => urlParams.append(this.layerURLParamName, layer.getDatasetName()));
-      const newURL = window.location.pathname + '?' + urlParams.toString() + window.location.hash;
-
-      // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
-      window.history.pushState({}, '', newURL);
-      this.toggleLayersBasedOnUrl();
-    };
-
     enabledLayers() {
       return this.layerOptions.filter(option => option.element.querySelector('input[type="checkbox"]').checked)
     };
@@ -233,38 +220,6 @@ export default class LayerControls {
     disabledLayers() {
       return this.$controls.filter($control => !option.element.querySelector('input[type="checkbox"]').checked)
     };
-
-    getControlByName(dataset) {
-      for (let i = 0; i < this.$controls.length; i++) {
-        const $control = this.$controls[i];
-        if ($control.dataset.layerControl === dataset) {
-          return $control
-        }
-      }
-      return undefined
-    };
-
-    onControlChkbxChange = function (e) {
-      // when a control is changed update the URL params
-      this.updateUrl();
-    };
-
-    getClickableLayers() {
-      var clickableLayers = [];
-      var enabledLayers = this.enabledLayers().map(layer => layer.getDatasetName());
-
-      var clickableLayers = enabledLayers.map((layer) => {
-        var components = this.availableLayers[layer];
-
-        if (components.includes(layer + 'Fill')) {
-          return layer + 'Fill';
-        }
-
-        return components[0];
-      });
-
-      return clickableLayers;
-    }
 
     filterCheckboxes(e) {
       // get the value of the search box
