@@ -11,7 +11,7 @@ export default class FilterCheckboxesController{
         this.checkboxes = Array.prototype.slice.call(this.checkboxContainer.children) ;
         this.checkboxStrings = [];
         this.checkboxes.forEach(checkbox => {
-            let datasetName = checkbox.querySelector('.govuk-checkboxes__label').innerText;
+            let datasetName = checkbox.querySelector('.govuk-checkboxes__label').innerHTML;
 
             this.checkboxStrings.push(datasetName);
         })

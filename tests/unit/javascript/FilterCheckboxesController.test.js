@@ -14,6 +14,8 @@ describe('FilterCheckboxesController', () => {
             querySelector: vi.fn(() => {
                 return {
                     value: value,
+                    innerText: value,
+                    innerHTML: value,
                 }
             }),
             style: {
