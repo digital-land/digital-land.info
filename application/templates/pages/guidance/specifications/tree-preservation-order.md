@@ -82,6 +82,18 @@ The date this dataset was created or last updated, written in `YYYY-MM-DD` forma
 
 Example: `2022-12-20`
 
+### made-date
+
+The date a tree preservation order was "made". From this date the included tree(s), from a planning perspective, are considered to be covered by a tree preservation order.
+
+Example: `2022-12-20`
+
+### confirmed-date
+
+The date a tree preservation order is confirmed and becomes a fully fledged tree preservation order.
+
+Example: `2022-12-20`
+
 ---
 
 Tree preservation zone dataset
@@ -117,6 +129,10 @@ This will be the display name of the page hosting data about this tree preservat
 ### tree-preservation-order
 
 The reference for the tree preservation order that covers this zone.
+
+### tree-preservation-zone-type
+
+A category of tree preservation zone
 
 ### geometry
 
