@@ -38,6 +38,7 @@ export default class MapController {
     this.paint_options = params.paint_options || null;
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
     this.useOAuth2 = params.useOAuth2 || false;
+    this.layers = params.layers || [];
   }
 
   async createMap() {
@@ -159,13 +160,15 @@ export default class MapController {
       container: document.getElementById(this.mapId)
     }), 'top-left');
 
-		// add layer controls
-		if(this.LayerControlOptions.enabled){
-			const layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-			this.layerControlsComponent = new LayerControls(layerControlsList, this, this.sourceName, this.availableLayers,  this.LayerControlOptions);
-		}
+		// // add layer controls
+		// if(this.LayerControlOptions.enabled){
+      // 	this.layerControlsComponent = new LayerControls(layerControlsList, this, this.sourceName, this.layers,  this.LayerControlOptions);
+      // }
 
     this.map.addControl(new CopyrightControl(), 'bottom-right');
+
+    const layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
+    this.map.addControl(new LayerControls(layerControlsList, this, this.sourceName, this.layers,  this.LayerControlOptions), 'top-right');
 
 
   }

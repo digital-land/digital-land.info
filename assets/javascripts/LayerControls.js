@@ -4,7 +4,84 @@ export default class LayerControls {
       this.mapController = mapController;
       this.tileSource = source;
       this.availableLayers = availableLayers;
-      this.init(options);
+
+      this._container = document.createElement('div');
+      this.layerOptions = [];
+
+		  const styleClasses = this._container.classList;
+
+      // this.init(options);
+    }
+
+    onAdd(map) {
+      const sidePanel = document.createElement('div');
+      sidePanel.classList.add('dl-map__side-panel');
+      sidePanel.setAttribute('tabindex', '-1');
+      sidePanel.setAttribute('role', 'dialog');
+      sidePanel.setAttribute('aria-hidden', 'false');
+      sidePanel.setAttribute('open', 'true');
+      sidePanel.setAttribute('aria-modal', 'true');
+
+      const heading = document.createElement('div');
+      heading.classList.add('dl-map__side-panel__heading');
+
+      const h3 = document.createElement('h3');
+      h3.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
+      h3.textContent = 'Data layers';
+
+      heading.appendChild(h3);
+      sidePanel.appendChild(heading);
+
+      const content = document.createElement('div');
+      content.classList.add('dl-map__side-panel__content');
+
+      const checkboxes = document.createElement('div');
+      checkboxes.classList.add('govuk-checkboxes');
+      checkboxes.setAttribute('data-module', 'layer-controls-{{ params.mapId if params.mapId else \'map\' }}');
+
+      const filterGroup = document.createElement('div');
+      filterGroup.classList.add('dl-filter-group__auto-filter');
+
+      const filterLabel = document.createElement('label');
+      filterLabel.setAttribute('for', 'input-71108');
+      filterLabel.classList.add('govuk-label', 'govuk-visually-hidden');
+      filterLabel.textContent = 'Filter Show only';
+
+      const filterInput = document.createElement('input');
+      filterInput.setAttribute('id', 'input-71108');
+      filterInput.classList.add('govuk-input', 'dl-filter-group__auto-filter__input');
+      filterInput.setAttribute('type', 'text');
+      filterInput.setAttribute('aria-describedby', 'checkbox-filter-71108');
+      filterInput.setAttribute('aria-controls', 'checkboxes-71108');
+
+      filterGroup.appendChild(filterLabel);
+      filterGroup.appendChild(filterInput);
+      checkboxes.appendChild(filterGroup);
+
+      const list = document.createElement('ul');
+      list.classList.add('govuk-list', 'govuk-!-margin-bottom-0');
+      list.setAttribute('data-module', 'layer-toggles');
+      list.setAttribute('role', 'group');
+
+
+
+      this.availableLayers.forEach((layer) => {
+        const item = new LayerOption(layer);
+        this.layerOptions.push(item);
+        list.appendChild(item.getElement());
+      });
+
+      checkboxes.appendChild(list);
+      content.appendChild(checkboxes);
+      sidePanel.appendChild(content);
+
+      this._container.appendChild(sidePanel);
+
+      return this._container;
+    }
+
+    onRemove() {
+
     }
 
     init(params) {
@@ -262,4 +339,95 @@ export default class LayerControls {
         cb();
       }
     };
+}
+
+class LayerOption {
+  constructor(layer){
+    this.layer = layer;
+    this.element = this.makeElement(layer);
+  }
+
+  makeElement(layer) {
+    const listItem = document.createElement('li');
+    listItem.classList.add("dl-map__layer-item");
+    listItem.classList.add("govuk-!-margin-bottom-1");
+
+    const checkBoxDiv = document.createElement('div');
+    checkBoxDiv.classList.add("govuk-checkboxes__item");
+
+    const checkBoxInput = document.createElement('input');
+    checkBoxInput.classList.add("govuk-checkboxes__input");
+    checkBoxInput.setAttribute('id', layer.dataset);
+    checkBoxInput.setAttribute('name', layer.dataset);
+    checkBoxInput.setAttribute('type', 'checkbox');
+    checkBoxInput.setAttribute('value', layer.dataset);
+    checkBoxInput.setAttribute('checked', 'checked');
+
+    const checkBoxLabel = document.createElement('label');
+    checkBoxLabel.classList.add("govuk-label");
+    checkBoxLabel.classList.add("govuk-checkboxes__label");
+    checkBoxLabel.setAttribute('for', layer.dataset);
+    checkBoxLabel.innerHTML = this.makeLayerSymbol(layer);
+
+    checkBoxDiv.appendChild(checkBoxInput);
+    checkBoxDiv.appendChild(checkBoxLabel);
+    listItem.appendChild(checkBoxDiv);
+
+    return listItem;
+  }
+
+  makeLayerSymbol(layer) {
+
+    let symbolHtml = '';
+
+    if(layer.paint_options.type && layer.paint_options.type == 'point') {
+      symbolHtml = `
+        <svg class="dl-label__key__symbol--pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" viewBox="0 0 90 90">
+          <defs>
+          </defs>
+          <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" >
+            <path
+              d="M 45 0 C 27.677 0 13.584 14.093 13.584 31.416 c 0 4.818 1.063 9.442 3.175 13.773 c 2.905 5.831 11.409 20.208 20.412 35.428 l 4.385 7.417 C 42.275 89.252 43.585 90 45 90 s 2.725 -0.748 3.444 -1.966 l 4.382 -7.413 c 8.942 -15.116 17.392 -29.4 20.353 -35.309 c 0.027 -0.051 0.055 -0.103 0.08 -0.155 c 2.095 -4.303 3.157 -8.926 3.157 -13.741 C 76.416 14.093 62.323 0 45 0 z M 45 42.81 c -6.892 0 -12.5 -5.607 -12.5 -12.5 c 0 -6.893 5.608 -12.5 12.5 -12.5 c 6.892 0 12.5 5.608 12.5 12.5 C 57.5 37.202 51.892 42.81 45 42.81 z"
+              style="
+                stroke: none;
+                stroke-width: 1;
+                stroke-dasharray: none;
+                stroke-linecap: butt;
+                stroke-linejoin: miter;
+                stroke-miterlimit: 10;
+                fill:${layer.paint_options.colour|'#003078'};
+                fill-rule: nonzero;
+                opacity: 1;"
+                transform=" matrix(1 0 0 1 0 0) "
+                stroke-linecap="round"
+              />
+          </g>
+        </svg>`
+    } else {
+      layer.paint_options.opacity = layer.paint_options.opacity || 0.5;
+      const opacity = parseInt((layer.paint_options.opacity * 255)).toString(16);
+      symbolHtml = `
+        <span
+          class="dl-label__key__symbol"
+          style="
+            border-color: ${layer.paint_options.colour || '#003078'};
+            background: ${(layer.paint_options.colour || '#003078')}${opacity};
+          "
+        >
+        </span>
+      `
+    }
+
+    const html = `<span class="dl-label__key">${symbolHtml}</span>`;
+    return html;
+  }
+
+
+  getElement() {
+    return this.element;
+  }
+
+  clickHandler() {
+
+  }
 }
