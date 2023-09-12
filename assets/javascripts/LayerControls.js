@@ -22,15 +22,7 @@ export default class LayerControls {
         boundSetControls();
       });
 
-      // initial set up of controls (default or urlParams)
-      const urlParams = (new URL(document.location)).searchParams;
-      if (!urlParams.has(this.layerURLParamName)) {
-        // if not set then use default checked controls
-        this.updateUrl();
-      } else {
-        // use URL params if available
-        this.toggleLayersBasedOnUrl();
-      }
+
 
       // this.init(options);
     }
@@ -56,6 +48,7 @@ export default class LayerControls {
 
       const content = document.createElement('div');
       content.classList.add('dl-map__side-panel__content');
+      this.$sidePanelContent = content;
 
       const checkboxes = document.createElement('div');
       checkboxes.classList.add('govuk-checkboxes');
@@ -97,7 +90,44 @@ export default class LayerControls {
       content.appendChild(checkboxes);
       sidePanel.appendChild(content);
 
+      this.$sidePanel = sidePanel;
+
+      const closeButton = document.createElement('button');
+      closeButton.classList.add('dl-map__close-btn');
+      closeButton.dataset.action = 'close';
+      const closeLabel = document.createElement('span');
+      closeLabel.textContent = 'Close layer panel';
+      closeLabel.classList.add('govuk-visually-hidden');
+      closeButton.appendChild(closeLabel);
+      sidePanel.appendChild(closeButton);
+
+      const boundTogglePanel = this.togglePanel.bind(this);
+      closeButton.addEventListener('click', boundTogglePanel);
+      this.$closeBtn = closeButton;
+
+      const openButton = document.createElement('button');
+      openButton.classList.add('dl-map__open-btn', 'js-hidden');
+      openButton.dataset.action = 'open';
+      const openLabel = document.createElement('span');
+      openLabel.textContent = 'Open layer panel';
+      openLabel.classList.add('govuk-visually-hidden');
+      openButton.appendChild(openLabel);
+      this.mapController.map.getContainer().appendChild(openButton);
+
+      openButton.addEventListener('click', boundTogglePanel);
+      this.$openBtn = openButton;
+
       this._container.appendChild(sidePanel);
+
+      // initial set up of controls (default or urlParams)
+      const urlParams = (new URL(document.location)).searchParams;
+      if (!urlParams.has(this.layerURLParamName)) {
+        // if not set then use default checked controls
+        this.updateUrl();
+      } else {
+        // use URL params if available
+        this.toggleLayersBasedOnUrl();
+      }
 
       return this._container;
     }
@@ -108,10 +138,6 @@ export default class LayerControls {
 
     init(params) {
       this.setupOptions(params);
-
-      // add buttons to open and close panel
-      this.$closeBtn = this.createCloseButton();
-      this.$openBtn = this.createOpenButton();
 
       // find the search box
       this.$textbox = this.$module.querySelector('.dl-filter-group__auto-filter__input');
@@ -130,50 +156,22 @@ export default class LayerControls {
       this.listItemSelector = params.listItemSelector || '.govuk-checkboxes__item';
     };
 
-    createCloseButton() {
-      const button = document.createElement('button');
-      button.classList.add('dl-map__close-btn');
-      button.dataset.action = 'close';
-      const label = document.createElement('span');
-      label.textContent = 'Close layer panel';
-      label.classList.add('govuk-visually-hidden');
-      button.appendChild(label);
-      this.$container.appendChild(button);
-
-      const boundTogglePanel = this.togglePanel.bind(this);
-      button.addEventListener('click', boundTogglePanel);
-      return button
-    };
-
-    createOpenButton() {
-      const button = document.createElement('button');
-      button.classList.add('dl-map__open-btn', 'dl-map__overlay', 'js-hidden');
-      button.dataset.action = 'open';
-      const label = document.createElement('span');
-      label.textContent = 'Open layer panel';
-      label.classList.add('govuk-visually-hidden');
-      button.appendChild(label);
-      this.mapController.map.getContainer().appendChild(button);
-
-      const boundTogglePanel = this.togglePanel.bind(this);
-      button.addEventListener('click', boundTogglePanel);
-      return button
-    };
-
     togglePanel(e) {
       const action = e.target.dataset.action;
       const opening = (action === 'open');
       // set aria attributes
-      this.$container.setAttribute('aria-hidden', !opening);
-      this.$container.setAttribute('open', opening);
+      this.$sidePanelContent.setAttribute('aria-hidden', !opening);
+      this.$sidePanelContent.setAttribute('open', opening);
       if (opening) {
-        this.$container.classList.remove('dl-map__side-panel--collapsed');
+        this._container.classList.remove('dl-map__side-panel--collapsed');
         this.$openBtn.classList.add('js-hidden');
+        this.$closeBtn.classList.remove('js-hidden');
         // focus on the panel when opening
-        this.$container.focus();
+        this._container.focus();
       } else {
-        this.$container.classList.add('dl-map__side-panel--collapsed');
+        this._container.classList.add('dl-map__side-panel--collapsed');
         this.$openBtn.classList.remove('js-hidden');
+        this.$closeBtn.classList.add('js-hidden');
         // focus on open btn when closing panel
         this.$openBtn.focus();
       }
@@ -286,7 +284,6 @@ class LayerOption {
     checkBoxInput.setAttribute('name', layer.dataset);
     checkBoxInput.setAttribute('type', 'checkbox');
     checkBoxInput.setAttribute('value', layer.dataset);
-    checkBoxInput.setAttribute('checked', 'checked');
     checkBoxInput.addEventListener('change', this.clickHandler.bind(this));
 
     const checkBoxLabel = document.createElement('label');
