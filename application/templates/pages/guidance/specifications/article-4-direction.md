@@ -136,11 +136,11 @@ The reference for the article 4 direction used in the article 4 direction datase
 
 Example: `A4D1`
 
-### article-4-direction-rules
+### permitted-development-right
 
-The list of references of article 4 direction rules which apply to this area, as found in the [article 4 direction rule dataset](https://www.planning.data.gov.uk/dataset/article-4-direction-rule). In many cases the article 4 direction rule is a reference to the permitted development right removed by the rule.
+A semi-colon separated list of references of permitted development rights which apply to this area, as found in the [permitted development right dataset](https://www.planning.data.gov.uk/dataset/permitted-development-right).
 
-If the rule you need does not exist in our list, please contact [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
+If the permitted development right you need does not exist in our list, please contact [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
 
 Example: `P3CD;P3CM;P11CB`
 
