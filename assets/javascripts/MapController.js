@@ -161,17 +161,10 @@ export default class MapController {
       container: document.getElementById(this.mapId)
     }), 'top-left');
 
-		// // add layer controls
-		// if(this.LayerControlOptions.enabled){
-      // 	this.layerControlsComponent = new LayerControls(layerControlsList, this, this.sourceName, this.layers,  this.LayerControlOptions);
-      // }
-
     this.map.addControl(new CopyrightControl(), 'bottom-right');
 
-    const layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-    this.map.addControl(new LayerControls(layerControlsList, this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions), 'top-right');
-
-
+    if(this.LayerControlOptions.enabled)
+      this.map.addControl(new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions), 'top-right');
   }
 
   addClickHandlers() {

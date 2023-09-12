@@ -1,8 +1,7 @@
 import {defaultPaintOptions} from "./defaultPaintOptions.js";
 
 export default class LayerControls {
-    constructor ($module, mapController, source, layers, availableLayers, options) {
-      this.$module = $module;
+    constructor (mapController, source, layers, availableLayers, options) {
       this.mapController = mapController;
       this.tileSource = source;
       this.layers = layers;
