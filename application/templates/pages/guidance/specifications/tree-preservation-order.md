@@ -64,11 +64,27 @@ Example: `http://www.LPAwebsite.org.uk/data#tpo1`
 
 Optional text on how this data was made or produced, or how it can be interpreted.
 
+### made-date
+
+The date a tree preservation order was made available to the public. The tree or trees are protected from this date.
+
+Write in YYYY-MM-DD format.
+
+Example: '2022-12-20'
+
 ### start-date
 
 The date that the tree preservation order came into force, written in `YYYY-MM-DD` format.
 
 Example: `1984-03-28`
+
+### confirmed-date
+
+The date a tree preservation order is confirmed as being in effect. This comes after all objections have been considered.
+
+Write in YYYY-MM-DD format.
+
+Example: '2022-12-20'
 
 ### end-date
 
@@ -79,18 +95,6 @@ Example: `1999-01-20`
 ### entry-date
 
 The date this dataset was created or last updated, written in `YYYY-MM-DD` format.
-
-Example: `2022-12-20`
-
-### made-date
-
-The date a tree preservation order was "made". From this date the included tree(s), from a planning perspective, are considered to be covered by a tree preservation order.
-
-Example: `2022-12-20`
-
-### confirmed-date
-
-The date a tree preservation order is confirmed and becomes a fully fledged tree preservation order.
 
 Example: `2022-12-20`
 
@@ -132,7 +136,12 @@ The reference for the tree preservation order that covers this zone.
 
 ### tree-preservation-zone-type
 
-A category of tree preservation zone
+What sort of tree preservation zone this is.
+
+This can be:
+-   area
+-   group
+-   woodland
 
 ### geometry
 
