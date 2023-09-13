@@ -144,7 +144,7 @@ Separate the rights in the list using semicolons.
 
 Only use rights from our [permitted development right dataset](https://www.planning.data.gov.uk/dataset/permitted-development-right). If the area has a permitted development right that is not in our dataset, email [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
 
-Example: `P3CD;P3CM;P11CB`
+Example: `3D;3M;11B`
 
 ### notes
 
