@@ -55,6 +55,7 @@ const mapMock = {
             })
         }
     }),
+    moveLayer: vi.fn(),
 };
 
 const mapControllerMock = {

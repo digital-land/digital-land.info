@@ -4,6 +4,7 @@ import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter } from "./utils.js";
 import { getApiToken, getFreshApiToken } from "./osApiToken.js";
+import {defaultPaintOptions} from "./defaultPaintOptions.js";
 
 export default class MapController {
   constructor(params) {
@@ -38,6 +39,7 @@ export default class MapController {
     this.paint_options = params.paint_options || null;
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
     this.useOAuth2 = params.useOAuth2 || false;
+    this.layers = params.layers || [];
   }
 
   async createMap() {
@@ -159,15 +161,12 @@ export default class MapController {
       container: document.getElementById(this.mapId)
     }), 'top-left');
 
-		// add layer controls
-		if(this.LayerControlOptions.enabled){
-			const layerControlsList = document.querySelector(`[data-module="layer-controls-${this.mapId}"]`)
-			this.layerControlsComponent = new LayerControls(layerControlsList, this, this.sourceName, this.availableLayers,  this.LayerControlOptions);
-		}
-
     this.map.addControl(new CopyrightControl(), 'bottom-right');
 
-
+    if(this.LayerControlOptions.enabled){
+      this.layerControlsComponent = new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions);
+      this.map.addControl(this.layerControlsComponent, 'top-right');
+    }
   }
 
   addClickHandlers() {
@@ -312,12 +311,6 @@ export default class MapController {
   }
 
   addVectorTileSource(source) {
-		const defaultPaintOptions = {
-			'fill-color': '#003078',
-			'fill-opacity': 0.6,
-			'weight': 1,
-		};
-
 		// add source
 		this.map.addSource(`${source.name}-source`, {
 			type: 'vector',
