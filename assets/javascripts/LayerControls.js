@@ -214,6 +214,7 @@ export default class LayerControls {
     updateUrl() {
       // set the url params based on the enabled layers
       const urlParams = (new URL(document.location)).searchParams;
+      const enabledLayers = this.enabledLayers().map($control => this.getDatasetName($control));
       urlParams.delete(this.layerURLParamName);
       enabledLayers.forEach(name => urlParams.append(this.layerURLParamName, name));
       let newURL = window.location.pathname
