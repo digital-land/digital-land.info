@@ -143,7 +143,7 @@ export const stubGlobalWindow = (pathname = 'http://localhost', hash = '') => {
 
 let urlParams = [];
 
-export const stubGlobalUrl = (urlParams = []) => {
+export const stubGlobalUrl = (urlParams = [], urlParamSize = 0) => {
     urlParams = urlParams || [];
     const deleteMock = vi.fn().mockImplementation((key) => {
         urlParams = urlParams.filter((param) => {
@@ -176,7 +176,8 @@ export const stubGlobalUrl = (urlParams = []) => {
                         toReturn += `${index > 0 ? '&' : ''}${param.name}=${param.value}`
                     })
                     return toReturn;
-                })
+                }),
+                size: urlParamSize,
             }
         }
     }))

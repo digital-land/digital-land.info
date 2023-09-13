@@ -111,7 +111,7 @@ describe('Layer Controls', () => {
     })
 
     test('updateUrl() correctly executes',() => {
-        const [urlDeleteMock, urlAppendMock] = stubGlobalUrl();
+        const [urlDeleteMock, urlAppendMock] = stubGlobalUrl([], 2);
 
         layerControls.layerOptions = [
             {
