@@ -210,9 +210,10 @@ describe('Layer Controls', () => {
 
     describe('layer option', () => {
         test('makeElement() correctly executes',() => {
-            LayerOption.prototype.makeLayerSymbol = vi.fn().mockImplementation(() => { return '' });
+            let spy = vi.spyOn(LayerOption.prototype, 'makeLayerSymbol').mockImplementation(() => { return ''});
             const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], undefined);
             expect(option.element).toEqual(domElementMock);
+            spy.mockRestore();
         })
 
         describe('makeLayerSymbol()', () => {
