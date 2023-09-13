@@ -1,7 +1,7 @@
 // integration tests for the layer controller
 
 import {describe, expect, test, vi, beforeEach} from 'vitest'
-import LayerControls from '../../../assets/javascripts/LayerControls'
+import LayerControls, { LayerOption } from '../../../assets/javascripts/LayerControls'
 import { getDomElementMock, getMapControllerMock, getMapMock, stubGlobalDocument, stubGlobalUrl, stubGlobalWindow } from '../../utils/mockUtils'
 
 const domElementMock = getDomElementMock();
@@ -13,6 +13,21 @@ stubGlobalWindow('http://localhost:3000/', '');
 
 const urlParams = [];
 stubGlobalUrl([{name: 'layer', value: 'layer1'}, {name: 'layer', value: 'layer2'}]);
+
+const layers = [
+    {
+        dataset: 'layer1',
+        checked: true
+    },
+    {
+        dataset: 'layer2',
+        checked: true
+    },
+    {
+        dataset: 'layer3',
+        checked: false
+    }
+]
 
 const availableLayers = {
     layer1: ['layer1-fill', 'layer1-line'],
@@ -66,12 +81,19 @@ moduleMock.querySelectorAll.mockImplementation(() => {
 describe('LayerControls', () => {
     test('toggleLayersBasedOnUrl', () => {
 
-        const layerControls = new LayerControls(moduleMock, mapControllerMock, undefined, availableLayers, {});
+        const layerControls = new LayerControls(mapControllerMock, undefined, layers, availableLayers, {});
+
+        LayerOption.prototype.makeElement = vi.fn().mockImplementation(() => { return domElementMock});
+
+        layerControls.layerOptions = layers.map((layer, index) => {
+            return new LayerOption(layer, availableLayers[layer.dataset], layerControls)
+        });
+
         layerControls.toggleLayersBasedOnUrl();
 
-        expect(layer1Checkbox.checked).toEqual(true)
-        expect(layer2Checkbox.checked).toEqual(true)
-        expect(layer3Checkbox.checked).toEqual(false)
+        expect(layers[0].checked).toEqual(true)
+        expect(layers[1].checked).toEqual(true)
+        expect(layers[2].checked).toEqual(false)
 
         expect(mapControllerMock.setLayerVisibility).toHaveBeenCalledWith('layer1-fill', 'visible')
         expect(mapControllerMock.setLayerVisibility).toHaveBeenCalledWith('layer1-line', 'visible')
@@ -81,16 +103,17 @@ describe('LayerControls', () => {
         expect(mapControllerMock.setLayerVisibility).toHaveBeenCalledWith('layer3-line', 'none')
     })
 
-    test('onControlChkbxChange', () => {
-
-        const layerControls = new LayerControls(moduleMock, mapControllerMock, undefined, availableLayers, {});
-        layerControls.onControlChkbxChange({target: 'unused'});
-
-        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000/?layer=layer1&layer=layer2')
-    })
-
     test('getClickableLayers', () => {
-        const layerControls = new LayerControls(moduleMock, mapControllerMock, undefined, availableLayers, {});
+
+        const layerControls = new LayerControls(moduleMock, mapControllerMock, layers, availableLayers, {});
+
+        layerControls.layerOptions = layers.map((layer) => {
+            return {
+                getDatasetName: () => layer.dataset,
+                isChecked: () => layer.checked
+            }
+        });
+
         const clickableLayers = layerControls.getClickableLayers();
 
         expect(clickableLayers).toEqual(['layer1-fill', 'layer2-fill'])

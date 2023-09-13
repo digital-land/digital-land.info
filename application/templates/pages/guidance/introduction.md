@@ -31,7 +31,7 @@ By publishing your data, you will be helping to create a national resource of op
 What data we collect
 --------------------
 
-Planning Data collects [data about a range of subjects](https://www.digital-land.info/dataset/#monitoring).
+Planning Data collects [data about a range of subjects](https://www.digital-land.info/dataset).
 
 There are 4 main data subjects that are needed for the RIPA service:
 
