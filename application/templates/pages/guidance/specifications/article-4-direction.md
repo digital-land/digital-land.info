@@ -136,11 +136,15 @@ The reference for the article 4 direction used in the article 4 direction datase
 
 Example: `A4D1`
 
-### permitted-development-right
+### permitted-development-rights
 
-A semi-colon separated list of references of permitted development rights which apply to this area, as found in the [permitted development right dataset](https://www.planning.data.gov.uk/dataset/permitted-development-right).
+A list of the permitted development rights for this area.
 
-If the permitted development right you need does not exist in our list, please contact [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
+Separate the rights in the list using semicolons.
+
+Only use rights from our [permitted development right dataset](https://www.planning.data.gov.uk/dataset/permitted-development-right).
+
+If the area has a permitted development right that is not in our dataset, email [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
 
 Example: `P3CD;P3CM;P11CB`
 
