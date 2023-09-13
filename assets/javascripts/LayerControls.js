@@ -70,7 +70,8 @@ export default class LayerControls {
       checkboxes.appendChild(filterGroup);
 
       const list = document.createElement('ul');
-      list.classList.add('govuk-list', 'govuk-!-margin-bottom-0');
+      list.classList.add('govuk-list');
+      list.setAttribute('style', 'height: 400px;')
       list.setAttribute('data-module', 'layer-toggles');
       list.setAttribute('role', 'group');
 
