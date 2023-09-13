@@ -20,10 +20,6 @@ export default class LayerControls {
       window.addEventListener('popstate', function (event) {
         boundSetControls();
       });
-
-
-
-      // this.init(options);
     }
 
     onAdd(map) {
@@ -61,15 +57,16 @@ export default class LayerControls {
       filterLabel.classList.add('govuk-label', 'govuk-visually-hidden');
       filterLabel.textContent = 'Filter Show only';
 
-      const filterInput = document.createElement('input');
-      filterInput.setAttribute('id', 'input-71108');
-      filterInput.classList.add('govuk-input', 'dl-filter-group__auto-filter__input');
-      filterInput.setAttribute('type', 'text');
-      filterInput.setAttribute('aria-describedby', 'checkbox-filter-71108');
-      filterInput.setAttribute('aria-controls', 'checkboxes-71108');
+      this.$textbox = document.createElement('input');
+      this.$textbox.setAttribute('id', 'input-71108');
+      this.$textbox.classList.add('govuk-input', 'dl-filter-group__auto-filter__input');
+      this.$textbox.setAttribute('type', 'text');
+      this.$textbox.setAttribute('aria-describedby', 'checkbox-filter-71108');
+      this.$textbox.setAttribute('aria-controls', 'checkboxes-71108');
+      this.$textbox.addEventListener('input', this.filterCheckboxes.bind(this));
 
       filterGroup.appendChild(filterLabel);
-      filterGroup.appendChild(filterInput);
+      filterGroup.appendChild(this.$textbox);
       checkboxes.appendChild(filterGroup);
 
       const list = document.createElement('ul');
@@ -138,9 +135,7 @@ export default class LayerControls {
     init(params) {
       this.setupOptions(params);
 
-      // find the search box
-      this.$textbox = this.$module.querySelector('.dl-filter-group__auto-filter__input');
-      this.$textbox.addEventListener('input', this.filterCheckboxes.bind(this));
+
 
       // get the aria description element
       this.ariaDescription = this.$module.querySelector('.dl-filter-group__auto-filter__desc');
@@ -229,19 +224,14 @@ export default class LayerControls {
     };
 
     filterCheckboxesArr(query) {
-      var checkboxArr = this.checkboxArr;
-      return checkboxArr.filter((el) => {
-        const checkbox = el.querySelector('label');
-        return checkbox.textContent.toLowerCase().indexOf(query.toLowerCase()) !== -1
-      })
+      return this.layerOptions.filter(layerOption => layerOption.getDatasetName().toLowerCase().indexOf(query.toLowerCase()) !== -1)
     };
 
-    displayMatchingCheckboxes(checkboxArray, cb) {
+    displayMatchingCheckboxes(layerOptions, cb) {
       // hide all
-      this.checkboxArr.forEach((checkBox) => {checkBox.style.display = 'none';});
+      this.layerOptions.forEach(layerOption => layerOption.setLayerCheckboxVisibility(false));
       // re show those in filtered array
-      checkboxArray.forEach((checkBox) => {checkBox.style.display = 'block';});
-
+      layerOptions.forEach(layerOption => layerOption.setLayerCheckboxVisibility(true));
       if (cb) {
         cb();
       }
@@ -354,7 +344,7 @@ class LayerOption {
     $chkbx.checked = true;
     this.element.dataset.layerControlActive = 'true';
     this.element.classList.remove(this.layerControlDeactivatedClass);
-    this.toggleLayerVisibility(true);
+    this.setLayerVisibility(true);
   };
 
   disable() {
@@ -362,12 +352,17 @@ class LayerOption {
     $chkbx.checked = false;
     this.element.dataset.layerControlActive = 'false';
     this.element.classList.add(this.layerControlDeactivatedClass);
-    this.toggleLayerVisibility(false);
+    this.setLayerVisibility(false);
   };
 
-  toggleLayerVisibility(toEnable) {
-    const visibility = (toEnable) ? 'visible' : 'none';
+  setLayerVisibility(visible) {
+    const visibility = (visible) ? 'visible' : 'none';
     this.availableLayers.forEach(layerId => this.layerControls.mapController.setLayerVisibility(layerId, visibility));
+  }
+
+  setLayerCheckboxVisibility(display) {
+    const displayString = display ? 'block' : 'none';
+    this.element.style.display = displayString;
   }
 
   getDatasetName(){
