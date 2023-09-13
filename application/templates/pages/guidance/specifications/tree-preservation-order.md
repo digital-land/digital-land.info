@@ -62,11 +62,11 @@ Example: `http://www.LPAwebsite.org.uk/data#tpo1`
 
 ### notes
 
-Optional text on how this data was made or produced, or how it can be interpreted.
+Optional text on how this data was  or produced, or how it can be interpreted.
 
 ### made-date
 
-The date a tree preservation order was made available to the public. The tree or trees are protected from this date.
+The date a tree preservation order was made available to the public. The tree or trees are temporarily protected from this date, until the order is confirmed.
 
 Write in YYYY-MM-DD format.
 
@@ -80,7 +80,7 @@ Example: `1984-03-28`
 
 ### confirmed-date
 
-The date a tree preservation order is confirmed as being in effect. This comes after all objections have been considered.
+The date a tree preservation order is confirmed as being in effect, and the tree or trees are fully protected. This comes after all objections have been considered.
 
 Write in YYYY-MM-DD format.
 
