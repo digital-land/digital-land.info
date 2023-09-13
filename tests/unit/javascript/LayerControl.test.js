@@ -208,6 +208,23 @@ describe('Layer Controls', () => {
 
     })
 
+    test('getClickableLayers() correctly executes',() => {
+        layerControls.enabledLayers = vi.fn().mockImplementation(() => {
+            return [
+                {
+                    getDatasetName: () => 'testLayer1',
+                },
+                {
+                    getDatasetName: () => 'testLayer2'
+                },
+            ]
+        })
+        layerControls.availableLayers = { testLayer1: ['testLayer1-1', 'testLayer1-2'], testLayer2: ['testLayer2-1', 'testLayer2Fill'] };
+        let clickableLayers = layerControls.getClickableLayers();
+
+        expect(clickableLayers).toEqual(['testLayer1-1', 'testLayer2Fill']);
+    })
+
     describe('layer option', () => {
         test('makeElement() correctly executes',() => {
             let spy = vi.spyOn(LayerOption.prototype, 'makeLayerSymbol').mockImplementation(() => { return ''});
