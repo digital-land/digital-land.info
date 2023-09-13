@@ -157,7 +157,9 @@ export default class LayerControls {
       const enabledLayers = this.enabledLayers().map($control => this.getDatasetName($control));
       urlParams.delete(this.layerURLParamName);
       enabledLayers.forEach(name => urlParams.append(this.layerURLParamName, name));
-      const newURL = window.location.pathname + '?' + urlParams.toString() + window.location.hash;
+      let newURL = window.location.pathname
+      if(urlParams.size > 0)
+        newURL = newURL + '?' + urlParams.toString();
 
       // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
       window.history.pushState({}, '', newURL);
