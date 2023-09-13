@@ -133,24 +133,6 @@ export default class LayerControls {
 
     }
 
-    init(params) {
-      this.setupOptions(params);
-
-
-
-      // get the aria description element
-      this.ariaDescription = this.$module.querySelector('.dl-filter-group__auto-filter__desc');
-
-      return this
-    };
-
-    setupOptions(params) {
-      params = params || {};
-      this.layerControlDeactivatedClass = params.layerControlDeactivatedClass || 'deactivated-control';
-      this.layerURLParamName = params.layerURLParamName || 'layer';
-      this.listItemSelector = params.listItemSelector || '.govuk-checkboxes__item';
-    };
-
     togglePanel(e) {
       const action = e.target.dataset.action;
       const opening = (action === 'open');
@@ -172,8 +154,7 @@ export default class LayerControls {
       }
     };
 
-
-      // toggles visibility of elements/entities based on URL params
+    // toggles visibility of elements/entities based on URL params
     toggleLayersBasedOnUrl() {
       const enabledLayers = this.getEnabledLayersFromUrl();
       this.showEntitiesForLayers(enabledLayers);
@@ -189,8 +170,8 @@ export default class LayerControls {
       if (urlParams.has(this.layerURLParamName)) {
           enabledLayerNames = urlParams
             .getAll(this.layerURLParamName)
-            .filter(name => this.layerOptions.find((option) => option.layer.dataset == name) != undefined)
-            .map(name => this.layerOptions.find((option) => option.layer.dataset == name));
+            .filter(name => this.layerOptions.find((option) => option.getDatasetName() == name) != undefined)
+            .map(name => this.layerOptions.find((option) => option.getDatasetName() == name));
       }
 
       return enabledLayerNames;
@@ -207,18 +188,10 @@ export default class LayerControls {
     }
 
     enabledLayers() {
-      return this.layerOptions.filter(option => option.element.querySelector('input[type="checkbox"]').checked)
-    };
-
-    disabledLayers() {
-      return this.$controls.filter($control => !option.element.querySelector('input[type="checkbox"]').checked)
+      return this.layerOptions.filter(option => option.isChecked())
     };
 
     filterCheckboxes(e) {
-      // get the value of the search box
-      // get an array of filtered controls based on the value
-      // render those controls to the layer control panel
-
       var query = e.target.value;
       var filteredCheckboxes = this.filterCheckboxesArr(query);
       this.displayMatchingCheckboxes(filteredCheckboxes)
@@ -252,7 +225,7 @@ export default class LayerControls {
     }
 }
 
-class LayerOption {
+export class LayerOption {
   constructor(layer, availableLayers, layerControls){
     this.layer = layer;
     this.element = this.makeElement(layer);
@@ -309,7 +282,7 @@ class LayerOption {
                 stroke-linecap: butt;
                 stroke-linejoin: miter;
                 stroke-miterlimit: 10;
-                fill:${layer.paint_options.colour||defaultPaintOptions["fill-color"]};
+                fill: ${layer.paint_options.colour||defaultPaintOptions["fill-color"]};
                 fill-rule: nonzero;
                 opacity: ${layer.paint_options.opacity||defaultPaintOptions["fill-opacity"]};"
                 transform=" matrix(1 0 0 1 0 0) "
@@ -355,6 +328,10 @@ class LayerOption {
     this.element.classList.add(this.layerControlDeactivatedClass);
     this.setLayerVisibility(false);
   };
+
+  isChecked(){
+    return this.element.querySelector('input[type="checkbox"]').checked
+  }
 
   setLayerVisibility(visible) {
     const visibility = (visible) ? 'visible' : 'none';
