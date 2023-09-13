@@ -163,8 +163,10 @@ export default class MapController {
 
     this.map.addControl(new CopyrightControl(), 'bottom-right');
 
-    if(this.LayerControlOptions.enabled)
-      this.map.addControl(new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions), 'top-right');
+    if(this.LayerControlOptions.enabled){
+      this.layerControlsComponent = new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions);
+      this.map.addControl(this.layerControlsComponent, 'top-right');
+    }
   }
 
   addClickHandlers() {

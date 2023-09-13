@@ -223,6 +223,21 @@ export default class LayerControls {
       window.history.pushState({}, '', newURL);
       this.toggleLayersBasedOnUrl();
     }
+
+    getClickableLayers() {
+      var clickableLayers = [];
+      var enabledLayers = this.enabledLayers().map(layer => layer.getDatasetName());
+
+      return enabledLayers.map((layer) => {
+        var components = this.availableLayers[layer];
+
+        if (components.includes(layer + 'Fill')) {
+          return layer + 'Fill';
+        }
+
+        return components[0];
+      });
+    }
 }
 
 export class LayerOption {
