@@ -283,6 +283,11 @@ export class LayerOption {
 
     let symbolHtml = '';
 
+    layer.paint_options = undefined;
+
+    let opacityNumber = (layer.paint_options && layer.paint_options.opacity) ? layer.paint_options.opacity : defaultPaintOptions["fill-opacity"];
+    let color = (layer.paint_options && layer.paint_options.colour) ? layer.paint_options.colour : defaultPaintOptions["fill-color"];
+
     if(layer.paint_options && layer.paint_options.type && layer.paint_options.type == 'point') {
       const fill =
       symbolHtml = `
@@ -299,23 +304,25 @@ export class LayerOption {
                 stroke-linecap: butt;
                 stroke-linejoin: miter;
                 stroke-miterlimit: 10;
-                fill: ${layer.paint_options.colour||defaultPaintOptions["fill-color"]};
+                fill: ${color};
                 fill-rule: nonzero;
-                opacity: ${layer.paint_options.opacity||defaultPaintOptions["fill-opacity"]};"
+                opacity: ${opacityNumber};"
                 transform=" matrix(1 0 0 1 0 0) "
                 stroke-linecap="round"
               />
           </g>
         </svg>`
     } else {
-      layer.paint_options.opacity = layer.paint_options.opacity || 0.5;
-      const opacity = parseInt((layer.paint_options.opacity * 255)).toString(16);
+
+
+
+      const opacity = parseInt((opacityNumber * 255)).toString(16);
       symbolHtml = `
         <span
           class="dl-label__key__symbol"
           style="
-            border-color: ${layer.paint_options.colour || '#003078'};
-            background: ${(layer.paint_options.colour || '#003078')}${opacity};
+            border-color: ${color};
+            background: ${color}${opacity};
           "
         >
         </span>
