@@ -14,6 +14,16 @@
 # ChangeLog
 <br>
 
+## 14-09-2023
+### What's new
+- Updated layer controls css so it correctly displays on smaller screens
+- overwrite scroll event for map popups/controls to prevent page scrolling
+### Why was this change made?
+- The layer controls would disappear on smaller screens
+- The scroll event listener would cause the page to scroll when zooming on a map popup/control
+***
+<br />
+
 ## 13-09-2023
 ### What's new
 - Back button now simulates window history back
