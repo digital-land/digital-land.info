@@ -27,3 +27,29 @@ export const capitalizeFirstLetter = (string) => {
 export const convertNodeListToArray = (nl) => {
   return Array.prototype.slice.call(nl)
 }
+
+export const makePreventScrollFn = (scrollDivClass = []) => {
+  return (e) => {
+    const closestClassName = scrollDivClass.find((c) => {
+      return e.target.closest(c) != null;
+    });
+
+    if(!closestClassName){
+      e.preventDefault();
+      return false
+    }
+
+    const list = e.target.closest(closestClassName);
+
+    if(!list){
+      e.preventDefault();
+      return false
+    }
+
+    var verticalScroll = list.scrollHeight > list.clientHeight;
+    if(!verticalScroll)
+      e.preventDefault();
+
+    return false;
+  }
+}
