@@ -1,19 +1,187 @@
-# Template
-## [Version(optional)] - [Date]
+<!--
+    # Template
+    ## [Version(optional)] - [Date]
+    ### What's new
+    - [Feature]
+    - [BugFix]
+    - ...
+    ### Why was this change made?
+    - [explanation]
+    ***
+    <br />
+-->
+
+# ChangeLog
+<br>
+
+## 13-09-2023
 ### What's new
-- [Feature]
-- [BugFix]
-- ...
+- Back button now simulates window history back
+- the back link now doesn't collide with the header on smaller screens
+- the back button now correctly maintains the previous page state on the edge browser
 ### Why was this change made?
-- [explanation]
+- Samantha requested that the back button should simulate the window history back
 ***
 <br />
 
-# ChangeLog
-## 12-17-2023
+## 13-09-2023
 ### What's new
-- added a change log mark down file
-- added a template for the change log
+- The layer controls on the national map has been recoded to be a maplibre component
 ### Why was this change made?
-- to keep track of changes made to the project
+- The previous layer controls wouldn't correctly appear in when the map was full screened
+- this resolves tech debt surrounding this component
+***
+<br />
+
+## 11-09-2023
+### What's new
+- fix the location search bar on the search page
+***
+<br />
+
+## 07-09-2023
+### What's new
+- map popups now dont have a scroll event listener
+### Why was this change made?
+- previously, the scroll event listener would cause the page to scroll when zooming on the popup
+***
+<br />
+
+## 07-09-2023
+### What's new
+- phase banner now has appropriate margin on the map page.
+### Why was this change made?
+- previously the phase banner looked out of place on the map page
+***
+<br />
+
+## 07-09-2023
+### What's new
+- Search page: filters should be setup to show current entities by default
+- Now only show typologies on the search page that have entities
+### Why was this change made?
+- showing historical entities from the start is confusing
+- unnecessary to show typologies that have no entities
+***
+<br />
+
+## 06-09-2023
+### What's new
+- hide cookie banner if js is disabled
+### Why was this change made?
+- we can't store cookies without js, so no need to show this
+***
+<br />
+
+## 06-09-2023
+### What's new
+- update the map to use the base tile set from os maps
+- setup oauth2 for use of the os maps
+- changed the polygon layers to be of type fill-extrusion
+### Why was this change made?
+- maptiler would eventually revoke our key again, os maps is free for us to use
+- we want to try and keep our os map key and secret secure so oauth2 helps us protect this
+- 3D polygons look better than 2D polygons
+***
+<br />
+
+
+## 04-09-2023
+### What's new
+- Fix the search bar on the datasets filters
+### Why was this change made?
+- To make the search bar work as intended
+***
+<br />
+
+## 31-08-2023
+### What's new
+- Update docs pages to use more syntactical html
+- Added descriptions to the api endpoints
+- update about page to use more syntactical html
+### Why was this change made?
+- To make the page more accessible
+***
+<br />
+
+## 30-08-2023
+### What's new
+- Update the home page to use more syntactical html
+- Update the service status page to remove separators from the accessibility dom
+### Why was this change made?
+- To make the pages more accessible
+***
+<br />
+
+## 25-08-2023
+### What's new
+- Make banner research sign up link open in a new tab
+### Why was this change made?
+- Request made by MJ
+***
+<br />
+
+## 25-08-2023
+### What's new
+- Replaced breadcrumbs with a back button for all pages
+### Why was this change made?
+- The pages don't always follow a linier structure stable for breadcrumbs
+- A back button is more consistent with the site design
+***
+<br />
+
+## 25-08-2023
+### What's new
+- Added a new map component to be used across the whole site
+### Why was this change made?
+- Enables better map configuration and easier reuse
+- Resolves some tech debt
+***
+<br />
+
+## 24-08-2023
+### What's new
+- Move nav bar bellow page title on map page
+### Why was this change made?
+- To maintain consistency across the site
+***
+<br />
+
+## 24-08-2023
+### What's new
+- Updated phase banner colour and text
+### Why was this change made?
+- To better make the banner stand out
+- Also to link users to sign up for user research
+***
+<br />
+
+## 24-08-2023
+### What's new
+- Updated Google Analytics javascript code to now get measurment ID from ENV
+### Why was this change made?
+- To remove the need to hard code the measurment ID in the javascript code
+- To enable the use of Google Analytics in the development environment
+***
+<br />
+
+## 16-08-2023
+### What's new
+- changed the base tile set and maptiler access key to George Goodall's personal key
+### Why was this change made?
+- Paul Smith's key was revoked
+***
+
+## 02-08-2023
+### What's new
+- changed guidance string to a header on the article-4-direction specification
+***
+<br />
+
+## 12-07-2023
+### What's new
+- Added a change log mark down file
+- Added a template for the change log
+### Why was this change made?
+- To keep track of changes made to the project
 ***
