@@ -283,8 +283,6 @@ export class LayerOption {
 
     let symbolHtml = '';
 
-    layer.paint_options = undefined;
-
     let opacityNumber = (layer.paint_options && layer.paint_options.opacity) ? layer.paint_options.opacity : defaultPaintOptions["fill-opacity"];
     let color = (layer.paint_options && layer.paint_options.colour) ? layer.paint_options.colour : defaultPaintOptions["fill-color"];
 
