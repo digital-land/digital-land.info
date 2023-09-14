@@ -283,7 +283,7 @@ export class LayerOption {
 
     let symbolHtml = '';
 
-    if(layer.paint_options.type && layer.paint_options.type == 'point') {
+    if(layer.paint_options && layer.paint_options.type && layer.paint_options.type == 'point') {
       const fill =
       symbolHtml = `
         <svg class="dl-label__key__symbol--pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" viewBox="0 0 90 90">
