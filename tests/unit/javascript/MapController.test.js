@@ -127,7 +127,11 @@ describe('Map Controller - Unit', () => {
                 'circle-color': 'red',
                 'circle-opacity': 0.8,
                 'circle-stroke-color': 'red',
-                'circle-radius': 8,
+                'circle-radius': [
+                    "interpolate", ["linear"], ["zoom"],
+                    6, 1,
+                    14, 8,
+                ],
             },
             sourceLayer: `testName`,
         })
@@ -139,7 +143,11 @@ describe('Map Controller - Unit', () => {
                 'circle-color': 'blue',
                 'circle-opacity': 0.8,
                 'circle-stroke-color': 'blue',
-                'circle-radius': 8,
+                'circle-radius': [
+                    "interpolate", ["linear"], ["zoom"],
+                    6, 1,
+                    14, 8,
+                ],
             },
             sourceLayer: `testName2`,
         })

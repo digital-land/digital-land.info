@@ -14,13 +14,26 @@
 # ChangeLog
 <br>
 
-## 14-09-2023
+## 15-09-2023
 ### What's new
 - Updated layer controls css so it correctly displays on smaller screens
 - overwrite scroll event for map popups/controls to prevent page scrolling
 ### Why was this change made?
 - The layer controls would disappear on smaller screens
 - The scroll event listener would cause the page to scroll when zooming on a map popup/control
+
+
+## 15-09-2023
+### What's new
+- Updated circle radius on the map to interpolate between 8 and 0.8 based on zoom level
+- Feature layers on the map now have a cursor pointer when hovered over
+- OS copyright updated to specify Basemap contains OS data &copy; Crown copyright and database rights
+- Zoom and centre now gets added to the url for the map, and when navigating back to the map page the map will be zoomed and centred to the previous location
+### Why was this change made?
+- Smaller circles on the map are easier to see
+- The cursor pointer makes it more obvious that the feature is clickable
+- To avoid people thinking that our data is owned by OS
+- To make it easier to share a specific location on the map
 ***
 <br />
 

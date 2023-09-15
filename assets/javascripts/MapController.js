@@ -40,6 +40,17 @@ export default class MapController {
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
     this.useOAuth2 = params.useOAuth2 || false;
     this.layers = params.layers || [];
+    this.featuresHoveringOver = 0;
+  }
+
+  getViewFromUrl() {
+    const urlObj = new URL(document.location)
+    const hash = urlObj.hash
+    if(hash){
+      const [lat, lng, zoom] = hash.substring(1).split(',')
+      return {centre: [parseFloat(lng), parseFloat(lat)], zoom: parseFloat(zoom)}
+    }
+    return {centre: undefined, zoom: undefined}
   }
 
   async createMap() {
@@ -47,6 +58,8 @@ export default class MapController {
     // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
 
     await getFreshApiToken();
+
+    const viewFromUrl = this.getViewFromUrl()
 
     var map = new maplibregl.Map({
       container: this.mapId,
@@ -57,8 +70,8 @@ export default class MapController {
         [ -11, 49 ],
         [ 8, 57 ]
       ],
-      center: [ -1.5, 53.1 ],
-      zoom: 4,
+      center: viewFromUrl.centre || [ -1.5, 53.1 ],
+      zoom: viewFromUrl.zoom || 4,
       transformRequest: (url, resourceType) => {
         if(url.indexOf('api.os.uk') > -1){
           if(! /[?&]key=/.test(url) ) url += '?key=null'
@@ -80,6 +93,7 @@ export default class MapController {
     });
 
     this.map = map;
+
     // once the maplibre map has loaded call the setup function
     var boundSetup = this.setup.bind(this);
     this.map.on('load', boundSetup);
@@ -96,6 +110,15 @@ export default class MapController {
     this.addControls()
     this.addClickHandlers();
     this.overwriteWheelEventsForControls();
+
+    const handleMapMove = () => {
+      const center = this.map.getCenter()
+      const zoom = this.map.getZoom()
+      const urlObj = new URL(document.location)
+      const newURL = urlObj.origin + urlObj.pathname + urlObj.search + `#${center.lat},${center.lng},${zoom}z`;
+      window.history.replaceState({}, '', newURL);
+    }
+    this.map.on('move',handleMapMove)
   };
 
   loadImages(imageSrc=[]) {
@@ -215,6 +238,19 @@ export default class MapController {
       layout: layoutOptions,
       ...additionalOptions
     });
+
+    if(['fill', 'fill-extrusion', 'circle'].includes(layerType)){
+      this.map.on('mouseover', layerName, () => {
+        this.map.getCanvas().style.cursor = 'pointer'
+        this.featuresHoveringOver++;
+      })
+      this.map.on('mouseout', layerName, () => {
+        this.featuresHoveringOver--;
+        if(this.featuresHoveringOver == 0)
+          this.map.getCanvas().style.cursor = ''
+      })
+    }
+
     return layerName;
   }
 
@@ -255,7 +291,7 @@ export default class MapController {
     try{
       this.map.moveLayer(layer, buildingsLayer);
     } catch (e) {
-      console.log(`Could not move layer behind ${buildingsLayer}: `, e);
+      console.error(`Could not move layer behind ${buildingsLayer}: `, e);
     }
   }
 
@@ -310,7 +346,7 @@ export default class MapController {
         layerType: 'circle',
         paintOptions: {
           'circle-color': iconColor,
-          'circle-radius': 5,
+          "circle-radius": defaultPaintOptions['circle-radius'],
         }
       })
     }
@@ -336,7 +372,7 @@ export default class MapController {
           'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
           'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
           'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-          'circle-radius': 8,
+          "circle-radius": defaultPaintOptions['circle-radius']
         },
         sourceLayer: `${source.name}`,
       });
