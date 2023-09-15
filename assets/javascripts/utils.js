@@ -31,7 +31,7 @@ export const convertNodeListToArray = (nl) => {
 // Prevents scrolling of the page when the user triggers the wheel event on a div
 // while still allowing scrolling of any specified scrollable child elements.
 // Params:
-//  scrollableDivs: an array of class names of potential scrollable elements
+//  scrollableChildElements: an array of class names of potential scrollable elements
 export const preventScroll = (scrollableChildElements = []) => {
   return (e) => {
     const closestClassName = scrollableChildElements.find((c) => {
