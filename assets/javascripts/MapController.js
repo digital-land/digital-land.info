@@ -42,11 +42,23 @@ export default class MapController {
     this.layers = params.layers || [];
   }
 
+  getViewFromUrl() {
+    const urlObj = new URL(document.location)
+    const hash = urlObj.hash
+    if(hash){
+      const [lat, lng, zoom] = hash.substring(1).split(',')
+      return {centre: [parseFloat(lng), parseFloat(lat)], zoom: parseFloat(zoom)}
+    }
+    return {centre: undefined, zoom: undefined}
+  }
+
   async createMap() {
     // Define the custom JSON style.
     // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
 
     await getFreshApiToken();
+
+    const viewFromUrl = this.getViewFromUrl()
 
     var map = new maplibregl.Map({
       container: this.mapId,
@@ -57,8 +69,8 @@ export default class MapController {
         [ -11, 49 ],
         [ 8, 57 ]
       ],
-      center: [ -1.5, 53.1 ],
-      zoom: 4,
+      center: viewFromUrl.centre || [ -1.5, 53.1 ],
+      zoom: viewFromUrl.zoom || 4,
       transformRequest: (url, resourceType) => {
         if(url.indexOf('api.os.uk') > -1){
           if(! /[?&]key=/.test(url) ) url += '?key=null'
@@ -80,6 +92,7 @@ export default class MapController {
     });
 
     this.map = map;
+
     // once the maplibre map has loaded call the setup function
     var boundSetup = this.setup.bind(this);
     this.map.on('load', boundSetup);
@@ -95,6 +108,15 @@ export default class MapController {
     }
     this.addControls()
     this.addClickHandlers();
+
+    const handleMapMove = () => {
+      const center = this.map.getCenter()
+      const zoom = this.map.getZoom()
+      const urlObj = new URL(document.location)
+      const newURL = urlObj.origin + urlObj.pathname + urlObj.search + `#${center.lat},${center.lng},${zoom}z`;
+      window.history.replaceState({}, '', newURL);
+    }
+    this.map.on('move',handleMapMove)
   };
 
   loadImages(imageSrc=[]) {
