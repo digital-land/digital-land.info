@@ -6,7 +6,7 @@ export default class CopyrightControl {
 	}
 
 	onAdd(map) {
-        this._container.innerHTML = `Contains OS data &copy; Crown copyright and database rights ${new Date().getFullYear()}`;
+        this._container.innerHTML = `Basemap contains OS data &copy; Crown copyright and database rights ${new Date().getFullYear()}`;
 		return this._container;
 	}
 
