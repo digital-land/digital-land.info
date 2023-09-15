@@ -40,6 +40,7 @@ export default class MapController {
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
     this.useOAuth2 = params.useOAuth2 || false;
     this.layers = params.layers || [];
+    this.featuresHoveringOver = 0;
   }
 
   getViewFromUrl() {
@@ -234,9 +235,12 @@ export default class MapController {
     if(['fill', 'fill-extrusion', 'circle'].includes(layerType)){
       this.map.on('mouseover', layerName, () => {
         this.map.getCanvas().style.cursor = 'pointer'
+        this.featuresHoveringOver++;
       })
       this.map.on('mouseout', layerName, () => {
-        this.map.getCanvas().style.cursor = ''
+        this.featuresHoveringOver--;
+        if(this.featuresHoveringOver == 0)
+          this.map.getCanvas().style.cursor = ''
       })
     }
 
