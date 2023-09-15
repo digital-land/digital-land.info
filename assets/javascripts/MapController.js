@@ -236,11 +236,9 @@ export default class MapController {
       this.map.on('mouseover', layerName, () => {
         this.map.getCanvas().style.cursor = 'pointer'
         this.featuresHoveringOver++;
-        console.log(this.featuresHoveringOver)
       })
       this.map.on('mouseout', layerName, () => {
         this.featuresHoveringOver--;
-        console.log(this.featuresHoveringOver)
         if(this.featuresHoveringOver == 0)
           this.map.getCanvas().style.cursor = ''
       })
