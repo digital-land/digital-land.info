@@ -117,14 +117,6 @@ export default class MapController {
       window.history.replaceState({}, '', newURL);
     }
     this.map.on('move',handleMapMove)
-
-    // window.addEventListener('popstate', (event) => {
-    //   if (event.state === null) {
-    //     return
-    //   }
-    //   this.map.setCenter(event.state.center);
-    //   this.map.setZoom(event.state.zoom);
-    // });
   };
 
   loadImages(imageSrc=[]) {
