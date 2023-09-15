@@ -80,6 +80,12 @@ export default class MapController {
     });
 
     this.map = map;
+
+    this.map.on('zoom',() => {
+      const center = this.map.getCenter()
+      const zoom = this.map.getZoom()
+      let url = `http://digital-land.info/map?layer=${datasetName}#${center.lat},${center.lng},${zoom}z`
+    })
     // once the maplibre map has loaded call the setup function
     var boundSetup = this.setup.bind(this);
     this.map.on('load', boundSetup);
