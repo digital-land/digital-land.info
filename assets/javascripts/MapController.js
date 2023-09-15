@@ -231,7 +231,7 @@ export default class MapController {
       ...additionalOptions
     });
 
-    if(['fill', 'circle'].includes(layerType)){
+    if(['fill', 'fill-extrusion', 'circle'].includes(layerType)){
       this.map.on('mouseover', layerName, () => {
         this.map.getCanvas().style.cursor = 'pointer'
       })
