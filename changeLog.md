@@ -16,6 +16,15 @@
 
 ## 15-09-2023
 ### What's new
+- Updated layer controls css so it correctly displays on smaller screens
+- overwrite scroll event for map popups/controls to prevent page scrolling
+### Why was this change made?
+- The layer controls would disappear on smaller screens
+- The scroll event listener would cause the page to scroll when zooming on a map popup/control
+
+
+## 15-09-2023
+### What's new
 - Updated circle radius on the map to interpolate between 8 and 0.8 based on zoom level
 - Feature layers on the map now have a cursor pointer when hovered over
 - OS copyright updated to specify Basemap contains OS data &copy; Crown copyright and database rights

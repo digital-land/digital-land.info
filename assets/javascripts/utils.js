@@ -27,3 +27,33 @@ export const capitalizeFirstLetter = (string) => {
 export const convertNodeListToArray = (nl) => {
   return Array.prototype.slice.call(nl)
 }
+
+// Prevents scrolling of the page when the user triggers the wheel event on a div
+// while still allowing scrolling of any specified scrollable child elements.
+// Params:
+//  scrollableChildElements: an array of class names of potential scrollable elements
+export const preventScroll = (scrollableChildElements = []) => {
+  return (e) => {
+    const closestClassName = scrollableChildElements.find((c) => {
+      return e.target.closest(c) != null;
+    });
+
+    if(!closestClassName){
+      e.preventDefault();
+      return false
+    }
+
+    const list = e.target.closest(closestClassName);
+
+    if(!list){
+      e.preventDefault();
+      return false
+    }
+
+    var verticalScroll = list.scrollHeight > list.clientHeight;
+    if(!verticalScroll)
+      e.preventDefault();
+
+    return false;
+  }
+}
