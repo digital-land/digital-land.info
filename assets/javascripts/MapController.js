@@ -2,7 +2,7 @@ import BrandImageControl from "./BrandImageControl.js";
 import CopyrightControl from "./CopyrightControl.js";
 import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
-import { capitalizeFirstLetter, makePreventScrollFn } from "./utils.js";
+import { capitalizeFirstLetter, preventScroll } from "./utils.js";
 import { getApiToken, getFreshApiToken } from "./osApiToken.js";
 import {defaultPaintOptions} from "./defaultPaintOptions.js";
 
@@ -196,7 +196,7 @@ export default class MapController {
   overwriteWheelEventsForControls() {
     const mapEl = document.getElementById(this.mapId)
     const mapControlsArray = mapEl.querySelectorAll('.maplibregl-control-container')
-    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', makePreventScrollFn(['.dl-map__side-panel__content']), {passive: false}));
+    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content']), {passive: false}));
   }
 
   addClickHandlers() {
@@ -447,7 +447,7 @@ export default class MapController {
   createFeaturesPopup(features) {
     const wrapper = document.createElement('div');
     wrapper.classList.add('app-popup');
-    wrapper.onwheel = makePreventScrollFn(['.app-popup-list']);
+    wrapper.onwheel = preventScroll(['.app-popup-list']);
 
     const featureOrFeatures = features.length > 1 ? 'features' : 'feature';
     const heading = document.createElement('h3');

@@ -28,9 +28,13 @@ export const convertNodeListToArray = (nl) => {
   return Array.prototype.slice.call(nl)
 }
 
-export const makePreventScrollFn = (scrollDivClass = []) => {
+// Prevents scrolling of the page when the user triggers the wheel event on a div
+// while still allowing scrolling of any specified scrollable child elements.
+// Params:
+//  scrollableDivs: an array of class names of potential scrollable elements
+export const preventScroll = (scrollableChildElements = []) => {
   return (e) => {
-    const closestClassName = scrollDivClass.find((c) => {
+    const closestClassName = scrollableChildElements.find((c) => {
       return e.target.closest(c) != null;
     });
 
