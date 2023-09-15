@@ -208,6 +208,16 @@ export default class MapController {
       layout: layoutOptions,
       ...additionalOptions
     });
+
+    if(['fill', 'circle'].includes(layerType)){
+      this.map.on('mouseover', layerName, () => {
+        this.map.getCanvas().style.cursor = 'pointer'
+      })
+      this.map.on('mouseout', layerName, () => {
+        this.map.getCanvas().style.cursor = ''
+      })
+    }
+
     return layerName;
   }
 
@@ -248,7 +258,7 @@ export default class MapController {
     try{
       this.map.moveLayer(layer, buildingsLayer);
     } catch (e) {
-      console.log(`Could not move layer behind ${buildingsLayer}: `, e);
+      console.error(`Could not move layer behind ${buildingsLayer}: `, e);
     }
   }
 
