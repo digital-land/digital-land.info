@@ -313,7 +313,7 @@ export default class MapController {
         layerType: 'circle',
         paintOptions: {
           'circle-color': iconColor,
-          'circle-radius': 5,
+          "circle-radius": defaultPaintOptions['circle-radius'],
         }
       })
     }
@@ -339,7 +339,7 @@ export default class MapController {
           'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
           'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
           'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-          'circle-radius': 8,
+          "circle-radius": defaultPaintOptions['circle-radius']
         },
         sourceLayer: `${source.name}`,
       });
