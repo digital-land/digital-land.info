@@ -392,7 +392,11 @@ describe('Map Controller', () => {
                     'circle-color': params.vectorTileSources[0].styleProps.colour,
                     'circle-opacity': params.vectorTileSources[0].styleProps.opacity,
                     'circle-stroke-color': params.vectorTileSources[0].styleProps.colour,
-                    'circle-radius': 8,
+                    'circle-radius': [
+                        "interpolate", ["linear"], ["zoom"],
+                        6, 1,
+                        14, 8,
+                    ],
                   },
                 layout: {}
             });
