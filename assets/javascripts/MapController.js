@@ -63,15 +63,15 @@ export default class MapController {
 
     var map = new maplibregl.Map({
       container: this.mapId,
-      minZoom: 4,
+      minZoom: 5.5,
       maxZoom: 18,
       style: this.customStyleJson,
       maxBounds: [
-        [ -11, 49 ],
-        [ 8, 57 ]
+        [ -15, 49 ],
+        [ 13, 57 ]
       ],
-      center: viewFromUrl.centre || [ -1.5, 53.1 ],
-      zoom: viewFromUrl.zoom || 4,
+      center: viewFromUrl.centre || [ -1, 52.9 ],
+      zoom: viewFromUrl.zoom || 5.5,
       transformRequest: (url, resourceType) => {
         if(url.indexOf('api.os.uk') > -1){
           if(! /[?&]key=/.test(url) ) url += '?key=null'
