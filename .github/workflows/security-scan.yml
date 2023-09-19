@@ -96,7 +96,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: 'dl-developers'
+          channel-id: 'planning-data-platform'
           payload: |
             {
               "text": "Security Scan: digital-land.info",
