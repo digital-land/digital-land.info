@@ -22,7 +22,7 @@ jobs:
       alerts_high: ${{ steps.report.outputs.alerts_high }}
       alerts_total: ${{ steps.report.outputs.alerts_total }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: setup
         run: |
@@ -59,7 +59,7 @@ jobs:
       alerts_medium: ${{ steps.report.outputs.alerts_medium }}
       alerts_high: ${{ steps.report.outputs.alerts_high }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v4
         with:
@@ -189,7 +189,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: 'dl-developers'
+          channel-id: 'planning-data-platform'
           payload: |
             {
               "text": "Security Scan: digital-land.info",
