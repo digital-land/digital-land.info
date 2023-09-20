@@ -118,6 +118,8 @@ export default class MapController {
       const newURL = urlObj.origin + urlObj.pathname + urlObj.search + `#${center.lat},${center.lng},${zoom}z`;
       window.history.replaceState({}, '', newURL);
     }
+    this.obscureScotland()
+    this.obscureWales()
     this.map.on('move',handleMapMove)
   };
 
@@ -154,6 +156,34 @@ export default class MapController {
     });
 		return availableLayers;
 	}
+
+  obscureWales(){
+    this.obscure('Wales_simplified');
+  }
+
+  obscureScotland(){
+    this.obscure('Scotland_simplified');
+  }
+
+
+  obscure(name, colour = '#AAAAAA', opacity = 0.98){
+    this.map.addSource(name, {
+      type: 'geojson',
+      data: `/static/javascripts/geojsons/${name}.json`,
+      buffer: 0,
+    })
+    this.map.addLayer({
+      id: `obscure${name}Layer`,
+      type: 'fill',
+      source: name,
+      layout: {},
+      paint: {
+        'fill-color': colour,
+        'fill-opacity': opacity,
+      }
+    })
+  }
+
 
   addGeojsonSources(geojsons = []) {
     // add geojsons sources to map
