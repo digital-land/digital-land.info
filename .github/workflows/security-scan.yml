@@ -45,12 +45,6 @@ jobs:
       - name: parse report
         id: report
         run: |
-          # echo "::set-output name=alerts_info::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "0") | .riskcode ] | length' zap-working-dir/zap-report.json)"
-          # echo "::set-output name=alerts_low::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "1") | .riskcode ] | length' zap-working-dir/zap-report.json)"
-          # echo "::set-output name=alerts_medium::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "2") | .riskcode ] | length' zap-working-dir/zap-report.json)"
-          # echo "::set-output name=alerts_high::$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "3") | .riskcode ] | length' zap-working-dir/zap-report.json)"
-          # echo "::set-output name=alerts_total::$(jq -rc '[ .site[0].alerts[] ] | length' zap-working-dir/zap-report.json)"
-
           echo "alerts_info=$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "0") | .riskcode ] | length' zap-working-dir/zap-report.json)" >> $GITHUB_OUTPUT
           echo "alerts_low=$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "1") | .riskcode ] | length' zap-working-dir/zap-report.json)" >> $GITHUB_OUTPUT
           echo "alerts_medium=$(jq -rc '[ .site[0].alerts[] | select(.riskcode == "2") | .riskcode ] | length' zap-working-dir/zap-report.json)" >> $GITHUB_OUTPUT
@@ -86,11 +80,6 @@ jobs:
       - name: parse report
         id: report
         run: |
-          # echo ::set-output name=alerts_undefined::$(jq -rc '.metrics._totals."SEVERITY.UNDEFINED"' bandit-report.json)
-          # echo ::set-output name=alerts_low::$(jq -rc '.metrics._totals."SEVERITY.LOW"' bandit-report.json)
-          # echo ::set-output name=alerts_medium::$(jq -rc '.metrics._totals."SEVERITY.MEDIUM"' bandit-report.json)
-          # echo ::set-output name=alerts_high::$(jq -rc '.metrics._totals."SEVERITY.HIGH"' bandit-report.json)
-
           echo "alerts_undefined=$(jq -rc '.metrics._totals."SEVERITY.UNDEFINED"' bandit-report.json)" >> $GITHUB_OUTPUT
           echo "alerts_low=$(jq -rc '.metrics._totals."SEVERITY.LOW"' bandit-report.json)" >> $GITHUB_OUTPUT
           echo "alerts_medium=$(jq -rc '.metrics._totals."SEVERITY.MEDIUM"' bandit-report.json)" >> $GITHUB_OUTPUT
