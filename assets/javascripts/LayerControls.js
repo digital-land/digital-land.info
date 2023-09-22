@@ -327,7 +327,7 @@ export class LayerOption {
       `
     }
 
-    const html = `<span class="dl-label__key">${symbolHtml}${layer.dataset}</span>`;
+    const html = `<span class="dl-label__key">${symbolHtml}${layer.name}</span>`;
     return html;
   }
 
