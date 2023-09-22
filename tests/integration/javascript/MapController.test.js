@@ -146,8 +146,8 @@ describe('Map Controller', () => {
             await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledOnce();
-            expect(mapController.map.addLayer).toHaveBeenCalledOnce();
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(4);
             expect(mapController.map.addSource).toHaveBeenCalledWith(params.geojsons[0].name, {
                 'type': 'geojson',
                 'data': {
@@ -213,8 +213,8 @@ describe('Map Controller', () => {
             await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledTimes(3);
-            expect(mapController.map.addLayer).toHaveBeenCalledTimes(3);
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(6);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(6);
 
             params.geojsons.forEach((geojson, index) => {
                 expect(mapController.map.addSource).toHaveBeenCalledWith(params.geojsons[index].name, {
@@ -283,8 +283,8 @@ describe('Map Controller', () => {
             await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledTimes(3);
-            expect(mapController.map.addLayer).toHaveBeenCalledTimes(3);
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(6);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(6);
 
             params.geojsons.forEach((geojson, index) => {
                 expect(mapController.map.addSource).toHaveBeenCalledWith(params.geojsons[index].name, {
@@ -375,8 +375,8 @@ describe('Map Controller', () => {
             await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledOnce();
-            expect(mapController.map.addLayer).toHaveBeenCalledOnce();
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(4);
             expect(mapController.map.addSource).toHaveBeenCalledWith(params.vectorTileSources[0].name + '-source', {
                 type: 'vector',
                 tiles: [params.vectorTileSources[0].vectorSource],
@@ -432,8 +432,8 @@ describe('Map Controller', () => {
 
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledOnce();
-            expect(mapController.map.addLayer).toHaveBeenCalledTimes(2);
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(5);
             expect(mapController.map.addSource).toHaveBeenCalledWith(params.vectorTileSources[0].name + '-source', {
                 type: 'vector',
                 tiles: [params.vectorTileSources[0].vectorSource],
