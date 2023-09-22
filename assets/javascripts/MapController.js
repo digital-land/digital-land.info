@@ -38,6 +38,9 @@ export default class MapController {
     this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
     this.paint_options = params.paint_options || null;
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
+    this.customStyleLayersToBringToFront = [
+      'OS/Names/National/Country',
+    ];
     this.useOAuth2 = params.useOAuth2 || false;
     this.layers = params.layers || [];
     this.featuresHoveringOver = 0;
@@ -118,6 +121,9 @@ export default class MapController {
       const newURL = urlObj.origin + urlObj.pathname + urlObj.search + `#${center.lat},${center.lng},${zoom}z`;
       window.history.replaceState({}, '', newURL);
     }
+    this.obscureScotland()
+    this.obscureWales()
+    this.addNeighbours()
     this.map.on('move',handleMapMove)
   };
 
@@ -154,6 +160,40 @@ export default class MapController {
     });
 		return availableLayers;
 	}
+
+  obscureWales(){
+    this.obscure('Wales_simplified');
+  }
+
+  obscureScotland(){
+    this.obscure('Scotland_simplified');
+  }
+
+  addNeighbours(){
+    this.obscure('UK_neighbours', '#FFFFFF', 0.9);
+  }
+
+
+  obscure(name, colour = '#FFFFFF', opacity = 0.8){
+    this.map.addSource(name, {
+      type: 'geojson',
+      data: `/static/javascripts/geojsons/${name}.json`,
+      buffer: 0,
+    })
+    const layerId = `${name}_Layer`
+    this.map.addLayer({
+      id: layerId,
+      type: 'fill',
+      source: name,
+      layout: {},
+      paint: {
+        'fill-color': colour,
+        'fill-opacity': opacity,
+      }
+    })
+    this.map.moveLayer(layerId,'OS/Names/National/Country')
+  }
+
 
   addGeojsonSources(geojsons = []) {
     // add geojsons sources to map

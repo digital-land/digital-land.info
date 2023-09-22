@@ -14,6 +14,14 @@
 # ChangeLog
 <br>
 
+## 22-09-2023
+### What's new
+- Added tinted layer over Wales and Scotland on map to indicate that the data isn't about them
+- Added layer of europe
+### Why was this change made?
+- To make it clear that the data isn't about Wales and Scotland
+- So the map doesn't look empty
+
 ## 15-09-2023
 ### What's new
 - Updated layer controls css so it correctly displays on smaller screens
