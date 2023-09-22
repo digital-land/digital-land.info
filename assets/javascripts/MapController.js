@@ -191,7 +191,7 @@ export default class MapController {
         'fill-opacity': opacity,
       }
     })
-    mapControllers.map.map.moveLayer(layerId,'OS/Names/National/Country')
+    this.map.moveLayer(layerId,'OS/Names/National/Country')
   }
 
 
