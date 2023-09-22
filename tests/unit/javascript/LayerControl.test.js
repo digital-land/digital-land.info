@@ -242,13 +242,14 @@ describe('Layer Controls', () => {
                         colour: '#AABBCC',
                     },
                     dataset: 'testLayer1',
+                    name: 'TestLayer1',
                 }
 
                 const result = LayerOption.prototype.makeLayerSymbol(layerOptionMock);
 
                 expect(result).toContain('border-color: #AABBCC;')
                 expect(result).toContain('background: #AABBCC7f')
-                expect(result).toContain('testLayer1')
+                expect(result).toContain('TestLayer1')
             })
 
             test('correctly executes when type is point',() => {
@@ -259,13 +260,14 @@ describe('Layer Controls', () => {
                         colour: '#AABBCC',
                     },
                     dataset: 'testLayer1',
+                    name: 'TestLayer1',
                 }
 
                 const result = LayerOption.prototype.makeLayerSymbol(layerOptionMock);
 
                 expect(result).toContain('fill: #AABBCC;')
                 expect(result).toContain('opacity: 0.5;')
-                expect(result).toContain('testLayer1')
+                expect(result).toContain('TestLayer1')
             })
         })
 
