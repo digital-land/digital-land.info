@@ -14,6 +14,12 @@
 # ChangeLog
 <br>
 
+## 22-09-2023
+### What's new
+- Moved the guidance for publishers link from the footer to the top nav
+### Why was this change made?
+- To make it easier for publishers to find the guidance
+
 ## 15-09-2023
 ### What's new
 - Updated layer controls css so it correctly displays on smaller screens
