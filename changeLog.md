@@ -16,6 +16,11 @@
 
 ## 22-09-2023
 ### What's new
+- Moved the guidance for publishers link from the footer to the top nav
+### Why was this change made?
+- To make it easier for publishers to find the guidance
+
+## 22-09-2023
 - Added tinted layer over Wales and Scotland on map to indicate that the data isn't about them
 - Added layer of europe
 ### Why was this change made?
