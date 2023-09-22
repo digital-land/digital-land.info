@@ -170,7 +170,7 @@ export default class MapController {
   }
 
   addNeighbours(){
-    this.obscure('UK_neighbours', '#FFFFFF', 0.8);
+    this.obscure('UK_neighbours', '#FFFFFF', 0.9);
   }
 
 
