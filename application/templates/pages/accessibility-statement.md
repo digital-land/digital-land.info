@@ -38,23 +38,23 @@ Some pages need heading levels and reading order adjusted to make comprehension 
 
 #### 1.3.3: Sensory Characteristics
 
-National Map of planning data currently relies on the ability to see shapes, colours and visual locations. A 'non map alternative' is required for users unable able perceive content visually.
+Map of planning data for England currently relies on the ability to see shapes, colours and visual locations. A 'non map alternative' is required for users unable able perceive content visually.
 
 #### 1.4.1: Use of Color
 
-The National Map of Planning Data currently relies on colour to distinguish geographic shapes from one dataset to another.
+The map of planning data for England currently relies on colour to distinguish geographic shapes from one dataset to another.
 
 #### 1.4.3: Contrast (Minimum)
 
-The National Map of Planning Data fails colour contrast for map features and data layers. Text labels for locations can become difficult to read and are not a contrast ratio of at least 4.5:1.
+The map of planning data for England fails colour contrast for map features and data layers. Text labels for locations can become difficult to read and are not a contrast ratio of at least 4.5:1.
 
 #### 1.4.11: Non-text Contrast
 
-The National Map of Planning has shapes and areas of colour that when overlayed do not have sufficient contrast.
+The map of planning data for England has shapes and areas of colour that when overlayed do not have sufficient contrast.
 
 #### 2.1.1: Keyboard
 
-Features of the National Map of Planning Data are not able to be access via a keyboard.
+Features of the map of planning data for England are not able to be access via a keyboard.
 
 #### 3.2.2: On Input
 

@@ -7,7 +7,7 @@
 {% set fullWidthHeader = true %}
 
 {% set includesMap = true %}
-{% block pageTitle %}National map of planning data | Planning Data{% endblock %}
+{% block pageTitle %}Map of planning data for England | Planning Data{% endblock %}
 
 {%
   set notePanel = '<p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>'
@@ -29,11 +29,11 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">National map of planning data</h1>
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Map of planning data for England</h1>
     </div>
   </div>
 
-  <p id="aria-label-national-map" class="govuk-body-l">National map of the planning data collected and collated by Planning Data.</p>
+  <p id="aria-label-national-map" class="govuk-body-l">See the data we've collected and collated on a map.</p>
 
   {{
     map({
