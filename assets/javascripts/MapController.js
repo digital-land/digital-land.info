@@ -38,6 +38,9 @@ export default class MapController {
     this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
     this.paint_options = params.paint_options || null;
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
+    this.customStyleLayersToBringToFront = [
+      'OS/Names/National/Country',
+    ];
     this.useOAuth2 = params.useOAuth2 || false;
     this.layers = params.layers || [];
     this.featuresHoveringOver = 0;
@@ -120,6 +123,7 @@ export default class MapController {
     }
     this.obscureScotland()
     this.obscureWales()
+    this.addNeighbours()
     this.map.on('move',handleMapMove)
   };
 
@@ -165,15 +169,20 @@ export default class MapController {
     this.obscure('Scotland_simplified');
   }
 
+  addNeighbours(){
+    this.obscure('UK_neighbours', '#FFFFFF', 0.8);
+  }
 
-  obscure(name, colour = '#AAAAAA', opacity = 0.98){
+
+  obscure(name, colour = '#FFFFFF', opacity = 0.8){
     this.map.addSource(name, {
       type: 'geojson',
       data: `/static/javascripts/geojsons/${name}.json`,
       buffer: 0,
     })
+    const layerId = `${name}_Layer`
     this.map.addLayer({
-      id: `obscure${name}Layer`,
+      id: layerId,
       type: 'fill',
       source: name,
       layout: {},
@@ -182,6 +191,7 @@ export default class MapController {
         'fill-opacity': opacity,
       }
     })
+    mapControllers.map.map.moveLayer(layerId,'OS/Names/National/Country')
   }
 
 

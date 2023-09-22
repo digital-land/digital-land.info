@@ -17,17 +17,6 @@
             }
         },
         {
-            "id": "European_land/1",
-            "type": "fill",
-            "source": "esri",
-            "source-layer": "European_land",
-            "maxzoom": 15,
-            "layout": {},
-            "paint": {
-                "fill-color": "#FAFAF3"
-            }
-        },
-        {
             "id": "OS/GB_land/1",
             "type": "fill",
             "source": "esri",
