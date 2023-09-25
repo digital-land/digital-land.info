@@ -55,6 +55,7 @@ const mapMock = {
             })
         }
     }),
+    moveLayer: vi.fn(),
 };
 
 const mapControllerMock = {
@@ -76,6 +77,9 @@ const domElementMock = {
         remove: vi.fn(),
         add: vi.fn(),
     },
+    style: {
+
+    },
     dataset: {
         layerControl: 'testLayer1',
     },
@@ -90,6 +94,7 @@ const popupMock = {
     setLngLat: vi.fn().mockImplementation(() => popupMock),
     setHTML: vi.fn().mockImplementation(() => popupMock),
     addTo: vi.fn().mockImplementation(() => popupMock),
+    setDOMContent: vi.fn().mockImplementation(() => popupMock),
 }
 
 
@@ -138,7 +143,7 @@ export const stubGlobalWindow = (pathname = 'http://localhost', hash = '') => {
 
 let urlParams = [];
 
-export const stubGlobalUrl = (urlParams = []) => {
+export const stubGlobalUrl = (urlParams = [], urlParamSize = 0) => {
     urlParams = urlParams || [];
     const deleteMock = vi.fn().mockImplementation((key) => {
         urlParams = urlParams.filter((param) => {
@@ -171,7 +176,8 @@ export const stubGlobalUrl = (urlParams = []) => {
                         toReturn += `${index > 0 ? '&' : ''}${param.name}=${param.value}`
                     })
                     return toReturn;
-                })
+                }),
+                size: urlParamSize,
             }
         }
     }))
@@ -196,5 +202,35 @@ export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=lay
 export const stubGlobalTurf = (boundingBox) => {
     vi.stubGlobal('turf', {
         extent: vi.fn().mockReturnValue(boundingBox || [1,2,3,4])
+    })
+}
+
+export const stubGlobalFetch = () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => {
+        return Promise.resolve({
+            json: vi.fn().mockImplementation(() => {
+                return Promise.resolve({
+                    access_token: 'testToken',
+                    expires_in: 1000,
+                    issued_at: 1000,
+                })
+            })
+        })
+    }))
+}
+
+export const waitForMapCreation = (mapController, callCount = 0) => {
+    return new Promise((resolve, reject) => {
+        if(callCount > 2)
+            reject('Map creation timeout')
+        setTimeout(() => {
+            if(mapController.map) {
+                resolve();
+            } else {
+                waitForMapCreation(mapController, callCount+1).then(() => {
+                    resolve();
+                })
+            }
+        }, callCount * 25)
     })
 }

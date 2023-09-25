@@ -1,9 +1,4 @@
 {% macro dlBackButton(params) %}
-<script src="/static/javascripts/back-button.js" type="module"></script>
-<script type="module">
-    import { goBack } from '/static/javascripts/back-button.js'
-    window.goBack = goBack;
-</script>
 
 <div class="dlBackButtonWrapper">
     <div
@@ -16,7 +11,7 @@
                 {{attribute}}="{{value}}"
             {% endfor %}
             href="{{ params.parentHref }}"
-            onclick="return goBack('{{ params.parentHref }}');"
+            onclick="window.history.back(); return false;"
             id="backButton"
         >
             Back

@@ -24,6 +24,7 @@ from application.core.filters import (
     commanum_filter,
     get_entity_geometry,
     get_entity_paint_options,
+    get_os_oauth2_token,
 )
 
 from application.core.utils import model_dumps
@@ -59,6 +60,8 @@ templates.env.globals["random_int"] = random_int
 templates.env.globals["templateVar"] = {"email": "digitalland@levellingup.gov.uk"}
 templates.env.globals["serviceStatus"] = False
 templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
+templates.env.globals["get_os_oauth2_token"] = get_os_oauth2_token
+templates.env.globals["cacheBust"] = cacheBust
 
 templates.env.filters["is_list"] = is_list_filter
 templates.env.filters["commanum"] = commanum_filter
@@ -73,7 +76,6 @@ templates.env.filters["get_entity_name"] = get_entity_name_filter
 templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
-templates.env.globals["cacheBust"] = cacheBust
 templates.env.filters["make_url_param_str"] = make_url_param_str
 templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key

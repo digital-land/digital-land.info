@@ -12,13 +12,17 @@ import {
     stubGlobalMapLibre,
     stubGlobalWindow,
     stubGlobalUrl,
-    stubGlobalDocument
+    stubGlobalDocument,
+    stubGlobalFetch,
+    waitForMapCreation
 } from '../../utils/mockUtils';
+import CopyrightControl from '../../../assets/javascripts/CopyrightControl';
 
 stubGlobalMapLibre();
 stubGlobalWindow('http://localhost', '')
 const [urlDeleteMock, urlAppendMock] = stubGlobalUrl();
 stubGlobalDocument();
+stubGlobalFetch();
 
 let domElementMock = getDomElementMock();
 let mapMock = getMapMock();
@@ -39,7 +43,7 @@ describe('Map Controller', () => {
                     }
                 ]
             })
-
+            await waitForMapCreation(mapController)
             expect(mapController.map.events.load).toBeDefined()
 
             await mapController.map.events.load() // initiate the load event
@@ -55,7 +59,7 @@ describe('Map Controller', () => {
             expect(mapController.minMapZoom).toEqual(5);
             expect(mapController.maxMapZoom).toEqual(15);
             expect(mapController.baseURL).toEqual('https://digital-land.github.io');
-            expect(mapController.baseTileStyleFilePath).toEqual('./base-tiles-2.json');
+            expect(mapController.baseTileStyleFilePath).toEqual('/static/javascripts/base-tile.json');
             expect(mapController.popupWidth).toEqual('260px');
             expect(mapController.popupMaxListLength).toEqual(10);
             expect(mapController.LayerControlOptions).toEqual({enabled: false});
@@ -70,10 +74,11 @@ describe('Map Controller', () => {
             expect(mapController.map.loadImage).toHaveBeenCalledWith('/static/images/location-pointer-sdf.png', expect.any(Function));
             expect(mapController.map.addImage).toHaveBeenCalledWith('custom-marker', 'the Image', {sdf: true});
 
-            expect(mapController.map.addControl).toHaveBeenCalledTimes(3);
+            expect(mapController.map.addControl).toHaveBeenCalledTimes(4);
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-left');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new CopyrightControl, 'bottom-right');
         })
 
         test('Works as expected, enabling full screen', async () => {
@@ -82,7 +87,7 @@ describe('Map Controller', () => {
                     enabled: true,
                 }
             })
-
+            await waitForMapCreation(mapController)
             expect(mapController.map.events.load).toBeDefined()
 
             await mapController.map.events.load() // initiate the load event
@@ -98,7 +103,7 @@ describe('Map Controller', () => {
             expect(mapController.minMapZoom).toEqual(5);
             expect(mapController.maxMapZoom).toEqual(15);
             expect(mapController.baseURL).toEqual('https://digital-land.github.io');
-            expect(mapController.baseTileStyleFilePath).toEqual('./base-tiles-2.json');
+            expect(mapController.baseTileStyleFilePath).toEqual('/static/javascripts/base-tile.json');
             expect(mapController.popupWidth).toEqual('260px');
             expect(mapController.popupMaxListLength).toEqual(10);
             expect(mapController.LayerControlOptions).toEqual({enabled: false});
@@ -113,11 +118,12 @@ describe('Map Controller', () => {
             expect(mapController.map.loadImage).toHaveBeenCalledWith('/static/images/location-pointer-sdf-256.png', expect.any(Function));
             expect(mapController.map.addImage).toHaveBeenCalledWith('custom-marker-256', 'the Image', {sdf: true});
 
-            expect(mapController.map.addControl).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addControl).toHaveBeenCalledTimes(5);
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.FullscreenControl, 'bottom-left');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-left');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new CopyrightControl, 'bottom-right');
         })
 
         test('Works with one geojson feature of type point', async () => {
@@ -137,10 +143,11 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledOnce();
-            expect(mapController.map.addLayer).toHaveBeenCalledOnce();
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(4);
             expect(mapController.map.addSource).toHaveBeenCalledWith(params.geojsons[0].name, {
                 'type': 'geojson',
                 'data': {
@@ -203,10 +210,11 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledTimes(3);
-            expect(mapController.map.addLayer).toHaveBeenCalledTimes(3);
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(6);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(6);
 
             params.geojsons.forEach((geojson, index) => {
                 expect(mapController.map.addSource).toHaveBeenCalledWith(params.geojsons[index].name, {
@@ -272,10 +280,11 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledTimes(3);
-            expect(mapController.map.addLayer).toHaveBeenCalledTimes(3);
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(6);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(6);
 
             params.geojsons.forEach((geojson, index) => {
                 expect(mapController.map.addSource).toHaveBeenCalledWith(params.geojsons[index].name, {
@@ -289,15 +298,17 @@ describe('Map Controller', () => {
                       }
                     }
                 });
-                const layerName = `${params.geojsons[index].name}-fill`;
+                const layerName = `${params.geojsons[index].name}-fill-extrusion`;
                 expect(mapController.map.addLayer).toHaveBeenCalledWith({
                     id: layerName,
-                    type: 'fill',
+                    type: 'fill-extrusion',
                     source: params.geojsons[index].name,
                     'source-layer': '',
                     paint: {
-                        'fill-color': 'blue',
-                        'fill-opacity': 0.5
+                        'fill-extrusion-color': 'blue',
+                        'fill-extrusion-opacity': 0.5,
+                        'fill-extrusion-height': 1,
+                        'fill-extrusion-base': 0,
                     },
                     layout: {}
                 })
@@ -332,6 +343,7 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.layerControlsComponent).toBeDefined();
@@ -360,10 +372,11 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledOnce();
-            expect(mapController.map.addLayer).toHaveBeenCalledOnce();
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(4);
             expect(mapController.map.addSource).toHaveBeenCalledWith(params.vectorTileSources[0].name + '-source', {
                 type: 'vector',
                 tiles: [params.vectorTileSources[0].vectorSource],
@@ -379,7 +392,11 @@ describe('Map Controller', () => {
                     'circle-color': params.vectorTileSources[0].styleProps.colour,
                     'circle-opacity': params.vectorTileSources[0].styleProps.opacity,
                     'circle-stroke-color': params.vectorTileSources[0].styleProps.colour,
-                    'circle-radius': 8,
+                    'circle-radius': [
+                        "interpolate", ["linear"], ["zoom"],
+                        6, 1,
+                        14, 8,
+                    ],
                   },
                 layout: {}
             });
@@ -411,10 +428,12 @@ describe('Map Controller', () => {
             }
 
             const mapController = new MapController(params)
+            await waitForMapCreation(mapController)
+
             await mapController.map.events.load() // initiate the load event
 
-            expect(mapController.map.addSource).toHaveBeenCalledOnce();
-            expect(mapController.map.addLayer).toHaveBeenCalledTimes(2);
+            expect(mapController.map.addSource).toHaveBeenCalledTimes(4);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(5);
             expect(mapController.map.addSource).toHaveBeenCalledWith(params.vectorTileSources[0].name + '-source', {
                 type: 'vector',
                 tiles: [params.vectorTileSources[0].vectorSource],
@@ -422,13 +441,15 @@ describe('Map Controller', () => {
                 maxzoom: maxMapZoom
             });
             expect(mapController.map.addLayer).toHaveBeenCalledWith({
-                id: `${params.vectorTileSources[0].name}-source-fill`,
-                type: 'fill',
+                id: `${params.vectorTileSources[0].name}-source-fill-extrusion`,
+                type: 'fill-extrusion',
                 source: `${params.vectorTileSources[0].name}-source`,
                 'source-layer': `${params.vectorTileSources[0].name}`,
                 paint: {
-                    'fill-color': params.vectorTileSources[0].styleProps.colour,
-                    'fill-opacity': params.vectorTileSources[0].styleProps.opacity,
+                    'fill-extrusion-color': params.vectorTileSources[0].styleProps.colour,
+                    'fill-extrusion-opacity': params.vectorTileSources[0].styleProps.opacity,
+                    'fill-extrusion-height': 1,
+                    'fill-extrusion-base': 0,
                 },
                 layout: {}
             });
@@ -444,7 +465,7 @@ describe('Map Controller', () => {
                 layout: {}
             });
             expect(mapController.availableLayers).toEqual({
-                [params.vectorTileSources[0].name]: [`${params.vectorTileSources[0].name}-source-fill`, `${params.vectorTileSources[0].name}-source-line`]
+                [params.vectorTileSources[0].name]: [`${params.vectorTileSources[0].name}-source-fill-extrusion`, `${params.vectorTileSources[0].name}-source-line`]
             })
         })
     })
@@ -455,6 +476,11 @@ describe('Map Controller', () => {
                 enabled: true,
             },
         })
+
+        await waitForMapCreation(mapController)
+
+        await new Promise(resolve => setTimeout(resolve, 1000)) // wait for the map to load
+
         await mapController.map.events.load() // initiate the load event
 
         const mockClickEvent = {
@@ -472,24 +498,11 @@ describe('Map Controller', () => {
 
         expect(maplibregl.Popup).toHaveBeenCalledOnce();
         expect(popupMock.setLngLat).toHaveBeenCalledOnce();
-        expect(popupMock.setHTML).toHaveBeenCalledOnce();
+        expect(popupMock.setDOMContent).toHaveBeenCalledOnce();
         expect(popupMock.addTo).toHaveBeenCalledOnce();
         expect(popupMock.setLngLat).toHaveBeenCalledWith(mockClickEvent.lngLat);
 
-        const expectedHTML = `<div class=\"app-popup\"><h3 class=\"app-popup-heading\">2 features selected</h3><ul class=\"app-popup-list\">
-<li class=\"app-popup-item\" style=\"border-left: 5px solid red\">
-<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">TestSourceLayer</p>
-<p class=\"dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0\">
-<a class='govuk-link' href=\"/entity/testEntity\">testName</a>
-</p>
-</li><li class=\"app-popup-item\" style=\"border-left: 5px solid red\">
-<p class=\"app-u-secondary-text govuk-!-margin-bottom-0 govuk-!-margin-top-0\">TestSourceLayer</p>
-<p class=\"dl-small-text govuk-!-margin-top-0 govuk-!-margin-bottom-0\">
-<a class='govuk-link' href=\"/entity/testEntity2\">testName2</a>
-</p>
-</li></ul></div>`;
-
-        expect(popupMock.setHTML).toHaveBeenCalledWith(expectedHTML);
+        expect(popupMock.setDOMContent).toHaveBeenCalledOnce();
         expect(popupMock.addTo).toHaveBeenCalledWith(mapController.map);
     })
 })

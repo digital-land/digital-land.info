@@ -22,7 +22,7 @@ Tree preservation order dataset
 
 This dataset is about tree preservation orders (TPOs). These are orders made by local planning authorities to protect specific trees, groups of trees or woodlands.
 
-The dataset must contain at least one entry (row) for each TPO.
+The dataset must contain at least one entry (row) for each tree preservation order.
 
 It must containing the following fields (columns):
 
@@ -39,7 +39,7 @@ Example: `TPO1`
 
 ### name
 
-This will be the title of the page hosting data about this TPO on our website. This can be:
+This will be the title of the page hosting data about this tree preservation order on our website. This can be:
 
 -   name
 -   reference
@@ -62,17 +62,33 @@ Example: `http://www.LPAwebsite.org.uk/data#tpo1`
 
 ### notes
 
-Optional text on how this data was made or produced, or how it can be interpreted.
+Optional text on how this data was  or produced, or how it can be interpreted.
+
+### made-date
+
+The date a tree preservation order was made available to the public. The tree or trees are temporarily protected from this date, until the order is confirmed.
+
+Write in YYYY-MM-DD format.
+
+Example: '2022-12-20'
 
 ### start-date
 
-The date that the TPO came into force, written in `YYYY-MM-DD` format.
+The date that the tree preservation order came into force, written in `YYYY-MM-DD` format.
 
 Example: `1984-03-28`
 
+### confirmed-date
+
+The date a tree preservation order is confirmed as being in effect, and the tree or trees are fully protected. This comes after all objections have been considered.
+
+Write in YYYY-MM-DD format.
+
+Example: '2022-12-20'
+
 ### end-date
 
-If applicable, the date that the TPO was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
+If applicable, the date that the tree preservation order was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
 
 Example: `1999-01-20`
 
@@ -87,7 +103,7 @@ Example: `2022-12-20`
 Tree preservation zone dataset
 ------------------------------
 
-This dataset is about tree preservation zones. These are areas of trees that are under a TPO. You may also know them as tree preservation
+This dataset is about tree preservation zones. These are areas of trees that are under a tree preservation order. You may also know them as tree preservation
 zones or groups.
 
 The dataset must contain at least one entry (row) for each tree preservation zone.
@@ -103,7 +119,7 @@ A reference or ID for each tree preservation zone that is:
 
 If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers.
 
-Example: `TPA1`
+Example: `TPO1`
 
 ### name
 
@@ -118,14 +134,26 @@ This will be the display name of the page hosting data about this tree preservat
 
 The reference for the tree preservation order that covers this zone.
 
+### tree-preservation-zone-type
+
+What sort of tree preservation zone this is.
+
+This can be:
+
+-   area
+-   group
+-   woodland
+
 ### geometry
 
-The boundary for the tree preservation zone as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
+The boundary for the tree preservation zone as a single polygon or multipolygon value. All points in the polygon must be in the WGS84 coordinate reference system.
 
-This should be provided as well-known text (WKT).
+If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
 Example:
 `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
+
+If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
 ### notes
 
@@ -133,13 +161,13 @@ Optional text on how this data was made or produced, or how it can be interprete
 
 ### start-date
 
-The date that the TPA came into force, written in `YYYY-MM-DD` format.
+The date that the tree preservation order came into force, written in `YYYY-MM-DD` format.
 
 Example: `1984-03-28`
 
 ### end-date
 
-If applicable, the date that the TPA was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
+If applicable, the date that the tree preservation order was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
 
 Example: `1999-01-20`
 
@@ -154,7 +182,7 @@ Example: `2022-12-20`
 Tree dataset
 ------------
 
-This dataset is about trees. These are individual trees that are under a TPO.
+This dataset is about trees. These are individual trees that are under a tree preservation order.
 
 The dataset must contain at least one entry (row) for each tree.
 
@@ -173,7 +201,7 @@ Example: `T1`
 
 ### name
 
-This will be the title of the page hosting data about this TPO on our website. This can be:
+This will be the title of the page hosting data about this tree preservation order on our website. This can be:
 
 -   name
 -   reference
@@ -194,14 +222,16 @@ Example: `TPO1`
 
 ### geometry
 
-The boundary of the tree as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
+The boundary of the tree as a single polygon or multipolygon value. All points in the polygon must be in the WGS84 coordinate reference system.
 
-This should be provided as well-known text (WKT).
+If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
 You must provide a point or geometry for each tree. You may provide both.
 
 Example:
 `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
+
+If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
 ### uprn
 

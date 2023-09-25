@@ -1,11 +1,13 @@
 {% from "components/phase-banner/macro.jinja" import dlPhaseBanner %}
-{{
-  dlPhaseBanner({
-    'phase': 'Beta',
-    'html': 'This is a new service – to help us improve it, <a href="https://docs.google.com/forms/d/e/1FAIpQLSc1yzvw1Duv6nQRS56p379IxxMdAC5EfklMfUnCVMikgbi0Xw/viewform" target="_blank">sign up to take part in research</a>',
-    'classes': 'govuk-width-container govuk-width-container' if not fullWidthHeader else 'govuk-width-container govuk-grid-column-full',
-    'attributes': {
-      'style': '' if not fullWidthHeader else 'padding: 10px 30px; max-width: unset;'
-    }
-  })
-}}
+<div style="{{ '' if not fullWidthHeader else 'margin-left: auto; margin-right:  auto; max-width: 1920px;' }}">
+  {{
+    dlPhaseBanner({
+      'phase': 'Beta',
+      'html': 'This is a new service – to help us improve it, <a href="https://docs.google.com/forms/d/e/1FAIpQLSc1yzvw1Duv6nQRS56p379IxxMdAC5EfklMfUnCVMikgbi0Xw/viewform" target="_blank">sign up to take part in research</a>',
+      'classes': 'govuk-width-container govuk-width-container' if not fullWidthHeader else 'govuk-width-container',
+      'attributes': {
+        'style': '' if not fullWidthHeader else 'padding: 10px 30px; max-width: unset;'
+      }
+    })
+  }}
+</div>

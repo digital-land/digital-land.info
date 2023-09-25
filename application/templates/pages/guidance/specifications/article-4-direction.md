@@ -108,11 +108,13 @@ Example: Old Market
 
 ### geometry
 
-The boundary for the article 4 direction area as a single polygon or multipolygon value. Points must be in the WGS84 coordinate reference system.
+The boundary for the article 4 direction area as a single polygon or multipolygon value. All points in the polygon must be in the WGS84 coordinate reference system.
 
-This should be provided as well-known text (WKT).
+If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
 Example: `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.234917,1.187912 51.235022...`
+
+If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
 ### uprn
 
@@ -134,13 +136,15 @@ The reference for the article 4 direction used in the article 4 direction datase
 
 Example: `A4D1`
 
-### article-4-direction-rules
+### permitted-development-rights
 
-The list of references of article 4 direction rules which apply to this area, as found in the [article 4 direction rule dataset](https://www.planning.data.gov.uk/dataset/article-4-direction-rule). In many cases the article 4 direction rule is a reference to the permitted development right removed by the rule.
+A list of the permitted development rights for this area.
 
-If the rule you need does not exist in our list, please contact [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
+Separate the rights in the list using semicolons.
 
-Example: `P3CD;P3CM;P11CB`
+Only use rights from our [permitted development right dataset](https://www.planning.data.gov.uk/dataset/permitted-development-right). If the area has a permitted development right that is not in our dataset, email [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
+
+Example: `3D;3M;11B`
 
 ### notes
 

@@ -11,7 +11,7 @@ from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
     get_datasets,
     get_local_authorities,
-    get_typologies,
+    get_typologies_with_entities,
     get_dataset_query,
 )
 from application.data_access.entity_queries import get_entity_query, get_entity_search
@@ -178,8 +178,7 @@ def search_entities(
         geojson["links"] = links
         return geojson
 
-    # typology facet
-    typologies = get_typologies()
+    typologies = get_typologies_with_entities()
     typologies = [t.dict() for t in typologies]
     # dataset facet
     response = get_datasets()

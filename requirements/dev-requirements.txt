@@ -178,7 +178,7 @@ typing-extensions==4.7.1
     # via
     #   -c requirements/requirements.txt
     #   pyee
-urllib3==2.0.3
+urllib3==1.26.16
     # via
     #   -c requirements/requirements.txt
     #   requests

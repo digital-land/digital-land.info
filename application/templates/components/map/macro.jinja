@@ -22,29 +22,6 @@
             <noscript>To view this map, you need to enable JavaScript.</noscript>
         </div>
 
-      {% if params.enableLayerControls -%}
-        <div class="dl-map__side-panel dl-map__side-panel--full" tabindex="-1" role="dialog" aria-hidden="false" open="true" aria-modal="true">
-            <div class="dl-map__side-panel__heading">
-              <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Data layers</h3>
-            </div>
-            <div class="dl-map__side-panel__content">
-              <div class="govuk-checkboxes" data-module="layer-controls-{{ params.mapId if params.mapId else 'map' }}">
-                <div class="dl-filter-group__auto-filter">
-                  <label for="input-71108" class="govuk-label govuk-visually-hidden">
-                    Filter Show only
-                  </label>
-                  <input id="input-71108" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-describedby="checkbox-filter-71108" aria-controls="checkboxes-71108">
-                </div>
-                <ul class="govuk-list govuk-!-margin-bottom-0" data-module="layer-toggles" role="group">
-                  {% for layer in params.layers %}
-                    {{ layerControlItem(layer) }}
-                  {% endfor %}
-              </ul>
-            </div>
-          </div>
-        </div>
-      {% endif -%}
-
         {#- Set the loader div #}
         {% if params.loader -%}
             <div class="dl-map__loader">
@@ -104,7 +81,9 @@
           },
           FullscreenControl: {
             enabled: true,
-          }
+          },
+          useOAuth2: true,
+          layers: layers,
         };
 
         window.mapControllers = window.mapControllers || {};

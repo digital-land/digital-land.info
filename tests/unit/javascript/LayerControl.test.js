@@ -1,6 +1,7 @@
 import {describe, expect, test, it, beforeEach, vi} from 'vitest'
 
 import LayerControls from '../../../assets/javascripts/LayerControls.js'
+import { LayerOption } from '../../../assets/javascripts/LayerControls.js';
 import {
     getDomElementMock,
     getMapMock,
@@ -11,7 +12,7 @@ import {
     stubGlobalWindow
 } from '../../utils/mockUtils.js';
 
-describe('Layer Control', () => {
+describe('Layer Controls', () => {
     let layerControls;
     const domElementMock = getDomElementMock();
     const mapMock = getMapMock();
@@ -23,24 +24,13 @@ describe('Layer Control', () => {
     beforeEach(() => {
         const module = document.createElement('div');
         layerControls = new LayerControls(module, {map: mapMock}, 'fakeTileSource', ['testLayer1', 'testLayer2'], { layerControlSelector: '[data-layer-control]' });
+        layerControls.$sidePanelContent = domElementMock;
+        layerControls._container = domElementMock;
+        layerControls.$openBtn = domElementMock;
+        layerControls.$closeBtn = domElementMock;
+
         vi.clearAllMocks();
     });
-
-    test('createCloseButton() correctly executes',() => {
-        layerControls.createCloseButton();
-        expect(document.createElement).toHaveBeenCalledWith('button');
-        expect(domElementMock.appendChild).toHaveBeenCalled();
-        expect(domElementMock.addEventListener).toHaveBeenCalled();
-
-    });
-
-    test('createOpenButton() correctly executes',() => {
-        layerControls.createOpenButton();
-        expect(document.createElement).toHaveBeenCalledWith('button');
-        expect(domElementMock.appendChild).toHaveBeenCalled();
-        expect(domElementMock.addEventListener).toHaveBeenCalled();
-
-    })
 
     describe('togglePanel()', () => {
         test('togglePanel() correctly executes when opening',() => {
@@ -61,216 +51,118 @@ describe('Layer Control', () => {
     })
 
     test('toggleLayersBasedOnUrl() correctly executes',() => {
-        layerControls.getEnabledLayerNamesFromUrl = vi.fn().mockImplementation(() => {
-            return ['testLayer1', 'testLayer2']
+        const makeMockLayerOption = (name) => {
+            return {
+                getDatasetName: () => { return name },
+            }
+        }
+        const l1 = makeMockLayerOption('testLayer1');
+        const l2 = makeMockLayerOption('testLayer2');
+        const l3 = makeMockLayerOption('testLayer3');
+
+        layerControls.getEnabledLayersFromUrl = vi.fn().mockImplementation(() => {
+            return [l1, l2]
         })
+        layerControls.layerOptions = [l1,l2,l3];
         layerControls.showEntitiesForLayers = vi.fn();
         layerControls.toggleLayersBasedOnUrl();
-        expect(layerControls.showEntitiesForLayers).toHaveBeenCalledWith(['testLayer1', 'testLayer2']);
+        expect(layerControls.showEntitiesForLayers).toHaveBeenCalledWith([l1, l2]);
     })
 
     test('getEnabledLayerNamesFromUrl() correctly executes',() => {
         stubGlobalUrl([{name: 'layer', value: 'testLayer1'}, {name: 'layer', value: 'testLayer2'}, {name: 'layer', value: 'testLayer3'}, {name: 'layer', value: 'testLayer4'}]);
-        layerControls.datasetNames = ['testLayer1', 'testLayer2', 'testLayer3'];
-        const enabledLayers = layerControls.getEnabledLayerNamesFromUrl();
-        expect(enabledLayers).toEqual(['testLayer1', 'testLayer2', 'testLayer3']);
+        const makeMockLayerOption = (name) => {
+            return {
+                getDatasetName: () => { return name },
+            }
+        }
+        const l1 = makeMockLayerOption('testLayer1');
+        const l2 = makeMockLayerOption('testLayer2');
+        const l3 = makeMockLayerOption('testLayer3');
+
+        layerControls.layerOptions = [l1,l2,l3]
+
+        const enabledLayers = layerControls.getEnabledLayersFromUrl();
+        expect(enabledLayers).toEqual([l1, l2, l3]);
     })
 
     test('showEntitiesForLayers() correctly executes',() => {
         stubGlobalUrl([{name: 'layer', value: 'testLayer1'}, {name: 'layer', value: 'testLayer2'}, {name: 'layer', value: 'testLayer3'}, {name: 'layer', value: 'testLayer4'}]);
-        vi.spyOn(Array.prototype, 'forEach');
-        layerControls.getControlByName = vi.fn().mockImplementation((layerName) => {
-            return `${layerName}-domElement`
-        })
-        layerControls.enable = vi.fn();
-        layerControls.disable = vi.fn();
 
-        layerControls.datasetNames = ['testLayer1', 'testLayer2', 'testLayer3'];
+        const makeMockLayerOption = (name) => {
+            return {
+                getDatasetName: () => { return name },
+                enable: vi.fn(),
+                disable: vi.fn(),
+            }
+        }
 
-        layerControls.showEntitiesForLayers(['testLayer1', 'testLayer2']);
+        const l1 = makeMockLayerOption('testLayer1');
+        const l2 = makeMockLayerOption('testLayer2');
+        const l3 = makeMockLayerOption('testLayer3');
 
-        expect(layerControls.enable).toHaveBeenCalledTimes(2);
-        expect(layerControls.disable).toHaveBeenCalledTimes(1);
+        layerControls.layerOptions = [l1,l2,l3];
+
+        layerControls.showEntitiesForLayers([l1, l2]);
+
+        expect(l1.enable).toHaveBeenCalledTimes(1);
+        expect(l2.enable).toHaveBeenCalledTimes(1);
+        expect(l3.disable).toHaveBeenCalledTimes(1);
     })
 
     test('updateUrl() correctly executes',() => {
-        const [urlDeleteMock, urlAppendMock] = stubGlobalUrl();
+        const [urlDeleteMock, urlAppendMock] = stubGlobalUrl([], 2);
 
-        layerControls.getDatasetName = vi.fn().mockImplementation((layerName) => {
-            return `${layerName}-domElement`
-        })
-        layerControls.enabledLayers = vi.fn().mockImplementation(() => {
-            return ['testLayer1', 'testLayer2']
-        })
+        layerControls.layerOptions = [
+            {
+                getDatasetName: () => { return 'testLayer1' },
+                isChecked: () => { return true },
+            },
+            {
+                getDatasetName: () => { return 'testLayer2' },
+                isChecked: () => { return true },
+            }
+        ]
+
         layerControls.toggleLayersBasedOnUrl = vi.fn();
         layerControls.updateUrl();
 
         expect(urlDeleteMock).toHaveBeenCalledTimes(1);
         expect(urlDeleteMock).toHaveBeenCalledWith('layer');
         expect(urlAppendMock).toHaveBeenCalledTimes(2);
-        expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer1-domElement');
-        expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer2-domElement');
+        expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer1');
+        expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer2');
         expect(window.history.pushState).toHaveBeenCalled();
-        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?layer=testLayer1-domElement&layer=testLayer2-domElementtestHash');
+        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?layer=testLayer1&layer=testLayer2testHash');
         expect(layerControls.toggleLayersBasedOnUrl).toHaveBeenCalled();
     })
 
-    test('enabledLayers() correctly executes',() => {
-        layerControls.getCheckbox = vi.fn().mockImplementation((layer) => {
-            return { checked: layer == 'testLayer1' }
+    test('filterCheckboxes() correctly executes',() => {
+
+        layerControls.filterCheckboxesArr = vi.fn().mockImplementation(() => {
+            return ['test1', 'test2'];
         });
+        layerControls.displayMatchingCheckboxes = vi.fn();
+        layerControls.filterCheckboxes({target: {value: 'test'}});
 
-        layerControls.$controls = ['testLayer1', 'testLayer2', 'testLayer3'];
+        expect(layerControls.filterCheckboxesArr).toHaveBeenCalledWith('test');
+        expect(layerControls.displayMatchingCheckboxes).toHaveBeenCalledWith(['test1', 'test2']);
 
-        const filteredLayers = layerControls.enabledLayers();
-
-        expect(filteredLayers).toEqual(['testLayer1']);
-    })
-
-    test('disabledLayers() correctly executes',() => {
-        layerControls.getCheckbox = vi.fn().mockImplementation((layer) => {
-            return { checked: layer == 'testLayer1' }
-        });
-
-        layerControls.$controls = ['testLayer1', 'testLayer2', 'testLayer3'];
-
-        const filteredLayers = layerControls.disabledLayers();
-
-        expect(filteredLayers).toEqual(['testLayer2', 'testLayer3']);
-    })
-
-    test('getCheckbox() correctly executes',() => {
-        layerControls.getCheckbox(domElementMock);
-        expect(domElementMock.querySelector).toHaveBeenCalledWith('input[type="checkbox"]');
-    })
-
-    test('getControlByName() correctly executes',() => {
-        layerControls.$controls = [{
-            dataset: {
-                layerControl: 'testLayer1',
-            }
-        },{
-            dataset: {
-                layerControl: 'testLayer2',
-            }
-        },{
-            dataset: {
-                layerControl: 'testLayer3',
-            }
-        }];
-        let control = layerControls.getControlByName('testLayer2');
-        expect(control).toEqual({
-            dataset: {
-                layerControl: 'testLayer2',
-            }
-        });
-    })
-
-    test('enable() correctly executes',() => {
-        layerControls.getDatasetName = vi.fn().mockImplementation((layer) => {
-            return `${layer.dataset.layerControl}`
-        })
-        let domQueriedElementMock = {
-            checked: '',
-        }
-        let domElementMockCopy = {...domElementMock, querySelector: vi.fn().mockImplementation(() => domQueriedElementMock)}
-
-        layerControls.toggleLayerVisibility = vi.fn();
-        layerControls.enable(domElementMockCopy);
-        expect(domElementMockCopy.querySelector).toHaveBeenCalledWith('input[type="checkbox"]');
-        expect(domElementMockCopy.classList.remove).toHaveBeenCalledWith('deactivated-control');
-        expect(layerControls.toggleLayerVisibility).toHaveBeenCalledWith('testLayer1', true);
-        expect(domQueriedElementMock.checked).toBe(true);
-        expect(domElementMockCopy.dataset.layerControlActive).toBe('true');
-    })
-
-    test('disable() correctly executes',() => {
-        layerControls.getDatasetName = vi.fn().mockImplementation((layer) => {
-            return `${layer.dataset.layerControl}`
-        })
-        let domQueriedElementMock = {
-            checked: '',
-        }
-        let domElementMockCopy = {...domElementMock, querySelector: vi.fn().mockImplementation(() => domQueriedElementMock)}
-
-        layerControls.toggleLayerVisibility = vi.fn();
-        layerControls.disable(domElementMockCopy);
-        expect(domElementMockCopy.querySelector).toHaveBeenCalledWith('input[type="checkbox"]');
-        expect(domElementMockCopy.classList.add).toHaveBeenCalledWith('deactivated-control');
-        expect(layerControls.toggleLayerVisibility).toHaveBeenCalledWith('testLayer1', false);
-        expect(domQueriedElementMock.checked).toBe(false);
-        expect(domElementMockCopy.dataset.layerControlActive).toBe('false');
-    })
-
-    test('getDatasetName() correctly executes',() => {
-        let mockElement = {
-            dataset: {
-                layerControl: 'testLayer1',
-            }
-        };
-        let datasetName = layerControls.getDatasetName(mockElement);
-        expect(datasetName).toBe('testLayer1');
-    })
-
-    describe('toggleLayerVisibility()', () => {
-
-        test('correctly executes when making visible',() => {
-            layerControls.mapController.setLayerVisibility = vi.fn();
-            layerControls.availableLayers = { testLayer1: ['testLayer1-1', 'testLayer1-2'], unselected: ['unselected-1', 'unselected-2'] };
-            layerControls.toggleLayerVisibility('testLayer1', true);
-            expect(layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-1', 'visible');
-            expect(layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-2', 'visible');
-            expect(layerControls.mapController.setLayerVisibility).not.toHaveBeenCalledWith('unselected-1', 'visible');
-            expect(layerControls.mapController.setLayerVisibility).not.toHaveBeenCalledWith('unselected-2', 'visible');
-        })
-
-        test('correctly executes when making invisible',() => {
-            layerControls.mapController.setLayerVisibility = vi.fn();
-            layerControls.availableLayers = { testLayer1: ['testLayer1-1', 'testLayer1-2'], unselected: ['unselected-1', 'unselected-2'] };
-            layerControls.toggleLayerVisibility('testLayer1', false);
-            expect(layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-1', 'none');
-            expect(layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-2', 'none');
-            expect(layerControls.mapController.setLayerVisibility).not.toHaveBeenCalledWith('unselected-1', 'none');
-            expect(layerControls.mapController.setLayerVisibility).not.toHaveBeenCalledWith('unselected-2', 'none');
-        })
-    })
-
-
-    test('onControlChkbxChange() correctly executes',() => {
-        layerControls.updateUrl = vi.fn();
-        layerControls.onControlChkbxChange({ target: { dataset: { layerControl: 'testLayer1' } } });
-        expect(layerControls.updateUrl).toHaveBeenCalledTimes(1);
-    })
-
-    test('getClickableLayers() correctly executes',() => {
-        layerControls.enabledLayers = vi.fn().mockImplementation(() => {
-            return ['testLayer1', 'testLayer2']
-        })
-        layerControls.getDatasetName = vi.fn().mockImplementation((layer) => {
-            return layer
-        })
-        layerControls.availableLayers = { testLayer1: ['testLayer1-1', 'testLayer1-2'], testLayer2: ['testLayer2-1', 'testLayer2Fill'] };
-        let clickableLayers = layerControls.getClickableLayers();
-
-        expect(clickableLayers).toEqual(['testLayer1-1', 'testLayer2Fill']);
     })
 
     test('filterCheckboxesArray() correctly executes',() => {
-        const generateCheckboxWithName = (name) => {
+        const generateLayerControlWithName = (name) => {
             return {
-                querySelector: vi.fn().mockImplementation(() => {
-                    return {
-                        textContent: name,
-                    }
-                })
+                textContent: name,
+                getDatasetName: () => { return name }
             }
         }
 
-        const BrownfieldLandCheckbox = generateCheckboxWithName('Brownfield-land');
-        const GreenBeltCheckbox = generateCheckboxWithName('Green-belt');
-        const TreeCheckbox = generateCheckboxWithName('Tree');
+        const BrownfieldLandCheckbox = generateLayerControlWithName('Brownfield-land');
+        const GreenBeltCheckbox = generateLayerControlWithName('Green-belt');
+        const TreeCheckbox = generateLayerControlWithName('Tree');
 
-        layerControls.checkboxArr = [
+        layerControls.layerOptions = [
             BrownfieldLandCheckbox,
             GreenBeltCheckbox,
             TreeCheckbox
@@ -290,28 +182,235 @@ describe('Layer Control', () => {
     })
 
     test('displayMatchingCheckboxes() correctly executes',() => {
-        const generateCheckboxWithName = (name) => {
+        const generateLayerOption = (name) => {
             return {
                 style: {
                     display: '',
                 },
+                setLayerCheckboxVisibility: vi.fn(),
             }
         }
 
-        const BrownfieldLandCheckbox = generateCheckboxWithName('Brownfield-land');
-        const GreenBeltCheckbox = generateCheckboxWithName('Green-belt');
-        const TreeCheckbox = generateCheckboxWithName('Tree');
+        const BrownfieldLandCheckbox = generateLayerOption('Brownfield-land');
+        const GreenBeltCheckbox = generateLayerOption('Green-belt');
+        const TreeCheckbox = generateLayerOption('Tree');
 
-        layerControls.checkboxArr = [
+        layerControls.layerOptions = [
             BrownfieldLandCheckbox,
             GreenBeltCheckbox,
             TreeCheckbox
         ]
 
         layerControls.displayMatchingCheckboxes([BrownfieldLandCheckbox, GreenBeltCheckbox]);
-        expect(BrownfieldLandCheckbox.style.display).toBe('block');
-        expect(GreenBeltCheckbox.style.display).toBe('block');
-        expect(TreeCheckbox.style.display).toBe('none');
+        expect(BrownfieldLandCheckbox.setLayerCheckboxVisibility).toHaveBeenCalledWith(true);
+        expect(GreenBeltCheckbox.setLayerCheckboxVisibility).toHaveBeenCalledWith(true);
+        expect(TreeCheckbox.setLayerCheckboxVisibility).toHaveBeenCalledWith(false);
 
     })
+
+    test('getClickableLayers() correctly executes',() => {
+        layerControls.enabledLayers = vi.fn().mockImplementation(() => {
+            return [
+                {
+                    getDatasetName: () => 'testLayer1',
+                },
+                {
+                    getDatasetName: () => 'testLayer2'
+                },
+            ]
+        })
+        layerControls.availableLayers = { testLayer1: ['testLayer1-1', 'testLayer1-2'], testLayer2: ['testLayer2-1', 'testLayer2Fill'] };
+        let clickableLayers = layerControls.getClickableLayers();
+
+        expect(clickableLayers).toEqual(['testLayer1-1', 'testLayer2Fill']);
+    })
+
+    describe('layer option', () => {
+        test('makeElement() correctly executes',() => {
+            let spy = vi.spyOn(LayerOption.prototype, 'makeLayerSymbol').mockImplementation(() => { return ''});
+            const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], undefined);
+            expect(option.element).toEqual(domElementMock);
+            spy.mockRestore();
+        })
+
+        describe('makeLayerSymbol()', () => {
+            test('correctly executes when type is fill',() => {
+                const layerOptionMock = {
+                    paint_options: {
+                        type: 'fill',
+                        opacity: 0.5,
+                        colour: '#AABBCC',
+                    },
+                    dataset: 'testLayer1',
+                    name: 'TestLayer1',
+                }
+
+                const result = LayerOption.prototype.makeLayerSymbol(layerOptionMock);
+
+                expect(result).toContain('border-color: #AABBCC;')
+                expect(result).toContain('background: #AABBCC7f')
+                expect(result).toContain('TestLayer1')
+            })
+
+            test('correctly executes when type is point',() => {
+                const layerOptionMock = {
+                    paint_options: {
+                        type: 'point',
+                        opacity: 0.5,
+                        colour: '#AABBCC',
+                    },
+                    dataset: 'testLayer1',
+                    name: 'TestLayer1',
+                }
+
+                const result = LayerOption.prototype.makeLayerSymbol(layerOptionMock);
+
+                expect(result).toContain('fill: #AABBCC;')
+                expect(result).toContain('opacity: 0.5;')
+                expect(result).toContain('TestLayer1')
+            })
+        })
+
+        test('enable() correctly executes',() => {
+
+            const mockCheckbox = {...domElementMock, checked: false}
+
+            LayerOption.prototype.makeElement = vi.fn()
+            .mockImplementation(() => {
+                return {
+                    ...domElementMock,
+                    dataset: {layerControlActive: 'false'},
+                    querySelector: () => {
+                        return mockCheckbox;
+                    }
+                };
+            })
+
+            const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], undefined);
+
+            option.setLayerVisibility = vi.fn();
+            option.enable();
+            expect(option.element.dataset.layerControlActive).toEqual('true');
+            expect(mockCheckbox.checked).toBe(true);
+            expect(option.setLayerVisibility).toHaveBeenCalledWith(true);
+        })
+
+        test('disable() correctly executes',() => {
+
+            const mockCheckbox = {...domElementMock, checked: true}
+
+            LayerOption.prototype.makeElement = vi.fn().mockImplementation(() => {
+                return {
+                    ...domElementMock,
+                    dataset: {layerControlActive: 'true'},
+                    querySelector: () => {
+                        return mockCheckbox;
+                    }
+                };
+            })
+
+            const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], undefined);
+
+            option.setLayerVisibility = vi.fn();
+            option.disable();
+            expect(option.element.dataset.layerControlActive).toEqual('false');
+            expect(mockCheckbox.checked).toBe(false);
+            expect(option.setLayerVisibility).toHaveBeenCalledWith(false);
+        })
+
+        test('getDatasetName() correctly executes',() => {
+            LayerOption.prototype.makeElement = vi.fn();
+            const option = new LayerOption({dataset: 'testLayer1'}, ['testLayer1-1', 'testLayer1-2'], undefined);
+            let datasetName = option.getDatasetName();
+            expect(datasetName).toBe('testLayer1');
+        })
+
+        describe('setLayerVisibility()', () => {
+            test('correctly executes when making visible',() => {
+                LayerOption.prototype.makeElement = vi.fn();
+                const option = new LayerOption({dataset: 'testLayer1'}, ['testLayer1-1', 'testLayer1-2'], undefined);
+
+                option.layerControls = {
+                    mapController: {
+                        setLayerVisibility: vi.fn(),
+                    }
+                }
+                option.setLayerVisibility(true);
+
+                expect(option.layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-1', 'visible');
+                expect(option.layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-2', 'visible');
+            })
+
+            test('correctly executes when making invisible',() => {
+                LayerOption.prototype.makeElement = vi.fn();
+                const option = new LayerOption({dataset: 'testLayer1'}, ['testLayer1-1', 'testLayer1-2'], undefined);
+
+                option.layerControls = {
+                    mapController: {
+                        setLayerVisibility: vi.fn(),
+                    }
+                }
+                option.setLayerVisibility(false);
+
+                expect(option.layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-1', 'none');
+                expect(option.layerControls.mapController.setLayerVisibility).toHaveBeenCalledWith('testLayer1-2', 'none');
+            })
+        })
+
+        describe('setLayerCheckboxVisibility()', () => {
+            test('correctly executes when making visible',() => {
+                LayerOption.prototype.makeElement = vi.fn().mockImplementation(() => domElementMock);
+                const option = new LayerOption({dataset: 'testLayer1'}, ['testLayer1-1', 'testLayer1-2'], undefined);
+
+                option.setLayerCheckboxVisibility(true);
+
+                expect(domElementMock.style.display).toEqual('block');
+            })
+
+            test('correctly executes when making invisible',() => {
+                LayerOption.prototype.makeElement = vi.fn().mockImplementation(() => domElementMock);
+                const option = new LayerOption({dataset: 'testLayer1'}, ['testLayer1-1', 'testLayer1-2'], undefined);
+
+                option.setLayerCheckboxVisibility(false);
+
+                expect(domElementMock.style.display).toEqual('none');
+            })
+        })
+
+        describe('isChecked', () => {
+            test('correctly executes when checked',() => {
+                const mockCheckbox = {...domElementMock, checked: true}
+                LayerOption.prototype.makeElement = vi.fn().mockImplementation(() => {
+                    return {
+                        ...domElementMock,
+                        dataset: {layerControlActive: 'false'},
+                        querySelector: () => {
+                            return mockCheckbox;
+                        }
+                    };
+                })
+                const option = new LayerOption({dataset: 'testLayer1'}, ['testLayer1-1', 'testLayer1-2'], undefined);
+                const result = option.isChecked();
+                expect(result).toBe(true);
+            })
+
+            test('correctly executes when not checked',() => {
+                const mockCheckbox = {...domElementMock, checked: false}
+                LayerOption.prototype.makeElement = vi.fn().mockImplementation(() => {
+                    return {
+                        ...domElementMock,
+                        dataset: {layerControlActive: 'false'},
+                        querySelector: () => {
+                            return mockCheckbox;
+                        }
+                    };
+                })
+                const option = new LayerOption({dataset: 'testLayer1'}, ['testLayer1-1', 'testLayer1-2'], undefined);
+                const result = option.isChecked();
+                expect(result).toBe(false);
+            })
+        })
+
+    })
+
 })

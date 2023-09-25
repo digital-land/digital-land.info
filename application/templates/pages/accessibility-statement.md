@@ -2,7 +2,7 @@
 
 This accessibility statement applies to the planning.data.gov.uk website: <https://www.planning.data.gov.uk>.
 
-This website is run by the Planning Data team in the Department for Levelling Up, Housing and Communities
+This website is run by the Planning Data team in the Department for Levelling Up, Housing and Communities.
 
 We are always working to improve our website and want as many people as possible to be able to access and use it. For example, that means you should be able to:
 
@@ -16,7 +16,7 @@ We've also made the website text as simple as possible to understand. [ AbilityN
 
 ## How accessible this website is
 
-We have performed an internal accessibility audit following the Web Content Accessibility Guidelines Evaluation Method (WCAG-EM)
+We have performed an internal accessibility audit following the Web Content Accessibility Guidelines Evaluation Method (WCAG-EM).
 
 On 50 of 50 WCAG 2.1 AA Success Criteria, at the time of writing this website:
 
@@ -34,27 +34,27 @@ Aspects of the National Map show do not have a text alternative such as street l
 
 #### 1.3.2: Meaningful Sequence
 
-Some pages need heading levels and reading order adjusted to make comprehension and way finding easier
+Some pages need heading levels and reading order adjusted to make comprehension and way finding easier.
 
 #### 1.3.3: Sensory Characteristics
 
-National Map of planning data currently relies on the ability to see shapes, colours and visual locations. A 'non map alternative' is required for users unable able perceive content visually.
+Map of planning data for England currently relies on the ability to see shapes, colours and visual locations. A 'non map alternative' is required for users unable able perceive content visually.
 
 #### 1.4.1: Use of Color
 
-The National Map of Planning Data currently relies on colour to distinguish geographic shapes from one dataset to another.
+The map of planning data for England currently relies on colour to distinguish geographic shapes from one dataset to another.
 
 #### 1.4.3: Contrast (Minimum)
 
-The National Map of Planning Data fails colour contrast for map features and data layers. Text labels for locations can become difficult to read and are not a contrast ratio of at least 4.5:1.
+The map of planning data for England fails colour contrast for map features and data layers. Text labels for locations can become difficult to read and are not a contrast ratio of at least 4.5:1.
 
 #### 1.4.11: Non-text Contrast
 
-The National Map of Planning has shapes and areas of colour that when overlayed do not have sufficient contrast.
+The map of planning data for England has shapes and areas of colour that when overlayed do not have sufficient contrast.
 
 #### 2.1.1: Keyboard
 
-Features of the National Map of Planning Data are not able to be access via a keyboard.
+Features of the map of planning data for England are not able to be access via a keyboard.
 
 #### 3.2.2: On Input
 
