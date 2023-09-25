@@ -2918,7 +2918,7 @@
                 "_symbol",
                 19
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {},
             "paint": {
@@ -2959,7 +2959,7 @@
                 "_symbol",
                 6
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3064,7 +3064,7 @@
                 "_symbol",
                 3
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3123,7 +3123,7 @@
                 "_symbol",
                 3
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3159,7 +3159,7 @@
                 "_symbol",
                 6
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3448,7 +3448,7 @@
                 "_symbol",
                 6
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3800,7 +3800,7 @@
                 "_symbol",
                 3
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3944,7 +3944,7 @@
                 "_symbol",
                 4
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4003,7 +4003,7 @@
                 "_symbol",
                 4
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4039,7 +4039,7 @@
                 "_symbol",
                 7
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4098,7 +4098,7 @@
                 "_symbol",
                 7
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4349,7 +4349,7 @@
                 "_symbol",
                 7
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4701,7 +4701,7 @@
                 "_symbol",
                 4
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4845,7 +4845,7 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4904,7 +4904,7 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -5046,7 +5046,7 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -9969,7 +9969,7 @@
                 "_label_class",
                 9
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 13,
             "layout": {
                 "symbol-placement": "line",
@@ -10443,7 +10443,7 @@
                 "_label_class",
                 4
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 13,
             "layout": {
                 "symbol-placement": "line",
@@ -10634,7 +10634,7 @@
                 "_label_class",
                 1
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 13,
             "layout": {
                 "symbol-placement": "line",
@@ -10991,31 +10991,6 @@
                 "text-color": "#342A07",
                 "text-halo-color": "#F5F5F0",
                 "text-halo-width": 2
-            }
-        },
-        {
-            "id": "OS/Names/Regional/City:1",
-            "type": "symbol",
-            "source": "esri",
-            "source-layer": "City:1",
-            "minzoom": 7,
-            "layout": {
-                "icon-image": "OS/Names/Regional/City:1",
-                "icon-allow-overlap": true,
-                "text-font": [
-                    "Source Sans Pro Semibold"
-                ],
-                "text-size": 17,
-                "text-anchor": "center",
-                "text-field": "{_name}",
-                "text-allow-overlap": true,
-                "text-optional": true
-            },
-            "paint": {
-                "icon-color": "rgba(255,0,0,0)",
-                "text-color": "#342A07",
-                "text-halo-color": "#F5F5F0",
-                "text-halo-width": 1.5
             }
         },
         {
