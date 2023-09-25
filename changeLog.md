@@ -16,6 +16,12 @@
 
 ## 22-09-2023
 ### What's new
+- Updated the title for the map to 'Map of planning data for England'
+### Why was this change made?
+- To make it clear that the map is only for England
+
+## 22-09-2023
+### What's new
 - Moved the guidance for publishers link from the footer to the top nav
 ### Why was this change made?
 - To make it easier for publishers to find the guidance
