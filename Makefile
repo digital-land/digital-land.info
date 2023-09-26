@@ -59,11 +59,11 @@ docker-login:
 
 test-acceptance:
 	python -m playwright install chromium
-	python -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
 test-acceptance-debug:
 	python -m playwright install chromium
-	PWDEBUG=1 python3 -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+	PWDEBUG=1 python3 --browser webkit --browser firefox --browser chromium  -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
 
 test: test-unit test-integration test-acceptance
 
