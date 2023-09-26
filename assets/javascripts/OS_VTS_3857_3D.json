@@ -2846,27 +2846,6 @@
             }
         },
         {
-            "id": "OS/Waterlines/National",
-            "type": "line",
-            "source": "esri",
-            "source-layer": "Waterlines",
-            "filter": [
-                "==",
-                "_symbol",
-                4
-            ],
-            "minzoom": 5,
-            "maxzoom": 6,
-            "layout": {
-                "line-cap": "round",
-                "line-join": "round"
-            },
-            "paint": {
-                "line-color": "#A4DAEB",
-                "line-width": 0.4
-            }
-        },
-        {
             "id": "OS/Waterlines/Regional",
             "type": "line",
             "source": "esri",
@@ -2897,7 +2876,7 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 6,
+            "minzoom": 7,
             "maxzoom": 7,
             "layout": {
                 "line-cap": "round",
@@ -10472,7 +10451,7 @@
                 "_label_class",
                 5
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 10,
             "layout": {
                 "symbol-placement": "line",
