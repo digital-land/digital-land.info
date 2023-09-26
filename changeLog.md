@@ -14,6 +14,12 @@
 # ChangeLog
 <br>
 
+## 26-09-2023
+### What's new
+- Updated the base-tile set style changing min and max zoom levels for layers
+### Why was this change made?
+- To avoid the map being to cluttered and to make it easier to see the data
+
 ## 22-09-2023
 ### What's new
 - Updated the title for the map to 'Map of planning data for England'
