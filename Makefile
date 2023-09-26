@@ -90,7 +90,7 @@ test-integration:
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
 
-lint:	black-check flake8
+lint:	black flake8
 
 clean::
 	rm -rf static/
