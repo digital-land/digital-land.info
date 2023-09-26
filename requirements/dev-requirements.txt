@@ -4,6 +4,8 @@
 #
 #    pip-compile requirements/dev-requirements.in
 #
+axe-playwright-python==0.1.4
+    # via -r requirements/dev-requirements.in
 black==23.7.0
     # via -r requirements/dev-requirements.in
 certifi==2023.5.7
@@ -90,9 +92,10 @@ platformdirs==3.9.1
     #   -c requirements/requirements.txt
     #   black
     #   virtualenv
-playwright==1.35.0
+playwright==1.38.0
     # via
     #   -r requirements/dev-requirements.in
+    #   axe-playwright-python
     #   pytest-playwright
 pluggy==1.2.0
     # via pytest
