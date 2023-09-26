@@ -58,12 +58,15 @@ docker-login:
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
 test-acceptance:
-	python -m playwright install chromium
+	python -m playwright install --with-deps chromium firefox webkit
 	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
 test-acceptance-debug:
-	python -m playwright install chromium
-	PWDEBUG=1 python3 --browser webkit --browser firefox --browser chromium  -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+	python -m playwright install --with-deps chromium firefox webkit
+	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
+
+playwright-codegen:
+	python -m playwright codegen localhost:8000
 
 test: test-unit test-integration test-acceptance
 
