@@ -17,6 +17,7 @@ export const getApiToken = () => {
 }
 
 export const getFreshApiToken = () => {
+    console.log('getting fresh token');
     return new Promise((resolve, reject) => {
         makingRequest = true;
         fetch('/os/getToken')
