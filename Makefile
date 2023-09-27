@@ -30,6 +30,9 @@ piptool-compile::
 	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
 	python -m piptools compile requirements/dev-requirements.in
 
+piptool-install::
+	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
+
 postgresql::
 	sudo service postgresql start
 
@@ -64,6 +67,10 @@ test-acceptance:
 test-acceptance-debug:
 	python -m playwright install chromium
 	PWDEBUG=1 python3 -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+
+test-accessibility:
+	python -m playwright install chromium
+	python -m pytest --browser chromium --md-report --md-report-color=never --md-report-output=accessibility-tests.md tests/accessibility -k 'test_accessibility_of_homepage'
 
 test: test-unit test-integration test-acceptance
 
