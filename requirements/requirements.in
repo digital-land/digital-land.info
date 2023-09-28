@@ -11,6 +11,7 @@ GeoAlchemy2
 psycopg2
 alembic
 fastapi-utils
+Shapely
 sentry-sdk
 jsonpickle
 uritemplate

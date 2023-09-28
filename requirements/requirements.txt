@@ -66,6 +66,8 @@ markupsafe==2.1.3
     #   mako
 nodeenv==1.8.0
     # via pre-commit
+numpy==1.25.1
+    # via shapely
 packaging==23.1
     # via geoalchemy2
 platformdirs==3.9.1
@@ -89,6 +91,8 @@ pyyaml==6.0
 requests==2.31.0
     # via -r requirements/requirements.in
 sentry-sdk==1.28.1
+    # via -r requirements/requirements.in
+shapely==2.0.1
     # via -r requirements/requirements.in
 sniffio==1.3.0
     # via anyio
