@@ -456,6 +456,9 @@ export default class MapController {
           "circle-radius": defaultPaintOptions['circle-radius']
         },
         sourceLayer: `${source.name}`,
+        additionalOptions:{
+          filter:[ "==", ["geometry-type"], "Point"]
+        },
       });
 			layers = [fillLayerName, lineLayerName, pointLayerName];
 		}
