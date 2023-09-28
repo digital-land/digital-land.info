@@ -229,7 +229,7 @@ export default class LayerControls {
 
       this.enabledLayers().forEach(layer => urlParams.append(this.layerURLParamName, layer.getDatasetName()));
       let newURL = window.location.pathname
-      if(urlParams.size > 0)
+      if(this.enabledLayers().length > 0)
         newURL = newURL + '?' + urlParams.toString() + window.location.hash;
 
       // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
@@ -278,7 +278,8 @@ export class LayerOption {
     checkBoxInput.setAttribute('name', layer.dataset);
     checkBoxInput.setAttribute('type', 'checkbox');
     checkBoxInput.setAttribute('value', layer.dataset);
-    checkBoxInput.addEventListener('change', this.clickHandler.bind(this));
+    // checkBoxInput.addEventListener('change', this.clickHandler.bind(this));
+    checkBoxInput.addEventListener('click', this.clickHandler.bind(this));
 
     const checkBoxLabel = document.createElement('label');
     checkBoxLabel.classList.add("govuk-label");
@@ -345,8 +346,8 @@ export class LayerOption {
     return html;
   }
 
-  clickHandler() {
-    console.log('in click handler')
+  clickHandler(e) {
+    // console.log('in click handler')
     this.layerControls.updateUrl();
   }
 
