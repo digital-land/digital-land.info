@@ -10,22 +10,11 @@
 
 {%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Planning Data{% endblock -%}
 
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
 {%- block breadcrumbs -%}
-  {{- govukBreadcrumbs({
-    "items": [
-        {
-          "text": "Planning Data",
-          "href": "/"
-        },
-        {
-          "text": "Fact",
-          "href": "/fact"
-        },
-        {
-          "text": fact["fact"]
-        }
-      ]
-    }) -}}
+  {{ dlBackButton({
+    "parentHref": '/'
+  })}}
 {%- endblock -%}
 
 {%- block content %}
