@@ -70,9 +70,9 @@ test-acceptance-debug:
 
 test-accessibility:
 	python -m playwright install chromium
-	python -m pytest --browser chromium --md-report --md-report-color=never --md-report-output=accessibility-tests.md tests/accessibility -k 'test_accessibility_of_homepage'
+	python -m pytest --browser chromium --md-report --md-report-color=never --md-report-output=accessibility-tests.md tests/accessibility
 
-test: test-unit test-integration test-acceptance
+test: test-unit test-integration test-acceptance test-accessibility
 
 test-js:
 	npm run test
