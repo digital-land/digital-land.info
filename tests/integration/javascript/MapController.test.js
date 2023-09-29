@@ -433,7 +433,7 @@ describe('Map Controller', () => {
             await mapController.map.events.load() // initiate the load event
 
             expect(mapController.map.addSource).toHaveBeenCalledTimes(4);
-            expect(mapController.map.addLayer).toHaveBeenCalledTimes(5);
+            expect(mapController.map.addLayer).toHaveBeenCalledTimes(6);
             expect(mapController.map.addSource).toHaveBeenCalledWith(params.vectorTileSources[0].name + '-source', {
                 type: 'vector',
                 tiles: [params.vectorTileSources[0].vectorSource],
@@ -465,7 +465,11 @@ describe('Map Controller', () => {
                 layout: {}
             });
             expect(mapController.availableLayers).toEqual({
-                [params.vectorTileSources[0].name]: [`${params.vectorTileSources[0].name}-source-fill-extrusion`, `${params.vectorTileSources[0].name}-source-line`]
+                [params.vectorTileSources[0].name]: [
+                    `${params.vectorTileSources[0].name}-source-fill-extrusion`,
+                    `${params.vectorTileSources[0].name}-source-line`,
+                    `${params.vectorTileSources[0].name}-source-circle`,
+                ]
             })
         })
     })
