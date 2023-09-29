@@ -169,8 +169,7 @@ export default class MapController {
 	}
 
   obscureWales(){
-    console.log('in obscure wales')
-    this.obscure('Wales_simplified');
+    this.obscure('Wales_simplified', '#FFFFFF', 0.6);
   }
 
   obscureScotland(){

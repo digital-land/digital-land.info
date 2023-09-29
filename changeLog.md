@@ -16,15 +16,21 @@
 
 ## 29-09-2023
 ### What's new
+- Fixed the layer controls component for safari, as the checkboxes were not changing state
+### Why was this change made?
+- So the layer controls work on safari
+
+## 29-09-2023
+### What's new
 - Updated the rendering of a polygon layer to also check for point data and render a circle where appropriate
 ### Why was this change made?
 - to handle the new NSIP dataset
 
 ## 29-09-2023
 ### What's new
-- Fixed the layer controls component for safari, as the checkboxes were not changing state
+- decrease wales obscure opacity
 ### Why was this change made?
-- So the layer controls work on safari
+- Some data we have is on wales, so we need to obscure it less
 
 ## 26-09-2023
 ### What's new
