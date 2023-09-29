@@ -18,6 +18,7 @@
 ### What's new
 - Setup axe playwright accessibility testing for all pages
 - Fixed any issues found by the axe tests
+- updated git actions to run the axe tests
 ### Why was this change made?
 - To ensure that future changes don't break accessibility
 
