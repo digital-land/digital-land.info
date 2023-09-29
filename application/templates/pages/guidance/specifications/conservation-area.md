@@ -52,7 +52,9 @@ If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associat
 
 ### documentation-url
 
-An optional URL of a document providing the authoritative source of the boundary. For example, a PDF containing a map of the area, indicated with a red-line boundary.
+The URL of the webpage on the local planning authority website which provides information about the conservation area.
+
+Example: `http://www.LPAwebsite.org.uk/data#conservationarea1`
 
 ### notes
 
