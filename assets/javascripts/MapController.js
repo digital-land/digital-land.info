@@ -464,7 +464,23 @@ export default class MapController {
         },
         sourceLayer: `${source.name}`,
       });
-			layers = [fillLayerName, lineLayerName];
+
+      // create point layer for geometries
+      let pointLayerName = this.addLayer({
+        sourceName: `${source.name}-source`,
+        layerType: 'circle',
+        paintOptions: {
+          'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
+          'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          "circle-radius": defaultPaintOptions['circle-radius']
+        },
+        sourceLayer: `${source.name}`,
+        additionalOptions:{
+          filter:[ "==", ["geometry-type"], "Point"]
+        },
+      });
+			layers = [fillLayerName, lineLayerName, pointLayerName];
 		}
 		return layers;
   }
