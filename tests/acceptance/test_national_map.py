@@ -47,6 +47,6 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
         BASE_URL + "/map/#51.0560081663663,-2.260042873039197,10.722039104961226z"
     )
     page.get_by_label("Conservation area").check()
-    page.wait_for_timeout(100)  # wait for map to load the conservation area layer
+    page.wait_for_timeout(1000)  # wait for map to load the conservation area layer
     page.get_by_role("region", name="Map").click(position={"x": 458, "y": 147})
     expect(page.get_by_text("Conservation areaStourton")).to_be_visible()
