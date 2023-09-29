@@ -18,7 +18,7 @@
 ### What's new
 - increase wales obscure opacity
 ### Why was this change made?
-- Some data we have is on wales, so we need to obscure it less
+- Some data we have is on wales, so we need to obscure it more
 
 ## 26-09-2023
 ### What's new
