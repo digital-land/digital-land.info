@@ -66,7 +66,7 @@ test-acceptance-debug:
 	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
 playwright-codegen:
-	python -m playwright codegen localhost:8000
+	python -m playwright codegen --viewport-size=800,600 localhost:8000
 
 test: test-unit test-integration test-acceptance
 
