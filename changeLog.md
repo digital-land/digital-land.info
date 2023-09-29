@@ -14,6 +14,12 @@
 # ChangeLog
 <br>
 
+## 29-09-2023
+### What's new
+- Setup axe playwright accessibility testing for all pages
+### Why was this change made?
+- To ensure that future changes don't break accessibility
+
 ## 26-09-2023
 ### What's new
 - Updated the base-tile set style changing min and max zoom levels for layers
