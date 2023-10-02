@@ -18,7 +18,7 @@ describe('Layer Controls', () => {
     const mapMock = getMapMock();
 
     stubGlobalDocument();
-    stubGlobalWindow('http://localhost:3000', 'testHash');
+    stubGlobalWindow('http://localhost:3000', '');
     stubGlobalUrl();
 
     beforeEach(() => {
@@ -420,7 +420,7 @@ describe('Layer Controls', () => {
             }
             layerControlsMock.replaceRedirectParamNames();
 
-            expect(window.history.replaceState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?dataset=testLayer1&unchanged=testLayer2&dataset=testLayer3&dataset=testLayer4testHash');
+            expect(window.history.replaceState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?dataset=testLayer1&unchanged=testLayer2&dataset=testLayer3&dataset=testLayer4');
         })
 
     })
