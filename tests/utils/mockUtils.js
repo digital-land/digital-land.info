@@ -137,6 +137,7 @@ export const stubGlobalWindow = (pathname = 'http://localhost', hash = '') => {
         },
         history: {
             pushState: vi.fn(),
+            replaceState: vi.fn(),
         },
     })
 }

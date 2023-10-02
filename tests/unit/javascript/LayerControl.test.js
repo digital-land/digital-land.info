@@ -70,7 +70,7 @@ describe('Layer Controls', () => {
     })
 
     test('getEnabledLayerNamesFromUrl() correctly executes',() => {
-        stubGlobalUrl([{name: 'layer', value: 'testLayer1'}, {name: 'layer', value: 'testLayer2'}, {name: 'layer', value: 'testLayer3'}, {name: 'layer', value: 'testLayer4'}]);
+        stubGlobalUrl([{name: 'dataset', value: 'testLayer1'}, {name: 'dataset', value: 'testLayer2'}, {name: 'dataset', value: 'testLayer3'}, {name: 'dataset', value: 'testLayer4'}]);
         const makeMockLayerOption = (name) => {
             return {
                 getDatasetName: () => { return name },
@@ -87,7 +87,7 @@ describe('Layer Controls', () => {
     })
 
     test('showEntitiesForLayers() correctly executes',() => {
-        stubGlobalUrl([{name: 'layer', value: 'testLayer1'}, {name: 'layer', value: 'testLayer2'}, {name: 'layer', value: 'testLayer3'}, {name: 'layer', value: 'testLayer4'}]);
+        stubGlobalUrl([{name: 'dataset', value: 'testLayer1'}, {name: 'dataset', value: 'testLayer2'}, {name: 'dataset', value: 'testLayer3'}, {name: 'dataset', value: 'testLayer4'}]);
 
         const makeMockLayerOption = (name) => {
             return {
@@ -128,12 +128,12 @@ describe('Layer Controls', () => {
         layerControls.updateUrl();
 
         expect(urlDeleteMock).toHaveBeenCalledTimes(1);
-        expect(urlDeleteMock).toHaveBeenCalledWith('layer');
+        expect(urlDeleteMock).toHaveBeenCalledWith('dataset');
         expect(urlAppendMock).toHaveBeenCalledTimes(2);
-        expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer1');
-        expect(urlAppendMock).toHaveBeenCalledWith('layer','testLayer2');
+        expect(urlAppendMock).toHaveBeenCalledWith('dataset','testLayer1');
+        expect(urlAppendMock).toHaveBeenCalledWith('dataset','testLayer2');
         expect(window.history.pushState).toHaveBeenCalled();
-        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?layer=testLayer1&layer=testLayer2testHash');
+        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?dataset=testLayer1&dataset=testLayer2testHash');
         expect(layerControls.toggleLayersBasedOnUrl).toHaveBeenCalled();
     })
 
@@ -409,6 +409,10 @@ describe('Layer Controls', () => {
                 const result = option.isChecked();
                 expect(result).toBe(false);
             })
+        })
+
+        test('replaceRedirectParamNames works as expected', () => {
+
         })
 
     })
