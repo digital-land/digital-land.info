@@ -18,7 +18,7 @@ describe('Layer Controls', () => {
     const mapMock = getMapMock();
 
     stubGlobalDocument();
-    stubGlobalWindow('http://localhost:3000', 'testHash');
+    stubGlobalWindow('http://localhost:3000', '');
     stubGlobalUrl();
 
     beforeEach(() => {
@@ -111,7 +111,7 @@ describe('Layer Controls', () => {
     })
 
     test('updateUrl() correctly executes',() => {
-        const [urlDeleteMock, urlAppendMock] = stubGlobalUrl([], 2);
+        const [urlDeleteMock, urlAppendMock] = stubGlobalUrl([]);
 
         layerControls.layerOptions = [
             {
@@ -133,7 +133,7 @@ describe('Layer Controls', () => {
         expect(urlAppendMock).toHaveBeenCalledWith('dataset','testLayer1');
         expect(urlAppendMock).toHaveBeenCalledWith('dataset','testLayer2');
         expect(window.history.pushState).toHaveBeenCalled();
-        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?dataset=testLayer1&dataset=testLayer2testHash');
+        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000');
         expect(layerControls.toggleLayersBasedOnUrl).toHaveBeenCalled();
     })
 
@@ -412,7 +412,15 @@ describe('Layer Controls', () => {
         })
 
         test('replaceRedirectParamNames works as expected', () => {
+            stubGlobalUrl([{name: 'dataset', value: 'testLayer1'}, {name: 'unchanged', value: 'testLayer2'}, {name: 'layer', value: 'testLayer3'}, {name: 'layer', value: 'testLayer4'}]);
+            let layerControlsMock = {
+                redirectURLParamNames: ['layer'],
+                layerURLParamName: 'dataset',
+                replaceRedirectParamNames: LayerControls.prototype.replaceRedirectParamNames,
+            }
+            layerControlsMock.replaceRedirectParamNames();
 
+            expect(window.history.replaceState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?dataset=testLayer1&unchanged=testLayer2&dataset=testLayer3&dataset=testLayer4');
         })
 
     })
