@@ -49,7 +49,7 @@ export default class LayerControls {
 
       const checkboxes = document.createElement('div');
       checkboxes.classList.add('govuk-checkboxes');
-      checkboxes.setAttribute('data-module', 'layer-controls-{{ params.mapId if params.mapId else \'map\' }}');
+      // checkboxes.setAttribute('data-module', 'layer-controls-{{ params.mapId if params.mapId else \'map\' }}');
 
       const filterGroup = document.createElement('div');
       filterGroup.classList.add('dl-filter-group__auto-filter');
