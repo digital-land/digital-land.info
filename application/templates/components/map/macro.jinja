@@ -68,9 +68,6 @@
               }
             }
           }),
-          LayerControlOptions: {
-              layerURLParamName: "dataset",
-          },
           mapId: "{{ params.mapId if params.mapId else 'map' }}",
           ZoomControlsOptions: {
             enabled: {{params.enableZoomControls|lower if params.enableZoomControls else 'false'}},
@@ -78,6 +75,8 @@
           },
           LayerControlOptions: {
             enabled: {{params.enableLayerControls|lower if params.enableLayerControls else 'false'}},
+            layerURLParamName: "dataset",
+            redirectURLParamNames: ["layer"],
           },
           FullscreenControl: {
             enabled: true,
