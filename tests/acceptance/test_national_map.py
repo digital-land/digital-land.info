@@ -47,12 +47,9 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     page.goto(
         BASE_URL + "/map/#50.88865897214836,-2.260771340418273,11.711391365982688z"
     )
+    page.wait_for_selector("canvas.maplibregl-canvas")
     page.get_by_label("Conservation area").check()
-    page.wait_for_timeout(
-        1000
-    )  # can take some time to appear on the map, so wait for a second while the data loads
-    # note:
-    # even with the viewport set to a fixed size this click doesn't always happen in the same place between browsers
+    page.wait_for_timeout(1000)
     page.get_by_label("Map").click(position={"x": 329, "y": 300})
     expect(
         page.get_by_test_id("map").get_by_role("list").get_by_text("Conservation area")
