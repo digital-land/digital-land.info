@@ -6,8 +6,6 @@ import uvicorn
 from multiprocessing.context import Process
 from application.settings import get_settings
 
-from playwright.sync_api import expect
-
 settings = get_settings()
 
 settings.READ_DATABASE_URL = (
@@ -47,10 +45,19 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     page.goto(
         BASE_URL + "/map/#50.88865897214836,-2.260771340418273,11.711391365982688z"
     )
-    page.wait_for_selector("canvas.maplibregl-canvas")
+    page.wait_for_selector("label.govuk-checkboxes__label")
+    isHiddenBeforeClicking = page.evaluate(
+        'mapControllers.map.map.getLayer("conservation-area-source-fill-extrusion").isHidden()'
+    )
+    if not isHiddenBeforeClicking:
+        raise Exception(
+            "conservation-area-source-fill-extrusion should be hidden on page load"
+        )
     page.get_by_label("Conservation area").check()
-    page.wait_for_timeout(1000)
-    page.get_by_label("Map").click(position={"x": 329, "y": 300})
-    expect(
-        page.get_by_test_id("map").get_by_role("list").get_by_text("Conservation area")
-    ).to_be_visible()
+    isHiddenAfterClicking = page.evaluate(
+        'mapControllers.map.map.getLayer("conservation-area-source-fill-extrusion").isHidden()'
+    )
+    if isHiddenAfterClicking:
+        raise Exception(
+            "conservation-area-source-fill-extrusion should not be hidden after clicking the layer"
+        )
