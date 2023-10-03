@@ -43,9 +43,6 @@ def wait_for_map_layer(page, layer, attempts=10, check_interval=10):
             f'() => mapControllers.map.map.getLayer("{layer}").isHidden()'
         )
         if isHidden is False:
-            page.wait_for_timeout(
-                1000
-            )  # add a little extra time to make sure the layer is fully loaded
             return True
         page.wait_for_timeout(check_interval)
     assert False, f"Layer {layer} did not appear on the map"
