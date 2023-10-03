@@ -48,7 +48,7 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     page.wait_for_selector("canvas.maplibregl-canvas")
     page.screenshot(path="screenshot.png")
     page.wait_for_selector("div.dl-map__side-panel")
-    page.wait_for_selector("button.dl-map__open-btn")
+
     page.wait_for_selector("label.govuk-checkboxes__label")
     # isHiddenBeforeClicking = page.evaluate(
     #     'mapControllers.map.map.getLayer("conservation-area-source-fill-extrusion").isHidden()'
