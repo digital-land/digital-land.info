@@ -6,25 +6,12 @@
   <meta name="generated-date" content="{{ now }}" />
 {% endblock head %}
 
-{%- block beforeContent -%}
-  {{ super() }}
-
-  {{- govukBreadcrumbs({
-    "items": [
-        {
-        "text": "Planning Data",
-        "href": "/"
-        },
-        {
-        "text": "Datasets",
-        "href": "/dataset/"
-        },
-        {
-        "text": name
-        }
-    ]
-    }) -}}
-{%- endblock -%}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/'
+  })}}
+{% endblock %}
 
 {% block pageTitle %}{{ name }} dataset | Planning Data{% endblock %}
 

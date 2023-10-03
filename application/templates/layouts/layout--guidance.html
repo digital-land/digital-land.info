@@ -2,9 +2,12 @@
 {% from "components/sub-navigation/macro.jinja" import appSubNavigation %}
 {% block pageTitle %}{{ pageData.pageTitle }}{% endblock %}
 
-{%- block breadcrumbs -%}
-  {{- govukBreadcrumbs({ 'items': pageData.breadcrumbs }) -}}
-{%- endblock -%}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/'
+  })}}
+{% endblock %}
 
 {% block content %}
 
