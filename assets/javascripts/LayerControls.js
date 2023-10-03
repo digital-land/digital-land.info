@@ -2,7 +2,6 @@ import {defaultPaintOptions} from "./defaultPaintOptions.js";
 
 export default class LayerControls {
     constructor (mapController, source, layers, availableLayers, options) {
-      console.log('in layer controls constructor')
       this.mapController = mapController;
       this.tileSource = source;
       this.layers = layers;
@@ -24,7 +23,6 @@ export default class LayerControls {
     }
 
     onAdd(map) {
-      console.log('in layer controls on add')
       const sidePanel = document.createElement('div');
       sidePanel.classList.add('dl-map__side-panel');
       sidePanel.setAttribute('tabindex', '-1');
@@ -136,7 +134,6 @@ export default class LayerControls {
     }
 
     togglePanel(e) {
-      console.log('in toggle panel')
       const action = e.target.dataset.action;
       const opening = (action === 'open');
       // set aria attributes
@@ -159,13 +156,11 @@ export default class LayerControls {
 
     // toggles visibility of elements/entities based on URL params
     toggleLayersBasedOnUrl() {
-      console.log('in toggle layers based on url')
       const enabledLayers = this.getEnabledLayersFromUrl();
       this.showEntitiesForLayers(enabledLayers);
     };
 
     getEnabledLayersFromUrl() {
-      console.log('in get enabled layers from url')
       // Get the URL parameters
       const urlParams = (new URL(document.location)).searchParams;
 
@@ -183,7 +178,6 @@ export default class LayerControls {
     }
 
     showEntitiesForLayers(enabledLayers) {
-      console.log('in show entities for layers')
 
       const layerOptionsClone = [].concat(this.layerOptions);
       const disabledLayers = layerOptionsClone.filter(layer => enabledLayers.indexOf(layer) === -1);
@@ -194,24 +188,20 @@ export default class LayerControls {
     }
 
     enabledLayers() {
-      console.log('in enabled layers')
       return this.layerOptions.filter(option => option.isChecked())
     };
 
     filterCheckboxes(e) {
-      console.log('in filter checkboxes')
       var query = e.target.value;
       var filteredCheckboxes = this.filterCheckboxesArr(query);
       this.displayMatchingCheckboxes(filteredCheckboxes)
     };
 
     filterCheckboxesArr(query) {
-      console.log('in filter checkboxes arr')
       return this.layerOptions.filter(layerOption => layerOption.getDatasetName().toLowerCase().indexOf(query.toLowerCase()) !== -1)
     };
 
     displayMatchingCheckboxes(layerOptions, cb) {
-      console.log('in display matching checkboxes')
       // hide all
       this.layerOptions.forEach(layerOption => layerOption.setLayerCheckboxVisibility(false));
       // re show those in filtered array
@@ -222,7 +212,6 @@ export default class LayerControls {
     };
 
     updateUrl() {
-      console.log('in update url')
       // set the url params based on the enabled layers
       const urlParams = (new URL(document.location)).searchParams;
       urlParams.delete(this.layerURLParamName);
@@ -238,7 +227,6 @@ export default class LayerControls {
     }
 
     getClickableLayers() {
-      console.log('in get clickable layers')
       var clickableLayers = [];
       var enabledLayers = this.enabledLayers().map(layer => layer.getDatasetName());
 
@@ -256,7 +244,6 @@ export default class LayerControls {
 
 export class LayerOption {
   constructor(layer, availableLayers, layerControls){
-    console.log('in layer option constructor')
     this.layer = layer;
     this.element = this.makeElement(layer);
     this.layerControls = layerControls;
@@ -264,7 +251,6 @@ export class LayerOption {
   }
 
   makeElement(layer) {
-    console.log('in make element')
     const listItem = document.createElement('li');
     listItem.classList.add("dl-map__layer-item");
     listItem.classList.add("govuk-!-margin-bottom-1");
@@ -295,7 +281,6 @@ export class LayerOption {
   }
 
   makeLayerSymbol(layer) {
-    console.log('in make layer symbol')
     let symbolHtml = '';
 
     let opacityNumber = (layer.paint_options && layer.paint_options.opacity) ? layer.paint_options.opacity : defaultPaintOptions["fill-opacity"];
@@ -347,7 +332,6 @@ export class LayerOption {
   }
 
   clickHandler(e) {
-    // console.log('in click handler')
     this.layerControls.updateUrl();
   }
 
