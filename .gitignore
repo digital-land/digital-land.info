@@ -45,4 +45,3 @@ coverage.xml
 .secrets
 unit-tests.md
 integration-tests.md
-accessibility-tests.md
