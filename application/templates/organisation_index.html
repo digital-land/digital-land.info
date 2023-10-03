@@ -7,21 +7,12 @@
 	<link rel="stylesheet" href="/static/stylesheets/application.css">
 {% endblock head %}
 
-{%- block beforeContent -%}
-    {{ super() }}
-
-    {{- govukBreadcrumbs({
-    "items": [
-        {
-        "text": "Planning Data",
-        "href": "/"
-        },
-        {
-        "text": "Organisations"
-        }
-    ]
-    }) -}}
-{%- endblock -%}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/'
+  })}}
+{% endblock %}
 
 {% block pageTitle %}Organisations | Planning Data{% endblock %}
 
