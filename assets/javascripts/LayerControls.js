@@ -47,7 +47,7 @@ export default class LayerControls {
 
       const checkboxes = document.createElement('div');
       checkboxes.classList.add('govuk-checkboxes');
-      // checkboxes.setAttribute('data-module', 'layer-controls-{{ params.mapId if params.mapId else \'map\' }}');
+      checkboxes.setAttribute('data-module', `layer-controls-${this.mapController.mapId}}`);
 
       const filterGroup = document.createElement('div');
       filterGroup.classList.add('dl-filter-group__auto-filter');
@@ -264,8 +264,7 @@ export class LayerOption {
     checkBoxInput.setAttribute('name', layer.dataset);
     checkBoxInput.setAttribute('type', 'checkbox');
     checkBoxInput.setAttribute('value', layer.dataset);
-    // checkBoxInput.addEventListener('change', this.clickHandler.bind(this));
-    checkBoxInput.addEventListener('click', this.clickHandler.bind(this));
+    checkBoxInput.addEventListener('change', this.clickHandler.bind(this));
 
     const checkBoxLabel = document.createElement('label');
     checkBoxLabel.classList.add("govuk-label");
