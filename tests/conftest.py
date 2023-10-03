@@ -199,3 +199,18 @@ def add_base_entities_to_database_yield_reset():
     add_base_typology_to_database()
     yield
     reset_database()
+
+
+@pytest.fixture()
+def skip_if_not_supportsGL(page):
+    supportsGL = page.evaluate(
+        """
+        () => {
+            const canvas = document.createElement("canvas");
+            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            return gl instanceof WebGLRenderingContext;
+        }
+    """
+    )
+    if not supportsGL:
+        pytest.skip("Test requires WebGL support")

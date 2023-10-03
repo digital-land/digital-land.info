@@ -58,12 +58,15 @@ docker-login:
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
 test-acceptance:
-	python -m playwright install chromium
-	python -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+	python -m playwright install --with-deps chromium firefox webkit
+	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
 test-acceptance-debug:
-	python -m playwright install chromium
-	PWDEBUG=1 python3 -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+	python -m playwright install --with-deps chromium firefox webkit
+	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
+
+playwright-codegen:
+	python -m playwright codegen --viewport-size=800,600 localhost:8000
 
 test: test-unit test-integration test-acceptance
 
@@ -87,7 +90,7 @@ test-integration:
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
 
-lint:	black-check flake8
+lint:	black flake8
 
 clean::
 	rm -rf static/
