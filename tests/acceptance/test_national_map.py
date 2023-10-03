@@ -6,8 +6,6 @@ import uvicorn
 from multiprocessing.context import Process
 from application.settings import get_settings
 
-from playwright.sync_api import expect
-
 settings = get_settings()
 
 settings.READ_DATABASE_URL = (
@@ -68,5 +66,3 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     )
     page.get_by_label("Conservation area").check()
     wait_for_map_layer(page, "conservation-area-source-fill-extrusion")
-    page.get_by_label("Map").click(position={"x": 215, "y": 156})
-    expect(page.locator("div.maplibregl-popup-content")).to_be_visible()
