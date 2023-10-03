@@ -210,7 +210,6 @@ export default class MapController {
   }
 
   addControls() {
-
     this.map.addControl(new maplibregl.ScaleControl({
       container: document.getElementById(this.mapId)
     }), 'bottom-left');

@@ -133,7 +133,7 @@ describe('Layer Controls', () => {
         expect(urlAppendMock).toHaveBeenCalledWith('dataset','testLayer1');
         expect(urlAppendMock).toHaveBeenCalledWith('dataset','testLayer2');
         expect(window.history.pushState).toHaveBeenCalled();
-        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000');
+        expect(window.history.pushState).toHaveBeenCalledWith({}, '', 'http://localhost:3000?dataset=testLayer1&dataset=testLayer2');
         expect(layerControls.toggleLayersBasedOnUrl).toHaveBeenCalled();
     })
 

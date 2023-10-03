@@ -50,7 +50,7 @@ export default class LayerControls {
 
       const checkboxes = document.createElement('div');
       checkboxes.classList.add('govuk-checkboxes');
-      checkboxes.setAttribute('data-module', 'layer-controls-{{ params.mapId if params.mapId else \'map\' }}');
+      checkboxes.setAttribute('data-module', `layer-controls-${this.mapController.mapId}}`);
 
       const filterGroup = document.createElement('div');
       filterGroup.classList.add('dl-filter-group__auto-filter');
@@ -238,7 +238,7 @@ export default class LayerControls {
 
       this.enabledLayers().forEach(layer => urlParams.append(this.layerURLParamName, layer.getDatasetName()));
       let newURL = window.location.pathname
-      if(urlParams.size > 0)
+      if(this.enabledLayers().length > 0)
         newURL = newURL + '?' + urlParams.toString() + window.location.hash;
 
       // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
@@ -300,7 +300,6 @@ export class LayerOption {
   }
 
   makeLayerSymbol(layer) {
-
     let symbolHtml = '';
 
     let opacityNumber = (layer.paint_options && layer.paint_options.opacity) ? layer.paint_options.opacity : defaultPaintOptions["fill-opacity"];
@@ -351,7 +350,7 @@ export class LayerOption {
     return html;
   }
 
-  clickHandler() {
+  clickHandler(e) {
     this.layerControls.updateUrl();
   }
 
