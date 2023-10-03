@@ -2,8 +2,6 @@ import MapController from './MapController.js';
 
 export const newMapController = (params = { layers: []}) => {
 
-  console.log('in new map controller function')
-
   const datasetUrl = params.DATASETTE_TILES_URL || '';
 
   let mapParams = {
