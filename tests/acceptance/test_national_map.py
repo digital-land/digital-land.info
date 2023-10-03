@@ -46,7 +46,6 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
         BASE_URL + "/map/#50.88865897214836,-2.260771340418273,11.711391365982688z"
     )
     page.wait_for_selector("canvas.maplibregl-canvas")
-    page.screenshot(path="screenshot.png")
     page.wait_for_selector("div.dl-map__side-panel")
 
     page.wait_for_selector("label.govuk-checkboxes__label")
