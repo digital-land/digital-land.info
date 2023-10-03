@@ -14,7 +14,7 @@
 # ChangeLog
 <br>
 
-## 29-09-2023
+## 03-10-2023
 ### What's new
 - Fixed the layer controls component for safari, as the checkboxes were not changing state
 ### Why was this change made?

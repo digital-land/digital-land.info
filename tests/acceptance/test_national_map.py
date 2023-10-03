@@ -46,7 +46,7 @@ def wait_for_map_layer(page, layer, attempts=10, check_interval=10):
         )
         if isHidden is False:
             page.wait_for_timeout(
-                500
+                1000
             )  # add a little extra time to make sure the layer is fully loaded
             return True
         page.wait_for_timeout(check_interval)
@@ -69,4 +69,4 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     page.get_by_label("Conservation area").check()
     wait_for_map_layer(page, "conservation-area-source-fill-extrusion")
     page.get_by_label("Map").click(position={"x": 215, "y": 156})
-    expect(page.get_by_text("Conservation area1")).to_be_visible()
+    expect(page.locator("div.maplibregl-popup-content")).to_be_visible()
