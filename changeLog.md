@@ -22,6 +22,12 @@
 ### Why was this change made?
 - To ensure that future changes don't break accessibility
 
+## 29-09-2023
+### What's new
+- decrease wales obscure opacity
+### Why was this change made?
+- Some data we have is on wales, so we need to obscure it less
+
 ## 26-09-2023
 ### What's new
 - Updated the base-tile set style changing min and max zoom levels for layers

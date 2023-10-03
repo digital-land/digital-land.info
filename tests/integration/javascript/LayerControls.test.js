@@ -12,7 +12,7 @@ stubGlobalDocument();
 stubGlobalWindow('http://localhost:3000/', '');
 
 const urlParams = [];
-stubGlobalUrl([{name: 'layer', value: 'layer1'}, {name: 'layer', value: 'layer2'}]);
+stubGlobalUrl([{name: 'dataset', value: 'layer1'}, {name: 'dataset', value: 'layer2'}]);
 
 const layers = [
     {

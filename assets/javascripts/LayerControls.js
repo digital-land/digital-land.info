@@ -13,13 +13,16 @@ export default class LayerControls {
 		  const styleClasses = this._container.classList;
       styleClasses.add('maplibregl-ctrl')
 
-      this.layerURLParamName = options.layerURLParamName || 'layer';
+      this.layerURLParamName = options.layerURLParamName || 'dataset';
+      this.redirectURLParamNames = options.redirectURLParamNames || [];
 
       // listen for changes to URL
       var boundSetControls = this.toggleLayersBasedOnUrl.bind(this);
       window.addEventListener('popstate', function (event) {
         boundSetControls();
       });
+
+      this.replaceRedirectParamNames();
     }
 
     onAdd(map) {
@@ -127,6 +130,23 @@ export default class LayerControls {
       }
 
       return this._container;
+    }
+
+    replaceRedirectParamNames() {
+      const urlParams = (new URL(document.location)).searchParams;
+      this.redirectURLParamNames.forEach(param => {
+        if (urlParams.has(param)) {
+          let values = urlParams.getAll(param);
+          urlParams.delete(param);
+          values.forEach(value => {
+            urlParams.append(this.layerURLParamName, value);
+          });
+        }
+      });
+      let newURL = window.location.pathname
+      if(urlParams.size > 0)
+        newURL = newURL + '?' + urlParams.toString() + window.location.hash;
+      window.history.replaceState({}, '', newURL);
     }
 
     onRemove() {
