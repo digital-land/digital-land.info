@@ -6,6 +6,8 @@ import uvicorn
 from multiprocessing.context import Process
 from application.settings import get_settings
 
+from playwright.sync_api import expect
+
 settings = get_settings()
 
 settings.READ_DATABASE_URL = (
@@ -37,6 +39,20 @@ def server_process():
     proc.kill()
 
 
+def wait_for_map_layer(page, layer, attempts=10, check_interval=10):
+    for i in range(attempts):
+        isHidden = page.evaluate(
+            f'() => mapControllers.map.map.getLayer("{layer}").isHidden()'
+        )
+        if isHidden is False:
+            page.wait_for_timeout(
+                500
+            )  # add a little extra time to make sure the layer is fully loaded
+            return True
+        page.wait_for_timeout(check_interval)
+    assert False, f"Layer {layer} did not appear on the map"
+
+
 def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     server_process,
     page,
@@ -50,25 +66,7 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     page.goto(
         BASE_URL + "/map/#50.88865897214836,-2.260771340418273,11.711391365982688z"
     )
-    page.wait_for_selector("canvas.maplibregl-canvas")
-    page.wait_for_selector("div.dl-map__side-panel")
-
-    page.wait_for_selector("label.govuk-checkboxes__label")
-    # isHiddenBeforeClicking = page.evaluate(
-    #     'mapControllers.map.map.getLayer("conservation-area-source-fill-extrusion").isHidden()'
-    # )
-    # if not isHiddenBeforeClicking:
-    #     raise Exception(
-    #         "conservation-area-source-fill-extrusion should be hidden on page load"
-    #     )
-    # page.get_by_label("Conservation area").check()
-    # isHiddenAfterClicking = page.evaluate(
-    #     'mapControllers.map.map.getLayer("conservation-area-source-fill-extrusion").isHidden()'
-    # )
-    # if isHiddenAfterClicking:
-    #     raise Exception(
-    #         "conservation-area-source-fill-extrusion should not be hidden after clicking the layer"
-    #     )
-
-    # have we loaded the map
-    # have we loaded the layer control and each checkbox
+    page.get_by_label("Conservation area").check()
+    wait_for_map_layer(page, "conservation-area-source-fill-extrusion")
+    page.get_by_label("Map").click(position={"x": 215, "y": 156})
+    expect(page.get_by_text("Conservation area1")).to_be_visible()
