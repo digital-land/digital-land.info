@@ -30,6 +30,9 @@ piptool-compile::
 	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
 	python -m piptools compile requirements/dev-requirements.in
 
+piptool-install::
+	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
+
 postgresql::
 	sudo service postgresql start
 
@@ -61,14 +64,18 @@ test-acceptance:
 	python -m playwright install --with-deps chromium firefox webkit
 	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
-test-acceptance-debug:
+ test-acceptance-debug:
 	python -m playwright install --with-deps chromium firefox webkit
 	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
-playwright-codegen:
+ test-accessibility:
+	python -m playwright install chromium
+	python -m pytest --browser chromium --md-report --md-report-color=never -p no:warnings tests/accessibility
+
+ playwright-codegen:
 	python -m playwright codegen --viewport-size=800,600 localhost:8000
 
-test: test-unit test-integration test-acceptance
+test: test-unit test-integration test-acceptance test-accessibility
 
 test-js:
 	npm run test
