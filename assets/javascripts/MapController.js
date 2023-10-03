@@ -8,7 +8,6 @@ import {defaultPaintOptions} from "./defaultPaintOptions.js";
 
 export default class MapController {
   constructor(params) {
-    console.log('in map controller constructor')
     // set the params applying default values where none were provided
     this.setParams(params);
 
@@ -20,7 +19,6 @@ export default class MapController {
   }
 
   setParams(params) {
-    console.log('in set params')
     params = params || {};
     this.mapId = params.mapId || 'mapid';
     this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
@@ -49,7 +47,6 @@ export default class MapController {
   }
 
   getViewFromUrl() {
-    console.log('in get view from url')
     const urlObj = new URL(document.location)
     const hash = urlObj.hash
     if(hash){
@@ -60,7 +57,6 @@ export default class MapController {
   }
 
   async createMap() {
-    console.log('in create map')
     // Define the custom JSON style.
     // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
 
@@ -108,7 +104,6 @@ export default class MapController {
   };
 
   async setup() {
-    console.log('in setup')
     await this.loadImages(this.images);
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
@@ -133,7 +128,6 @@ export default class MapController {
   };
 
   loadImages(imageSrc=[]) {
-    console.log('in load images')
     return new Promise((resolve, reject) => {
       const promiseArray = imageSrc.map(({src, name}) => {
         return new Promise((resolve, reject) => {
@@ -158,7 +152,6 @@ export default class MapController {
   }
 
 	addVectorTileSources(vectorTileSources = []) {
-    console.log('in add vector tile sources')
     let availableLayers = {};
 		// add vector tile sources to map
     vectorTileSources.forEach(source => {
@@ -173,18 +166,15 @@ export default class MapController {
   }
 
   obscureScotland(){
-    console.log('in obscure scotland')
     this.obscure('Scotland_simplified');
   }
 
   addNeighbours(){
-    console.log('in add neighbours')
     this.obscure('UK_neighbours', '#FFFFFF', 0.9);
   }
 
 
   obscure(name, colour = '#FFFFFF', opacity = 0.8){
-    console.log('in obscure')
     this.map.addSource(name, {
       type: 'geojson',
       data: `/static/javascripts/geojsons/${name}.json`,
@@ -206,7 +196,6 @@ export default class MapController {
 
 
   addGeojsonSources(geojsons = []) {
-    console.log('in add geojson sources')
     // add geojsons sources to map
     const addedLayers = [];
     geojsons.forEach(geojson => {
@@ -221,7 +210,6 @@ export default class MapController {
   }
 
   addControls() {
-    console.log('in add controls')
     this.map.addControl(new maplibregl.ScaleControl({
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
@@ -245,14 +233,12 @@ export default class MapController {
   }
 
   overwriteWheelEventsForControls() {
-    console.log('in overwrite wheel events for controls')
     const mapEl = document.getElementById(this.mapId)
     const mapControlsArray = mapEl.querySelectorAll('.maplibregl-control-container')
     mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content']), {passive: false}));
   }
 
   addClickHandlers() {
-    console.log('in add click handlers')
     if(this.layerControlsComponent){
       this.map.on('click', this.clickHandler.bind(this));
     }
@@ -260,7 +246,6 @@ export default class MapController {
 
 
   flyTo(geometry){
-    console.log('in fly to')
     if(geometry.data.type == 'Point'){
       this.map.flyTo({
         center: geometry.data.coordinates,
@@ -282,7 +267,6 @@ export default class MapController {
     sourceLayer='',
     additionalOptions={}
   }){
-    console.log('in add layer')
     const layerName = `${sourceName}-${layerType}`;
     this.map.addLayer({
       id: layerName,
@@ -310,7 +294,6 @@ export default class MapController {
   }
 
   addPolygon(geometry) {
-    console.log('in add polygon')
     this.map.addSource(geometry.name, {
       'type': 'geojson',
       'data': {
@@ -344,7 +327,6 @@ export default class MapController {
   }
 
   moveLayerBehindBuildings(layer, buildingsLayer = 'OS/TopographicArea_1/Building/1_3D') {
-    console.log('in move layer behind buildings')
     try{
       this.map.moveLayer(layer, buildingsLayer);
     } catch (e) {
@@ -353,7 +335,6 @@ export default class MapController {
   }
 
   addPoint(geometry, image=undefined){
-    console.log('in add point')
     this.map.addSource(geometry.name, {
       'type': 'geojson',
       'data': {
@@ -412,7 +393,6 @@ export default class MapController {
   }
 
   addVectorTileSource(source) {
-    console.log('in add vector tile source')
 		// add source
 		this.map.addSource(`${source.name}-source`, {
 			type: 'vector',
@@ -485,7 +465,6 @@ export default class MapController {
   }
 
   clickHandler(e) {
-    console.log('in click handler')
     var map = this.map;
     var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
 
@@ -507,7 +486,6 @@ export default class MapController {
 
   // map.queryRenderedFeatures() can return duplicate features so we need to remove them
   removeDuplicates(features) {
-    console.log('in remove duplicates')
     var uniqueEntities = [];
 
     return features.filter(function (feature) {
@@ -522,7 +500,6 @@ export default class MapController {
   };
 
   createFeaturesPopup(features) {
-    console.log('in create features popup')
     const wrapper = document.createElement('div');
     wrapper.classList.add('app-popup');
     wrapper.onwheel = preventScroll(['.app-popup-list']);
@@ -578,7 +555,6 @@ export default class MapController {
   };
 
   getFillColour(feature) {
-    console.log('in get fill colour')
     if(feature.layer.type === 'symbol')
       return this.map.getLayer(feature.layer.id).getPaintProperty('icon-color');
     else if(feature.layer.type === 'fill')
@@ -592,7 +568,6 @@ export default class MapController {
   };
 
   setLayerVisibility(layerName, visibility) {
-    console.log('in set layer visibility')
     this.map.setLayoutProperty(
       layerName,
       'visibility',
