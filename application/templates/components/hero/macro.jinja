@@ -15,12 +15,7 @@
       },
       'attributes': params.phaseBanner['attributes']
     }) if params.phaseBanner }}
-    {%- from "components/back-button/macro.jinja" import dlBackButton %}
-    {% block breadcrumbs%}
-      {{ dlBackButton({
-        "parentHref": '/'
-      })}}
-    {% endblock %}
+
     {{- caller() if caller -}}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds-from-desktop">
