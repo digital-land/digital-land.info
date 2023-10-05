@@ -54,7 +54,7 @@ def test_acceptance(server_process, page, test_data):
     page.goto(BASE_URL)
 
     page.click("text=Search")
-    assert page.url == f"{BASE_URL}/entity/?entries=current"
+    assert page.url == f"{BASE_URL}/entity"
     assert page.text_content("h1") == "Search for planning and housing data"
     page.goto(BASE_URL)
 
