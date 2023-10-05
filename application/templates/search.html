@@ -6,8 +6,8 @@
 {%- from "govuk_frontend_jinja/components/fieldset/macro.html" import govukFieldset %}
 {%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton %}
 {%- from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
-{%- from "components/map/macro.jinja" import map %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
+{%- from "components/entity-card/macro.jinja" import entityCard %}
 
 {% from 'components/pagination/macro.jinja' import appPagination %}
 
@@ -161,76 +161,7 @@
 
           <ul class="app-results-list">
             {% for row in data %}
-            {%  set e = row.dict(by_alias=True) %}
-            {% set propertiesArr = [
-              { "key": "Dataset", "value": e["dataset"] },
-              { "key": "Reference", "value": e["reference"] },
-            ] %}
-            <li class="app-results-list__item">
-              <article class="app-card app-card--result">
-                <div class="app-card__header">
-                  <div class="app-card__header__primary">
-                    <h3 class="app-card__title">{{ e["name"] }}</h3>
-                  </div>
-                  <div class="app-card__header__secondary">
-                    <p class="govuk-body govuk-hint govuk-!-margin-0">{{ e["typology"] | capitalize }}</p>
-                    <dl class="app-card__datalist">
-                      <div class="app-card__datalist__row">
-                        <dd class="app-card__datalist__value"><a href="{{ e['entity'] }}/" class="govuk-link">{{ e["reference"] }}</a></dd>
-                      </div>
-                    </dl>
-                  </div>
-                </div>
-
-                {# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
-                {% if e["geojson"] and "geometry" in e["geojson"] %}
-                <div class="app-card__media">
-                  {{
-                    map({
-                      "mapId": e["entity"] ~ "-map",
-                      'height': 350,
-                      'enableZoomControls': true,
-                      'geojsons': [row|get_entity_geometry],
-                      'paint_options': row|get_entity_paint_options,
-                    })
-                  }}
-                </div>
-                {% endif %}
-                <div class="app-card__body">
-                  {% if e["description"] %}
-                  <div class="app-card__description">
-                    <p class="govuk-body">{{ e["description"] }}</p>
-                  </div>
-                  {% endif %}
-
-                  <div class="app-card__row">
-                    <div class="app-card__properties">
-                      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-                        {% for property in propertiesArr %}
-                          <div class="govuk-summary-list__row{% if loop.last %} govuk-summary-list__row--no-border{% endif %}">
-                            {% if property.key == "Dataset" %}
-                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                              <dd class="govuk-summary-list__value">
-                              {%  if property.value %}<a class="govuk-link" href="/dataset/{{ property.value }}">{{ property.value|replace("-", " ")|capitalize }}</a> {%  endif %}
-                              </dd>
-                            {% elif property.key == "Reference" %}
-                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                              <dd class="govuk-summary-list__value">
-                              {%  if property.value %}<a class="govuk-link" href="/entity/{{ e["entity"] }}">{{ property.value }}</a> {%  endif %}
-                              </dd>
-                            {% else %}
-                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                              <dd class="govuk-summary-list__value"> {%  if property.value %}{{ property.value }} {%  endif %}</dd>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </article>
-              <!-- /.app-card -->
-            </li>
+              {{ entityCard(row) }}
             {% endfor %}
           </ul>
           <!-- /.app-results-list -->
