@@ -25,6 +25,7 @@ from application.core.utils import (
     entity_attribute_sort_key,
     make_links,
 )
+from application.core.filters import convert_to_current_or_historical
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -98,6 +99,8 @@ def get_entity(
                 )
 
         e_dict = e.dict(by_alias=True, exclude={"geojson"})
+        entry = convert_to_current_or_historical(e_dict.get("end-date"))
+        e_dict["entry"] = entry
         e_dict_sorted = {
             key: e_dict[key]
             for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
