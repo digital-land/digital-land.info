@@ -7,7 +7,7 @@ export class ListFilter{
         lf.init();
         return lf;
       }
-      throw new Error('ListFilter.makeFilterable requires a form element');
+      throw new Error('ListFilter.makeFromForm requires a form element');
     }
 
     constructor($form) {
