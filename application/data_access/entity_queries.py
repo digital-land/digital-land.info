@@ -267,9 +267,13 @@ def _apply_entries_option_filter(query, params):
     if option == EntriesOption.all:
         return query
     if option == EntriesOption.current:
-        return query.filter(EntityOrm.end_date.is_(None))
+        return query.filter(
+            or_(EntityOrm.end_date.is_(None), EntityOrm.end_date > func.now())
+        )
     if option == EntriesOption.historical:
-        return query.filter(EntityOrm.end_date.is_not(None))
+        return query.filter(
+            or_(EntityOrm.end_date.is_not(None), EntityOrm.end_date < func.now())
+        )
 
 
 def _apply_limit_and_pagination_filters(query, params):
