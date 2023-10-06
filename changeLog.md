@@ -14,6 +14,15 @@
 # ChangeLog
 <br>
 
+## 06-10-2023
+### What's new
+- entities filter renamed to period
+- period filter now uses checkboxes
+- period filter clear now works as expected
+- period value (historical/current) now indicated on the entity
+### Why was this change made?
+- To ensure user don't mistake historical entities for current entities
+
 ## 03-10-2023
 ### What's new
 - Fixed the layer controls component for safari, as the checkboxes were not changing state

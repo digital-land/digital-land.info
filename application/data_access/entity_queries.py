@@ -14,7 +14,7 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm, OldEntityOrm
 from application.db.session import get_context_session
-from application.search.enum import GeometryRelation, EntriesOption
+from application.search.enum import GeometryRelation, PeriodOption
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ def get_entity_search(parameters: dict):
         query = _apply_base_filters(query, params)
         query = _apply_date_filters(query, params)
         query = _apply_location_filters(session, query, params)
-        query = _apply_entries_option_filter(query, params)
+        query = _apply_period_option_filter(query, params)
         query = _apply_limit_and_pagination_filters(query, params)
 
         entities = query.all()
@@ -262,14 +262,20 @@ def _apply_location_filters(session, query, params):
     return query
 
 
-def _apply_entries_option_filter(query, params):
-    option = params.get("entries", EntriesOption.all)
-    if option == EntriesOption.all:
+def _apply_period_option_filter(query, params):
+    options = params.get("period", PeriodOption.all)
+    if options == PeriodOption.all or PeriodOption.all in options:
         return query
-    if option == EntriesOption.current:
-        return query.filter(EntityOrm.end_date.is_(None))
-    if option == EntriesOption.historical:
-        return query.filter(EntityOrm.end_date.is_not(None))
+    elif PeriodOption.current in options and PeriodOption.historical in options:
+        return query
+    elif PeriodOption.current in options:
+        return query.filter(
+            or_(EntityOrm.end_date.is_(None), EntityOrm.end_date > func.now())
+        )
+    elif PeriodOption.historical in options:
+        return query.filter(
+            or_(EntityOrm.end_date.is_not(None), EntityOrm.end_date < func.now())
+        )
 
 
 def _apply_limit_and_pagination_filters(query, params):

@@ -2,7 +2,7 @@ import pytest
 
 from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
-from application.search.enum import EntriesOption, GeometryRelation
+from application.search.enum import PeriodOption, GeometryRelation
 
 NUMBER_OF_ENTITIES_IN_TEST_FIXTURE = 10
 
@@ -20,7 +20,7 @@ def raw_params():
         "prefix": None,
         "reference": None,
         "related_entity": None,
-        "entries": EntriesOption.all,
+        "entries": PeriodOption.all,
         "start_date": None,
         "start_date_year": None,
         "start_date_month": None,
@@ -300,7 +300,7 @@ def test_search_entity_by_polygon_with_no_intersection(test_data, params):
 
 
 def test_search_all_entities(test_data, params):
-    # default is EntriesOption.all - already in params
+    # default is PeriodOption.all - already in params
     result = get_entity_search(params)
     assert result["count"] == NUMBER_OF_ENTITIES_IN_TEST_FIXTURE
     for e in result["entities"]:
@@ -317,7 +317,7 @@ def test_search_all_entities(test_data, params):
 
 def test_search_current_entries(test_data, params):
     # entries without an end date
-    params["entries"] = EntriesOption.current
+    params["period"] = [PeriodOption.current]
 
     result = get_entity_search(params)
     assert result["count"] == 9
@@ -334,7 +334,7 @@ def test_search_current_entries(test_data, params):
 
 def test_search_historical_entries(test_data, params):
     # entries with an end date
-    params["entries"] = EntriesOption.historical
+    params["period"] = [PeriodOption.historical]
 
     result = get_entity_search(params)
     assert 1 == result["count"]

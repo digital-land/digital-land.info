@@ -72,7 +72,7 @@ def test_accessibility_of_dataset_page(server_process):
 
 
 def test_accessibility_of_the_search_page(server_process):
-    accessibility_test(BASE_URL + "/entity/?entries=current")
+    accessibility_test(BASE_URL + "/entity")
 
 
 def test_accessibility_of_the_entity_page(server_process):
