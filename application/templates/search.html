@@ -121,18 +121,20 @@
               {% endif %}
             </div>
             {% endif %}
-            {% if query.params and query.params.get('entries') %}
+            {% if query.params and query.params.get('period') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Entries:</span>
-              <span class="app-applied-filter__item">
-                {{ removeFilterButton({
-                  "filter": {
-                    "name": "entries",
-                    "value": query.params.get('entries')|replace('EntriesOption.', '')
-                  },
-                  "url": "#"
-                }) }}
-              </span>
+              <span class="app-applied-filter__name govuk-!-font-weight-bold">Period:</span>
+              {% for filter in query.params.get('period') %}
+                <span class="app-applied-filter__item">
+                  {{ removeFilterButton({
+                    "filter": {
+                      "name": "period",
+                      "value": filter|replace('EntriesOption.', '')
+                    },
+                    "url": "?" + filter|make_param_str("period", url_query_params.list)
+                  }) }}
+                </span>
+              {% endfor %}
             </div>
             {% endif %}
 

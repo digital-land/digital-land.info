@@ -99,8 +99,8 @@ def get_entity(
                 )
 
         e_dict = e.dict(by_alias=True, exclude={"geojson"})
-        entry = convert_to_current_or_historical(e_dict.get("end-date"))
-        e_dict["entry"] = entry
+        period = convert_to_current_or_historical(e_dict.get("end-date"))
+        e_dict["period"] = period
         e_dict_sorted = {
             key: e_dict[key]
             for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
