@@ -129,7 +129,7 @@
                   {{ removeFilterButton({
                     "filter": {
                       "name": "period",
-                      "value": filter|replace('EntriesOption.', '')
+                      "value": filter|replace('PeriodOption.', '')
                     },
                     "url": "?" + filter|make_param_str("period", url_query_params.list)
                   }) }}
