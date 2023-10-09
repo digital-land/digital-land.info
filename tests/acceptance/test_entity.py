@@ -1,15 +1,8 @@
-import pytest
-
-import time
 import re
 
-import uvicorn
-
-from multiprocessing.context import Process
-
-from application.app import create_app  # noqa: E402
-
 from tests.utils.database import add_entities_to_database
+
+ENTITY_ROUTE = "/entity/"
 
 # define some test data
 mockEntities = [
@@ -60,29 +53,9 @@ mockEntities = [
     },
 ]
 
-app = create_app()
-
-HOST = "0.0.0.0"
-PORT = 9000
-ENTITY_ROUTE = "/entity/"
-BASE_URL = f"http://{HOST}:{PORT}"
-
-
-def run_server():
-    uvicorn.run(app, host=HOST, port=PORT)
-
-
-@pytest.fixture(scope="session")
-def server_process():
-    proc = Process(target=run_server, args=(), daemon=True)
-    proc.start()
-    time.sleep(10)
-    yield proc
-    proc.kill()
-
 
 def test_correctly_loads_the_entity_root(
-    server_process, page, add_base_entities_to_database_yield_reset
+    server_process, page, BASE_URL, add_base_entities_to_database_yield_reset
 ):
     page.goto(BASE_URL + ENTITY_ROUTE)
     assert page.title() == "Search for planning data"
@@ -93,7 +66,9 @@ def test_correctly_loads_the_entity_root(
     assert page.evaluate("Object.keys(window.mapControllers).length") > 0
 
 
-async def test_find_an_entity_via_the_search_page(server_process, page, empty_database):
+async def test_find_an_entity_via_the_search_page(
+    server_process, BASE_URL, page, empty_database
+):
     add_entities_to_database(mockEntities)
 
     page.goto(BASE_URL)
@@ -202,7 +177,7 @@ async def test_find_an_entity_via_the_search_page(server_process, page, empty_da
 
 # This test is currently failing on the pipeline due to line 51 timing out
 # ========================================================================
-# def test_correctly_loads_an_entity_page(server_process, page):
+# def test_correctly_loads_an_entity_page(server_process, BASE_URL, page):
 #     page.goto(BASE_URL + ENTITY_ROUTE + "1")
 
 #     # check if the leafletjs script has been loaded
