@@ -1,3 +1,13 @@
+def test_map_page_loads_ok(server_process, BASE_URL, page):
+    response = page.goto(BASE_URL + "/map/")
+    assert response.ok
+    heading = page.get_by_role(
+        "heading",
+        name="Map of planning data for England",
+    )
+    assert heading.is_visible()
+
+
 def wait_for_map_layer(page, layer, attempts=10, check_interval=10):
     for i in range(attempts):
         isHidden = page.evaluate(
