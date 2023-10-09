@@ -1,4 +1,4 @@
-def test_homepage(server_process, BASE_URL, page):
+def test_homepage_loads_ok(server_process, BASE_URL, page):
     response = page.goto(BASE_URL)
     assert response.ok
     heading = page.get_by_role(
