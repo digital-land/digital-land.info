@@ -43,7 +43,7 @@ def get_entity_query(
 
 
 def get_entity_count(dataset: Optional[str] = None):
-    sql = select(EntityOrm.dataset, func.count(func.distinct(EntityOrm.entity)))
+    sql = select(EntityOrm.dataset, func.count(EntityOrm.entity))
     sql = sql.group_by(EntityOrm.dataset)
     if dataset is not None:
         sql = sql.filter(EntityOrm.dataset == dataset)
