@@ -17,8 +17,9 @@
 ## 10-10-2023
 ### What's new
 - Added an acceptance test that tests navigation to a dataset page
+- Added an acceptance test that tests loading the swagger editor with the correct openAPI json
 ### Why was this change made?
-- because this user journey was documented as part of a recent group session we did
+- because these user journeys were documented as part of a recent group session we did
 
 ## 09-10-2023
 ### What's new
