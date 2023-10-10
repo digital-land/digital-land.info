@@ -37,6 +37,7 @@ postgresql::
 	sudo service postgresql start
 
 insertBaseData::
+	python -c 'from tests.utils.database import reset_database; reset_database()'
 	python -c 'from tests.utils.database import *; add_base_entities_to_database(); add_base_datasets_to_database(); add_base_typology_to_database()'
 
 emptyDatabase::
