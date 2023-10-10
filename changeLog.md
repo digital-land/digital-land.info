@@ -20,7 +20,10 @@
 - Added an acceptance test that tests loading the swagger editor with the correct openAPI json
 ### Why was this change made?
 - because these user journeys were documented as part of a recent group session we did
+<<<<<<< HEAD
 
+=======
+>>>>>>> 461ef27 (updated changelog)
 
 ## 09-10-2023
 ### What's new
