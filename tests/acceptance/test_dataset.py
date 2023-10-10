@@ -45,6 +45,22 @@ def test_download_data_for_dataset(
     assert ".geojson" in geojson_href
 
 
+def test_navigate_to_a_dataset_specification(
+    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset
+):
+    page.goto(BASE_URL)
+    page.get_by_role("link", name="Datasets", exact=True).click()
+    page.get_by_role("link", name="Geography").click()
+    with page.expect_navigation() as response:
+        page.get_by_role("link", name="Brownfield site").click()
+    assert response.value.ok
+    heading = page.get_by_role(
+        "heading",
+        name="Brownfield site",
+    )
+    assert heading.is_visible()
+
+
 def test_give_feedback_on_a_dataset(
     server_process, BASE_URL, page, add_base_entities_to_database_yield_reset
 ):
