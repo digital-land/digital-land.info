@@ -1,4 +1,4 @@
-def test_roadmap_loads_ok(
+def test_dataset_page_loads_ok(
     server_process, BASE_URL, page, add_base_entities_to_database_yield_reset
 ):
     response = page.goto(BASE_URL + "/dataset/brownfield-site")

@@ -21,6 +21,7 @@
 ### Why was this change made?
 - because these user journeys were documented as part of a recent group session we did
 
+
 ## 09-10-2023
 ### What's new
 - Added tests to ensure each and every page request returns a successful response
