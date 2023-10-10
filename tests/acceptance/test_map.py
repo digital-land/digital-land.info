@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_map_page_loads_ok(server_process, BASE_URL, page):
     response = page.goto(BASE_URL + "/map/")
     assert response.ok
@@ -22,7 +19,6 @@ def wait_for_map_layer(page, layer, attempts=10, check_interval=10):
     assert False, f"Layer {layer} did not appear on the map"
 
 
-@pytest.mark.parametrize("execution_number", range(20))
 def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     server_process,
     page,
@@ -30,7 +26,6 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     skip_if_not_supportsGL,
     test_settings,
     BASE_URL,
-    execution_number,
 ):
     # as the map xy coords are dependent on the viewport size, we need to set it to make sure the tests are consistent
     page.set_viewport_size({"width": 800, "height": 600})
@@ -38,7 +33,7 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     page.goto(
         BASE_URL + "/map/#50.88865897214836,-2.260771340418273,11.711391365982688z"
     )
-    page.wait_for_timeout(1000)
+    page.wait_for_timeout(1000)  # need to wait to give the map code time to execute
     page.get_by_label("Conservation area").check()
     wait_for_map_layer(page, "conservation-area-source-fill-extrusion")
 
