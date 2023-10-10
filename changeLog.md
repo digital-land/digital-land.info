@@ -14,6 +14,12 @@
 # ChangeLog
 <br>
 
+## 10-10-2023
+### What's new
+- Added an acceptance test that tests navigation to a dataset page
+### Why was this change made?
+- because this user journey was documented as part of a recent group session we did
+
 ## 09-10-2023
 ### What's new
 - Added tests to ensure each and every page request returns a successful response
@@ -274,4 +280,13 @@
 - Added a template for the change log
 ### Why was this change made?
 - To keep track of changes made to the project
+***
+
+<br />
+
+## 10-10-2023
+### What's new
+- Optimized the queries in get_entity_count and get_entity_search
+### Why was this change made?
+- The production database was using too much local storage performing some of the most common queries.
 ***
