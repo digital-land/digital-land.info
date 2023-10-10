@@ -38,6 +38,7 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     page.goto(
         BASE_URL + "/map/#50.88865897214836,-2.260771340418273,11.711391365982688z"
     )
+    page.wait_for_timeout(1000)
     page.get_by_label("Conservation area").check()
     wait_for_map_layer(page, "conservation-area-source-fill-extrusion")
 
