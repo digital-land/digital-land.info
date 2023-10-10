@@ -14,6 +14,13 @@
 # ChangeLog
 <br>
 
+## 09-10-2023
+### What's new
+- Added tests to ensure each and every page request returns a successful response
+- Refactored the tests to remove duplicate code
+### Why was this change made?
+- To ensure we don't introduce any broken pages to the live site
+
 ## 06-10-2023
 ### What's new
 - entities filter renamed to period

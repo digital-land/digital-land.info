@@ -1,40 +1,11 @@
-import time
-
-import pytest
-import uvicorn
-
-from multiprocessing.context import Process
-from application.settings import get_settings
-
-settings = get_settings()
-
-settings.READ_DATABASE_URL = (
-    "postgresql://postgres:postgres@localhost/digital_land_test"
-)
-settings.WRITE_DATABASE_URL = (
-    "postgresql://postgres:postgres@localhost/digital_land_test"
-)
-
-from application.app import create_app  # noqa: E402
-
-app = create_app()
-
-HOST = "0.0.0.0"
-PORT = 9000
-BASE_URL = f"http://{HOST}:{PORT}"
-
-
-def run_server():
-    uvicorn.run(app, host=HOST, port=PORT)
-
-
-@pytest.fixture(scope="session")
-def server_process():
-    proc = Process(target=run_server, args=(), daemon=True)
-    proc.start()
-    time.sleep(10)
-    yield proc
-    proc.kill()
+def test_map_page_loads_ok(server_process, BASE_URL, page):
+    response = page.goto(BASE_URL + "/map/")
+    assert response.ok
+    heading = page.get_by_role(
+        "heading",
+        name="Map of planning data for England",
+    )
+    assert heading.is_visible()
 
 
 def wait_for_map_layer(page, layer, attempts=10, check_interval=10):
@@ -54,6 +25,8 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     context,
     add_base_entities_to_database_yield_reset,
     skip_if_not_supportsGL,
+    test_settings,
+    BASE_URL,
 ):
     # as the map xy coords are dependent on the viewport size, we need to set it to make sure the tests are consistent
     page.set_viewport_size({"width": 800, "height": 600})

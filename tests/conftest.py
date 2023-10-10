@@ -10,6 +10,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
+from application.app import create_app  # noqa: E402
+from multiprocessing.context import Process
+import uvicorn
+import time
+
 from application.db.models import (
     DatasetOrm,
     EntityOrm,
@@ -214,3 +219,27 @@ def skip_if_not_supportsGL(page):
     )
     if not supportsGL:
         pytest.skip("Test requires WebGL support")
+
+
+appInstance = create_app()
+
+HOST = "0.0.0.0"
+PORT = 9000
+
+
+def run_server():
+    uvicorn.run(appInstance, host=HOST, port=PORT)
+
+
+@pytest.fixture(scope="session")
+def server_process():
+    proc = Process(target=run_server, args=(), daemon=True)
+    proc.start()
+    time.sleep(10)
+    yield proc
+    proc.kill()
+
+
+@pytest.fixture(scope="session")
+def BASE_URL():
+    return f"http://{HOST}:{PORT}"
