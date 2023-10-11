@@ -286,3 +286,12 @@
 ### Why was this change made?
 - To keep track of changes made to the project
 ***
+
+<br />
+
+## 10-10-2023
+### What's new
+- Optimized the queries in get_entity_count and get_entity_search
+### Why was this change made?
+- The production database was using too much local storage performing some of the most common queries.
+***
