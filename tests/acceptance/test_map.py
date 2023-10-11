@@ -22,9 +22,8 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     BASE_URL,
 ):
     # as the map xy coords are dependent on the viewport size, we need to set it to make sure the tests are consistent
-    page.set_viewport_size({"width": 800, "height": 600})
     mapPage = MapPOM(page, BASE_URL)
-    mapPage.navigate("map/#50.88865897214836,-2.260771340418273,11.711391365982688z")
+    mapPage.navigate("#50.88865897214836,-2.260771340418273,11.711391365982688z")
     mapPage.check_layer_checkbox("Conservation area")
     mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
 
@@ -60,6 +59,6 @@ def test_using_the_map_to_find_an_entity(
 
     ReferenceHeading = page.get_by_role(
         "heading",
-        name="1",
+        name="Historic England",
     )
     assert ReferenceHeading.is_visible()
