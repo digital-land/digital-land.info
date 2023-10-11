@@ -1,4 +1,4 @@
-timeout = 4000
+timeout = 1000
 
 
 class MapPOM:
