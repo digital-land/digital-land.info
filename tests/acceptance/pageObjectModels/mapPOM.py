@@ -65,4 +65,6 @@ class MapPOM:
             if isHidden is False:
                 return True
             self.page.wait_for_timeout(check_interval)
-        assert False, "Popup did not appear on the map"
+        zoom = self.page.evaluate("() => mapControllers.map.map.getZoom()")
+        center = self.page.evaluate("() => mapControllers.map.map.getCenter()")
+        assert False, f"Popup did not appear on the map as {center} at zoom {zoom}"
