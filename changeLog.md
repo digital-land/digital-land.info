@@ -14,6 +14,17 @@
 # ChangeLog
 <br>
 
+## 11-10-2023
+### What's new
+- Added an acceptance test that tests that navigates to an entity page via the map
+### Why was this change made?
+- because this user journey was documented as part of a recent group session we did
+### Additional changes
+- Improved map page testing code by adding a Map page object model
+- Added an additional entity to the test data, and fixed tests to account for this
+- Fixed some accessibility issues with the entity page
+- Period selected value not based of how many checkboxes checked instead of hardcoded to be 1
+
 ## 10-10-2023
 ### What's new
 - Added an acceptance test that tests navigation to a dataset page
