@@ -1,4 +1,4 @@
-timeout = 1000
+pauseDuration = 10000
 
 
 class MapPOM:
@@ -9,14 +9,14 @@ class MapPOM:
     def navigate(self, urlParam=""):
         response = self.page.goto(self.base_url + "/map/" + urlParam)
         self.page.wait_for_timeout(
-            timeout
+            pauseDuration
         )  # wait for some time to make sure the map code has loaded
         return response
 
     def check_layer_checkbox(self, layerName):
         self.page.get_by_label(layerName).check()
         self.page.wait_for_timeout(
-            timeout
+            pauseDuration
         )  # wait for some time to make sure the data loads
 
     def wait_for_map_layer(self, layer, attempts=10, check_interval=10):
@@ -55,4 +55,4 @@ class MapPOM:
         self.page.get_by_label("Map").click(
             position={"x": mapWidth / 2, "y": mapHeight / 2}
         )
-        self.page.wait_for_timeout(timeout)  # wait for potential popup
+        self.page.wait_for_timeout(pauseDuration)  # wait for potential popup
