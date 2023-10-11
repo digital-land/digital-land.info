@@ -68,3 +68,15 @@ class MapPOM:
         zoom = self.page.evaluate("() => mapControllers.map.map.getZoom()")
         center = self.page.evaluate("() => mapControllers.map.map.getCenter()")
         assert False, f"Popup did not appear on the map as {center} at zoom {zoom}"
+
+    def wait_for_layer_controls_to_load(self, attempts=10, check_interval=500):
+        for i in range(attempts):
+            isHidden = (
+                self.page.get_by_test_id("map")
+                .locator("button.dl-map__close-btn")
+                .is_hidden()
+            )
+            if isHidden is False:
+                return True
+            self.page.wait_for_timeout(check_interval)
+        assert False, "layer controls did not load"

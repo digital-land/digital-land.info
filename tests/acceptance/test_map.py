@@ -43,6 +43,8 @@ def test_using_the_map_to_find_an_entity(
 
     mapPage = MapPOM(page, BASE_URL)
 
+    mapPage.wait_for_layer_controls_to_load()
+
     mapPage.check_layer_checkbox("Conservation area")
     mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
 
