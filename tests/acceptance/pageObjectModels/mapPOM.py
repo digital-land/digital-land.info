@@ -1,4 +1,4 @@
-pauseDuration = 10000
+pauseDuration = 1000
 
 
 class MapPOM:
@@ -18,16 +18,6 @@ class MapPOM:
         self.page.wait_for_timeout(
             pauseDuration
         )  # wait for some time to make sure the data loads
-
-    def wait_for_map_layer(self, layer, attempts=10, check_interval=10):
-        for i in range(attempts):
-            isHidden = self.page.evaluate(
-                f'() => mapControllers.map.map.getLayer("{layer}").isHidden()'
-            )
-            if isHidden is False:
-                return True
-            self.page.wait_for_timeout(check_interval)
-        assert False, f"Layer {layer} did not appear on the map"
 
     def zoom_map(self, zoomLevel):
         result = self.page.evaluate(
@@ -56,3 +46,23 @@ class MapPOM:
             position={"x": mapWidth / 2, "y": mapHeight / 2}
         )
         self.page.wait_for_timeout(pauseDuration)  # wait for potential popup
+
+    def wait_for_map_layer(self, layer, attempts=10, check_interval=10):
+        for i in range(attempts):
+            isHidden = self.page.evaluate(
+                f'() => mapControllers.map.map.getLayer("{layer}").isHidden()'
+            )
+            if isHidden is False:
+                return True
+            self.page.wait_for_timeout(check_interval)
+        assert False, f"Layer {layer} did not appear on the map"
+
+    def wait_for_popup(self, attempts=10, check_interval=100):
+        for i in range(attempts):
+            isHidden = (
+                self.page.get_by_test_id("map").locator("div.app-popup").is_hidden()
+            )
+            if isHidden is False:
+                return True
+            self.page.wait_for_timeout(check_interval)
+        assert False, "Popup did not appear on the map"

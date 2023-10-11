@@ -50,6 +50,8 @@ def test_using_the_map_to_find_an_entity(
     mapPage.centre_map_over(-2.2294632745091576, 50.88634078931207)
     mapPage.click_map_centre()
 
+    mapPage.wait_for_popup()
+
     with page.expect_navigation() as navigation_info:
         page.get_by_role("link", name="1").click()
 
