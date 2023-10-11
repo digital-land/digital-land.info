@@ -55,6 +55,8 @@ def test_using_the_map_to_find_an_entity(
 
     mapPage.click_map_centre()
 
+    page.screenshot(path="playwright-report/map.png")
+
     mapPage.wait_for_popup()
 
     with page.expect_navigation() as navigation_info:
