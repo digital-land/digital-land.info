@@ -39,6 +39,8 @@ def test_using_the_map_to_find_an_entity(
     page.goto(BASE_URL)
     page.get_by_role("link", name="Map", exact=True).click()
 
+    page.wait_for_timeout(1000)
+
     mapPage = MapPOM(page, BASE_URL)
 
     mapPage.check_layer_checkbox("Conservation area")
