@@ -45,11 +45,14 @@ def test_using_the_map_to_find_an_entity(
 
     mapPage.wait_for_layer_controls_to_load()
 
+    mapPage.zoom_map(12)
+    mapPage.centre_map_over(-2.2294632745091576, 50.88634078931207)
+
     mapPage.check_layer_checkbox("Conservation area")
     mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
 
-    mapPage.zoom_map(12)
-    mapPage.centre_map_over(-2.2294632745091576, 50.88634078931207)
+    page.wait_for_timeout(5000)
+
     mapPage.click_map_centre()
 
     mapPage.wait_for_popup()
