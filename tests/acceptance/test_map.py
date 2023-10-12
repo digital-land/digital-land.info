@@ -1,5 +1,6 @@
 from tests.acceptance.pageObjectModels.mapPOM import MapPOM
 import time
+import os
 
 
 def test_map_page_loads_ok(server_process, BASE_URL, page):
@@ -30,6 +31,8 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
 
 
 def forwardLog(content, filename="playwright-report/log.txt"):
+    if not os.path.exists("playwright-report"):
+        os.makedirs("playwright-report")
     with open(filename, "a+") as f:
         current_time = time.strftime("%H:%M:%S", time.localtime())
         f.write(current_time + ": " + content + "\n")
