@@ -1,4 +1,5 @@
 from tests.acceptance.pageObjectModels.mapPOM import MapPOM
+import time
 
 
 def test_map_page_loads_ok(server_process, BASE_URL, page):
@@ -28,6 +29,12 @@ def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
 
 
+def forwardLog(content, filename="playwright-report/log.txt"):
+    with open(filename, "a") as f:
+        current_time = time.strftime("%H:%M:%S", time.localtime())
+        f.write(current_time + ": " + content + "\n")
+
+
 def test_using_the_map_to_find_an_entity(
     server_process,
     page,
@@ -36,6 +43,9 @@ def test_using_the_map_to_find_an_entity(
     test_settings,
     BASE_URL,
 ):
+
+    page.on("console", lambda msg: forwardLog(msg.text))
+
     page.goto(BASE_URL)
     page.get_by_role("link", name="Map", exact=True).click()
 
