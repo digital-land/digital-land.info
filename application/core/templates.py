@@ -24,7 +24,6 @@ from application.core.filters import (
     commanum_filter,
     get_entity_geometry,
     get_entity_paint_options,
-    convert_to_current_or_historical,
     get_os_oauth2_token,
 )
 
@@ -82,9 +81,5 @@ templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key
 templates.env.filters["get_entity_geometry"] = get_entity_geometry
 templates.env.filters["get_entity_paint_options"] = get_entity_paint_options
-templates.env.filters[
-    "convert_to_current_or_historical"
-] = convert_to_current_or_historical
-
 
 templates.env.add_extension("jinja2.ext.do")
