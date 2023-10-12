@@ -8,7 +8,9 @@ def test_organisation_page_loads_ok(server_process, BASE_URL, page):
     assert heading.is_visible()
 
 
-def test_navigate_to_organisation_from_entity(server_process, BASE_URL, page):
+def test_navigate_to_organisation_from_entity(
+    server_process, add_base_entities_to_database_yield_reset, BASE_URL, page
+):
     page.goto(BASE_URL)
     page.click("text=Search")
 
