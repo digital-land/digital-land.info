@@ -81,6 +81,13 @@ jobs:
           echo "## Accessibility Tests" >> $GITHUB_STEP_SUMMARY
           cat accessibility-tests.md >> $GITHUB_STEP_SUMMARY
 
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
   detect-environments:
     runs-on: ubuntu-latest
     needs: [test, lint]
