@@ -12,7 +12,7 @@ def test_navigate_to_organisation_from_entity(server_process, BASE_URL, page):
     page.goto(BASE_URL)
     page.click("text=Search")
 
-    page.screenshot("playwright-report/test_navigate_to_organisation_from_entity_1.png")
+    page.screenshot(path="playwright-report/test_map_page_loads_ok/map.png")
 
     page.get_by_role("link", name="DAC").first.click()
 
