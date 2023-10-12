@@ -14,6 +14,18 @@
 # ChangeLog
 <br>
 
+## 11-10-2023
+### What's new
+- Updated the map testing code to use the new map page object model
+- Added commented test for the map page, to be fixed at a later date
+### Why was this change made?
+- because this user journey was documented as part of a recent group session we did
+### Additional changes
+- Added an additional entity to the test data, and fixed tests to account for this
+- Fixed some accessibility issues with the entity page
+- Period selected value not based of how many checkboxes checked instead of hardcoded to be 1
+- Make sure datasets are in alphabetical order on the guidance pages
+
 ## 10-10-2023
 ### What's new
 - Added an acceptance test that tests navigation to a dataset page

@@ -1,4 +1,9 @@
+from tests.acceptance.pageObjectModels.mapPOM import MapPOM
+
+
 def test_map_page_loads_ok(server_process, BASE_URL, page):
+    mapPage = MapPOM(page, BASE_URL)
+    mapPage.navigate()
     response = page.goto(BASE_URL + "/map/")
     assert response.ok
     heading = page.get_by_role(
@@ -6,33 +11,79 @@ def test_map_page_loads_ok(server_process, BASE_URL, page):
         name="Map of planning data for England",
     )
     assert heading.is_visible()
-
-
-def wait_for_map_layer(page, layer, attempts=10, check_interval=10):
-    for i in range(attempts):
-        isHidden = page.evaluate(
-            f'() => mapControllers.map.map.getLayer("{layer}").isHidden()'
-        )
-        if isHidden is False:
-            return True
-        page.wait_for_timeout(check_interval)
-    assert False, f"Layer {layer} did not appear on the map"
+    page.screenshot(path="playwright-report/test_map_page_loads_ok/map.png")
 
 
 def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     server_process,
     page,
-    context,
     add_base_entities_to_database_yield_reset,
     skip_if_not_supportsGL,
     test_settings,
     BASE_URL,
 ):
     # as the map xy coords are dependent on the viewport size, we need to set it to make sure the tests are consistent
-    page.set_viewport_size({"width": 800, "height": 600})
+    mapPage = MapPOM(page, BASE_URL)
+    mapPage.navigate("#50.88865897214836,-2.260771340418273,11.711391365982688z")
+    mapPage.check_layer_checkbox("Conservation area")
+    mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
 
-    page.goto(
-        BASE_URL + "/map/#50.88865897214836,-2.260771340418273,11.711391365982688z"
-    )
-    page.get_by_label("Conservation area").check()
-    wait_for_map_layer(page, "conservation-area-source-fill-extrusion")
+
+# the map doesn't seem to be properly loading on the cicd. so for now I'm going to put this test on hold
+
+# def forwardLog(content, filename="playwright-report/log.txt"):
+#     if not os.path.exists("playwright-report"):
+#         os.makedirs("playwright-report")
+#     with open(filename, "a+") as f:
+#         current_time = time.strftime("%H:%M:%S", time.localtime())
+#         f.write(current_time + ": " + content + "\n")
+
+
+# def test_using_the_map_to_find_an_entity(
+#     server_process,
+#     page,
+#     add_base_entities_to_database_yield_reset,
+#     skip_if_not_supportsGL,
+#     test_settings,
+#     BASE_URL,
+# ):
+
+#     page.on("console", lambda msg: forwardLog(msg.text))
+
+#     page.goto(BASE_URL)
+#     page.get_by_role("link", name="Map", exact=True).click()
+
+#     page.wait_for_timeout(1000)
+
+#     mapPage = MapPOM(page, BASE_URL)
+
+#     mapPage.wait_for_layer_controls_to_load()
+
+#     mapPage.zoom_map(12)
+#     mapPage.centre_map_over(-2.2294632745091576, 50.88634078931207)
+
+#     mapPage.check_layer_checkbox("Conservation area")
+#     mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
+
+#     page.wait_for_timeout(5000)
+
+#     mapPage.click_map_centre()
+
+#     page.screenshot(path="playwright-report/map.png")
+
+#     mapPage.wait_for_popup()
+
+#     with page.expect_navigation() as navigation_info:
+#         page.get_by_role("link", name="1").click()
+
+#     assert navigation_info.value.ok
+#     assert page.url == BASE_URL + "/entity/44002322"
+
+#     datasetHeading = page.locator("span").filter(has_text="Conservation area")
+#     assert datasetHeading.is_visible()
+
+#     ReferenceHeading = page.get_by_role(
+#         "heading",
+#         name="Historic England",
+#     )
+#     assert ReferenceHeading.is_visible()

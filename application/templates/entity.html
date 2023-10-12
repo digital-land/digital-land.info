@@ -88,10 +88,10 @@
       {% endcall %}
 
       {% set jsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow">{{row|digital_land_to_json}}</code></pre>
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{row|digital_land_to_json}}</code></pre>
       {% endset %}
       {% set geojsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow">{{geojson|digital_land_to_json}}</code></pre>
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{geojson|digital_land_to_json}}</code></pre>
       {% endset %}
 
       {% if geojson %}
