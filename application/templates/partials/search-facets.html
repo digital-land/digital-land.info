@@ -100,7 +100,7 @@
     {% call dlFilterGroup({
       "title": "Period",
       "is_open": False,
-      "selected": 1
+      "selected": query.params.get('period')|length if query.params.get('period') else 0
     }) %}
       {{ dlFilterCheckboxes({
         "uniqueID": random_int(5),
