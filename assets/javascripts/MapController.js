@@ -104,6 +104,9 @@ export default class MapController {
   };
 
   async setup() {
+
+    this.map.getCanvas().ariaLabel = `${this.mapId}`;
+
     await this.loadImages(this.images);
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
