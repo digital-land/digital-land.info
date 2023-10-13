@@ -4,11 +4,12 @@ from playwright.sync_api import sync_playwright
 axe = Axe()
 
 
-def accessibility_test(pageUrl):
+def accessibility_test(pageUrl, pauseForScriptsTime=0):
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         page = browser.new_page()
         page.goto(pageUrl)
+        page.wait_for_timeout(pauseForScriptsTime)
         results = axe.run(page)
         browser.close()
 
@@ -35,7 +36,7 @@ def test_accessibility_of_dataset_page(server_process, BASE_URL):
 
 
 def test_accessibility_of_the_search_page(server_process, BASE_URL):
-    accessibility_test(BASE_URL + "/entity")
+    accessibility_test(BASE_URL + "/entity", 1000)
 
 
 def test_accessibility_of_the_entity_page(server_process, BASE_URL):

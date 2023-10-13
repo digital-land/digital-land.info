@@ -1,4 +1,3 @@
-import datetime
 from application.data_access.entity_queries import get_entity_query
 from application.data_access.digital_land_queries import get_dataset_query
 from application.core.utils import NoneToEmptyStringEncoder
@@ -281,13 +280,6 @@ def get_entity_paint_options(entity):
     dataset = get_dataset_query(entity.dataset)
     if dataset:
         return dataset.paint_options
-
-
-def convert_to_current_or_historical(date):
-    if date is None or date > datetime.date.today():
-        return "Current"
-    else:
-        return "Historical"
 
 
 def commanum_filter(v):

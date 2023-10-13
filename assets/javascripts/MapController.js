@@ -95,6 +95,7 @@ export default class MapController {
       }
     });
 
+    map.getCanvas().ariaLabel = `${this.mapId}`;
     this.map = map;
 
     // once the maplibre map has loaded call the setup function
@@ -104,6 +105,7 @@ export default class MapController {
   };
 
   async setup() {
+
     await this.loadImages(this.images);
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
