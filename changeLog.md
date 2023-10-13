@@ -14,6 +14,12 @@
 # ChangeLog
 <br>
 
+## 12-10-2023
+### What's new
+- Added acceptance test for navigating to the organisations page from the entity page
+### Why was this change made?
+- because this user journey was documented as part of a recent group session we did
+
 ## 11-10-2023
 ### What's new
 - Updated the map testing code to use the new map page object model
