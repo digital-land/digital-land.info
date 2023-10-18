@@ -97,7 +97,7 @@
           import {ListFilter} from "{{ assetPath | default('/assets') }}/javascripts/ListFilter.js";
           var $formToFilterList = document.querySelector('[data-module="dl-list-filter-form"]');
           if($formToFilterList){
-            ListFilter.makeFromForm($formToFilterList)
+            new ListFilter($formToFilterList);
           }
         </script>
     {% endblock govScripts %}

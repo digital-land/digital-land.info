@@ -1,19 +1,14 @@
 import { convertNodeListToArray } from './utils.js';
 
 export class ListFilter{
-    static makeFromForm($form){
-      if($form){
-        const lf = new ListFilter($form);
-        lf.init();
-        return lf;
-      }
-      throw new Error('ListFilter.makeFromForm requires a form element');
-    }
-
     constructor($form) {
+        if(!$form){
+          throw new Error('ListFilter requires a form element');
+        }
         this.$form = $form;
         this.filterTimeout = null;
         this.$noMatches = document.querySelector('.dl-list-filter__no-filter-match');
+        this.init();
     }
 
     init(params){
