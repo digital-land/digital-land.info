@@ -138,7 +138,7 @@ Example: `A4D1`
 
 ### permitted-development-rights
 
-A list of the permitted development rights for this area.
+A list of the permitted development rights removed by the article 4 direction.
 
 Separate the rights in the list using semicolons.
 
