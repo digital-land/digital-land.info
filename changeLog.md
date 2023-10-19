@@ -7,7 +7,7 @@
     - ...
     ### Why was this change made?
     - [explanation]
-    ***
+
     <br />
 -->
 
@@ -43,6 +43,12 @@
 - Fixed some accessibility issues with the entity page
 - Period selected value not based of how many checkboxes checked instead of hardcoded to be 1
 - Make sure datasets are in alphabetical order on the guidance pages
+
+## 10-10-2023
+### What's new
+- Optimized the queries in get_entity_count and get_entity_search
+### Why was this change made?
+- The production database was using too much local storage performing some of the most common queries.
 
 ## 10-10-2023
 ### What's new
@@ -138,7 +144,6 @@
 - The cursor pointer makes it more obvious that the feature is clickable
 - To avoid people thinking that our data is owned by OS
 - To make it easier to share a specific location on the map
-***
 <br />
 
 ## 13-09-2023
@@ -148,7 +153,6 @@
 - the back button now correctly maintains the previous page state on the edge browser
 ### Why was this change made?
 - Samantha requested that the back button should simulate the window history back
-***
 <br />
 
 ## 13-09-2023
@@ -157,13 +161,11 @@
 ### Why was this change made?
 - The previous layer controls wouldn't correctly appear in when the map was full screened
 - this resolves tech debt surrounding this component
-***
 <br />
 
 ## 11-09-2023
 ### What's new
 - fix the location search bar on the search page
-***
 <br />
 
 ## 07-09-2023
@@ -171,7 +173,6 @@
 - map popups now dont have a scroll event listener
 ### Why was this change made?
 - previously, the scroll event listener would cause the page to scroll when zooming on the popup
-***
 <br />
 
 ## 07-09-2023
@@ -179,7 +180,6 @@
 - phase banner now has appropriate margin on the map page.
 ### Why was this change made?
 - previously the phase banner looked out of place on the map page
-***
 <br />
 
 ## 07-09-2023
@@ -189,7 +189,6 @@
 ### Why was this change made?
 - showing historical entities from the start is confusing
 - unnecessary to show typologies that have no entities
-***
 <br />
 
 ## 06-09-2023
@@ -197,7 +196,6 @@
 - hide cookie banner if js is disabled
 ### Why was this change made?
 - we can't store cookies without js, so no need to show this
-***
 <br />
 
 ## 06-09-2023
@@ -209,7 +207,6 @@
 - maptiler would eventually revoke our key again, os maps is free for us to use
 - we want to try and keep our os map key and secret secure so oauth2 helps us protect this
 - 3D polygons look better than 2D polygons
-***
 <br />
 
 
@@ -218,7 +215,6 @@
 - Fix the search bar on the datasets filters
 ### Why was this change made?
 - To make the search bar work as intended
-***
 <br />
 
 ## 31-08-2023
@@ -228,7 +224,6 @@
 - update about page to use more syntactical html
 ### Why was this change made?
 - To make the page more accessible
-***
 <br />
 
 ## 30-08-2023
@@ -237,7 +232,6 @@
 - Update the service status page to remove separators from the accessibility dom
 ### Why was this change made?
 - To make the pages more accessible
-***
 <br />
 
 ## 25-08-2023
@@ -245,7 +239,6 @@
 - Make banner research sign up link open in a new tab
 ### Why was this change made?
 - Request made by MJ
-***
 <br />
 
 ## 25-08-2023
@@ -254,7 +247,6 @@
 ### Why was this change made?
 - The pages don't always follow a linier structure stable for breadcrumbs
 - A back button is more consistent with the site design
-***
 <br />
 
 ## 25-08-2023
@@ -263,7 +255,6 @@
 ### Why was this change made?
 - Enables better map configuration and easier reuse
 - Resolves some tech debt
-***
 <br />
 
 ## 24-08-2023
@@ -271,7 +262,6 @@
 - Move nav bar bellow page title on map page
 ### Why was this change made?
 - To maintain consistency across the site
-***
 <br />
 
 ## 24-08-2023
@@ -280,7 +270,6 @@
 ### Why was this change made?
 - To better make the banner stand out
 - Also to link users to sign up for user research
-***
 <br />
 
 ## 24-08-2023
@@ -289,7 +278,6 @@
 ### Why was this change made?
 - To remove the need to hard code the measurment ID in the javascript code
 - To enable the use of Google Analytics in the development environment
-***
 <br />
 
 ## 16-08-2023
@@ -297,12 +285,10 @@
 - changed the base tile set and maptiler access key to George Goodall's personal key
 ### Why was this change made?
 - Paul Smith's key was revoked
-***
 
 ## 02-08-2023
 ### What's new
 - changed guidance string to a header on the article-4-direction specification
-***
 <br />
 
 ## 12-07-2023
@@ -311,13 +297,5 @@
 - Added a template for the change log
 ### Why was this change made?
 - To keep track of changes made to the project
-***
 
 <br />
-
-## 10-10-2023
-### What's new
-- Optimized the queries in get_entity_count and get_entity_search
-### Why was this change made?
-- The production database was using too much local storage performing some of the most common queries.
-***
