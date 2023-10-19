@@ -84,7 +84,7 @@ def test_datasets_correctly_show(
 
     page.get_by_role("link", name="Datasets", exact=True).click()
 
-    page.wait_for_timeout(200)  # wait for javasc
+    page.wait_for_timeout(200)  # wait for javascript to load
 
     listElements = page.locator("ol.dl-list-filter__list").locator("li >> a").all()
 
@@ -102,4 +102,10 @@ def test_datasets_correctly_show(
 def test_list_filter_works_as_expected(
     server_process, BASE_URL, page, add_base_entities_to_database_yield_reset, test_data
 ):
-    assert False
+    page.goto(BASE_URL)
+
+    page.get_by_role("link", name="Datasets", exact=True).click()
+
+    page.wait_for_timeout(200)  # wait for javascript to load
+
+    page.locator("input.dl-list-filter__input").fill("brownfield")
