@@ -18,9 +18,11 @@
 ### What's new
 - Added unit tests for the list filter
 - Added acceptance tests for the list filter
+- Fixed panning issue on the map page by changing the handlemove to only be called on moveend instead of move
 ### Why was this change made?
 - to ensure this code is robust
 - because this user journey was documented as part of a recent group session we did
+- because this was causing the map to crash on some browsers
 
 ## 17-10-2023
 ### What's new
