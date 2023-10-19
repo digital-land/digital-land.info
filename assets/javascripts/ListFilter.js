@@ -21,7 +21,7 @@ export class ListFilter{
 
         const $input = $form.querySelector('input');
         const boundFilterViaTimeout = this.filterViaTimeout.bind(this);
-        $input.addEventListener('keyup', boundFilterViaTimeout);
+        $input.addEventListener('input', boundFilterViaTimeout);
 
         // make sure no matches message is initially hidden
         this.$noMatches.classList.add('js-hidden');
