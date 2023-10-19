@@ -6,8 +6,19 @@ const cookieTypes = {
   _gat: "usage",
 };
 
-if(window.gaMeasurementId){
-  cookieTypes[`_ga_${window.gaMeasurementId}`] = 'usage';
+
+
+export function showCookieBannerIfNotSetAndSetTrackingCookies(){
+  if(window.gaMeasurementId){
+    cookieTypes[`_ga_${window.gaMeasurementId}`] = 'usage';
+  }
+
+  showCookieBanner()
+  if (getCookie('cookies_preferences_set')) {
+    hideCookieBanner()
+  }
+
+  setTrackingCookies()
 }
 
 export function deleteCookie (name) {
@@ -47,6 +58,7 @@ export function hideCookieBanner () {
   var cookieBanner = document.getElementById('cookie-banner')
   if(cookieBanner){
     cookieBanner.style.display = 'none'
+    cookieBanner.ariaHidden = true
   }
 }
 
@@ -144,13 +156,4 @@ export class cookiePrefs{
       }
     }
   }
-}
-
-export function showCookieBannerIfNotSetAndSetTrackingCookies(){
-  showCookieBanner()
-  if (getCookie('cookies_preferences_set')) {
-    hideCookieBanner()
-  }
-
-  setTrackingCookies()
 }
