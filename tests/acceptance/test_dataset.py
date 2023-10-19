@@ -75,3 +75,31 @@ def test_give_feedback_on_a_dataset(
 
     assert "google.com/forms" in linkHref
     assert "Brownfield site" in linkHref
+
+
+def test_datasets_correctly_show(
+    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset, test_data
+):
+    page.goto(BASE_URL)
+
+    page.get_by_role("link", name="Datasets", exact=True).click()
+
+    page.wait_for_timeout(200)  # wait for javasc
+
+    listElements = page.locator("ol.dl-list-filter__list").locator("li >> a").all()
+
+    assert len(listElements) == len(test_data["datasets"])
+
+    datasets = [dataset["name"] for dataset in test_data["datasets"]]
+
+    for element in listElements:
+        assert element.text_content() in datasets, "dataset not in the list"
+        datasets.remove(element.text_content())
+
+    assert len(datasets) == 0, "there are still some datasets that are not in the list"
+
+
+def test_list_filter_works_as_expected(
+    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset, test_data
+):
+    assert False
