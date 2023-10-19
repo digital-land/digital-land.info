@@ -14,6 +14,12 @@
 # ChangeLog
 <br>
 
+## 19-10-2023
+### What's new
+- Added unit tests for the list filter
+### Why was this change made?
+- to ensure this code is robust
+
 ## 17-10-2023
 ### What's new
 - Added acceptance test for using all the filters on the search page

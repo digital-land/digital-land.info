@@ -90,7 +90,7 @@ const domElementMock = {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     setAttribute: vi.fn(),
-    focus: vi.fn(),
+    focus: vi.fn()
 }
 
 const popupMock = {
@@ -142,6 +142,10 @@ export const stubGlobalWindow = (pathname = 'http://localhost', hash = '') => {
             pushState: vi.fn(),
             replaceState: vi.fn(),
         },
+        setTimeout: vi.fn().mockImplementation((callback) => {
+            callback();
+        }),
+        clearTimeout: vi.fn(),
     })
 }
 
@@ -196,10 +200,16 @@ export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=lay
         querySelector: vi.fn().mockImplementation(() => {
             return domElementMock
         }),
+        querySelectorAll: vi.fn().mockImplementation(() => {
+            return [domElementMock, domElementMock]
+        }),
         location: location,
         getElementById: vi.fn().mockImplementation(() => {
             return domElementMock
         }),
+        body: {
+            removeChild: vi.fn(),
+        }
     })
 }
 
