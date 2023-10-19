@@ -126,7 +126,7 @@ export default class MapController {
     this.obscureScotland()
     this.obscureWales()
     this.addNeighbours()
-    this.map.on('move',handleMapMove)
+    this.map.on('moveend',handleMapMove)
   };
 
   loadImages(imageSrc=[]) {
