@@ -30,13 +30,13 @@ export class ListFilter{
     filterViaTimeout(e){
         clearTimeout(this.filterTimeout);
 
-        const boundListFilter = this.ListFilter.bind(this);
+        const boundListFilter = this.filterListItems.bind(this);
         this.filterTimeout = setTimeout(function () {
           boundListFilter(e);
         }, 200);
     }
 
-    ListFilter(e){
+    filterListItems(e){
         const itemsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="item"]'));
         const listsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="list"]'));
         const searchTerm = e.target.value;
@@ -44,7 +44,7 @@ export class ListFilter{
         const boundMatchSearchTerm = this.matchSearchTerm.bind(this);
         itemsToFilter
           .filter(function ($item) {
-            return boundMatchSearchTerm($item, searchTerm)
+            return !boundMatchSearchTerm($item, searchTerm)
           })
           .forEach(function (item) {
             item.classList.add('js-hidden');
@@ -71,9 +71,9 @@ export class ListFilter{
         item.classList.remove('js-hidden');
         var searchTermRegexp = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
         if (searchTermRegexp.exec(contentToMatchOn) !== null) {
-          return false
+          return true
         }
-        return true
+        return false
     }
 
     updateListCounts(lists){
@@ -98,9 +98,6 @@ export class ListFilter{
           }
 
           totalMatches += matchingCount;
-
-          var filteredEvent = new CustomEvent('list:filtered');
-          list.dispatchEvent(filteredEvent);
         });
 
         // if no results show message
