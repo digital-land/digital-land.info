@@ -65,8 +65,9 @@
   {% block bodyScriptsStart %}{% endblock bodyScriptsStart %}
 
   {% block bodyScripts %}
-    <script src="{{ cacheBust(assetPath + '/javascripts/cookies.js') }}"></script>
-    <script>
+    <script type="module">
+      import {showCookieBannerIfNotSetAndSetTrackingCookies, cookiePrefs} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
+      showCookieBannerIfNotSetAndSetTrackingCookies();
       cookiePrefs.get();
     </script>
 
