@@ -108,4 +108,49 @@ def test_list_filter_works_as_expected(
 
     page.wait_for_timeout(200)  # wait for javascript to load
 
+    page.locator("input.dl-list-filter__input").fill("o")
+    page.wait_for_timeout(200)  # wait for javascript to load
+    listElements = (
+        page.locator("ol.dl-list-filter__list")
+        .locator("li.dl-list-filter__item:not(.js-hidden) >> a")
+        .all()
+    )
+    datasets = [
+        dataset["name"] for dataset in test_data["datasets"] if "o" in dataset["name"]
+    ]
+    assert len(listElements) == len(datasets)
+
+    page.locator("input.dl-list-filter__input").fill("on")
+    page.wait_for_timeout(200)  # wait for javascript to load
+    listElements = (
+        page.locator("ol.dl-list-filter__list")
+        .locator("li.dl-list-filter__item:not(.js-hidden) >> a")
+        .all()
+    )
+    datasets = [
+        dataset["name"] for dataset in test_data["datasets"] if "on" in dataset["name"]
+    ]
+    assert len(listElements) == len(datasets)
+
     page.locator("input.dl-list-filter__input").fill("brownfield")
+    page.wait_for_timeout(200)  # wait for javascript to load
+    listElements = (
+        page.locator("ol.dl-list-filter__list")
+        .locator("li.dl-list-filter__item:not(.js-hidden) >> a")
+        .all()
+    )
+    datasets = [
+        dataset["name"]
+        for dataset in test_data["datasets"]
+        if "brownfield" in dataset["name"].lower()
+    ]
+    assert len(listElements) == len(datasets)
+
+    page.locator("input.dl-list-filter__input").fill("a string that wont find anything")
+    page.wait_for_timeout(200)  # wait for javascript to load
+    listElements = (
+        page.locator("ol.dl-list-filter__list")
+        .locator("li.dl-list-filter__item:not(.js-hidden) >> a")
+        .all()
+    )
+    assert len(listElements) == 0
