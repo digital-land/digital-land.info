@@ -4,7 +4,7 @@
 {% set templateName = "dl-info/homepage.html" %}
 
 {% block main %}
-  <main id="content" role="main">
+  <main id="content">
     {{
       appHero({
         'title': {
@@ -81,7 +81,7 @@
             'src': '/images/search',
           },
           'link': {
-            'href': '/entity/?entries=current',
+            'href': '/entity',
             'text': 'Search planning and housing data'
           },
         })
@@ -120,7 +120,6 @@
     <!-- /#feature-list -->
 
   </main>
-  {{super()}}
 {% endblock %}
 
 {% set github_repository = "digital-land.info" %}

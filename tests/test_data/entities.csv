@@ -9,3 +9,4 @@ entity|name|entry_date|start_date|end_date|dataset|json|organisation_entity|pref
 7002001663||2021-12-27|||tree|""||tree|1663|geography||POINT (-0.094987 51.439363)
 7002001664||2021-12-27|||tree|""||tree|1664|geography||POINT (-0.094894 51.439378)
 101|Dacorum Borough Council|2022-06-06|||local-authority||600001|local-authority|DAC|organisation||
+44002322|Historic England|2022-04-12|||conservation-area|||conservation-area|1|geography|""|POINT (-2.246357 50.91254)

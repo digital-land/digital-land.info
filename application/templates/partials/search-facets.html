@@ -2,7 +2,7 @@
 {%- from "components/filter-group/macro.jinja" import dlFilterGroup %}
 <form action="{{ search_form_url }}" method="get">
 
-  <h3 class="govuk-heading-m">Filters</h3>
+  <h2 class="govuk-heading-m">Filters</h2>
   {%- if typologies %}
   <!-- typology facet -->
   <div class="govuk-form-group">
@@ -81,47 +81,37 @@
   </div>
   {% endif -%}
 
-  <!-- filter by entry type -->
+  <!-- filter by period type -->
+  {% set checkboxesHTML %}
+    <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="period-2" name="period" type="checkbox" value="current" {% if query.params.get('period') and 'current' in query.params.get('period') %}checked=checked{% endif %}>
+      <label class="govuk-label govuk-checkboxes__label" for="period-2">
+        Current
+      </label>
+    </div>
+    <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="period-3" name="period" type="checkbox" value="historical" {% if query.params.get('period') and 'historical' in query.params.get('period') %}checked=checked{% endif %}>
+      <label class="govuk-label govuk-checkboxes__label" for="period-3">
+        Historical
+      </label>
+    </div>
+  {% endset %}
   <div class="govuk-form-group">
     {% call dlFilterGroup({
-      "title": "Entries",
+      "title": "Period",
       "is_open": False,
-      "selected": 1
+      "selected": query.params.get('period')|length if query.params.get('period') else 0
     }) %}
-    <fieldset class="govuk-fieldset">
-      <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
-          Which type of entries do you want to see?
-        </h1>
-      </legend>
-      <div class="govuk-radios">
-        <div class="govuk-radios__item">
-          <input class="govuk-radios__input" id="entries" name="entries" type="radio" value="all" {% if query.params.get('entries') is none or 'all' in query.params.get('entries') %}checked=checked{% endif %}>
-          <label class="govuk-label govuk-radios__label" for="entries">
-            All
-          </label>
-        </div>
-        <div class="govuk-radios__item">
-          <input class="govuk-radios__input" id="entries-2" name="entries" type="radio" value="current" {% if query.params.get('entries') and 'current' in query.params.get('entries') %}checked=checked{% endif %}>
-          <label class="govuk-label govuk-radios__label" for="entries-2">
-            Current
-          </label>
-        </div>
-        <div class="govuk-radios__item">
-          <input class="govuk-radios__input" id="entries-3" name="entries" type="radio" value="historical" {% if query.params.get('entries') and 'historical' in query.params.get('entries') %}checked=checked{% endif %}>
-          <label class="govuk-label govuk-radios__label" for="entries-3">
-            Historical
-          </label>
-        </div>
-      </div>
-
-    </fieldset>
+      {{ dlFilterCheckboxes({
+        "uniqueID": random_int(5),
+        "checkboxesHTML": checkboxesHTML
+      }) }}
     {% endcall %}
   </div>
 
   <!-- filter by entry date -->
   <div class="dl-filter-group govuk-!-margin-bottom-6">
-    <h3 class="dl-filter-group__heading govuk-heading-s">Entry date</h3>
+    <h2 class="dl-filter-group__heading govuk-heading-s">Entry date</h2>
     <div class="app-filter-group__body">
 
       <div class="govuk-form-group">

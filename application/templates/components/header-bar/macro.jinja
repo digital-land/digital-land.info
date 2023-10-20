@@ -1,6 +1,6 @@
 {% macro dlHeaderBar(params={}) %}
 {% set _navitems = params.get('items', []) %}
-<header role="banner" id="global-header" class="govuk-header  with-proposition dl-header{{ ' dl-header--full' if params.fullWidth }}{{ ' ' + params.classes if params.classes }}" data-module="govuk-header">
+<header id="global-header" class="govuk-header  with-proposition dl-header{{ ' dl-header--full' if params.fullWidth }}{{ ' ' + params.classes if params.classes }}" data-module="govuk-header">
   <div class="govuk-header__container{{ ' dl-container--full-width' if params.fullWidth else ' govuk-width-container' }}">
     <div class="header-proposition">
       <div class="govuk-header__content">

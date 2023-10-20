@@ -42,7 +42,7 @@ class GeometryRelation(str, Enum):
     # dwithin = "dwithin"
 
 
-class EntriesOption(str, Enum):
+class PeriodOption(str, Enum):
     all = "all"
     current = "current"
     historical = "historical"

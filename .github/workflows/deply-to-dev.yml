@@ -4,7 +4,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v4
@@ -35,7 +35,7 @@ jobs:
       ENVIRONMENT: development
       PGPASSWORD: postgres
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -65,7 +65,13 @@ jobs:
         run: |
           make test-acceptance
           echo "## Acceptance Tests" >> $GITHUB_STEP_SUMMARY
-          cat unit-tests.md >> $GITHUB_STEP_SUMMARY
+          cat acceptance-tests.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Accessibility Tests
+        run: |
+          make test-accessibility
+          echo "## Accessibility Tests" >> $GITHUB_STEP_SUMMARY
+          cat accessibility-tests.md >> $GITHUB_STEP_SUMMARY
 
   deploy:
     runs-on: ubuntu-latest
@@ -73,7 +79,7 @@ jobs:
     env:
       DOCKER_REPO: ${{ secrets.DEPLOY_DOCKER_REPOSITORY }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT

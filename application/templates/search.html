@@ -6,8 +6,8 @@
 {%- from "govuk_frontend_jinja/components/fieldset/macro.html" import govukFieldset %}
 {%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton %}
 {%- from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
-{%- from "components/map/macro.jinja" import map %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
+{%- from "components/entity-card/macro.jinja" import entityCard %}
 
 {% from 'components/pagination/macro.jinja' import appPagination %}
 
@@ -25,7 +25,7 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<main id="content" role="main">
+
   <section class="govuk-width-container govuk-!-padding-bottom-6">
 
     <h1 class="govuk-heading-xl">Search for planning and housing data</h1>
@@ -48,11 +48,9 @@
                   <g id="Group" fill="#000000" fill-rule="nonzero">
                     <path
                       d="M2.84386208,29.6395923 C2.1083442,29.6823572 1.38499138,29.4378396 0.826334681,28.9576007 C-0.275444894,27.8492707 -0.275444894,26.0592298 0.826334681,24.9508998 L24.9516952,0.825445695 C26.0976433,-0.246857017 27.8958254,-0.187248253 28.9681281,0.958699821 C29.9377765,1.99497526 29.9942972,3.58775513 29.1004465,4.69009616 L4.83294196,28.9576007 C4.28149071,29.4309149 3.56974148,29.6749646 2.84386208,29.6395923 Z"
-                      id="Path"
                     ></path>
                     <path
                       d="M26.9408687,29.6395923 C26.1954316,29.6364107 25.4809686,29.3405191 24.9516952,28.8155503 L0.8262411,4.69000258 C-0.194500497,3.49801446 -0.0557253049,1.70413689 1.13626282,0.683301721 C2.20014357,-0.22776724 3.76915479,-0.22776724 4.83294196,0.683301721 L29.1004465,24.8087558 C30.2461138,25.8813393 30.3053483,27.679615 29.2327649,28.8252824 C29.1900936,28.8708545 29.1460187,28.9149294 29.1004465,28.9576007 C28.5062304,29.4743348 27.7242046,29.7212854 26.9408687,29.6395923 L26.9408687,29.6395923 Z"
-                      id="Path"
                     ></path>
                   </g>
                 </g>
@@ -123,18 +121,20 @@
               {% endif %}
             </div>
             {% endif %}
-            {% if query.params and query.params.get('entries') %}
+            {% if query.params and query.params.get('period') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Entries:</span>
-              <span class="app-applied-filter__item">
-                {{ removeFilterButton({
-                  "filter": {
-                    "name": "entries",
-                    "value": query.params.get('entries')|replace('EntriesOption.', '')
-                  },
-                  "url": "#"
-                }) }}
-              </span>
+              <span class="app-applied-filter__name govuk-!-font-weight-bold">Period:</span>
+              {% for filter in query.params.get('period') %}
+                <span class="app-applied-filter__item">
+                  {{ removeFilterButton({
+                    "filter": {
+                      "name": "period",
+                      "value": filter|replace('PeriodOption.', '')
+                    },
+                    "url": "?" + filter|make_param_str("period", url_query_params.list)
+                  }) }}
+                </span>
+              {% endfor %}
             </div>
             {% endif %}
 
@@ -163,76 +163,7 @@
 
           <ul class="app-results-list">
             {% for row in data %}
-            {%  set e = row.dict(by_alias=True) %}
-            {% set propertiesArr = [
-              { "key": "Dataset", "value": e["dataset"] },
-              { "key": "Reference", "value": e["reference"] },
-            ] %}
-            <li class="app-results-list__item">
-              <article class="app-card app-card--result">
-                <div class="app-card__header">
-                  <div class="app-card__header__primary">
-                    <h3 class="app-card__title">{{ e["name"] }}</h3>
-                  </div>
-                  <div class="app-card__header__secondary">
-                    <p class="govuk-body govuk-hint govuk-!-margin-0">{{ e["typology"] | capitalize }}</p>
-                    <dl class="app-card__datalist">
-                      <div class="app-card__datalist__row">
-                        <dd class="app-card__datalist__value"><a href="{{ e['entity'] }}/" class="govuk-link">{{ e["reference"] }}</a></dd>
-                      </div>
-                    </dl>
-                  </div>
-                </div>
-
-                {# optional container for an image or map, question: does a map need to be anything more than a static image in results? #}
-                {% if e["geojson"] and "geometry" in e["geojson"] %}
-                <div class="app-card__media">
-                  {{
-                    map({
-                      "mapId": e["entity"] ~ "-map",
-                      'height': 350,
-                      'enableZoomControls': true,
-                      'geojsons': [row|get_entity_geometry],
-                      'paint_options': row|get_entity_paint_options,
-                    })
-                  }}
-                </div>
-                {% endif %}
-                <div class="app-card__body">
-                  {% if e["description"] %}
-                  <div class="app-card__description">
-                    <p class="govuk-body">{{ e["description"] }}</p>
-                  </div>
-                  {% endif %}
-
-                  <div class="app-card__row">
-                    <div class="app-card__properties">
-                      <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-                        {% for property in propertiesArr %}
-                          <div class="govuk-summary-list__row{% if loop.last %} govuk-summary-list__row--no-border{% endif %}">
-                            {% if property.key == "Dataset" %}
-                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                              <dd class="govuk-summary-list__value">
-                              {%  if property.value %}<a class="govuk-link" href="/dataset/{{ property.value }}">{{ property.value|replace("-", " ")|capitalize }}</a> {%  endif %}
-                              </dd>
-                            {% elif property.key == "Reference" %}
-                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                              <dd class="govuk-summary-list__value">
-                              {%  if property.value %}<a class="govuk-link" href="/entity/{{ e["entity"] }}">{{ property.value }}</a> {%  endif %}
-                              </dd>
-                            {% else %}
-                              <dt class="govuk-summary-list__key">{{ property.key }}</dt>
-                              <dd class="govuk-summary-list__value"> {%  if property.value %}{{ property.value }} {%  endif %}</dd>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </article>
-              <!-- /.app-card -->
-            </li>
+              {{ entityCard(row) }}
             {% endfor %}
           </ul>
           <!-- /.app-results-list -->
@@ -315,7 +246,7 @@
     </div>
     <!-- /#search.govuk-grid-row -->
   </section>
-</main>
+
 {% endblock %}
 
 {% block pageScripts %}

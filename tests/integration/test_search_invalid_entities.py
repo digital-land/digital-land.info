@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from application.data_access.entity_queries import get_entity_search
 from application.db.models import EntityOrm
-from application.search.enum import EntriesOption, GeometryRelation
+from application.search.enum import PeriodOption, GeometryRelation
 from tests.test_data.wkt_data import handrians_wall_search
 
 
@@ -34,7 +34,7 @@ def raw_params():
         "prefix": None,
         "reference": None,
         "related_entity": None,
-        "entries": EntriesOption.all,
+        "entries": PeriodOption.all,
         "start_date": None,
         "start_date_year": None,
         "start_date_month": None,

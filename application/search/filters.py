@@ -15,7 +15,7 @@ from application.exceptions import (
     InvalidGeometry,
 )
 from application.search.enum import (
-    EntriesOption,
+    PeriodOption,
     DateOption,
     GeometryRelation,
     SuffixEntity,
@@ -73,7 +73,7 @@ class QueryFilters:
     #     None, description="filter by related entity"
     # )
 
-    entries: Optional[EntriesOption] = Query(
+    period: Optional[List[PeriodOption]] = Query(
         None, description="Results to include current, or all entries"
     )
 

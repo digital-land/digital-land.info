@@ -10,7 +10,10 @@
 
 {% macro _parameterName(params={}) %}
   {% if params.name %}<div class="app-code-block app-code-block--inline govuk-!-margin-bottom-2">{{ params.name }}</div>{% endif %}
-  <div class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint" aria-description="Is required?">{% if params.required == True %}Required{% else%}Optional{% endif %}</div>
+{% endmacro %}
+
+{% macro _parameterRequired(params={}) %}
+  <div class="govuk-!-font-size-14 app-u-vertical-align--top govuk-hint" role="note" >{% if params.required == True %}Required{% else%}Optional{% endif %}</div>
 {% endmacro %}
 
 {% macro _parameterType(params={}) %}
@@ -48,7 +51,10 @@
     {{
       _parameterRows.append([
         {
-          'html': _parameterName({ 'name': parameter.name, 'required': parameter.required }) | safe
+          'html': _parameterName({ 'name': parameter.name }) | safe
+        },
+        {
+          'html': _parameterRequired({ 'required': parameter.required }) | safe
         },
         {
           'html': _parameterType({'parameter':parameter,'components':components}) | safe,
@@ -114,6 +120,10 @@
           'head': [
             {
               'text': "Name",
+              'classes': 'govuk-!-font-size-16'
+            },
+            {
+              'text': "Required?",
               'classes': 'govuk-!-font-size-16'
             },
             {

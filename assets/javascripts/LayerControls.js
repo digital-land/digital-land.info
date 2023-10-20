@@ -13,13 +13,16 @@ export default class LayerControls {
 		  const styleClasses = this._container.classList;
       styleClasses.add('maplibregl-ctrl')
 
-      this.layerURLParamName = options.layerURLParamName || 'layer';
+      this.layerURLParamName = options.layerURLParamName || 'dataset';
+      this.redirectURLParamNames = options.redirectURLParamNames || [];
 
       // listen for changes to URL
       var boundSetControls = this.toggleLayersBasedOnUrl.bind(this);
       window.addEventListener('popstate', function (event) {
         boundSetControls();
       });
+
+      this.replaceRedirectParamNames();
     }
 
     onAdd(map) {
@@ -47,7 +50,7 @@ export default class LayerControls {
 
       const checkboxes = document.createElement('div');
       checkboxes.classList.add('govuk-checkboxes');
-      checkboxes.setAttribute('data-module', 'layer-controls-{{ params.mapId if params.mapId else \'map\' }}');
+      checkboxes.setAttribute('data-module', `layer-controls-${this.mapController.mapId}}`);
 
       const filterGroup = document.createElement('div');
       filterGroup.classList.add('dl-filter-group__auto-filter');
@@ -127,6 +130,23 @@ export default class LayerControls {
       }
 
       return this._container;
+    }
+
+    replaceRedirectParamNames() {
+      const urlParams = (new URL(document.location)).searchParams;
+      this.redirectURLParamNames.forEach(param => {
+        if (urlParams.has(param)) {
+          let values = urlParams.getAll(param);
+          urlParams.delete(param);
+          values.forEach(value => {
+            urlParams.append(this.layerURLParamName, value);
+          });
+        }
+      });
+      let newURL = window.location.pathname
+      if(urlParams.size > 0)
+        newURL = newURL + '?' + urlParams.toString() + window.location.hash;
+      window.history.replaceState({}, '', newURL);
     }
 
     onRemove() {
@@ -218,7 +238,7 @@ export default class LayerControls {
 
       this.enabledLayers().forEach(layer => urlParams.append(this.layerURLParamName, layer.getDatasetName()));
       let newURL = window.location.pathname
-      if(urlParams.size > 0)
+      if(this.enabledLayers().length > 0)
         newURL = newURL + '?' + urlParams.toString() + window.location.hash;
 
       // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
@@ -280,7 +300,6 @@ export class LayerOption {
   }
 
   makeLayerSymbol(layer) {
-
     let symbolHtml = '';
 
     let opacityNumber = (layer.paint_options && layer.paint_options.opacity) ? layer.paint_options.opacity : defaultPaintOptions["fill-opacity"];
@@ -331,7 +350,7 @@ export class LayerOption {
     return html;
   }
 
-  clickHandler() {
+  clickHandler(e) {
     this.layerControls.updateUrl();
   }
 

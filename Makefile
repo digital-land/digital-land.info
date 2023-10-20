@@ -30,10 +30,14 @@ piptool-compile::
 	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
 	python -m piptools compile requirements/dev-requirements.in
 
+piptool-install::
+	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
+
 postgresql::
 	sudo service postgresql start
 
 insertBaseData::
+	python -c 'from tests.utils.database import reset_database; reset_database()'
 	python -c 'from tests.utils.database import *; add_base_entities_to_database(); add_base_datasets_to_database(); add_base_typology_to_database()'
 
 emptyDatabase::
@@ -58,14 +62,21 @@ docker-login:
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
 test-acceptance:
-	python -m playwright install chromium
-	python -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+	python -m playwright install --with-deps chromium firefox webkit
+	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
-test-acceptance-debug:
-	python -m playwright install chromium
-	PWDEBUG=1 python3 -m pytest --md-report --md-report-color=never -p no:warnings tests/acceptance
+ test-acceptance-debug:
+	python -m playwright install --with-deps chromium firefox webkit
+	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
-test: test-unit test-integration test-acceptance
+ test-accessibility:
+	python -m playwright install chromium
+	python -m pytest --browser chromium --md-report --md-report-color=never -p no:warnings tests/accessibility
+
+ playwright-codegen:
+	python -m playwright codegen --viewport-size=800,600 localhost:8000
+
+test: test-unit test-integration test-acceptance test-accessibility
 
 test-js:
 	npm run test
@@ -87,7 +98,7 @@ test-integration:
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
 
-lint:	black-check flake8
+lint:	black flake8
 
 clean::
 	rm -rf static/

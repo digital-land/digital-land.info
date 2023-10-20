@@ -17,7 +17,7 @@ jsonpickle
 uritemplate
 beautifulsoup4
 python-slugify
-govuk-frontend-jinja
+govuk-frontend-jinja @ git+https://github.com/digital-land/govuk-frontend-jinja@refactor/accessibilityImprovements
 validators
 pre-commit
 urllib3<2

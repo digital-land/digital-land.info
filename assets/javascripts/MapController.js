@@ -95,6 +95,7 @@ export default class MapController {
       }
     });
 
+    map.getCanvas().ariaLabel = `${this.mapId}`;
     this.map = map;
 
     // once the maplibre map has loaded call the setup function
@@ -104,6 +105,7 @@ export default class MapController {
   };
 
   async setup() {
+
     await this.loadImages(this.images);
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
@@ -124,7 +126,7 @@ export default class MapController {
     this.obscureScotland()
     this.obscureWales()
     this.addNeighbours()
-    this.map.on('move',handleMapMove)
+    this.map.on('moveend',handleMapMove)
   };
 
   loadImages(imageSrc=[]) {
@@ -162,7 +164,7 @@ export default class MapController {
 	}
 
   obscureWales(){
-    this.obscure('Wales_simplified');
+    this.obscure('Wales_simplified', '#FFFFFF', 0.6);
   }
 
   obscureScotland(){
@@ -210,7 +212,6 @@ export default class MapController {
   }
 
   addControls() {
-
     this.map.addControl(new maplibregl.ScaleControl({
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
@@ -444,7 +445,23 @@ export default class MapController {
         },
         sourceLayer: `${source.name}`,
       });
-			layers = [fillLayerName, lineLayerName];
+
+      // create point layer for geometries
+      let pointLayerName = this.addLayer({
+        sourceName: `${source.name}-source`,
+        layerType: 'circle',
+        paintOptions: {
+          'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
+          'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          "circle-radius": defaultPaintOptions['circle-radius']
+        },
+        sourceLayer: `${source.name}`,
+        additionalOptions:{
+          filter:[ "==", ["geometry-type"], "Point"]
+        },
+      });
+			layers = [fillLayerName, lineLayerName, pointLayerName];
 		}
 		return layers;
   }

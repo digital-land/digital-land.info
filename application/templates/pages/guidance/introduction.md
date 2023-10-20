@@ -35,9 +35,9 @@ Planning Data collects [data about a range of subjects](https://www.digital-land
 
 There are 4 main data subjects that are needed for the RIPA service:
 
+-   [Article 4 direction data](specifications/article-4-direction)
 -   [Conservation area data](specifications/conservation-area)
 -   [Listed building data](specifications/listed-building)
--   [Article 4 direction data](specifications/article-4-direction)
 -   [Tree preservation order data](specifications/tree-preservation-order)
 
 We recommend publishing at least this data to benefit from RIPA and to allow developers to use it in your area.

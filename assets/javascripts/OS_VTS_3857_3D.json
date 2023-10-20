@@ -2846,27 +2846,6 @@
             }
         },
         {
-            "id": "OS/Waterlines/National",
-            "type": "line",
-            "source": "esri",
-            "source-layer": "Waterlines",
-            "filter": [
-                "==",
-                "_symbol",
-                4
-            ],
-            "minzoom": 5,
-            "maxzoom": 6,
-            "layout": {
-                "line-cap": "round",
-                "line-join": "round"
-            },
-            "paint": {
-                "line-color": "#A4DAEB",
-                "line-width": 0.4
-            }
-        },
-        {
             "id": "OS/Waterlines/Regional",
             "type": "line",
             "source": "esri",
@@ -2897,7 +2876,7 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 6,
+            "minzoom": 7,
             "maxzoom": 7,
             "layout": {
                 "line-cap": "round",
@@ -2959,8 +2938,8 @@
                 "_symbol",
                 6
             ],
-            "minzoom": 7,
-            "maxzoom": 8,
+            "minzoom": 9,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -2980,7 +2959,7 @@
                 "_symbol",
                 0
             ],
-            "minzoom": 7,
+            "minzoom": 6,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3043,8 +3022,8 @@
                 "_symbol",
                 0
             ],
-            "minzoom": 5,
-            "maxzoom": 7,
+            "minzoom": 6,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -3064,13 +3043,13 @@
                 "_symbol",
                 3
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
             },
             "paint": {
-                "line-color": "#73A06F",
+                "line-color": "#77C776",
                 "line-width": {
                     "stops": [
                         [
@@ -3123,8 +3102,8 @@
                 "_symbol",
                 3
             ],
-            "minzoom": 5,
-            "maxzoom": 8,
+            "minzoom": 9,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -3159,7 +3138,7 @@
                 "_symbol",
                 6
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3218,7 +3197,7 @@
                 "_symbol",
                 8
             ],
-            "minzoom": 9,
+            "minzoom": 11,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3273,7 +3252,7 @@
                 "_symbol",
                 10
             ],
-            "minzoom": 10,
+            "minzoom": 12,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3324,7 +3303,7 @@
                 "_symbol",
                 13
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3404,7 +3383,7 @@
                 "_symbol",
                 17
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3448,7 +3427,7 @@
                 "_symbol",
                 6
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3507,7 +3486,7 @@
                 "_symbol",
                 8
             ],
-            "minzoom": 9,
+            "minzoom": 11,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3562,7 +3541,7 @@
                 "_symbol",
                 10
             ],
-            "minzoom": 10,
+            "minzoom": 12,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3613,7 +3592,7 @@
                 "_symbol",
                 13
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3693,7 +3672,7 @@
                 "_symbol",
                 17
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3737,7 +3716,7 @@
                 "_symbol",
                 0
             ],
-            "minzoom": 7,
+            "minzoom": 6,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3800,7 +3779,7 @@
                 "_symbol",
                 3
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -3860,7 +3839,7 @@
                 "_symbol",
                 1
             ],
-            "minzoom": 7,
+            "minzoom": 6,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -3923,8 +3902,8 @@
                 "_symbol",
                 1
             ],
-            "minzoom": 5,
-            "maxzoom": 7,
+            "minzoom": 6,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -3944,13 +3923,13 @@
                 "_symbol",
                 4
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
             },
             "paint": {
-                "line-color": "#73A06F",
+                "line-color": "#77C776",
                 "line-width": {
                     "stops": [
                         [
@@ -4003,8 +3982,8 @@
                 "_symbol",
                 4
             ],
-            "minzoom": 5,
-            "maxzoom": 8,
+            "minzoom": 9,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -4039,7 +4018,7 @@
                 "_symbol",
                 7
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4098,8 +4077,8 @@
                 "_symbol",
                 7
             ],
-            "minzoom": 7,
-            "maxzoom": 8,
+            "minzoom": 9,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -4119,7 +4098,7 @@
                 "_symbol",
                 9
             ],
-            "minzoom": 9,
+            "minzoom": 11,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4174,7 +4153,7 @@
                 "_symbol",
                 11
             ],
-            "minzoom": 10,
+            "minzoom": 12,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4225,7 +4204,7 @@
                 "_symbol",
                 14
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4305,7 +4284,7 @@
                 "_symbol",
                 18
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4349,7 +4328,7 @@
                 "_symbol",
                 7
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4408,7 +4387,7 @@
                 "_symbol",
                 9
             ],
-            "minzoom": 9,
+            "minzoom": 11,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4463,7 +4442,7 @@
                 "_symbol",
                 11
             ],
-            "minzoom": 10,
+            "minzoom": 12,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4514,7 +4493,7 @@
                 "_symbol",
                 14
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4594,7 +4573,7 @@
                 "_symbol",
                 18
             ],
-            "minzoom": 12,
+            "minzoom": 13,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4638,7 +4617,7 @@
                 "_symbol",
                 1
             ],
-            "minzoom": 7,
+            "minzoom": 6,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4701,7 +4680,7 @@
                 "_symbol",
                 4
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -4761,7 +4740,7 @@
                 "_symbol",
                 2
             ],
-            "minzoom": 7,
+            "minzoom": 6,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4824,8 +4803,8 @@
                 "_symbol",
                 2
             ],
-            "minzoom": 5,
-            "maxzoom": 7,
+            "minzoom": 6,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -4845,13 +4824,13 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
             },
             "paint": {
-                "line-color": "#73A06F",
+                "line-color": "#77C776",
                 "line-width": {
                     "stops": [
                         [
@@ -4904,8 +4883,8 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 5,
-            "maxzoom": 8,
+            "minzoom": 9,
+            "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
                 "line-join": "round"
@@ -4915,12 +4894,8 @@
                 "line-width": {
                     "stops": [
                         [
-                            5,
-                            1.3
-                        ],
-                        [
                             7,
-                            2
+                            1
                         ],
                         [
                             8,
@@ -4940,7 +4915,7 @@
                 "_symbol",
                 12
             ],
-            "minzoom": 10,
+            "minzoom": 12,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -4991,7 +4966,7 @@
                 "_symbol",
                 2
             ],
-            "minzoom": 7,
+            "minzoom": 6,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -5001,44 +4976,40 @@
                 "line-width": {
                     "stops": [
                         [
-                            6,
-                            3
-                        ],
-                        [
                             7,
-                            3
+                            2
                         ],
                         [
                             8,
-                            3.5
+                            2.5
                         ],
                         [
                             9,
-                            4
+                            3
                         ],
                         [
                             10,
-                            4.25
+                            3.25
                         ],
                         [
                             12,
-                            4.5
+                            3.5
                         ],
                         [
                             13,
-                            5
+                            4
                         ],
                         [
                             14,
-                            5.5
+                            4.5
                         ],
                         [
                             15,
-                            8
+                            6
                         ],
                         [
                             16,
-                            12
+                            8
                         ]
                     ]
                 }
@@ -5054,7 +5025,7 @@
                 "_symbol",
                 5
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 16,
             "layout": {
                 "line-cap": "round",
@@ -5114,7 +5085,7 @@
                 "_symbol",
                 12
             ],
-            "minzoom": 10,
+            "minzoom": 12,
             "maxzoom": 16,
             "layout": {
                 "line-join": "round"
@@ -6300,7 +6271,7 @@
                 "_symbol",
                 33
             ],
-            "minzoom": 14,
+            "minzoom": 15,
             "layout": {},
             "paint": {
                 "fill-extrusion-color": "#DCD7C6",
@@ -10242,8 +10213,8 @@
             "type": "symbol",
             "source": "esri",
             "source-layer": "Landcover:1",
-            "minzoom": 9,
-            "maxzoom": 11,
+            "minzoom": 10,
+            "maxzoom": 12,
             "layout": {
                 "icon-image": "OS/Names/Regional/Landcover:1",
                 "icon-allow-overlap": true,
@@ -10317,8 +10288,8 @@
             "type": "symbol",
             "source": "esri",
             "source-layer": "Hamlet:1",
-            "minzoom": 9,
-            "maxzoom": 11,
+            "minzoom": 10,
+            "maxzoom": 12,
             "layout": {
                 "icon-image": "OS/Names/Regional/Hamlet:1",
                 "icon-allow-overlap": true,
@@ -10367,8 +10338,8 @@
             "type": "symbol",
             "source": "esri",
             "source-layer": "Suburban Area:1",
-            "minzoom": 9,
-            "maxzoom": 11,
+            "minzoom": 10,
+            "maxzoom": 12,
             "layout": {
                 "icon-image": "OS/Names/Regional/Suburban Area:1",
                 "icon-allow-overlap": true,
@@ -10451,7 +10422,7 @@
                 "_label_class",
                 4
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 13,
             "layout": {
                 "symbol-placement": "line",
@@ -10480,7 +10451,7 @@
                 "_label_class",
                 5
             ],
-            "minzoom": 8,
+            "minzoom": 9,
             "maxzoom": 10,
             "layout": {
                 "symbol-placement": "line",
@@ -10642,7 +10613,7 @@
                 "_label_class",
                 1
             ],
-            "minzoom": 10,
+            "minzoom": 9,
             "maxzoom": 13,
             "layout": {
                 "symbol-placement": "line",
@@ -10882,7 +10853,8 @@
             "type": "symbol",
             "source": "esri",
             "source-layer": "Town:3",
-            "maxzoom": 9,
+            "minzoom": 8,
+            "maxzoom": 10,
             "layout": {
                 "icon-image": "OS/Names/National/Town:3",
                 "icon-allow-overlap": true,
@@ -10932,7 +10904,8 @@
             "type": "symbol",
             "source": "esri",
             "source-layer": "National Park:1",
-            "maxzoom": 9,
+            "minzoom": 9,
+            "maxzoom": 11,
             "layout": {
                 "icon-image": "OS/Names/National/National Park:1",
                 "icon-allow-overlap": true,
@@ -10956,8 +10929,7 @@
             "type": "symbol",
             "source": "esri",
             "source-layer": "City:3",
-            "minzoom": 13,
-            "maxzoom": 16,
+            "minzoom": 7,
             "layout": {
                 "icon-image": "OS/Names/Local/City:3",
                 "icon-allow-overlap": true,
@@ -10981,8 +10953,7 @@
             "type": "symbol",
             "source": "esri",
             "source-layer": "City:4",
-            "minzoom": 11,
-            "maxzoom": 13,
+            "minzoom": 7,
             "layout": {
                 "icon-image": "OS/Names/District/City:4",
                 "icon-allow-overlap": true,
@@ -11002,37 +10973,11 @@
             }
         },
         {
-            "id": "OS/Names/Regional/City:1",
-            "type": "symbol",
-            "source": "esri",
-            "source-layer": "City:1",
-            "minzoom": 9,
-            "maxzoom": 11,
-            "layout": {
-                "icon-image": "OS/Names/Regional/City:1",
-                "icon-allow-overlap": true,
-                "text-font": [
-                    "Source Sans Pro Semibold"
-                ],
-                "text-size": 17,
-                "text-anchor": "center",
-                "text-field": "{_name}",
-                "text-allow-overlap": true,
-                "text-optional": true
-            },
-            "paint": {
-                "icon-color": "rgba(255,0,0,0)",
-                "text-color": "#342A07",
-                "text-halo-color": "#F5F5F0",
-                "text-halo-width": 1.5
-            }
-        },
-        {
             "id": "OS/Names/National/City:2",
             "type": "symbol",
             "source": "esri",
             "source-layer": "City:2",
-            "maxzoom": 9,
+            "minzoom": 7,
             "layout": {
                 "icon-image": "OS/Names/National/City:2",
                 "icon-allow-overlap": true,
@@ -11208,33 +11153,6 @@
             },
             "paint": {
                 "text-color": "rgba(52,42,7,0.75)"
-            }
-        },
-        {
-            "id": "OS/Names/National/Country/label/Country National 1:5.7m+",
-            "type": "symbol",
-            "source": "esri",
-            "source-layer": "Country",
-            "filter": [
-                "==",
-                "_label_class1",
-                1
-            ],
-            "maxzoom": 5,
-            "layout": {
-                "text-font": [
-                    "Source Sans Pro Semibold"
-                ],
-                "text-size": 16,
-                "text-anchor": "center",
-                "text-letter-spacing": 0.5,
-                "text-field": "{_name1}",
-                "text-optional": true
-            },
-            "paint": {
-                "text-color": "rgba(54,44,7,0.5)",
-                "text-halo-color": "#F5F5F0",
-                "text-halo-width": 1.5
             }
         }
     ]
