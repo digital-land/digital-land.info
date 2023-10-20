@@ -16,7 +16,8 @@
             <h3 class="app-card__title">{{ e["name"] }}</h3>
             </div>
             <div class="app-card__header__secondary">
-            <p class="govuk-body govuk-hint govuk-!-margin-0">{{ e["typology"] | capitalize }}</p>
+            <label id="typologyLabel" class="govuk-visually-hidden">Typology type</label>
+            <p class="govuk-body govuk-hint govuk-!-margin-0" aria-labelledby="typologyLabel" title="Typology type">{{ e["typology"] | capitalize }}</p>
             <dl class="app-card__datalist">
                 <div class="app-card__datalist__row">
                 <dd class="app-card__datalist__value"><a href="{{ e['entity'] }}/" class="govuk-link">{{ e["reference"] }}</a></dd>
