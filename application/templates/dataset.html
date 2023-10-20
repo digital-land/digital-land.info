@@ -2,6 +2,7 @@
 {% from 'components/summary-card/macro.jinja' import appSummaryCard %}
 {% set templateName = 'dl-info/dataset.html' %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% from 'govuk_frontend_jinja/components/table/macro.html' import govukTable %}
 
 {% block pageTitle %}{{ dataset["name"] }} Dataset | Planning Data{% endblock %}
 
@@ -33,51 +34,91 @@
         'titleText': 'About this dataset'
       }) %}
 
-          <dl class="govuk-summary-list govuk-!-margin-bottom-0">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">Total</dt>
-              <dd class="govuk-summary-list__value">
-                <a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">{{ entity_count|commanum }} <br>
-                <span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></a>
-              </dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">Data providers</dt>
-              <dd class="govuk-summary-list__value">{{ publishers['current'] }}<!-- of {{ publishers['expected'] }}--></dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">Collector last ran on</dt>
-              <dd class="govuk-summary-list__value">{{ last_collection_attempt if last_collection_attempt else 'no attempt' }}</dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">New data last found on</dt>
-              <dd class="govuk-summary-list__value">{{ latest_resource.last_updated if latest_resource.last_updated else 'N/A' }}</dd>
-            </div>
-            {%  if dataset.licence %}
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Licence</dt>
-                <dd class="govuk-summary-list__value govuk-summary-list__value--markdown">
-                  {{ dataset.licence_text | render_markdown(govAttributes=True) }}
-                </dd>
-              </div>
-            {%  endif %}
-            {%  if dataset.attribution %}
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Attribution</dt>
-                <dd class="govuk-summary-list__value govuk-summary-list__value--markdown">
-                  {{ dataset.attribution_text | render_markdown(govAttributes=True) }}
-                </dd>
-              </div>
-            {%  endif %}
-            {% if dataset.text %}
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Summary</dt>
-                <dd class="govuk-summary-list__value govuk-summary-list__value--markdown">
-                  {{ dataset.text | render_markdown(govAttributes=True) }}
-                </dd>
-              </div>
-            {%  endif %}
-          </dl>
+      {%
+        set rows = [
+          [
+            {
+              'html': '<b>Total</b>',
+            },
+            {
+              'html': '<a class="govuk-link" href="/entity?dataset={{dataset["dataset"]}}">' + entity_count|commanum + '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"]) +'</span></a>'
+            },
+          ],
+          [
+            {
+              'html': '<b>Data providers</b>',
+            },
+            {
+              'html': publishers['current']|commanum,
+            },
+          ],
+          [
+            {
+              'html': '<b>Collector last ran on</b>'
+            },
+            {
+              'html': last_collection_attempt if last_collection_attempt else 'no attempt'
+            },
+          ],
+          [
+            {
+              'html': '<b>New data last found on</b>'
+            },
+            {
+              'html': latest_resource.last_updated if latest_resource.last_updated else 'N/A'
+            },
+          ]
+        ]
+      %}
+
+      {% if dataset.licence %}
+        {{
+          rows.append([
+            {
+              'html': '<b>Licence</b>'
+            },
+            {
+              'html': dataset.licence_text | render_markdown(govAttributes=True)
+            },
+          ]) or ''
+        }}
+      {% endif %}
+
+      {% if dataset.attribution %}
+        {{
+          rows.append([
+            {
+              'html': '<b>Attribution</b>'
+            },
+            {
+              'html': dataset.attribution_text | render_markdown(govAttributes=True) if dataset.attribution else ''
+            },
+          ]) or ''
+        }}
+      {% endif %}
+
+      {% if dataset.text %}
+        {{
+          rows.append([
+            {
+              'html': '<b>Summary</b>'
+            },
+            {
+              'html': dataset.text | render_markdown(govAttributes=True)
+            },
+          ]) or ''
+        }}
+      {% endif %}
+
+      {{
+        govukTable({
+          'attributes': {
+            'aria-label': 'About the dataset'
+          },
+          'rows': rows
+        })
+      }}
+
 
       {% endcall %}
 

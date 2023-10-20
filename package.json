@@ -29,6 +29,7 @@
   "homepage": "https://github.com/digital-land/digital-land.info#readme",
   "scripts": {
     "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "test-unit": "vitest run --dir tests/unit/javascript",
     "test-integration": "vitest run --dir tests/integration/javascript"
   },

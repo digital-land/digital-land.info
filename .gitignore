@@ -47,3 +47,4 @@ unit-tests.md
 integration-tests.md
 playwright-report/*
 api/db/postgres-test-data/*
+coverage/*
