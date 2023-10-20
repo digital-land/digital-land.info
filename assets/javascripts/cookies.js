@@ -100,6 +100,7 @@ export function setTrackingCookies () {
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', window.gaMeasurementId);
+      window[`ga-disable-${window.gaMeasurementId}`] = false;
     } else {
       console.warn('Google Analytics: No measurement ID specified');
     }
