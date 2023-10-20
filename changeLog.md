@@ -14,6 +14,12 @@
 # ChangeLog
 <br>
 
+## 20-10-2023
+### What's new
+- Added unit tests for the cookie.js file
+### Why was this change made?
+- to ensure this code is robust
+
 ## 19-10-2023
 ### What's new
 - Added unit tests for the list filter
