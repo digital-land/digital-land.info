@@ -8,7 +8,9 @@ import {
     showCookieBanner,
     hideCookieBanner,
     showCookieConfirmation,
-    hideCookieConfirmation
+    hideCookieConfirmation,
+    setTrackingCookies,
+    cookiePrefs
 } from '../../../assets/javascripts/cookies'
 
 describe('cookies.js', () => {
@@ -124,21 +126,66 @@ describe('cookies.js', () => {
         expect(cookieConfirmationMock.ariaHidden).toBe(true)
     })
 
-    test('setTrackingCookies', () => {
+    describe('setTrackingCookies', () => {
+        test('disables ga when cookie tracking policy isn\'t set and we previously have a measurement id', () => {
+            let fakeMeasurementId = '1234';
+            window.gaMeasurementId = fakeMeasurementId;
+            setTrackingCookies();
+            expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(true);
+        })
 
+        test('sets up ga when cookie tracking policy is set and we have a measurement id', () => {
+            vi.stubGlobal('dataLayer', [])
+
+            let fakeMeasurementId = '1234';
+            window.gaMeasurementId = fakeMeasurementId;
+            setCookie('cookies_policy', JSON.stringify({usage: true}));
+            setTrackingCookies();
+            expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(false);
+
+            expect(Array.from(dataLayer[0])).toEqual(['js', new Date()]);
+            expect(Array.from(dataLayer[1])).toEqual(['config', fakeMeasurementId]);
+
+        })
     })
 
     describe('class cookiePrefs', () => {
         test('get', () => {
+            setCookie('cookies_policy', JSON.stringify({essential: true, settings: true, campaigns: true, usage: true}));
+            cookiePrefs.get();
+            expect(cookiePrefs.essential).toBe(true);
+            expect(cookiePrefs.settings).toBe(true);
+            expect(cookiePrefs.campaigns).toBe(true);
+            expect(cookiePrefs.usage).toBe(true);
+        })
 
+        const cookieTypes = {
+            cookies_policy: "essential",
+            cookies_preferences_set: "essential",
+            _ga: "usage",
+            _gid: "usage",
+            _gat: "usage",
+          };
+
+        test('invalidateRejectedCookies', () => {
+            cookiePrefs.setEssential(true);
+            cookiePrefs.setSettings(false);
+            cookiePrefs.setCampaigns(false);
+            cookiePrefs.setUsage(false);
+
+            cookiePrefs.invalidateRejectedCookies();
+
+            expect(document.cookie).toBe(`_ga=;expires=${new Date};domain=${window.location.hostname};path=/;_gid=;expires=${new Date};domain=${window.location.hostname};path=/;_gat=;expires=${new Date};domain=${window.location.hostname};path=/`);
         })
 
         test('save', () => {
-
+            cookiePrefs.setEssential(true);
+            cookiePrefs.setSettings(false);
+            cookiePrefs.setCampaigns(false);
+            cookiePrefs.setUsage(false);
+            cookiePrefs.save();
+            expect(JSON.parse(getCookie('cookies_policy'))).toEqual({essential: true, settings: false, campaigns: false, usage: false});
         })
 
-        test('invalidateRejectedCookies', () => {
-
-        })
     })
 })
