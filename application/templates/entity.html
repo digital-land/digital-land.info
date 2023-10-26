@@ -58,7 +58,7 @@
             <tr class="govuk-table_row">
               <th scope="col" class="govuk-table__header">Field</th>
               <th scope="col" class="govuk-table__header">Value</th>
-              <th scope="col" class="govuk-table__header"></th>
+              <th scope="col" class="govuk-table__header"><span class='govuk-visually-hidden'>Fact links</span></th>
             </tr>
           </thead>
           <tbody class="govuk-table__body">
@@ -77,7 +77,7 @@
                         <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
                       </td>
                     {% else %}
-                      <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"></td>
+                      <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"><span class='govuk-visually-hidden'>no fact link</span></td>
                     {% endif %}
                   </tr>
                 {%- endif %}

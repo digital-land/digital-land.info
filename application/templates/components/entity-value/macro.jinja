@@ -45,7 +45,7 @@
         {%- if field in ["dataset"] %}
             <a class="govuk-link" href="{{ '/' + field + '/' + value }}">{{ value|replace("-", " ")|capitalize }}</a>
         {%- elif field in ["geometry","point"] %}
-            <div class="app-code-block" tabindex="0">{{ value }}</div>
+            <code class="app-code-block" tabindex="0">{{ value }}</code>
         {%- elif field in ["local-resilience-forum","local-authority-type","ownership-status","planning-permission-type","planning-permission-type","planning-permission-status","green-belt-core","ancient-woodland-status","design-code-category","design-code-status","listed-building-grade","park-and-garden-grade"] %}
             <a class ="govuk-link" href="{{ '/prefix/' + field + "/reference/" + value }}">{{ value }}</a>
         {%- elif field in ["combined-authority","local-authority"] %}
