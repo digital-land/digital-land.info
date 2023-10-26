@@ -21,9 +21,9 @@ Step 1: Prepare your data
 
 The data needed for the Digital Planning Services such as [PlanX](https://opendigitalplanning.org/services) are:
 
+-   [Article 4 direction data](specifications/article-4-direction)
 -   [Conservation area data](specifications/conservation-area)
 -   [Listed building data](specifications/listed-building)
--   [Article 4 direction data](specifications/article-4-direction)
 -   [Tree preservation order data](specifications/tree-preservation-order)
 
 You may need to create more than one set of data for each subject. You'll find what to include in the [data specifications guidance](specifications/).
