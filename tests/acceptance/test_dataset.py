@@ -102,14 +102,15 @@ def test_datasets_correctly_show(
 def test_list_filter_works_as_expected(
     server_process, BASE_URL, page, add_base_entities_to_database_yield_reset, test_data
 ):
+    timeout = 400
     page.goto(BASE_URL)
 
     page.get_by_role("link", name="Datasets", exact=True).click()
 
-    page.wait_for_timeout(200)  # wait for javascript to load
+    page.wait_for_timeout(timeout)  # wait for javascript to load
 
     page.locator("input.dl-list-filter__input").fill("o")
-    page.wait_for_timeout(200)  # wait for javascript to load
+    page.wait_for_timeout(timeout)  # wait for javascript to load
     listElements = (
         page.locator("ol.dl-list-filter__list")
         .locator("li.dl-list-filter__item:not(.js-hidden) >> a")
@@ -121,7 +122,7 @@ def test_list_filter_works_as_expected(
     assert len(listElements) == len(datasets)
 
     page.locator("input.dl-list-filter__input").fill("on")
-    page.wait_for_timeout(200)  # wait for javascript to load
+    page.wait_for_timeout(timeout)  # wait for javascript to load
     listElements = (
         page.locator("ol.dl-list-filter__list")
         .locator("li.dl-list-filter__item:not(.js-hidden) >> a")
@@ -133,7 +134,7 @@ def test_list_filter_works_as_expected(
     assert len(listElements) == len(datasets)
 
     page.locator("input.dl-list-filter__input").fill("brownfield")
-    page.wait_for_timeout(200)  # wait for javascript to load
+    page.wait_for_timeout(timeout)  # wait for javascript to load
     listElements = (
         page.locator("ol.dl-list-filter__list")
         .locator("li.dl-list-filter__item:not(.js-hidden) >> a")
@@ -147,7 +148,7 @@ def test_list_filter_works_as_expected(
     assert len(listElements) == len(datasets)
 
     page.locator("input.dl-list-filter__input").fill("a string that wont find anything")
-    page.wait_for_timeout(200)  # wait for javascript to load
+    page.wait_for_timeout(timeout)  # wait for javascript to load
     listElements = (
         page.locator("ol.dl-list-filter__list")
         .locator("li.dl-list-filter__item:not(.js-hidden) >> a")

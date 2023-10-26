@@ -6,15 +6,26 @@ const cookieTypes = {
   _gat: "usage",
 };
 
-if(window.gaMeasurementId){
-  cookieTypes[`_ga_${window.gaMeasurementId}`] = 'usage';
+
+
+export function showCookieBannerIfNotSetAndSetTrackingCookies(){
+  if(window.gaMeasurementId){
+    cookieTypes[`_ga_${window.gaMeasurementId}`] = 'usage';
+  }
+
+  showCookieBanner()
+  if (getCookie('cookies_preferences_set')) {
+    hideCookieBanner()
+  }
+
+  setTrackingCookies()
 }
 
-function deleteCookie (name) {
+export function deleteCookie (name) {
   document.cookie = name + "=;expires=" + new Date + ";domain=" + window.location.hostname + ";path=/";
 }
 
-function setCookie (name, value, days) {
+export function setCookie (name, value, days) {
   var expires = ''
   if (days) {
     var date = new Date()
@@ -24,7 +35,7 @@ function setCookie (name, value, days) {
   document.cookie = name + '=' + (value || '') + expires + '; path=/'
 }
 
-function getCookie (name) {
+export function getCookie (name) {
   var nameEQ = name + '='
   var ca = document.cookie.split(';')
   for (var i = 0; i < ca.length; i++) {
@@ -35,7 +46,7 @@ function getCookie (name) {
   return null
 }
 
-function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
+export function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
   setCookie('cookies_preferences_set', true, 365)
   setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
   hideCookieBanner()
@@ -43,14 +54,15 @@ function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: 
   setTrackingCookies()
 }
 
-function hideCookieBanner () {
+export function hideCookieBanner () {
   var cookieBanner = document.getElementById('cookie-banner')
   if(cookieBanner){
     cookieBanner.style.display = 'none'
+    cookieBanner.ariaHidden = true
   }
 }
 
-function showCookieBanner () {
+export function showCookieBanner () {
   var cookieBanner = document.getElementById('cookie-banner')
   if(cookieBanner){
     cookieBanner.style.display = 'block'
@@ -58,7 +70,7 @@ function showCookieBanner () {
   }
 }
 
-function hideCookieConfirmation () {
+export function hideCookieConfirmation () {
   hideCookieBanner ()
   var cookieBanner = document.getElementById('cookie-confirmation')
   if(cookieBanner){
@@ -67,7 +79,7 @@ function hideCookieConfirmation () {
   }
 }
 
-function showCookieConfirmation () {
+export function showCookieConfirmation () {
   var cookieBanner = document.getElementById('cookie-confirmation')
   if(cookieBanner){
     cookieBanner.style.display = 'block'
@@ -75,7 +87,7 @@ function showCookieConfirmation () {
   }
 }
 
-function setTrackingCookies () {
+export function setTrackingCookies () {
   var cookiesPolicy = JSON.parse(getCookie('cookies_policy'))
   var doNotTrack = cookiesPolicy == null || !cookiesPolicy.usage
   if (doNotTrack) {
@@ -88,13 +100,14 @@ function setTrackingCookies () {
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', window.gaMeasurementId);
+      window[`ga-disable-${window.gaMeasurementId}`] = false;
     } else {
       console.warn('Google Analytics: No measurement ID specified');
     }
   }
 }
 
-class cookiePrefs{
+export class cookiePrefs{
   static essential = true;
   static settings = false;
   static usage = false;
@@ -145,10 +158,3 @@ class cookiePrefs{
     }
   }
 }
-
-showCookieBanner()
-if (getCookie('cookies_preferences_set')) {
-  hideCookieBanner()
-}
-
-setTrackingCookies()
