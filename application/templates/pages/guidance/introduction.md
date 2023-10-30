@@ -22,7 +22,7 @@ The data will be used in the [PlanX](https://opendigitalplanning.org/services) s
 -   show potential development sites that fit local planning requirements
 -   help people to plan developments that meet those requirements
 
-PlanX has the potential to save LPAs time by reducing the number of invalid planning applications they receive by [up to 80%](https://www.ripa.digital/objectives). This could [save £179 million](https://www.ripa.digital/understanding-the-problem) in costs to LPAs nationally.
+PlanX (formerly RIPA) has the potential to save LPAs time by reducing the number of invalid planning applications they receive by [up to 80%](https://www.ripa.digital/objectives). This could [save £179 million](https://www.ripa.digital/understanding-the-problem) in costs to LPAs nationally.
 
 It will also make the planning application process easier for homeowners and businesses.
 
@@ -33,14 +33,14 @@ What data we collect
 
 Planning Data collects [data about a range of subjects](https://www.digital-land.info/dataset).
 
-There are 4 main data subjects that are needed for the RIPA service:
+There are 4 main data subjects that are needed for the PlanX service:
 
 -   [Article 4 direction data](specifications/article-4-direction)
 -   [Conservation area data](specifications/conservation-area)
 -   [Listed building data](specifications/listed-building)
 -   [Tree preservation order data](specifications/tree-preservation-order)
 
-We recommend publishing at least this data to benefit from RIPA and to allow developers to use it in your area.
+We recommend publishing at least this data to benefit from PlanX and to allow developers to use it in your area.
 
 ### Data formats
 
