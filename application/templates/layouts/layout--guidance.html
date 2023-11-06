@@ -65,6 +65,12 @@
               'parent': true,
               'children': [
                 {
+                  'text': "Article 4 Direction data",
+                  'href': sectionPath + 'specifications/article-4-direction',
+                  'child': true,
+                  'current': true if pageData.name == 'article-4-direction' else false,
+                },
+                {
                   'text': "Conservation area data",
                   'href': sectionPath + 'specifications/conservation-area',
                   'child': true,
@@ -75,12 +81,6 @@
                   'href': sectionPath + 'specifications/listed-building',
                   'child': true,
                   'current': true if pageData.name == 'listed-building' else false,
-                },
-                {
-                  'text': "Article 4 Direction data",
-                  'href': sectionPath + 'specifications/article-4-direction',
-                  'child': true,
-                  'current': true if pageData.name == 'article-4-direction' else false,
                 },
                 {
                   'text': "Tree preservation order data",
