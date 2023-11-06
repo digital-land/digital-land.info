@@ -257,12 +257,12 @@ def _apply_location_filters(session, query, params):
                     EntityOrm.geometry.is_not(None),
                     func.ST_IsValid(EntityOrm.geometry),
                     func.ST_IsValid(curie_query.c.geometry),
-                    func.ST_Intersects(EntityOrm.geometry, curie_query.c.geometry),
+                    spatial_function(EntityOrm.geometry, curie_query.c.geometry),
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
                     func.ST_IsValid(curie_query.c.geometry),
-                    func.ST_Intersects(EntityOrm.point, curie_query.c.geometry),
+                    spatial_function(EntityOrm.point, curie_query.c.geometry),
                 ),
             ),
         )
