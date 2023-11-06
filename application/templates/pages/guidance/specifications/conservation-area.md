@@ -93,6 +93,7 @@ These documents are the authoritative source and provide the context around the 
 -   gazette entries
 
 The dataset must contain at least one entry (row) for each conservation area document.
+
 It must containing the following fields (columns):
 
 ### reference
@@ -102,14 +103,17 @@ A reference or ID for each document that is:
 - permanent - it doesn't change when the dataset is updated
 
 If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers.
+
 Example: `CADOC01`
 
 ### name
 The title of the document.
+
 Example: `Notice of Old Market conservation area designation`
 
 ### conservation-area
 The reference for the conservation area this document refers to, as used in the conservation area dataset.
+
 Example: `CA1`
 
 ### documentation-url
@@ -121,6 +125,7 @@ Example: `http://www.LPAwebsite.org.uk/data#conservationarea1`
 
 ### document-url
 The URL of the document.
+
 Example: `http://www.LPAwebsite.org.uk/conservationarea1.pdf`
 
 ### document-type
@@ -135,14 +140,17 @@ Optional text on how this data was made or produced, or how it can be interprete
 
 ### start-date
 The date the document was published, written in `YYYY-MM-DD` format.
+
 Example: `1984-03-28`
 
 ### end-date
 The date the document was withdrawn or superseded by another document, written in `YYYY-MM-DD` format. Leave this blank if the document is still relevant to planning.
+
 Example: `1984-03-28`
 
 ### entry-date
 The date this entry was created or updated, written in `YYYY-MM-DD` format.
+
 Example: `1984-03-28`
 
 ---
