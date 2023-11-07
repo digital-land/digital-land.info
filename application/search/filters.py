@@ -170,26 +170,30 @@ class QueryFilters:
     geometry: Optional[List[str]] = Query(
         None,
         description="""
-        Search for entities with geometries intersecting with one or more geometries provided in WKT format""",
+        Search for entities with geometries interacting with one or more geometries provided in WKT format.
+        The type of geometric relation can be set using the geometry relation parameter.""",
     )
     geometry_entity: Optional[List[int]] = Query(
         None,
-        description="""Search for entities with geometries intersecting with one or more geometries
-        taken from each of the provided entities""",
+        description="""Search for entities with geometries interacting with one or more geometries
+        taken from each of the provided entities. The type of geometric relation can be set using the
+        geometry relation parameter.""",
         ge=1,
     )
     geometry_reference: Optional[List[str]] = Query(
         None,
         description="""
-        Search entities with geometries intersecting with the geometries of
-        entities with the provided references
+        Search entities with geometries interacting with the geometries of
+        entities with the provided references. The type of geometric relation
+        can be set using the geometry relation parameter.
         """,
     )
     geometry_curie: Optional[List[str]] = Query(
         None,
         description="""
-        Search for entities with geometries intersecting with geometries
-        entities matching provided curies
+        Search for entities with geometries interacting with geometries
+        entities matching provided curies. The type of geometric relation
+        can be set using the geometry relation parameter.
         """,
     )
     geometry_relation: Optional[GeometryRelation] = Query(

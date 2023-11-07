@@ -201,7 +201,7 @@ def _apply_location_filters(session, query, params):
                     EntityOrm.geometry.is_not(None),
                     func.ST_IsValid(EntityOrm.geometry),
                     func.ST_IsValid(intersecting_entities_query.c.geometry),
-                    func.ST_Intersects(
+                    spatial_function(
                         EntityOrm.geometry,
                         intersecting_entities_query.c.geometry,
                     ),
@@ -209,7 +209,7 @@ def _apply_location_filters(session, query, params):
                 and_(
                     EntityOrm.point.is_not(None),
                     func.ST_IsValid(intersecting_entities_query.c.geometry),
-                    func.ST_Intersects(
+                    spatial_function(
                         EntityOrm.point, intersecting_entities_query.c.geometry
                     ),
                 ),
@@ -231,12 +231,12 @@ def _apply_location_filters(session, query, params):
                     EntityOrm.geometry.is_not(None),
                     func.ST_IsValid(EntityOrm.geometry),
                     func.ST_IsValid(reference_query.c.geometry),
-                    func.ST_Intersects(EntityOrm.geometry, reference_query.c.geometry),
+                    spatial_function(EntityOrm.geometry, reference_query.c.geometry),
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
                     func.ST_IsValid(reference_query.c.geometry),
-                    func.ST_Intersects(EntityOrm.point, reference_query.c.geometry),
+                    spatial_function(EntityOrm.point, reference_query.c.geometry),
                 ),
             ),
         )
