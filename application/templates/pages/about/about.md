@@ -13,6 +13,8 @@ Our platform collects planning and housing data from local planning authorities 
   <h2 class="govuk-heading-m">This product is still in development</h2>
 </div>
 
+Because we are working on this product:
+
 -   the data does not yet cover all of England 
 -   the data we have collected is not yet complete (there may be things you expect to see that are currently missing) 
 -   legislation designed to mandate these standards is still [in Parliament](https://bills.parliament.uk/bills/3155) 

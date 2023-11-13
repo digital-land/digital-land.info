@@ -70,7 +70,7 @@ The date a tree preservation order was made available to the public. The tree or
 
 Write in YYYY-MM-DD format.
 
-Example: '2022-12-20'
+Example: `2022-12-20`
 
 ### start-date
 
@@ -84,7 +84,7 @@ The date a tree preservation order is confirmed as being in effect, and the tree
 
 Write in YYYY-MM-DD format.
 
-Example: '2022-12-20'
+Example: `2022-12-20`
 
 ### end-date
 
