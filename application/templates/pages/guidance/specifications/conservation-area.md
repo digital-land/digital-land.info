@@ -74,7 +74,11 @@ Example: `1999-01-20`
 
 ### entry-date
 
-The date this dataset was created or last updated, written in `YYYY-MM-DD` format.
+The date the entity was last updated.
+
+If the entity has never been updated, enter the same date as start-date.
+
+Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
 
@@ -149,7 +153,11 @@ The date the document was withdrawn or superseded by another document, written i
 Example: `1984-03-28`
 
 ### entry-date
-The date this entry was created or updated, written in `YYYY-MM-DD` format.
+The date the entity was last updated.
+
+If the entity has never been updated, enter the same date as start-date.
+
+Write in `YYYY-MM-DD` format.
 
 Example: `1984-03-28`
 
