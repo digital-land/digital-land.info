@@ -1,3 +1,9 @@
+Version: 1.2.2
+
+Published: 8 September 2023
+
+---
+
 There are 2 datasets you must provide for conservation area data:
 
 - [conservation area dataset](#{{ 'conservation area dataset' | slugify }})
