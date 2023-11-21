@@ -1,3 +1,9 @@
+Version: 1.2.2
+
+Published: 8 September 2023
+
+---
+
 There are 3 datasets you must provide for tree preservation orders:
 
 - [tree preservation order dataset](#{{ 'tree preservation order dataset' | slugify }})
