@@ -5,6 +5,7 @@ from geoalchemy2.shape import to_shape
 from pydantic import BaseModel, Field, validator, Extra
 
 from application.db.models import EntityOrm
+from application.core.utils import to_snake
 
 
 def to_kebab(string: str) -> str:
@@ -128,7 +129,7 @@ def entity_factory(entity_orm: EntityOrm):
     e = EntityModel.from_orm(entity_orm)
     if entity_orm.json is not None:
         for key, val in entity_orm.json.items():
-            setattr(e, key, val)
+            setattr(e, to_snake(key), val)
     return e
 
 
