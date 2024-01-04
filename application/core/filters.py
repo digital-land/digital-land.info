@@ -1,5 +1,4 @@
 from application.data_access.entity_queries import get_entity_query
-from application.data_access.digital_land_queries import get_dataset_query
 from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
 from markdown import markdown
@@ -149,6 +148,7 @@ def debug(thing):
     return f"<script>console.log({dumpee});</script>"
 
 
+# TODO Remove or at least remove querying from filters
 @pass_eval_context
 def entity_name_filter(eval_ctx, id):
     entity, _, _ = get_entity_query(id)
@@ -165,8 +165,7 @@ def entity_name_filter(eval_ctx, id):
 
 
 @pass_eval_context
-def get_entity_name_filter(eval_ctx, id):
-    entity, _, _ = get_entity_query(id)
+def get_entity_name_filter(eval_ctx, entity):
     if entity:
         if eval_ctx.autoescape:
             if entity.name:
@@ -192,6 +191,7 @@ def uri_encode(uri_template, kwarg_list):
     return uri.expand(**kwarg_list)
 
 
+# TODO  Non pythonic naming syntax
 # Takes a URI and appends a specified parameter to it
 def appendUriParam(uri, param):
     uri_parts = list(urlparse.urlparse(uri))
@@ -276,10 +276,12 @@ def get_entity_geometry(entity):
     }
 
 
-def get_entity_paint_options(entity):
-    dataset = get_dataset_query(entity.dataset)
-    if dataset:
-        return dataset.paint_options
+def get_entity_paint_options(entity, datasets):
+    entity_datasets = [
+        dataset for dataset in datasets if dataset["dataset"] == entity.dataset
+    ]
+    if len(entity_datasets) > 0:
+        return entity_datasets[0]["paint_options"]
 
 
 def commanum_filter(v):

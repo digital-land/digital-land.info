@@ -163,7 +163,7 @@
 
           <ul class="app-results-list">
             {% for row in data %}
-              {{ entityCard(row) }}
+              {{ entityCard(row,row|get_entity_paint_options(datasets)) }}
             {% endfor %}
           </ul>
           <!-- /.app-results-list -->

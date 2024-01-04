@@ -7,18 +7,20 @@ from application.search.filters import (
     QueryFilters,
 )
 
-
-def test_QueryFilters_typologies_exist_invalid_typology(mocker):
-    mocker.patch(
-        "application.search.filters.get_typology_names",
-        return_value=["category"],
-    )
-    typology = ["invalid_typology"]
-    try:
-        QueryFilters(typology=typology)
-        assert False, f"invalid typology: {typology} is being labelled as valid"
-    except ValidationError:
-        assert True
+# removed as typologies checking is not in the main function
+# TODO use integration/acceptance test to do this
+# TODO add unit tests for application.routers.entity import validate_typologies
+# def test_QueryFilters_typologies_exist_invalid_typology(mocker):
+#     mocker.patch(
+#         "application.search.filters.get_typology_names",
+#         return_value=["category"],
+#     )
+#     typology = ["invalid_typology"]
+#     try:
+#         QueryFilters(typology=typology)
+#         assert False, f"invalid typology: {typology} is being labelled as valid"
+#     except ValidationError:
+#         assert True
 
 
 def test_QueryFilters_typologies_exist_valid_typology(mocker):

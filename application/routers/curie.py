@@ -1,8 +1,9 @@
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
+from sqlalchemy.orm import Session
 
 from application.db.models import LookupOrm, EntityOrm
 from application.db.session import get_context_session
@@ -11,19 +12,23 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def get_entity_redirect_by_curie(request: Request, prefix: str, reference: str):
-    with get_context_session() as session:
+def get_entity_redirect_by_curie(
+    request: Request,
+    prefix: str,
+    reference: str,
+    session: Session = Depends(get_context_session),
+):
+    lookup = (
+        session.query(LookupOrm.entity.label("entity"))
+        .filter(LookupOrm.prefix == prefix, LookupOrm.reference == reference)
+        .first()
+    )
+    if lookup is None:
         lookup = (
-            session.query(LookupOrm.entity.label("entity"))
-            .filter(LookupOrm.prefix == prefix, LookupOrm.reference == reference)
+            session.query(EntityOrm.entity.label("entity"))
+            .filter(EntityOrm.prefix == prefix, EntityOrm.reference == reference)
             .first()
         )
-        if lookup is None:
-            lookup = (
-                session.query(EntityOrm.entity.label("entity"))
-                .filter(EntityOrm.prefix == prefix, EntityOrm.reference == reference)
-                .first()
-            )
     if lookup is None:
         raise HTTPException(status_code=404)
     else:

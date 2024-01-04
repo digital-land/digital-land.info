@@ -1,10 +1,10 @@
 from tests.acceptance.pageObjectModels.mapPOM import MapPOM
 
 
-def test_map_page_loads_ok(server_process, BASE_URL, page):
-    mapPage = MapPOM(page, BASE_URL)
+def test_map_page_loads_ok(server_url, page):
+    mapPage = MapPOM(page, server_url)
     mapPage.navigate()
-    response = page.goto(BASE_URL + "/map/")
+    response = page.goto(server_url + "/map/")
     assert response.ok
     heading = page.get_by_role(
         "heading",
@@ -15,15 +15,15 @@ def test_map_page_loads_ok(server_process, BASE_URL, page):
 
 
 def test_toggle_layers_on_the_national_map_correctly_shows_entity(
-    server_process,
+    server_url,
     page,
     add_base_entities_to_database_yield_reset,
+    # test_data,
     skip_if_not_supportsGL,
     test_settings,
-    BASE_URL,
 ):
     # as the map xy coords are dependent on the viewport size, we need to set it to make sure the tests are consistent
-    mapPage = MapPOM(page, BASE_URL)
+    mapPage = MapPOM(page, server_url)
     mapPage.navigate("#50.88865897214836,-2.260771340418273,11.711391365982688z")
     mapPage.check_layer_checkbox("Conservation area")
     mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")

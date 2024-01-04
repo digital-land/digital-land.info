@@ -6,7 +6,6 @@
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 {%- from "components/entity-value/macro.jinja" import entityValue %}
 {%- from "components/entity-field/macro.jinja" import entityField %}
-
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
 {% if row['name'] %}
@@ -70,7 +69,7 @@
                       {{ entityField(field,fields,dataset_fields) }}
                     </th>
                     <td class="govuk-table__cell app-table__cell">
-                      {{ entityValue(field,row[field],fields,dataset_fields)}}
+                      {{ entityValue(field,row[field],fields,dataset_fields,organisaiton_entity)}}
                     </td>
                     {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
@@ -163,7 +162,7 @@
             'height': 460,
             'enableZoomControls': true,
             'geojsons': [entity|get_entity_geometry],
-            'paint_options': entity|get_entity_paint_options,
+            'paint_options': dataset.paint_options,
           })
         }}
       {% endcall %}

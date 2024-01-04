@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Request, HTTPException, Path, Depends
 from fastapi.responses import HTMLResponse
+from sqlalchemy.orm import Session
 
 from application.data_access.digital_land_queries import (
     get_dataset_query,
@@ -17,6 +18,7 @@ from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
+from application.db.session import get_context_session
 
 
 router = APIRouter()
@@ -37,9 +39,10 @@ def get_datasets_by_typology(datasets):
 def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
+    session: Session = Depends(get_context_session),
 ):
-    datasets = get_datasets()
-    entity_counts_response = get_entity_count()
+    datasets = get_datasets(session)
+    entity_counts_response = get_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available
     for dataset in datasets:
@@ -67,26 +70,27 @@ def get_dataset(
     settings: Settings = Depends(get_settings),
     # limit: int = Path(default=50,description="Limit number of rows in the response"),
     extension: Optional[SuffixDataset] = None,
+    session: Session = Depends(get_context_session),
 ):
     data_file_url = settings.DATA_FILE_URL
     try:
-        _dataset = get_dataset_query(dataset)
+        _dataset = get_dataset_query(session, dataset)
         if _dataset is None:
             raise HTTPException(status_code=404, detail="dataset not found")
 
-        entity_count = get_entity_count(dataset)
+        entity_count = get_entity_count(session, dataset)
 
         if extension is not None and extension.value == "json":
             _dataset.entity_count = entity_count
             return _dataset
 
-        latest_resource = get_latest_resource(dataset)
-        publisher_coverage = get_publisher_coverage(dataset)
-
+        latest_resource = get_latest_resource(session, dataset)
+        publisher_coverage = get_publisher_coverage(session, dataset)
+        # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories
         if _dataset.typology == "category":
             entity_query_params = {"dataset": [dataset]}
-            categories = get_entity_search(entity_query_params)["entities"]
+            categories = get_entity_search(session, entity_query_params)["entities"]
             categories = [
                 category.dict(by_alias=True, exclude={"geojson"})
                 for category in categories

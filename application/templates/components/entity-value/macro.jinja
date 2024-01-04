@@ -1,4 +1,4 @@
-{% macro entityValue(field,value,field_spec,dataset_fields) %}
+{% macro entityValue(field,value,field_spec,dataset_fields,organisation_entity) %}
     {% if field_spec and field_spec[field] %}
         {% if field_spec[field]['typology'] == 'value' %}
             {% if field_spec[field]['datatype'] == 'url' %}
@@ -8,7 +8,7 @@
             {% elif field_spec[field]['datatype'] == 'wkt' %}
                 <div class="app-code-block">{{ value }}</div>
             {% elif field in ["organisation-entity"] %}
-                <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ value|get_entity_name }}</a>
+                <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ organisation_entity|get_entity_name }}</a>
             {% elif field_spec[field]['uri-template'] %}
                 <a class="govuk-link" href="{{ field_spec[field]['uri-template']|uri_encode({field:value}) }}"> {{value}} </a>
             {% else %}
@@ -53,7 +53,7 @@
         {%- elif field in ["combined-authority","local-authority"] %}
             <a class ="govuk-link" href="{{ '/prefix/local-authority/reference/' + value }}">{{ value }}</a>
         {%- elif field in ["organisation-entity"] %}
-            <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ value|get_entity_name }}</a>
+            <a class ="govuk-link" href="{{ '/entity/' + value }}">{{ organisation_entity|get_entity_name }}</a>
         {%- elif field in ["parliament-thesaurus"] %}
             <a class ="govuk-link" href="{{ 'https://lda.data.parliament.uk/terms/' + value }}">{{ value }}</a>
         {%- elif field in ["statistical-geography"] %}

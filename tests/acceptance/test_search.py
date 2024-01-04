@@ -1,9 +1,14 @@
+import pytest
+
 from datetime import datetime
+
+from application.db.models import TypologyOrm
+
 from tests.acceptance.pageObjectModels.searchPOM import SearchPOM
 
 
-def test_search_page_loads_ok(server_process, BASE_URL, page):
-    response = page.goto(BASE_URL + "/entity/")
+def test_search_page_loads_ok(server_url, page):
+    response = page.goto(server_url + "/entity/")
     assert response.ok
     heading = page.get_by_role(
         "heading",
@@ -12,8 +17,8 @@ def test_search_page_loads_ok(server_process, BASE_URL, page):
     assert heading.is_visible()
 
 
-def test_blank_search(server_process, BASE_URL, page):
-    page.goto(BASE_URL)
+def test_blank_search(server_url, page):
+    page.goto(server_url)
     page.click("text=Search")
 
     with page.expect_response("**/entity/**") as response:
@@ -22,20 +27,55 @@ def test_blank_search(server_process, BASE_URL, page):
     assert response.value.ok
 
 
+@pytest.fixture
+def app_typology_data():
+    typologies = [
+        {
+            "typology": "geography",
+            "name": "geography",
+            "description": "This is an example typology.",
+            "entry_date": "2022-01-01",
+            "start_date": "2022-01-01",
+            "end_date": "2022-12-31",
+            "plural": "Example Typologies",
+            "text": "This is some example text.",
+            "wikidata": "Q12345",
+            "wikipedia": "en:Example_Typology",
+        },
+        {
+            "typology": "organisation",
+            "name": "organisation",
+            "description": "This is an example typology.",
+            "entry_date": "2022-01-01",
+            "start_date": "2022-01-01",
+            "end_date": "2022-12-31",
+            "plural": "Example Typologies",
+            "text": "This is some example text.",
+            "wikidata": "Q12345",
+            "wikipedia": "en:Example_Typology",
+        },
+    ]
+    return typologies
+
+
 def test_search_filters_show_correct_number_of_results(
-    server_process, add_base_entities_to_database_yield_reset, test_data, BASE_URL, page
+    server_url, page, app_test_data, app_db_session, app_typology_data
 ):
-    page.goto(BASE_URL)
+    for typology in app_typology_data:
+        app_db_session.add(TypologyOrm(**typology))
+    app_db_session.commit()
+
+    page.goto(server_url)
     page.click("text=Search")
 
     page.wait_for_timeout(1000)
 
-    searchPage = SearchPOM(page, BASE_URL)
+    searchPage = SearchPOM(page, server_url)
 
     # filter test data entities to only include organisations
     filtered = [
         entity
-        for entity in test_data["entities"]
+        for entity in app_test_data["entities"]
         if entity["typology"] == "organisation"
     ]
 
@@ -46,7 +86,7 @@ def test_search_filters_show_correct_number_of_results(
     # filter test data entities to include geographies and organisations
     filtered = [
         entity
-        for entity in test_data["entities"]
+        for entity in app_test_data["entities"]
         if entity["typology"] == "organisation" or entity["typology"] == "geography"
     ]
 
@@ -57,7 +97,7 @@ def test_search_filters_show_correct_number_of_results(
     # filter test data entities to include typologies geographies and organisations and a dataset of brownfield sites
     filtered = [
         entity
-        for entity in test_data["entities"]
+        for entity in app_test_data["entities"]
         if (entity["typology"] == "organisation" or entity["typology"] == "geography")
         and entity["dataset"] == "brownfield-site"
     ]
@@ -70,7 +110,7 @@ def test_search_filters_show_correct_number_of_results(
     # and a dataset of brownfield sites and an end date that is in the past
     filtered = [
         entity
-        for entity in test_data["entities"]
+        for entity in app_test_data["entities"]
         if (entity["typology"] == "organisation" or entity["typology"] == "geography")
         and (entity["dataset"] == "brownfield-site")
         and (
@@ -86,7 +126,7 @@ def test_search_filters_show_correct_number_of_results(
     # clear all filters bar historical and check that the number of results is correct
     filtered = [
         entity
-        for entity in test_data["entities"]
+        for entity in app_test_data["entities"]
         if (
             entity["end_date"] is not None
             and datetime.strptime(entity["end_date"], "%Y-%m-%d") < datetime.now()
@@ -102,7 +142,7 @@ def test_search_filters_show_correct_number_of_results(
     # clear remaining filters, and filter by entry date
     filtered = [
         entity
-        for entity in test_data["entities"]
+        for entity in app_test_data["entities"]
         if (
             entity["entry_date"] is not None
             and datetime.strptime(entity["entry_date"], "%Y-%m-%d")

@@ -1,63 +1,67 @@
 import re
+import pytest
 
-from tests.utils.database import add_entities_to_database
+from application.db.models import EntityOrm
+
 
 ENTITY_ROUTE = "/entity/"
 
+
 # define some test data
-mockEntities = [
-    {
-        "entity": "106",
-        "name": "A space",
-        "entry_date": "2019-01-07",
-        "start_date": "2019-01-05",
-        "end_date": "2020-01-07",
-        "dataset": "greenspace",
-        "json": None,
-        "organisation_entity": None,
-        "prefix": "greenspace",
-        "reference": "Q1234567",
-        "typology": "geography",
-        "geometry": "MultiPolygon (((-0.3386878967285156 53.74426323597749, -0.337904691696167 53.743857158459996, -0.33673524856567383 53.744003093019586, -0.33637046813964844 53.74463124033804, -0.3365743160247803 53.74525937826645, -0.33737897872924805 53.74541799747043, -0.33875226974487305 53.74505000000031, -0.3386878967285156 53.74426323597749)))",  # noqa: E501
-        "point": "POINT (-0.33737897872924805 53.74541799747043)",
-    },
-    {
-        "entity": "107",
-        "name": "B space",
-        "entry_date": "2019-01-07",
-        "start_date": None,
-        "end_date": "2020-01-07",
-        "dataset": "Brownfield site",
-        "json": None,
-        "organisation_entity": None,
-        "prefix": "greenspace",
-        "reference": "Q444444",
-        "typology": "geography",
-        "geometry": None,
-        "point": "POINT (-0.33737897872924805 53.74541799747043)",
-    },
-    {
-        "entity": "108",
-        "name": "C space",
-        "entry_date": "2019-01-07",
-        "start_date": None,
-        "end_date": "2020-01-07",
-        "dataset": "Forest",
-        "json": None,
-        "organisation_entity": None,
-        "prefix": "wikidata",
-        "reference": "Q20648596",
-        "typology": "organisation",
-        "geometry": None,
-        "point": None,
-    },
-]
+@pytest.fixture
+def mock_entities():
+    mock_entities = [
+        {
+            "entity": "106",
+            "name": "A space",
+            "entry_date": "2019-01-07",
+            "start_date": "2019-01-05",
+            "end_date": "2020-01-07",
+            "dataset": "greenspace",
+            "json": None,
+            "organisation_entity": None,
+            "prefix": "greenspace",
+            "reference": "Q1234567",
+            "typology": "geography",
+            "geometry": "MultiPolygon (((-0.3386878967285156 53.74426323597749, -0.337904691696167 53.743857158459996, -0.33673524856567383 53.744003093019586, -0.33637046813964844 53.74463124033804, -0.3365743160247803 53.74525937826645, -0.33737897872924805 53.74541799747043, -0.33875226974487305 53.74505000000031, -0.3386878967285156 53.74426323597749)))",  # noqa: E501
+            "point": "POINT (-0.33737897872924805 53.74541799747043)",
+        },
+        {
+            "entity": "107",
+            "name": "B space",
+            "entry_date": "2019-01-07",
+            "start_date": None,
+            "end_date": "2020-01-07",
+            "dataset": "Brownfield site",
+            "json": None,
+            "organisation_entity": None,
+            "prefix": "greenspace",
+            "reference": "Q444444",
+            "typology": "geography",
+            "geometry": None,
+            "point": "POINT (-0.33737897872924805 53.74541799747043)",
+        },
+        {
+            "entity": "108",
+            "name": "C space",
+            "entry_date": "2019-01-07",
+            "start_date": None,
+            "end_date": "2020-01-07",
+            "dataset": "Forest",
+            "json": None,
+            "organisation_entity": None,
+            "prefix": "wikidata",
+            "reference": "Q20648596",
+            "typology": "organisation",
+            "geometry": None,
+            "point": None,
+        },
+    ]
+    return mock_entities
 
 
-def test_correctly_loads_the_entity_root(
-    server_process, page, BASE_URL, add_base_entities_to_database_yield_reset
-):
-    page.goto(BASE_URL + ENTITY_ROUTE)
+def test_correctly_loads_the_entity_root(server_url, page, app_test_data):
+    page.goto(server_url + ENTITY_ROUTE)
     assert page.title() == "Search for planning data"
     resultsText = page.locator(".app-results-summary__title").inner_text()
     assert re.match(r"\d+ results", resultsText)
@@ -67,11 +71,13 @@ def test_correctly_loads_the_entity_root(
 
 
 async def test_find_an_entity_via_the_search_page(
-    server_process, BASE_URL, page, empty_database
+    server_url, page, app_db_session, mock_entities
 ):
-    add_entities_to_database(mockEntities)
+    for entity in mock_entities:
+        app_db_session.add(EntityOrm(**entity))
+    app_db_session.commit()
 
-    page.goto(BASE_URL)
+    page.goto(server_url)
     page.get_by_role("link", name="Search", exact=True).click()
 
     # check if A space and B space are in the results
@@ -80,11 +86,11 @@ async def test_find_an_entity_via_the_search_page(
     assert page.get_by_role("heading", name="C space") is not None
 
     # check that only two results are returned
-    resultsCountText = page.locator(
+    results_count_text = page.locator(
         "//h2[contains(@class, 'app-results-summary__title')]"
     ).first.text_content()
-    numberOfResults = int("".join(filter(str.isdigit, resultsCountText)))
-    assert numberOfResults == mockEntities.__len__()
+    number_of_results = int("".join(filter(str.isdigit, results_count_text)))
+    assert number_of_results == len(mock_entities)
 
     # check that A and B space has a map and C space doesn't
     await page.wait_for_selector("[id='106-map']")
@@ -122,59 +128,65 @@ async def test_find_an_entity_via_the_search_page(
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["reference"].lower()
+        == mock_entities[0]["reference"].lower()
     )
     assert (
         page.get_by_role("row", name="Prefix")
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["prefix"].lower()
+        == mock_entities[0]["prefix"].lower()
     )
     assert (
         page.get_by_role("row", name="Name")
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["name"].lower()
+        == mock_entities[0]["name"].lower()
     )
     assert (
         page.get_by_role("row", name="Dataset")
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["dataset"].lower()
+        == mock_entities[0]["dataset"].lower()
     )
     assert (
         page.get_by_role("row", name="Start date")
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["start_date"].lower()
+        == mock_entities[0]["start_date"].lower()
     )
     assert (
         page.get_by_role("row", name="End date")
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["end_date"].lower()
+        == mock_entities[0]["end_date"].lower()
     )
     assert (
         page.get_by_role("row", name="Entry date")
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["entry_date"].lower()
+        == mock_entities[0]["entry_date"].lower()
     )
     assert (
         page.get_by_role("row", name="Typology")
         .get_by_role("cell")
         .first.inner_text()
         .lower()
-        == mockEntities[0]["typology"].lower()
+        == mock_entities[0]["typology"].lower()
     )
 
 
+# def test_entity_search_field_paramter_selects_correct_fields():
+#     """
+#     The field paramter can be passed to our api to control what is
+#     returned in the response. this paramter only affects the json
+#     and geojson extensions.
+#     """
 # This test is currently failing on the pipeline due to line 51 timing out
 # ========================================================================
 # def test_correctly_loads_an_entity_page(server_process, BASE_URL, page):
