@@ -24,10 +24,6 @@ from application.search.filters import (
 
 
 def test_QueryFilters_typologies_exist_valid_typology(mocker):
-    mocker.patch(
-        "application.search.filters.get_typology_names",
-        return_value=["category"],
-    )
     typology = ["category"]
     try:
         QueryFilters(typology=typology)

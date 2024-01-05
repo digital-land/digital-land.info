@@ -348,10 +348,6 @@ def test_get_entity_entity_returned_html(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
     )
     mocker.patch(
-        "application.core.filters.get_dataset_query",
-        return_value=ancient_woodland_dataset,
-    )
-    mocker.patch(
         "application.routers.entity.get_dataset_query",
         return_value=ancient_woodland_dataset,
     )
@@ -576,10 +572,6 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     mocker.patch(
         "application.routers.entity.get_local_authorities",
         return_value=local_authorities,
-    )
-    mocker.patch(
-        "application.core.filters.get_dataset_query",
-        return_value=ancient_woodland_dataset,
     )
     mocker.patch(
         "application.routers.entity.get_dataset_names",
