@@ -191,9 +191,10 @@ def uri_encode(uri_template, kwarg_list):
     return uri.expand(**kwarg_list)
 
 
-# TODO  Non pythonic naming syntax
-# Takes a URI and appends a specified parameter to it
 def append_uri_param(uri, param):
+    """
+    Takes a URI and appends a specified parameter to it
+    """
     uri_parts = list(urlparse.urlparse(uri))
     query = dict(urlparse.parse_qsl(uri_parts[4]))
     query.update(param)

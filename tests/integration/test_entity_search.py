@@ -1,5 +1,4 @@
 import pytest
-import logging
 from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
 from application.search.enum import PeriodOption, GeometryRelation
@@ -85,7 +84,6 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
 ):
     response = client.get("/entity.json?dataset=not-exists&dataset=greenspace")
     assert response.status_code == 422
-    logging.warning(response.json())
     assert response.json() == {
         "detail": [
             {
