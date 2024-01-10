@@ -193,7 +193,7 @@ def uri_encode(uri_template, kwarg_list):
 
 # TODO  Non pythonic naming syntax
 # Takes a URI and appends a specified parameter to it
-def appendUriParam(uri, param):
+def append_uri_param(uri, param):
     uri_parts = list(urlparse.urlparse(uri))
     query = dict(urlparse.parse_qsl(uri_parts[4]))
     query.update(param)
@@ -221,7 +221,7 @@ def hash_file(filename):
 def cacheBust(uri):
     filename = uri.split("?")[0]
     sha = hash_file(filename)
-    return appendUriParam(uri, {"v": sha})
+    return append_uri_param(uri, {"v": sha})
 
 
 def extract_component_key(json_ref):
