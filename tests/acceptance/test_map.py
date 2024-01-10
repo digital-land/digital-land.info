@@ -17,8 +17,7 @@ def test_map_page_loads_ok(server_url, page):
 def test_toggle_layers_on_the_national_map_correctly_shows_entity(
     server_url,
     page,
-    add_base_entities_to_database_yield_reset,
-    # test_data,
+    app_test_data,
     skip_if_not_supportsGL,
     test_settings,
 ):
