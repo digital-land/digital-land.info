@@ -65,7 +65,7 @@ def create_db(test_settings) -> PostgresDsn:
     alembic.command.upgrade(config, "head")
 
     yield database_url
-    # drop_database(database_url)
+    drop_database(database_url)
 
 
 @pytest.fixture(scope="session")
