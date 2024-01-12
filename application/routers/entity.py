@@ -34,7 +34,7 @@ from application.exceptions import (
     DatasetValueNotFound,
     TypologyValueNotFound,
 )
-from application.db.session import get_context_session
+from application.db.session import get_session
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ def get_entity(
     request: Request,
     entity: int = Path(default=Required, description="Entity id"),
     extension: Optional[SuffixEntity] = None,
-    session: Session = Depends(get_context_session),
+    session: Session = Depends(get_session),
 ):
     e, old_entity_status, new_entity_id = get_entity_query(session, entity)
 
@@ -212,7 +212,7 @@ def search_entities(
     request: Request,
     query_filters: QueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
-    session: Session = Depends(get_context_session),
+    session: Session = Depends(get_session),
 ):
     # get query_filters as a dict
     query_params = asdict(query_filters)

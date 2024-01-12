@@ -11,7 +11,7 @@ from application.core.models import OrganisationModel, OrganisationsByTypeModel
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.db.models import OrganisationOrm
-from application.db.session import get_context_session
+from application.db.session import get_session
 from application.search.enum import SuffixOrganisation
 
 router = APIRouter()
@@ -34,7 +34,7 @@ display_names = {
 def get_organisations(
     request: Request,
     extension: Optional[SuffixOrganisation] = None,
-    session: Session = Depends(get_context_session),
+    session: Session = Depends(get_session),
 ) -> OrganisationsByTypeModel:
     organisations_by_type = {
         o.type: []

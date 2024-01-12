@@ -3,7 +3,8 @@ import sentry_sdk
 
 from datetime import timedelta
 
-from fastapi import FastAPI, Request, status
+from sqlalchemy.orm import Session
+from fastapi import FastAPI, Request, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.exceptions import RequestValidationError
@@ -17,6 +18,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.responses import Response
 from http import HTTPStatus
 
+from application.db.session import get_session
 from application.core.templates import templates
 from application.db.models import EntityOrm
 from application.exceptions import DigitalLandValidationError
@@ -97,20 +99,19 @@ def add_base_routes(app):
         )
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
-    def health():
-        from application.db.session import get_context_session
+    def health(session: Session = Depends(get_session)):
+
         from sqlalchemy.sql import select
 
         try:
-            with get_context_session() as session:
-                sql = select(EntityOrm.entity).limit(1)
-                result = session.execute(sql).fetchone()
-                status = {
-                    "status": "OK",
-                    "entities_present": "OK" if result is not None else "FAIL",
-                }
-                logger.info(f"healthcheck {status}")
-                return status
+            sql = select(EntityOrm.entity).limit(1)
+            result = session.execute(sql).fetchone()
+            status = {
+                "status": "OK",
+                "entities_present": "OK" if result is not None else "FAIL",
+            }
+            logger.info(f"healthcheck {status}")
+            return status
         except Exception as e:
             logger.exception(e)
             raise e
@@ -118,34 +119,32 @@ def add_base_routes(app):
     @app.get(
         "/invalid-geometries", response_class=JSONResponse, include_in_schema=False
     )
-    def invalid_geometries():
-        from application.db.session import get_context_session
+    def invalid_geometries(session: Session = Depends(get_session)):
         from application.core.models import entity_factory
         from sqlalchemy import func
         from sqlalchemy import and_
         from sqlalchemy import not_
 
         try:
-            with get_context_session() as session:
-                query_args = [
-                    EntityOrm,
-                    func.ST_IsValidReason(EntityOrm.geometry).label("invalid_reason"),
-                ]
-                query = session.query(*query_args)
-                query = query.filter(
-                    and_(
-                        EntityOrm.geometry.is_not(None),
-                        not_(func.ST_IsValid(EntityOrm.geometry)),
-                    )
+            query_args = [
+                EntityOrm,
+                func.ST_IsValidReason(EntityOrm.geometry).label("invalid_reason"),
+            ]
+            query = session.query(*query_args)
+            query = query.filter(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    not_(func.ST_IsValid(EntityOrm.geometry)),
                 )
-                entities = query.all()
-                return [
-                    {
-                        "entity": entity_factory(e.EntityOrm),
-                        "invalid_reason": e.invalid_reason,
-                    }
-                    for e in entities
-                ]
+            )
+            entities = query.all()
+            return [
+                {
+                    "entity": entity_factory(e.EntityOrm),
+                    "invalid_reason": e.invalid_reason,
+                }
+                for e in entities
+            ]
         except Exception as e:
             logger.exception(e)
             return {"message": "There was an error checking for invalid geometries"}

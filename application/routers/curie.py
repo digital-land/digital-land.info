@@ -6,7 +6,7 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
 from application.db.models import LookupOrm, EntityOrm
-from application.db.session import get_context_session
+from application.db.session import get_session
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ def get_entity_redirect_by_curie(
     request: Request,
     prefix: str,
     reference: str,
-    session: Session = Depends(get_context_session),
+    session: Session = Depends(get_session),
 ):
     lookup = (
         session.query(LookupOrm.entity.label("entity"))

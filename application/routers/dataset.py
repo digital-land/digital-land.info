@@ -18,7 +18,7 @@ from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
-from application.db.session import get_context_session
+from application.db.session import get_session
 
 
 router = APIRouter()
@@ -39,7 +39,7 @@ def get_datasets_by_typology(datasets):
 def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
-    session: Session = Depends(get_context_session),
+    session: Session = Depends(get_session),
 ):
     datasets = get_datasets(session)
     entity_counts_response = get_entity_count(session)
@@ -70,7 +70,7 @@ def get_dataset(
     settings: Settings = Depends(get_settings),
     # limit: int = Path(default=50,description="Limit number of rows in the response"),
     extension: Optional[SuffixDataset] = None,
-    session: Session = Depends(get_context_session),
+    session: Session = Depends(get_session),
 ):
     data_file_url = settings.DATA_FILE_URL
     try:

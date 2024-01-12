@@ -14,6 +14,7 @@ import uvicorn
 import time
 import csv
 import json
+import logging
 
 from application.app import create_app  # noqa: E402
 
@@ -26,7 +27,7 @@ from application.db.models import (
     AttributionOrm,
     LicenceOrm,
 )
-from application.db.session import get_context_session
+from application.db.session import get_session
 from application.settings import Settings, get_settings
 from tests.utils.database import (
     add_base_datasets_to_database,
@@ -45,23 +46,28 @@ def test_settings() -> Settings:
     load_dotenv(override=True)
     get_settings.cache_clear()
 
-    return Settings(
+    settings = Settings(
         WRITE_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
         READ_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
     )
+
+    logging.warning(settings)
+
+    return settings
 
 
 @pytest.fixture(scope="session")
 def create_db(test_settings) -> PostgresDsn:
     # grab db url and create db
-    database_url = test_settings.WRITE_DATABASE_URL
+    database_url = DEFAULT_TEST_DATABASE_URL
     if database_exists(database_url):
         drop_database(database_url)
     create_database(database_url)
+    logging.error(database_url)
 
     # apply migrations in new db, this assumes we will always want a properly set-up db
     config = Config("alembic.ini")
-    config.set_section_option("alembic", "sqlalchemy.url", database_url)
+    config.set_main_option("sqlalchemy.url", database_url)
     alembic.command.upgrade(config, "head")
 
     yield database_url
@@ -205,7 +211,7 @@ def client(app: FastAPI, db_session: Session) -> TestClient:
     this should be used for api calls does not spin up a local server
     so separate programs e.g. a browser cannot interact with it
     """
-    app.dependency_overrides[get_context_session] = lambda: db_session
+    app.dependency_overrides[get_session] = lambda: db_session
     return TestClient(app)
 
 
@@ -350,13 +356,25 @@ def get_context_session_override():
 
 
 appInstance = create_app()
-appInstance.dependency_overrides[get_context_session] = get_context_session_override
+appInstance.dependency_overrides[get_session] = get_context_session_override
 HOST = "0.0.0.0"
 PORT = 9000
 
 
 def run_server():
     uvicorn.run(appInstance, host=HOST, port=PORT)
+
+
+def mock_settings() -> Settings:
+    from dotenv import load_dotenv
+
+    load_dotenv(override=True)
+    get_settings.cache_clear()
+
+    return Settings(
+        WRITE_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
+        READ_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
+    )
 
 
 @pytest.fixture(scope="session")

@@ -35,7 +35,6 @@ def run_migrations_offline():
     Calls to context.execute() here emit the given string to the
     script output.
     """
-
     if "DATABASE_URL" in os.environ:
         url = os.environ["DATABASE_URL"].replace("postgres://", "postgresql://", 1)
     else:
@@ -62,7 +61,11 @@ def run_migrations_online():
     from application.settings import get_settings
     from sqlalchemy import create_engine
 
-    url = get_settings().WRITE_DATABASE_URL
+    if config.get_main_option("sqlalchemy.url"):
+        url = config.get_main_option("sqlalchemy.url")
+    else:
+        url = get_settings().WRITE_DATABASE_URL
+
     engine = create_engine(url)
     connectable = engine
 

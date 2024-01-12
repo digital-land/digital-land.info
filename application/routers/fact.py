@@ -4,6 +4,7 @@ import json
 from typing import Optional
 from dataclasses import asdict
 from urllib.parse import urlencode
+from sqlalchemy.orm import Session
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse
@@ -13,6 +14,7 @@ from application.search.filters import (
     FactQueryFilters,
 )
 
+from application.db.session import get_session
 from application.data_access.entity_queries import get_entity_query
 from application.data_access.fact_queries import (
     get_fact_query,
@@ -97,6 +99,7 @@ def search_facts(
     request: Request,
     query_filters: FactQueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
+    session: Session = Depends(get_session),
 ):
     query_params = asdict(query_filters)
 
@@ -109,7 +112,7 @@ def search_facts(
         facts_dicts = _convert_model_to_dict(facts)
 
         dataset_fields = get_dataset_fields(
-            dataset=query_params["dataset"], entity=query_params["entity"]
+            session, dataset=query_params["dataset"], entity=query_params["entity"]
         )
 
         dataset_fields_dicts = _convert_model_to_dict(dataset_fields)
