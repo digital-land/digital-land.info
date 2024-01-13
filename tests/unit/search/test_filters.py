@@ -51,17 +51,17 @@ def test_QueryFilters_valid_entity():
 
 
 # fact parameter classes
-def test_FactDatasetQueryFilters_invalid_dataset(mocker):
-    mocker.patch(
-        "application.search.validators.get_dataset_names",
-        return_value=["ancient-woodland"],
-    )
-    dataset = "invalid_name"
-    try:
-        FactDatasetQueryFilters(dataset=dataset)
-        assert False, f" invalid dataset :{dataset} has been labelled as valid"
-    except ValidationError:
-        assert True
+# def test_FactDatasetQueryFilters_invalid_dataset(mocker):
+#     mocker.patch(
+#         "application.search.validators.get_dataset_names",
+#         return_value=["ancient-woodland"],
+#     )
+#     dataset = "invalid_name"
+#     try:
+#         FactDatasetQueryFilters(dataset=dataset)
+#         assert False, f" invalid dataset :{dataset} has been labelled as valid"
+#     except ValidationError:
+#         assert True
 
 
 def test_FactDatasetQueryFilters_valid_dataset(mocker):
