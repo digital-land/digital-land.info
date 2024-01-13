@@ -112,7 +112,7 @@ def search_facts(
         facts_dicts = _convert_model_to_dict(facts)
 
         dataset_fields = get_dataset_fields(
-            session, dataset=query_params["dataset"], entity=query_params["entity"]
+            dataset=query_params["dataset"], entity=query_params["entity"]
         )
 
         dataset_fields_dicts = _convert_model_to_dict(dataset_fields)
@@ -132,7 +132,7 @@ def search_facts(
             entity_reference = facts_dicts[0]["entity-reference"]
         else:
             e, old_entity_status, new_entity_id = get_entity_query(
-                query_params["entity"]
+                session, query_params["entity"]
             )
             if e:
                 entity_name = e.name

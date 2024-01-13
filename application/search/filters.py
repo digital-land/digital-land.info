@@ -275,10 +275,6 @@ class QueryFilters:
 class FactDatasetQueryFilters:
     dataset: str
 
-    _validate_dataset_name = validator("dataset", allow_reuse=True)(
-        validate_dataset_name
-    )
-
 
 @dataclass
 class FactQueryFilters(FactDatasetQueryFilters):
