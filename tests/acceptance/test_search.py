@@ -2,7 +2,7 @@ import pytest
 
 from datetime import datetime
 
-from application.db.models import TypologyOrm
+from application.db.models import TypologyOrm, EntityOrm
 
 from tests.acceptance.pageObjectModels.searchPOM import SearchPOM
 
@@ -154,3 +154,50 @@ def test_search_filters_show_correct_number_of_results(
     searchPage.filter_by_entry_date("before", "2020", "09", "04")
     searchPage.search_button_click()
     searchPage.test_count_of_results(len(filtered))
+
+
+@pytest.mark.parametrize(
+    "input_values, expected_fields",
+    [
+        ({"json": {"ancient-woodland-status": "ANW"}}, ["ancient-woodland-status"]),
+        ({"organisation_entity": 100}, ["organisation-entity"]),
+    ],
+)
+def test_entity_search_field_paramter_selects_correct_fields(
+    input_values, expected_fields, client, db_session
+):
+    """
+    The field paramter can be passed to our api to control what is
+    returned in the response. this paramter only affects the json
+    and geojson extensions.
+    """
+    default_entity = {
+        "entity": "1",
+        "name": None,
+        "entry_date": None,
+        "start_date": None,
+        "end_date": None,
+        "dataset": "ancient-woodland",
+        "json": None,
+        "organisation_entity": None,
+        "prefix": "ancient-woodland",
+        "reference": "1",
+        "typology": "geography",
+        "geometry": "MultiPolygon (((-0.3386878967285156 53.74426323597749, -0.337904691696167 53.743857158459996, -0.33673524856567383 53.744003093019586, -0.33637046813964844 53.74463124033804, -0.3365743160247803 53.74525937826645, -0.33737897872924805 53.74541799747043, -0.33875226974487305 53.74505000000031, -0.3386878967285156 53.74426323597749)))",  # noqa: E501
+        "point": "POINT (-0.33737897872924805 53.74541799747043)",
+    }
+
+    new_entity = {
+        key: (input_values[key] if key in input_values.keys() else value)
+        for key, value in default_entity.items()
+    }
+
+    db_session.add(EntityOrm(**new_entity))
+    db_session.commit()
+
+    field_query_param_string = "&".join([f"field={field}" for field in expected_fields])
+    entity = client.get(f"entity.json?{field_query_param_string}").json()["entities"][0]
+    for field in expected_fields:
+        assert (
+            field in entity.keys()
+        ), f"Expected field:{field} is not in the output fields:{entity.keys()}"
