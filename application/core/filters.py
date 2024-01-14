@@ -166,13 +166,16 @@ def entity_name_filter(eval_ctx, id):
 
 @pass_eval_context
 def get_entity_name_filter(eval_ctx, entity):
+    logging.warning("entity_name_filter")
+    logging.warning(entity["name"])
     if entity:
         if eval_ctx.autoescape:
             if entity.name:
+                logging.warning("entity_name_filter")
+                logging.warning(entity["name"])
                 return entity.name
             else:
                 return entity.reference
-    return id
 
 
 def get_entity_name(entity):

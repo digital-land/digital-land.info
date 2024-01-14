@@ -136,8 +136,10 @@ def get_entity(
 
         dataset = get_dataset_query(session, e.dataset)
 
-        organisation_entity = get_entity_query(session, e.organisation_entity)
-
+        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+        logging.warning("in entity function")
+        logging.warning(e.organisation_entity)
+        logging.warning(organisation_entity)
         return templates.TemplateResponse(
             "entity.html",
             {
@@ -155,7 +157,7 @@ def get_entity(
                 "fields": fields,
                 "dataset_fields": dataset_fields,
                 "dataset": dataset,
-                "orgnisation_entities": [organisation_entity],
+                "orgnisation_entity": organisation_entity,
             },
         )
     else:
