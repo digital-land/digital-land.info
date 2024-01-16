@@ -11,6 +11,8 @@ from application.core.filters import (
     render_markdown,
     entity_name_filter,
     get_entity_name_filter,
+    lookup_entity_filter,
+    lookup_entity_custom_filter,
     debug,
     digital_land_to_json,
     uri_encode,
@@ -73,6 +75,8 @@ templates.env.filters["make_param_str"] = make_param_str_filter
 templates.env.filters["render_markdown"] = render_markdown
 templates.env.filters["entity_name"] = entity_name_filter
 templates.env.filters["get_entity_name"] = get_entity_name_filter
+templates.env.filters["lookup_entity"] = lookup_entity_filter
+templates.env.filters["lookup_entity_custom"] = lookup_entity_custom_filter
 templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode

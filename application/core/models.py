@@ -126,7 +126,7 @@ class DatasetPublicationCountModel(DigitalLandBaseModel):
 
 def entity_factory(entity_orm: EntityOrm):
     e = EntityModel.from_orm(entity_orm)
-    if entity_orm.json is not None:
+    if hasattr(entity_orm, "json") and entity_orm.json is not None:
         for key, val in entity_orm.json.items():
             setattr(e, key, val)
     return e
