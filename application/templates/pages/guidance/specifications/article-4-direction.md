@@ -1,3 +1,9 @@
+Version: 1.2.2
+
+Published: 11 September 2023
+
+---
+
 There are 2 datasets you must provide for article 4 directions:
 
 - [article 4 direction dataset](#{{ 'article 4 direction dataset' | slugify }})
