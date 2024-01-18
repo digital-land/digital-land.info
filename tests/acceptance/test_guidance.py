@@ -1,5 +1,5 @@
-def test_guidance_pages_load_ok(server_process, BASE_URL, page):
-    response = page.goto(BASE_URL + "/guidance")
+def test_guidance_pages_load_ok(server_url, page):
+    response = page.goto(server_url + "/guidance")
     assert response.ok
     heading = page.get_by_role(
         "heading",

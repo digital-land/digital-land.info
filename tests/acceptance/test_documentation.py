@@ -1,8 +1,8 @@
 import json
 
 
-def test_docs_page_loads_ok(server_process, BASE_URL, page):
-    response = page.goto(BASE_URL + "/docs/")
+def test_docs_page_loads_ok(server_url, page):
+    response = page.goto(server_url + "/docs/")
     assert response.ok
     heading = page.get_by_role(
         "heading",
@@ -11,10 +11,8 @@ def test_docs_page_loads_ok(server_process, BASE_URL, page):
     assert heading.is_visible()
 
 
-def test_accessing_the_openAPI_file_and_the_swagger_editor(
-    server_process, BASE_URL, page
-):
-    page.goto(BASE_URL)
+def test_accessing_the_openAPI_file_and_the_swagger_editor(server_url, page):
+    page.goto(server_url)
     page.get_by_role("link", name="Documentation", exact=True).click()
 
     with page.expect_navigation() as navigation_info:

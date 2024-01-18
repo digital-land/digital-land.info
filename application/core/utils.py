@@ -3,6 +3,7 @@ import json
 import typing
 import urllib
 from typing import List
+import logging
 
 import requests
 from pydantic import BaseModel
@@ -20,6 +21,9 @@ def create_dict(keys_list, values_list):
 def model_dumps(obj, *args, **kwargs):
     import json
 
+    logging.warning(type(obj))
+    if isinstance(obj, dict):
+        logging.warning(obj)
     items = []
     if isinstance(obj, List):
         for m in obj:

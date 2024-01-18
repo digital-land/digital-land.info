@@ -2,6 +2,7 @@ import logging
 
 from typing import Optional, List, Tuple
 from sqlalchemy import select, func, or_, and_, tuple_
+from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
 from application.data_access.entity_query_helpers import (
@@ -13,93 +14,85 @@ from application.data_access.entity_query_helpers import (
     normalised_params,
 )
 from application.db.models import EntityOrm, OldEntityOrm
-from application.db.session import get_context_session
 from application.search.enum import GeometryRelation, PeriodOption
 
 logger = logging.getLogger(__name__)
 
 
 def get_entity_query(
+    session: Session,
     id: int,
 ) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
-    with get_context_session() as session:
-        old_entity = (
-            session.query(OldEntityOrm)
-            .filter(OldEntityOrm.old_entity_id == id)
-            .one_or_none()
+    old_entity = (
+        session.query(OldEntityOrm)
+        .filter(OldEntityOrm.old_entity_id == id)
+        .one_or_none()
+    )
+    if old_entity:
+        return (
+            None,
+            old_entity.status,
+            old_entity.new_entity_id,
         )
-        if old_entity:
-            return (
-                None,
-                old_entity.status,
-                old_entity.new_entity_id,
-            )
+    else:
+        entity = session.query(EntityOrm).get(id)
+        if not entity:
+            return None, None, None
         else:
-            entity = session.query(EntityOrm).get(id)
-            if not entity:
-                return None, None, None
-            else:
-                return entity_factory(entity), None, None
+            return entity_factory(entity), None, None
 
 
-def get_entity_count(dataset: Optional[str] = None):
+def get_entity_count(session: Session, dataset: Optional[str] = None):
     sql = select(EntityOrm.dataset, func.count(EntityOrm.entity))
     sql = sql.group_by(EntityOrm.dataset)
     if dataset is not None:
         sql = sql.filter(EntityOrm.dataset == dataset)
-    with get_context_session() as session:
-        result = session.execute(sql)
-        if dataset is not None:
-            return result.fetchone()
-        else:
-            return result.fetchall()
+    result = session.execute(sql)
+    if dataset is not None:
+        return result.fetchone()
+    else:
+        return result.fetchall()
 
 
-def get_entities(dataset: str, limit: int) -> List[EntityModel]:
-    with get_context_session() as session:
-        entities = (
-            session.query(EntityOrm)
-            .filter(EntityOrm.dataset == dataset)
-            .limit(limit)
-            .all()
-        )
-        return [entity_factory(e) for e in entities]
+def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
+    entities = (
+        session.query(EntityOrm).filter(EntityOrm.dataset == dataset).limit(limit).all()
+    )
+    return [entity_factory(e) for e in entities]
 
 
-def get_entity_search(parameters: dict):
+def get_entity_search(session: Session, parameters: dict):
     params = normalised_params(parameters)
+    count: int
+    entities: [EntityModel]
 
-    with get_context_session() as session:
-        count: int
-        entities: [EntityModel]
+    # get count
+    query_args = [func.count(EntityOrm.entity).label("count")]
+    query = session.query(*query_args)
+    query = _apply_base_filters(query, params)
+    query = _apply_date_filters(query, params)
+    query = _apply_location_filters(session, query, params)
+    query = _apply_period_option_filter(query, params)
 
-        # get count
-        query_args = [func.count(EntityOrm.entity).label("count")]
-        query = session.query(*query_args)
-        query = _apply_base_filters(query, params)
-        query = _apply_date_filters(query, params)
-        query = _apply_location_filters(session, query, params)
-        query = _apply_period_option_filter(query, params)
+    entities = query.all()
+    if entities:
+        count = entities[0].count
+    else:
+        count = 0
 
-        entities = query.all()
-        if entities:
-            count = entities[0].count
-        else:
-            count = 0
+    # get entities
+    query_args = [EntityOrm]
+    query = session.query(*query_args)
+    query = _apply_base_filters(query, params)
+    query = _apply_date_filters(query, params)
+    query = _apply_location_filters(session, query, params)
+    query = _apply_period_option_filter(query, params)
+    query = _apply_limit_and_pagination_filters(query, params)
 
-        # get entities
-        query_args = [EntityOrm]
-        query = session.query(*query_args)
-        query = _apply_base_filters(query, params)
-        query = _apply_date_filters(query, params)
-        query = _apply_location_filters(session, query, params)
-        query = _apply_period_option_filter(query, params)
-        query = _apply_limit_and_pagination_filters(query, params)
+    entities = query.all()
+    entities = [entity_factory(entity_orm) for entity_orm in entities]
 
-        entities = query.all()
-        entities = [entity_factory(entity_orm) for entity_orm in entities]
-
-        return {"params": params, "count": count, "entities": entities}
+    return {"params": params, "count": count, "entities": entities}
 
 
 def _apply_base_filters(query, params):

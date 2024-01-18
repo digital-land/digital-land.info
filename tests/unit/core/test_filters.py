@@ -4,7 +4,7 @@ from application.core.filters import (
     remove_values_from_param_dict,
     make_url_param_str,
     cacheBust,
-    appendUriParam,
+    append_uri_param,
     hash_file,
 )
 
@@ -102,15 +102,15 @@ def test_cacheBust_params():
     assert len(hash) == 40
 
 
-def test_appendUriParam():
+def test_append_uri_param():
     uri = "static/javascript/myCookScript.js"
     param = {"key": "value"}
-    result = appendUriParam(uri, param)
+    result = append_uri_param(uri, param)
     assert result == "static/javascript/myCookScript.js?key=value"
 
     uri = "static/javascript/myCookScript.js?key=value"
     param = {"differentKey": "differentValue"}
-    result = appendUriParam(uri, param)
+    result = append_uri_param(uri, param)
     assert (
         result
         == "static/javascript/myCookScript.js?key=value&differentKey=differentValue"

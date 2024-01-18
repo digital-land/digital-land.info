@@ -1,5 +1,5 @@
-def test_organisation_page_loads_ok(server_process, BASE_URL, page):
-    response = page.goto(BASE_URL + "/organisation")
+def test_organisation_page_loads_ok(server_url, page):
+    response = page.goto(server_url + "/organisation")
     assert response.ok
     heading = page.get_by_role(
         "heading",
@@ -8,10 +8,8 @@ def test_organisation_page_loads_ok(server_process, BASE_URL, page):
     assert heading.is_visible()
 
 
-def test_navigate_to_organisation_from_entity(
-    server_process, add_base_entities_to_database_yield_reset, BASE_URL, page
-):
-    page.goto(BASE_URL)
+def test_navigate_to_organisation_from_entity(server_url, page, app_test_data):
+    page.goto(server_url)
     page.click("text=Search")
 
     page.get_by_role("link", name="DAC").first.click()
@@ -20,7 +18,7 @@ def test_navigate_to_organisation_from_entity(
         page.get_by_role("link", name="organisation").click()
 
     assert navigation_info.value.ok
-    assert BASE_URL + "/organisation" in navigation_info.value.url
+    assert server_url + "/organisation" in navigation_info.value.url
 
     header = page.get_by_role("heading", name="Organisations")
     assert header.is_visible()

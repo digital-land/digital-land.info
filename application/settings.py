@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
+    # TODO remove as Gov PaaS is no longer needed
     # Gov.uk PaaS provides a URL to the postgres instance it provisions via DATABASE_URL
     # See https://docs.cloud.service.gov.uk/deploying_services/postgresql/#connect-to-a-postgresql-service-from-your-app
     if "DATABASE_URL" in os.environ:

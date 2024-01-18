@@ -2,20 +2,22 @@ import logging
 from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from sqlalchemy import func
 from starlette.responses import HTMLResponse
+from sqlalchemy.orm import Session
 
 from application.core.models import OrganisationModel, OrganisationsByTypeModel
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.db.models import OrganisationOrm
-from application.db.session import get_context_session
+from application.db.session import get_session
 from application.search.enum import SuffixOrganisation
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+# TODO check we still need these display names
 display_names = {
     "development-corporation": "Development corporations",
     "government-organisation": "Government departments, agencies and public bodies",
@@ -28,22 +30,23 @@ display_names = {
 }
 
 
+# TODO move data access to separate functions in data access folder
 def get_organisations(
     request: Request,
     extension: Optional[SuffixOrganisation] = None,
+    session: Session = Depends(get_session),
 ) -> OrganisationsByTypeModel:
-    with get_context_session() as session:
-        organisations_by_type = {
-            o.type: []
-            for o in session.query(
-                func.split_part(OrganisationOrm.organisation, ":", 1).label("type")
-            )
-            .distinct("type")
-            .all()
-        }
-        organisations = session.query(OrganisationOrm).all()
-        for o in organisations:
-            organisations_by_type[o.type()].append(OrganisationModel.from_orm(o))
+    organisations_by_type = {
+        o.type: []
+        for o in session.query(
+            func.split_part(OrganisationOrm.organisation, ":", 1).label("type")
+        )
+        .distinct("type")
+        .all()
+    }
+    organisations = session.query(OrganisationOrm).all()
+    for o in organisations:
+        organisations_by_type[o.type()].append(OrganisationModel.from_orm(o))
     if extension == SuffixOrganisation.json:
         return OrganisationsByTypeModel(organisations=organisations_by_type)
     else:

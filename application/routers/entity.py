@@ -5,7 +5,10 @@ from typing import Optional, List, Set, Dict, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Path
 from pydantic import Required
+from pydantic.error_wrappers import ErrorWrapper
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.exceptions import RequestValidationError
+from sqlalchemy.orm import Session
 
 from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
@@ -13,8 +16,10 @@ from application.data_access.digital_land_queries import (
     get_local_authorities,
     get_typologies_with_entities,
     get_dataset_query,
+    get_typology_names,
 )
 from application.data_access.entity_queries import get_entity_query, get_entity_search
+from application.data_access.dataset_queries import get_dataset_names
 
 from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
@@ -25,6 +30,11 @@ from application.core.utils import (
     entity_attribute_sort_key,
     make_links,
 )
+from application.exceptions import (
+    DatasetValueNotFound,
+    TypologyValueNotFound,
+)
+from application.db.session import get_session
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -60,8 +70,9 @@ def get_entity(
     request: Request,
     entity: int = Path(default=Required, description="Entity id"),
     extension: Optional[SuffixEntity] = None,
+    session: Session = Depends(get_session),
 ):
-    e, old_entity_status, new_entity_id = get_entity_query(entity)
+    e, old_entity_status, new_entity_id = get_entity_query(session, entity)
 
     if old_entity_status == 410:
         return templates.TemplateResponse(
@@ -117,14 +128,14 @@ def get_entity(
         #     fields = {field["field"]: field for field in fields}
 
         # get dictionary of fields which have linked datasets
-        dataset_fields = get_datasets(datasets=e_dict_sorted.keys())
+        dataset_fields = get_datasets(session, datasets=e_dict_sorted.keys())
         dataset_fields = [
             dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
         ]
         dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
-        dataset = get_dataset_query(e.dataset)
-
+        dataset = get_dataset_query(session, e.dataset)
+        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
         return templates.TemplateResponse(
             "entity.html",
             {
@@ -142,19 +153,77 @@ def get_entity(
                 "fields": fields,
                 "dataset_fields": dataset_fields,
                 "dataset": dataset,
+                "organisation_entity": organisation_entity,
             },
         )
     else:
         raise HTTPException(status_code=404, detail="entity not found")
 
 
+def validate_dataset(dataset: str, datasets: list):
+    """
+    Given a dataset and a set of datasets will check if dataset is a valid one
+    if not it will raise the appropriate error. Query not included to reduce
+    number of queries on the server.
+    """
+    if not dataset:
+        return dataset
+
+    missing_datasets = set(dataset).difference(set(datasets))
+    if missing_datasets:
+        raise RequestValidationError(
+            errors=[
+                ErrorWrapper(
+                    DatasetValueNotFound(
+                        f"Requested datasets do not exist: {','.join(missing_datasets)}. "
+                        f"Valid dataset names: {','.join(datasets)}",
+                        dataset_names=datasets,
+                    ),
+                    loc=("dataset"),
+                )
+            ]
+        )
+    return
+
+
+def validate_typologies(typologies, typology_names):
+    if not typologies:
+        return typologies
+    missing_typologies = set(typologies).difference(set(typology_names))
+    if missing_typologies:
+        raise RequestValidationError(
+            errors=[
+                ErrorWrapper(
+                    TypologyValueNotFound(
+                        f"Requested datasets do not exist: {','.join(missing_typologies)}. "
+                        f"Valid dataset names: {','.join(typology_names)}",
+                        dataset_names=typology_names,
+                    ),
+                    loc=("typology"),
+                )
+            ]
+        )
+    return
+
+
 def search_entities(
     request: Request,
     query_filters: QueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
+    session: Session = Depends(get_session),
 ):
+    # get query_filters as a dict
     query_params = asdict(query_filters)
-    data = get_entity_search(query_params)
+    # TODO minimse queries by using normal queries below rather than returning the names
+    # queries required for additional validations
+    dataset_names = get_dataset_names(session)
+    typology_names = get_typology_names(session)
+
+    # additional validations
+    validate_dataset(query_params.get("dataset", None), dataset_names)
+    validate_typologies(query_params.get("typology", None), typology_names)
+    # Run entity query
+    data = get_entity_search(session, query_params)
 
     # the query does some normalisation to remove empty
     # params and they get returned from search
@@ -178,14 +247,14 @@ def search_entities(
         geojson["links"] = links
         return geojson
 
-    typologies = get_typologies_with_entities()
+    typologies = get_typologies_with_entities(session)
     typologies = [t.dict() for t in typologies]
     # dataset facet
-    response = get_datasets()
+    response = get_datasets(session)
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
-    local_authorities = get_local_authorities("local-authority-eng")
+    local_authorities = get_local_authorities(session, "local-authority-eng")
     local_authorities = [la.dict() for la in local_authorities]
 
     if links.get("prev") is not None:

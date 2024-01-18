@@ -84,6 +84,9 @@ templates.env.filters["make_url_param_str"] = make_url_param_str
 templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key
 templates.env.filters["get_entity_geometry"] = get_entity_geometry
+
+# TODO This is a filter which should only need one variable, apparently ther
+# eis something called context processors that we should use
 templates.env.filters["get_entity_paint_options"] = get_entity_paint_options
 
 templates.env.add_extension("jinja2.ext.do")

@@ -6,12 +6,8 @@ from pydantic import validator
 from pydantic.dataclasses import dataclass
 from sqlalchemy import text
 
-from application.data_access.digital_land_queries import get_typology_names
-from application.db.models import DatasetOrm
 from application.db.session import get_context_session
 from application.exceptions import (
-    DatasetValueNotFound,
-    TypologyValueNotFound,
     InvalidGeometry,
 )
 from application.search.enum import (
@@ -259,37 +255,7 @@ class QueryFilters:
         validate_curies
     )
 
-    @validator("dataset", pre=True)
-    def validate_dataset_names(cls, v: Optional[list]):
-        if not v:
-            return v
-        with get_context_session() as session:
-            dataset_names = [
-                result[0] for result in session.query(DatasetOrm.dataset).all()
-            ]
-        missing_datasets = set(v).difference(set(dataset_names))
-        if missing_datasets:
-            raise DatasetValueNotFound(
-                f"Requested datasets do not exist: {','.join(missing_datasets)}. "
-                f"Valid dataset names: {','.join(dataset_names)}",
-                dataset_names=dataset_names,
-            )
-        return v
-
-    @validator("typology", pre=True)
-    def validate_typologies(cls, typologies):
-        if not typologies:
-            return typologies
-        typology_names = get_typology_names()
-        missing_typologies = set(typologies).difference(set(typology_names))
-        if missing_typologies:
-            raise TypologyValueNotFound(
-                f"Requested datasets do not exist: {','.join(missing_typologies)}. "
-                f"Valid dataset names: {','.join(typology_names)}",
-                dataset_names=typology_names,
-            )
-        return typologies
-
+    # TODO Replace with a solution that doesn't need a database?
     @validator("geometry", pre=True)
     def validate_geometry(cls, v: Optional[list]):
         if not v:
@@ -308,10 +274,6 @@ class QueryFilters:
 @dataclass
 class FactDatasetQueryFilters:
     dataset: str
-
-    _validate_dataset_name = validator("dataset", allow_reuse=True)(
-        validate_dataset_name
-    )
 
 
 @dataclass

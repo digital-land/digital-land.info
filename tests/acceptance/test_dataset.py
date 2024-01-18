@@ -1,7 +1,5 @@
-def test_dataset_page_loads_ok(
-    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset
-):
-    response = page.goto(BASE_URL + "/dataset/brownfield-site")
+def test_dataset_page_loads_ok(server_url, page, app_test_data):
+    response = page.goto(server_url + "/dataset/brownfield-site")
     assert response.ok
     heading = page.get_by_role(
         "heading",
@@ -10,10 +8,8 @@ def test_dataset_page_loads_ok(
     assert heading.is_visible()
 
 
-def test_download_data_for_dataset(
-    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset
-):
-    page.goto(BASE_URL)
+def test_download_data_for_dataset(server_url, page, app_test_data):
+    page.goto(server_url)
 
     # Navigate to the Brownfield site dataset page.
     page.get_by_role("link", name="Datasets", exact=True).click()
@@ -45,10 +41,8 @@ def test_download_data_for_dataset(
     assert ".geojson" in geojson_href
 
 
-def test_navigate_to_a_dataset_specification(
-    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset
-):
-    page.goto(BASE_URL)
+def test_navigate_to_a_dataset_specification(server_url, page, app_test_data):
+    page.goto(server_url)
     page.get_by_role("link", name="Datasets", exact=True).click()
     page.get_by_role("link", name="Geography").click()
     with page.expect_navigation() as response:
@@ -61,10 +55,8 @@ def test_navigate_to_a_dataset_specification(
     assert heading.is_visible()
 
 
-def test_give_feedback_on_a_dataset(
-    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset
-):
-    page.goto(BASE_URL)
+def test_give_feedback_on_a_dataset(server_url, page, app_test_data):
+    page.goto(server_url)
 
     page.get_by_role("link", name="Datasets", exact=True).click()
     page.get_by_role("link", name="Geography").click()
@@ -77,10 +69,8 @@ def test_give_feedback_on_a_dataset(
     assert "Brownfield site" in linkHref
 
 
-def test_datasets_correctly_show(
-    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset, test_data
-):
-    page.goto(BASE_URL)
+def test_datasets_correctly_show(server_url, page, app_test_data):
+    page.goto(server_url)
 
     page.get_by_role("link", name="Datasets", exact=True).click()
 
@@ -88,9 +78,9 @@ def test_datasets_correctly_show(
 
     listElements = page.locator("ol.dl-list-filter__list").locator("li >> a").all()
 
-    assert len(listElements) == len(test_data["datasets"])
+    assert len(listElements) == len(app_test_data["datasets"])
 
-    datasets = [dataset["name"] for dataset in test_data["datasets"]]
+    datasets = [dataset["name"] for dataset in app_test_data["datasets"]]
 
     for element in listElements:
         assert element.text_content() in datasets, "dataset not in the list"
@@ -99,11 +89,9 @@ def test_datasets_correctly_show(
     assert len(datasets) == 0, "there are still some datasets that are not in the list"
 
 
-def test_list_filter_works_as_expected(
-    server_process, BASE_URL, page, add_base_entities_to_database_yield_reset, test_data
-):
+def test_list_filter_works_as_expected(server_url, page, app_test_data):
     timeout = 400
-    page.goto(BASE_URL)
+    page.goto(server_url)
 
     page.get_by_role("link", name="Datasets", exact=True).click()
 
@@ -117,7 +105,9 @@ def test_list_filter_works_as_expected(
         .all()
     )
     datasets = [
-        dataset["name"] for dataset in test_data["datasets"] if "o" in dataset["name"]
+        dataset["name"]
+        for dataset in app_test_data["datasets"]
+        if "o" in dataset["name"]
     ]
     assert len(listElements) == len(datasets)
 
@@ -129,7 +119,9 @@ def test_list_filter_works_as_expected(
         .all()
     )
     datasets = [
-        dataset["name"] for dataset in test_data["datasets"] if "on" in dataset["name"]
+        dataset["name"]
+        for dataset in app_test_data["datasets"]
+        if "on" in dataset["name"]
     ]
     assert len(listElements) == len(datasets)
 
@@ -142,7 +134,7 @@ def test_list_filter_works_as_expected(
     )
     datasets = [
         dataset["name"]
-        for dataset in test_data["datasets"]
+        for dataset in app_test_data["datasets"]
         if "brownfield" in dataset["name"].lower()
     ]
     assert len(listElements) == len(datasets)
