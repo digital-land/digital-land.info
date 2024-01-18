@@ -1,6 +1,6 @@
 export const defaultPaintOptions = {
     'fill-color': '#003078',
-    'fill-opacity': 0.6,
+    'fill-opacity': 0.2,
     'weight': 1,
     'circle-radius': [
         "interpolate", ["linear"], ["zoom"],
