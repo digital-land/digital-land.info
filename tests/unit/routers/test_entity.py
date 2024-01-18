@@ -136,6 +136,10 @@ def test_get_entity_no_entity_returned_html(mocker):
     mocker.patch(
         "application.routers.entity.get_entity_query", return_value=(None, None, None)
     )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
     request = MagicMock()
     try:
         get_entity(
@@ -344,10 +348,6 @@ def test_get_entity_entity_returned_html(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
     )
     mocker.patch(
-        "application.core.filters.get_dataset_query",
-        return_value=ancient_woodland_dataset,
-    )
-    mocker.patch(
         "application.routers.entity.get_dataset_query",
         return_value=ancient_woodland_dataset,
     )
@@ -463,6 +463,13 @@ def test_search_entities_no_entities_returned_no_query_params_html(
         "application.routers.entity.get_local_authorities",
         return_value=local_authorities,
     )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
+    )
 
     request = MagicMock()
     result = search_entities(
@@ -487,6 +494,13 @@ def test_search_entities_no_entities_returned_no_query_params_json(mocker):
         "application.routers.entity.get_entity_search",
         return_value={"params": normalised_query_params, "count": 0, "entities": []},
     )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
+    )
     request = MagicMock()
     extension = MagicMock()
     extension.value = "json"
@@ -507,6 +521,13 @@ def test_search_entities_no_entities_returned_no_query_params_geojson(mocker):
     mocker.patch(
         "application.routers.entity.get_entity_search",
         return_value={"params": normalised_query_params, "count": 0, "entities": []},
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
     )
     request = MagicMock()
     extension = MagicMock()
@@ -553,8 +574,11 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
         return_value=local_authorities,
     )
     mocker.patch(
-        "application.core.filters.get_dataset_query",
-        return_value=ancient_woodland_dataset,
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
     )
 
     request = MagicMock()
@@ -586,6 +610,13 @@ def test_search_entities_multiple_entities_returned_no_query_params_json(
             "entities": multiple_entity_models,
         },
     )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
+    )
     request = MagicMock()
     extension = MagicMock()
     extension.value = "json"
@@ -612,6 +643,13 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
             "count": 0,
             "entities": multiple_entity_models,
         },
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
     )
     request = MagicMock()
     extension = MagicMock()

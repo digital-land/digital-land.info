@@ -1,6 +1,6 @@
 {%- from "components/map/macro.jinja" import map %}
 
-{% macro entityCard(entity) %}
+{% macro entityCard(entity,entity_paint_options) %}
 
     {%  set e = entity.dict(by_alias=True) %}
     {% set propertiesArr = [
@@ -35,7 +35,7 @@
                 'height': 350,
                 'enableZoomControls': true,
                 'geojsons': [entity|get_entity_geometry],
-                'paint_options': entity|get_entity_paint_options,
+                'paint_options': entity_paint_options,
             })
             }}
         </div>

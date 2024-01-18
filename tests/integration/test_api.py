@@ -92,9 +92,7 @@ def test_lasso_geo_search_finds_no_results(client):
     assert [] == data["features"]
 
 
-def test_old_entity_redirects_as_expected(
-    test_data_old_entities, client, exclude_middleware
-):
+def test_old_entity_redirects_as_expected(test_data_old_entities, client):
     """
     Test entity endpoint returns a 302 response code when old_entity requested
     """
@@ -104,9 +102,7 @@ def test_old_entity_redirects_as_expected(
     assert response.headers["location"] == f"/entity/{old_entity.new_entity_id}"
 
 
-def test_old_entity_redirects_as_expected_with_suffix(
-    test_data_old_entities, client, exclude_middleware
-):
+def test_old_entity_redirects_as_expected_with_suffix(test_data_old_entities, client):
     """
     Test entity endpoint returns a 302 response code when old_entity requested
     """
@@ -130,13 +126,13 @@ def test_old_entity_gone_shown(test_data_old_entities, client, exclude_middlewar
     )
 
 
-def test_dataset_json_endpoint_returns_as_expected(client, test_data):
-    from tests.test_data import datasets
-
+def test_dataset_json_endpoint_returns_as_expected(test_data, client):
+    datasets = test_data["datasets"]
     response = client.get("/dataset.json")
     assert response.status_code == 200
     data = response.json()
     assert "datasets" in data
+    assert len(data["datasets"]) > 0
     # TODO find way of generating these field values from fixtures
     for dataset in data["datasets"]:
         assert dataset.pop("themes")
@@ -319,13 +315,15 @@ def test_get_dataset_unknown_returns_404(client, exclude_middleware):
     assert response.status_code == 404
 
 
-def test_get_dataset_as_json_returns_json(client, exclude_middleware):
+def test_get_dataset_as_json_returns_json(client, exclude_middleware, test_data):
     response = client.get("/dataset/greenspace.json")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
 
 
-def test_dataset_json_has_licence_and_attribution(client):
+def test_dataset_json_has_licence_and_attribution(
+    client, exclude_middleware, test_data
+):
     response = client.get("/dataset/greenspace.json")
     assert response.status_code == 200
     data = response.json()

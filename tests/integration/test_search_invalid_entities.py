@@ -7,8 +7,8 @@ from application.search.enum import PeriodOption, GeometryRelation
 from tests.test_data.wkt_data import handrians_wall_search
 
 
-@pytest.fixture(scope="module")
-def invalid_test_data(apply_migrations, db_session: Session):
+@pytest.fixture(scope="function")
+def invalid_test_data(db_session: Session):
     from tests.test_data import invalid_geometry
 
     entity_models = []
@@ -68,7 +68,9 @@ def params(raw_params):
     return raw_params.copy()
 
 
-def test_search_geometry_reference_excludes_invalid_data(invalid_test_data, params):
+def test_search_geometry_reference_excludes_invalid_data(
+    invalid_test_data, params, db_session
+):
     invalid = [
         int(entity["entity"])
         for entity in invalid_test_data["entities"]
@@ -80,18 +82,19 @@ def test_search_geometry_reference_excludes_invalid_data(invalid_test_data, para
         if "invalid" not in entity["name"]
     ]
     params["geometry_reference"] = ["E07000004"]
-    result = get_entity_search(params)
+    result = get_entity_search(db_session, params)
+    assert len(result["entities"]) > 0
     for e in result["entities"]:
         assert e.entity not in invalid
         assert e.entity in valid
 
 
 def test_search_by_dataset_and_lasso_excludes_invalid_geometry(
-    invalid_test_data, params
+    invalid_test_data, params, db_session
 ):
     params["dataset"] = ["world-heritage-site"]
     params["geometry_relation"] = GeometryRelation.intersects.name
     params["geometry"] = [handrians_wall_search]
-    result = get_entity_search(params)
+    result = get_entity_search(db_session, params)
     assert 0 == result["count"]
     assert 0 == len(result["entities"])

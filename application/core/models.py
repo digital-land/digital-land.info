@@ -1,10 +1,12 @@
 from datetime import date
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 
 from geoalchemy2.shape import to_shape
-from pydantic import BaseModel, Field, validator, Extra
+from geoalchemy2.elements import WKBElement, WKTElement
+from pydantic import BaseModel, Field, validator, Extra, create_model
 
 from application.db.models import EntityOrm
+from application.core.utils import to_snake
 
 
 def to_kebab(string: str) -> str:
@@ -36,10 +38,18 @@ class DigitalLandDateFieldsModel(DigitalLandBaseModel):
     end_date: Optional[date] = None
 
 
+# cannot currently accept raw strings for geometry and
 def _make_geometry(v, values) -> str:
-    if v is not None:
+    """
+    A function to allow for conversaion from other
+    spatial types into a WKT (i.e. a string) before
+    pydantic validation occurs
+    """
+    if v is not None and type(v) in [WKBElement, WKTElement]:
         s = to_shape(v)
         return s.wkt
+    else:
+        return v
 
 
 class EntityModel(DigitalLandDateFieldsModel, extra=Extra.allow):
@@ -127,8 +137,18 @@ class DatasetPublicationCountModel(DigitalLandBaseModel):
 def entity_factory(entity_orm: EntityOrm):
     e = EntityModel.from_orm(entity_orm)
     if entity_orm.json is not None:
-        for key, val in entity_orm.json.items():
-            setattr(e, key, val)
+        # if values in json present then extend the pydantic model
+        # TODO could add in additional validation using field informtion
+        field_definitions = {
+            to_snake(key): (Any, None) for key in entity_orm.json.keys()
+        }
+        ExtendedEntityModel = create_model(
+            "ExtendedEntityModel", **field_definitions, __base__=EntityModel
+        )
+
+        # use new model with the added json fields
+        e = ExtendedEntityModel(**e.dict(by_alias=False), **entity_orm.json)
+
     return e
 
 
