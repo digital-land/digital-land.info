@@ -483,6 +483,7 @@ export default class MapController {
       var popup = new maplibregl.Popup({
         maxWidth: this.popupWidth
       }).setLngLat(coordinates).setDOMContent(popupDomElement).addTo(map);
+      popup.getElement().onwheel = preventScroll(['.app-popup-list']);
     }
   };
 
@@ -504,7 +505,6 @@ export default class MapController {
   createFeaturesPopup(features) {
     const wrapper = document.createElement('div');
     wrapper.classList.add('app-popup');
-    wrapper.onwheel = preventScroll(['.app-popup-list']);
 
     const featureOrFeatures = features.length > 1 ? 'features' : 'feature';
     const heading = document.createElement('h3');
