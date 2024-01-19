@@ -66,6 +66,8 @@
                     {{ value }}
                 {% endif %}
             </a>
+        {%- elif field in ["article-4-direction", "permitted-development-rights", "tree-preservation-order"] %}
+            <a class ="govuk-link" href="/entity/{{ value | lookup_entity_custom(field) }}">{{ value }}</a>
         {%- elif field in ["parliament-thesaurus"] %}
             <a class ="govuk-link" href="{{ 'https://lda.data.parliament.uk/terms/' + value }}">{{ value }}</a>
         {%- elif field in ["statistical-geography"] %}
