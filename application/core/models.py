@@ -136,7 +136,8 @@ class DatasetPublicationCountModel(DigitalLandBaseModel):
 
 def entity_factory(entity_orm: EntityOrm):
     e = EntityModel.from_orm(entity_orm)
-    if entity_orm.json is not None:
+
+    if hasattr(entity_orm, "json") and entity_orm.json is not None:
         # if values in json present then extend the pydantic model
         # TODO could add in additional validation using field informtion
         field_definitions = {
