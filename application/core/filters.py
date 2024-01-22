@@ -1,4 +1,4 @@
-from application.data_access.entity_queries import get_entity_query, get_entity_search
+from application.data_access.entity_queries import get_entity_query
 from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
 from markdown import markdown
@@ -172,30 +172,6 @@ def get_entity_name_filter(eval_ctx, entity):
                 return entity.name
             else:
                 return entity.reference
-
-
-@pass_eval_context
-def lookup_entity_filter(eval_ctx, value, dataset):
-    "lookup an entity by its name or reference"
-    search_parameters = {
-        "reference": [value],
-        "dataset": [dataset],
-    }
-    params, count, entities = get_entity_search(search_parameters).values()
-
-    if len(entities) == 1:
-        return entities[0].entity
-
-
-@pass_eval_context
-def lookup_entity_custom_filter(eval_ctx, value, dataset):
-
-    datasetMapping = {"permitted-development-rights": "permitted-development-right"}
-
-    if dataset in datasetMapping:
-        dataset = datasetMapping[dataset]
-
-    return lookup_entity_filter(eval_ctx, value, dataset)
 
 
 def get_entity_name(entity):
