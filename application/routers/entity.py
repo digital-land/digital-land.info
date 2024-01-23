@@ -18,7 +18,11 @@ from application.data_access.digital_land_queries import (
     get_dataset_query,
     get_typology_names,
 )
-from application.data_access.entity_queries import get_entity_query, get_entity_search
+from application.data_access.entity_queries import (
+    get_entity_query,
+    get_entity_search,
+    apply_entity_links,
+)
 from application.data_access.dataset_queries import get_dataset_names
 
 from application.search.enum import SuffixEntity
@@ -136,6 +140,14 @@ def get_entity(
 
         dataset = get_dataset_query(session, e.dataset)
         organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+
+        entityLinkFields = [
+            "article-4-direction",
+            "permitted-development-rights",
+            "tree-preservation-order",
+        ]
+        e_dict_sorted = apply_entity_links(session, e_dict_sorted, entityLinkFields)
+
         return templates.TemplateResponse(
             "entity.html",
             {

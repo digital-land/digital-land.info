@@ -95,6 +95,35 @@ def get_entity_search(session: Session, parameters: dict):
     return {"params": params, "count": count, "entities": entities}
 
 
+def apply_entity_links(session: Session, entity: dict, entityLinkFields: list):
+    """
+    This function takes an entity and a list of fields that are entity links.
+    any entity link fields are then replaced with the entity object.
+    """
+    for key in entityLinkFields:
+        if key in entity:
+            search_params = {
+                "reference": [entity[key]],
+                "dataset": [key],
+                "organisation-entity": [entity["organisation-entity"]],
+            }
+            found_entities = get_entity_search(session, search_params)
+            if found_entities["count"] == 1:
+                found_entity = found_entities["entities"][0]
+                e_dict = found_entity.dict(by_alias=True, exclude={"geojson"})
+                entity[key] = e_dict
+            elif found_entities["count"] > 1:
+                # Log that multiple entities were found
+                # set the entity to -1 so the page not found page is shown
+                entity[key] = {"name": entity[key], "entity": -1}
+            elif found_entities["count"] == 0:
+                # Log that no entity was found
+                # set the entity to -1 so the page not found page is shown
+                entity[key] = {"name": entity[key], "entity": -1}
+
+    return entity
+
+
 def _apply_base_filters(query, params):
     # exclude any params that match an entity field name but need special handling
     excluded = set(["geometry"])
