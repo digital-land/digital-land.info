@@ -1,4 +1,4 @@
-{% macro entityValue(field,value,field_spec,dataset_fields,organisation_entity) %}
+{% macro entityValue(field,value,field_spec,dataset_fields,organisation_entity,linked_entities) %}
     {% if field_spec and field_spec[field] %}
         {% if field_spec[field]['typology'] == 'value' %}
             {% if field_spec[field]['datatype'] == 'url' %}
@@ -66,6 +66,8 @@
                     {{ value }}
                 {% endif %}
             </a>
+        {%- elif linked_entities[field] is defined %}
+            <a class ="govuk-link" href="/entity/{{ linked_entities[field].entity }}">{{ linked_entities[field].reference }}</a>
         {%- elif field in ["parliament-thesaurus"] %}
             <a class ="govuk-link" href="{{ 'https://lda.data.parliament.uk/terms/' + value }}">{{ value }}</a>
         {%- elif field in ["statistical-geography"] %}

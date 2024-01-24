@@ -100,7 +100,6 @@ def add_base_routes(app):
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
     def health(session: Session = Depends(get_session)):
-
         from sqlalchemy.sql import select
 
         try:

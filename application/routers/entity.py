@@ -18,7 +18,11 @@ from application.data_access.digital_land_queries import (
     get_dataset_query,
     get_typology_names,
 )
-from application.data_access.entity_queries import get_entity_query, get_entity_search
+from application.data_access.entity_queries import (
+    get_entity_query,
+    get_entity_search,
+    lookup_entity_link,
+)
 from application.data_access.dataset_queries import get_dataset_names
 
 from application.search.enum import SuffixEntity
@@ -136,11 +140,31 @@ def get_entity(
 
         dataset = get_dataset_query(session, e.dataset)
         organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+
+        entityLinkFields = [
+            "article-4-direction",
+            "permitted-development-rights",
+            "tree-preservation-order",
+        ]
+
+        linked_entities = {}
+
+        # for each entityLinkField, if that key exists in the entity dict, then
+        # lookup the entity and add it to the linked_entities dict
+        for field in entityLinkFields:
+            if field in e_dict_sorted:
+                linked_entity = lookup_entity_link(
+                    session, e_dict_sorted[field], field, e_dict_sorted["dataset"]
+                )
+                if linked_entity is not None:
+                    linked_entities[field] = linked_entity
+
         return templates.TemplateResponse(
             "entity.html",
             {
                 "request": request,
                 "row": e_dict_sorted,
+                "linked_entities": linked_entities,
                 "entity": e,
                 "pipeline_name": e.dataset,
                 "references": [],

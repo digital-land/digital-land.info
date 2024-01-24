@@ -69,7 +69,7 @@
                       {{ entityField(field,fields,dataset_fields) }}
                     </th>
                     <td class="govuk-table__cell app-table__cell">
-                      {{ entityValue(field,row[field],fields,dataset_fields,organisation_entity)}}
+                      {{ entityValue(field,row[field],fields,dataset_fields,organisation_entity,linked_entities)}}
                     </td>
                     {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">

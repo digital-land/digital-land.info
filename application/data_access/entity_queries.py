@@ -95,6 +95,30 @@ def get_entity_search(session: Session, parameters: dict):
     return {"params": params, "count": count, "entities": entities}
 
 
+def lookup_entity_link(
+    session: Session, reference: str, dataset: str, organisation_entity: int
+):
+    """
+    This function takes an entity and a list of fields that are entity links.
+    any entity link fields are then replaced with the entity object.
+    """
+    search_params = {
+        "reference": [reference],
+        "dataset": [dataset],
+        "organisation-entity": [organisation_entity],
+    }
+    found_entities = get_entity_search(session, search_params)
+    if found_entities["count"] == 1:
+        found_entity = found_entities["entities"][0]
+        return found_entity.dict(by_alias=True, exclude={"geojson"})
+    # elif found_entities["count"] > 1:
+    # Log that multiple entities were found
+    # set the entity to -1 so the page not found page is shown
+    # elif found_entities["count"] == 0:
+    # Log that no entity was found
+    # set the entity to -1 so the page not found page is shown
+
+
 def _apply_base_filters(query, params):
     # exclude any params that match an entity field name but need special handling
     excluded = set(["geometry"])

@@ -499,7 +499,6 @@ def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
 
 
 def test_search_entity_by_curie(test_data, params, db_session):
-
     expected_entity = [
         e
         for e in test_data["entities"]
@@ -520,7 +519,6 @@ def test_search_entity_by_curie(test_data, params, db_session):
 
 
 def test_search_entity_by_organisation_curie(test_data, params, db_session):
-
     expected_entity = [
         e
         for e in test_data["entities"]
