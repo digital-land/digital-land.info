@@ -51,9 +51,7 @@ def get_datasets_with_data_by_typology(
         DatasetOrm,
         func.count(func.distinct(EntityOrm.entity).label(("entity_count"))),
     )
-    query = query.filter(
-        DatasetOrm.typology == typology, DatasetOrm.dataset == EntityOrm.dataset
-    )
+    query = query.filter(DatasetOrm.typology == typology)
     query = query.group_by(DatasetOrm.dataset)
     datasets = query.all()
     return [DatasetModel.from_orm(ds.DatasetOrm) for ds in datasets]
