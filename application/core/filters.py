@@ -271,7 +271,7 @@ def make_link_filter(eval_ctx, url, **kwargs):
 def get_entity_geometry(entity):
     return {
         "name": get_entity_name(entity),
-        "data": entity.geojson.geometry,
+        "data": entity.geojson.geometry if entity.geojson is not None else None,
         "entity": entity.entity,
     }
 
