@@ -21,7 +21,7 @@ from application.data_access.digital_land_queries import (
 from application.data_access.entity_queries import (
     get_entity_query,
     get_entity_search,
-    apply_entity_links,
+    lookup_entity_link,
 )
 from application.data_access.dataset_queries import get_dataset_names
 
@@ -146,13 +146,25 @@ def get_entity(
             "permitted-development-rights",
             "tree-preservation-order",
         ]
-        e_dict_sorted = apply_entity_links(session, e_dict_sorted, entityLinkFields)
+
+        linked_entities = {}
+
+        # for each entityLinkField, if that key exists in the entity dict, then
+        # lookup the entity and add it to the linked_entities dict
+        for field in entityLinkFields:
+            if field in e_dict_sorted:
+                linked_entity = lookup_entity_link(
+                    session, e_dict_sorted[field], field, e_dict_sorted["dataset"]
+                )
+                if linked_entity is not None:
+                    linked_entities[field] = linked_entity
 
         return templates.TemplateResponse(
             "entity.html",
             {
                 "request": request,
                 "row": e_dict_sorted,
+                "linked_entities": linked_entities,
                 "entity": e,
                 "pipeline_name": e.dataset,
                 "references": [],
