@@ -46,28 +46,6 @@ def get_dataset_query(session: Session, dataset) -> DatasetModel:
 def get_datasets_with_data_by_typology(
     session: Session, typology
 ) -> List[DatasetModel]:
-    # return get_datasets_with_data_by_typology_old(session, typology)
-    return get_datasets_with_data_by_typology_new(session, typology)
-
-
-def get_datasets_with_data_by_typology_old(
-    session: Session, typology
-) -> List[DatasetModel]:
-    from sqlalchemy import func
-
-    query = session.query(
-        DatasetOrm,
-        func.count(func.distinct(EntityOrm.entity).label(("entity_count"))),
-    )
-    query = query.filter(DatasetOrm.typology == typology)
-    query = query.group_by(DatasetOrm.dataset)
-    datasets = query.all()
-    return [DatasetModel.from_orm(ds.DatasetOrm) for ds in datasets]
-
-
-def get_datasets_with_data_by_typology_new(
-    session: Session, typology
-) -> List[DatasetModel]:
     query = session.query(DatasetOrm).join(
         EntityOrm, DatasetOrm.dataset == EntityOrm.dataset
     )
