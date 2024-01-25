@@ -278,7 +278,7 @@ def search_entities(
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
-    local_authorities = get_local_authorities(session, "local-authority-eng")
+    local_authorities = get_local_authorities(session, "local-authority")
     local_authorities = [la.dict() for la in local_authorities]
 
     if links.get("prev") is not None:
