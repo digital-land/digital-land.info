@@ -1,6 +1,7 @@
 import logging
 from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from application.core.models import (
     DatasetModel,
@@ -45,16 +46,14 @@ def get_dataset_query(session: Session, dataset) -> DatasetModel:
 def get_datasets_with_data_by_typology(
     session: Session, typology
 ) -> List[DatasetModel]:
-    from sqlalchemy import func
-
-    query = session.query(
-        DatasetOrm,
-        func.count(func.distinct(EntityOrm.entity).label(("entity_count"))),
+    query = session.query(DatasetOrm).join(
+        EntityOrm, DatasetOrm.dataset == EntityOrm.dataset
     )
     query = query.filter(DatasetOrm.typology == typology)
     query = query.group_by(DatasetOrm.dataset)
+    query = query.having(func.count(EntityOrm.entity) > 0)
     datasets = query.all()
-    return [DatasetModel.from_orm(ds.DatasetOrm) for ds in datasets]
+    return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
 def get_typologies(session: Session) -> List[TypologyModel]:
