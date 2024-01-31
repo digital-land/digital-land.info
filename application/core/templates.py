@@ -9,7 +9,6 @@ from application.core.filters import (
     geometry_reference_count,
     make_param_str_filter,
     render_markdown,
-    entity_name_filter,
     get_entity_name_filter,
     debug,
     digital_land_to_json,
@@ -62,7 +61,6 @@ templates.env.globals["serviceStatus"] = False
 templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
 templates.env.globals["get_os_oauth2_token"] = get_os_oauth2_token
 templates.env.globals["cacheBust"] = cacheBust
-
 templates.env.filters["is_list"] = is_list_filter
 templates.env.filters["commanum"] = commanum_filter
 templates.env.filters["make_link"] = make_link_filter
@@ -71,7 +69,6 @@ templates.env.filters["make_query_str"] = generate_query_param_str
 templates.env.filters["hex_to_rgb"] = hex_to_rgb_string_filter
 templates.env.filters["make_param_str"] = make_param_str_filter
 templates.env.filters["render_markdown"] = render_markdown
-templates.env.filters["entity_name"] = entity_name_filter
 templates.env.filters["get_entity_name"] = get_entity_name_filter
 templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json

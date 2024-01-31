@@ -1,4 +1,3 @@
-from application.data_access.entity_queries import get_entity_query
 from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
 from markdown import markdown
@@ -146,22 +145,6 @@ def _add_html_attrs(soup):
 def debug(thing):
     dumpee = json.dumps(json.loads(jsonpickle.encode(thing)), indent=2)
     return f"<script>console.log({dumpee});</script>"
-
-
-# TODO Remove or at least remove querying from filters
-@pass_eval_context
-def entity_name_filter(eval_ctx, id):
-    entity, _, _ = get_entity_query(id)
-    if entity:
-        anchor = f'<a class="govuk-link" href="/entity/{id}">{id}</a>'
-        if entity.name:
-            name = f'<span class="govuk-!-margin-left-1 dl-data-reference">({entity.name})</span>'
-        else:
-            name = f'<span class="govuk-!-margin-left-1 dl-data-reference">({entity.reference})</span>'
-
-        if eval_ctx.autoescape:
-            return Markup(anchor + name)
-    return id
 
 
 @pass_eval_context

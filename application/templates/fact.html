@@ -49,8 +49,6 @@
                       <!-- <span class="u-data-value"> -->
                       {%- if field == 'value' and fact['field'] == "twitter" %}
                         <a class ="govuk-link" href="https://twitter.com/{{ fact[field] }}">@{{ fact[field] }}</a>
-                      {%- elif field == 'value' and fact['field'] in ["organisation-entity"] %}
-                        <a class ="govuk-link" href="{{ '/entity/' + fact[field] }}">{{ fact[field]|get_entity_name }}</a>
                       {%- elif field == 'value' and fact['field'] in ["website","opendatacommunities"] %}
                         <a class ="govuk-link" href="{{ fact[field] }}">{{ fact[field] }}</a>
                       {%- elif field == 'value' and fact['field'] in ["wikipedia"] %}
