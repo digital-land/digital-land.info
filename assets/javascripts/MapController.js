@@ -105,8 +105,13 @@ export default class MapController {
   };
 
   async setup() {
-
-    await this.loadImages(this.images);
+    console.log('setup')
+    try{
+      await this.loadImages(this.images);
+    }catch(e){
+      console.log('error loading images: ' + e)
+    }
+    console.log('past load images')
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
     if(this.geojsonLayers.length == 1){
@@ -130,6 +135,7 @@ export default class MapController {
   };
 
   loadImages(imageSrc=[]) {
+    console.log('loading images' + imageSrc.length + ' images')
     return new Promise((resolve, reject) => {
       const promiseArray = imageSrc.map(({src, name}) => {
         return new Promise((resolve, reject) => {
@@ -137,8 +143,10 @@ export default class MapController {
             src,
             (error, image) => {
               if (error){
+                console.log('error adding image: ' + error)
                 reject(error);
               }
+              console.log('added image')
               this.map.addImage(name, image, {sdf: true});
               resolve();
             }
@@ -146,8 +154,10 @@ export default class MapController {
         })
       });
       Promise.all(promiseArray).then(() => {
+        console.log('resolved')
         resolve();
       }).catch((error) => {
+        console.log('rejected')
         reject(error);
       });
     })

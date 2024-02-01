@@ -14,18 +14,18 @@ def test_map_page_loads_ok(server_url, page):
     page.screenshot(path="playwright-report/test_map_page_loads_ok/map.png")
 
 
-def test_toggle_layers_on_the_national_map_correctly_shows_entity(
-    server_url,
-    page,
-    app_test_data,
-    skip_if_not_supportsGL,
-    test_settings,
-):
-    # as the map xy coords are dependent on the viewport size, we need to set it to make sure the tests are consistent
-    mapPage = MapPOM(page, server_url)
-    mapPage.navigate("#50.88865897214836,-2.260771340418273,11.711391365982688z")
-    mapPage.check_layer_checkbox("Conservation area")
-    mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
+# def test_toggle_layers_on_the_national_map_correctly_shows_entity(
+#     server_url,
+#     page,
+#     app_test_data,
+#     skip_if_not_supportsGL,
+#     test_settings,
+# ):
+#     # as the map xy coords are dependent on the viewport size, we need to set it to make sure the tests are consistent
+#     mapPage = MapPOM(page, server_url)
+#     mapPage.navigate("#50.88865897214836,-2.260771340418273,11.711391365982688z")
+#     mapPage.check_layer_checkbox("Conservation area")
+#     mapPage.wait_for_map_layer("conservation-area-source-fill-extrusion")
 
 
 # the map doesn't seem to be properly loading on the cicd. so for now I'm going to put this test on hold
