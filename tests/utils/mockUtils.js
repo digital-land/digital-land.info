@@ -98,6 +98,9 @@ const popupMock = {
     setHTML: vi.fn().mockImplementation(() => popupMock),
     addTo: vi.fn().mockImplementation(() => popupMock),
     setDOMContent: vi.fn().mockImplementation(() => popupMock),
+    getElement: vi.fn().mockImplementation(() => {
+        return domElementMock;
+    })
 }
 
 
