@@ -1,5 +1,5 @@
-{%- do pageData.update({
-  'pageTitle': 'Data specifications for local planning authorities'
+ {%- do pageData.update({
+  'pageTitle': 'Prepare data to the specifications'
 }) %}
 {% set templateName = 'dl-info/guidance/specification/index.html' %}
 {% extends "layouts/layout--guidance.html" %}
@@ -13,15 +13,30 @@
 
 {% block content_primary %}
 
-  <p class="govuk-body-l">Guidance about how to collate each dataset including examples of data for each of the fields (rows).</p>
+Your planning authority can give us incomplete data and fill in the gaps later.
+
+Expected now
+We expect you to follow these specifications:
 
   <ul class="govuk-list govuk-list--spaced">
-    <li><a href="article-4-direction">Article 4 direction data</a></li>
-    <li><a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data">Brownfield land data</a></li>
-    <li><a href="conservation-area">Conservation area data</a></li>
-    <li><a href="https://www.gov.uk/guidance/publish-your-developer-contributions-data">Developer contributions data</a></li>
-    <li><a href="listed-building">Listed building data</a></li>
-    <li><a href="tree-preservation-order">Tree preservation order data</a></li>
+    <li><a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data">brownfield land</a></li>
+    <li><a href="https://www.gov.uk/guidance/publish-your-developer-contributions-data">developer contributions</a></li>
   </ul>
+
+Expected soon
+We’ll soon expect you to follow these specifications:
+
+  <ul class="govuk-list govuk-list--spaced">
+    <li><a href="article-4-direction">article 4 directions</a></li>
+    <li><a href="conservation-area">conservation areas</a></li>
+    <li><a href="listed-building">listed buildings</a></li>
+    <li><a href="tree-preservation-order">tree preservation orders</a></li>
+  </ul>
+
+$CTA
+If you're funded by [Open Digital Planning](), we already expect you to provide these.
+
+[Check your Open Digital Planning commitments](https://www.notion.so/opendigitalplanning/Start-your-data-journey-c1a3abbe1ef041f7b24d408b795c3a37)
+$CTA
 
 {% endblock %}
