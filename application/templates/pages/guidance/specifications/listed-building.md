@@ -1,6 +1,6 @@
-Version: 1.1.1
+**Version:** 1.1.1</br>**Published:** 9 June 2023
 
-Published: 9 June 2023
+This is guidance on how to meet the [listed buildings technical specification](https://digital-land.github.io/specification/specification/listed-building/).
 
 ---
 
