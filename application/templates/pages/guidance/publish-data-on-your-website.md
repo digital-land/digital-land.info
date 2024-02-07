@@ -43,4 +43,4 @@ The email must include:
 - your full name
 - the name of your planning authority
 - a link to the webpage
-- a link to the data
+- a link to the data file
