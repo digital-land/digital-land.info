@@ -1,1 +1,22 @@
+{%- do pageData.update({
+  'pageTitle': 'Try our new check and publish service'
+}) %}
+{% set templateName = 'dl-info/guidance/try-check-publish-service.html' %}
+{% extends "layouts/layout--guidance.html" %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
 
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/guidance/'
+  })}}
+{% endblock %}
+
+{% block content_primary %}
+
+    {% set markdown_content %}
+    {%- include pageData.root_url + "try-check-publish-service.md" with context -%}
+    {% endset %}
+
+    {{ markdown_content | render_markdown(govAttributes=True) }}
+
+{% endblock %}
