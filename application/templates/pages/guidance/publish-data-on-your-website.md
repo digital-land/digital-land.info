@@ -29,7 +29,7 @@ This dataset shows the locations of conservation areas. Conservation areas are d
 
 [Conservation areas (CSV, 188KB)](https://publish.planning.data.gov.uk/public/downloadable/conservationArea.csv)
 
-### Licensing
+#### Licensing
 
 The data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
