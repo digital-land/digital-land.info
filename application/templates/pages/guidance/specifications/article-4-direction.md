@@ -1,6 +1,7 @@
-Version: 1.2.2
+**Version:** 1.2.2<br/>
+**Published:** 11 September 2023
 
-Published: 11 September 2023
+This is guidance on how to meet the [article 4 technical specification](https://digital-land.github.io/specification/specification/article-4-direction/).
 
 ---
 
