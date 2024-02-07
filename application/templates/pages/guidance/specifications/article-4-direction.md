@@ -184,7 +184,3 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
-
----
-
-Go to [how to provide your data](../how-to-provide-data).
