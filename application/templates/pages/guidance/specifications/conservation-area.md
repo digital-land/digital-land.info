@@ -1,7 +1,7 @@
 Version: 1.2.2<br/>
 Published: 8 September 2023
 
-This is guidance on how to meet the [conservation area technical specification](https://digital-land.github.io/specification/specification/conservation-area/)
+This is guidance on how to meet the [conservation area technical specification](https://digital-land.github.io/specification/specification/conservation-area/).
 
 ---
 
