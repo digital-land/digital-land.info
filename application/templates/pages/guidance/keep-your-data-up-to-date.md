@@ -1,5 +1,3 @@
-If the data is on a webpage, update the data on that page whenever it changes. 
+Update the data in the link on the webpage whenever it changes.
 
-If you have given us a live URL from your data system, it will update automatically with any changes.
-
-We take the data from your webpage or URL every day.
+Every day we take the data from the link you have shared.
