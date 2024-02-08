@@ -36,7 +36,7 @@ The data is provided under the [Open Government Licence](https://www.nationalarc
 Tell us about the webpage
 -------------
 
-Once you have data that matches one of the [specifications](https://www.planning.data.gov.uk/guidance/specifications/), send an email to [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk).
+Send an email to [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk).
 
 The email must include:
 
