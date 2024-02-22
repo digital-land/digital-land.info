@@ -1,13 +1,11 @@
-All data needs to be public on a website your planning authority controls. 
+Your data must be on a URL the public can access. We take the latest data from there every day.
 
-We take the latest data from there every day.
+You must link to that URL from a webpage about the data. This needs to be on your official planning authority website, usually ending in gov.uk.
 
 Why publish on your website
 ----------------
 
 Your planning authority will always be the source of truth about your data.
-
-People using [find planning and housing data in England](https://www.planning.data.gov.uk/) will see a link to your webpage.
 
 Create your webpage
 --------------------
@@ -42,5 +40,5 @@ The email must include:
 
 - your full name
 - the name of your planning authority
-- a link to the webpage
-- a link to the data file
+- a link to the webpage on your official planning authority website
+- a link to the data URL
