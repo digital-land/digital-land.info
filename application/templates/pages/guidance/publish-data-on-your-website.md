@@ -12,7 +12,7 @@ Create your webpage
 
 The webpage must include, for each dataset:
 
-- a link to the data
+- the link to the data URL
 - a summary of what the data is about
 - a statement that the data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
 
