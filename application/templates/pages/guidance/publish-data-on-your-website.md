@@ -1,4 +1,4 @@
-Your data must be on a URL the public can access. We take the latest data from there every day.
+Your data must be on a URL the public can access. We collect the latest data from there every day.
 
 You must link to that URL from a webpage about the data. This needs to be on your official planning authority website, usually ending in gov.uk.
 
