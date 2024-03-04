@@ -1,4 +1,5 @@
-**Version:** 1.2.2</br>**Published:** 8 September 2023
+**Version:** 1.2.2<br/>
+**Published:** 8 September 2023
 
 This is guidance on how to meet the [tree preservation order technical specification](https://digital-land.github.io/specification/specification/tree-preservation-order/)
 
