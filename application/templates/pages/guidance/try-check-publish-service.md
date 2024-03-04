@@ -1,4 +1,4 @@
-We have an online service that checks if some data meets the standard and helps you publish it. 
+We have an online service that checks if some of your data meets the standard and helps you publish it. 
 
 For now the service supports:
 
