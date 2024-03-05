@@ -1,6 +1,7 @@
 import os
 import logging
 from fastapi import APIRouter, Request
+from starlette.responses import RedirectResponse
 from application.core.templates import templates
 
 router = APIRouter()
@@ -66,6 +67,13 @@ def get_breadcrumbs(path):
     return crumb_dict
 
 
+def handleGuidanceRedirects(url_path, redirects):
+    for redirect in redirects:
+        if redirect["from"] == url_path:
+            return RedirectResponse(url=redirect["to"], status_code=301)
+    return False
+
+
 @router.get("/{url_path:path}")
 async def catch_all(request: Request, url_path: str):
     index_file = "index"
@@ -76,6 +84,20 @@ async def catch_all(request: Request, url_path: str):
     # if URL path in this route ends with /
     elif url_path[-1] == "/":
         url_path += index_file
+
+    # Some redirects from old guidance
+
+    # introduction
+    shouldRedirect = handleGuidanceRedirects(
+        url_path,
+        [
+            {"from": "introduction", "to": "/guidance"},
+            {"from": "how-to-provide-data", "to": "/guidance"},
+        ],
+    )
+
+    if shouldRedirect:
+        return shouldRedirect
 
     # build string of the URL path and then the system path to the template file
     root_url_path = "pages/guidance/"
