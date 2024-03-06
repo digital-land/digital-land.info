@@ -69,9 +69,10 @@ def get_breadcrumbs(path):
 
 def handleGuidanceRedirects(url_path, redirects):
     for redirect in redirects:
-        if url_path[-1] == "/":
-            url_path = url_path[:-1]
-        if redirect["from"] == url_path:
+        url_path_copy = url_path
+        if url_path_copy[-1] == "/":
+            url_path_copy = url_path_copy[:-1]
+        if redirect["from"] == url_path_copy:
             return RedirectResponse(url=redirect["to"], status_code=301)
     return False
 
@@ -79,10 +80,6 @@ def handleGuidanceRedirects(url_path, redirects):
 @router.get("/{url_path:path}")
 async def catch_all(request: Request, url_path: str):
     index_file = "index"
-
-    # if URL path in this route is empty
-    if url_path == "":
-        url_path += index_file
 
     # Some redirects from old guidance
 
@@ -97,6 +94,13 @@ async def catch_all(request: Request, url_path: str):
 
     if shouldRedirect:
         return shouldRedirect
+
+    # if URL path in this route is empty
+    if url_path == "":
+        url_path += index_file
+    # if URL path in this route ends with /
+    elif url_path[-1] == "/":
+        url_path += index_file
 
     # build string of the URL path and then the system path to the template file
     root_url_path = "pages/guidance/"
