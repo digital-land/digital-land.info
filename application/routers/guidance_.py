@@ -69,6 +69,9 @@ def get_breadcrumbs(path):
 
 def handleGuidanceRedirects(url_path, redirects):
     for redirect in redirects:
+        redirectFrom = redirect["from"]
+        if redirectFrom[-1] == "/":
+            redirectFrom = redirectFrom[:-1]
         if redirect["from"] == url_path:
             return RedirectResponse(url=redirect["to"], status_code=301)
     return False
