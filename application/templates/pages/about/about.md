@@ -21,27 +21,7 @@ Because we are working on this product:
 
 You can tell us if something doesn't look right by emailing [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk). 
 
-We are currently working with a set of LPAs to collect data according to our draft standards, that will be collected by the platform. The number of LPAs and datasets covered is growing all the time. You can find out how the platform is due to develop in our [roadmap](/about/roadmap). 
-
-<hr class="govuk-section-break govuk-section-break--m" role='presentation'>
-
-LPAs 
----
-
-We work with LPAs that received funding to improve their planning services through the [Local Digital Fund](https://www.localdigital.gov.uk/fund/).
-
-We are currently supporting a set of LPAs to develop our data standards and get their data ready for publishing. These are: 
-
--   Bolsover District Council and North East Derbyshire District Council (joint project team) 
--   Buckinghamshire 
--   London Borough of Camden 
--   Dacorum Borough Council 
--   Doncaster Metropolitan Borough Council 
--   Gloucester City Council 
--   Lambeth 
--   Medway Council 
--   Newcastle City Council 
--   Southwark 
+We are currently working with a set of LPAs to collect data according to our draft standards, that will be collected by the platform. The number of LPAs and datasets covered is growing all the time.
 
 <hr class="govuk-section-break govuk-section-break--m" role='presentation'>
 
