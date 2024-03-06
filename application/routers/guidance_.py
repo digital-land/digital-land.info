@@ -69,9 +69,8 @@ def get_breadcrumbs(path):
 
 def handleGuidanceRedirects(url_path, redirects):
     for redirect in redirects:
-        redirectFrom = redirect["from"]
-        if redirectFrom[-1] == "/":
-            redirectFrom = redirectFrom[:-1]
+        if url_path[-1] == "/":
+            url_path = url_path[:-1]
         if redirect["from"] == url_path:
             return RedirectResponse(url=redirect["to"], status_code=301)
     return False
@@ -83,9 +82,6 @@ async def catch_all(request: Request, url_path: str):
 
     # if URL path in this route is empty
     if url_path == "":
-        url_path += index_file
-    # if URL path in this route ends with /
-    elif url_path[-1] == "/":
         url_path += index_file
 
     # Some redirects from old guidance
