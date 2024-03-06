@@ -70,7 +70,7 @@ def get_breadcrumbs(path):
 def handleGuidanceRedirects(url_path, redirects):
     for redirect in redirects:
         url_path_copy = url_path
-        if url_path_copy[-1] == "/":
+        if len(url_path_copy) > 0 and url_path_copy[-1] == "/":
             url_path_copy = url_path_copy[:-1]
         if redirect["from"] == url_path_copy:
             return RedirectResponse(url=redirect["to"], status_code=301)
