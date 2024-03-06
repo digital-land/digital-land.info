@@ -1,6 +1,7 @@
-Version: 1.2.2
+**Version:** 1.2.2<br/>
+**Published:** 8 September 2023
 
-Published: 8 September 2023
+This is guidance on how to meet the [conservation area technical specification](https://digital-land.github.io/specification/specification/conservation-area/).
 
 ---
 
@@ -19,7 +20,7 @@ You can provide data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data).
+These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
 
 Conservation area dataset
 -------------------------
@@ -166,7 +167,3 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `1984-03-28`
-
----
-
-Go to [how to provide your data](../how-to-provide-data).

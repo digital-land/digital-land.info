@@ -1,6 +1,7 @@
-Version: 1.1.1
+**Version:** 1.1.1<br/>
+**Published:** 9 June 2023
 
-Published: 9 June 2023
+This is guidance on how to meet the [listed building outline technical specification](https://digital-land.github.io/specification/specification/listed-building/).
 
 ---
 
@@ -16,7 +17,7 @@ You can provide data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data).
+These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
 
 Listed buildings outline dataset
 ------------------------
@@ -93,7 +94,3 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
-
----
-
-Go to [how to provide your data](../how-to-provide-data).

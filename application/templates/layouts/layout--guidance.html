@@ -25,8 +25,8 @@
       {% block content_secondary %}
 
         {% set themes = [
-          'Guidance for local planning authorities',
-          'Data specification guidance',
+          'Publish planning and housing data for England',
+          'Prepare data to the specifications',
           'Other guidance'
         ] %}
 
@@ -46,19 +46,7 @@
               'current': true if pageData.name == 'home' else false,
             },
             {
-              'text': 'Introduction',
-              'href': sectionPath + 'introduction',
-              'theme': themes[0],
-              'current': true if pageData.name == 'introduction' else false,
-            },
-            {
-              'text': 'How to provide data',
-              'theme': themes[0],
-              'href': sectionPath + 'how-to-provide-data',
-              'current': true if pageData.name == 'how-to-provide-data' else false,
-            },
-            {
-              'text': 'Data specifications guidance',
+              'text': 'Prepare data to the specifications',
               'theme': themes[0],
               'href': sectionPath + 'specifications/',
               'current': true if pageData.name == 'specifications' else false,
@@ -95,7 +83,25 @@
                   'current': true if pageData.name == 'tree-preservation-order' else false,
                 }
               ]
-            }
+            },
+            {
+              'text': 'Publish data on your website',
+              'theme': themes[0],
+              'href': sectionPath + 'publish-data-on-your-website',
+              'current': true if pageData.name == 'publish-data-on-your-website' else false,
+            },
+            {
+              'text': 'Keep your data up to date',
+              'theme': themes[0],
+              'href': sectionPath + 'keep-your-data-up-to-date',
+              'current': true if pageData.name == 'keep-your-data-up-to-date' else false,
+            },
+            {
+              'text': 'Try our new check and publish service',
+              'theme': themes[0],
+              'href': sectionPath + 'try-check-publish-service',
+              'current': true if pageData.name == 'try-check-publish-service' else false,
+            },
           ]
         })
         }}

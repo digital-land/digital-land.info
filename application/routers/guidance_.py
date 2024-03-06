@@ -1,6 +1,7 @@
 import os
 import logging
 from fastapi import APIRouter, Request
+from starlette.responses import RedirectResponse
 from application.core.templates import templates
 
 router = APIRouter()
@@ -66,9 +67,33 @@ def get_breadcrumbs(path):
     return crumb_dict
 
 
+def handleGuidanceRedirects(url_path, redirects):
+    for redirect in redirects:
+        url_path_copy = url_path
+        if len(url_path_copy) > 0 and url_path_copy[-1] == "/":
+            url_path_copy = url_path_copy[:-1]
+        if redirect["from"] == url_path_copy:
+            return RedirectResponse(url=redirect["to"], status_code=301)
+    return False
+
+
 @router.get("/{url_path:path}")
 async def catch_all(request: Request, url_path: str):
     index_file = "index"
+
+    # Some redirects from old guidance
+
+    # introduction
+    shouldRedirect = handleGuidanceRedirects(
+        url_path,
+        [
+            {"from": "introduction", "to": "/guidance"},
+            {"from": "how-to-provide-data", "to": "/guidance"},
+        ],
+    )
+
+    if shouldRedirect:
+        return shouldRedirect
 
     # if URL path in this route is empty
     if url_path == "":

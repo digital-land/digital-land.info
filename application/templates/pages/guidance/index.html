@@ -2,7 +2,7 @@
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 {% set templateName = 'dl-info/guidance/index.html' %}
 {%- do pageData.update({
-  'pageTitle': 'Guidance for local planning authorities'
+  'pageTitle': 'Publish planning and housing data for England'
 }) %}
 {% block breadcrumbs%}
   {{ dlBackButton({
@@ -11,24 +11,9 @@
 {% endblock %}
 {% block content_primary %}
 
-    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-      <a href="introduction">Introduction</a>
-    </h2>
-    <p>A brief overview of the process of providing data and the services this will contribute to.</p>
+    <p>
+   Guidance for planning authorities adding data to the platform.
+    </p>
 
-    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-      <a href="how-to-provide-data">How to provide data</a>
-    </h2>
-    <p>Step-by-step instructions on how to publish your data.</p>
-
-    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-      <a href="specifications/">Data specifications guidance</a>
-    </h2>
-    <p>What to include in each dataset.</p>
-
-    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-      <a href="https://digital-land.github.io/specification/specification/">Technical specifications</a>
-    </h2>
-    <p>Technical guidance on what to include in each dataset.</p>
     {# <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--l"> #}
 {% endblock %}

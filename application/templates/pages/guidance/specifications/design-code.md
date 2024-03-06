@@ -15,7 +15,7 @@ You can provide data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data).
+These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
 
 Design code dataset
 -------------------
@@ -149,7 +149,3 @@ Example: `1999-01-20`
 The date this dataset was created or last updated, written in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
-
----
-
-Go to [how to provide your data](../how-to-provide-data).

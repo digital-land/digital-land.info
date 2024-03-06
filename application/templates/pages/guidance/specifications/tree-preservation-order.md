@@ -1,6 +1,7 @@
-Version: 1.2.2
+**Version:** 1.2.2<br/>
+**Published:** 8 September 2023
 
-Published: 8 September 2023
+This is guidance on how to meet the [tree preservation order technical specification](https://digital-land.github.io/specification/specification/tree-preservation-order/)
 
 ---
 
@@ -21,7 +22,7 @@ You can provide the zone and individual tree data in one of these formats:
 -   GML
 -   Geopackage
 
-For more information, see [how to provide your data](../how-to-provide-data).
+These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
 
 Tree preservation order dataset
 -------------------------------
@@ -286,7 +287,3 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
-
----
-
-Go to [how to provide your data](../how-to-provide-data).
