@@ -69,6 +69,12 @@ Optional text on how this data was made or produced, or how it can be interprete
 
 ### start-date
 
+The date the validity of the record starts, written in `YYYY-MM-DD` format. Usually, this will be the same as the designation date. If anything about the conservation area has changed, for example, the boundary, it should be the date of that change.
+
+Example: `1984-04-25`
+
+### designation-date
+
 The date that the conservation area was officially designated, written in `YYYY-MM-DD` format.
 
 Example: `1984-03-28`
