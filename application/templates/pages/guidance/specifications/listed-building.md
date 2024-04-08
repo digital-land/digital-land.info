@@ -81,7 +81,7 @@ Example: `1984-03-28`
 
 ### end-date
 
-If applicable, the date from which the building was no longer listed, written in `YYYY-MM-DD` format. If it's still listed, leave the cell blank.
+Where the building is [no longer listed](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If it's still listed, leave the cell blank.
 
 Example: `1999-01-20`
 
