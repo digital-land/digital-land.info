@@ -80,7 +80,7 @@ Example: `1984-03-28`
 
 ### end-date
 
-If applicable, the date that the article 4 direction was no longer in effect, written in `YYYY-MM-DD` format. If this does not apply, leave the cell blank.
+Where the article 4 direction is [no longer valid](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If this does not apply, leave the cell blank.
 
 Example: `1999-01-20`
 

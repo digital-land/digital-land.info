@@ -95,7 +95,8 @@ Example: `2022-12-20`
 
 ### end-date
 
-If applicable, the date that the tree preservation order was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
+
+Where the tree preservation order is [no longer valid](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
 
 Example: `1999-01-20`
 
