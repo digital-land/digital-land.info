@@ -6,7 +6,7 @@ Last updated 12 April 2024.
 
 ## Local planning authorities (LPAs)
 
-We’re working with 71 LPAs through the [Open Digital Planning community](https://opendigitalplanning.org/community) to help them provide data through our platform, so they can use the [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital) digital planning products.
+We’re working with 71 LPAs through the [Open Digital Planning community](https://opendigitalplanning.org/community){:target="_blank"} to help them provide data through our platform, so they can use the [PlanX](https://opendigitalplanning.org/services){:target="_blank"} and [BoPS](https://bops.digital){:target="_blank"} digital planning products.
 
 ### Now
 
@@ -24,10 +24,10 @@ We are developing data standards and collecting data that is valuable to housing
 
 We are working with LPA partners for these areas:
 
--   [conservation areas](/dataset/conservation-area)
--   [listed buildings](/dataset/listed-building) and their [outlines](/dataset/listed-building-outline)
--   [Article 4 directions](/dataset/article-4-direction) and their [areas](/dataset/article-4-direction-area)
--   [tree preservation orders](/dataset/tree-preservation-order)
+-   [conservation areas](/dataset/conservation-area){:target="_blank"}
+-   [listed buildings](/dataset/listed-building){:target="_blank"} and their [outlines](/dataset/listed-building-outline){:target="_blank"}
+-   [Article 4 directions](/dataset/article-4-direction){:target="_blank"} and their [areas](/dataset/article-4-direction-area){:target="_blank"}
+-   [tree preservation orders](/dataset/tree-preservation-order){:target="_blank"}
 
 We are improving the visibility, participation and robustness of the standards design process.
 
@@ -35,7 +35,7 @@ We are improving the visibility, participation and robustness of the standards d
 
 We will continue to develop standards in the following areas:
 
--   [design codes](/dataset/design-code)
+-   [design codes](/dataset/design-code){:target="_blank"}
 -   local plans ([draft specification](https://digital-land.github.io/specification/specification/development-plan/)){:target="_blank"})
 -   planning applications ([draft specification](https://digital-land.github.io/specification/specification/planning-application/){:target="_blank"}) and decisions
 
