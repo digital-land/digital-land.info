@@ -37,7 +37,7 @@ We will continue to develop standards in the following areas:
 
 -   [design codes](/dataset/design-code)
 -   local plans
--   planning applications and decisions
+-   planning applications ([draft specification](https://digital-land.github.io/specification/specification/planning-application/)) and decisions
 
 ## Platform
 
