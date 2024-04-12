@@ -1,5 +1,3 @@
-Last updated 1 September 2023.
-
 ## Local planning authorities (LPAs)
 
 We're working with 12 LPAs to help them provide data through our platform, so they can use the [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital) digital planning products.
