@@ -110,6 +110,7 @@ govukAssets::
 	npx nps copy.govukAssets
 
 javascripts:
+	npm run build
 	rsync -r assets/javascripts static/
 
 robots:
