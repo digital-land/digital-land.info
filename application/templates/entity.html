@@ -29,8 +29,8 @@
 {% endblock %}
 
 {%- block mapAssets %}
-  <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
-  <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+  <script src='/static/javascripts/maplibre-gl.js'></script>
+  <link href='/static/stylesheets/maplibre-gl.css' rel='stylesheet' />
   <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
   {{ super() }}
 {% endblock -%}

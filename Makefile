@@ -110,6 +110,7 @@ govukAssets::
 	npx nps copy.govukAssets
 
 javascripts:
+	npm run build
 	rsync -r assets/javascripts static/
 
 robots:
@@ -122,6 +123,7 @@ frontend:
 	make stylesheets
 	make govukAssets
 	rsync -r assets/images static/
+	cp node_modules/maplibre-gl/dist/maplibre-gl.css static/stylesheets/maplibre-gl.css
 
 frontend-all: clean frontend
 
