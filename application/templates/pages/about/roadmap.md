@@ -36,7 +36,7 @@ We are improving the visibility, participation and robustness of the standards d
 We will continue to develop standards in the following areas:
 
 -   [design codes](/dataset/design-code)
--   local plans ([draft specification](https://digital-land.github.io/specification/specification/development-plan/)))
+-   local plans ([draft specification](https://digital-land.github.io/specification/specification/development-plan/))
 -   planning applications ([draft specification](https://digital-land.github.io/specification/specification/planning-application/)) and decisions
 
 ## Platform
