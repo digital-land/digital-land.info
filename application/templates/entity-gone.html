@@ -1,35 +1,24 @@
 {% extends "layouts/layout.html" %}
+{% set mainClasses = "govuk-main-wrapper--l" %}
 {% set templateName = "dl-info/entity-gone.html" %}
 
 {%- block content %}
 
-  {% block recordHead %}
-    {% block recordTitle -%}
-      <span class="govuk-caption-xl">Entity Removed</span>
-      <h1 class="govuk-heading-xl">Entity Removed</h1>
-    {%- endblock recordTitle %}
-  {% endblock recordHead %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-l">Entity Removed</h1>
 
   <p class="govuk-body">
     This entity (#{{entity}}) has been removed.
   </p>
 
-  {%- endblock content %}
-
-  {% block recordEnd %}{% endblock recordEnd %}
-
-  {% block footerStart %}
-    {%- from "components/feedback/macro.jinja" import dlFeedback %}
-    {% set subject = "Feedback on removed entity with number " + entity %}
-    {{ dlFeedback({
-        "text": "Spotted an issue? Let us know so we can improve the data.",
-        "action": {
-            "text": "There is something wrong with the data",
-            "href": "mailto:" + templateVar.email  + "?subject=" + subject
-        },
-        "container": true
-        })
-      }}
-  {% endblock footerStart %}
-
-  {%- block pageScripts %}{%- endblock %}
+  {%- from "components/feedback/macro.jinja" import dlFeedback %}
+  {% set subject = "Feedback on removed entity with number " + entity %}
+  <div class="govuk-body">
+    Spotted an issue? You can
+    <a href="mailto:{{ templateVar.email }}?subject={{ subject }}" class="govuk-link"> contact the Planning Data team </a>
+    if you need to speak to someone about this page.
+  </div>
+</div>
+</div>
+{%- endblock %}
