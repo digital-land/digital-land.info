@@ -1,9 +1,11 @@
 {% from 'govuk_frontend_jinja/components/cookie-banner/macro.html' import govukCookieBanner %}
 
 <script type="module">
-  import {acceptCookies} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
+  import {acceptCookies, hideCookieBanner, hideCookieConfirmation} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
 
   window.acceptCookies = acceptCookies;
+  window.hideCookieBanner = hideCookieBanner;
+  window.hideCookieConfirmation = hideCookieConfirmation
 </script>
 
 {% set html %}
