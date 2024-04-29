@@ -3,21 +3,20 @@
 {% set templateName = "dl-info/entity-gone.html" %}
 
 {%- block content %}
-
-<div class="govuk-grid-row">
-  <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l">Entity Removed</h1>
-
-    <p class="govuk-body">
-      This entity (#{{ entity }}) has been removed.
-    </p>
-
-    {% set subject = "Feedback on removed entity with number " + entity %}
-    <div class="govuk-body">
-      Spotted an issue? You can
-      <a href="mailto:{{ templateVar.email }}?subject={{ subject }}" class="govuk-link"> contact the Planning Data team </a>
-      if you need to speak to someone about this page.
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Entity Removed</h1>
+  
+      <p class="govuk-body">
+        This entity (#{{ entity }}) has been removed.
+      </p>
+  
+      {% set subject = "Feedback on removed entity with number " + entity %}
+      <div class="govuk-body">
+        Spotted an issue? You can
+        <a href="mailto:{{ templateVar.email }}?subject={{ subject }}" class="govuk-link"> contact the Planning Data team </a>
+        if you need to speak to someone about this page.
+      </div>
     </div>
   </div>
-</div>
 {%- endblock %}
