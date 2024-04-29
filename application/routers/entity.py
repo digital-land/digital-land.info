@@ -81,7 +81,8 @@ def get_entity(
     if old_entity_status == 410:
         if extension:
             raise HTTPException(
-                detail=f"Entity {entity} has been removed", status_code=410
+                detail=f"Entity {entity} has been removed",
+                status_code=410,
             )
         else:
             return templates.TemplateResponse(
@@ -284,7 +285,7 @@ def search_entities(
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
-    local_authorities = get_local_authorities(session, "local-authority-eng")
+    local_authorities = get_local_authorities(session, "local-authority")
     local_authorities = [la.dict() for la in local_authorities]
 
     if links.get("prev") is not None:
