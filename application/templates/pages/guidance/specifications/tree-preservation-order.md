@@ -61,11 +61,23 @@ Example: `http://www.LPAwebsite.org.uk/tpo1.pdf`
 
 ### documentation-url
 
-The URL of the webpage citing the document.
+The URL of the webpage on your website that introduces the document.
 
-Each document should be linked to on a documentation webpage that includes a short description of the data. The website URL should be unique for each tree preservation order, either by creating a separate page or a separate anchor (fragment identifier) for each one.
+Each document should be linked to from a documentation webpage that includes a short description of the data and the document you’re linking to. Each tree preservation order should have a unique URL. This means you can create a separate page for each one, or you could list several on one page. If you do that, there must be a separate anchor link (fragment identifier) for each one. 
 
-Example: `http://www.LPAwebsite.org.uk/data#tpo1`
+This means each section of your page should have its own URL. Most publishing systems will allow you to use a hashtag to create the identifiers for each tree preservation order you list - as in the examples shown.
+
+Examples:
+
+One tree preservation order per page:
+
+`http://www.LPAwebsite.org.uk/data/treepreservationorders/smithroad`
+
+More than one article 4 direction per page with an anchor link for each one:
+
+`http://www.LPAwebsite.org.uk/data/treepreservationorders#smithroad`
+
+`http://www.LPAwebsite.org.uk/data/treepreservationorders#broadhousepark`
 
 ### notes
 
