@@ -31,6 +31,7 @@ from application.routers import (
     fact,
     guidance_,
     about_,
+    tiles_,
     osMapOAuth,
 )
 from application.settings import get_settings
@@ -269,6 +270,7 @@ def add_routers(app):
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
     app.include_router(guidance_.router, prefix="/guidance", include_in_schema=False)
     app.include_router(about_.router, prefix="/about", include_in_schema=False)
+    app.include_router(tiles_.router, prefix="/tiles", include_in_schema=False)
 
 
 def add_static(app):
@@ -291,9 +293,9 @@ def add_middleware(app):
     @app.middleware("http")
     async def add_strict_transport_security_header(request: Request, call_next):
         response = await call_next(request)
-        response.headers[
-            "Strict-Transport-Security"
-        ] = f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        response.headers["Strict-Transport-Security"] = (
+            f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        )
         return response
 
     @app.middleware("http")

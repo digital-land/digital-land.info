@@ -136,7 +136,7 @@ def sql_to_pbf(sql):
 # ============================================================
 
 
-@router.get("/{dataset}/{z}/{x}/{y}.vector.{fmt}")
+@router.get("/-/tiles/{dataset}/{z}/{x}/{y}.vector.{fmt}")
 async def read_tiles_from_postgres(dataset: str, z: int, x: int, y: int, fmt: str):
     tile = {"dataset": dataset, "zoom": z, "x": x, "y": y, "format": fmt}
 

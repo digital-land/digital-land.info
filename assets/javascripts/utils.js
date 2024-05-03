@@ -1,32 +1,31 @@
-import MapController from './MapController.js';
+import MapController from "./MapController.js";
 
-export const newMapController = (params = { layers: []}) => {
-
-  const datasetUrl = params.DATASETTE_TILES_URL || '';
+export const newMapController = (params = { layers: [] }) => {
+  const datasetUrl = params.DATASETTE_TILES_URL || "";
 
   let mapParams = {
     ...params,
-    vectorSource: `${datasetUrl}/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf`,
-    datasetVectorUrl: `${datasetUrl}/-/tiles/`,
-    datasets: params.layers.map(d => d.dataset),
-    sources: params.layers.map(d => {
+    vectorSource: `${datasetUrl}/dataset_tiles/{z}/{x}/{y}.vector.pbf`,
+    datasetVectorUrl: `${datasetUrl}/`,
+    datasets: params.layers.map((d) => d.dataset),
+    sources: params.layers.map((d) => {
       return {
-        name: d.dataset + '-source',
-        vectorSource: `${datasetUrl}/-/tiles/"${d.dataset}/{z}/{x}/{y}.vector.pbf`,
-      }
+        name: d.dataset + "-source",
+        vectorSource: `${datasetUrl}/${d.dataset}/{z}/{x}/{y}.vector.pbf`,
+      };
     }),
-    mapId: params.mapId || 'map',
+    mapId: params.mapId || "map",
   };
   return new MapController(mapParams);
-}
+};
 
 export const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
-}
+};
 
 export const convertNodeListToArray = (nl) => {
-  return Array.prototype.slice.call(nl)
-}
+  return Array.prototype.slice.call(nl);
+};
 
 // Prevents scrolling of the page when the user triggers the wheel event on a div
 // while still allowing scrolling of any specified scrollable child elements.
@@ -38,22 +37,21 @@ export const preventScroll = (scrollableChildElements = []) => {
       return e.target.closest(c) != null;
     });
 
-    if(!closestClassName){
+    if (!closestClassName) {
       e.preventDefault();
-      return false
+      return false;
     }
 
     const list = e.target.closest(closestClassName);
 
-    if(!list){
+    if (!list) {
       e.preventDefault();
-      return false
+      return false;
     }
 
     var verticalScroll = list.scrollHeight > list.clientHeight;
-    if(!verticalScroll)
-      e.preventDefault();
+    if (!verticalScroll) e.preventDefault();
 
     return false;
-  }
-}
+  };
+};

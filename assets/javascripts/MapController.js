@@ -47,7 +47,7 @@ export default class MapController {
       },
     ];
     this.paint_options = params.paint_options || null;
-    this.customStyleJson = "/static/javascripts/OS_VTS_3857_3D.json";
+    this.customStyleJson = "/static/javascripts/base-tile.json";
     this.customStyleLayersToBringToFront = ["OS/Names/National/Country"];
     this.useOAuth2 = params.useOAuth2 || false;
     this.layers = params.layers || [];
