@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from io import BytesIO
 
-from db.models import EntityOrm
-from db.session import get_session
+from application.db.models import EntityOrm
+from application.db.session import get_session
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -29,7 +29,6 @@ def tile_is_valid(tile):
 # Build the database query using SQLAlchemy ORM
 def build_db_query(tile, session: Session):
     envelope = func.ST_TileEnvelope(tile["zoom"], tile["x"], tile["y"])
-    bounds = func.ST_MakeEnvelope(-180, -85.0511287798066, 180, 85.0511287798066, 4326)
 
     geometries = (
         session.query(
@@ -65,7 +64,6 @@ async def read_tiles_from_postgres(
     fmt: str,
     session: Session = Depends(get_session),
 ):
-
     tile = {"dataset": dataset, "zoom": z, "x": x, "y": y, "format": fmt}
     if not tile_is_valid(tile):
         raise HTTPException(status_code=400, detail=f"Invalid tile path: {tile}")
