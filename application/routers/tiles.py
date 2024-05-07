@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case, and_
 from io import BytesIO
 
 from application.db.models import EntityOrm
@@ -26,41 +26,39 @@ def tile_is_valid(tile):
 
 # Build the database query using SQLAlchemy ORM to match the direct SQL logic
 def build_db_query(tile, session: Session):
+    srid = 4326  # WGS 84
+
+    # Define the envelope, webmercator, and WGS84 transformations
     envelope = func.ST_TileEnvelope(tile["zoom"], tile["x"], tile["y"])
     webmercator = envelope
-    srid = 4326  # WGS 84
     wgs84 = func.ST_Transform(webmercator, srid)
     bounds = func.ST_MakeEnvelope(-180, -85.0511287798066, 180, 85.0511287798066, srid)
 
-    geometries = (
-        session.query(
-            EntityOrm.entity,
-            EntityOrm.name,
-            EntityOrm.reference,
-            func.ST_AsMVTGeom(
-                func.CASE(
-                    [
-                        (
-                            func.ST_Covers(bounds, EntityOrm.geometry),
-                            func.ST_Transform(EntityOrm.geometry, srid),
-                        )
-                    ],
-                    else_=func.ST_Transform(
-                        func.ST_Intersection(bounds, EntityOrm.geometry), srid
-                    ),
-                ),
-                wgs84,
-            ),
-        )
+    # Define the CASE expression for geometry transformation
+    geometry_case = case(
+        [
+            (
+                func.ST_Covers(bounds, EntityOrm.geometry),
+                func.ST_Transform(EntityOrm.geometry, srid),
+            )
+        ],
+        else_=func.ST_Transform(func.ST_Intersection(bounds, EntityOrm.geometry), srid),
+    )
+
+    # Geometry processing for MVT
+    query = (
+        session.query(func.ST_AsMVTGeom(geometry_case, wgs84).label("geom"))
         .filter(
-            EntityOrm.geometry.ST_Intersects(wgs84),
-            EntityOrm.dataset == tile["dataset"],
+            and_(
+                func.ST_Intersects(EntityOrm.geometry, wgs84),
+                EntityOrm.dataset == tile["dataset"],
+            )
         )
         .subquery()
     )
 
-    # Build vector tile
-    tile_data = session.query(func.ST_AsMVT(geometries, tile["dataset"])).scalar()
+    # Generate MVT from a single-column subquery
+    tile_data = session.query(func.ST_AsMVT(query.c.geom, tile["dataset"])).scalar()
 
     return tile_data
 
@@ -70,8 +68,9 @@ def build_db_query(tile, session: Session):
 # ============================================================
 
 
-@router.get("/tiles/{dataset}/{z}/{x}/{y}.{fmt}")
+@router.get("/{dataset}/{z}/{x}/{y}.vector.{fmt}")
 async def read_tiles_from_postgres(
+    request: Request,
     dataset: str,
     z: int,
     x: int,
@@ -79,6 +78,7 @@ async def read_tiles_from_postgres(
     fmt: str,
     session: Session = Depends(get_session),
 ):
+    print("Hello", {dataset})
     tile = {"dataset": dataset, "zoom": z, "x": x, "y": y, "format": fmt}
     if not tile_is_valid(tile):
         raise HTTPException(status_code=400, detail=f"Invalid tile path: {tile}")

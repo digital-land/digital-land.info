@@ -5,13 +5,13 @@ export const newMapController = (params = { layers: [] }) => {
 
   let mapParams = {
     ...params,
-    vectorSource: `${datasetUrl}/dataset_tiles/{z}/{x}/{y}.vector.pbf`,
+    vectorSource: `${datasetUrl}/tiles/{z}/{x}/{y}.vector.pbf`,
     datasetVectorUrl: `${datasetUrl}/`,
     datasets: params.layers.map((d) => d.dataset),
     sources: params.layers.map((d) => {
       return {
         name: d.dataset + "-source",
-        vectorSource: `${datasetUrl}/${d.dataset}/{z}/{x}/{y}.vector.pbf`,
+        vectorSource: `${datasetUrl}/tiles/${d.dataset}/{z}/{x}/{y}.vector.pbf`,
       };
     }),
     mapId: params.mapId || "map",

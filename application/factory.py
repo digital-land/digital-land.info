@@ -293,9 +293,9 @@ def add_middleware(app):
     @app.middleware("http")
     async def add_strict_transport_security_header(request: Request, call_next):
         response = await call_next(request)
-        response.headers[
-            "Strict-Transport-Security"
-        ] = f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        response.headers["Strict-Transport-Security"] = (
+            f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        )
         return response
 
     @app.middleware("http")
