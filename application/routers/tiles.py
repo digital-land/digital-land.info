@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Response
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 import math
-from application.db.models import EntityOrm
+from sqlalchemy import text
 from application.db.session import get_session
 
 router = APIRouter()
@@ -26,19 +25,38 @@ def build_db_query(tile, session: Session):
     z, x, y, dataset = tile["zoom"], tile["x"], tile["y"], tile["dataset"]
     lon_min, lat_min, lon_max, lat_max = tile_bounds(z, x, y)
 
-    # Using ST_MakeEnvelope to create a bounding box and filtering points within it
-    bounding_box = func.ST_MakeEnvelope(lon_min, lat_min, lon_max, lat_max, 4326)
+    geometry_column = "geometry"
+    if dataset == "conservation-area":
+        geometry_column = "point"
 
-    # Query geometries that intersect with the bounding box
-    geometries = (
-        session.query(EntityOrm)
-        .filter(
-            EntityOrm.dataset == dataset,
-            func.ST_Intersects(EntityOrm.point, bounding_box),
-        )
-        .all()
+    tile_width = 256
+
+    mvt_geom_query = text(
+        f"""
+        SELECT ST_AsMVT(q, 'entities_layer', {tile_width}, 'geom') AS mvt
+        FROM (
+            SELECT ST_AsMVTGeom(
+                {geometry_column},
+                ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326),
+                {tile_width}, 4096, true) AS geom
+            FROM entity
+            WHERE dataset = :dataset
+              AND ST_Intersects({geometry_column}, ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326))
+        ) AS q
+    """
     )
-    return geometries
+
+    result = session.execute(
+        mvt_geom_query,
+        {
+            "lon_min": lon_min,
+            "lat_min": lat_min,
+            "lon_max": lon_max,
+            "lat_max": lat_max,
+            "dataset": dataset,
+        },
+    ).scalar()
+    return result
 
 
 @router.get("/{dataset}/{z}/{x}/{y}.vector.{fmt}")
@@ -54,14 +72,10 @@ async def read_tiles(
         raise HTTPException(status_code=400, detail="Invalid tile path")
 
     tile = {"dataset": dataset, "zoom": z, "x": x, "y": y, "format": fmt}
-    geometries = build_db_query(tile, session)
-    if not geometries:
+    mvt_data = build_db_query(tile, session)
+    if not mvt_data:
         raise HTTPException(status_code=404, detail="Tile data not found")
 
-    geojson_features = [
-        {"type": "Feature", "geometry": geom.geojson} for geom in geometries
-    ]
-
-    geojson_data = {"type": "FeatureCollection", "features": geojson_features}
-
-    return geojson_data
+    return Response(
+        content=mvt_data.tobytes(), media_type="application/vnd.mapbox-vector-tile"
+    )
