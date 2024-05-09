@@ -1,76 +1,25 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func, case, and_
-from io import BytesIO
-
 from application.db.models import EntityOrm
 from application.db.session import get_session
 
 router = APIRouter()
 
-# ============================================================
-# Helper Funcs
-# ============================================================
+
+def tile_is_valid(z, x, y, fmt):
+    max_tile = 2**z - 1
+    return 0 <= x <= max_tile and 0 <= y <= max_tile and fmt in ["pbf", "mvt"]
 
 
-# Validate tile x/y coordinates at the given zoom level
-def tile_is_valid(tile):
-    size = 2 ** tile["zoom"]
-    return (
-        0 <= tile["x"] < size
-        and 0 <= tile["y"] < size
-        and tile["format"] in ["pbf", "mvt"]
-    )
-
-
-# Build the database query using SQLAlchemy ORM to match the direct SQL logic
 def build_db_query(tile, session: Session):
-    srid = 4326  # WGS 84
-
-    # Define the envelope, webmercator, and WGS84 transformations
-    envelope = func.ST_TileEnvelope(tile["zoom"], tile["x"], tile["y"])
-    webmercator = envelope
-    wgs84 = func.ST_Transform(webmercator, srid)
-    bounds = func.ST_MakeEnvelope(-180, -85.0511287798066, 180, 85.0511287798066, srid)
-
-    # Define the CASE expression for geometry transformation
-    geometry_case = case(
-        [
-            (
-                func.ST_Covers(bounds, EntityOrm.geometry),
-                func.ST_Transform(EntityOrm.geometry, srid),
-            )
-        ],
-        else_=func.ST_Transform(func.ST_Intersection(bounds, EntityOrm.geometry), srid),
-    )
-
-    # Geometry processing for MVT
-    query = (
-        session.query(func.ST_AsMVTGeom(geometry_case, wgs84).label("geom"))
-        .filter(
-            and_(
-                func.ST_Intersects(EntityOrm.geometry, wgs84),
-                EntityOrm.dataset == tile["dataset"],
-            )
-        )
-        .subquery()
-    )
-
-    # Generate MVT from a single-column subquery
-    tile_data = session.query(func.ST_AsMVT(query.c.geom, tile["dataset"])).scalar()
-
-    return tile_data
-
-
-# ============================================================
-# API Endpoints
-# ============================================================
+    # z, x, y, dataset = tile["zoom"], tile["x"], tile["y"], tile["dataset"]
+    dataset = tile["dataset"]
+    geometries = session.query(EntityOrm).filter(EntityOrm.dataset == dataset).all()
+    return geometries
 
 
 @router.get("/{dataset}/{z}/{x}/{y}.vector.{fmt}")
-async def read_tiles_from_postgres(
-    request: Request,
+async def read_tiles(
     dataset: str,
     z: int,
     x: int,
@@ -78,21 +27,18 @@ async def read_tiles_from_postgres(
     fmt: str,
     session: Session = Depends(get_session),
 ):
-    print("Hello", {dataset})
-    tile = {"dataset": dataset, "zoom": z, "x": x, "y": y, "format": fmt}
-    if not tile_is_valid(tile):
-        raise HTTPException(status_code=400, detail=f"Invalid tile path: {tile}")
+    if not tile_is_valid(z, x, y, fmt):
+        raise HTTPException(status_code=400, detail="Invalid tile path")
 
-    tile_data = build_db_query(tile, session)
-    if not tile_data:
+    tile = {"dataset": dataset, "zoom": z, "x": x, "y": y, "format": fmt}
+    geometries = build_db_query(tile, session)
+    if not geometries:
         raise HTTPException(status_code=404, detail="Tile data not found")
 
-    pbf_buffer = BytesIO(tile_data)
-    resp_headers = {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/vnd.mapbox-vector-tile",
-    }
+    geojson_features = [
+        {"type": "Feature", "geometry": geom.geojson} for geom in geometries
+    ]
 
-    return StreamingResponse(
-        pbf_buffer, media_type="vnd.mapbox-vector-tile", headers=resp_headers
-    )
+    geojson_data = {"type": "FeatureCollection", "features": geojson_features}
+
+    return geojson_data
