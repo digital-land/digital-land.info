@@ -26,25 +26,49 @@ def build_db_query(tile, session: Session):
     lon_min, lat_min, lon_max, lat_max = tile_bounds(z, x, y)
 
     geometry_column = "geometry"
-    if dataset == "conservation-area":
-        geometry_column = "point"
 
     tile_width = 256
 
     mvt_geom_query = text(
-        f"""
-        SELECT ST_AsMVT(q, 'entities_layer', {tile_width}, 'geom') AS mvt
-        FROM (
-            SELECT ST_AsMVTGeom(
-                {geometry_column},
-                ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326),
-                {tile_width}, 4096, true) AS geom
-            FROM entity
-            WHERE dataset = :dataset
-              AND ST_Intersects({geometry_column}, ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326))
+        f"""SELECT ST_AsMVT(q, :dataset, :tile_width, 'geom') FROM
+        (SELECT
+        ST_AsMVTGeom(
+        {geometry_column},
+        ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326),
+        :tile_width,
+        4096,
+        true
+        ) as geom,
+        jsonb_build_object(
+                    'name', entity.name,
+                    'dataset', entity.dataset,
+                    'organisation-entity', entity.organisation_entity,
+                    'entity', entity.entity,
+                    'entry-date', entity.entry_date,
+                    'start-date', entity.start_date,
+                    'end-date', entity.end_date,
+                    'prefix', entity.prefix,
+                    'reference', entity.reference
+                ) AS properties
+        FROM entity
+        WHERE dataset = :dataset
+        AND ST_Intersects({geometry_column}, ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326))
         ) AS q
-    """
+        """
     )
+    #     f"""
+    #     SELECT ST_AsMVT(q, 'entities_layer', {tile_width}, 'geom') AS mvt
+    #     FROM (
+    #         SELECT ST_AsMVTGeom(
+    #             {geometry_column},
+    #             ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326),
+    #             {tile_width}, 4096, true) AS geom
+    #         FROM entity
+    #         WHERE dataset = :dataset
+    #           AND ST_Intersects({geometry_column}, ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326))
+    #     ) AS q
+    # """
+    # )
 
     result = session.execute(
         mvt_geom_query,
@@ -54,6 +78,7 @@ def build_db_query(tile, session: Session):
             "lon_max": lon_max,
             "lat_max": lat_max,
             "dataset": dataset,
+            "tile_width": tile_width,
         },
     ).scalar()
     return result
