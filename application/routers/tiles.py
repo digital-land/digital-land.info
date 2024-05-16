@@ -26,6 +26,8 @@ def build_db_query(tile, session: Session):
     lon_min, lat_min, lon_max, lat_max = tile_bounds(z, x, y)
 
     geometry_column = "geometry"
+    if dataset == "tree":
+        geometry_column = "point"
 
     tile_width = 256
 
@@ -51,24 +53,15 @@ def build_db_query(tile, session: Session):
                     'reference', entity.reference
                 ) AS properties
         FROM entity
-        WHERE dataset = :dataset
+        WHERE NOT EXISTS (
+            SELECT 1 FROM old_entity
+                WHERE entity.entity = old_entity.old_entity
+        )
+        AND dataset = :dataset
         AND ST_Intersects({geometry_column}, ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326))
         ) AS q
         """
     )
-    #     f"""
-    #     SELECT ST_AsMVT(q, 'entities_layer', {tile_width}, 'geom') AS mvt
-    #     FROM (
-    #         SELECT ST_AsMVTGeom(
-    #             {geometry_column},
-    #             ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326),
-    #             {tile_width}, 4096, true) AS geom
-    #         FROM entity
-    #         WHERE dataset = :dataset
-    #           AND ST_Intersects({geometry_column}, ST_MakeEnvelope(:lon_min, :lat_min, :lon_max, :lat_max, 4326))
-    #     ) AS q
-    # """
-    # )
 
     result = session.execute(
         mvt_geom_query,
