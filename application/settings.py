@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
     DATASETTE_URL: HttpUrl
-    DATASETTE_TILES_URL: Optional[HttpUrl]
+    DATASETTE_TILES_URL: Optional[HttpUrl] = "https://www.development.digital-land.info"
     DATA_FILE_URL: HttpUrl
     GA_MEASUREMENT_ID: Optional[str] = None
     OS_CLIENT_KEY: Optional[str] = None
@@ -28,6 +28,7 @@ def get_settings() -> Settings:
     # TODO remove as Gov PaaS is no longer needed
     # Gov.uk PaaS provides a URL to the postgres instance it provisions via DATABASE_URL
     # See https://docs.cloud.service.gov.uk/deploying_services/postgresql/#connect-to-a-postgresql-service-from-your-app
+
     if "DATABASE_URL" in os.environ:
         database_url = os.environ["DATABASE_URL"].replace(
             "postgres://", "postgresql://", 1
