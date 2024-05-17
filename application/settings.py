@@ -16,7 +16,6 @@ class Settings(BaseSettings):
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
     DATASETTE_URL: HttpUrl
-    DATASETTE_TILES_URL: Optional[HttpUrl] = "https://www.development.digital-land.info"
     DATA_FILE_URL: HttpUrl
     GA_MEASUREMENT_ID: Optional[str] = None
     OS_CLIENT_KEY: Optional[str] = None

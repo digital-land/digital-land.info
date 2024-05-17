@@ -1,7 +1,7 @@
 import MapController from "./MapController.js";
 
 export const newMapController = (params = { layers: [] }) => {
-  const datasetUrl = params.DATASETTE_TILES_URL || "";
+  const datasetUrl = "https://www.development.digital-land.info";
 
   let mapParams = {
     ...params,
