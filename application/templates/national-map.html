@@ -1,58 +1,39 @@
-{% extends "layouts/layout--full-width.html" %}
-{% set templateName = "dl-info/national-map.html" %}
-
-{%- from "components/map/macro.jinja" import map %}
-
-{% set containerClasses = 'dl-container--full-width' %}
-{% set fullWidthHeader = true %}
-
-{% set includesMap = true %}
-{% block pageTitle %}Map of planning data for England | Planning Data{% endblock %}
-
-{%
-  set notePanel = '<p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>'
-%}
-
-{%- block mapAssets %}
-  <script src='/static/javascripts/maplibre-gl.js'></script>
-  <link href='/static/stylesheets/maplibre-gl.css' rel='stylesheet' />
-  {{ super() }}
-{% endblock -%}
-
-{%- from "components/back-button/macro.jinja" import dlBackButton %}
-{% block breadcrumbs%}
-  {{ dlBackButton({
-    "parentHref": '/'
-  })}}
-{% endblock %}
-
-{% block content %}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Map of planning data for England</h1>
-    </div>
+{% extends "layouts/layout--full-width.html" %} {% set templateName =
+"dl-info/national-map.html" %} {%- from "components/map/macro.jinja" import map
+%} {% set containerClasses = 'dl-container--full-width' %} {% set
+fullWidthHeader = true %} {% set includesMap = true %} {% block pageTitle %}Map
+of planning data for England | Planning Data{% endblock %} {% set notePanel = '
+<p>
+  Find, understand and download the
+  <a href="/dataset" class="govuk-link">datasets used to create this map</a>.
+</p>
+' %} {%- block mapAssets %}
+<script src="/static/javascripts/maplibre-gl.js"></script>
+<link href="/static/stylesheets/maplibre-gl.css" rel="stylesheet" />
+{{ super() }} {% endblock -%} {%- from "components/back-button/macro.jinja"
+import dlBackButton %} {% block breadcrumbs%} {{ dlBackButton({ "parentHref":
+'/' })}} {% endblock %} {% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+    <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">
+      Map of planning data for England
+    </h1>
   </div>
+</div>
 
-  <p id="aria-label-national-map" class="govuk-body-l">See the data we've collected and collated on a map.</p>
+<p id="aria-label-national-map" class="govuk-body-l">
+  See the data we've collected and collated on a map.
+</p>
 
-  {{
-    map({
-      'height': 700,
-      'layers': layers,
-      'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
-      'notePanel': notePanel,
-      'enableZoomControls': true,
-      'enableLayerControls': true,
-      'enableZoomCounter': true,
-    })
-  }}
+{{ map({ 'height': 700, 'layers': layers, 'DATASETTE_TILES_URL':
+"https://www.development.digital-land.info", 'notePanel': notePanel,
+'enableZoomControls': true, 'enableLayerControls': true, 'enableZoomCounter':
+true, }) }}
 
-  <p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">This prototype map is automatically created using data from planning.data.gov.uk. Find out more <a href="/about">about the Planning Data Platform</a></p>
+<p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">
+  This prototype map is automatically created using data from
+  planning.data.gov.uk. Find out more
+  <a href="/about">about the Planning Data Platform</a>
+</p>
 
-{% endblock %}
-
-{% block bodyEnd %}
-{{ super() }}
-
-
-{% endblock %}
+{% endblock %} {% block bodyEnd %} {{ super() }} {% endblock %}

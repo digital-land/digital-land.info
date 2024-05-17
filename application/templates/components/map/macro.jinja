@@ -53,14 +53,14 @@
         params = {
           ...params,
           baseTileStyleFilePath: "/static/javascripts/base-tile.json",
-          vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/dataset_tiles/{z}/{x}/{y}.vector.pbf",
-          datasetVectorUrl: "{{ params.DATASETTE_TILES_URL }}/-/tiles/",
+          vectorSource: "https://www.development.digital-land.info/tiles/{z}/{x}/{y}.vector.pbf",
+          datasetVectorUrl: "https://www.development.digital-land.info/tiles/",
           datasets: {{layers|tojson}}.map(d => d.dataset),
           vectorTileSources: {{layers|tojson}}.map(d => {
             d.paint_options = d.paint_options || {};
             return {
               name: d.dataset,
-              vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/" + d.dataset + "/{z}/{x}/{y}.vector.pbf",
+              vectorSource: "https://www.development.digital-land.info/tiles/" + d.dataset + "/{z}/{x}/{y}.vector.pbf",
               dataType: d.paint_options.type,
               styleProps: {
                 colour: d.paint_options.colour,
