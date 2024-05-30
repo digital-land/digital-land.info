@@ -193,12 +193,12 @@ def hash_file(filename):
         print("File not found when creating a hash: " + filename)
         return ""
 
-    sha1Hash = hashlib.new("sha1")
-    sha1Hash.update(content)
-    sha1Hashed = sha1Hash.hexdigest()
+    md5Hash = hashlib.new("md5", usedforsecurity=False)
+    md5Hash.update(content)
+    md5Hashed = md5Hash.hexdigest()
 
     # return the hex representation of digest
-    return sha1Hashed
+    return md5Hashed
 
 
 # Takes the URI and appends a param containing the current git hash
