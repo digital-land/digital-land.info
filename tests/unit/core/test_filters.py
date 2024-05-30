@@ -86,7 +86,7 @@ def test_cacheBust_no_params():
     assert input_uri == sections[0]
 
     hash = sections[1].split("=")[1]
-    assert len(hash) == 32
+    assert len(hash) == 40
 
 
 def test_cacheBust_params():
@@ -99,7 +99,7 @@ def test_cacheBust_params():
     assert params[0] == "fakeParam=myFakeParam"
 
     hash = params[1].split("=")[1]
-    assert len(hash) == 32
+    assert len(hash) == 40
 
 
 def test_append_uri_param():
@@ -120,7 +120,7 @@ def test_append_uri_param():
 def test_hash_file():
     result = hash_file("static/javascripts/MapController.js")
     print(result)
-    assert len(result) == 32
+    assert len(result) == 40
 
 
 def test_make_url_param_str_all_arguements():
