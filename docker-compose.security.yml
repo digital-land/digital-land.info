@@ -40,7 +40,7 @@ services:
       retries: 5
 
   zap:
-    image: ghcr.io/zaproxy/zaproxy:${ZAP_VERSION-2.11.1}
+    image: ghcr.io/zaproxy/zaproxy:${ZAP_VERSION-2.15.0}
     command: bash -c "zap.sh -cmd -addonupdate; zap.sh -cmd -autorun /zap/wrk/zap.yaml"
     volumes:
       - .:/zap/wrk
