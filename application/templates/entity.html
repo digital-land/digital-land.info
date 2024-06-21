@@ -63,17 +63,26 @@
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
               {% if field != 'entity' %}
-                {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
+                {%- if field not in ["organisation-entity", "json"] %}
                   <tr class="govuk-table__row">
                     <th scope="row" class="app-table__header app-table__header--row">
-                      {{ entityField(field,fields,dataset_fields) }}
+                      {{ entityField(field, fields, dataset_fields) }}
                     </th>
                     <td class="govuk-table__cell app-table__cell">
-                      {{ entityValue(field,row[field],fields,dataset_fields,organisation_entity,linked_entities)}}
+                      {% if field == 'geometry' %}
+                        <div id="geometry-content">
+                          {{ row[field][:200] }}{% if row[field]|length > 200 %}...<a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
+                        </div>
+                        <div id="geometry-full-content" style="display: none;">
+                          {{ row[field] }}
+                        </div>
+                      {% else %}
+                        {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities) }}
+                      {% endif %}
                     </td>
-                    {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
+                    {% if field not in ['dataset', 'organisation-entity', 'start-date', 'end-date', 'typology'] %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
-                        <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
+                        <a href="/fact?dataset={{ row['dataset'] }}&entity={{ row['entity'] }}&field={{ field }}" class="govuk-link">Facts</a>
                       </td>
                     {% else %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"><span class='govuk-visually-hidden'>no fact link</span></td>
@@ -83,6 +92,14 @@
               {% endif %}
             {% endfor %}
           </tbody>
+
+          <script>
+            function expandGeometry() {
+              document.getElementById('geometry-content').style.display = 'none';
+              document.getElementById('geometry-full-content').style.display = 'block';
+            }
+          </script>
+
         </table>
       {% endcall %}
 
@@ -90,38 +107,26 @@
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{row|digital_land_to_json}}</code></pre>
       {% endset %}
       {% set geojsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{geojson|digital_land_to_json}}</code></pre>
-      {% endset %}
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
+        <button id="load-more-button" class="govuk-button" style="display:none;">Load More</button>
+        {% endset %}
 
-      {% if geojson %}
-        {% set params = {
-          "title":"Available Code Snippets:",
-          "items":[
-            {
-              "label":"JSON","id":"json","panel":{
-                "html":jsonHTML
-              }
-            },
-            {
-              "label":"GeoJSON","id":"geojson","panel":{
-                "html":geojsonHTML
-              }
+      {% set params = {
+        "title":"Available Code Snippets:",
+        "items":[
+          {
+            "label":"JSON","id":"json","panel":{
+              "html":jsonHTML
             }
-          ],
-          "classes": "govuk-tabs--entity  govuk-!-margin-bottom-0"
-        } %}
-      {% else %}
-        {% set params = {
-          "items":[
-            {
-              "label":"JSON","id":"json","panel":{
-                "html":jsonHTML
-              }
+          },
+          {
+            "label":"GeoJSON","id":"geojson","panel":{
+              "html":geojsonHTML
             }
-          ],
-          "classes": "govuk-tabs--entity govuk-!-margin-bottom-0"
-        } %}
-      {% endif %}
+          }
+        ],
+        "classes": "govuk-tabs--entity  govuk-!-margin-bottom-0"
+      } %}
       {{ govukTabs(params) }}
 
       {% if dataset %}
@@ -215,4 +220,28 @@
 
 {%- block pageScripts %}
 
+{% set geojson_url = "/entity/" + row["entity"] | string + "?extension=geojson" %}
+{% set geojson_string = geojson|digital_land_to_json %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelector('#tab_geojson').addEventListener('click', function () {
+      // Check if the content is already loaded
+      const geojsonContentElement = document.getElementById('geojson-content');
+      if (geojsonContentElement && geojsonContentElement.textContent === 'Loading...') {
+        // Fetch the GeoJSON content
+        fetch('{{ geometry_url }}')
+          .then(response => {
+            return response.text();
+          })
+          .then(data => {
+            geojsonContentElement.textContent = data
+          })
+          .catch(error => {
+            console.error('Error loading GeoJSON:', error);
+            geojsonContentElement.textContent = 'Error loading GeoJSON content';
+          });
+      }
+    });
+  });
+</script>
 {%- endblock %}
