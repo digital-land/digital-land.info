@@ -82,7 +82,7 @@
             {%- endif %}
         {%- elif field == "twitter" %}
             <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
-        {%- elif field in ["website","opendatacommunities","documentation-url","document-url","site-plan-url"] %}
+        {%- elif field in ["website","opendatacommunities"] or field.endswith("-url") or field.endswith("-uri")] %}
             <a class ="govuk-link" href="{{ value }}">{{ value }}</a>
         {%- elif field in ["wikipedia"] %}
             <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + value }}">{{ value }}</a>
