@@ -91,6 +91,7 @@ class DatasetModel(DigitalLandDateFieldsModel):
     attribution_text: str = None
     licence: str = None
     licence_text: str = None
+    consideration: str = None
 
 
 class TypologyModel(DigitalLandDateFieldsModel):

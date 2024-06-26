@@ -205,6 +205,7 @@
             </li>
           </ul>
         </nav>
+        {% if dataset['consideration'] %}
         <hr class="govuk-section-break govuk-section-break--m">
         <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="data-design">
           Designing the data
@@ -213,11 +214,11 @@
         <nav role="navigation" aria-labelledby="specification">
           <ul class="govuk-list govuk-!-font-size-16">
             <li>
-              <!-- swap ['name'] for ['consideration'] once it is available -->
-              <a class="govuk-link" href="https://design.planning.data.gov.uk/{{ dataset['name'] }}">{{ dataset['name'] }} planning consideration</a>
+              <a class="govuk-link" href="https://design.planning.data.gov.uk/planning-consideration/{{ dataset['consideration'] }}">{{ dataset['consideration'] }} planning consideration</a>
             </li>
           </ul>
         </nav>
+        {% endif %}
       </aside>
 
     </div>
