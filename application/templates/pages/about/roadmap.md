@@ -2,11 +2,11 @@ This roadmap shows our current plans for making it easier to find planning and h
 
 We work in 3-month cycles and we will update this roadmap every month. Our plans can change based on what we learn from speaking to our users, testing iterations, and how we can better deliver on our mission.
 
-Last updated 12 April 2024.
+Last updated 17 April 2024.
 
 ## Local planning authorities (LPAs)
 
-We’re working with 71 LPAs through the [Open Digital Planning community](https://opendigitalplanning.org/community) to help them provide data through our platform, so they can use the [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital) digital planning products.
+We’re working with 71 LPAs through the [Open Digital Planning community](https://opendigitalplanning.org/community-members) to help them provide data through our platform, so they can use the [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital) digital planning products.
 
 ### Now
 
@@ -43,13 +43,13 @@ We will continue to develop standards in the following areas:
 
 ### Now
 
+- We are implementing performance measures, analytics and other metrics to raise the visibility of the performance of the service
 - We are scaling our data processing to support more LPAs checking their data at once, and to make the platform more resilient when processing large datasets
 - We are improving our processes to identify data quality issues faster and give better feedback more quickly to LPAs on their data
-- We are implementing performance measures, analytics and other metrics to raise the visibility of the performance of the service
+- We will give LPAs feedback on issues with their datasets and a way to track progress on tasks, to make it easier to improve and provide all data iteratively
 
 ### Next
 
-- We will give LPAs feedback on issues with their datasets and a way to track progress on tasks, to make it easier to improve and provide all data iteratively
 - We will test an approach for seeding and adopting local data (for local plans, conservation areas, Article 4 directions, and design codes) to start with what exists and reduce effort for LPAs when preparing data
 - We will show data an organisation must provide (statutory), has been funded to provide (expected) or where there is a standard under development (prospective) 
 
