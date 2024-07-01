@@ -8,7 +8,7 @@ on:
 env:
   APPLICATION: digital-land-platform
   DOCKER_REPO: public.ecr.aws/l6z6v3j6
-  ZAP_VERSION: 2.11.1
+  ZAP_VERSION: 2.15.0
 
 jobs:
   dynamic-audit:

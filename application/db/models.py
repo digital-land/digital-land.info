@@ -107,6 +107,7 @@ class DatasetOrm(Base):
     themes = Column(ARRAY(Text), nullable=True)
     attribution_id = Column(Text, nullable=True)
     licence_id = Column(Text, nullable=True)
+    consideration = Column(Text, nullable=True)
 
     _attribution = relationship(
         "AttributionOrm",

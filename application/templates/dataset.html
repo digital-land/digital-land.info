@@ -205,6 +205,20 @@
             </li>
           </ul>
         </nav>
+        {% if dataset['consideration'] %}
+        <hr class="govuk-section-break govuk-section-break--m">
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="data-design">
+          Designing the data
+        </h2>
+        <p class="govuk-hint govuk-!-font-size-14">You can see details about how this dataset has been designed for planning.data.gov.uk</p>
+        <nav role="navigation" aria-labelledby="specification">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li>
+              <a class="govuk-link" href="https://design.planning.data.gov.uk/planning-consideration/{{ dataset['consideration'] }}">{{ dataset['consideration'] }} planning consideration</a>
+            </li>
+          </ul>
+        </nav>
+        {% endif %}
       </aside>
 
     </div>
