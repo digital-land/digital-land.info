@@ -1,4 +1,6 @@
-We have an online service that checks if your data meets the technical specification and helps you publish it. You can use the service to check your existing datasets against the specifications, which will help you plan your project. You can also use it after preparing the data, before you publish the data on your website.
+We have an online service that checks if your data meets the technical specification and helps you publish it.
+
+You can use the service to check your existing datasets against the specifications, which will help you plan your project. You can also use it after preparing the data, before you publish the data on your website.
 
 For now the service supports:
 
