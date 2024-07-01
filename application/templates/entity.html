@@ -70,12 +70,14 @@
                     </th>
                     <td class="govuk-table__cell app-table__cell">
                       {% if field == 'geometry' %}
-                        <div id="geometry-content">
-                          {{ row[field][:200] }}{% if row[field]|length > 200 %}...<a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
-                        </div>
-                        <div id="geometry-full-content" style="display: none;">
+                        <code class ="app-code-block" id="geometry-content">
+                          {% if row[field] is not none %}
+                            {{ row[field][:150] }}{% if row[field]|length > 150 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
+                          {% endif %}
+                          </code>
+                        <code class ="app-code-block" id="geometry-full-content" style="display: none;">
                           {{ row[field] }}
-                        </div>
+                        </code>
                       {% else %}
                         {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities) }}
                       {% endif %}
@@ -227,18 +229,18 @@
     document.querySelector('#tab_geojson').addEventListener('click', function () {
       // Check if the content is already loaded
       const geojsonContentElement = document.getElementById('geojson-content');
-      if (geojsonContentElement && geojsonContentElement.textContent === 'Loading...') {
+      if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
         // Fetch the GeoJSON content
         fetch('{{ geometry_url }}')
           .then(response => {
             return response.text();
           })
           .then(data => {
-            geojsonContentElement.textContent = data
+            geojsonContentElement.innerHTML = data
           })
           .catch(error => {
             console.error('Error loading GeoJSON:', error);
-            geojsonContentElement.textContent = 'Error loading GeoJSON content';
+            geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
           });
       }
     });
