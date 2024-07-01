@@ -2,7 +2,7 @@
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 {% set templateName = 'dl-info/guidance/index.html' %}
 {%- do pageData.update({
-  'pageTitle': 'Publish planning and housing data for England'
+  'pageTitle': 'Provide planning and housing data for England'
 }) %}
 {% block breadcrumbs%}
   {{ dlBackButton({
@@ -12,7 +12,43 @@
 {% block content_primary %}
 
     <p>
-   Guidance for planning authorities adding data to the platform.
+      We’re working with 73 local planning authorities (LPAs) through the <a class="govuk-link" href="https://opendigitalplanning.org/community-members" target="_blank">Open Digital Planning community</a> to help them provide data to our platform. There are four steps to follow:
+    </p>
+
+    <ul class="govuk-list govuk-list--bullet">
+      <li>prepare data to the specifications</li>
+      <li>use our service to check your data conforms to specifications</li>
+      <li>publish data on your local authority website</li>
+      <li>keep your data up-to-date</li>
+    </ul>
+
+    <h2 class="govuk-heading-m govuk-!-margin-bottom-1">
+      Using our service
+    </h2>
+
+    <p>
+      We’re making improvements to our service which will make it simpler and easier for LPAs to provide and maintain data for planning and housing.
+    </p>
+
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
+      Streamlined data provision and progress tracking
+    </h3>
+    <p>
+      Our step-by-step process guides you with real-time feedback, helping you track progress and provide data confidently.
+    </p>
+
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
+      Guided data mapping
+    </h3>
+    <p>
+      Easily map your data headings to the specifications, using real examples from your datasets.
+    </p>
+
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
+      Actionable data validation and error resolution
+    </h3>
+    <p>
+      Get clear instructions to resolve problems with your datasets, making it easier to conform to technical specifications.
     </p>
 
     {# <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--l"> #}

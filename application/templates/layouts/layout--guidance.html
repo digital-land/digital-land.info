@@ -25,7 +25,7 @@
       {% block content_secondary %}
 
         {% set themes = [
-          'Publish planning and housing data for England',
+          'Provide planning and housing data for England',
           'Prepare data to the specifications',
           'Other guidance'
         ] %}
@@ -40,7 +40,7 @@
           'themed': True,
           'links': [
             {
-              'text': 'Guidance home',
+              'text': 'Guidance for data providers',
               'href': sectionPath,
               'theme': themes[0],
               'current': true if pageData.name == 'home' else false,

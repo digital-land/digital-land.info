@@ -3,7 +3,7 @@ def test_guidance_pages_load_ok(server_url, page):
     assert response.ok
     heading = page.get_by_role(
         "heading",
-        name="Publish planning and housing data for England",
+        name="Provide planning and housing data for England",
     ).last
     assert heading.is_visible()
 
