@@ -1,4 +1,6 @@
-We have an online service that checks if some of your data meets the standard and helps you publish it. 
+We have an online service that checks if your data meets the technical specification and helps you publish it.
+
+You can use the service to check your existing datasets against the specifications, which will help you plan your project. You can also use it after preparing the data, before you publish it on your website.
 
 For now the service supports:
 
@@ -7,4 +9,4 @@ For now the service supports:
 - [listed building outline dataset](https://www.planning.data.gov.uk/guidance/specifications/listed-building#listed-buildings-outline-dataset)
 - [tree preservation zone dataset](https://www.planning.data.gov.uk/guidance/specifications/tree-preservation-order#tree-preservation-zone-dataset)
 
-[Try the publish planning and housing data service](https://publish.planning.data.gov.uk/)
+[Try the Check planning and housing data service](https://check.planning.data.gov.uk/).
