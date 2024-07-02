@@ -9,4 +9,4 @@ For now the service supports:
 - [listed building outline dataset](https://www.planning.data.gov.uk/guidance/specifications/listed-building#listed-buildings-outline-dataset)
 - [tree preservation zone dataset](https://www.planning.data.gov.uk/guidance/specifications/tree-preservation-order#tree-preservation-zone-dataset)
 
-[Try the Check planning and housing data service](https://publish.planning.data.gov.uk/).
+[Try the Check planning and housing data service](https://check.planning.data.gov.uk/).
