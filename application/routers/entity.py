@@ -93,13 +93,11 @@ def handle_moved_entity(
 
 
 def prepare_geojson(e):
-    if e.geojson is not None:
-        geojson = e.geojson
-        if geojson:
-            properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
-            geojson.properties = properties
-        return geojson
-    return None
+    geojson = e.geojson
+    if geojson:
+        properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
+        geojson.properties = properties
+    return geojson
 
 
 def handle_entity_response(

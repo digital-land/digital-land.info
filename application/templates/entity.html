@@ -17,8 +17,9 @@
 {%- endif %}
 
 {% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
-  None %}
+None %}
 {% if geometry_url or geojson_features %}
+  {% set geometry_exists = true %}
   {% set includesMap = true %}
 {% endif %}
 
@@ -63,7 +64,7 @@
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
               {% if field != 'entity' %}
-                {%- if field not in ["organisation-entity", "json"] %}
+              {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
                   <tr class="govuk-table__row">
                     <th scope="row" class="app-table__header app-table__header--row">
                       {{ entityField(field, fields, dataset_fields) }}
@@ -108,27 +109,40 @@
       {% set jsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{row|digital_land_to_json}}</code></pre>
       {% endset %}
+
+      {% if geometry_exists %}
       {% set geojsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
         <button id="load-more-button" class="govuk-button" style="display:none;">Load More</button>
         {% endset %}
-
-      {% set params = {
-        "title":"Available Code Snippets:",
-        "items":[
-          {
-            "label":"JSON","id":"json","panel":{
-              "html":jsonHTML
+          {% set params = {
+            "title":"Available Code Snippets:",
+            "items":[
+              {
+                "label":"JSON","id":"json","panel":{
+                  "html":jsonHTML
+                }
+              },
+              {
+                "label":"GeoJSON","id":"geojson","panel":{
+                  "html":geojsonHTML
+                }
+              }
+            ],
+            "classes": "govuk-tabs--entity  govuk-!-margin-bottom-0"
+          } %}
+      {% else %}
+        {% set params = {
+          "items":[
+            {
+              "label":"JSON","id":"json","panel":{
+                "html":jsonHTML
+              }
             }
-          },
-          {
-            "label":"GeoJSON","id":"geojson","panel":{
-              "html":geojsonHTML
-            }
-          }
-        ],
-        "classes": "govuk-tabs--entity  govuk-!-margin-bottom-0"
-      } %}
+          ],
+          "classes": "govuk-tabs--entity govuk-!-margin-bottom-0"
+        } %}
+      {% endif %}
       {{ govukTabs(params) }}
 
       {% if dataset %}
@@ -222,8 +236,6 @@
 
 {%- block pageScripts %}
 
-{% set geojson_url = "/entity/" + row["entity"] | string + "?extension=geojson" %}
-{% set geojson_string = geojson|digital_land_to_json %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#tab_geojson').addEventListener('click', function () {
