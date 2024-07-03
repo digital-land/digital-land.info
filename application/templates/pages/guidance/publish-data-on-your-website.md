@@ -21,11 +21,11 @@ The webpage must include, for each dataset:
 
 #### About the data
 
-This dataset shows the locations of conservation areas. Conservation areas are designated to safeguard areas of special architectural and historic interest, the character and appearance of which it is desirable to preserve and enhance. 
+This dataset shows the locations of conservation areas. Conservation areas are designated to safeguard areas of special architectural and historic interest, the character and appearance of which it is desirable to preserve and enhance.
 
 #### Data
 
-[Conservation areas (CSV, 188KB)](https://publish.planning.data.gov.uk/public/downloadable/conservationArea.csv)
+[Conservation areas (CSV, 188KB)](https://check.planning.data.gov.uk/public/downloadable/conservationArea.csv)
 
 #### Licensing
 
