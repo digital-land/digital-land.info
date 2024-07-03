@@ -3,7 +3,7 @@ def test_guidance_pages_load_ok(server_url, page):
     assert response.ok
     heading = page.get_by_role(
         "heading",
-        name="Publish planning and housing data for England",
+        name="Provide planning and housing data for England",
     ).last
     assert heading.is_visible()
 
@@ -14,6 +14,16 @@ def test_guidance_pages_load_ok(server_url, page):
     heading = page.get_by_role(
         "heading",
         name="Prepare data to the specifications",
+    )
+    assert heading.is_visible()
+
+    page.get_by_label("Guidance navigation").get_by_role(
+        "link", name="Use our service to check your data"
+    ).click()
+    assert response.ok
+    heading = page.get_by_role(
+        "heading",
+        name="Use our service to check your data",
     )
     assert heading.is_visible()
 
@@ -34,15 +44,5 @@ def test_guidance_pages_load_ok(server_url, page):
     heading = page.get_by_role(
         "heading",
         name="Keep your data up to date",
-    )
-    assert heading.is_visible()
-
-    page.get_by_label("Guidance navigation").get_by_role(
-        "link", name="Try our new check and publish service"
-    ).click()
-    assert response.ok
-    heading = page.get_by_role(
-        "heading",
-        name="Try our new check and publish service",
     )
     assert heading.is_visible()
