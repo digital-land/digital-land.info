@@ -64,28 +64,17 @@ None %}
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
               {% if field != 'entity' %}
-              {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
+                {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
                   <tr class="govuk-table__row">
                     <th scope="row" class="app-table__header app-table__header--row">
-                      {{ entityField(field, fields, dataset_fields) }}
+                      {{ entityField(field,fields,dataset_fields) }}
                     </th>
                     <td class="govuk-table__cell app-table__cell">
-                      {% if field == 'geometry' %}
-                        <code class ="app-code-block" id="geometry-content">
-                          {% if row[field] is not none %}
-                            {{ row[field][:150] }}{% if row[field]|length > 150 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
-                          {% endif %}
-                          </code>
-                        <code class ="app-code-block" id="geometry-full-content" style="display: none;">
-                          {{ row[field] }}
-                        </code>
-                      {% else %}
-                        {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities) }}
-                      {% endif %}
+                      {{ entityValue(field,row[field],fields,dataset_fields,organisation_entity,linked_entities)}}
                     </td>
-                    {% if field not in ['dataset', 'organisation-entity', 'start-date', 'end-date', 'typology'] %}
+                    {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
-                        <a href="/fact?dataset={{ row['dataset'] }}&entity={{ row['entity'] }}&field={{ field }}" class="govuk-link">Facts</a>
+                        <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
                       </td>
                     {% else %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"><span class='govuk-visually-hidden'>no fact link</span></td>
@@ -95,26 +84,17 @@ None %}
               {% endif %}
             {% endfor %}
           </tbody>
-
-          <script>
-            function expandGeometry() {
-              document.getElementById('geometry-content').style.display = 'none';
-              document.getElementById('geometry-full-content').style.display = 'block';
-            }
-          </script>
-
         </table>
       {% endcall %}
 
       {% set jsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{row|digital_land_to_json}}</code></pre>
       {% endset %}
-
-      {% if geometry_exists %}
       {% set geojsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
-        <button id="load-more-button" class="govuk-button" style="display:none;">Load More</button>
         {% endset %}
+
+      {% if geometry_exists %}
           {% set params = {
             "title":"Available Code Snippets:",
             "items":[
@@ -238,24 +218,34 @@ None %}
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    document.querySelector('#tab_geojson').addEventListener('click', function () {
-      // Check if the content is already loaded
-      const geojsonContentElement = document.getElementById('geojson-content');
-      if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
-        // Fetch the GeoJSON content
-        fetch('{{ geometry_url }}')
-          .then(response => {
-            return response.text();
-          })
-          .then(data => {
-            geojsonContentElement.innerHTML = data
-          })
-          .catch(error => {
-            console.error('Error loading GeoJSON:', error);
-            geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
-          });
+      // Function to handle loading GeoJSON content
+      function loadGeoJSON() {
+          const geojsonContentElement = document.getElementById('geojson-content');
+          console.log('GeoJSON content element (inside loadGeoJSON):', geojsonContentElement);
+          if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
+              // Fetch the GeoJSON content
+              fetch('{{ geometry_url }}')
+                  .then(response => response.text())
+                  .then(data => {
+                      geojsonContentElement.innerHTML = JSON.stringify(JSON.parse(data), null, 4);
+                  })
+                  .catch(error => {
+                      console.error('Error loading GeoJSON:', error);
+                      geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
+                  });
+          }
       }
-    });
+
+      // Add click event listener for GeoJSON tab
+      document.querySelector('#tab_geojson').addEventListener('click', function () {
+          loadGeoJSON();
+      });
+
+      // Check the fragment identifier on page load
+      if (window.location.hash === '#geojson') {
+          // Simulate a click event on the GeoJSON tab
+          document.querySelector('#tab_geojson').click();
+      }
   });
 </script>
 {%- endblock %}
