@@ -221,7 +221,6 @@ None %}
       // Function to handle loading GeoJSON content
       function loadGeoJSON() {
           const geojsonContentElement = document.getElementById('geojson-content');
-          console.log('GeoJSON content element (inside loadGeoJSON):', geojsonContentElement);
           if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
               // Fetch the GeoJSON content
               fetch('{{ geometry_url }}')
