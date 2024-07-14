@@ -5,6 +5,17 @@
                 <span class="app-u-breakword">
                     <a class="govuk-link" href="{{ value }}">{{value}}</a>
                 </span>
+            {% elif field_spec[field]['field'] == 'document-urls' %}
+              {%- set urls = value.split(';') %}
+              <ul class="govuk-list">
+              {%- for url in urls %}
+                <li>
+                    <span class="app-u-breakword">
+                        <a class="govuk-link" href="{{ url }}">{{url}}</a>
+                    </span>
+                </li>
+              {% endfor -%}
+              </ul>
             {% elif field_spec[field]['datatype'] == 'wkt' %}
                 <div class="app-code-block">{{ value }}</div>
             {% elif field in ["organisation-entity"] %}
