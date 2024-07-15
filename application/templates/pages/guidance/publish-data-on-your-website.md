@@ -34,7 +34,7 @@ The data is provided under the [Open Government Licence](https://www.nationalarc
 Submit your data URL
 -------------
 
-When you've published your webpage and data, you need to use our [Submit planning and housing data for England](https://check.development.digital-land.info/submit)
+When you've published your webpage and data, you need to use our [Submit planning and housing data for England](https://check.planning.data.gov.uk/submit)
 service so we can check it for you. 
 
 
