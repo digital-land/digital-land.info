@@ -9,7 +9,6 @@ from pydantic.error_wrappers import ErrorWrapper
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.orm import Session
-
 from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
     get_datasets,
@@ -70,6 +69,117 @@ def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
     return entities
 
 
+def handle_gone_entity(
+    request: Request, entity: int, extension: Optional[SuffixEntity]
+):
+    if extension:
+        raise HTTPException(
+            detail=f"Entity {entity} has been removed",
+            status_code=410,
+        )
+    return templates.TemplateResponse(
+        "entity-gone.html",
+        {"request": request, "entity": str(entity)},
+        status_code=410,
+    )
+
+
+def handle_moved_entity(
+    entity: int, new_entity_id: int, extension: Optional[SuffixEntity]
+):
+    if extension:
+        return RedirectResponse(f"/entity/{new_entity_id}.{extension}", status_code=301)
+    return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
+
+
+def prepare_geojson(e):
+    geojson = e.geojson
+    if geojson:
+        properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
+        geojson.properties = properties
+    return geojson
+
+
+def handle_entity_response(
+    request: Request, e, extension: Optional[SuffixEntity], session: Session
+):
+    if extension is not None and extension.value == "json":
+        return e.dict(by_alias=True, exclude={"geojson"})
+
+    geojson = None
+
+    if extension is not None and extension.value == "geojson":
+        geojson = prepare_geojson(e)
+        if geojson:
+            return geojson
+        else:
+            raise HTTPException(
+                status_code=406, detail="geojson for entity not available"
+            )
+
+    e_dict = e.dict(by_alias=True, exclude={"geojson"})
+    e_dict_sorted = {
+        key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
+    }
+    # need to remove any dependency on facts this should be changed when fields added to postgis
+    fields = None
+    # get field specifications and convert to dictionary to easily access
+    # fields = get_field_specifications(e_dict_sorted.keys())
+    # if fields:
+    #     fields = [field.dict(by_alias=True) for field in fields]
+    #     fields = {field["field"]: field for field in fields}
+
+    # get dictionary of fields which have linked datasets
+    dataset_fields = get_datasets(session, datasets=e_dict_sorted.keys())
+    dataset_fields = [
+        dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
+    ]
+    dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
+
+    dataset = get_dataset_query(session, e.dataset)
+    organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+
+    entityLinkFields = [
+        "article-4-direction",
+        "permitted-development-rights",
+        "tree-preservation-order",
+    ]
+
+    linked_entities = {}
+
+    # for each entityLinkField, if that key exists in the entity dict, then
+    # lookup the entity and add it to the linked_entities dict
+    for field in entityLinkFields:
+        if field in e_dict_sorted:
+            linked_entity = lookup_entity_link(
+                session, e_dict_sorted[field], field, e_dict_sorted["dataset"]
+            )
+            if linked_entity is not None:
+                linked_entities[field] = linked_entity
+
+    return templates.TemplateResponse(
+        "entity.html",
+        {
+            "request": request,
+            "row": e_dict_sorted,
+            "linked_entities": linked_entities,
+            "entity": e,
+            "pipeline_name": e.dataset,
+            "references": [],
+            "breadcrumb": [],
+            "schema": None,
+            "typology": e.typology,
+            "entity_prefix": "",
+            "geojson_features": e.geojson if e.geojson is not None else None,
+            "geojson": geojson.dict() if geojson else None,
+            "fields": fields,
+            "dataset_fields": dataset_fields,
+            "dataset": dataset,
+            "organisation_entity": organisation_entity,
+        },
+    )
+
+
 def get_entity(
     request: Request,
     entity: int = Path(default=Required, description="Entity id"),
@@ -79,107 +189,11 @@ def get_entity(
     e, old_entity_status, new_entity_id = get_entity_query(session, entity)
 
     if old_entity_status == 410:
-        return templates.TemplateResponse(
-            "entity-gone.html",
-            {
-                "request": request,
-                "entity": str(entity),
-            },
-        )
+        return handle_gone_entity(request, entity, extension)
     elif old_entity_status == 301:
-        if extension:
-            return RedirectResponse(
-                f"/entity/{new_entity_id}.{extension}", status_code=301
-            )
-        else:
-            return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
+        return handle_moved_entity(entity, new_entity_id, extension)
     elif e is not None:
-        if extension is not None and extension.value == "json":
-            return e.dict(by_alias=True, exclude={"geojson"})
-
-        if e.geojson is not None:
-            geojson = e.geojson
-            properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
-            geojson.properties = properties
-        else:
-            geojson = None
-
-        if extension is not None and extension.value == "geojson":
-            if geojson is not None:
-                return geojson
-            else:
-                raise HTTPException(
-                    status_code=406, detail="geojson for entity not available"
-                )
-
-        e_dict = e.dict(by_alias=True, exclude={"geojson"})
-        e_dict_sorted = {
-            key: e_dict[key]
-            for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
-        }
-
-        if geojson is not None:
-            geojson_dict = dict(geojson)
-        else:
-            geojson_dict = None
-
-        # need to remove any dependency on facts this should be changed when fields added to postgis
-        fields = None
-        # get field specifications and convert to dictionary to easily access
-        # fields = get_field_specifications(e_dict_sorted.keys())
-        # if fields:
-        #     fields = [field.dict(by_alias=True) for field in fields]
-        #     fields = {field["field"]: field for field in fields}
-
-        # get dictionary of fields which have linked datasets
-        dataset_fields = get_datasets(session, datasets=e_dict_sorted.keys())
-        dataset_fields = [
-            dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
-        ]
-        dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
-
-        dataset = get_dataset_query(session, e.dataset)
-        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
-
-        entityLinkFields = [
-            "article-4-direction",
-            "permitted-development-rights",
-            "tree-preservation-order",
-        ]
-
-        linked_entities = {}
-
-        # for each entityLinkField, if that key exists in the entity dict, then
-        # lookup the entity and add it to the linked_entities dict
-        for field in entityLinkFields:
-            if field in e_dict_sorted:
-                linked_entity = lookup_entity_link(
-                    session, e_dict_sorted[field], field, e_dict_sorted["dataset"]
-                )
-                if linked_entity is not None:
-                    linked_entities[field] = linked_entity
-
-        return templates.TemplateResponse(
-            "entity.html",
-            {
-                "request": request,
-                "row": e_dict_sorted,
-                "linked_entities": linked_entities,
-                "entity": e,
-                "pipeline_name": e.dataset,
-                "references": [],
-                "breadcrumb": [],
-                "schema": None,
-                "typology": e.typology,
-                "entity_prefix": "",
-                "geojson_features": e.geojson if e.geojson is not None else None,
-                "geojson": geojson_dict,
-                "fields": fields,
-                "dataset_fields": dataset_fields,
-                "dataset": dataset,
-                "organisation_entity": organisation_entity,
-            },
-        )
+        return handle_entity_response(request, e, extension, session)
     else:
         raise HTTPException(status_code=404, detail="entity not found")
 

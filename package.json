@@ -31,13 +31,14 @@
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "test-unit": "vitest run --dir tests/unit/javascript",
-    "test-integration": "vitest run --dir tests/integration/javascript"
+    "test-integration": "vitest run --dir tests/integration/javascript",
+    "build": "rollup -c"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
     "govuk-frontend": "4.2.0",
-    "node-sass": "^9.0.0",
-    "nps": "^5.10.0"
+    "maplibre-gl": "^4.1.2",
+    "node-sass": "^9.0.0"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^0.34.1",

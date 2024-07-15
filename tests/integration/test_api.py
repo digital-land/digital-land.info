@@ -120,10 +120,28 @@ def test_old_entity_gone_shown(test_data_old_entities, client, exclude_middlewar
     """
     old_entity = test_data_old_entities["old_entities"][410][0]
     response = client.get(f"/entity/{old_entity.old_entity_id}", allow_redirects=False)
-    assert response.status_code == 200
+    assert response.status_code == 410
     assert (
         f"This entity (#{old_entity.old_entity_id}) has been removed." in response.text
     )
+    assert (
+        "text/html" in response.headers["Content-Type"]
+    ), "Expected response in text/html format"
+
+
+def test_old_entity_gone_json_shown(test_data_old_entities, client, exclude_middleware):
+    """
+    Test entity endpoint returns entity gone content
+    """
+    old_entity = test_data_old_entities["old_entities"][410][0]
+    response = client.get(
+        f"/entity/{old_entity.old_entity_id}.json", allow_redirects=False
+    )
+    assert response.status_code == 410
+    assert (
+        response.headers["Content-Type"] == "application/json"
+    ), "Expected response in JSON format"
+    assert f"Entity {old_entity.old_entity_id} has been removed" in response.text
 
 
 def test_dataset_json_endpoint_returns_as_expected(test_data, client):
@@ -308,6 +326,9 @@ def test_get_by_curie_redirects_to_entity(test_data, client, exclude_middleware)
 def test_get_by_curie_404s_for_unknown_reference(test_data, client, exclude_middleware):
     response = client.get("/curie/not:found", allow_redirects=False)
     assert response.status_code == 404
+    expected_content = "Page not found"
+    # Check if the expected content is present in the response body
+    assert expected_content in response.text
 
 
 def test_get_dataset_unknown_returns_404(client, exclude_middleware):

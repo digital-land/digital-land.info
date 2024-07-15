@@ -17,8 +17,9 @@
 {%- endif %}
 
 {% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
-  None %}
+None %}
 {% if geometry_url or geojson_features %}
+  {% set geometry_exists = true %}
   {% set includesMap = true %}
 {% endif %}
 
@@ -29,8 +30,8 @@
 {% endblock %}
 
 {%- block mapAssets %}
-  <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
-  <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+  <script src='/static/javascripts/maplibre-gl.js'></script>
+  <link href='/static/stylesheets/maplibre-gl.css' rel='stylesheet' />
   <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
   {{ super() }}
 {% endblock -%}
@@ -90,26 +91,26 @@
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{row|digital_land_to_json}}</code></pre>
       {% endset %}
       {% set geojsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{geojson|digital_land_to_json}}</code></pre>
-      {% endset %}
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
+        {% endset %}
 
-      {% if geojson %}
-        {% set params = {
-          "title":"Available Code Snippets:",
-          "items":[
-            {
-              "label":"JSON","id":"json","panel":{
-                "html":jsonHTML
+      {% if geometry_exists %}
+          {% set params = {
+            "title":"Available Code Snippets:",
+            "items":[
+              {
+                "label":"JSON","id":"json","panel":{
+                  "html":jsonHTML
+                }
+              },
+              {
+                "label":"GeoJSON","id":"geojson","panel":{
+                  "html":geojsonHTML
+                }
               }
-            },
-            {
-              "label":"GeoJSON","id":"geojson","panel":{
-                "html":geojsonHTML
-              }
-            }
-          ],
-          "classes": "govuk-tabs--entity  govuk-!-margin-bottom-0"
-        } %}
+            ],
+            "classes": "govuk-tabs--entity  govuk-!-margin-bottom-0"
+          } %}
       {% else %}
         {% set params = {
           "items":[
@@ -215,4 +216,35 @@
 
 {%- block pageScripts %}
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      // Function to handle loading GeoJSON content
+      function loadGeoJSON() {
+          const geojsonContentElement = document.getElementById('geojson-content');
+          if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
+              // Fetch the GeoJSON content
+              fetch('{{ geometry_url }}')
+                  .then(response => response.text())
+                  .then(data => {
+                      geojsonContentElement.innerHTML = JSON.stringify(JSON.parse(data), null, 4);
+                  })
+                  .catch(error => {
+                      console.error('Error loading GeoJSON:', error);
+                      geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
+                  });
+          }
+      }
+
+      // Add click event listener for GeoJSON tab
+      document.querySelector('#tab_geojson').addEventListener('click', function () {
+          loadGeoJSON();
+      });
+
+      // Check the fragment identifier on page load
+      if (window.location.hash === '#geojson') {
+          // Simulate a click event on the GeoJSON tab
+          document.querySelector('#tab_geojson').click();
+      }
+  });
+</script>
 {%- endblock %}

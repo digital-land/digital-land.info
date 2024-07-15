@@ -57,6 +57,12 @@ Example: `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.23491
 
 If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
+### document-url
+
+A URL to the document containing the authoritative source for the area. This is usually a PDF containing the area drawn on a map.
+
+Example: `http://www.LPAwebsite.org.uk/data/conservationareas/smithroad-area.pdf`
+
 ### documentation-url
 
 The URL of the webpage on your website that introduces the document.
@@ -83,13 +89,19 @@ Optional text on how this data was made or produced, or how it can be interprete
 
 ### start-date
 
+The date the validity of the record starts, written in `YYYY-MM-DD` format. Usually, this will be the same as the designation date. If anything about the conservation area has changed, for example, the boundary, it should be the date of that change.
+
+Example: `1984-04-25`
+
+### designation-date
+
 The date that the conservation area was officially designated, written in `YYYY-MM-DD` format.
 
 Example: `1984-03-28`
 
 ### end-date
 
-If applicable, the date that the conservation area was no longer in effect, written in `YYYY-MM-DD` format. If this does not apply, leave the cell blank.
+Where the conservation area is [no longer valid](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If this does not apply, leave the cell blank.
 
 Example: `1999-01-20`
 

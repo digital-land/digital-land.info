@@ -1,4 +1,4 @@
-Planning Data aims to make land and housing data easier to find, understand, use and trust. 
+Planning Data aims to make land and housing data easier to find, use and trust. 
 
 We believe this will lead to: 
 

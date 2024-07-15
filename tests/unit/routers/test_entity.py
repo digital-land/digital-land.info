@@ -212,16 +212,11 @@ def test_get_entity_old_entity_gone_returned_json(mocker):
     request = MagicMock()
     extension = MagicMock()
     extension.value = "json"
-    result = get_entity(request=request, entity="11000000", extension=extension)
     try:
-        result.template.render(result.context)
+        get_entity(request=request, entity="11000000", extension=extension)
+        assert False, "Expected HTTPException to be raised"
+    except HTTPException:
         assert True
-    except Exception:
-        if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
-        else:
-            logging.warning("result has no context")
-        assert False, "template unable to render, missing variable(s) from context"
 
 
 def test_get_entity_old_entity_gone_returned_geojson(mocker):
@@ -231,16 +226,11 @@ def test_get_entity_old_entity_gone_returned_geojson(mocker):
     request = MagicMock()
     extension = MagicMock()
     extension.value = "geojson"
-    result = get_entity(request=request, entity="11000000", extension=extension)
     try:
-        result.template.render(result.context)
+        get_entity(request=request, entity="11000000", extension=extension)
+        assert False, "Expected HTTPException to be raised"
+    except HTTPException:
         assert True
-    except Exception:
-        if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
-        else:
-            logging.warning("result has no context")
-        assert False, "template unable to render, missing variable(s) from context"
 
 
 def test_get_entity_old_entity_redirect_returned_html(mocker):
