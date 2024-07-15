@@ -67,7 +67,7 @@ Example: `http://www.LPAwebsite.org.uk/data/conservationareas/smithroad-area.pdf
 
 The URL of the webpage on your website that introduces the document.
 
-Each document should be linked to from a documentation webpage that includes a short description of the data and the document you’re linking to. Each conservation area should have a unique URL. This means you can create a separate page for each one, or you could list several on one page. If you do that, there must be a separate anchor (fragment identifier) for each one.
+Each document should be linked to from a documentation webpage that includes a short description of the data and the document you’re linking to. Each conservation area should have a unique URL. This means you can create a separate page for each one, or you could list several on one page. If you do that, there must be a separate anchor link (fragment identifier) for each one.
 
 This means each section of your page should have its own URL. Most publishing systems will allow you to use a hashtag to create the identifiers for each conservation area you list - as in the examples shown.
 
