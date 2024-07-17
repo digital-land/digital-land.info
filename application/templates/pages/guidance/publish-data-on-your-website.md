@@ -21,7 +21,7 @@ The webpage must include, for each dataset:
 
 #### About the data
 
-This dataset shows the locations of conservation areas. A conservation area is an area of special architectural or historic interest with a character or appearance that must be preserved or enhanced.
+This dataset shows the locations of conservation areas. Conservation areas are designated to safeguard areas of special architectural and historic interest, the character and appearance of which it is desirable to preserve and enhance.
 
 #### Data
 
@@ -31,10 +31,14 @@ This dataset shows the locations of conservation areas. A conservation area is a
 
 The data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
-Submit your data URL
+Tell us about the webpage
 -------------
 
-When you've published your webpage and data, you need to use our [Submit planning and housing data for England](https://check.planning.data.gov.uk/submit)
-service so we can check it for you. 
+Send an email to [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk).
 
+The email must include:
 
+- your full name
+- the name of your planning authority
+- a link to the webpage on your official planning authority website
+- a link to the data URL
