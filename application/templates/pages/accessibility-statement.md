@@ -2,7 +2,7 @@
 
 This accessibility statement applies to the planning.data.gov.uk website: <https://www.planning.data.gov.uk>.
 
-This website is run by the Planning Data team in the Department for Levelling Up, Housing and Communities.
+This website is run by the Planning Data team in the Ministry of Housing, Communities and Local Government.
 
 We are always working to improve our website and want as many people as possible to be able to access and use it. For example, that means you should be able to:
 
