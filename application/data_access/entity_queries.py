@@ -61,7 +61,9 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     return [entity_factory(e) for e in entities]
 
 
-def get_entity_search(session: Session, parameters: dict):
+def get_entity_search(
+    session: Session, parameters: dict, exclude_field: Optional[List[str]] = None
+):
     params = normalised_params(parameters)
     count: int
     entities: [EntityModel]
@@ -90,9 +92,33 @@ def get_entity_search(session: Session, parameters: dict):
     query = _apply_limit_and_pagination_filters(query, params)
 
     entities = query.all()
-    entities = [entity_factory(entity_orm) for entity_orm in entities]
-
+    if exclude_field:
+        entities = _apply_exclusion_filters(entities, exclude_field)
+    else:
+        entities = [entity_factory(entity_orm) for entity_orm in entities]
     return {"params": params, "count": count, "entities": entities}
+
+
+def _apply_exclusion_filters(entities, exclude_field):
+    if not exclude_field:
+        return entities
+    exclude_field = [field.strip('"') for field in exclude_field]
+
+    def exclude_fields_from_entity(entity, fields):
+        # Convert SQLAlchemy model instance to dict
+        entity_dict = {
+            c.name: getattr(entity, c.name) for c in EntityOrm.__table__.columns
+        }
+        for field in fields:
+            if field in entity_dict:
+                entity_dict.pop(field)
+        return entity_dict
+
+    # Apply exclusions to each entity
+    filtered_entities = [
+        exclude_fields_from_entity(entity, exclude_field) for entity in entities
+    ]
+    return filtered_entities
 
 
 def lookup_entity_link(

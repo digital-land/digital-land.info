@@ -56,13 +56,21 @@ def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]
     return {"type": "FeatureCollection", "features": features}
 
 
-def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
+def _get_entity_json(
+    data: List[EntityModel], include: Optional[Set] = None, exclude_field=None
+):
     entities = []
     for entity in data:
+        if not isinstance(entity, EntityModel):
+            raise TypeError("Expected entity to be an instance of EntityModel")
+
         if include is not None:
             # always return at least the entity (id)
             include.add("entity")
             e = entity.dict(include=include, by_alias=True)
+        elif exclude_field is not None:
+            exclude_field.add("entity")
+            e = entity.dict(exclude=exclude_field, by_alias=True)
         else:
             e = entity.dict(exclude={"geojson"}, by_alias=True)
         entities.append(e)
@@ -250,6 +258,7 @@ def search_entities(
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
+    exclude_field = query_filters.exclude_field
     # get query_filters as a dict
     query_params = asdict(query_filters)
     # TODO minimse queries by using normal queries below rather than returning the names
@@ -261,7 +270,7 @@ def search_entities(
     validate_dataset(query_params.get("dataset", None), dataset_names)
     validate_typologies(query_params.get("typology", None), typology_names)
     # Run entity query
-    data = get_entity_search(session, query_params)
+    data = get_entity_search(session, query_params, exclude_field)
 
     # the query does some normalisation to remove empty
     # params and they get returned from search
@@ -276,6 +285,12 @@ def search_entities(
         if params.get("field") is not None:
             include = set([to_snake(field) for field in params.get("field")])
             entities = _get_entity_json(data["entities"], include=include)
+        elif exclude_field:
+            exclude_field_set = set(exclude_field)
+            converted_data_model = convert_to_model(data["entities"])
+            entities = _get_entity_json(
+                converted_data_model, exclude_field=exclude_field_set
+            )
         else:
             entities = _get_entity_json(data["entities"])
         return {"entities": entities, "links": links, "count": data["count"]}
@@ -336,6 +351,15 @@ def search_entities(
             "has_geographies": has_geographies,
         },
     )
+
+
+def convert_to_model(data):
+    # Check if data contains EntityModel instances
+    if all(isinstance(item, EntityModel) for item in data):
+        return data
+    else:
+        # Convert dictionaries to EntityModel instances
+        return [EntityModel(**item) for item in data]
 
 
 # Route ordering in important. Match routes with extensions first

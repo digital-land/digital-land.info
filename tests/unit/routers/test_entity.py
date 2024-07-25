@@ -123,7 +123,7 @@ def test__get_entity_json_multiple_entity_models_provided_include_value_in_model
 
 # @pytest.fixture
 # def query_params(mocker):
-#     # need to mock validation so dataset isn't queried
+#     # need to mock validation so dataset isnt queried
 #     mocker.patch(
 #         "application.search.filters.get_dataset_names",
 #         return_value=["ancient-woodland"],
@@ -655,3 +655,76 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
     assert "type" in result, "expecting geojson structure to have type attribute"
     assert result["type"] == "FeatureCollection"
     assert "features" in result, "expected features attribute"
+
+
+def test_search_entities_exclude_field(mocker, multiple_entity_models):
+    exclude_field = ["geojson"]
+
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(
+                asdict(QueryFilters(exclude_field=exclude_field))
+            ),
+            "count": len(multiple_entity_models),
+            "entities": multiple_entity_models,
+        },
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
+    )
+
+    request = MagicMock()
+    extension = MagicMock()
+    extension.value = "json"
+
+    result = search_entities(
+        request=request,
+        query_filters=QueryFilters(exclude_field=exclude_field),
+        extension=extension,
+    )
+
+    assert "geojson" not in result["entities"][0]
+
+
+def test_search_entities_no_exclude_field(mocker, multiple_entity_models):
+    # Mock the get_entity_search function to return entities without any field exclusions
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(QueryFilters())),
+            "count": len(multiple_entity_models),
+            "entities": multiple_entity_models,
+        },
+    )
+
+    # Mock the functions to return fixed values for dataset names and typology names
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["ancient-woodland"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names", return_value=["geography"]
+    )
+
+    # Mock the request and extension objects
+    request = MagicMock()
+    extension = MagicMock()
+    extension.value = "json"
+
+    # Call the search_entities function with no exclude fields
+    result = search_entities(
+        request=request,
+        query_filters=QueryFilters(exclude_field=None),
+        extension=extension,
+    )
+
+    # Assert that the geojson field is present in the result
+    for entity in result["entities"]:
+        assert (
+            "geometry" in entity
+        )  # Check that 'geojson' is present in each entity's properties

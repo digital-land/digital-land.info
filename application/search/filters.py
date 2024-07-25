@@ -38,6 +38,10 @@ class DatasetQueryFilters:
 @dataclass
 class QueryFilters:
     # base filters
+    exclude_field: Optional[List[str]] = Query(
+        None, description="Fields to exclude from the results"
+    )
+
     theme: Optional[List[str]] = Query(None, include_in_schema=False)
     typology: Optional[List[str]] = Query(
         None,
