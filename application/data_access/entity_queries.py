@@ -61,9 +61,7 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     return [entity_factory(e) for e in entities]
 
 
-def get_entity_search(
-    session: Session, parameters: dict, exclude_field: Optional[List[str]] = None
-):
+def get_entity_search(session: Session, parameters: dict):
     params = normalised_params(parameters)
     count: int
     entities: [EntityModel]
@@ -90,35 +88,39 @@ def get_entity_search(
     query = _apply_location_filters(session, query, params)
     query = _apply_period_option_filter(query, params)
     query = _apply_limit_and_pagination_filters(query, params)
+    query = _apply_exclusion_filters(query, params)
 
     entities = query.all()
-    if exclude_field:
-        entities = _apply_exclusion_filters(entities, exclude_field)
-    else:
-        entities = [entity_factory(entity_orm) for entity_orm in entities]
+    entities = [entity_factory(entity_orm) for entity_orm in entities]
     return {"params": params, "count": count, "entities": entities}
 
 
-def _apply_exclusion_filters(entities, exclude_field):
-    if not exclude_field:
-        return entities
-    exclude_field = [field.strip('"') for field in exclude_field]
+def _apply_exclusion_filters(query, params):
+    exclude_fields = params.get("exclude_field", "")
 
-    def exclude_fields_from_entity(entity, fields):
-        # Convert SQLAlchemy model instance to dict
-        entity_dict = {
-            c.name: getattr(entity, c.name) for c in EntityOrm.__table__.columns
-        }
-        for field in fields:
-            if field in entity_dict:
-                entity_dict.pop(field)
-        return entity_dict
+    # Split the comma-separated string into a list of individual fields
+    split_strings = [s.strip() for sub in exclude_fields for s in sub.split(",") if s]
+    exclude_fields = set(split_strings)
+    all_columns = {column.name for column in EntityOrm.__table__.columns}
 
-    # Apply exclusions to each entity
-    filtered_entities = [
-        exclude_fields_from_entity(entity, exclude_field) for entity in entities
+    # Exclude fields not present in the table schema
+    exclude_fields = {field for field in exclude_fields if field in all_columns}
+    # Dynamically construct the selected columns by excluding the specified fields
+    selected_columns = [
+        column
+        for column in EntityOrm.__table__.columns
+        if column.name not in exclude_fields
     ]
-    return filtered_entities
+
+    if not selected_columns:
+        raise ValueError(
+            "No columns left to select after exclusions. Please check the field names."
+        )
+
+    # Modify the query to select only the desired columns
+    query = query.with_entities(*selected_columns)
+
+    return query
 
 
 def lookup_entity_link(

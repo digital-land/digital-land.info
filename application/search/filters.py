@@ -38,10 +38,6 @@ class DatasetQueryFilters:
 @dataclass
 class QueryFilters:
     # base filters
-    exclude_field: Optional[List[str]] = Query(
-        None, description="Fields to exclude from the results"
-    )
-
     theme: Optional[List[str]] = Query(None, include_in_schema=False)
     typology: Optional[List[str]] = Query(
         None,
@@ -216,6 +212,10 @@ class QueryFilters:
     # once field is updated we can validate this
     field: Optional[List[str]] = Query(
         None, description="fields to be included in response"
+    )
+    exclude_field: Optional[List[str]] = Query(
+        None,
+        description="field parameter will take over any fields specified in the exclude_field parameter",
     )
 
     # validators
