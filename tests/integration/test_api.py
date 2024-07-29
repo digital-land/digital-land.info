@@ -20,11 +20,11 @@ def _transform_dataset_to_response(dataset, is_geojson=False):
     dataset["end-date"] = dataset.pop("end_date") or ""
     dataset["entry-date"] = dataset.pop("entry_date") or ""
     dataset["name"] = dataset.pop("name") or ""
-    dataset["github_discussion"] = dataset.pop("github_discussion") or ""
-    dataset["entity_minimum"] = dataset.pop("entity_minimum") or ""
-    dataset["entity_maximum"] = dataset.pop("entity_maximum") or ""
+    dataset["github-discussion"] = dataset.pop("github_discussion") or ""
+    dataset["entity-minimum"] = dataset.pop("entity_minimum") or ""
+    dataset["entity-maximum"] = dataset.pop("entity_maximum") or ""
     dataset["phase"] = dataset.pop("phase") or ""
-    dataset["replacement_dataset"] = dataset.pop("replacement_dataset") or ""
+    dataset["replacement-dataset"] = dataset.pop("replacement_dataset") or ""
     dataset["version"] = dataset.pop("version") or ""
 
     if is_geojson:
