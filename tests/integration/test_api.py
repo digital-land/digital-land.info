@@ -26,6 +26,7 @@ def _transform_dataset_to_response(dataset, is_geojson=False):
     dataset["phase"] = dataset.pop("phase") or ""
     dataset["replacement-dataset"] = dataset.pop("replacement_dataset") or ""
     dataset["version"] = dataset.pop("version") or ""
+    dataset["realm"] = dataset.pop("realm") or ""
 
     if is_geojson:
         dataset["organisation-entity"] = dataset.pop("organisation_entity") or ""
