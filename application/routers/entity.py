@@ -63,18 +63,14 @@ def _get_entity_json(
 ):
     entities = []
     for entity in data:
-        if not isinstance(entity, EntityModel):
-            raise TypeError("Expected entity to be an instance of EntityModel")
         if include is not None:
             # always return at least the entity (id)
             include.add("entity")
             e = entity.dict(include=include, by_alias=True)
-        elif exclude_field is not None:
-            exclude_fields = set(exclude_field)
-            e = entity.dict(exclude=exclude_fields, by_alias=True)
-            e = {k: v for k, v in e.items() if v is not None}
         else:
-            e = entity.dict(exclude={"geojson"}, by_alias=True)
+            exclusions = set(exclude_field) if exclude_field else set()
+            exclusions.add("geojson")  # Always exclude 'geojson'
+            e = entity.dict(exclude=exclusions, by_alias=True)
         entities.append(e)
     return entities
 
@@ -286,10 +282,14 @@ def search_entities(
         if params.get("field") is not None:
             include = set([to_snake(field) for field in params.get("field")])
             entities = _get_entity_json(data["entities"], include=include)
-        elif query_filters.exclude_field is not None:
-            entities = _get_entity_json(
-                data["entities"], exclude_field=query_filters.exclude_field
+        elif params.get("exclude_field") is not None:
+            exclude_fields = set(
+                [
+                    to_snake(field.strip())
+                    for field in ",".join(params.get("exclude_field")).split(",")
+                ]
             )
+            entities = _get_entity_json(data["entities"], exclude_field=exclude_fields)
         else:
             entities = _get_entity_json(data["entities"])
         return {"entities": entities, "links": links, "count": data["count"]}
@@ -350,15 +350,6 @@ def search_entities(
             "has_geographies": has_geographies,
         },
     )
-
-
-def convert_to_model(data):
-    # Check if data contains EntityModel instances
-    if all(isinstance(item, EntityModel) for item in data):
-        return data
-    else:
-        # Convert dictionaries to EntityModel instances
-        return [EntityModel(**item) for item in data]
 
 
 # Route ordering in important. Match routes with extensions first
