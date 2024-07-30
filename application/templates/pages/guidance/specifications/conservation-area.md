@@ -1,10 +1,3 @@
----
-title: "Publish your conservation area data"
-slug: "publish-your-conservation-area-data"
-phase: "prototype"
-summary: Follow our guidance for publishing your conservation area data.
----
-
 There are 2 datasets you must provide for conservation area data:
 
 * [conservation area dataset](https://www.planning.data.gov.uk/guidance/specifications/conservation-area#conservation-area-dataset)
