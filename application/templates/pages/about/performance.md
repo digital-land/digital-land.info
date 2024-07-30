@@ -6,7 +6,7 @@ Last updated 24 July 2024.
 
 We index planning and housing datasets provided by multiple organisations in England. Many datasets have one owner providing the data nationally. 8 datasets are compiled from local planning authorities across England. We’re working with 73 out of 311 local planning authorities to start providing that data nationally.
 
-### 81 datasets on the platform
+### 89 datasets on the platform
 
 ?? national datasets available from ?? organisations. ? added last month (+/-0%).
 
