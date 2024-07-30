@@ -8,13 +8,11 @@ We index planning and housing datasets provided by multiple organisations in Eng
 
 ### 89 datasets on the platform
 
-?? national datasets available from ?? organisations. ? added last month (+/-0%).
+89 national datasets available from ?? organisations. ? added last month (+/-0%).
 
-130 out of 584 data sources for 8 datasets provided by 31 out of 73 local planning authorities. ? provided last month (+/-0%).
+**130 datasets** out of 584 provided by **31 local planning authorities**. 0 provided last month (+/-0%).
 
-**130 datasets** provided by **31 local planning authorities**. 0 provided last month (+/-0%).
-
-0 new authorities providing data. No change from last month.
+**0 new local planning authorities** providing data. No change from last month.
 
 ## Quality
 
@@ -30,20 +28,20 @@ We index planning and housing datasets provided by multiple organisations in Eng
 
 ### ??% nationwide coverage
 
-00% average nationwide coverage per dataset (XX / 311 LPAs). +/-0% change from last month.
-
 22% average coverage per local planning authority. No change from last month.
+
 00% average dataset coverage per LPA (XX / 8 datasets)
 
-LPA provided datasets:
-00% coverage of article-4-direction. +/-0% change from last month.
-00% coverage of article-4-direction-area. +/-0% change from last month.
-00% coverage of conservation-area. +/-0% change from last month.
-00% coverage of conservation-area-document. +/-0% change from last month.
-00% coverage of listed-building-outline. +/-0% change from last month.
-00% coverage of tree-preservation-order. +/-0% change from last month.
-00% coverage of tree-preservation-zone. +/-0% change from last month.
-00% coverage of tree. +/-0% change from last month.
+***LPA provided datasets:***
+
+*00% coverage of article-4-direction. +/-0% change from last month.
+*00% coverage of article-4-direction-area. +/-0% change from last month.
+*00% coverage of conservation-area. +/-0% change from last month.
+*00% coverage of conservation-area-document. +/-0% change from last month.
+*00% coverage of listed-building-outline. +/-0% change from last month.
+*00% coverage of tree-preservation-order. +/-0% change from last month.
+*00% coverage of tree-preservation-zone. +/-0% change from last month.
+*00% coverage of tree. +/-0% change from last month.
 
 ## Usage
 
