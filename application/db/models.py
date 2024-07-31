@@ -108,6 +108,13 @@ class DatasetOrm(Base):
     attribution_id = Column(Text, nullable=True)
     licence_id = Column(Text, nullable=True)
     consideration = Column(Text, nullable=True)
+    github_discussion = Column(Integer, nullable=True)
+    entity_minimum = Column(BIGINT, nullable=True)
+    entity_maximum = Column(BIGINT, nullable=True)
+    phase = Column(Text, nullable=True)
+    realm = Column(Text, nullable=True)
+    replacement_dataset = Column(Text, nullable=True)
+    version = Column(Text, nullable=True)
 
     _attribution = relationship(
         "AttributionOrm",

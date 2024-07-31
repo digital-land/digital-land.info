@@ -92,6 +92,13 @@ class DatasetModel(DigitalLandDateFieldsModel):
     licence: str = None
     licence_text: str = None
     consideration: str = None
+    github_discussion: int = None
+    entity_minimum: int = None
+    entity_maximum: int = None
+    phase: str = None
+    realm: str = None
+    replacement_dataset: str = None
+    version: str = None
 
 
 class TypologyModel(DigitalLandDateFieldsModel):
