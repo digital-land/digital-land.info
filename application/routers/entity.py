@@ -43,14 +43,17 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]]:
+def _get_geojson(
+    data: List[EntityModel], exclude: Optional[Set] = None
+) -> Dict[str, Union[str, List[GeoJSON]]]:
     features = []
     for entity in data:
         if entity.geojson is not None:
             geojson = entity.geojson
-            properties = entity.dict(
-                exclude={"geojson", "geometry", "point"}, by_alias=True
-            )
+            exclude = set(exclude) if exclude else set()
+            # always remove the geospatial fields as we're only after non-gespatial prroperties
+            exclude.update(["geojson", "geometry", "point"])
+            properties = entity.dict(exclude=exclude, by_alias=True)
             geojson.properties = properties
             features.append(geojson)
     return {"type": "FeatureCollection", "features": features}
@@ -59,7 +62,7 @@ def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]
 def _get_entity_json(
     data: List[EntityModel],
     include: Optional[Set] = None,
-    exclude_field: Optional[List[str]] = None,
+    exclude: Optional[List[str]] = None,
 ):
     entities = []
     for entity in data:
@@ -68,9 +71,9 @@ def _get_entity_json(
             include.add("entity")
             e = entity.dict(include=include, by_alias=True)
         else:
-            exclusions = set(exclude_field) if exclude_field else set()
-            exclusions.add("geojson")  # Always exclude 'geojson'
-            e = entity.dict(exclude=exclusions, by_alias=True)
+            exclude = set(exclude) if exclude else set()
+            exclude.add("geojson")  # Always exclude 'geojson'
+            e = entity.dict(exclude=exclude, by_alias=True)
         entities.append(e)
     return entities
 
@@ -289,7 +292,7 @@ def search_entities(
                     for field in ",".join(params.get("exclude_field")).split(",")
                 ]
             )
-            entities = _get_entity_json(data["entities"], exclude_field=exclude_fields)
+            entities = _get_entity_json(data["entities"], exclude=exclude_fields)
         else:
             entities = _get_entity_json(data["entities"])
         return {"entities": entities, "links": links, "count": data["count"]}
