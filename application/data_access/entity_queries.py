@@ -64,10 +64,10 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
 def get_entity_search(session: Session, parameters: dict):
     params = normalised_params(parameters)
     count: int
-    entities: list[EntityModel]
+    entities: [EntityModel]
 
     # get count
-    query_args = [func.count(EntityOrm.entity).over().label("count")]
+    query_args = [func.count(EntityOrm.entity).label("count")]
     query = session.query(*query_args)
     query = _apply_base_filters(query, params)
     query = _apply_date_filters(query, params)
@@ -286,8 +286,7 @@ def _apply_location_filters(session, query, params):
 
     # final step to add a group by if more than one condition is being met.
     if len(intersecting_entities) > 1 or len(references) > 0 or len(curies) > 1:
-        # if len(intersecting_entities) > 1 or len(curies) > 1:
-        query = query.group_by(EntityOrm.entity)
+        query = query.group_by(EntityOrm)
     elif len(intersecting_entities) + len(curies) > 1:
         query = query.group_by(EntityOrm)
 
