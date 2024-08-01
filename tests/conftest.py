@@ -14,7 +14,6 @@ import uvicorn
 import time
 import csv
 import json
-import logging
 
 from application.app import create_app  # noqa: E402
 
@@ -51,8 +50,6 @@ def test_settings() -> Settings:
         READ_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
     )
 
-    logging.warning(settings)
-
     return settings
 
 
@@ -63,7 +60,6 @@ def create_db(test_settings) -> PostgresDsn:
     if database_exists(database_url):
         drop_database(database_url)
     create_database(database_url)
-    logging.error(database_url)
 
     # apply migrations in new db, this assumes we will always want a properly set-up db
     config = Config("alembic.ini")
