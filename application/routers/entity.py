@@ -298,7 +298,16 @@ def search_entities(
         return {"entities": entities, "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
-        geojson = _get_geojson(data["entities"])
+        if params.get("exclude_field") is not None:
+            exclude_fields = set(
+                [
+                    to_snake(field.strip())
+                    for field in ",".join(params.get("exclude_field")).split(",")
+                ]
+            )
+            geojson = _get_geojson(data["entities"], exclude=exclude_fields)
+        else:
+            geojson = _get_geojson(data["entities"])
         geojson["links"] = links
         return geojson
 
