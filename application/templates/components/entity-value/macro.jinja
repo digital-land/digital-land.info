@@ -1,21 +1,10 @@
-{% macro entityValue(field,value,field_spec,dataset_fields,organisation_entity,linked_entities) %}
+{% macro entityValue(field, value, field_spec, dataset_fields, organisation_entity, linked_entities) %}
     {% if field_spec and field_spec[field] %}
         {% if field_spec[field]['typology'] == 'value' %}
             {% if field_spec[field]['datatype'] == 'url' %}
                 <span class="app-u-breakword">
                     <a class="govuk-link" href="{{ value }}">{{value}}</a>
                 </span>
-            {% elif field_spec[field]['field'] == 'document-urls' %}
-              {%- set urls = value.split(';') %}
-              <ul class="govuk-list">
-              {%- for url in urls %}
-                <li>
-                    <span class="app-u-breakword">
-                        <a class="govuk-link" href="{{ url }}">{{url}}</a>
-                    </span>
-                </li>
-              {% endfor -%}
-              </ul>
             {% elif field_spec[field]['datatype'] == 'wkt' %}
                 <div class="app-code-block">{{ value }}</div>
             {% elif field in ["organisation-entity"] %}
@@ -58,7 +47,7 @@
         {% endif %}
 
     {% else %}
-    {# some catch-alls to use if field spec  isn't provided #}
+    {# some catch-alls to use if field spec isn't provided #}
         {%- if field in ["dataset"] %}
             <a class="govuk-link" href="{{ '/' + field + '/' + value }}">{{ value|replace("-", " ")|capitalize }}</a>
         {%- elif field in ["geometry","point"] %}
@@ -95,6 +84,17 @@
             <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
         {%- elif field in ["website","opendatacommunities"] or field.endswith("-url") or field.endswith("-uri") %}
             <a class ="govuk-link" href="{{ value }}">{{ value }}</a>
+        {%- elif field.endswith("-urls") %}
+            {%- set urls = value.split(';') %}
+                <ul class="govuk-list">
+                {%- for url in urls %}
+                <li>
+                    <span class="app-u-breakword">
+                        <a class="govuk-link" href="{{ url }}">{{url}}</a>
+                    </span>
+                </li>
+                {% endfor -%}
+                </ul>
         {%- elif field in ["wikipedia"] %}
             <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + value }}">{{ value }}</a>
         {%- elif field in ["wikidata"] %}
