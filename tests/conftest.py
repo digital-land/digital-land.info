@@ -379,6 +379,12 @@ def mock_settings() -> Settings:
 
 @pytest.fixture(scope="session")
 def server_url(create_db):
+    """
+    This creates and runs a version of the application locally. This is neccessary
+    when we want to write tests that want to mimick a user utilising the website
+    specifically html pages via playwright. If you are testing API endpoints
+    that return json or other data formats this is not needed.
+    """
     proc = Process(target=run_server, args=(), daemon=True)
     proc.start()
     # Wait for FastAPI to start (optional)
