@@ -1,0 +1,16 @@
+{% extends "layouts/layout--about.html" %}
+{% set templateName = 'dl-info/about/performance.html' %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{%- block breadcrumbs -%}
+  {{ dlBackButton({
+    "parentHref": '/about/'
+  })}}
+{%- endblock -%}
+{%- do pageData.update({
+  'pageTitle': 'Performance',
+  'lede': lede
+}) %}
+{% block content_primary %}
+    {%- set page_content -%}{%- include pageData.root_url + "performance.md" -%}{%- endset -%}
+    {{ page_content | render_markdown }}
+{% endblock %}
