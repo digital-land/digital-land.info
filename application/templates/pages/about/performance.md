@@ -1,6 +1,6 @@
 Performance indicators show how the planning data platform is making it easier to find, use and trust planning and housing data in England.
 
-Last updated 22 July 2024.
+Last updated 31 July 2024.
 
 ## Availability
 
@@ -8,32 +8,41 @@ We index planning and housing datasets provided by multiple organisations in Eng
 
 ### 89 datasets on the platform
 
-?? national datasets available from ?? organisations. ? added last month (+/-0%).
+89 national datasets available from 452 organisations. <!--? added last month (+/-0%). -->
 
-130 out of 584 data sources for 8 datasets provided by 31 out of 73 local planning authorities. ? provided last month (+/-0%).
+**131 datasets** out of 584 provided by **31 local planning authorities**. 4 up from last month (+0.7%).
 
-? new authorities providing data. +/-0% change from last week.
+**1 new local planning authority** providing data. 1 up from last month (+1%).
 
-You can [help identify and design data](https://design.planning.data.gov.uk/) that would be useful on the platform.
+You can [help identify and design data](https://www.planning.data.gov.uk/) that would be useful of the platform.
 
 ## Quality
 
-### ?? out of ?? quality score
+<!-- ### ?? out of ?? quality score -->
 
-?? data sources with no issues (0%). ?? fixed last week (+/-0%).
+62 datasets on the platform with no issues (47%). 8 fixed last month (+15%).
 
-?? data sources conform to the specifications (0%). ?? improved last week (+/-0%).
+24 datasets on the platform conform to the specifications (18%). 4 improved last month (+4%).
 
-?? data sources up to date (0%). ?? updated last week (+/-0%).
+<!-- 00 datasets up to date (0%). 00 updated last month (+/-0%). -->
 
 ## Coverage
 
-### ??% nationwide coverage
+<!-- ### ??% nationwide coverage -->
 
-??% average nationwide coverage per dataset. +/-0% change from last week. For 8 datasets provided by local planning authorities, there is ??% average nationwide coverage per dataset. +/-0% change from last week.
+<!-- 5% average dataset coverage per local planning authority. No change from last month. -->
 
-??% average dataset coverage per local planning authority. +/-0% change from last week.
+***LPA provided datasets:***
 
-## Usage
+* 4% coverage of article-4-direction. No change from last month.
+* 8% coverage of article-4-direction-area. No change from last month.
+* 10% coverage of conservation-area. No change from last month.
+* 1% coverage of conservation-area-document. No change from last month.
+* 6% coverage of listed-building-outline. No change from last month.
+* 3% coverage of tree-preservation-order. No change from last month.
+* 5% coverage of tree-preservation-zone. No change from last month.
+* 4% coverage of tree. No change from last month.
 
-?.?? average daily API calls. +/-0% change from last week.
+<!-- ## Usage
+
+0.00 average daily calls. +/-0% change from last month. -->
