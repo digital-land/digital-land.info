@@ -4,44 +4,50 @@ Last updated 31 July 2024.
 
 ## Availability
 
-We index planning and housing datasets provided by multiple organisations in England. Many datasets have one owner providing the data nationally. 8 datasets are compiled from local planning authorities across England. We’re working with 73 out of 311 local planning authorities to start providing that data nationally.
+We index planning and housing datasets provided by multiple organisations in England.
+
+Many datasets have one owner providing the data nationally. There are 8 datasets compiled from data sources provided by local planning authorities (LPAs) across England.
 
 ### 89 datasets on the platform
 
-89 national datasets available from 452 organisations. <!--? added last month (+/-0%). -->
+89 datasets available from 452 organisations. <!--? added last month (+/-0%). -->
 
-**131 datasets** out of 584 provided by **31 local planning authorities**. 4 up from last month (+0.7%).
+131 data sources out of 584 provided by 31 local planning authorities. 4 up from last month (+0.7%).
 
-**1 new local planning authority** providing data. 1 up from last month (+1%).
+1 new local planning authority providing data. 1 up from last month (+1%).
 
-You can [help identify and design data](https://www.planning.data.gov.uk/) that would be useful of the platform.
+You can [help identify and design data](https://www.planning.data.gov.uk/) that would be useful on the platform.
 
 ## Quality
 
+We check data sources for issues and help data owners improve the quality. This increases the quality and trustworthiness of the data at national scale. For example, we check for invalid dates, geometries that fall outside of administrative boundaries, and identify duplicate entities that need reconciling.
+
 <!-- ### ?? out of ?? quality score -->
 
-62 datasets on the platform with no issues (47%). 8 fixed last month (+15%).
+62 data sources on the platform with no issues (47%). 8 fixed last month (+15%).
 
-24 datasets on the platform conform to the specifications (18%). 4 improved last month (+4%).
+24 data sources on the platform conform to the specifications (18%). 4 improved last month (+4%).
 
 <!-- 00 datasets up to date (0%). 00 updated last month (+/-0%). -->
 
 ## Coverage
 
+We aim to provide datasets covering the entirety of England. We’re currently working with 73 out of 311 local planning authorities to start providing 8 datasets nationally.
+
 <!-- ### ??% nationwide coverage -->
 
 <!-- 5% average dataset coverage per local planning authority. No change from last month. -->
 
-***LPA provided datasets:***
+Datasets compiled from LPA sources:
 
-* 4% coverage of article-4-direction. No change from last month.
-* 8% coverage of article-4-direction-area. No change from last month.
-* 10% coverage of conservation-area. No change from last month.
-* 1% coverage of conservation-area-document. No change from last month.
-* 6% coverage of listed-building-outline. No change from last month.
-* 3% coverage of tree-preservation-order. No change from last month.
-* 5% coverage of tree-preservation-zone. No change from last month.
-* 4% coverage of tree. No change from last month.
+* 4% coverage of Article 4 direction. No change from last month.
+* 8% coverage of Article 4 direction area. No change from last month.
+* 10% coverage of Conservation area. No change from last month.
+* 1% coverage of Conservation area document. No change from last month.
+* 6% coverage of Listed building outline. No change from last month.
+* 3% coverage of Tree preservation order. No change from last month.
+* 5% coverage of Tree preservation zone. No change from last month.
+* 4% coverage of Tree. No change from last month.
 
 <!-- ## Usage
 
