@@ -250,6 +250,12 @@ def search_entities(
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
+    # Determine if we should use the query parameter or the path parameter extension
+    if request.query_params.get("extension"):
+        extension = None
+    else:
+        extension = extension
+
     # get query_filters as a dict
     query_params = asdict(query_filters)
     # TODO minimse queries by using normal queries below rather than returning the names
@@ -262,7 +268,6 @@ def search_entities(
     validate_typologies(query_params.get("typology", None), typology_names)
     # Run entity query
     data = get_entity_search(session, query_params)
-
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
@@ -338,6 +343,87 @@ def search_entities(
     )
 
 
+# def search_entities_no_extension(
+#     request: Request,
+#     query_filters: QueryFilters = Depends(),
+#     session: Session = Depends(get_session),
+# ):
+#     print("hello no extension")
+#     # get query_filters as a dict
+#     query_params = asdict(query_filters)
+#     # TODO minimse queries by using normal queries below rather than returning the names
+#     # queries required for additional validations
+#     dataset_names = get_dataset_names(session)
+#     typology_names = get_typology_names(session)
+
+#     # additional validations
+#     validate_dataset(query_params.get("dataset", None), dataset_names)
+#     validate_typologies(query_params.get("typology", None), typology_names)
+#     # Run entity query
+#     print("params", query_params)
+#     data = get_entity_search(session, query_params)
+#     # the query does some normalisation to remove empty
+#     # params and they get returned from search
+#     params = data["params"]
+#     scheme = request.url.scheme
+#     netloc = request.url.netloc
+#     path = request.url.path
+#     query = request.url.query
+#     links = make_links(scheme, netloc, path, query, data)
+
+#     typologies = get_typologies_with_entities(session)
+#     typologies = [t.dict() for t in typologies]
+#     # dataset facet
+#     response = get_datasets(session)
+#     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
+#     datasets = [dataset.dict(include=set(columns)) for dataset in response]
+
+#     local_authorities = get_local_authorities(session, "local-authority")
+#     local_authorities = [la.dict() for la in local_authorities]
+
+#     if links.get("prev") is not None:
+#         prev_url = links["prev"]
+#     else:
+#         prev_url = None
+
+#     if links.get("next") is not None:
+#         next_url = links["next"]
+#     else:
+#         next_url = None
+#     # default is HTML
+#     has_geographies = any((e.typology == "geography" for e in data["entities"]))
+#     return templates.TemplateResponse(
+#         "search.html",
+#         {
+#             "request": request,
+#             "count": data["count"],
+#             "limit": params["limit"],
+#             "data": data["entities"],
+#             "datasets": datasets,
+#             "local_authorities": local_authorities,
+#             "typologies": typologies,
+#             "query": {"params": params},
+#             "active_filters": [
+#                 filter_name
+#                 for filter_name, values in params.items()
+#                 if filter_name != "limit" and values is not None
+#             ],
+#             "url_query_params": {
+#                 "str": ("&").join(
+#                     [
+#                         "{}={}".format(param[0], param[1])
+#                         for param in request.query_params._list
+#                     ]
+#                 ),
+#                 "list": request.query_params._list,
+#             },
+#             "next_url": next_url,
+#             "prev_url": prev_url,
+#             "has_geographies": has_geographies,
+#         },
+#     )
+
+
 # Route ordering in important. Match routes with extensions first
 router.add_api_route(
     ".{extension}",
@@ -348,6 +434,7 @@ router.add_api_route(
 )
 router.add_api_route(
     "/",
+    # endpoint=search_entities_no_extension,
     endpoint=search_entities,
     responses={
         200: {

@@ -491,7 +491,9 @@ def test_search_entities_no_entities_returned_no_query_params_json(mocker):
     mocker.patch(
         "application.routers.entity.get_typology_names", return_value=["geography"]
     )
+
     request = MagicMock()
+    request.query_params.get.return_value = None
     extension = MagicMock()
     extension.value = "json"
     result = search_entities(
@@ -520,6 +522,7 @@ def test_search_entities_no_entities_returned_no_query_params_geojson(mocker):
         "application.routers.entity.get_typology_names", return_value=["geography"]
     )
     request = MagicMock()
+    request.query_params.get.return_value = None
     extension = MagicMock()
     extension.value = "geojson"
     result = search_entities(
@@ -608,6 +611,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_json(
         "application.routers.entity.get_typology_names", return_value=["geography"]
     )
     request = MagicMock()
+    request.query_params.get.return_value = None
     extension = MagicMock()
     extension.value = "json"
     result = search_entities(
@@ -642,6 +646,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
         "application.routers.entity.get_typology_names", return_value=["geography"]
     )
     request = MagicMock()
+    request.query_params.get.return_value = None
     extension = MagicMock()
     extension.value = "geojson"
     result = search_entities(
@@ -655,3 +660,50 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
     assert "type" in result, "expecting geojson structure to have type attribute"
     assert result["type"] == "FeatureCollection"
     assert "features" in result, "expected features attribute"
+
+
+@pytest.mark.parametrize("extension_value", [("json"), ("geojson"), (None)])
+def test_search_entities_with_query_extension(
+    mocker, extension_value, multiple_entity_models
+):
+    request = MagicMock()
+    request.query_params.get.return_value = extension_value
+    extension = MagicMock()
+    extension.value = extension_value
+
+    normalised_query_params = normalised_params(asdict(QueryFilters()))
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_query_params,
+            "count": 0,
+            "entities": multiple_entity_models,
+        },
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["dataset1"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names",
+        return_value=["typology1"],
+    )
+    mock_get_session = mocker.patch(
+        "application.routers.entity.get_session", return_value=MagicMock()
+    )
+
+    result = search_entities(
+        request=request,
+        query_filters=QueryFilters(),
+        extension=extension,
+        session=mock_get_session.return_value,
+    )
+    try:
+        result.template.render(result.context)
+        assert True
+    except Exception:
+        if hasattr(result, "context"):
+            logging.warning(f"context:{result.context}")
+        else:
+            logging.warning("result has no context")
+            assert False, "template unable to render, missing variable(s) from context"
