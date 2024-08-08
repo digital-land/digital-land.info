@@ -2,7 +2,7 @@ There are 2 datasets you must provide for conservation area data:
 
 * [conservation area dataset](https://www.planning.data.gov.uk/guidance/specifications/conservation-area#conservation-area-dataset)
 * [conservation area document dataset](https://www.planning.data.gov.uk/guidance/specifications/conservation-area#conservation-area-documents-dataset)
-  
+
 ## Format
 
 You can provide data in one of these formats:
@@ -11,8 +11,20 @@ You can provide data in one of these formats:
 * GeoJSON
 * GML
 * Geopackage
-  
+
 These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
+
+## Field names
+
+You can provide fields names using hyphens, underscores or spaces.
+
+For example:
+
+* `start-date`
+* `start_date`
+* `start date`
+
+These are all valid, and any uppercase characters will be converted to lowercase.
 
 ## Conservation area dataset
 
@@ -50,7 +62,7 @@ If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associat
 
 The date that the conservation area was officially designated, written in YYYY-MM-DD format.
 
-Example:  
+Example:
 
 `1984-03-28`
 
@@ -78,7 +90,7 @@ Examples:
 One conservation area per page:
 `http://www.LPAwebsite.org.uk/data/conservationareas/smithroad`
 
-More than one conservation area per page with an anchor link for each one:  
+More than one conservation area per page with an anchor link for each one:
 
 `http://www.LPAwebsite.org.uk/data/conservationareas#smithroad`
 
@@ -99,11 +111,11 @@ If the entity has never been updated, enter the same date as start-date.
 
 Write in YYYY-MM-DD format.
 
-Example:  
+Example:
 
 `2022-12-20`
 
-With dates, some data is better than no data, so:  
+With dates, some data is better than no data, so:
 
 * `2022` is fine
 * `2022-12` is better
@@ -113,7 +125,7 @@ With dates, some data is better than no data, so:
 
 The date the validity of the record starts, written in YYYY-MM-DD format. Usually, this will be the same as the designation date. If anything about the conservation area has changed, for example, the boundary, it should be the date of that change.
 
-Example:  
+Example:
 
 `1984-04-25`
 
@@ -127,7 +139,7 @@ With dates, some data is better than no data, so:
 
 Where the conservation area is no longer valid, this should be the date that it was no longer in effect, written in YYYY-MM-DD format. If this does not apply, leave the cell blank.
 
-Example:  
+Example:
 
 `1999-01-20`
 
@@ -151,7 +163,7 @@ These documents are the authoritative source and provide the context around the 
 * notices of conservation area designations
 * management plans
 * gazette entries
-  
+
 Don’t worry if you don’t have all the data we’ve asked for available right now. If you give us what you’ve got, we can help you fill in the gaps later.
 
 A complete record should contain the following fields (columns):
@@ -162,7 +174,7 @@ A reference or ID for each document that is:
 
 * unique within your dataset
 * permanent - it doesn't change when the dataset is updated
-  
+
 If you don't use a reference already, you will need to create one. This can be a short set of letters or numbers.
 
 Example: `CADOC01`
@@ -212,7 +224,7 @@ If the entity has never been updated, enter the same date as start-date.
 
 Write in YYYY-MM-DD format.
 
-Example:  
+Example:
 
 `1984-03-28`
 
@@ -226,7 +238,7 @@ With dates, some data is better than no data, so:
 
 The date the document was published, written in YYYY-MM-DD format.
 
-Example:  
+Example:
 
 `1984-03-28`
 
@@ -240,7 +252,7 @@ With dates, some data is better than no data, so:
 
 The date the document was withdrawn or superseded by another document, written in YYYY-MM-DD format. Leave this blank if the document is still relevant to planning.
 
-Example:  
+Example:
 
 `1984-03-28`
 
@@ -249,5 +261,3 @@ With dates, some data is better than no data, so:
 * `1984` is fine
 * `1984-03` is better
 * `1984-03-28` is brilliant
-
-
