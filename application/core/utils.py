@@ -11,8 +11,6 @@ from datetime import date
 
 from starlette.responses import Response
 
-logger = logging.getLogger(__name__)
-
 
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)

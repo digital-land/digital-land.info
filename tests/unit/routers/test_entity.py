@@ -121,15 +121,61 @@ def test__get_entity_json_multiple_entity_models_provided_include_value_in_model
         assert len(entity.keys()) == 2, f"expected entity and name not {entity.keys()}"
 
 
-# @pytest.fixture
-# def query_params(mocker):
-#     # need to mock validation so dataset isn't queried
-#     mocker.patch(
-#         "application.search.filters.get_dataset_names",
-#         return_value=["ancient-woodland"],
-#     )
-#     output = QueryFilters(dataset="ancient-woodland")
-#     return output
+def test_get_geojson_with_exclude_fields(multiple_entity_models):
+    exclude_fields = {"notes"}
+    geojson_data = _get_geojson(multiple_entity_models, exclude=exclude_fields)
+
+    assert len(geojson_data["features"]) == 2
+    for feature in geojson_data["features"]:
+        assert "notes" not in feature.properties
+
+
+def test_get_geojson_without_exclude_fields(multiple_entity_models):
+    exclude_fields = None
+    geojson_data = _get_geojson(multiple_entity_models, exclude=exclude_fields)
+
+    assert len(geojson_data["features"]) == 2
+    for feature in geojson_data["features"]:
+        assert "prefix" in feature.properties
+        assert "name" in feature.properties
+
+
+def test_get_geojson_with_multiple_exclude_fields(multiple_entity_models):
+    exclude_fields = {"prefix", "geometry"}
+    geojson_data = _get_geojson(multiple_entity_models, exclude=exclude_fields)
+
+    assert len(geojson_data["features"]) == 2
+    for feature in geojson_data["features"]:
+        assert "prefix" not in feature.properties
+        assert "geometry" not in feature.properties
+
+
+def test_get_entity_json_with_exclude_fields(multiple_entity_models):
+    exclude_fields = {"geometry"}
+    entities = _get_entity_json(multiple_entity_models, exclude=exclude_fields)
+
+    assert len(entities) == 2
+    for entity in entities:
+        assert "geometry" not in entity
+
+
+def test_get_entity_json_without_exclude_fields(multiple_entity_models):
+    exclude_fields = None
+    entities = _get_entity_json(multiple_entity_models, exclude=exclude_fields)
+
+    assert len(entities) == 2
+    for entity in entities:
+        assert "geometry" in entity
+        assert "name" in entity
+
+
+def test_get_entity_json_with_multiple_exclude_fields(multiple_entity_models):
+    exclude_fields = {"prefix", "geometry"}
+    entities = _get_entity_json(multiple_entity_models, exclude=exclude_fields)
+
+    assert len(entities) == 2
+    for entity in entities:
+        assert ("prefix", "geometry") not in entity
 
 
 def test_get_entity_no_entity_returned_html(mocker):

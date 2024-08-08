@@ -43,20 +43,27 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]]:
+def _get_geojson(
+    data: List[EntityModel], exclude: Optional[Set] = None
+) -> Dict[str, Union[str, List[GeoJSON]]]:
     features = []
     for entity in data:
         if entity.geojson is not None:
             geojson = entity.geojson
-            properties = entity.dict(
-                exclude={"geojson", "geometry", "point"}, by_alias=True
-            )
+            exclude = set(exclude) if exclude else set()
+            # always remove the geospatial fields as we're only after non-gespatial prroperties
+            exclude.update(["geojson", "geometry", "point"])
+            properties = entity.dict(exclude=exclude, by_alias=True)
             geojson.properties = properties
             features.append(geojson)
     return {"type": "FeatureCollection", "features": features}
 
 
-def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
+def _get_entity_json(
+    data: List[EntityModel],
+    include: Optional[Set] = None,
+    exclude: Optional[List[str]] = None,
+):
     entities = []
     for entity in data:
         if include is not None:
@@ -64,7 +71,9 @@ def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
             include.add("entity")
             e = entity.dict(include=include, by_alias=True)
         else:
-            e = entity.dict(exclude={"geojson"}, by_alias=True)
+            exclude = set(exclude) if exclude else set()
+            exclude.add("geojson")  # Always exclude 'geojson'
+            e = entity.dict(exclude=exclude, by_alias=True)
         entities.append(e)
     return entities
 
@@ -281,12 +290,29 @@ def search_entities(
         if params.get("field") is not None:
             include = set([to_snake(field) for field in params.get("field")])
             entities = _get_entity_json(data["entities"], include=include)
+        elif params.get("exclude_field") is not None:
+            exclude_fields = set(
+                [
+                    to_snake(field.strip())
+                    for field in ",".join(params.get("exclude_field")).split(",")
+                ]
+            )
+            entities = _get_entity_json(data["entities"], exclude=exclude_fields)
         else:
             entities = _get_entity_json(data["entities"])
         return {"entities": entities, "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
-        geojson = _get_geojson(data["entities"])
+        if params.get("exclude_field") is not None:
+            exclude_fields = set(
+                [
+                    to_snake(field.strip())
+                    for field in ",".join(params.get("exclude_field")).split(",")
+                ]
+            )
+            geojson = _get_geojson(data["entities"], exclude=exclude_fields)
+        else:
+            geojson = _get_geojson(data["entities"])
         geojson["links"] = links
         return geojson
 
@@ -343,87 +369,6 @@ def search_entities(
     )
 
 
-# def search_entities_no_extension(
-#     request: Request,
-#     query_filters: QueryFilters = Depends(),
-#     session: Session = Depends(get_session),
-# ):
-#     print("hello no extension")
-#     # get query_filters as a dict
-#     query_params = asdict(query_filters)
-#     # TODO minimse queries by using normal queries below rather than returning the names
-#     # queries required for additional validations
-#     dataset_names = get_dataset_names(session)
-#     typology_names = get_typology_names(session)
-
-#     # additional validations
-#     validate_dataset(query_params.get("dataset", None), dataset_names)
-#     validate_typologies(query_params.get("typology", None), typology_names)
-#     # Run entity query
-#     print("params", query_params)
-#     data = get_entity_search(session, query_params)
-#     # the query does some normalisation to remove empty
-#     # params and they get returned from search
-#     params = data["params"]
-#     scheme = request.url.scheme
-#     netloc = request.url.netloc
-#     path = request.url.path
-#     query = request.url.query
-#     links = make_links(scheme, netloc, path, query, data)
-
-#     typologies = get_typologies_with_entities(session)
-#     typologies = [t.dict() for t in typologies]
-#     # dataset facet
-#     response = get_datasets(session)
-#     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
-#     datasets = [dataset.dict(include=set(columns)) for dataset in response]
-
-#     local_authorities = get_local_authorities(session, "local-authority")
-#     local_authorities = [la.dict() for la in local_authorities]
-
-#     if links.get("prev") is not None:
-#         prev_url = links["prev"]
-#     else:
-#         prev_url = None
-
-#     if links.get("next") is not None:
-#         next_url = links["next"]
-#     else:
-#         next_url = None
-#     # default is HTML
-#     has_geographies = any((e.typology == "geography" for e in data["entities"]))
-#     return templates.TemplateResponse(
-#         "search.html",
-#         {
-#             "request": request,
-#             "count": data["count"],
-#             "limit": params["limit"],
-#             "data": data["entities"],
-#             "datasets": datasets,
-#             "local_authorities": local_authorities,
-#             "typologies": typologies,
-#             "query": {"params": params},
-#             "active_filters": [
-#                 filter_name
-#                 for filter_name, values in params.items()
-#                 if filter_name != "limit" and values is not None
-#             ],
-#             "url_query_params": {
-#                 "str": ("&").join(
-#                     [
-#                         "{}={}".format(param[0], param[1])
-#                         for param in request.query_params._list
-#                     ]
-#                 ),
-#                 "list": request.query_params._list,
-#             },
-#             "next_url": next_url,
-#             "prev_url": prev_url,
-#             "has_geographies": has_geographies,
-#         },
-#     )
-
-
 # Route ordering in important. Match routes with extensions first
 router.add_api_route(
     ".{extension}",
@@ -434,7 +379,6 @@ router.add_api_route(
 )
 router.add_api_route(
     "/",
-    # endpoint=search_entities_no_extension,
     endpoint=search_entities,
     responses={
         200: {
