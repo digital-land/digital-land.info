@@ -22,6 +22,19 @@ You can provide data in one of these formats:
 
 These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
 
+Field names
+-----------
+
+You can provide fields names using hyphens, underscores or spaces.
+
+For example:
+
+- `start-date`
+- `start_date`
+- `start date`
+
+These are all valid, and any uppercase characters will be converted to lowercase.
+
 ---
 
 ## Article 4 direction dataset
@@ -64,7 +77,7 @@ Example: `http://www.LPAwebsite.org.uk/article4direction1.pdf`
 
 The URL of the webpage on your website that introduces the document.
 
-Each document should be linked to from a documentation webpage that includes a short description of the data and the document you’re linking to. Each article 4 direction should have a unique URL. This means you can create a separate page for each one, or you could list several on one page. If you do that, there must be a separate anchor link (fragment identifier) for each one. 
+Each document should be linked to from a documentation webpage that includes a short description of the data and the document you’re linking to. Each article 4 direction should have a unique URL. This means you can create a separate page for each one, or you could list several on one page. If you do that, there must be a separate anchor link (fragment identifier) for each one.
 
 This means each section of your page should have its own URL. Most publishing systems will allow you to use a hashtag to create the identifiers for each article 4 direction you list - as in the examples shown.
 
