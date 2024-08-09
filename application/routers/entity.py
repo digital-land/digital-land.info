@@ -259,6 +259,12 @@ def search_entities(
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
+    # Determine if we should use the query parameter or the path parameter extension
+    if request.query_params.get("extension"):
+        extension = None
+    else:
+        extension = extension
+
     # get query_filters as a dict
     query_params = asdict(query_filters)
     # TODO minimse queries by using normal queries below rather than returning the names
@@ -271,7 +277,6 @@ def search_entities(
     validate_typologies(query_params.get("typology", None), typology_names)
     # Run entity query
     data = get_entity_search(session, query_params)
-
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]

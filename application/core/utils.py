@@ -11,8 +11,6 @@ from datetime import date
 
 from starlette.responses import Response
 
-logger = logging.getLogger(__name__)
-
 
 def create_dict(keys_list, values_list):
     zip_iterator = zip(keys_list, values_list)
@@ -84,21 +82,14 @@ class DigitalLandJSONResponse(Response):
     media_type = "application/json"
 
     def render(self, content: typing.Any) -> bytes:
-        try:
-            if isinstance(content, dict):
-                return json.dumps(
-                    content,
-                    ensure_ascii=False,
-                    allow_nan=False,
-                    indent=None,
-                    separators=(",", ":"),
-                    cls=NoneToEmptyStringEncoder,
-                ).encode("utf-8")
-            else:
-                raise TypeError("Content must be a dictionary")
-        except Exception as e:
-            logger.error(f"Error rendering content: {e}")
-            raise
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+            cls=NoneToEmptyStringEncoder,
+        ).encode("utf-8")
 
 
 def make_links(scheme, netloc, path, query, data):

@@ -201,3 +201,31 @@ def test_entity_search_field_paramter_selects_correct_fields(
         assert (
             field in entity.keys()
         ), f"Expected field:{field} is not in the output fields:{entity.keys()}"
+
+
+@pytest.mark.parametrize("extension_param", [("json"), ("geojson")])
+def test_extension_query_parameter_ignored(
+    extension_param, db_session, test_data: dict, client, exclude_middleware
+):
+    db_session.query(EntityOrm).delete()
+    db_session.commit()
+
+    for entity_data in test_data["entities"]:
+        db_session.add(EntityOrm(**entity_data))
+    db_session.commit()
+
+    response = client.get(
+        f"/entity/?dataset=conservation-area&extension={extension_param}",
+        allow_redirects=False,
+    )
+
+    assert (
+        "text/html" in response.headers["Content-Type"]
+    ), "Expected response in text/html format"
+    assert response.status_code == 200, f"Expected 200 but got {response.status_code}"
+    if "application/json" in response.headers["Content-Type"]:
+        response_json = response.json()
+        assert "entities" in response_json, "Expected 'entities' key in JSON response"
+        assert isinstance(
+            response_json["entities"], list
+        ), "'entities' should be a list"
