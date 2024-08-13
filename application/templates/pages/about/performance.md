@@ -1,6 +1,6 @@
 Performance indicators show how the planning data platform is making it easier to find, use and trust planning and housing data in England.
 
-Last updated 31 July 2024.
+Last updated 13 August 2024.
 
 ## Availability
 
@@ -8,9 +8,9 @@ We index planning and housing datasets provided by multiple organisations in Eng
 
 Many datasets have one owner providing the data nationally. There are 8 datasets compiled from data sources provided by local planning authorities (LPAs) across England.
 
-### 89 datasets on the platform
+### 93 datasets on the platform
 
-89 datasets available from 452 organisations. <!--? added last month (+/-0%). -->
+93 datasets available from 377 organisations. <!--? added last month (+/-0%). -->
 
 131 data sources out of 584 provided by 31 local planning authorities. 4 up from last month (+0.7%).
 
@@ -24,7 +24,7 @@ We check data sources for issues and help data owners improve the quality. This 
 
 <!-- ### ?? out of ?? quality score -->
 
-62 data sources on the platform with no issues (47%). 8 fixed last month (+15%).
+52 data sources on the platform with no issues (40%). 8 fixed last month (+15%).
 
 24 data sources on the platform conform to the specifications (18%). 4 improved last month (+4%).
 
