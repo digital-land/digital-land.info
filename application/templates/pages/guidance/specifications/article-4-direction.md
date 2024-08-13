@@ -168,7 +168,7 @@ A list of the permitted development rights withdrawn by the article 4 direction.
 
 Separate the rights in the list using semicolons.
 
-Only use rights from our [permitted development right dataset](https://www.planning.data.gov.uk/dataset/permitted-development-right). If the area withdraws a permitted development right that is not in our dataset, email [digitalland@levellingup.gov.uk](digitalland@levellingup.gov.uk).
+Only use rights from our [permitted development right dataset](https://www.planning.data.gov.uk/dataset/permitted-development-right). If the area withdraws a permitted development right that is not in our dataset, email [digitalland@communities.gov.uk](digitalland@communities.gov.uk).
 
 Example: `3D;3M;11B`
 
