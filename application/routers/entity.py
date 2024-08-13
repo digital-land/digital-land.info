@@ -259,20 +259,14 @@ def search_entities(
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
-
-    # Determine if we should use the query parameter or the path parameter extension
-    path_extension = None
-    if "." in request.url.path:
-        path_extension = request.url.path.split(".")[-1]
-
-    # Determine the final extension to use
-    if path_extension:
-        final_extension = SuffixEntity(path_extension)
+    # Determine if the URL path includes an extension
+    if "." in request.url.path:  # check if extension if in path parameter
+        extension = extension
     else:
-        if request.query_params.get("extension"):
-            final_extension = None
-        else:
-            final_extension = extension
+        if request.query_params.get(
+            "extension"
+        ):  # check if extension if in query parameter
+            extension = None
 
     # get query_filters as a dict
     query_params = asdict(query_filters)
@@ -295,7 +289,7 @@ def search_entities(
     query = request.url.query
     links = make_links(scheme, netloc, path, query, data)
 
-    if final_extension is not None and final_extension.value == "json":
+    if extension is not None and extension.value == "json":
         if params.get("field") is not None:
             include = set([to_snake(field) for field in params.get("field")])
             entities = _get_entity_json(data["entities"], include=include)
@@ -311,7 +305,7 @@ def search_entities(
             entities = _get_entity_json(data["entities"])
         return {"entities": entities, "links": links, "count": data["count"]}
 
-    if final_extension is not None and final_extension.value == "geojson":
+    if extension is not None and extension.value == "geojson":
         if params.get("exclude_field") is not None:
             exclude_fields = set(
                 [
