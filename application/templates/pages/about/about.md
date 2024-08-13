@@ -19,7 +19,7 @@ Because we are working on this product:
 -   the data we have collected is not yet complete (there may be things you expect to see that are currently missing) 
 -   legislation designed to mandate these standards is still [in Parliament](https://bills.parliament.uk/bills/3155) 
 
-You can tell us if something doesn't look right by emailing [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk). 
+You can tell us if something doesn't look right by emailing [digitalland@communities.gov.uk](mailto:digitalland@communities.gov.uk). 
 
 We are currently working with a set of LPAs to collect data according to our draft standards, that will be collected by the platform. The number of LPAs and datasets covered is growing all the time.
 
@@ -63,11 +63,11 @@ Services like PlanX and BOPS have the potential to save LPAs millions each year,
 UK PropTech
 ---
 
-The UK has a growing Property Technology sector with global ambitions. DLUHC is working closely with the sector, including through [Digital Citizen Engagement](https://dluhcdigital.blog.gov.uk/2021/08/03/new-fund-to-enhance-community-engagement-in-planning/) pilots and the [PropTech Advisory Council](https://www.gov.uk/government/news/proptech-dragons-form-new-expert-property-innovation-council).   
+The UK has a growing Property Technology sector with global ambitions. MHCLG is working closely with the sector, including through [Digital Citizen Engagement](https://mhclgdigital.blog.gov.uk/2021/08/03/new-fund-to-enhance-community-engagement-in-planning/) pilots and the [PropTech Advisory Council](https://www.gov.uk/government/news/proptech-dragons-form-new-expert-property-innovation-council).   
 
 While the data for this site has been designed for the modernisation of public sector planning services, we are exposing it so it can also be used by the UK PropTech sector without expensive and complex workarounds to scrape, acquire or deduce the data from the state.  
 
-We are keen to hear from and potentially highlight external users of this data, and to get feedback about how we can improve this service. To get in touch with the team, contact [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk).  
+We are keen to hear from and potentially highlight external users of this data, and to get feedback about how we can improve this service. To get in touch with the team, contact [digitalland@communities.gov.uk](mailto:digitalland@communities.gov.uk).  
 
 A number of companies already provide access to public sector planning data. If you are looking for commercial services providing national data coverage, access to historic data, or insights and services, have a look at companies such as [LandTech](https://land.tech/), [Glenigan](https://www.glenigan.com/), [Nimbus](https://www.nimbusmaps.co.uk/), [Urban Intelligence](https://urbanintelligence.co.uk/) and [Realyse](https://www.realyse.com/) among others.
 

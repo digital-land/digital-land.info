@@ -70,7 +70,7 @@ We will outsource an accessibility audit on this website in the near future and 
 
 ## How to request content in an accessible format
 
-If you need information in a different format, for example large print or accessible PDF, email <digitalland@levellingup.gov.uk> and tell us:
+If you need information in a different format, for example large print or accessible PDF, email <digitalland@communities.gov.uk> and tell us:
 
 - the web address (URL) of the content
 - your name and email address
@@ -80,7 +80,7 @@ We'll consider your request and get back to you in 21 days.
 
 ## Reporting accessibility problems with this website
 
-If you find any problems that are not listed on this page, or you think we're not meeting the accessibility requirements, please email <digitalland@levellingup.gov.uk> so that we can fix the issue.
+If you find any problems that are not listed on this page, or you think we're not meeting the accessibility requirements, please email <digitalland@communities.gov.uk> so that we can fix the issue.
 
 ## Enforcement procedure
 

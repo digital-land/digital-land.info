@@ -34,7 +34,7 @@ The data is provided under the [Open Government Licence](https://www.nationalarc
 Tell us about the webpage
 -------------
 
-Send an email to [digitalland@levellingup.gov.uk](mailto:digitalland@levellingup.gov.uk).
+Send an email to [digitalland@communities.gov.uk](mailto:digitalland@communities.gov.uk).
 
 The email must include:
 
