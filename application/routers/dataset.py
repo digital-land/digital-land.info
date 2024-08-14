@@ -25,6 +25,22 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+def get_origin_label(dataset):
+    labels = {
+        "alpha": (
+            "Data created by MHCLG. We will replace this data with data from authoritative sources "
+            "when it is available."
+        ),
+        "beta": (
+            "Contains some data created by MHCLG. We are working to replace it with data "
+            "from authoritative sources"
+        ),
+        "live": "All data from authoritative sources",
+        "live+": "All data from authoritative sources with additional supporting data.",
+    }
+    return labels.get(dataset.phase, "Unknown")
+
+
 def get_datasets_by_typology(datasets):
     typologies = {}
     for ds in (d for d in datasets if d.typology):
@@ -109,11 +125,12 @@ def get_dataset(
                     "current": publisher_coverage.publisher_count,
                 },
                 "latest_resource": latest_resource,
-                "last_collection_attempt": latest_resource.last_collection_attempt
-                if latest_resource
-                else None,
+                "last_collection_attempt": (
+                    latest_resource.last_collection_attempt if latest_resource else None
+                ),
                 "categories": categories,
                 "data_file_url": data_file_url,
+                "dataset_origin_label": get_origin_label(_dataset),
             },
         )
 
