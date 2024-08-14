@@ -24,6 +24,18 @@ You can provide the zone and individual tree data in one of these formats:
 
 These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
 
+## Field names
+
+You can provide fields names using hyphens, underscores or spaces.
+
+For example:
+
+* `start-date`
+* `start_date`
+* `start date`
+
+These are all valid, and any uppercase characters will be converted to lowercase.
+
 Tree preservation order dataset
 -------------------------------
 
