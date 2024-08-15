@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 def get_origin_label(dataset):
     labels = {
         "alpha": (
-            "Data created by MHCLG. We will replace this data with data from authoritative sources "
+            "Data created by MHCLG. We will replace this with data from authoritative sources "
             "when it is available."
         ),
         "beta": (
