@@ -30,7 +30,7 @@ def test_acceptance(
     page.click("text=Datasets")
     assert page.url == f"{server_url}/dataset/"
 
-    page.click("text=Documentation")
+    page.click("text=API")
     assert page.url == f"{server_url}/docs"
     assert page.text_content("h1") == "Documentation"
     page.goto(server_url)
