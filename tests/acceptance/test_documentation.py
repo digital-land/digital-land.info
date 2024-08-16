@@ -13,7 +13,7 @@ def test_docs_page_loads_ok(server_url, page):
 
 def test_accessing_the_openAPI_file_and_the_swagger_editor(server_url, page):
     page.goto(server_url)
-    page.get_by_role("link", name="Documentation", exact=True).click()
+    page.get_by_role("link", name="API", exact=True).click()
 
     with page.expect_navigation() as navigation_info:
         page.get_by_role(
