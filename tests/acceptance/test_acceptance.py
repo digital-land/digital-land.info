@@ -61,7 +61,7 @@ def test_get_healthcheck(server_url):
 def test_documentation_page(server_url, page: Page):
     page.goto(server_url)
     expect(page).to_have_title(re.compile("Planning Data"))
-    documentation = page.get_by_role("link", name="Documentation", exact=True)
+    documentation = page.get_by_role("link", name="API", exact=True)
     expect(documentation).to_have_attribute("href", "/docs")
     documentation.click()
 
