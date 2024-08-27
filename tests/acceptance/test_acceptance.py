@@ -30,7 +30,7 @@ def test_acceptance(
     page.click("text=Datasets")
     assert page.url == f"{server_url}/dataset/"
 
-    page.click("text=Documentation")
+    page.click("text=API")
     assert page.url == f"{server_url}/docs"
     assert page.text_content("h1") == "Documentation"
     page.goto(server_url)
@@ -61,7 +61,7 @@ def test_get_healthcheck(server_url):
 def test_documentation_page(server_url, page: Page):
     page.goto(server_url)
     expect(page).to_have_title(re.compile("Planning Data"))
-    documentation = page.get_by_role("link", name="Documentation", exact=True)
+    documentation = page.get_by_role("link", name="API", exact=True)
     expect(documentation).to_have_attribute("href", "/docs")
     documentation.click()
 

@@ -56,7 +56,7 @@
                       {%- elif field == 'value' and fact['field'] in ["geometry","point"] %}
                         <div class="app-code-block">{{ fact[field] }}</div>
                       {%- elif field == 'entity-name' %}
-                        <a class ="govuk-link" href="/curie/{{ fact['entity-prefix'] + ':' + fact['entity-reference'] }}">{{ fact[field] }}</a>
+                        <a class ="govuk-link" href="/curie/{{ fact['entity-prefix'] + ':' + fact['entity-reference'] if fact['entity-prefix'] and fact['entity-reference'] else '#'}}">{{ fact[field] }}</a>
                       {%- elif field == 'reference-entity' %}
                         <a class ="govuk-link" href="/entity/{{ fact[field] }}">{{ fact[field] }}</a>
                       {%- else %}

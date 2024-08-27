@@ -72,7 +72,7 @@ def create_app():
         version="0.1.0",
         contact={
             "name": "planning.data.gov.uk team",
-            "email": "digitalland@levellingup.gov.uk",
+            "email": "digitalland@communities.gov.uk",
             "url": "https://www.planning.data.gov.uk",
         },
         license_info={
