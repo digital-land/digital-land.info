@@ -43,20 +43,27 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _get_geojson(data: List[EntityModel]) -> Dict[str, Union[str, List[GeoJSON]]]:
+def _get_geojson(
+    data: List[EntityModel], exclude: Optional[Set] = None
+) -> Dict[str, Union[str, List[GeoJSON]]]:
     features = []
     for entity in data:
         if entity.geojson is not None:
             geojson = entity.geojson
-            properties = entity.dict(
-                exclude={"geojson", "geometry", "point"}, by_alias=True
-            )
+            exclude = set(exclude) if exclude else set()
+            # always remove the geospatial fields as we're only after non-gespatial prroperties
+            exclude.update(["geojson", "geometry", "point"])
+            properties = entity.dict(exclude=exclude, by_alias=True)
             geojson.properties = properties
             features.append(geojson)
     return {"type": "FeatureCollection", "features": features}
 
 
-def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
+def _get_entity_json(
+    data: List[EntityModel],
+    include: Optional[Set] = None,
+    exclude: Optional[List[str]] = None,
+):
     entities = []
     for entity in data:
         if include is not None:
@@ -64,7 +71,9 @@ def _get_entity_json(data: List[EntityModel], include: Optional[Set] = None):
             include.add("entity")
             e = entity.dict(include=include, by_alias=True)
         else:
-            e = entity.dict(exclude={"geojson"}, by_alias=True)
+            exclude = set(exclude) if exclude else set()
+            exclude.add("geojson")  # Always exclude 'geojson'
+            e = entity.dict(exclude=exclude, by_alias=True)
         entities.append(e)
     return entities
 
@@ -276,12 +285,29 @@ def search_entities(
         if params.get("field") is not None:
             include = set([to_snake(field) for field in params.get("field")])
             entities = _get_entity_json(data["entities"], include=include)
+        elif params.get("exclude_field") is not None:
+            exclude_fields = set(
+                [
+                    to_snake(field.strip())
+                    for field in ",".join(params.get("exclude_field")).split(",")
+                ]
+            )
+            entities = _get_entity_json(data["entities"], exclude=exclude_fields)
         else:
             entities = _get_entity_json(data["entities"])
         return {"entities": entities, "links": links, "count": data["count"]}
 
     if extension is not None and extension.value == "geojson":
-        geojson = _get_geojson(data["entities"])
+        if params.get("exclude_field") is not None:
+            exclude_fields = set(
+                [
+                    to_snake(field.strip())
+                    for field in ",".join(params.get("exclude_field")).split(",")
+                ]
+            )
+            geojson = _get_geojson(data["entities"], exclude=exclude_fields)
+        else:
+            geojson = _get_geojson(data["entities"])
         geojson["links"] = links
         return geojson
 

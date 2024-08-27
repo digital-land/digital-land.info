@@ -91,7 +91,6 @@ def get_entity_search(session: Session, parameters: dict):
 
     entities = query.all()
     entities = [entity_factory(entity_orm) for entity_orm in entities]
-
     return {"params": params, "count": count, "entities": entities}
 
 

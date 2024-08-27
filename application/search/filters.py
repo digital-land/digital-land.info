@@ -213,6 +213,10 @@ class QueryFilters:
     field: Optional[List[str]] = Query(
         None, description="fields to be included in response"
     )
+    exclude_field: Optional[List[str]] = Query(
+        None,
+        description="field parameter will take over any fields specified in the exclude_field parameter",
+    )
 
     # validators
     _validate_entry_date_year = validator("entry_date_year", allow_reuse=True)(
