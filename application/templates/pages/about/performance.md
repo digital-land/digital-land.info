@@ -1,6 +1,6 @@
 Performance indicators show how the planning data platform is making it easier to find, use and trust planning and housing data in England.
 
-Last updated 31 July 2024.
+Last updated 28 August 2024.
 
 ## Availability
 
@@ -8,13 +8,13 @@ We index planning and housing datasets provided by multiple organisations in Eng
 
 Many datasets have one owner providing the data nationally. There are 8 datasets compiled from data sources provided by local planning authorities (LPAs) across England.
 
-### 89 datasets on the platform
+### 93 datasets on the platform
 
-89 datasets available from 452 organisations. <!--? added last month (+/-0%). -->
+93 datasets available from 377 organisations. <!--? added last month (+/-0%). -->
 
-131 data sources out of 584 provided by 31 local planning authorities. 4 up from last month (+0.7%).
+138 data sources out of 584 provided by 33 local planning authorities. 7 up from last month (+1.2%).
 
-1 new local planning authority providing data. 1 up from last month (+1%).
+2 new local planning authorities providing data this month (+2.7%).
 
 You can [help identify and design data](https://www.planning.data.gov.uk/) that would be useful on the platform.
 
@@ -24,9 +24,9 @@ We check data sources for issues and help data owners improve the quality. This 
 
 <!-- ### ?? out of ?? quality score -->
 
-62 data sources on the platform with no issues (47%). 8 fixed last month (+15%).
+47 data sources on the platform with no issues (34%). <!-- 8 fixed last month (+15%). --> 
 
-24 data sources on the platform conform to the specifications (18%). 4 improved last month (+4%).
+26 data sources on the platform conform to the specifications (19%). 2 improved last month (+2%).
 
 <!-- 00 datasets up to date (0%). 00 updated last month (+/-0%). -->
 
@@ -43,7 +43,7 @@ Datasets compiled from LPA sources:
 * 4% coverage of Article 4 direction. No change from last month.
 * 8% coverage of Article 4 direction area. No change from last month.
 * 10% coverage of Conservation area. No change from last month.
-* 1% coverage of Conservation area document. No change from last month.
+* 2% coverage of Conservation area document. Up 1% from last month.
 * 6% coverage of Listed building outline. No change from last month.
 * 3% coverage of Tree preservation order. No change from last month.
 * 5% coverage of Tree preservation zone. No change from last month.
