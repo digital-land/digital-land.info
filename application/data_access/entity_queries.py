@@ -67,13 +67,25 @@ def get_entity_search(session: Session, parameters: dict):
     entities: list[EntityModel]
 
     # get count
-    subquery = session.query(EntityOrm.entity)
-    subquery = _apply_base_filters(subquery, params)
-    subquery = _apply_date_filters(subquery, params)
-    subquery = _apply_location_filters(session, subquery, params)
-    subquery = _apply_period_option_filter(subquery, params).subquery()
-    count_query = session.query(func.count()).select_from(subquery)
-    count = count_query.scalar()
+    query_args = [func.count(EntityOrm.entity).over().label("count")]
+    query = session.query(*query_args)
+    query = _apply_base_filters(query, params)
+    query = _apply_date_filters(query, params)
+    query = _apply_location_filters(session, query, params)
+    query = _apply_period_option_filter(query, params)
+    entities = query.all()
+    if entities:
+        count = entities[0].count
+    else:
+        count = 0
+
+    # subquery = session.query(EntityOrm.entity)
+    # subquery = _apply_base_filters(subquery, params)
+    # subquery = _apply_date_filters(subquery, params)
+    # subquery = _apply_location_filters(session, subquery, params)
+    # subquery = _apply_period_option_filter(subquery, params).subquery()
+    # count_query = session.query(func.count()).select_from(subquery)
+    # count = count_query.scalar()
 
     # get entities
     query_args = [EntityOrm]
