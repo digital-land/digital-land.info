@@ -71,5 +71,5 @@ jobs:
         if: ${{ matrix.environment == 'development' }}
         run: |
           aws synthetics update-canary \
-              --function-name development-main \
+              --name www \
               --code=S3Bucket=${{ matrix.environment }}-canary-code-bucket,S3Key=main/smoke_canary.py,S3Version=${{ steps.canary-code-s3-version.outputs.VERSION }}
