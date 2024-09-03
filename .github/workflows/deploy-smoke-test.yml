@@ -1,4 +1,4 @@
-name: Publish & Deploy Smoke Test to S3
+name: Publish & Deploy Smoke Test
 
 on:
   push:
@@ -57,6 +57,7 @@ jobs:
           aws-region: eu-west-2
 
       - name: Upload Smoke Canary function to S3
+        working-directory: ./tests/smoke
         run: |
           aws s3 cp src/smoke_canary.py s3://${{ matrix.environment }}-canary-code-bucket/main/smoke_canary.py
 
