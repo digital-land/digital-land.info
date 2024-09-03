@@ -2,7 +2,7 @@ name: Publish & Deploy Smoke Test to S3
 
 on:
   push:
-    branches: [main]
+  #  branches: [main]
   workflow_dispatch:
     inputs:
       environment:
