@@ -1,0 +1,8 @@
+[project]
+name = "digital-land-info-smoke-tests"
+version = "0.0.1"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+# Necessary to prevent pytest loading conftest.py in parent directories since the Smoke tests are standalone
+testpaths = "."
