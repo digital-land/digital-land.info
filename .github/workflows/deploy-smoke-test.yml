@@ -50,10 +50,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y rsync
 
+      - name: Package directory with correct file permissions
+        working-directory: ./tests/smoke
+        run: |
+          mkdir package
+          chmod 0666 ./package
+
       - name: Create smoke test code archive
         working-directory: ./tests/smoke
         run: |
-          sudo -s sh -c 'zip -r smoke-test-package.zip ./src/*'
+          sudo -s sh -c 'cd package && zip -r ../smoke-test-package.zip ./*'
+          sudo -s sh -c  'pwd'
+          sudo -s sh -c 'zip -g smoke-test-package.zip src/*.py'
 
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
