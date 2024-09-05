@@ -69,20 +69,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
 
-      - name: Upload smoke test code archive to S3
-        working-directory: ./tests/smoke
-        run: |
-          aws s3 cp smoke-test-package.zip s3://${{ matrix.environment }}-canary-code-bucket/main/smoke-test-package.zip
+#      - name: Upload smoke test code archive to S3
+#        working-directory: ./tests/smoke
+#        run: |
+#          aws s3 cp smoke-test-package.zip s3://${{ matrix.environment }}-canary-code-bucket/main/smoke-test-package.zip
 
-      - name: Get S3 Object version
-        id: canary-code-s3-version
-        run: |
-          S3_OBJECT_VERSION=$(aws s3api list-object-versions --bucket ${{ matrix.environment }}-canary-code-bucket --prefix main/smoke-test-package.zip --query 'Versions[?IsLatest].[VersionId]' --output text)
-          echo "VERSION=$S3_OBJECT_VERSION" >> "$GITHUB_OUTPUT"
+#      - name: Get S3 Object version
+#        id: canary-code-s3-version
+#        run: |
+#          S3_OBJECT_VERSION=$(aws s3api list-object-versions --bucket ${{ matrix.environment }}-canary-code-bucket --prefix main/smoke-test-package.zip --query 'Versions[?IsLatest].[VersionId]' --output text)
+#          echo "VERSION=$S3_OBJECT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Update AWS Synthetics Canary function code in development environment
         if: ${{ matrix.environment == 'development' }}
         run: |
           aws synthetics update-canary \
               --name www \
-              --code S3Bucket=${{ matrix.environment }}-canary-code-bucket,S3Key=main/smoke-test-package.zip,S3Version=${{ steps.canary-code-s3-version.outputs.VERSION }},Handler=smoke_canary.handler
+              --code ZipFile=./tests/smoke/smoke-test-package.zip,Handler=smoke_canary.handler
+#              --code S3Bucket=${{ matrix.environment }}-canary-code-bucket,S3Key=main/smoke-test-package.zip,S3Version=${{ steps.canary-code-s3-version.outputs.VERSION }},Handler=smoke_canary.handler
