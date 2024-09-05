@@ -2,7 +2,7 @@ name: Publish & Deploy Smoke Test
 
 on:
   push:
-  branches: [main, feature/smoke-tests]
+    branches: [main, feature/smoke-tests]
   workflow_dispatch:
     inputs:
       environment:
