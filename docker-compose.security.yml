@@ -10,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: dev
+      target: production
     environment:
       ENVIRONMENT: production
       S3_HOISTED_BUCKET: https://digital-land-production-collection-dataset-hoisted.s3.eu-west-2.amazonaws.com
@@ -20,11 +20,18 @@ services:
       PORT: 8000
       WEB_CONCURRENCY: 1
       DATA_FILE_URL: https://data.digital-land.info
+      RELOAD: "true"
+      PRE_START_PATH: "/src/prestart.sh"
+    volumes:
+      - .:/src
+#      - ./static:/src/static
+      # - .env.test.docker:/src/.env.test
     healthcheck:
       test: curl -v -i -f http://localhost:8000
       interval: 1s
       timeout: 3s
       retries: 60
+    restart: on-failure
 
   db:
     image: postgis/postgis:13-master

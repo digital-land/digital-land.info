@@ -16,7 +16,7 @@ if (fs.existsSync(optionalConfigPath)) {
 }
 
 scripts.build = {
-  stylesheets: `npx node-sass ${configPaths.scssPath} -o ${configPaths.stylesheetsOutputPath} --include-path ${configPaths.govukFrontendPath} --include-path ${configPaths.digitalLandFrontendPath}`,
+  stylesheets: `npx sass ${configPaths.scssPath}:${configPaths.stylesheetsOutputPath} --load-path=node_modules`,
 }
 
 scripts.copy = {

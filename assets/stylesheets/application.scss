@@ -5,7 +5,7 @@ $govuk-new-link-styles: true;
 $govuk-link-underline-offset: .2em;
 
 // import all govuk frontend scss
-@import "node_modules/govuk-frontend/govuk/all";
+@import "govuk-frontend/govuk/all";
 
 // planning.data.gov.uk specific styles
 // --------------------------------------------------------
