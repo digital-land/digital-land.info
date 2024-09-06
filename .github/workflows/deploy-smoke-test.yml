@@ -50,12 +50,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y rsync
 
-      - name: Package directory with correct file permissions
+      - name: Prepare archive directory with correct file permissions
         working-directory: ./tests/smoke
         run: |
           sudo -s sh -c 'mkdir package'
           sudo -s sh -c 'chmod 0666 ./package'
-          sudo -s sh -c 'cp src/* ./package/.'
+          sudo -s sh -c 'mkdir package/python'
+          sudo -s sh -c 'cp src/* ./package/python/.'
 
       - name: Create smoke test code archive
         working-directory: ./tests/smoke
