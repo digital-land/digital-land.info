@@ -24,8 +24,6 @@ services:
       PRE_START_PATH: "/src/prestart.sh"
     volumes:
       - .:/src
-#      - ./static:/src/static
-      # - .env.test.docker:/src/.env.test
     healthcheck:
       test: curl -v -i -f http://localhost:8000
       interval: 1s
