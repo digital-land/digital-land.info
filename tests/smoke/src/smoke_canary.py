@@ -2,13 +2,9 @@ import os
 
 from aws_synthetics.selenium import synthetics_webdriver as syn_webdriver
 from aws_synthetics.common import synthetics_logger as logger
-from faker import Faker
-
-faker = Faker()
 
 
 async def main(event, context):
-    logger.info("UUID: " + faker.uuid4())
     base_url = os.environ.get("BASE_URL")
     url = base_url
     browser = syn_webdriver.Chrome()
