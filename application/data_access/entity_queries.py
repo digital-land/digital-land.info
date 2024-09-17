@@ -177,23 +177,17 @@ def _apply_location_filters(session, query, params):
 
     clauses = []
     for geometry in params.get("geometry", []):
-        simplified_geom = func.ST_Envelope(func.ST_GeomFromText(geometry, 4326))
+        simplified_geom = func.ST_GeomFromText(geometry, 4326)
         clauses.append(
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
                     geometry_is_valid,
-                    EntityOrm.geometry.op("&&")(
-                        simplified_geom
-                    ),  # Using && operator to trigger index
                     spatial_function(EntityOrm.geometry, simplified_geom),
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
                     point_is_valid,
-                    EntityOrm.point.op("&&")(
-                        simplified_geom
-                    ),  # Using && operator to trigger index
                     spatial_function(EntityOrm.point, simplified_geom),
                 ),
             )
