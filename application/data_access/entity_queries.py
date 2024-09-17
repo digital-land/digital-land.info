@@ -64,21 +64,16 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
 def get_entity_search(session: Session, parameters: dict):
     params = normalised_params(parameters)
     count: int
-    entities: [EntityModel]
+    entities: list[EntityModel]
 
     # get count
-    query_args = [func.count(EntityOrm.entity).label("count")]
-    query = session.query(*query_args)
-    query = _apply_base_filters(query, params)
-    query = _apply_date_filters(query, params)
-    query = _apply_location_filters(session, query, params)
-    query = _apply_period_option_filter(query, params)
-
-    entities = query.all()
-    if entities:
-        count = entities[0].count
-    else:
-        count = 0
+    subquery = session.query(EntityOrm.entity)
+    subquery = _apply_base_filters(subquery, params)
+    subquery = _apply_date_filters(subquery, params)
+    subquery = _apply_location_filters(session, subquery, params)
+    subquery = _apply_period_option_filter(subquery, params).subquery()
+    count_query = session.query(func.count()).select_from(subquery)
+    count = count_query.scalar()
 
     # get entities
     query_args = [EntityOrm]
@@ -285,7 +280,8 @@ def _apply_location_filters(session, query, params):
 
     # final step to add a group by if more than one condition is being met.
     if len(intersecting_entities) > 1 or len(references) > 0 or len(curies) > 1:
-        query = query.group_by(EntityOrm)
+        # if len(intersecting_entities) > 1 or len(curies) > 1:
+        query = query.group_by(EntityOrm.entity)
     elif len(intersecting_entities) + len(curies) > 1:
         query = query.group_by(EntityOrm)
 
