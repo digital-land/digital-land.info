@@ -63,29 +63,25 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
 
 def get_entity_search(session: Session, parameters: dict):
     params = normalised_params(parameters)
-    count: int
     entities: list[EntityModel]
 
-    # get count
-    subquery = session.query(EntityOrm.entity)
-    subquery = _apply_base_filters(subquery, params)
-    subquery = _apply_date_filters(subquery, params)
-    subquery = _apply_location_filters(session, subquery, params)
-    subquery = _apply_period_option_filter(subquery, params).subquery()
-    count_query = session.query(func.count()).select_from(subquery)
-    count = count_query.scalar()
+    # Create a single base query
+    base_query = session.query(EntityOrm, func.count().over().label("total_count"))
 
-    # get entities
-    query_args = [EntityOrm]
-    query = session.query(*query_args)
-    query = _apply_base_filters(query, params)
-    query = _apply_date_filters(query, params)
-    query = _apply_location_filters(session, query, params)
-    query = _apply_period_option_filter(query, params)
-    query = _apply_limit_and_pagination_filters(query, params)
+    base_query = _apply_base_filters(base_query, params)
+    base_query = _apply_date_filters(base_query, params)
+    base_query = _apply_location_filters(session, base_query, params)
+    base_query = _apply_period_option_filter(base_query, params)
+    base_query = _apply_limit_and_pagination_filters(base_query, params)
 
-    entities = query.all()
-    entities = [entity_factory(entity_orm) for entity_orm in entities]
+    result = base_query.all()
+    if result:
+        count = result[0].total_count
+    else:
+        count = 0
+
+    entities = [entity_factory(row.EntityOrm) for row in result]
+
     return {"params": params, "count": count, "entities": entities}
 
 
