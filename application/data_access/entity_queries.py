@@ -176,24 +176,45 @@ def _apply_location_filters(session, query, params):
 
     for geometry in params.get("geometry", []):
         simplified_geom = func.ST_GeomFromText(geometry, 4326)
-        bbox_filter = func.ST_Envelope(simplified_geom).op("&&")(EntityOrm.geometry)
-
-        clauses.append(
-            or_(
-                and_(
-                    EntityOrm.geometry.is_not(None),
-                    geometry_is_valid,
-                    bbox_filter,
-                    spatial_function(EntityOrm.geometry, simplified_geom),
-                ),
-                and_(
-                    EntityOrm.point.is_not(None),
-                    point_is_valid,
-                    bbox_filter,
-                    spatial_function(EntityOrm.point, simplified_geom),
-                ),
-            )
+        bbox_filter_geometry = func.ST_Envelope(simplified_geom).op("&&")(
+            EntityOrm.geometry
         )
+        bbox_filter_point = func.ST_Envelope(simplified_geom).op("&&")(
+            EntityOrm.geometry
+        )
+
+        if params.get("geometry_relation") == GeometryRelation.intersects.name:
+            clauses.append(
+                or_(
+                    and_(
+                        EntityOrm.geometry.is_not(None),
+                        geometry_is_valid,
+                        bbox_filter_geometry,
+                        spatial_function(EntityOrm.geometry, simplified_geom),
+                    ),
+                    and_(
+                        EntityOrm.point.is_not(None),
+                        point_is_valid,
+                        bbox_filter_point,
+                        spatial_function(EntityOrm.point, simplified_geom),
+                    ),
+                )
+            )
+        else:
+            clauses.append(
+                or_(
+                    and_(
+                        EntityOrm.geometry.is_not(None),
+                        geometry_is_valid,
+                        spatial_function(EntityOrm.geometry, simplified_geom),
+                    ),
+                    and_(
+                        EntityOrm.point.is_not(None),
+                        point_is_valid,
+                        spatial_function(EntityOrm.point, simplified_geom),
+                    ),
+                )
+            )
     if clauses:
         query = query.filter(or_(*clauses))
 
