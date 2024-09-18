@@ -3,7 +3,6 @@ import logging
 from typing import Optional, List, Tuple
 from sqlalchemy import select, func, or_, and_, tuple_
 from sqlalchemy.orm import Session
-
 from application.core.models import EntityModel, entity_factory
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
@@ -65,7 +64,6 @@ def get_entity_search(session: Session, parameters: dict):
     params = normalised_params(parameters)
     count: int
     entities: list[EntityModel]
-
     # get count
     subquery = session.query(EntityOrm.entity)
     subquery = _apply_base_filters(subquery, params)
@@ -161,7 +159,6 @@ def _apply_location_filters(session, query, params):
 
     geometry_is_valid = func.ST_IsValid(EntityOrm.geometry)
     point_is_valid = func.ST_IsValid(EntityOrm.point)
-
     if point is not None:
         query = query.filter(
             and_(
@@ -176,23 +173,27 @@ def _apply_location_filters(session, query, params):
     )
 
     clauses = []
+
     for geometry in params.get("geometry", []):
         simplified_geom = func.ST_GeomFromText(geometry, 4326)
+        bbox_filter = func.ST_Envelope(simplified_geom).op("&&")(EntityOrm.geometry)
+
         clauses.append(
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
                     geometry_is_valid,
+                    bbox_filter,
                     spatial_function(EntityOrm.geometry, simplified_geom),
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
                     point_is_valid,
+                    bbox_filter,
                     spatial_function(EntityOrm.point, simplified_geom),
                 ),
             )
         )
-
     if clauses:
         query = query.filter(or_(*clauses))
 
@@ -240,7 +241,7 @@ def _apply_location_filters(session, query, params):
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
+                    geometry_is_valid,
                     func.ST_IsValid(reference_query.c.geometry),
                     spatial_function(EntityOrm.geometry, reference_query.c.geometry),
                 ),
