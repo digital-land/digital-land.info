@@ -1,6 +1,6 @@
 {
-  "digitalLandFrontendPath": "node_modules/digital-land-frontend/",
-  "govukFrontendPath": "node_modules/govuk-frontend/",
+  "digitalLandFrontendPath": "node_modules/digital-land-frontend",
+  "govukFrontendPath": "node_modules/govuk-frontend/sass",
   "scssPath": "./src/scss",
   "templatesPath": "'application/templates'",
   "staticFilesPath": "'application/static'",
