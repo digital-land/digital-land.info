@@ -35,9 +35,8 @@ def upgrade():
     )
     op.execute(
         sa.text(
-            """ UPDATE entity SET simplified_geometry = ST_SimplifyPreserveTopology(geometry, 0.0001)
-             WHERE geometry IS NOT NULL
-                AND ST_GeometryType(geometry) = 'ST_MultiPolygon';"""
+            """ UPDATE entity SET simplified_geometry = ST_Multi(ST_SimplifyPreserveTopology(geometry, 0.0001))
+             WHERE geometry IS NOT NULL AND ST_GeometryType(geometry) = 'ST_MultiPolygon';"""
         )
     )  # noqa
 
