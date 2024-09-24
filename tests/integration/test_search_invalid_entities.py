@@ -69,8 +69,12 @@ def params(raw_params):
 
 
 def test_search_geometry_reference_excludes_invalid_data(
-    invalid_test_data, params, db_session
+    invalid_test_data, params, db_session, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     invalid = [
         int(entity["entity"])
         for entity in invalid_test_data["entities"]

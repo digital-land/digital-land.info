@@ -7,11 +7,12 @@ from application.db.models import EntityOrm
     [["organisation-entity"], ["entry-date", "prefix"]],
 )
 def test_entity_search_exclude_field_for_json_response(
-    client,
-    db_session,
-    test_data: dict,
-    exclude: list,
+    client, db_session, test_data: dict, exclude: list, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     # Clear the table to avoid duplicates
     db_session.query(EntityOrm).delete()
     db_session.commit()
@@ -58,11 +59,12 @@ def test_entity_search_exclude_field_for_json_response(
     ],
 )
 def test_entity_search_no_exclude_field_for_json_response(
-    client,
-    db_session,
-    test_data: dict,
-    expected_fields: set,
+    client, db_session, test_data: dict, expected_fields: set, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     db_session.query(EntityOrm).delete()
     db_session.commit()
     # Load entities into the database
@@ -90,8 +92,12 @@ def test_entity_search_no_exclude_field_for_json_response(
 
 @pytest.mark.parametrize("exclude", [["notes"], ["geometry", "notes"]])
 def test_entity_search_exclude_field_for_geojson_response(
-    client, db_session, test_data: dict, exclude: list
+    client, db_session, test_data: dict, exclude: list, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     db_session.query(EntityOrm).delete()
     db_session.commit()
     # Load entities into the database
@@ -138,11 +144,12 @@ def test_entity_search_exclude_field_for_geojson_response(
     ],
 )
 def test_entity_search_no_exclude_field_for_geojson_response(
-    client,
-    db_session,
-    test_data: dict,
-    expected_properties: set,
+    client, db_session, test_data: dict, expected_properties: set, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     db_session.query(EntityOrm).delete()
     db_session.commit()
     # Load entities into the database

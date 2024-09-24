@@ -42,7 +42,11 @@ def _transform_dataset_to_response(dataset, is_geojson=False):
     return dataset
 
 
-def test_app_returns_valid_geojson_list(client):
+def test_app_returns_valid_geojson_list(client, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     response = client.get("/entity.geojson", headers={"Origin": "localhost"})
     data = response.json()
     assert "type" in data
@@ -51,7 +55,11 @@ def test_app_returns_valid_geojson_list(client):
     assert [] == data["features"]
 
 
-def test_app_returns_valid_populated_geojson_list(client, test_data):
+def test_app_returns_valid_populated_geojson_list(client, test_data, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     response = client.get("/entity.geojson", headers={"Origin": "localhost"})
     data = response.json()
     assert "type" in data
@@ -68,7 +76,11 @@ def test_app_returns_valid_populated_geojson_list(client, test_data):
     ) == len(data["features"])
 
 
-def test_lasso_geo_search_finds_results(client, test_data):
+def test_lasso_geo_search_finds_results(client, test_data, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params = {
         "geometry_relation": "intersects",
         "geometry": intersects_with_greenspace_entity,
@@ -188,7 +200,13 @@ wkt_params = [
 
 
 @pytest.mark.parametrize("point, expected_status_code", wkt_params)
-def test_api_handles_invalid_wkt(point, expected_status_code, client, test_data):
+def test_api_handles_invalid_wkt(
+    point, expected_status_code, client, test_data, mocker
+):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params = {"geometry_relation": "intersects", "geometry": point}
     response = client.get("/entity.geojson", params=params)
     assert response.status_code == expected_status_code

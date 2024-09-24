@@ -2,7 +2,13 @@ from application.data_access.entity_queries import lookup_entity_link
 from application.db.models import EntityOrm
 
 
-def test__lookup_entity_link_returns_nothing_when_the_entity_isnt_found(db_session):
+def test__lookup_entity_link_returns_nothing_when_the_entity_isnt_found(
+    db_session, mocker
+):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     linked_entity = lookup_entity_link(
         db_session, "a-reference", "article-4-direction", 123
     )
@@ -10,8 +16,12 @@ def test__lookup_entity_link_returns_nothing_when_the_entity_isnt_found(db_sessi
 
 
 def test__lookup_entity_link_returns_the_looked_up_entity_when_the_link_exists(
-    db_session,
+    db_session, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     lookup_entity = {
         "entity": 106,
         "name": "A space",

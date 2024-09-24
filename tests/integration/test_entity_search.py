@@ -108,6 +108,10 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
 
 
 def test_search_entity_by_single_dataset_name(test_data, params, mocker, db_session):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["dataset"] = ["greenspace"]
     result = get_entity_search(db_session, params)
     assert 1 == result["count"]
@@ -116,7 +120,11 @@ def test_search_entity_by_single_dataset_name(test_data, params, mocker, db_sess
     assert entity.typology == "geography"
 
 
-def test_search_entity_by_list_of_dataset_names(test_data, params, db_session):
+def test_search_entity_by_list_of_dataset_names(test_data, params, db_session, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["dataset"] = ["greenspace", "brownfield-site"]
     result = get_entity_search(db_session, params)
     assert 2 == result["count"]
@@ -125,7 +133,11 @@ def test_search_entity_by_list_of_dataset_names(test_data, params, db_session):
         assert e.typology == "geography"
 
 
-def test_search_entity_by_date_since(test_data, params, db_session):
+def test_search_entity_by_date_since(test_data, params, db_session, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
@@ -191,7 +203,11 @@ def test_search_entity_by_date_since(test_data, params, db_session):
     assert result["count"] == 0
 
 
-def test_search_entity_by_date_before(test_data, params, db_session):
+def test_search_entity_by_date_before(test_data, params, db_session, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
@@ -227,7 +243,11 @@ def test_search_entity_by_date_before(test_data, params, db_session):
         ]
 
 
-def test_search_entity_by_date_equal(test_data, params, db_session):
+def test_search_entity_by_date_equal(test_data, params, db_session, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
@@ -243,7 +263,11 @@ def test_search_entity_by_date_equal(test_data, params, db_session):
     assert entity.dataset == "greenspace"
 
 
-def test_search_entity_by_point(test_data, params, db_session):
+def test_search_entity_by_point(test_data, params, db_session, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["longitude"] = -1.64794921875
     params["latitude"] = 50.51342652633956
 
@@ -259,10 +283,16 @@ def test_search_entity_by_point(test_data, params, db_session):
     assert entity.dataset == "historical-monument"
 
 
-def test_search_entity_by_single_polygon_intersects(test_data, params, db_session):
+def test_search_entity_by_single_polygon_intersects(
+    test_data, params, db_session, mocker
+):
     from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
     from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [brownfield]
     params["geometry_relation"] = GeometryRelation.intersects.name
 
@@ -279,11 +309,15 @@ def test_search_entity_by_single_polygon_intersects(test_data, params, db_sessio
 
 
 def test_search_entity_by_list_of_polygons_that_intersect(
-    test_data, params, db_session
+    test_data, params, db_session, mocker
 ):
     from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
     from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [brownfield, greenspace]
     params["geometry_relation"] = GeometryRelation.intersects.name
 
@@ -291,9 +325,15 @@ def test_search_entity_by_list_of_polygons_that_intersect(
     assert result["count"] == 2
 
 
-def test_search_entity_by_polygon_with_no_intersection(test_data, params, db_session):
+def test_search_entity_by_polygon_with_no_intersection(
+    test_data, params, db_session, mocker
+):
     from tests.test_data.wkt_data import no_intersection
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [no_intersection]
     params["geometry_relation"] = GeometryRelation.intersects.name
 
@@ -301,8 +341,12 @@ def test_search_entity_by_polygon_with_no_intersection(test_data, params, db_ses
     assert 0 == result["count"]
 
 
-def test_search_all_entities(test_data, params, db_session):
+def test_search_all_entities(test_data, params, db_session, mocker):
     # default is PeriodOption.all - already in params
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     result = get_entity_search(db_session, params)
     assert result["count"] == len(test_data["entities"])
     for e in result["entities"]:
@@ -317,8 +361,12 @@ def test_search_all_entities(test_data, params, db_session):
         ]
 
 
-def test_search_current_entries(test_data, params, db_session):
+def test_search_current_entries(test_data, params, db_session, mocker):
     # entries without an end date
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["period"] = [PeriodOption.current]
 
     result = get_entity_search(db_session, params)
@@ -334,7 +382,12 @@ def test_search_current_entries(test_data, params, db_session):
         ]
 
 
-def test_search_historical_entries(test_data, params, db_session):
+def test_search_historical_entries(test_data, params, db_session, mocker):
+
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     # entries with an end date
     params["period"] = [PeriodOption.historical]
 
@@ -344,7 +397,13 @@ def test_search_historical_entries(test_data, params, db_session):
     assert e.dataset == "greenspace"
 
 
-def test_search_includes_only_field_params(test_data, client, exclude_middleware):
+def test_search_includes_only_field_params(
+    test_data, client, exclude_middleware, mocker
+):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     response = client.get("/entity.json?limit=10&field=name")
     response.raise_for_status()
     result = response.json()
@@ -353,7 +412,13 @@ def test_search_includes_only_field_params(test_data, client, exclude_middleware
     assert not set(e.keys()).symmetric_difference(set(["name", "entity"]))
 
 
-def test_search_includes_multiple_field_params(test_data, client, exclude_middleware):
+def test_search_includes_multiple_field_params(
+    test_data, client, exclude_middleware, mocker
+):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     response = client.get("/entity.json?limit=10&field=name&field=dataset")
     response.raise_for_status()
     result = response.json()
@@ -367,8 +432,12 @@ def test_search_includes_multiple_field_params(test_data, client, exclude_middle
     "field_name", list(EntityModel.schema()["properties"].keys() - {"geojson"})
 )
 def test_search_includes_any_field_params(
-    field_name, test_data, client, exclude_middleware
+    field_name, test_data, client, exclude_middleware, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     response = client.get(f"/entity.json?limit=10&field={field_name}")
     response.raise_for_status()
     result = response.json()
@@ -377,23 +446,39 @@ def test_search_includes_any_field_params(
     assert not set(e.keys()).symmetric_difference(set([field_name, "entity"]))
 
 
-def test_search_pagination_does_not_affect_count(test_data, client, exclude_middleware):
+def test_search_pagination_does_not_affect_count(
+    test_data, client, exclude_middleware, mocker
+):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     response = client.get("/entity.json?limit=1")
     response.raise_for_status()
     result = response.json()
     assert result["count"] == len(test_data["entities"])
 
 
-def test_search_filtering_does_affect_count(test_data, client, exclude_middleware):
+def test_search_filtering_does_affect_count(
+    test_data, client, exclude_middleware, mocker
+):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     response = client.get("/entity.json?limit=1&dataset=greenspace")
     response.raise_for_status()
     result = response.json()
     assert result["count"] == 1
 
 
-def test_search_entity_equal_to_a_polygon(test_data, params, db_session):
+def test_search_entity_equal_to_a_polygon(test_data, params, db_session, mocker):
     from tests.test_data.wkt_data import equals_brownfield_site_entity
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [equals_brownfield_site_entity]
     params["geometry_relation"] = GeometryRelation.equals.name
 
@@ -402,19 +487,28 @@ def test_search_entity_equal_to_a_polygon(test_data, params, db_session):
     assert result["entities"][0].dataset == "brownfield-site"
 
 
-def test_search_entity_disjoint_from_a_polygon(test_data, params, db_session):
+def test_search_entity_disjoint_from_a_polygon(test_data, params, db_session, mocker):
     from tests.test_data.wkt_data import no_intersection
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [no_intersection]
     params["geometry_relation"] = GeometryRelation.disjoint.name
 
     result = get_entity_search(db_session, params)
+    print(result)
     assert result["count"] == 9
 
 
 def test_search_entity_that_polygon_touches(test_data, params, mocker, db_session):
     from tests.test_data.wkt_data import touches_forest_entity
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [touches_forest_entity]
     params["geometry_relation"] = GeometryRelation.touches.name
 
@@ -423,9 +517,13 @@ def test_search_entity_that_polygon_touches(test_data, params, mocker, db_sessio
     assert result["entities"][0].dataset == "forest"
 
 
-def test_search_entity_that_contains_a_polygon(test_data, params, db_session):
+def test_search_entity_that_contains_a_polygon(test_data, params, db_session, mocker):
     from tests.test_data.wkt_data import contained_by_greenspace_entity
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [contained_by_greenspace_entity]
     params["geometry_relation"] = GeometryRelation.contains.name
 
@@ -435,9 +533,13 @@ def test_search_entity_that_contains_a_polygon(test_data, params, db_session):
 
 
 # when dealing with polygons contains and covers are synonymous
-def test_search_entity_that_covers_a_polygon(test_data, params, db_session):
+def test_search_entity_that_covers_a_polygon(test_data, params, db_session, mocker):
     from tests.test_data.wkt_data import contained_by_greenspace_entity
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [contained_by_greenspace_entity]
     params["geometry_relation"] = GeometryRelation.covers.name
 
@@ -446,9 +548,13 @@ def test_search_entity_that_covers_a_polygon(test_data, params, db_session):
     assert result["entities"][0].dataset == "greenspace"
 
 
-def test_search_entity_covered_by_a_polygon(test_data, params, db_session):
+def test_search_entity_covered_by_a_polygon(test_data, params, db_session, mocker):
     from tests.test_data.wkt_data import covers_historical_monument_entity
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [covers_historical_monument_entity]
     params["geometry_relation"] = GeometryRelation.coveredby.name
 
@@ -457,9 +563,13 @@ def test_search_entity_covered_by_a_polygon(test_data, params, db_session):
     assert result["entities"][0].dataset == "historical-monument"
 
 
-def test_search_entity_that_overlaps_a_polygon(test_data, params, db_session):
+def test_search_entity_that_overlaps_a_polygon(test_data, params, db_session, mocker):
     from tests.test_data.wkt_data import intersects_with_brownfield_entity
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [intersects_with_brownfield_entity]
     params["geometry_relation"] = GeometryRelation.overlaps.name
 
@@ -468,9 +578,13 @@ def test_search_entity_that_overlaps_a_polygon(test_data, params, db_session):
     assert result["entities"][0].dataset == "brownfield-site"
 
 
-def test_search_entity_that_is_crossed_by_a_line(test_data, params, db_session):
+def test_search_entity_that_is_crossed_by_a_line(test_data, params, db_session, mocker):
     from tests.test_data.wkt_data import crosses_historical_entity
 
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     params["geometry"] = [crosses_historical_entity]
     params["geometry_relation"] = GeometryRelation.crosses.name
 
@@ -480,8 +594,12 @@ def test_search_entity_that_is_crossed_by_a_line(test_data, params, db_session):
 
 
 def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
-    test_data, params, db_session
+    test_data, params, db_session, mocker
 ):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     test_conservation_area = [
         e for e in test_data["entities"] if e["dataset"] == "conservation-area"
     ][0]
@@ -498,7 +616,11 @@ def test_search_geometry_entity_returns_entities_that_intersect_with_entity(
         assert e.entity in test_trees
 
 
-def test_search_entity_by_curie(test_data, params, db_session):
+def test_search_entity_by_curie(test_data, params, db_session, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     expected_entity = [
         e
         for e in test_data["entities"]
@@ -518,7 +640,11 @@ def test_search_entity_by_curie(test_data, params, db_session):
     assert entity.reference == expected_entity["reference"]
 
 
-def test_search_entity_by_organisation_curie(test_data, params, db_session):
+def test_search_entity_by_organisation_curie(test_data, params, db_session, mocker):
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     expected_entity = [
         e
         for e in test_data["entities"]

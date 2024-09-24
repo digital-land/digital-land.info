@@ -4,6 +4,7 @@ import pytest
 from application.db.models import EntityOrm
 from application.data_access.entity_queries import get_entity_search
 
+
 # set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -73,11 +74,15 @@ logger = logging.getLogger(__name__)
     ],
 )
 def test_get_entity_search_geometry_reference_queries_returns_correct_results(
-    entities, parameters, expected_count, expected_entities, db_session
+    entities, parameters, expected_count, expected_entities, db_session, mocker
 ):
     """
     A test to check if the correct results are returned when using the geometry_reference parameter
     """
+    mocker.patch(
+        "application.data_access.entity_queries.get_cached_query_result",
+        return_value=None,
+    )
     # load data points into entity table
     # add datasets
     for entity in entities:
@@ -85,7 +90,6 @@ def test_get_entity_search_geometry_reference_queries_returns_correct_results(
 
     # run query and get results
     results = get_entity_search(db_session, parameters)
-
     # assert count
     assert results["count"] == expected_count, results
 

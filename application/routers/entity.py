@@ -60,21 +60,34 @@ def _get_geojson(
 
 
 def _get_entity_json(
-    data: List[EntityModel],
-    include: Optional[Set] = None,
+    data: List[Union[EntityModel, dict]],  # Allow both EntityModel and dict
+    include: Optional[Set[str]] = None,
     exclude: Optional[List[str]] = None,
 ):
     entities = []
     for entity in data:
-        if include is not None:
-            # always return at least the entity (id)
-            include.add("entity")
-            e = entity.dict(include=include, by_alias=True)
+
+        if isinstance(entity, dict):
+            # Handle the entity as a dict
+            if include is not None:
+                include.add("entity")
+                e = {key: value for key, value in entity.items() if key in include}
+            else:
+                exclude = set(exclude) if exclude else set()
+                exclude.add("geojson")  # Always exclude 'geojson'
+                e = {key: value for key, value in entity.items() if key not in exclude}
         else:
-            exclude = set(exclude) if exclude else set()
-            exclude.add("geojson")  # Always exclude 'geojson'
-            e = entity.dict(exclude=exclude, by_alias=True)
+            if include is not None:
+                # Always return at least the entity (id)
+                include.add("entity")
+                e = entity.dict(include=include, by_alias=True)
+            else:
+                exclude = set(exclude) if exclude else set()
+                exclude.add("geojson")  # Always exclude 'geojson'
+                e = entity.dict(exclude=exclude, by_alias=True)
+
         entities.append(e)
+
     return entities
 
 

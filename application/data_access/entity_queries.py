@@ -14,8 +14,29 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm, OldEntityOrm
 from application.search.enum import GeometryRelation, PeriodOption
+import redis
+import json
 
+redis_client = redis.Redis(host="127.0.0.1", port=6379, db=0)
 logger = logging.getLogger(__name__)
+
+
+def get_cached_query_result(key):
+    result = redis_client.get(key)
+
+    if result:
+        result_data = json.loads(result)
+        return result_data
+
+    return None
+
+
+def cache_query_result(key, result):
+    # Serialize the result as JSON
+    result_json = json.dumps(
+        result, default=lambda o: o.dict() if hasattr(o, "dict") else str(o)
+    )
+    redis_client.set(key, result_json, ex=3600)  # Cache with 1-hour expiration for now
 
 
 def get_entity_query(
@@ -61,18 +82,61 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
 
 
 def get_entity_search(session: Session, parameters: dict):
-    params = normalised_params(parameters)
-    count: int
-    entities: list[EntityModel]
-    # get count
-    subquery = session.query(EntityOrm.entity)
-    subquery = _apply_base_filters(subquery, params)
-    subquery = _apply_date_filters(subquery, params)
-    subquery = _apply_location_filters(session, subquery, params)
-    subquery = _apply_period_option_filter(subquery, params).subquery()
-    count_query = session.query(func.count()).select_from(subquery)
-    count = count_query.scalar()
-    # get entities
+    orignal_params = normalised_params(parameters)
+    query_key_orignal = str(orignal_params)
+    cached_result = get_cached_query_result(query_key_orignal)
+    if cached_result:
+        return cached_result
+    datasets = orignal_params.get("dataset", [])  # Assume this is a list of datasets
+    params = orignal_params
+    combined_count = 0
+    combined_entities = []
+    if not datasets:
+        # get count
+        combined_count = count_entity_method(session, params)
+
+        # get entities
+        combined_entities = fetch_all_entities(session, params)
+
+    for dataset in datasets:
+        # Update params to work with the current dataset
+        params["dataset"] = dataset
+
+        query_key = str(params)
+        cached_result = get_cached_query_result(query_key)
+        if cached_result:
+            combined_count += cached_result["count"]
+            combined_entities.extend(cached_result["entities"])
+            continue  # Skip query if the result is cached
+
+        count: int
+        entities: list[EntityModel]
+
+        # get count
+        count = count_entity_method(session, params)
+
+        # get entities
+        entities = fetch_all_entities(session, params)
+
+        # Combine results
+        combined_count += count
+        combined_entities.extend(entities)
+
+        # Cache individual dataset result
+        result = {"params": params, "count": count, "entities": entities}
+        cache_query_result(query_key, result)
+
+    # Return the combined result
+    final_result = {
+        "params": orignal_params,
+        "count": combined_count,
+        "entities": combined_entities,
+    }
+    cache_query_result(query_key_orignal, final_result)
+    return final_result
+
+
+def fetch_all_entities(session, params):
     query_args = [EntityOrm]
     query = session.query(*query_args)
     query = _apply_base_filters(query, params)
@@ -82,7 +146,18 @@ def get_entity_search(session: Session, parameters: dict):
     query = _apply_limit_and_pagination_filters(query, params)
     entities = query.all()
     entities = [entity_factory(entity_orm) for entity_orm in entities]
-    return {"params": params, "count": count, "entities": entities}
+    return entities
+
+
+def count_entity_method(session, params):
+    subquery = session.query(EntityOrm.entity)
+    subquery = _apply_base_filters(subquery, params)
+    subquery = _apply_date_filters(subquery, params)
+    subquery = _apply_location_filters(session, subquery, params)
+    subquery = _apply_period_option_filter(subquery, params).subquery()
+    count_query = session.query(func.count()).select_from(subquery)
+    count = count_query.scalar()
+    return count
 
 
 def lookup_entity_link(
@@ -176,14 +251,14 @@ def _apply_location_filters(session, query, params):
 
     for geometry in params.get("geometry", []):
         simplified_geom = func.ST_GeomFromText(geometry, 4326)
-        bbox_filter_geometry = func.ST_Envelope(simplified_geom).op("&&")(
-            EntityOrm.geometry
-        )
-        bbox_filter_point = func.ST_Envelope(simplified_geom).op("&&")(
-            EntityOrm.geometry
-        )
 
         if params.get("geometry_relation") == GeometryRelation.intersects.name:
+            bbox_filter_geometry = func.ST_Envelope(simplified_geom).op("&&")(
+                EntityOrm.geometry
+            )
+            bbox_filter_point = func.ST_Envelope(simplified_geom).op("&&")(
+                EntityOrm.point
+            )
             clauses.append(
                 or_(
                     and_(
