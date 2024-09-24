@@ -178,10 +178,11 @@ def _apply_location_filters(session, query, params):
         clauses.append(
             or_(
                 and_(
-                    EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
+                    EntityOrm.simplified_geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.simplified_geometry),
                     spatial_function(
-                        EntityOrm.geometry, func.ST_GeomFromText(geometry, 4326)
+                        EntityOrm.simplified_geometry,
+                        func.ST_GeomFromText(geometry, 4326),
                     ),
                 ),
                 and_(
@@ -195,7 +196,7 @@ def _apply_location_filters(session, query, params):
         )
     if clauses:
         query = query.filter(or_(*clauses))
-
+    print("query:: ", query)
     intersecting_entities = params.get("geometry_entity", [])
     if intersecting_entities:
         intersecting_entities_query = (
