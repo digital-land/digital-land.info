@@ -178,10 +178,10 @@ def _apply_location_filters(session, query, params):
         clauses.append(
             or_(
                 and_(
-                    EntityOrm.simplified_geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.simplified_geometry),
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
                     spatial_function(
-                        EntityOrm.simplified_geometry,
+                        EntityOrm.geometry,
                         func.ST_GeomFromText(geometry, 4326),
                     ),
                 ),
