@@ -24,24 +24,19 @@ def upgrade():
         "entity",
         sa.Column(
             "simplified_geometry",
-            geoalchemy2.types.Geometry(
-                geometry_type="MULTIPOLYGON",
-                srid=4326,
-                from_text="ST_GeomFromEWKT",
-                name="geometry",
-            ),
+            geoalchemy2.types.Geometry(geometry_type="MULTIPOLYGON", srid=4326),
             nullable=True,
         ),
     )
     op.execute(
         sa.text(
             """ UPDATE entity SET simplified_geometry = ST_SimplifyPreserveTopology(geometry, 0.0001)
-             WHERE geometry IS NOT NULL AND ST_GeometryType(geometry) = 'ST_MultiPolygon'
-             AND ST_GeometryType(ST_SimplifyPreserveTopology(geometry, 0.0001)) = 'ST_MultiPolygon';;"""
+             WHERE geometry IS NOT NULL AND ST_GeometryType(geometry) = 'ST_MultiPolygon';"""
         )
     )  # noqa
 
 
 def downgrade():
     # Remove the column if downgrading
+    op.drop_index("idx_entity_simplified_geometry", table_name="entity")
     op.drop_column("entity", "simplified_geometry")
