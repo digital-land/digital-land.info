@@ -18,5 +18,4 @@ depends_on = None
 
 def upgrade():
     # Add the new column to the entity table
-    op.drop_index("idx_entity_simplified_geometry", table_name="entity")
     op.drop_column("entity", "simplified_geometry")
