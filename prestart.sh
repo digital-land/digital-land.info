@@ -5,4 +5,3 @@
 # it will be no-op.
 
 python -m alembic upgrade head
-python -m alembic downgrade '4703bef121cb'
