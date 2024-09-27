@@ -30,9 +30,6 @@ class EntityOrm(Base):
     reference = Column(Text, nullable=True)
     typology = Column(Text, nullable=True)
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True)
-    simplified_geometry = Column(
-        Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True
-    )
     point = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     _geometry_geojson = column_property(func.ST_AsGeoJSON(geometry))
     _point_geojson = column_property(func.ST_AsGeoJSON(point))

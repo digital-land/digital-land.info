@@ -76,14 +76,21 @@ def get_entity_search(session: Session, parameters: dict):
     count = count_query.scalar()
 
     # get entities
-    query_args = [EntityOrm]
+    exclude_fields = params.get("exclude_fields", [])
+
+    # Get the full list of fields from EntityOrm
+    all_fields = {column.name for column in EntityOrm.__table__.columns}
+
+    include_fields = [field for field in all_fields if field not in exclude_fields]
+
+    # Build the query with only the fields we want to include
+    query_args = [getattr(EntityOrm, field) for field in include_fields]
     query = session.query(*query_args)
     query = _apply_base_filters(query, params)
     query = _apply_date_filters(query, params)
     query = _apply_location_filters(session, query, params)
     query = _apply_period_option_filter(query, params)
     query = _apply_limit_and_pagination_filters(query, params)
-
     entities = query.all()
     entities = [entity_factory(entity_orm) for entity_orm in entities]
     return {"params": params, "count": count, "entities": entities}
@@ -196,7 +203,6 @@ def _apply_location_filters(session, query, params):
         )
     if clauses:
         query = query.filter(or_(*clauses))
-    print("query:: ", query)
     intersecting_entities = params.get("geometry_entity", [])
     if intersecting_entities:
         intersecting_entities_query = (
