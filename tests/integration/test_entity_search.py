@@ -538,4 +538,23 @@ def test_search_entity_by_organisation_curie(test_data, params, db_session):
     assert entity.reference == expected_entity["reference"]
 
 
+def test_search_entity_with_exclude_parameter(test_data, params, db_session):
+    from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
+    from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
+
+    params["geometry"] = [brownfield, greenspace]
+    params["geometry_relation"] = GeometryRelation.intersects.name
+    params["exclude_field"] = [""]
+    result = get_entity_search(db_session, params)
+    for entity in result["entities"]:
+        assert entity.geometry is not None
+    assert result["count"] == 2
+
+    params["exclude_field"] = ["geometry"]
+    result = get_entity_search(db_session, params)
+    for entity in result["entities"]:
+        assert entity.geometry is None
+    assert result["count"] == 2
+
+
 # TODO test cases for contains, within
