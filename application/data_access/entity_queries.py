@@ -75,7 +75,6 @@ def get_entity_search(session: Session, parameters: dict):
     count_query = session.query(func.count()).select_from(subquery)
     count = count_query.scalar()
 
-    # get entities
     query_args = [EntityOrm]
     query = session.query(*query_args)
     query = _apply_base_filters(query, params)
@@ -83,10 +82,42 @@ def get_entity_search(session: Session, parameters: dict):
     query = _apply_location_filters(session, query, params)
     query = _apply_period_option_filter(query, params)
     query = _apply_limit_and_pagination_filters(query, params)
-
+    query = _apply_exclusion_filters(
+        query, params
+    )  # Build the query without excluded params
     entities = query.all()
     entities = [entity_factory(entity_orm) for entity_orm in entities]
     return {"params": params, "count": count, "entities": entities}
+
+
+def _apply_exclusion_filters(query, params):
+    exclude_fields = params.get("exclude_field", [])
+    if exclude_fields:
+        # Split the comma-separated string into a list of individual fields
+        split_strings = [
+            s.strip() for sub in exclude_fields for s in sub.split(",") if s
+        ]
+        exclude_fields = set(split_strings)
+        all_columns = {column.name for column in EntityOrm.__table__.columns}
+
+        # Exclude fields not present in the table schema
+        exclude_fields = {field for field in exclude_fields if field in all_columns}
+        # Dynamically construct the selected columns by excluding the specified fields
+        selected_columns = [
+            column
+            for column in EntityOrm.__table__.columns
+            if column.name not in exclude_fields
+        ]
+
+        if not selected_columns:
+            raise ValueError(
+                "No columns left to select after exclusions. Please check the field names."
+            )
+
+        # Modify the query to select only the desired columns
+        query = query.with_entities(*selected_columns)
+
+    return query
 
 
 def lookup_entity_link(
@@ -181,7 +212,8 @@ def _apply_location_filters(session, query, params):
                     EntityOrm.geometry.is_not(None),
                     func.ST_IsValid(EntityOrm.geometry),
                     spatial_function(
-                        EntityOrm.geometry, func.ST_GeomFromText(geometry, 4326)
+                        EntityOrm.geometry,
+                        func.ST_GeomFromText(geometry, 4326),
                     ),
                 ),
                 and_(
@@ -195,7 +227,6 @@ def _apply_location_filters(session, query, params):
         )
     if clauses:
         query = query.filter(or_(*clauses))
-
     intersecting_entities = params.get("geometry_entity", [])
     if intersecting_entities:
         intersecting_entities_query = (
