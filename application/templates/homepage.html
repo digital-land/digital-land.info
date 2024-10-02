@@ -5,8 +5,8 @@
 {% set hideBannerBorder = true %}
 
 {% block main %}
-  <main id="content">
-    {{
+<main id="content">
+  {{
       appHero({
         'title': {
           'text': 'Find planning and housing data that is easy to use and trust'
@@ -28,39 +28,44 @@
       })
     }}
 
-    <div id="feature-list" class="govuk-width-container">
+  <div id="feature-list" class="govuk-width-container">
 
-      {% macro _feature(params) %}
-        <section aria-label="{{ params.title }}" class="govuk-grid-row govuk-!-margin-bottom-8" id="{{ params.title | slugify }}">
-          <div class="govuk-grid-column-one-half">
-            {% if params.title %}{% else %}{% endif %}
-            <h2 class="govuk-heading-m">{% if params.title %}{{ params.title }}{% else %}Please add a title{% endif %}</h2>
-            {% if caller %}
-              {{ caller( )}}
-            {% else %}
-              <p class="govuk-body">{% if params.description %}{{ params.description }}{% else %}Please describe this feature{% endif %}</p>
-            {% endif %}
-            {% if params.link %}
-              <p class="govuk-body">
-                <a href="{{ params.link.href }}" class="govuk-link">{{ params.link.text }}</a>
-              </p>
-            {% endif %}
-          </div>
-          <!-- /.govuk-grid-column-one-half -->
-          {% if params.image %}
-            <div class="govuk-grid-column-one-half">
-              <img src="{{ url_for("static", path=params.image.src) }}.png" srcset="/static{{ params.image.src }}.svg" role="{{ 'img' if params.image.alt else 'presentation' }}" alt="{{ params.image.alt if params.image.alt else '' }}" class="app-max-width--100">
-            </div>
-            <!-- /.govuk-grid-column-one-half -->
-          {% endif %}
-        </section>
-        <!-- /#explore.govuk-grid-row -->
-        {% if not params.sectionBreak == False %}
-          <hr class="govuk-section-break govuk-width-container govuk-section-break--visible govuk-section-break--xl" role="presentation">
+    {% macro _feature(params) %}
+    <section aria-label="{{ params.title }}" class="govuk-grid-row govuk-!-margin-bottom-8"
+      id="{{ params.title | slugify }}">
+      <div class="govuk-grid-column-one-half">
+        {% if params.title %}{% else %}{% endif %}
+        <h2 class="govuk-heading-m">{% if params.title %}{{ params.title }}{% else %}Please add a title{% endif %}</h2>
+        {% if caller %}
+        {{ caller( )}}
+        {% else %}
+        <p class="govuk-body">{% if params.description %}{{ params.description }}{% else %}Please describe this
+          feature{% endif %}</p>
         {% endif %}
-      {% endmacro %}
+        {% if params.link %}
+        <p class="govuk-body">
+          <a href="{{ params.link.href }}" class="govuk-link">{{ params.link.text }}</a>
+        </p>
+        {% endif %}
+      </div>
+      <!-- /.govuk-grid-column-one-half -->
+      {% if params.image %}
+      <div class="govuk-grid-column-one-half">
+        <img src="{{ url_for("static", path=params.image.src) }}.png" srcset="/static{{ params.image.src }}.svg"
+          role="{{ 'img' if params.image.alt else 'presentation' }}"
+          alt="{{ params.image.alt if params.image.alt else '' }}" class="app-max-width--100">
+      </div>
+      <!-- /.govuk-grid-column-one-half -->
+      {% endif %}
+    </section>
+    <!-- /#explore.govuk-grid-row -->
+    {% if not params.sectionBreak == False %}
+    <hr class="govuk-section-break govuk-width-container govuk-section-break--visible govuk-section-break--xl"
+      role="presentation">
+    {% endif %}
+    {% endmacro %}
 
-      {{
+    {{
         _feature({
           'title': 'Explore data on a map',
           'description': 'View planning and housing datasets with geographic location data on an interactive map.',
@@ -74,7 +79,7 @@
         })
       }}
 
-      {{
+    {{
         _feature({
           'title': 'Search and filter data',
           'description': 'Find and download the data you want in bulk.',
@@ -88,7 +93,21 @@
         })
       }}
 
-      {{
+    {{
+            _feature({
+              'title': 'Submit planning data',
+              'description': 'The platform makes it easier for organisations to provide authoritative, trustworthy data and keep it up-to-date.',
+              'image': {
+                'src': '/images/providers-dashboard',
+              },
+              'link': {
+                'href': 'https://submit.planning.data.gov.uk/',
+                'text': 'Check and submit planning data'
+              },
+            })
+          }}
+
+    {{
         _feature({
           'title': 'Help identify and co-design planning data',
           'description': 'We speak to planners, policy-makers and people building services to identify and co-design data for a range of use cases.',
@@ -102,21 +121,7 @@
         })
       }}
 
-      {{
-        _feature({
-          'title': 'Provide planning data',
-          'description': 'The platform makes it easier for organisations to provide authoritative, trustworthy data and keep it up-to-date.',
-          'image': {
-            'src': '/images/providers-dashboard',
-          },
-          'link': {
-            'href': 'https://check.planning.data.gov.uk/manage',
-            'text': 'Check and provide planning data'
-          },
-        })
-      }}
-
-      {{
+    {{
         _feature({
           'title': 'Understand the data',
           'description': 'Read about why data is important to planning and how the data is created.',
@@ -130,7 +135,7 @@
         })
       }}
 
-      {{
+    {{
         _feature({
           'title': 'Use the data',
           'description': 'Integrate the Planning Data API with your web application or back office system.',
@@ -145,10 +150,10 @@
         })
       }}
 
-    </div>
-    <!-- /#feature-list -->
+  </div>
+  <!-- /#feature-list -->
 
-  </main>
+</main>
 {% endblock %}
 
 {% set github_repository = "digital-land.info" %}
