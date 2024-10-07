@@ -45,7 +45,7 @@ We will increase the range of datasets that local planning authorities can check
 
 ### Next
 
-- We will create a statutory instrument for our policy areas and considerations
+- We will draft a template Statutory Instrument for potential data standards
 - We will explain the principles that guide us in making planning and housing data easy to find at a national scale
 - We will explain our quality-checking processes and the development stages for certain datasets, making what we do transparent so that the data is easier to trust
 - We will work with data consumers to iterate our API, supporting a growing market of planning products and services using open data we make available
