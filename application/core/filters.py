@@ -193,7 +193,7 @@ def hash_file(filename):
         print("File not found when creating a hash: " + filename)
         return ""
 
-    sha1Hash = hashlib.sha1(content)
+    sha1Hash = hashlib.sha1(content, usedforsecurity=False)
     sha1Hashed = sha1Hash.hexdigest()
 
     # return the hex representation of digest
