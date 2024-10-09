@@ -331,7 +331,7 @@ def _apply_period_option_filter(query, params):
         )
     elif PeriodOption.historical in options:
         return query.filter(
-            or_(EntityOrm.end_date.is_not(None), EntityOrm.end_date < func.now())
+            and_(EntityOrm.end_date.is_not(None), EntityOrm.end_date < func.now())
         )
 
 
