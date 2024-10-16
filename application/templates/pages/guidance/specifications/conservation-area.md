@@ -50,6 +50,14 @@ The official name of the conservation area.
 
 Example: `Old Market`
 
+### organisation
+
+The code for the organisation responsible for the conservation area.
+
+Example: `local-authority:BUC`
+
+Create this code by using the relevant prefix, a colon (:), and the reference for your organisation from this <a href="https://www.planning.data.gov.uk/organisation/">list of organisations</a>.
+
 ### geometry
 
 The boundary for the conservation area geography as a single polygon or multipolygon value. All points in the polygon should be in the WGS84 coordinate reference system if possible. If you can’t do this, give us what you have and then we can transform it into WGS84. However, this could mean there’s a small loss of precision when we do the transformation. If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
@@ -185,7 +193,7 @@ The title of the document.
 
 Example: `Notice of Old Market conservation area designation`
 
-## conservation-area
+### conservation-area
 
 The reference for the conservation area this document refers to, as used in the conservation area dataset.
 
