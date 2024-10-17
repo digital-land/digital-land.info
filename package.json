@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
-    "govuk-frontend": "4.2.0",
+    "govuk-frontend": "4.9.0",
     "maplibre-gl": "^4.1.2",
     "sass": "^1.78.0"
   },
