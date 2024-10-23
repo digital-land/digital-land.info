@@ -16,7 +16,7 @@ These may be uploaded to a single URL, or served via an OGC WFS or ArcGIS API.
 
 ## Field names
 
-You can provide fields names using hyphens, underscores or spaces.
+You can provide field names using hyphens, underscores or spaces.
 
 For example:
 
@@ -185,7 +185,7 @@ The title of the document.
 
 Example: `Notice of Old Market conservation area designation`
 
-## conservation-area
+### conservation-area
 
 The reference for the conservation area this document refers to, as used in the conservation area dataset.
 
@@ -207,10 +207,7 @@ Example: `http://www.LPAwebsite.org.uk/conservationarea1.pdf`
 
 ### document-type
 
-The type of document. This must be one of the following values, or left blank:
-
-* area-appraisal
-* notice
+The code for the type of document this record refers to. Find the code you need using this [finder tool](https://dluhc-datasets.planning-data.dev/dataset/conservation-area-document-type/finder).
 
 ### notes
 
