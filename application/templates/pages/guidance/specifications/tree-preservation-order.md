@@ -58,7 +58,7 @@ Example: `TPO1`
 
 ### name
 
-This will be the title of the page hosting data about this tree preservation order on our website. This can be:
+This will be the title of the page hosting data about this tree preservation order on your website. This can be:
 
 -   name
 -   reference
@@ -67,7 +67,7 @@ This will be the title of the page hosting data about this tree preservation ord
 
 ### document-url
 
-The URL of an authoritative order or notice designating the tree preservation order.
+The URL of an authoritative order or notice designating the tree preservation order. If the TPO has been revoked, you can blank out this field.
 
 Example: `http://www.LPAwebsite.org.uk/tpo1.pdf`
 
@@ -119,10 +119,13 @@ Example: `2022-12-20`
 
 ### end-date
 
-
-Where the tree preservation order is [no longer valid](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
+Where the tree preservation order is [revoked](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If the TPO is still active, leave this field blank. If the tree has been felled, use the felled-date field.
 
 Example: `1999-01-20`
+
+### felled-date
+
+If applicable, the date that the tree was felled, written in `YYYY-MM-DD` format. If the tree hasn't been felled, leave this field blank.
 
 ### entry-date
 
@@ -159,7 +162,7 @@ Example: `TPO1`
 
 ### name
 
-This will be the display name of the page hosting data about this tree preservation zone on our website. This can be:
+This will be the display name of the page hosting data about this tree preservation zone on your website. This can be:
 
 -   name
 -   reference
@@ -203,7 +206,7 @@ Example: `1984-03-28`
 
 ### end-date
 
-If applicable, the date that the tree preservation order was no longer in effect, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
+If applicable, the date that the tree preservation order was revoked, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank. 
 
 Example: `1999-01-20`
 
@@ -241,7 +244,7 @@ Example: `T1`
 
 ### name
 
-This will be the title of the page hosting data about this tree preservation order on our website. This can be:
+This will be the title of the page hosting data about this tree preservation order on your website. This can be:
 
 -   name
 -   reference
@@ -299,9 +302,13 @@ Example: `1984-03-28`
 
 ### end-date
 
-If applicable, the date from which the tree preservation order no longer affects the tree, written in `YYYY-MM-DD` format. If it's still in effect, leave the cell blank.
+Where the tree preservation order is [revoked](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If the TPO is still active, leave this field blank. If the tree has been felled, use the felled-date field.
 
 Example: `1999-01-20`
+
+### felled-date
+
+If applicable, the date that the tree was felled, written in `YYYY-MM-DD` format. If the tree hasn't been felled, leave this field blank.
 
 ### entry-date
 
