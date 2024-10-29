@@ -66,7 +66,7 @@ export default class MapController {
 
     var map = new maplibregl.Map({
       container: this.mapId,
-      minZoom: 5.5,
+      minZoom: 6,
       maxZoom: 18,
       style: this.customStyleJson,
       maxBounds: [
