@@ -74,7 +74,7 @@ export default class MapController {
         [ 13, 57 ]
       ],
       center: viewFromUrl.centre || [ -1, 52.9 ],
-      zoom: viewFromUrl.zoom || 5.5,
+      zoom: viewFromUrl.zoom || 6,
       transformRequest: (url, resourceType) => {
         if(url.indexOf('api.os.uk') > -1){
           if(! /[?&]key=/.test(url) ) url += '?key=null'
