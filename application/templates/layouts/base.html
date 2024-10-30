@@ -89,7 +89,7 @@
     {% endblock libraryScripts %}
 
     {% block govScripts %}
-        <script src="{{ assetPath | default('/assets') }}/javascripts/govuk/govuk-frontend.js"></script>
+        <script src="{{ assetPath | default('/assets') }}/govuk/all.js"></script>
         <script>
         // initiate all GOVUK components
         window.GOVUKFrontend.initAll();
