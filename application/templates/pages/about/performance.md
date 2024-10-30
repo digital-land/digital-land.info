@@ -2,6 +2,10 @@ Performance indicators show how the planning data platform is making it easier t
 
 Last updated 10 October 2024.
 
+<div class="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+  <canvas id="datasetChart"></canvas>
+</div>
+
 ## Availability
 
 We index planning and housing datasets provided by multiple organisations in England.
@@ -24,7 +28,7 @@ We check data sources for issues and help data owners improve the quality. This 
 
 <!-- ### ?? out of ?? quality score -->
 
-64 data sources on the platform with no issues (40%). <!-- 8 fixed last month (+15%). --> 
+64 data sources on the platform with no issues (40%). <!-- 8 fixed last month (+15%). -->
 
 85 data sources on the platform conform to the specifications (48%). <!-- 2 improved last month (+2%). -->
 
@@ -32,7 +36,7 @@ We check data sources for issues and help data owners improve the quality. This 
 
 ## Coverage
 
-We aim to provide datasets from authoritative sources covering the entirety of England. We’re currently working with 73 out of 311 local planning authorities to start providing 8 datasets nationally. 
+We aim to provide datasets from authoritative sources covering the entirety of England. We’re currently working with 73 out of 311 local planning authorities to start providing 8 datasets nationally.
 
 <!-- ### ??% nationwide coverage -->
 
@@ -52,3 +56,6 @@ Datasets compiled from LPA sources:
 <!-- ## Usage
 
 0.00 average daily calls. +/-0% change from last month. -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ cacheBust(assetPath | default('/assets') + '/javascripts/PerformancePage.js') }}"></script>
