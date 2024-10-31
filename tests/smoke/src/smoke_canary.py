@@ -3,32 +3,28 @@ import os
 from aws_synthetics.selenium import synthetics_webdriver as syn_webdriver
 from aws_synthetics.common import synthetics_logger as logger
 
+screenshot_dir = os.environ.get("SCREENSHOT_DIR", "/tmp/screenshots")
 
-async def main(event, context):
+
+def main():
     base_url = os.environ.get("BASE_URL")
-    url = base_url
     browser = syn_webdriver.Chrome()
-    browser.get(url)
-    browser.save_screenshot("loaded.png")
 
-    response_code = syn_webdriver.get_http_response(url)
-    if not response_code or response_code < 200 or response_code > 299:
-        logger.error(
-            "Failed to load page, did not get expected code: " + str(response_code)
-        )
-        raise Exception("Failed to load page!")
+    paths = ["/", "/about", "/dataset", "/entity", "/map", "/docs"]
+    for path in paths:
+        visit_and_screenshot(browser, base_url, path)
 
     logger.info("Canary successfully executed.")
 
 
-def visit_and_screenshot(browser, url):
-    browser = syn_webdriver.Chrome()
+def visit_and_screenshot(browser, base_url, path):
+    url = base_url + path
     browser.get(url)
-    browser.save_screenshot("loaded.png")
+    browser.save_screenshot(f"${screenshot_dir}/${path}.png")
     response_code = syn_webdriver.get_http_response(url)
     if not response_code or response_code < 200 or response_code > 299:
         raise Exception("Failed to load page!")
 
 
 def handler(event, context):
-    return main(event, context)
+    return main()
