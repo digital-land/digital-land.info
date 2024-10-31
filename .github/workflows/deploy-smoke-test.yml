@@ -62,6 +62,13 @@ jobs:
         run: |
           sudo -s sh -c 'cd package && zip -r ../smoke-test-package.zip ./*'
 
+      - name: Upload test code artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-package
+          path: ./tests/smoke/smoke-test-package.zip
+          retention-days: 1
+
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
