@@ -27,29 +27,10 @@ jobs:
               await github.request(`GET /repos/${process.env.GITHUB_REPOSITORY}/environments`);
             return environments.map(e => e.name)
 
-  publish-deploy:
+  build-package:
     runs-on: ubuntu-latest
-    needs: [detect-environments]
-    strategy:
-      matrix:
-        environment: ${{ fromJSON(needs.detect-environments.outputs.environments) }}
-    environment: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-
-      - name: Install aws cli
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip -q awscliv2.zip
-          sudo ./aws/install --update
-          sudo apt-get update
-          sudo apt-get install -y rsync
-
       - name: Prepare archive directory
         working-directory: ./tests/smoke
         run: |
@@ -62,12 +43,33 @@ jobs:
         run: |
           sudo -s sh -c 'cd package && zip -r ../smoke-test-package.zip ./*'
 
-      - name: Upload test code artifacts
+      - name: Upload smoke test package artifact
         uses: actions/upload-artifact@v4
         with:
           name: smoke-test-package
           path: ./tests/smoke/smoke-test-package.zip
           retention-days: 1
+
+  publish-deploy:
+    runs-on: ubuntu-latest
+    needs: [detect-environments, build-package]
+    strategy:
+      matrix:
+        environment: ${{ fromJSON(needs.detect-environments.outputs.environments) }}
+    environment: ${{ matrix.environment }}
+    steps:
+#      - name: Set up Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: 3.12
+
+      - name: Install aws cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install --update
+          sudo apt-get update
+          sudo apt-get install -y rsync
 
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -76,9 +78,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: smoke-test-package
+          path: smoke-test-package.zip
+
       - name: Update AWS Synthetics Canary function code in development environment
         if: ${{ matrix.environment == 'development' }}
         run: |
           aws synthetics update-canary \
               --name www \
-              --code ZipFile=./tests/smoke/smoke-test-package.zip,Handler=smoke_canary.handler
+              --code ZipFile=smoke-test-package.zip,Handler=smoke_canary.handler
