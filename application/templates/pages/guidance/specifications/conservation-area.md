@@ -48,6 +48,14 @@ Example: `CA01`
 
 The official name of the conservation area.
 
+### organisation
+
+The code for the organisation responsible for the conservation area. If the responsible organisation is your local authority, leave this field blank and we will default to that. If another organisation is responsible, for example Historic England, then enter the code for that organisation.
+
+Example: `local-authority:BUC`
+
+Create this code by using the relevant prefix, a colon (:), and the reference for your organisation from this [list of organisations](https://www.planning.data.gov.uk/organisation/).
+
 Example: `Old Market`
 
 ### geometry
