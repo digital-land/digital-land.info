@@ -1,11 +1,13 @@
 import logging
 import json
 
+import re
 from typing import Optional
 from dataclasses import asdict
 from urllib.parse import urlencode
 from sqlalchemy.orm import Session
 
+from fastapi.exceptions import RequestValidationError
 from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse
 from application.search.filters import (
@@ -49,10 +51,59 @@ def _convert_model_to_dict(models):
         return models.dict(by_alias=True)
 
 
+def validate_fact_path_params(request: Request) -> FactPathParams:
+    fact_param = request.path_params.get("fact")
+    if fact_param and re.match(r"^[a-f0-9]{64}$", fact_param):
+        return FactPathParams(fact=fact_param)
+    raise RequestValidationError(
+        errors=[
+            {
+                "loc": ["path", "fact"],
+                "msg": "Invalid or missing 'fact' path parameter.",
+                "type": "value_error",
+            }
+        ]
+    )
+
+
+def validate_fact_dataset_query_filters(request: Request) -> FactDatasetQueryFilters:
+    dataset = request.query_params.get("dataset")
+    if dataset:
+        return FactDatasetQueryFilters(dataset=dataset)
+    raise RequestValidationError(
+        errors=[
+            {
+                "loc": ["query", "dataset"],
+                "msg": "Missing required 'dataset' query parameter.",
+                "type": "value_error",
+            }
+        ]
+    )
+
+
+def validate_fact_query_filters(request: Request) -> FactQueryFilters:
+    dataset = request.query_params.get("dataset")
+    entity = request.query_params.get("entity")
+    if dataset and entity and entity.isdigit() and int(entity) >= 1:
+        field = request.query_params.getlist("field") or None
+        return FactQueryFilters(dataset=dataset, entity=int(entity), field=field)
+    raise RequestValidationError(
+        errors=[
+            {
+                "loc": ["query"],
+                "msg": "Invalid or missing query parameters.",
+                "type": "value_error",
+            }
+        ]
+    )
+
+
 def get_fact(
     request: Request,
-    path_params: FactPathParams = Depends(),
-    query_filters: FactDatasetQueryFilters = Depends(),
+    path_params: FactPathParams = Depends(validate_fact_path_params),
+    query_filters: FactDatasetQueryFilters = Depends(
+        validate_fact_dataset_query_filters
+    ),
     extension: Optional[SuffixEntity] = None,
 ):
     query_params = asdict(query_filters)
@@ -97,7 +148,7 @@ def get_fact(
 
 def search_facts(
     request: Request,
-    query_filters: FactQueryFilters = Depends(),
+    query_filters: FactQueryFilters = Depends(validate_fact_query_filters),
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
