@@ -42,7 +42,6 @@ def get_entity_redirect_by_curie(
             url = request.url_for(
                 "get_entity", entity=lookup.entity, extension=extension.value
             )
-            logging.error(extension.value)
         else:
             url = request.url_for("get_entity", entity=lookup.entity)
 
