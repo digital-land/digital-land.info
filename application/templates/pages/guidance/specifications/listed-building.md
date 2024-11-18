@@ -1,7 +1,4 @@
-**Version:** 1.1.1<br/>
-**Published:** 9 June 2023
-
-This is guidance on how to meet the [listed building outline technical specification](https://digital-land.github.io/specification/specification/listed-building/).
+**Last updated: 18 November 2024**<br/>
 
 ---
 
@@ -106,3 +103,10 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
+
+---
+
+### Technical specification
+
+[Listed building outline technical specification](https://digital-land.github.io/specification/specification/listed-building/).
+
