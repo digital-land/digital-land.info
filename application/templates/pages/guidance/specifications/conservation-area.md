@@ -1,3 +1,7 @@
+**Last updated: 19 November 2024**<br/>
+
+---
+
 There are 2 datasets you must provide for conservation area data:
 
 * [conservation area dataset](https://www.planning.data.gov.uk/guidance/specifications/conservation-area#conservation-area-dataset)
@@ -266,3 +270,9 @@ With dates, some data is better than no data, so:
 * `1984` is fine
 * `1984-03` is better
 * `1984-03-28` is brilliant
+
+---
+
+### Technical specification
+
+[Conservation area technical specification](https://digital-land.github.io/specification/specification/conservation-area/).
