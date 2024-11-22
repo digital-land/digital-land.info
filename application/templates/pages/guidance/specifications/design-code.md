@@ -1,3 +1,7 @@
+**Last updated: 19 November 2024**<br/>
+
+---
+
 There are 2 datasets you must provide for design codes:
 
 - [design code dataset](#{{ 'design code dataset' | slugify }})
@@ -149,3 +153,9 @@ Example: `1999-01-20`
 The date this dataset was created or last updated, written in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
+
+---
+
+### Technical specification
+
+[Design code technical specification](https://digital-land.github.io/specification/specification/design-code/).
