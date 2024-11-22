@@ -1,7 +1,4 @@
-**Version:** 1.2.2<br/>
-**Published:** 8 September 2023
-
-This is guidance on how to meet the [tree preservation order technical specification](https://digital-land.github.io/specification/specification/tree-preservation-order/)
+**Last updated:** 20 November 2024<br/>
 
 ---
 
@@ -319,3 +316,9 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
+
+---
+
+### Technical specification
+
+[Tree preservation order technical specification](https://digital-land.github.io/specification/specification/tree-preservation-order/).
