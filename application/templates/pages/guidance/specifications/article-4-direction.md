@@ -1,7 +1,4 @@
-**Version:** 1.2.2<br/>
-**Published:** 11 September 2023
-
-This is guidance on how to meet the [article 4 direction technical specification](https://digital-land.github.io/specification/specification/article-4-direction/).
+**Last updated:** 18 November 2024<br/>
 
 ---
 
@@ -210,3 +207,10 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
+
+---
+
+###Technical specification
+
+[Article 4 direction technical specification](https://digital-land.github.io/specification/specification/article-4-direction/).
+
