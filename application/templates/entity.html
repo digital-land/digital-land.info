@@ -143,6 +143,7 @@ None %}
           <table class="govuk-table">
             <thead class="govuk-table__head">
               <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Reference</th>
                 <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
                 <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
               </tr>
@@ -150,6 +151,9 @@ None %}
             <tbody class="govuk-table__body">
               {% for plan in local_plans['local-plan'] %}
                 <tr class="govuk-table__row">
+                  <td class="govuk-table__cell app-table__cell">
+                    <a class="govuk-link" href="{{ plan.entity }}">{{ plan.entity}}</a>
+                  </td>
                   <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
                   <td class="govuk-table__cell app-table__cell">
                     <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>

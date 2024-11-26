@@ -15,6 +15,8 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm, OldEntityOrm
 from application.search.enum import GeometryRelation, PeriodOption
+from sqlalchemy.types import Date
+from sqlalchemy.sql.expression import cast
 
 logger = logging.getLogger(__name__)
 
@@ -347,12 +349,14 @@ def _apply_limit_and_pagination_filters(query, params):
 def get_linked_entities(
     session: Session, dataset: str, reference: str, linked_dataset: str = None
 ) -> List[EntityModel]:
-    entities = (
+    query = (
         session.query(EntityOrm)
         .filter(EntityOrm.dataset == dataset)
-        .filter(
-            EntityOrm.json.contains({linked_dataset: reference})
-        )  # Use reference parameter here
-        .all()
+        .filter(EntityOrm.json.contains({linked_dataset: reference}))
     )
+
+    if dataset in ["local-plan-timetable"]:
+        query = query.order_by(cast(EntityOrm.json["event-date"].astext, Date).desc())
+
+    entities = query.all()
     return [entity_factory(e) for e in entities]

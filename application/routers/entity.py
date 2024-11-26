@@ -147,7 +147,6 @@ def handle_entity_response(
     dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
     dataset = get_dataset_query(session, e.dataset)
-    local_plans = fetch_linked_local_plans(session, e.dataset, e.reference)
 
     organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
 
@@ -170,6 +169,9 @@ def handle_entity_response(
             )
             if linked_entity is not None:
                 linked_entities[field] = linked_entity
+
+    # Fetch local
+    local_plans = fetch_linked_local_plans(session, e.dataset, e.reference)
     return templates.TemplateResponse(
         "entity.html",
         {
