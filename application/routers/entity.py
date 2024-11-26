@@ -21,6 +21,7 @@ from application.data_access.entity_queries import (
     get_entity_query,
     get_entity_search,
     lookup_entity_link,
+    get_linked_entities,
 )
 from application.data_access.dataset_queries import get_dataset_names
 
@@ -146,12 +147,17 @@ def handle_entity_response(
     dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
     dataset = get_dataset_query(session, e.dataset)
+    local_plans = {}
+    if dataset.name in ["Local plan boundary"]:
+        local_plans = get_linked_entities(session, "local-plan", e.reference)
     organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
 
     entityLinkFields = [
         "article-4-direction",
         "permitted-development-rights",
         "tree-preservation-order",
+        "local-plan-boundary",
+        "local-plan",
     ]
 
     linked_entities = {}
@@ -165,13 +171,13 @@ def handle_entity_response(
             )
             if linked_entity is not None:
                 linked_entities[field] = linked_entity
-
     return templates.TemplateResponse(
         "entity.html",
         {
             "request": request,
             "row": e_dict_sorted,
             "linked_entities": linked_entities,
+            "local_plans": local_plans,
             "entity": e,
             "pipeline_name": e.dataset,
             "references": [],

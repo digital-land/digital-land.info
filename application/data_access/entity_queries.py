@@ -342,3 +342,15 @@ def _apply_limit_and_pagination_filters(query, params):
     if params.get("offset") is not None:
         query = query.offset(params["offset"])
     return query
+
+
+def get_linked_entities(session, dataset: str, reference: str) -> List[EntityModel]:
+    entities = (
+        session.query(EntityOrm)
+        .filter(EntityOrm.dataset == dataset)
+        .filter(
+            EntityOrm.json.contains({"local-plan-boundary": reference})
+        )  # Use reference parameter here
+        .all()
+    )
+    return [entity_factory(e) for e in entities]
