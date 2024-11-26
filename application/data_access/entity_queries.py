@@ -344,12 +344,14 @@ def _apply_limit_and_pagination_filters(query, params):
     return query
 
 
-def get_linked_entities(session, dataset: str, reference: str) -> List[EntityModel]:
+def get_linked_entities(
+    session: Session, dataset: str, reference: str, linked_dataset: str = None
+) -> List[EntityModel]:
     entities = (
         session.query(EntityOrm)
         .filter(EntityOrm.dataset == dataset)
         .filter(
-            EntityOrm.json.contains({"local-plan-boundary": reference})
+            EntityOrm.json.contains({linked_dataset: reference})
         )  # Use reference parameter here
         .all()
     )

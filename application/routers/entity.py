@@ -147,9 +147,8 @@ def handle_entity_response(
     dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
     dataset = get_dataset_query(session, e.dataset)
-    local_plans = {}
-    if dataset.name in ["Local plan boundary"]:
-        local_plans = get_linked_entities(session, "local-plan", e.reference)
+    local_plans = fetch_linked_local_plans(session, e.dataset, e.reference)
+
     organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
 
     entityLinkFields = [
@@ -193,6 +192,28 @@ def handle_entity_response(
             "organisation_entity": organisation_entity,
         },
     )
+
+
+linked_datasets = {
+    "local-plan-boundary": ["local-plan"],
+    "local-plan": ["local-plan-document", "local-plan-timetable"],
+}
+
+
+def fetch_linked_local_plans(
+    session: Session,
+    dataset: str = None,
+    reference: str = None,
+):
+    results = {}
+    if dataset in linked_datasets:
+        linked_dataset_value = linked_datasets[dataset]
+        for linked_dataset in linked_dataset_value:
+            results[linked_dataset] = get_linked_entities(
+                session, linked_dataset, reference, linked_dataset=dataset
+            )
+
+    return results
 
 
 def get_entity(
