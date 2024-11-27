@@ -135,54 +135,150 @@ None %}
     </div>
 
     {% if local_plans['local-plan'] %}
-      <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
-        {% call appSummaryCard({
-          'classes': 'govuk-!-margin-bottom-0',
-          'titleText': 'Related Local Plans'
-        }) %}
-          <table class="govuk-table">
-            <thead class="govuk-table__head">
-              <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Reference</th>
-                <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
-                <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
-              </tr>
-            </thead>
-            <tbody class="govuk-table__body">
-              {% for plan in local_plans['local-plan'] %}
-                <tr class="govuk-table__row">
-                  <td class="govuk-table__cell app-table__cell">
-                    <a class="govuk-link" href="{{ plan.entity }}">{{ plan.entity}}</a>
-                  </td>
-                  <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
-                  <td class="govuk-table__cell app-table__cell">
-                    <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% endcall %}
-      </div>
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plans'
+      }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Reference</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for plan in local_plans['local-plan'] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.entity }}">{{ plan.entity}}</a>
+            </td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
     {% elif entity.dataset == "local-plan-boundary" %}
-      <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
-        {% call appSummaryCard({
-          'classes': 'govuk-!-margin-bottom-0',
-          'titleText': 'Related Local Plans'
-        }) %}
-          <table class="govuk-table">
-            <tbody class="govuk-table__body">
-              <tr class="govuk-table__row">
-                <td colspan="2" class="govuk-table__cell govuk-body">
-                  No related local plans are available for this entity.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        {% endcall %}
-      </div>
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plans'
+      }) %}
+      <table class="govuk-table">
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <td colspan="2" class="govuk-table__cell govuk-body">
+              No related local plans are available for this entity.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
     {% endif %}
-      <div class="govuk-grid-column-full govuk-!-margin-top-6"></div>
+
+    {% if local_plans['local-plan-timetable'] %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plan Timetable'
+      }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Reference</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for plan in local_plans['local-plan-timetable'] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.entity }}">{{ plan.entity}}</a>
+            </td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.local_plan }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% elif entity.dataset == "local-plan-timetable" %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plan Timetable'
+      }) %}
+      <table class="govuk-table">
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <td colspan="2" class="govuk-table__cell govuk-body">
+              No related local plan timetable are available for this entity.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% endif %}
+
+    {% if local_plans['local-plan-document'] %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plan Document'
+      }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Reference</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Category</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Document URL</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for plan in local_plans['local-plan-document'] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.entity }}">{{ plan.entity}}</a>
+            </td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.local_plan }}</td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.document_types }}</td>
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% elif entity.dataset == "local-plan-document" %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plan Document'
+      }) %}
+      <table class="govuk-table">
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <td colspan="2" class="govuk-table__cell govuk-body">
+              No related local plan document are available for this entity.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% endif %}
+    <div class="govuk-grid-column-full govuk-!-margin-top-6"></div>
 
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
