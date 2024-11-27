@@ -38,9 +38,9 @@ jobs:
           sudo -s sh -c 'cp src/* ./package/python/.'
 
       - name: Create smoke test code package ZIP
-        working-directory: ./tests/smoke
+        working-directory: ./tests/smoke/package
         run: |
-          sudo -s sh -c 'zip -r smoke-test-package.zip ./package/*'
+          sudo -s sh -c 'zip -rj smoke-test-package.zip .'
 
       - name: Upload smoke test package artifact
         uses: actions/upload-artifact@v4
