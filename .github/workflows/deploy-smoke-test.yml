@@ -87,4 +87,4 @@ jobs:
         run: |
           aws synthetics update-canary \
               --name www \
-              --code ZipFile=fileb://smoke-test-package.zip,Handler=smoke_canary.handler
+              --code ZipFile=./smoke-test-package.zip,Handler=smoke_canary.handler
