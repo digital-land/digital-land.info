@@ -85,7 +85,7 @@ jobs:
       - name: Update AWS Synthetics Canary function code in development environment
         if: ${{ matrix.environment == 'development' }}
         run: |
-          zip_base64=$(base64 -i ./smoke-test-package.zip -o -)
+          zip_base64=$(base64 ./smoke-test-package.zip)
           aws synthetics update-canary \
               --name www \
               --code ZipFile=$zip_base64,Handler=smoke_canary.handler
