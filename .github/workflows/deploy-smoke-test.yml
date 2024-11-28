@@ -87,8 +87,8 @@ jobs:
         if: ${{ matrix.environment == 'development' }}
         run: |
           pwd
-          ls -la smoke-test-package.zip
           chmod 777 smoke-test-package.zip
+          ls -la smoke-test-package.zip
           unzip -l "smoke-test-package.zip"
           aws synthetics update-canary \
               --name www \
