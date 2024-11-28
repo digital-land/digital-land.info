@@ -87,6 +87,7 @@ jobs:
         if: ${{ matrix.environment == 'development' }}
         run: |
           pwd
+          ls -la
           unzip -l /home/runner/work/digital-land.info/digital-land.info/smoke-test-package.zip
           aws synthetics update-canary \
               --name www \
