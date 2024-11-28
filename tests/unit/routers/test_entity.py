@@ -359,24 +359,8 @@ def linked_entity_model():
             "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
             "local-plan-boundary": "E07000012",
         },
-        geojson={
-            "type": "Feature",
-            "geometry": {
-                "type": "MultiPolygon",
-                "coordinates": [
-                    [
-                        [
-                            [0.145139, 50.986737],
-                            [0.145088, 50.986778],
-                            [0.14473, 50.986668],
-                            [0.145139, 50.986737],
-                        ]
-                    ]
-                ],
-            },
-        },
     )
-    return model
+    return model, None
 
 
 @pytest.fixture

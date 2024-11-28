@@ -19,6 +19,23 @@ def local_plan_model():
             "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
             "local-plan-boundary": "E07000012",
         },
+    )
+    return model
+
+
+@pytest.fixture
+def local_plan_boundary_model():
+    model = EntityModel(
+        entity=4220006,
+        entry_date="2022-03-23",
+        name="test Local Plan boundary",
+        reference="E1481201",
+        dataset="local-plan-boundary",
+        prefix="local-plan",
+        json={
+            "adopted-date": "2018-09-27",
+            "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
+        },
         geojson={
             "type": "Feature",
             "geometry": {
@@ -36,7 +53,7 @@ def local_plan_model():
             },
         },
     )
-    return model
+    return model, None
 
 
 @pytest.fixture
@@ -83,7 +100,10 @@ def local_plan_document_model():
 
 
 def test_fetch_linked_local_plans_json_returned(
-    mocker, local_plan_timetable_model, local_plan_document_model
+    mocker,
+    local_plan_timetable_model,
+    local_plan_document_model,
+    local_plan_boundary_model,
 ):
     mock_session = MagicMock()
     mocker.patch(
@@ -98,18 +118,20 @@ def test_fetch_linked_local_plans_json_returned(
         side_effect=lambda session, dataset, reference, linked_dataset=None: {
             "local-plan-timetable": local_plan_timetable_model,
             "local-plan-document": local_plan_document_model,
+            "local-plan-boundary": local_plan_boundary_model,
         }[
             dataset
         ],  # Return the appropriate model for the dataset
     )
 
-    dataset = "local-plan"
-    reference = "1481207"
-    results = fetch_linked_local_plans(
-        mock_session, dataset=dataset, reference=reference
-    )
+    e_dict_sorted = {}
+    e_dict_sorted["dataset"] = "local-plan"
+    e_dict_sorted["reference"] = "1481207"
+
+    results, boundary = fetch_linked_local_plans(mock_session, e_dict_sorted)
+
     # Assertions
-    assert isinstance(results, dict), f"{type(results)} is expected to be a dictionary"
+    assert isinstance(results, dict), f"{type(results)} is expected to be a Dict"
     assert "local-plan-timetable" in results, "Expected local-plan-timetable in results"
     assert "local-plan-document" in results, "Expected local-plan-document in results"
     assert (
