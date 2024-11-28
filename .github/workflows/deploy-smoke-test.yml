@@ -41,6 +41,7 @@ jobs:
         working-directory: ./tests/smoke/package
         run: |
           sudo -s sh -c 'zip -r ../smoke-test-package.zip .'
+          unzip -l ../smoke-test-package.zip
 
       - name: Upload smoke test package artifact
         uses: actions/upload-artifact@v4
@@ -85,6 +86,7 @@ jobs:
       - name: Update AWS Synthetics Canary function code in development environment
         if: ${{ matrix.environment == 'development' }}
         run: |
+          unzip -l ./smoke-test-package.zip
           aws synthetics update-canary \
               --name www \
               --code ZipFile=./smoke-test-package.zip,Handler=smoke_canary.handler
