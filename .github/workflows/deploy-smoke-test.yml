@@ -86,8 +86,8 @@ jobs:
         if: ${{ matrix.environment == 'development' }}
         run: |
           sudo -s sh -c 'chmod 777 smoke-test-package.zip'
-          sudo -s sh -c 'ls -la smoke-test-package.zip'
-          sudo -s sh -c 'unzip -l smoke-test-package.zip'
+          sudo -s sh -c 'unzip smoke-test-package.zip'
+          sudo -s sh -c 'ls -la'
           aws synthetics update-canary \
               --name www \
               --code ZipFile=./smoke-test-package.zip,Handler=smoke_canary.handler
