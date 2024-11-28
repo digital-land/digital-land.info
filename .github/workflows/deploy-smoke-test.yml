@@ -80,12 +80,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: smoke-test-package
-          path: ./smoke-test-package.zip
+          path: ./artifacts
 
       - name: Update AWS Synthetics Canary function code in development environment
         if: ${{ matrix.environment == 'development' }}
         run: |
-          sudo -s sh -c 'ls -la smoke-test-package.zip/*'
+          sudo -s sh -c 'ls -la artifacts/*'
           aws synthetics update-canary \
               --name www \
-              --code ZipFile=./smoke-test-package.zip,Handler=smoke_canary.handler
+              --code ZipFile=./artifacts/smoke-test-package.zip,Handler=smoke_canary.handler
