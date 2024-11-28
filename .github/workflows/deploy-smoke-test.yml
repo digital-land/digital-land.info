@@ -88,4 +88,4 @@ jobs:
           zip_file_base64=$(base64 artifacts/smoke-test-package.zip)
           aws synthetics update-canary \
               --name www \
-              --code ZipFile=$zip_file_base64,Handler=smoke_canary.handler
+              --code ZipFile=${zip_file_base64},Handler=smoke_canary.handler
