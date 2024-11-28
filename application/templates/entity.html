@@ -295,69 +295,40 @@ None %}
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
       {%- if includesMap %}
-        {%- if pipeline_name == 'local-plan' %}
-          {% call appSummaryCard({
-            'classes': 'govuk-!-margin-bottom-0',
-            'titleText': 'Local Plan Boundary',
-            'actions': {
-              'items': [
-                {
-                  'text': 'Download geojson',
-                  'href': '/entity/' + geojson_data["entity"] | string + '.geojson',
-                  'attributes': [
-                    {
-                      'key': 'download',
-                      'value': geojson_data["entity"] | string + '.geojson'
-                    }
-                  ]
-                }
-              ],
-            }
-          })%}
+        {% call appSummaryCard({
+          'classes': 'govuk-!-margin-bottom-0',
+          'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
+          'actions': {
+            'items': [
+              {
+                'text': 'Download geojson',
+                'href': (
+                '/entity/' +
+                (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"]) | string +
+                '.geojson'
+              ),
+                'attributes': [
+                  {
+                    'key': 'download',
+                    'value': (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"])
+                      | string + '.geojson'
+                  }
+                ]
+              }
+            ],
+          }
+        })%}
 
-
-          {{
-            map({
-              "mapId": "map",
-              'height': 460,
-              'enableZoomControls': true,
-              'geojsons': [geojson_data|get_entity_geometry],
-              'paint_options': dataset.paint_options,
-            })
-          }}
+        {{
+          map({
+            "mapId": "map",
+            'height': 460,
+            'enableZoomControls': true,
+            'geojsons': [geojson_data|get_entity_geometry],
+            'paint_options': dataset.paint_options,
+          })
+        }}
           {% endcall %}
-          {%- else %}
-          {% call appSummaryCard({
-            'classes': 'govuk-!-margin-bottom-0',
-            'titleText': 'Geographical area',
-            'actions': {
-              'items': [
-                {
-                  'text': 'Download geojson',
-                  'href': '/entity/' + row["entity"] | string + '.geojson',
-                  'attributes': [
-                    {
-                      'key': 'download',
-                      'value': row["entity"] | string + '.geojson'
-                    }
-                  ]
-                }
-              ],
-            }
-          })%}
-
-
-          {{
-            map({
-              "mapId": "map",
-              'height': 460,
-              'enableZoomControls': true,
-              'geojsons': [geojson_data|get_entity_geometry],
-              'paint_options': dataset.paint_options,
-            })
-          }}
-          {% endcall %}
-        {%- endif %}
       {%- endif %}
     {%- endblock recordGeometry %}
     </div>

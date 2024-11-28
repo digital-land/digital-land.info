@@ -262,7 +262,6 @@ def get_entity_geometry(entity):
             f"No geojson for entity that has a typology of geography: {entity.entity}",
             entity,
         )
-        return None
     return {
         "name": get_entity_name(entity),
         "data": data,
