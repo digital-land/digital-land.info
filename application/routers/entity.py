@@ -22,6 +22,7 @@ from application.data_access.entity_queries import (
     get_entity_search,
     lookup_entity_link,
     get_linked_entities,
+    fetchLocalPlanBoundary,
 )
 from application.data_access.dataset_queries import get_dataset_names
 
@@ -170,13 +171,17 @@ def handle_entity_response(
             if linked_entity is not None:
                 linked_entities[field] = linked_entity
 
-    # Fetch local
-    local_plans = fetch_linked_local_plans(session, e.dataset, e.reference)
+    # Fetch linked local plans/document/timetable
+    local_plans, local_plan_boundary_geojson = fetch_linked_local_plans(
+        session, e_dict_sorted
+    )
+
     return templates.TemplateResponse(
         "entity.html",
         {
             "request": request,
             "row": e_dict_sorted,
+            "local_plan_geojson": local_plan_boundary_geojson,
             "linked_entities": linked_entities,
             "local_plans": local_plans,
             "entity": e,
@@ -198,24 +203,31 @@ def handle_entity_response(
 
 linked_datasets = {
     "local-plan-boundary": ["local-plan"],
-    "local-plan": ["local-plan-document", "local-plan-timetable"],
+    "local-plan": [
+        "local-plan-document",
+        "local-plan-timetable",
+        "local-plan-boundary",
+    ],
 }
 
 
-def fetch_linked_local_plans(
-    session: Session,
-    dataset: str = None,
-    reference: str = None,
-):
+def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
     results = {}
+    local_plan_boundary_geojson = None
+    dataset = e_dict_sorted["dataset"]
+    reference = e_dict_sorted["reference"]
     if dataset in linked_datasets:
         linked_dataset_value = linked_datasets[dataset]
         for linked_dataset in linked_dataset_value:
+            if dataset == "local-plan" and linked_dataset == "local-plan-boundary":
+                local_plan_boundary_geojson = fetchLocalPlanBoundary(
+                    session, linked_dataset, e_dict_sorted[linked_dataset]
+                )
             results[linked_dataset] = get_linked_entities(
                 session, linked_dataset, reference, linked_dataset=dataset
             )
 
-    return results
+    return results, local_plan_boundary_geojson
 
 
 def get_entity(

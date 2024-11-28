@@ -252,12 +252,17 @@ def make_link_filter(eval_ctx, url, **kwargs):
 
 
 def get_entity_geometry(entity):
-    data = entity.geojson.geometry if entity.geojson else None
+
+    data = None
+    if entity and entity.geojson is not None:
+        data = entity.geojson.geometry
+
     if data is None:
         logger.warning(
             f"No geojson for entity that has a typology of geography: {entity.entity}",
             entity,
         )
+        return None
     return {
         "name": get_entity_name(entity),
         "data": data,

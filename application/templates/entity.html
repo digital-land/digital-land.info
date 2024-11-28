@@ -18,9 +18,17 @@
 
 {% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
 None %}
+{% set geojson_data = entity %}
+
 {% if geometry_url or geojson_features %}
   {% set geometry_exists = true %}
   {% set includesMap = true %}
+  {% endif %}
+{% if pipeline_name == 'local-plan'%}
+  {% if local_plan_geojson != none %}
+    {% set includesMap = true %}
+    {% set geojson_data = local_plan_geojson %}
+  {% endif %}
 {% endif %}
 
 {% block pageAssets %}
@@ -192,8 +200,10 @@ None %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
           <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
             <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Reference</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Event Date</th>
           </tr>
         </thead>
         <tbody class="govuk-table__body">
@@ -202,7 +212,9 @@ None %}
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" href="{{ plan.entity }}">{{ plan.entity}}</a>
             </td>
-            <td class="govuk-table__cell app-table__cell">{{ plan.local_plan }}</td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.reference }}</td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.event_date }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -237,8 +249,8 @@ None %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
           <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Reference</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Name</th>
             <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Category</th>
             <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Document URL</th>
           </tr>
@@ -249,7 +261,7 @@ None %}
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" href="{{ plan.entity }}">{{ plan.entity}}</a>
             </td>
-            <td class="govuk-table__cell app-table__cell">{{ plan.local_plan }}</td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
             <td class="govuk-table__cell app-table__cell">{{ plan.document_types }}</td>
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
@@ -283,37 +295,69 @@ None %}
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
       {%- if includesMap %}
-
-      {% call appSummaryCard({
-        'classes': 'govuk-!-margin-bottom-0',
-        'titleText': 'Geographical area',
-        'actions': {
-          'items': [
-            {
-              'text': 'Download geojson',
-              'href': '/entity/' + row["entity"] | string + '.geojson',
-              'attributes': [
+        {%- if pipeline_name == 'local-plan' %}
+          {% call appSummaryCard({
+            'classes': 'govuk-!-margin-bottom-0',
+            'titleText': 'Local Plan Boundary',
+            'actions': {
+              'items': [
                 {
-                  'key': 'download',
-                  'value': row["entity"] | string + '.geojson'
+                  'text': 'Download geojson',
+                  'href': '/entity/' + geojson_data["entity"] | string + '.geojson',
+                  'attributes': [
+                    {
+                      'key': 'download',
+                      'value': geojson_data["entity"] | string + '.geojson'
+                    }
+                  ]
                 }
-              ]
+              ],
             }
-          ],
-        }
-      }) %}
+          })%}
 
-        {{
-          map({
-            "mapId": "map",
-            'height': 460,
-            'enableZoomControls': true,
-            'geojsons': [entity|get_entity_geometry],
-            'paint_options': dataset.paint_options,
-          })
-        }}
-      {% endcall %}
 
+          {{
+            map({
+              "mapId": "map",
+              'height': 460,
+              'enableZoomControls': true,
+              'geojsons': [geojson_data|get_entity_geometry],
+              'paint_options': dataset.paint_options,
+            })
+          }}
+          {% endcall %}
+          {%- else %}
+          {% call appSummaryCard({
+            'classes': 'govuk-!-margin-bottom-0',
+            'titleText': 'Geographical area',
+            'actions': {
+              'items': [
+                {
+                  'text': 'Download geojson',
+                  'href': '/entity/' + row["entity"] | string + '.geojson',
+                  'attributes': [
+                    {
+                      'key': 'download',
+                      'value': row["entity"] | string + '.geojson'
+                    }
+                  ]
+                }
+              ],
+            }
+          })%}
+
+
+          {{
+            map({
+              "mapId": "map",
+              'height': 460,
+              'enableZoomControls': true,
+              'geojsons': [geojson_data|get_entity_geometry],
+              'paint_options': dataset.paint_options,
+            })
+          }}
+          {% endcall %}
+        {%- endif %}
       {%- endif %}
     {%- endblock recordGeometry %}
     </div>

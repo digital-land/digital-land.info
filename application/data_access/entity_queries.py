@@ -360,3 +360,17 @@ def get_linked_entities(
 
     entities = query.all()
     return [entity_factory(e) for e in entities]
+
+
+def fetchLocalPlanBoundary(
+    session: Session, dataset: str, reference: str
+) -> EntityModel:
+    entity = (
+        session.query(EntityOrm)
+        .filter(EntityOrm.dataset == dataset)
+        .filter(EntityOrm.reference == reference)
+    ).one_or_none()
+
+    if entity:
+        return entity_factory(entity)
+    return None
