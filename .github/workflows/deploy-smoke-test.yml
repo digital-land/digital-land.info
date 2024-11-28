@@ -85,9 +85,8 @@ jobs:
       - name: Update AWS Synthetics Canary function code in development environment
         if: ${{ matrix.environment == 'development' }}
         run: |
-          # pwd
-          # chmod 777 smoke-test-package.zip
-          # ls -la smoke-test-package.zip
+          sudo -s sh -c 'chmod 777 smoke-test-package.zip'
+          sudo -s sh -c 'ls -la smoke-test-package.zip'
           sudo -s sh -c 'unzip -l smoke-test-package.zip'
           aws synthetics update-canary \
               --name www \
