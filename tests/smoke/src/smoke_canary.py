@@ -7,6 +7,7 @@ screenshot_dir = os.environ.get("SCREENSHOT_DIR", "/tmp/screenshots")
 
 
 def main():
+    # Test comment to ensure CI/CD is working via GHA
     base_url = os.environ.get("BASE_URL")
     browser = syn_webdriver.Chrome()
 
