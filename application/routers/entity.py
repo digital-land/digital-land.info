@@ -372,6 +372,10 @@ def search_entities(
     local_authorities = [la.dict() for la in local_authorities]
 
     organisations = get_organisations(session)
+    columns = ["entity", "organisation_entity", "name"]
+    organisations_list = [
+        organisation.dict(include=set(columns)) for organisation in organisations
+    ]
 
     if links.get("prev") is not None:
         prev_url = links["prev"]
@@ -394,7 +398,7 @@ def search_entities(
             "datasets": datasets,
             "local_authorities": local_authorities,
             "typologies": typologies,
-            "organisations": organisations,
+            "organisations": organisations_list,
             "query": {"params": params},
             "active_filters": [
                 filter_name

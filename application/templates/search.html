@@ -125,7 +125,7 @@
             {% if query.params and query.params.get('organisation_entity') %}
             <div class="app-applied-filter__group">
               <span class="app-applied-filter__name govuk-!-font-weight-bold">Organisation:</span>
-              {% if query.params.get('organisation_entity')|is_list %}
+              <!-- {% if query.params.get('organisation_entity')|is_list %} -->
                 {% for filter in query.params.get('organisation_entity') %}
                 <span class="app-applied-filter__item">
                   {{ removeFilterButton({
@@ -137,7 +137,7 @@
                   }) }}
                 </span>
                 {% endfor %}
-              {% else %}
+              <!-- {% else %}
               <span class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
@@ -147,7 +147,7 @@
                   "url": "?" + query.params.get('organisation_entity')|make_param_str('organisation_entity', url_query_params.list)
                 }) }}
               </span>
-              {% endif %}
+              {% endif %} -->
             </div>
             {% endif %}
 

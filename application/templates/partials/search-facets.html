@@ -89,7 +89,7 @@
       {% for organisation in organisations %}
       <div class="govuk-checkboxes__item">
         <input class="govuk-checkboxes__input" id="organisation_entity-{{ loop.index }}" name="organisation_entity" type="checkbox" value="{{ organisation['organisation_entity'] }}"
-         {% if organisation['organisation_entity'] in query.params.get('organisation_entity', []) %} checked="checked" {% endif %}>
+         {% if organisation['organisation_entity'] in query.params.get('organisation_entity', []) | map('string') %} checked="checked" {% endif %}>
         <label class="govuk-label govuk-checkboxes__label" for="organisation_entity-{{ loop.index }}">
           {{ organisation['name'] }}
         </label>
