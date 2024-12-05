@@ -374,3 +374,16 @@ def fetchLocalPlanBoundary(
     if entity:
         return entity_factory(entity)
     return None
+
+
+def get_organisations(session: Session):
+    organisations = session.query(EntityOrm.organisation_entity).distinct().all()
+    org_details_list = []
+
+    for org in organisations:
+        organisation_entity = org[0]
+        org_details = get_entity_query(session, organisation_entity)
+        if org_details[0]:
+            org_details_list.append(org_details[0])
+
+    return org_details_list

@@ -20,6 +20,7 @@ from application.data_access.digital_land_queries import (
 from application.data_access.entity_queries import (
     get_entity_query,
     get_entity_search,
+    get_organisations,
     lookup_entity_link,
     get_linked_entities,
     fetchLocalPlanBoundary,
@@ -370,6 +371,8 @@ def search_entities(
     local_authorities = get_local_authorities(session, "local-authority")
     local_authorities = [la.dict() for la in local_authorities]
 
+    organisations = get_organisations(session)
+
     if links.get("prev") is not None:
         prev_url = links["prev"]
     else:
@@ -391,6 +394,7 @@ def search_entities(
             "datasets": datasets,
             "local_authorities": local_authorities,
             "typologies": typologies,
+            "organisations": organisations,
             "query": {"params": params},
             "active_filters": [
                 filter_name
