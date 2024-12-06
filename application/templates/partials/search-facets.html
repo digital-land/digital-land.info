@@ -84,32 +84,31 @@
 
   {%- if organisations %}
   <!-- organisation facet -->
-  <div class="govuk-form-group">
-    {% set checkboxesHTML %}
-      {% for organisation in organisations %}
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="organisation_entity-{{ loop.index }}" name="organisation_entity" type="checkbox" value="{{ organisation['organisation_entity'] }}"
-         {% if organisation['organisation_entity'] in query.params.get('organisation_entity', []) | map('string') %} checked="checked" {% endif %}>
-        <label class="govuk-label govuk-checkboxes__label" for="organisation_entity-{{ loop.index }}">
-          {{ organisation['name'] }}
-        </label>
-      </div>
-      {% endfor %}
-    {% endset %}
-
-    {% call dlFilterGroup({
-      "title": "Organisation",
-      "is_open": True if query.params.get('organisation_entity') else False,
-      "selected": query.params.get('organisation_entity')|length if query.params.get('organisation_entity') else 0
-    }) %}
-      {{ dlFilterCheckboxes({
-        "uniqueID": random_int(5),
-        "checkboxesHTML": checkboxesHTML
-      }) }}
-    {% endcall %}
-  </div>
+    <div class="govuk-form-group">
+      {% set checkboxesHTML %}
+        {% for organisation in organisations %}
+          <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="organisation_entity-{{ loop.index }}" name="organisation_entity"
+              type="checkbox" value="{{ organisation['organisation_entity'] }}" {% if organisation['organisation_entity'] in
+              query.params.get('organisation_entity', []) | map('string') %} checked="checked" {% endif %}>
+            <label class="govuk-label govuk-checkboxes__label" for="organisation_entity-{{ loop.index }}">
+              {{ organisation['name'] }}
+            </label>
+          </div>
+        {% endfor %}
+      {% endset %}
+      {% call dlFilterGroup({
+          "title": "Organisation",
+          "is_open": True if query.params.get('organisation_entity') else False,
+          "selected": query.params.get('organisation_entity')|length if query.params.get('organisation_entity') else 0
+        }) %}
+        {{ dlFilterCheckboxes({
+          "uniqueID": random_int(5),
+          "checkboxesHTML": checkboxesHTML
+        }) }}
+      {% endcall %}
+    </div>
   {% endif -%}
-
 
   <!-- filter by period type -->
   {% set checkboxesHTML %}
