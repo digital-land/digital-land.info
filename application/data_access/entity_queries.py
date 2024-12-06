@@ -379,6 +379,7 @@ def fetchLocalPlanBoundary(
 def get_organisations(session: Session) -> List[EntityModel]:
     organisations = (
         session.query(EntityOrm)
+        .filter(EntityOrm.typology == "organisation")
         .filter(EntityOrm.organisation_entity.isnot(None))
         .filter(EntityOrm.name.isnot(None))
         .distinct()

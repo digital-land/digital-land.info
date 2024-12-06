@@ -539,8 +539,56 @@ def local_authorities():
     return [model_1, model_2]
 
 
+@pytest.fixture
+def organisation_list():
+    org_model_1 = EntityModel(
+        entry_date="2022-03-23",
+        start_date=None,
+        end_date=None,
+        entity=4211001,
+        name="London Borough of Islington",
+        dataset="local-plan-boundary",
+        typology="geography",
+        reference="E09000019",
+        prefix="local-plan-boundary",
+        organisation_entity="600001",
+        geojson=GeoJSON(
+            geometry={
+                "type": "MultiPolygon",
+                "coordinates": [[[[-0.119213, 51.574996], [-0.119513, 51.575511]]]],
+            }
+        ),
+        geometry="MULTIPOLYGON (((-0.119213 51.574996, ...)))",
+        point="POINT (-0.110224 51.548489)",
+        organisations="local-authority:ISL",
+        plan_boundary_type="statistical-geography",
+    )
+    org_model_2 = EntityModel(
+        entry_date="2024-07-10",
+        start_date="2006-05-01",
+        end_date="2021-09-20",
+        entity=12,
+        name="Ministry of Housing, Communities and Local Government",
+        dataset="government-organisation",
+        typology="organisation",
+        reference="D4",
+        prefix="government-organisation",
+        organisation_entity="600001",
+        geojson=None,
+        geometry=None,
+        point=None,
+        twitter="mhclg",
+        website="https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government",
+        wikidata="Q601819",
+        wikipedia="Department_for_Levelling_Up,_Housing_and_Communities",
+        parliament_thesaurus="442434",
+        opendatacommunities_uri="None",
+    )
+    return [org_model_1, org_model_2]
+
+
 def test_search_entities_no_entities_returned_no_query_params_html(
-    mocker, typologies, local_authorities, multiple_dataset_models
+    mocker, typologies, local_authorities, multiple_dataset_models, organisation_list
 ):
     normalised_query_params = normalised_params(asdict(QueryFilters()))
     mocker.patch(
@@ -564,6 +612,9 @@ def test_search_entities_no_entities_returned_no_query_params_html(
     )
     mocker.patch(
         "application.routers.entity.get_typology_names", return_value=["geography"]
+    )
+    mocker.patch(
+        "application.routers.entity.get_organisations", return_value=organisation_list
     )
 
     request = MagicMock()
@@ -648,6 +699,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     multiple_entity_models,
     typologies,
     local_authorities,
+    organisation_list,
     multiple_dataset_models,
     ancient_woodland_dataset,
 ):
@@ -670,6 +722,9 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     mocker.patch(
         "application.routers.entity.get_local_authorities",
         return_value=local_authorities,
+    )
+    mocker.patch(
+        "application.routers.entity.get_organisations", return_value=organisation_list
     )
     mocker.patch(
         "application.routers.entity.get_dataset_names",

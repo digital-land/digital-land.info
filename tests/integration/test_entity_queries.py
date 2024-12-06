@@ -1,6 +1,6 @@
 from datetime import datetime
 import pytest
-from application.data_access.entity_queries import lookup_entity_link
+from application.data_access.entity_queries import get_organisations, lookup_entity_link
 from application.data_access.entity_queries import (
     _apply_period_option_filter,
     get_linked_entities,
@@ -247,3 +247,49 @@ def test__local_plan_linked_entity_timetable_order_check(
     assert isinstance(linked_entities, list), "Expected linked_entities to be a list"
     assert len(linked_entities) == 2, "Expected at least one linked entity"
     assert linked_entities[0].event_date == "2022-11-20"
+
+
+@pytest.mark.parametrize(
+    "organisation_entity",
+    [
+        {
+            "entity": 4220006,
+            "name": "Organisation A",
+            "entry_date": "2019-01-07",
+            "start_date": "2019-01-05",
+            "end_date": "2020-01-07",
+            "dataset": "organisation-dataset",
+            "json": {},
+            "organisation_entity": "600002",
+            "prefix": "organisation",
+            "reference": "1481207",
+            "typology": "organisation",
+        },
+        {
+            "entity": 4220006,
+            "name": None,
+            "entry_date": "2019-01-07",
+            "start_date": "2019-01-05",
+            "end_date": "2020-01-07",
+            "dataset": "organisation-dataset",
+            "json": {},
+            "organisation_entity": None,
+            "prefix": "organisation",
+            "reference": "1481207",
+            "typology": "organisation",
+        },
+    ],
+)
+def test_get_organisations(db_session, organisation_entity):
+    db_session.add(EntityOrm(**organisation_entity))
+    db_session.commit()
+
+    organisations = get_organisations(db_session)
+    if organisation_entity["name"]:
+        assert (
+            organisations[0].name == organisation_entity["name"]
+        ), f"Expected organisation name '{organisation_entity['name']}'"
+    else:
+        assert (
+            organisations is None
+        ), "Expected no organisations to be returned when name is None"
