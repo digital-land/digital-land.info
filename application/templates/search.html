@@ -121,6 +121,25 @@
               {% endif %}
             </div>
             {% endif %}
+
+            {% if query.params and query.params.get('organisation_entity') %}
+              <div class="app-applied-filter__group">
+                <span class="app-applied-filter__name govuk-!-font-weight-bold">Organisation:</span>
+                  {% for filter in query.params.get('organisation_entity') %}
+                    {% set str_org_entity = filter | string %}
+                    <span class="app-applied-filter__item">
+                      {{ removeFilterButton({
+                      "filter": {
+                      "name": "organisation_entity",
+                      "value": str_org_entity
+                      },
+                      "url": "?" + str_org_entity|make_param_str('organisation_entity', url_query_params.list)
+                      }) }}
+                    </span>
+                  {% endfor %}
+              </div>
+            {% endif %}
+
             {% if query.params and query.params.get('period') %}
             <div class="app-applied-filter__group">
               <span class="app-applied-filter__name govuk-!-font-weight-bold">Period:</span>
