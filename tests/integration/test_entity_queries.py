@@ -291,5 +291,5 @@ def test_get_organisations(db_session, organisation_entity):
         ), f"Expected organisation name '{organisation_entity['name']}'"
     else:
         assert (
-            organisations is None
+            organisations == []
         ), "Expected no organisations to be returned when name is None"

@@ -388,4 +388,4 @@ def get_organisations(session: Session) -> List[EntityModel]:
     if organisations:
         return [entity_factory(e) for e in organisations]
     else:
-        return None
+        return []
