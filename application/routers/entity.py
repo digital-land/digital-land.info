@@ -158,6 +158,7 @@ def handle_entity_response(
         "tree-preservation-order",
         "local-plan-boundary",
         "local-plan",
+        "local-plan-event",
     ]
 
     linked_entities = {}
