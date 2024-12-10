@@ -362,7 +362,7 @@ def get_linked_entities(
     return [entity_factory(e) for e in entities]
 
 
-def fetchLocalPlanBoundary(
+def fetchEntityFromReference(
     session: Session, dataset: str, reference: str
 ) -> EntityModel:
     entity = (

@@ -23,7 +23,7 @@ from application.data_access.entity_queries import (
     get_organisations,
     lookup_entity_link,
     get_linked_entities,
-    fetchLocalPlanBoundary,
+    fetchEntityFromReference,
 )
 from application.data_access.dataset_queries import get_dataset_names
 
@@ -221,12 +221,28 @@ def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
         linked_dataset_value = linked_datasets[dataset]
         for linked_dataset in linked_dataset_value:
             if dataset == "local-plan" and linked_dataset == "local-plan-boundary":
-                local_plan_boundary_geojson = fetchLocalPlanBoundary(
-                    session, linked_dataset, e_dict_sorted[linked_dataset]
-                )
-            results[linked_dataset] = get_linked_entities(
+                if linked_dataset in e_dict_sorted:
+                    local_plan_boundary_geojson = fetchEntityFromReference(
+                        session, linked_dataset, e_dict_sorted[linked_dataset]
+                    )
+            linked_entities = get_linked_entities(
                 session, linked_dataset, reference, linked_dataset=dataset
             )
+            results[linked_dataset] = linked_entities
+
+            # Handle special case for "local-plan-timetable"
+            if dataset == "local-plan" and linked_dataset == "local-plan-timetable":
+                for entity in linked_entities:
+                    if (
+                        hasattr(entity, "local_plan_event")
+                        and entity.local_plan_event
+                        and not entity.local_plan_event.startswith("estimated")
+                    ):
+                        entity.local_plan_event = fetchEntityFromReference(
+                            session, "local-plan-event", entity.local_plan_event
+                        )
+                    else:
+                        entity.local_plan_event = None
 
     return results, local_plan_boundary_geojson
 

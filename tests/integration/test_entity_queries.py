@@ -148,16 +148,16 @@ def test__local_plan_linked_entity_timetable(
 
     lpd_entity = {
         "entity": 4220005,
-        "name": "Local-plan-document test",
+        "name": "Local-plan-timetable test",
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
         "dataset": "local-plan-timetable",
         "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
         "organisation_entity": 123,
-        "prefix": "local-plan-document",
-        "reference": "test-document",
-        "typology": "document",
+        "prefix": "local-plan-timetable",
+        "reference": "test-timetable",
+        "typology": "timetable",
     }
     lpd_entity1 = {
         "entity": 4220004,
@@ -165,8 +165,8 @@ def test__local_plan_linked_entity_timetable(
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-timetable",
-        "json": {"event-date": "2018-11-20", "local-plan": "random"},
+        "dataset": "local-plan-document",
+        "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
         "organisation_entity": 123,
         "prefix": "local-plan-document",
         "reference": "test-document",
@@ -184,7 +184,7 @@ def test__local_plan_linked_entity_timetable(
     # Assert the linked entity has reference 'test-document'
     assert isinstance(linked_entities, list), "Expected linked_entities to be a list"
     assert len(linked_entities) == 1, "Expected at least one linked entity"
-    assert linked_entities[0].reference == "test-document"
+    assert linked_entities[0].reference == "test-timetable"
 
 
 def test__local_plan_linked_entity_timetable_order_check(
