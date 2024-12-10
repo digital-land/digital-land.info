@@ -346,12 +346,42 @@ def single_entity_model():
 
 
 @pytest.fixture
+def linked_entity_model():
+    model = EntityModel(
+        entity=4220006,
+        entry_date="2022-03-23",
+        name="test Local Plan",
+        reference="1481207",
+        dataset="local-plan",
+        prefix="local-plan",
+        json={
+            "adopted-date": "2018-09-27",
+            "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
+            "local-plan-boundary": "E07000012",
+        },
+    )
+    return model, None
+
+
+@pytest.fixture
 def ancient_woodland_dataset():
     return DatasetModel(
         collection="ancient-woodland",
         dataset="ancient-woodland",
         name="Ancient woodland",
         plural="Ancient woodlands",
+        typology="geography",
+        paint_options={"colour": "#78AA00"},
+    )
+
+
+@pytest.fixture
+def local_plan_boundary_dataset():
+    return DatasetModel(
+        collection="local-plan",
+        dataset="local-plan-boundary",
+        name="Local plan boundary",
+        plural="Local plan boundaries",
         typology="geography",
         paint_options={"colour": "#78AA00"},
     )
@@ -371,6 +401,35 @@ def historic_england_dataset():
 @pytest.fixture
 def multiple_dataset_models(ancient_woodland_dataset, historic_england_dataset):
     return [ancient_woodland_dataset, historic_england_dataset]
+
+
+@pytest.fixture
+def local_plan_dataset_model():
+    model = EntityModel(
+        entity=4219999,
+        entry_date="2022-03-23",
+        name="South Cambridgeshire District Council",
+        reference="E07000012",
+        dataset="local-plan-boundary",
+        prefix="local-plan-boundary",
+        geojson={
+            "type": "Feature",
+            "geometry": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                    [
+                        [
+                            [0.145139, 50.986737],
+                            [0.145088, 50.986778],
+                            [0.14473, 50.986668],
+                            [0.145139, 50.986737],
+                        ]
+                    ]
+                ],
+            },
+        },
+    )
+    return model
 
 
 def test_get_entity_entity_returned_html(
@@ -480,8 +539,56 @@ def local_authorities():
     return [model_1, model_2]
 
 
+@pytest.fixture
+def organisation_list():
+    org_model_1 = EntityModel(
+        entry_date="2022-03-23",
+        start_date=None,
+        end_date=None,
+        entity=4211001,
+        name="London Borough of Islington",
+        dataset="local-plan-boundary",
+        typology="geography",
+        reference="E09000019",
+        prefix="local-plan-boundary",
+        organisation_entity="600001",
+        geojson=GeoJSON(
+            geometry={
+                "type": "MultiPolygon",
+                "coordinates": [[[[-0.119213, 51.574996], [-0.119513, 51.575511]]]],
+            }
+        ),
+        geometry="MULTIPOLYGON (((-0.119213 51.574996, ...)))",
+        point="POINT (-0.110224 51.548489)",
+        organisations="local-authority:ISL",
+        plan_boundary_type="statistical-geography",
+    )
+    org_model_2 = EntityModel(
+        entry_date="2024-07-10",
+        start_date="2006-05-01",
+        end_date="2021-09-20",
+        entity=12,
+        name="Ministry of Housing, Communities and Local Government",
+        dataset="government-organisation",
+        typology="organisation",
+        reference="D4",
+        prefix="government-organisation",
+        organisation_entity="600001",
+        geojson=None,
+        geometry=None,
+        point=None,
+        twitter="mhclg",
+        website="https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government",
+        wikidata="Q601819",
+        wikipedia="Department_for_Levelling_Up,_Housing_and_Communities",
+        parliament_thesaurus="442434",
+        opendatacommunities_uri="None",
+    )
+    return [org_model_1, org_model_2]
+
+
 def test_search_entities_no_entities_returned_no_query_params_html(
-    mocker, typologies, local_authorities, multiple_dataset_models
+    mocker, typologies, local_authorities, multiple_dataset_models, organisation_list
 ):
     normalised_query_params = normalised_params(asdict(QueryFilters()))
     mocker.patch(
@@ -505,6 +612,9 @@ def test_search_entities_no_entities_returned_no_query_params_html(
     )
     mocker.patch(
         "application.routers.entity.get_typology_names", return_value=["geography"]
+    )
+    mocker.patch(
+        "application.routers.entity.get_organisations", return_value=organisation_list
     )
 
     request = MagicMock()
@@ -589,6 +699,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     multiple_entity_models,
     typologies,
     local_authorities,
+    organisation_list,
     multiple_dataset_models,
     ancient_woodland_dataset,
 ):
@@ -611,6 +722,9 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     mocker.patch(
         "application.routers.entity.get_local_authorities",
         return_value=local_authorities,
+    )
+    mocker.patch(
+        "application.routers.entity.get_organisations", return_value=organisation_list
     )
     mocker.patch(
         "application.routers.entity.get_dataset_names",
@@ -753,3 +867,40 @@ def test_search_entities_with_query_extension(
         else:
             logging.warning("result has no context")
             assert False, "template unable to render, missing variable(s) from context"
+
+
+def test_get_entity_with_linked_local_plans(
+    mocker, local_plan_dataset_model, local_plan_boundary_dataset, linked_entity_model
+):
+    mocker.patch(
+        "application.routers.entity.get_entity_query",
+        return_value=(local_plan_dataset_model, None, None),
+    )
+    mocker.patch(
+        "application.routers.entity.get_datasets",
+        return_value=[local_plan_boundary_dataset],
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=local_plan_boundary_dataset,
+    )
+    mocker.patch(
+        "application.routers.entity.fetch_linked_local_plans",
+        return_value=linked_entity_model,
+    )
+
+    request = MagicMock()
+    result = get_entity(request=request, entity="4219999", extension=None)
+
+    assert (
+        result.status_code == 200
+    ), f"result status code should be 200 not {result.status_code}"
+    try:
+        result.template.render(result.context)
+        assert True
+    except Exception:
+        if hasattr(result, "context"):
+            logging.warning(f"context:{result.context}")
+        else:
+            logging.warning("result has no context")
+        assert False, "template unable to render, missing variable(s) from context"
