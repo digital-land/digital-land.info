@@ -1,0 +1,22 @@
+{%- do pageData.update({
+  'pageTitle': ((pageData.name | replace('-',' ')) + ' data') | capitalize
+}) %}
+{% set templateName = 'dl-info/guidance/specification/local-plan.html' %}
+{% extends "layouts/layout--guidance.html" %}
+
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/guidance/specifications/'
+  })}}
+{% endblock %}
+
+{% block content_primary %}
+
+    {% set markdown_content %}
+    {%- include pageData.root_url + "specifications/" + pageData.name  + ".md" with context -%}
+    {% endset %}
+
+    {{ markdown_content | render_markdown(govAttributes=True) }}
+
+{% endblock %}
