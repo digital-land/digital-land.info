@@ -16,11 +16,19 @@
   {%- set row_name = "Not Named" %}
 {%- endif %}
 
-{% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else
-None %}
+{% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else None %}
+{% set geojson_data = entity %}
+
 {% if geometry_url or geojson_features %}
   {% set geometry_exists = true %}
   {% set includesMap = true %}
+{% endif %}
+
+{% if pipeline_name == 'local-plan'%}
+  {% if local_plan_geojson != none %}
+    {% set includesMap = true %}
+    {% set geojson_data = local_plan_geojson %}
+  {% endif %}
 {% endif %}
 
 {% block pageAssets %}
@@ -134,40 +142,156 @@ None %}
 
     </div>
 
+    {% if local_plans['local-plan'] %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plans'
+      }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for plan in local_plans['local-plan'] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
+            </td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% elif entity.dataset == "local-plan-boundary" %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plans'
+      }) %}
+      <table class="govuk-table">
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <td colspan="2" class="govuk-table__cell govuk-body">
+              No related local plans are available for this entity.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% endif %}
+
+    {% if local_plans['local-plan-timetable'] %}
+      <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+        {% call appSummaryCard({
+            'classes': 'govuk-!-margin-bottom-0',
+            'titleText': 'Related Local Plan Timetable'
+        }) %}
+        <ol class="dl-timeline dl-timeline--dates">
+            {% for plan in local_plans['local-plan-timetable'] %}
+            {% if plan.local_plan_event %}
+            <li class="dl-timeline__entry">
+              <h3 class="govuk-heading-s dl-timeline__entry-heading">
+                    {{ plan.local_plan_event.name }}
+                </h3>
+                <p class="dl-timeline__entry-details govuk-body-s">
+                    {{ plan.event_date | format_date}}
+                </p>
+                <div class="dl-timeline__entry__content">
+                    <p class="govuk-body">
+                      <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
+                    </p>
+                </div>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ol>
+        {% endcall %}
+    </div>
+  {% endif %}
+
+    {% if local_plans['local-plan-document'] %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Local Plan Document'
+      }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Category</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Document URL</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for plan in local_plans['local-plan-document'] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
+            </td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.document_types }}</td>
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% endif %}
+    <div class="govuk-grid-column-full govuk-!-margin-top-6"></div>
+
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
       {%- if includesMap %}
-
-      {% call appSummaryCard({
-        'classes': 'govuk-!-margin-bottom-0',
-        'titleText': 'Geographical area',
-        'actions': {
-          'items': [
-            {
-              'text': 'Download geojson',
-              'href': '/entity/' + row["entity"] | string + '.geojson',
-              'attributes': [
-                {
-                  'key': 'download',
-                  'value': row["entity"] | string + '.geojson'
-                }
-              ]
-            }
-          ],
-        }
-      }) %}
+        {% call appSummaryCard({
+          'classes': 'govuk-!-margin-bottom-0',
+          'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
+          'actions': {
+            'items': [
+              {
+                'text': 'Download geojson',
+                'href': (
+                '/entity/' +
+                (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"]) | string +
+                '.geojson'
+              ),
+                'attributes': [
+                  {
+                    'key': 'download',
+                    'value': (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"])
+                      | string + '.geojson'
+                  }
+                ]
+              }
+            ],
+          }
+        })%}
 
         {{
           map({
             "mapId": "map",
             'height': 460,
             'enableZoomControls': true,
-            'geojsons': [entity|get_entity_geometry],
+            'geojsons': [geojson_data|get_entity_geometry],
             'paint_options': dataset.paint_options,
           })
         }}
-      {% endcall %}
-
+          {% endcall %}
       {%- endif %}
     {%- endblock recordGeometry %}
     </div>

@@ -20,7 +20,10 @@ from application.data_access.digital_land_queries import (
 from application.data_access.entity_queries import (
     get_entity_query,
     get_entity_search,
+    get_organisations,
     lookup_entity_link,
+    get_linked_entities,
+    fetchEntityFromReference,
 )
 from application.data_access.dataset_queries import get_dataset_names
 
@@ -146,12 +149,16 @@ def handle_entity_response(
     dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
 
     dataset = get_dataset_query(session, e.dataset)
+
     organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
 
     entityLinkFields = [
         "article-4-direction",
         "permitted-development-rights",
         "tree-preservation-order",
+        "local-plan-boundary",
+        "local-plan",
+        "local-plan-event",
     ]
 
     linked_entities = {}
@@ -166,12 +173,19 @@ def handle_entity_response(
             if linked_entity is not None:
                 linked_entities[field] = linked_entity
 
+    # Fetch linked local plans/document/timetable
+    local_plans, local_plan_boundary_geojson = fetch_linked_local_plans(
+        session, e_dict_sorted
+    )
+
     return templates.TemplateResponse(
         "entity.html",
         {
             "request": request,
             "row": e_dict_sorted,
+            "local_plan_geojson": local_plan_boundary_geojson,
             "linked_entities": linked_entities,
+            "local_plans": local_plans,
             "entity": e,
             "pipeline_name": e.dataset,
             "references": [],
@@ -187,6 +201,51 @@ def handle_entity_response(
             "organisation_entity": organisation_entity,
         },
     )
+
+
+linked_datasets = {
+    "local-plan-boundary": ["local-plan"],
+    "local-plan": [
+        "local-plan-document",
+        "local-plan-timetable",
+        "local-plan-boundary",
+    ],
+}
+
+
+def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
+    results = {}
+    local_plan_boundary_geojson = None
+    dataset = e_dict_sorted["dataset"]
+    reference = e_dict_sorted["reference"]
+    if dataset in linked_datasets:
+        linked_dataset_value = linked_datasets[dataset]
+        for linked_dataset in linked_dataset_value:
+            if dataset == "local-plan" and linked_dataset == "local-plan-boundary":
+                if linked_dataset in e_dict_sorted:
+                    local_plan_boundary_geojson = fetchEntityFromReference(
+                        session, linked_dataset, e_dict_sorted[linked_dataset]
+                    )
+            linked_entities = get_linked_entities(
+                session, linked_dataset, reference, linked_dataset=dataset
+            )
+            results[linked_dataset] = linked_entities
+
+            # Handle special case for "local-plan-timetable"
+            if dataset == "local-plan" and linked_dataset == "local-plan-timetable":
+                for entity in linked_entities:
+                    if (
+                        hasattr(entity, "local_plan_event")
+                        and entity.local_plan_event
+                        and not entity.local_plan_event.startswith("estimated")
+                    ):
+                        entity.local_plan_event = fetchEntityFromReference(
+                            session, "local-plan-event", entity.local_plan_event
+                        )
+                    else:
+                        entity.local_plan_event = None
+
+    return results, local_plan_boundary_geojson
 
 
 def get_entity(
@@ -329,6 +388,12 @@ def search_entities(
     local_authorities = get_local_authorities(session, "local-authority")
     local_authorities = [la.dict() for la in local_authorities]
 
+    organisations = get_organisations(session)
+    columns = ["entity", "organisation_entity", "name"]
+    organisations_list = [
+        organisation.dict(include=set(columns)) for organisation in organisations
+    ]
+
     if links.get("prev") is not None:
         prev_url = links["prev"]
     else:
@@ -350,6 +415,7 @@ def search_entities(
             "datasets": datasets,
             "local_authorities": local_authorities,
             "typologies": typologies,
+            "organisations": organisations_list,
             "query": {"params": params},
             "active_filters": [
                 filter_name

@@ -1,7 +1,10 @@
 from datetime import datetime
 import pytest
-from application.data_access.entity_queries import lookup_entity_link
-from application.data_access.entity_queries import _apply_period_option_filter
+from application.data_access.entity_queries import get_organisations, lookup_entity_link
+from application.data_access.entity_queries import (
+    _apply_period_option_filter,
+    get_linked_entities,
+)
 from application.db.models import EntityOrm
 
 
@@ -120,3 +123,173 @@ def test_apply_period_option_filter(db_session, period):
         assert all(entity.end_date < datetime.now().date() for entity in result)
     if period == ["all"]:
         assert len(result) == 4
+
+
+def test__local_plan_linked_entity_timetable(
+    db_session,
+):
+    lp_entity = {
+        "entity": 4220006,
+        "name": "Local-plan test",
+        "entry_date": "2019-01-07",
+        "start_date": "2019-01-05",
+        "end_date": "2020-01-07",
+        "dataset": "local-plan",
+        "json": {
+            "adopted-date": "2018-09-27",
+            "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
+            "local-plan-boundary": "E07000012",
+        },
+        "organisation_entity": 123,
+        "prefix": "local-plan",
+        "reference": "1481207",
+        "typology": "legal-instrument",
+    }
+
+    lpd_entity = {
+        "entity": 4220005,
+        "name": "Local-plan-timetable test",
+        "entry_date": "2019-01-07",
+        "start_date": "2019-01-05",
+        "end_date": "2020-01-07",
+        "dataset": "local-plan-timetable",
+        "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
+        "organisation_entity": 123,
+        "prefix": "local-plan-timetable",
+        "reference": "test-timetable",
+        "typology": "timetable",
+    }
+    lpd_entity1 = {
+        "entity": 4220004,
+        "name": "Local-plan-document test",
+        "entry_date": "2019-01-07",
+        "start_date": "2019-01-05",
+        "end_date": "2020-01-07",
+        "dataset": "local-plan-document",
+        "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
+        "organisation_entity": 123,
+        "prefix": "local-plan-document",
+        "reference": "test-document",
+        "typology": "document",
+    }
+
+    db_session.add(EntityOrm(**lp_entity))
+    db_session.add(EntityOrm(**lpd_entity))
+    db_session.add(EntityOrm(**lpd_entity1))
+
+    linked_entities = get_linked_entities(
+        db_session, "local-plan-timetable", "1481207", "local-plan"
+    )
+
+    # Assert the linked entity has reference 'test-document'
+    assert isinstance(linked_entities, list), "Expected linked_entities to be a list"
+    assert len(linked_entities) == 1, "Expected at least one linked entity"
+    assert linked_entities[0].reference == "test-timetable"
+
+
+def test__local_plan_linked_entity_timetable_order_check(
+    db_session,
+):
+    lp_entity = {
+        "entity": 4220006,
+        "name": "Local-plan test",
+        "entry_date": "2019-01-07",
+        "start_date": "2019-01-05",
+        "end_date": "2020-01-07",
+        "dataset": "local-plan",
+        "json": {
+            "adopted-date": "2018-09-27",
+            "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
+            "local-plan-boundary": "E07000012",
+        },
+        "organisation_entity": 123,
+        "prefix": "local-plan",
+        "reference": "1481207",
+        "typology": "legal-instrument",
+    }
+
+    lpd_entity = {
+        "entity": 4220005,
+        "name": "Local-plan-document test",
+        "entry_date": "2019-01-07",
+        "start_date": "2019-01-05",
+        "end_date": "2020-01-07",
+        "dataset": "local-plan-timetable",
+        "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
+        "organisation_entity": 123,
+        "prefix": "local-plan-document",
+        "reference": "test-document",
+        "typology": "document",
+    }
+    lpd_entity1 = {
+        "entity": 4220004,
+        "name": "Local-plan-document test",
+        "entry_date": "2019-01-07",
+        "start_date": "2019-01-05",
+        "end_date": "2020-01-07",
+        "dataset": "local-plan-timetable",
+        "json": {"event-date": "2022-11-20", "local-plan": "1481207"},
+        "organisation_entity": 123,
+        "prefix": "local-plan-document",
+        "reference": "test-document",
+        "typology": "document",
+    }
+
+    db_session.add(EntityOrm(**lp_entity))
+    db_session.add(EntityOrm(**lpd_entity))
+    db_session.add(EntityOrm(**lpd_entity1))
+
+    linked_entities = get_linked_entities(
+        db_session, "local-plan-timetable", "1481207", "local-plan"
+    )
+
+    # Assert the linked entity has reference 'test-document'
+    assert isinstance(linked_entities, list), "Expected linked_entities to be a list"
+    assert len(linked_entities) == 2, "Expected at least one linked entity"
+    assert linked_entities[0].event_date == "2022-11-20"
+
+
+@pytest.mark.parametrize(
+    "organisation_entity",
+    [
+        {
+            "entity": 4220006,
+            "name": "Organisation A",
+            "entry_date": "2019-01-07",
+            "start_date": "2019-01-05",
+            "end_date": "2020-01-07",
+            "dataset": "organisation-dataset",
+            "json": {},
+            "organisation_entity": "600002",
+            "prefix": "organisation",
+            "reference": "1481207",
+            "typology": "organisation",
+        },
+        {
+            "entity": 4220006,
+            "name": None,
+            "entry_date": "2019-01-07",
+            "start_date": "2019-01-05",
+            "end_date": "2020-01-07",
+            "dataset": "organisation-dataset",
+            "json": {},
+            "organisation_entity": None,
+            "prefix": "organisation",
+            "reference": "1481207",
+            "typology": "organisation",
+        },
+    ],
+)
+def test_get_organisations(db_session, organisation_entity):
+    db_session.add(EntityOrm(**organisation_entity))
+    db_session.commit()
+
+    organisations = get_organisations(db_session)
+    if organisation_entity["name"]:
+        assert (
+            organisations[0].name == organisation_entity["name"]
+        ), f"Expected organisation name '{organisation_entity['name']}'"
+    else:
+        assert (
+            organisations == []
+        ), "Expected no organisations to be returned when name is None"

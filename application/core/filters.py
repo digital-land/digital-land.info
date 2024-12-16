@@ -16,6 +16,7 @@ import validators
 import numbers
 from application.settings import get_settings
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -252,7 +253,10 @@ def make_link_filter(eval_ctx, url, **kwargs):
 
 
 def get_entity_geometry(entity):
-    data = entity.geojson.geometry if entity.geojson else None
+    data = None
+    if entity and entity.geojson is not None:
+        data = entity.geojson.geometry
+
     if data is None:
         logger.warning(
             f"No geojson for entity that has a typology of geography: {entity.entity}",
@@ -301,3 +305,21 @@ def get_os_oauth2_token():
         return "null"
     else:
         return jsonResult
+
+
+def format_date(date_str):
+    if not date_str:
+        return date_str
+
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    day = date_obj.day
+
+    # Determine the ordinal suffix
+    if 11 <= day <= 13:  # Special case for teens
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+
+    # Format the date with the ordinal suffix
+    formatted_date = f"{day}{suffix} {date_obj.strftime('%B %Y')}"
+    return formatted_date
