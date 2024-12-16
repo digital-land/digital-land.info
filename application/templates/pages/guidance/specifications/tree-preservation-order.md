@@ -254,6 +254,12 @@ The approximate location of the centre of the tree.
 
 You must provide a point or geometry for each tree. You may provide both.
 
+The point must be in the WGS84 coordinate reference system. If you’re providing point in a CSV, geometry should be in well-known text (WKT). 
+
+Example: `POINT (-0.681152 52.762892)` 
+
+If you’re providing point in a GeoJSON, GML or Geopackage, use the associated geometry format.
+
 ### tree-preservation-order
 
 The reference for the tree preservation order that affects this tree.
