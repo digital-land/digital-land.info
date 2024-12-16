@@ -293,18 +293,38 @@ def get_os_oauth2_token():
         logger.error("OS_CLIENT_KEY or OS_CLIENT_SECRET not set")
         return "null"
 
-    result = requests.post(
-        "https://api.os.uk/oauth2/token/v1",
-        data={"grant_type": "client_credentials"},
-        headers={},
-        auth=(settings.OS_CLIENT_KEY, settings.OS_CLIENT_SECRET),
-    )
-    jsonResult = result.json()
-    if "Error" in jsonResult:
-        logger.error(jsonResult["Error"])
-        return "null"
-    else:
-        return jsonResult
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        try:
+            result = requests.post(
+                "https://api.os.uk/oauth2/token/v1",
+                data={"grant_type": "client_credentials"},
+                headers={},
+                auth=(settings.OS_CLIENT_KEY, settings.OS_CLIENT_SECRET),
+            )
+            jsonResult = result.json()
+            if result.status_code == 200:
+                return jsonResult
+
+            if 400 <= result.status_code < 600:
+                logger.warning(
+                    f"Server error {result.status_code}. Retrying... ({attempt}/{max_retries})"
+                )
+                if attempt == max_retries:
+                    raise ConnectionError(
+                        f"Failed after {max_retries} attempts. Status: {result.status_code}, Error: {result.text}"
+                    )
+                continue
+            raise Exception(
+                f"Unexpected response: {result.status_code}, Error: {result.text}"
+            )
+
+        except Exception as e:
+            logger.error(f"Request failed on attempt {attempt}: {e}")
+            if attempt == max_retries:
+                raise ConnectionError(f"Network error after {max_retries} retries: {e}")
+
+    return "null"
 
 
 def format_date(date_str):
