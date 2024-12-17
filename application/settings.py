@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     GA_MEASUREMENT_ID: Optional[str] = None
     OS_CLIENT_KEY: Optional[str] = None
     OS_CLIENT_SECRET: Optional[str] = None
+    POOL_SIZE: Optional[int] = 10
+    MAX_OVERFLOW: Optional[int] = 20
 
 
 @lru_cache()
