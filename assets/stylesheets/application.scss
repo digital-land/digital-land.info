@@ -25,7 +25,6 @@ $govuk-link-underline-offset: .2em;
 @import "component/summary-list";
 @import "component/search";
 @import "component/card";
-@import "component/_timeline";
 @import "component/filter-group";
 @import "component/applied-filters";
 @import "component/feedback-panel";
@@ -44,6 +43,8 @@ $govuk-link-underline-offset: .2em;
 @import "component/map/map";
 @import "component/header-bar";
 @import "component/list-filter/list-filter";
+
+@import "component/_timeline";
 
 @import "utilities/wrapper";
 @import "utilities/js-hidden";
