@@ -67,8 +67,11 @@ def run_migrations_online():
         url = get_settings().WRITE_DATABASE_URL
     engine = create_engine(
         url,
-        pool_size=get_settings().POOL_SIZE,
-        max_overflow=get_settings().MAX_OVERFLOW,
+        pool_size=get_settings().DB_POOL_SIZE,
+        max_overflow=get_settings().DB_POOL_MAX_OVERFLOW,
+    )
+    logging.info(
+        f"Connection Pool: pool_size={engine.pool.size()}, max_overflow={engine.pool._max_overflow}"
     )
     connectable = engine
 
