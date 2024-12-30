@@ -100,6 +100,7 @@
       {% endset %}
       {% set geojsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
+        <button id="load-more" onclick="loadMoreData()" data-start-index="{{ start_index }}" data-page-size="{{ page_size }}">Load More</button>
         {% endset %}
 
       {% if geometry_exists %}
@@ -342,33 +343,67 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-      // Function to handle loading GeoJSON content
-      function loadGeoJSON() {
-          const geojsonContentElement = document.getElementById('geojson-content');
-          if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
-              // Fetch the GeoJSON content
-              fetch('{{ geometry_url }}')
-                  .then(response => response.text())
-                  .then(data => {
-                      geojsonContentElement.innerHTML = JSON.stringify(JSON.parse(data), null, 4);
-                  })
-                  .catch(error => {
-                      console.error('Error loading GeoJSON:', error);
-                      geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
-                  });
+    let geojsonData = null;
+    let currentIndex = 0;
+    const pageSize = 100; // Number of items to load per "Load More" click
+    const geojsonContentElement = document.getElementById('geojson-content');
+    const loadMoreButton = document.getElementById('load-more');
+    let flatCoordinates = []; // Flattened array of all coordinates
+
+    if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
+        // Fetch the GeoJSON content
+      fetch('{{ geometry_url }}')
+        .then(response => response.json())
+        .then(data => {
+          geojsonData = data; // Store the full GeoJSON data
+          // Flatten the coordinates array into a single array
+          flatCoordinates = geojsonData.geometry.coordinates.flat(Infinity);
+          if (flatCoordinates.length <= pageSize) {
+            geojsonContentElement.innerText = JSON.stringify(flatCoordinates, null, 4);
+            loadMoreButton.style.display = 'none';
+          } else {
+            // If the data is large, load the first chunk
+            loadMoreData();
           }
-      }
+          }).catch(error => {
+              console.error('Error loading GeoJSON:', error);
+              geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
+        });
+    }
 
-      // Add click event listener for GeoJSON tab
-      document.querySelector('#tab_geojson').addEventListener('click', function () {
-          loadGeoJSON();
-      });
-
-      // Check the fragment identifier on page load
-      if (window.location.hash === '#geojson') {
-          // Simulate a click event on the GeoJSON tab
-          document.querySelector('#tab_geojson').click();
+    //function to load more if complex geometry
+    function loadMoreData() {
+      if (!flatCoordinates || flatCoordinates.length === 0) {
+        geojsonContentElement.textContent = 'No data available';
+        return;
       }
+      const nextChunk = flatCoordinates.slice(currentIndex, currentIndex + pageSize);
+      geojsonContentElement.textContent += '\n' + JSON.stringify(nextChunk, null, 4);
+      currentIndex += pageSize; // Update the current index for the next chunk
+
+      // Check if there is more data to load
+      if (currentIndex >= flatCoordinates.length) {
+        loadMoreButton.innerText = 'All Data Loaded';
+        loadMoreButton.disabled = true;
+      } else {
+        loadMoreButton.innerText = 'Load More';
+      }
+    }
+
+     // Add a click event listener for the "Load More" button
+    loadMoreButton.addEventListener('click', function () {
+      loadMoreData();
+    });
+
+    // Add a click event listener for the GeoJSON tab
+    document.querySelector('#tab_geojson').addEventListener('click', function () {
+      loadGeoJSON();
+    });
+
+    // Check the fragment identifier on page load
+    if (window.location.hash === '#geojson') {
+      document.querySelector('#tab_geojson').click();
+    }
   });
 </script>
 {%- endblock %}
