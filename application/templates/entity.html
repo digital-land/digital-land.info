@@ -100,7 +100,7 @@
       {% endset %}
       {% set geojsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
-        <button id="load-more" onclick="loadMoreData()" data-start-index="{{ start_index }}" data-page-size="{{ page_size }}">Load More</button>
+        <button id="load-more" onclick="loadMoreData()" >Load More</button>
         {% endset %}
 
       {% if geometry_exists %}
@@ -348,49 +348,53 @@
     const pageSize = 100; // Number of items to load per "Load More" click
     const geojsonContentElement = document.getElementById('geojson-content');
     const loadMoreButton = document.getElementById('load-more');
-    let flatCoordinates = []; // Flattened array of all coordinates
+    let flatCoordinates = [];
 
-    if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
-        // Fetch the GeoJSON content
-      fetch('{{ geometry_url }}')
-        .then(response => response.json())
-        .then(data => {
-          geojsonData = data; // Store the full GeoJSON data
-          // Flatten the coordinates array into a single array
-          flatCoordinates = geojsonData.geometry.coordinates.flat(Infinity);
-          if (flatCoordinates.length <= pageSize) {
-            geojsonContentElement.innerText = JSON.stringify(flatCoordinates, null, 4);
-            loadMoreButton.style.display = 'none';
-          } else {
-            // If the data is large, load the first chunk
-            loadMoreData();
-          }
-          }).catch(error => {
-              console.error('Error loading GeoJSON:', error);
-              geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
-        });
+    // Fetch the GeoJSON content
+    function loadGeoJSON() {
+        if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
+            fetch('{{ geometry_url }}')
+                .then(response => response.json())
+                .then(data => {
+                    geojsonData = data;  // Store the full GeoJSON data
+                    flatCoordinates = geojsonData.geometry.coordinates.flat(Infinity);  // Flatten coordinates into a single array
+                    if (flatCoordinates.length <= pageSize) {
+                        // If the data is small enough, show it all at once
+                        geojsonContentElement.textContent = JSON.stringify(flatCoordinates, null, 4);
+                        loadMoreButton.style.display = 'none';
+                    } else {
+                        // If the data is large, load the first chunk
+                        loadMoreData();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading GeoJSON:', error);
+                    geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
+                });
+        }
     }
 
-    //function to load more if complex geometry
+    // Function to load more data in chunks
     function loadMoreData() {
-      if (!flatCoordinates || flatCoordinates.length === 0) {
-        geojsonContentElement.textContent = 'No data available';
-        return;
-      }
-      const nextChunk = flatCoordinates.slice(currentIndex, currentIndex + pageSize);
-      geojsonContentElement.textContent += '\n' + JSON.stringify(nextChunk, null, 4);
-      currentIndex += pageSize; // Update the current index for the next chunk
+        if (!flatCoordinates || flatCoordinates.length === 0) {
+            geojsonContentElement.textContent = 'No data available';
+            return;
+        }
 
-      // Check if there is more data to load
-      if (currentIndex >= flatCoordinates.length) {
-        loadMoreButton.innerText = 'All Data Loaded';
-        loadMoreButton.disabled = true;
-      } else {
-        loadMoreButton.innerText = 'Load More';
-      }
+        const nextChunk = flatCoordinates.slice(currentIndex, currentIndex + pageSize);
+        geojsonContentElement.textContent += '\n' + JSON.stringify(nextChunk, null, 4);
+        currentIndex += pageSize; // Update the current index for the next chunk
+
+        // Check if there is more data to load
+        if (currentIndex >= flatCoordinates.length) {
+            loadMoreButton.innerText = 'All Data Loaded';
+            loadMoreButton.disabled = true;
+        } else {
+            loadMoreButton.innerText = 'Load More';
+        }
     }
 
-     // Add a click event listener for the "Load More" button
+    // Add a click event listener for the "Load More" button
     loadMoreButton.addEventListener('click', function () {
       loadMoreData();
     });
@@ -406,4 +410,5 @@
     }
   });
 </script>
+
 {%- endblock %}
