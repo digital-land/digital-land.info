@@ -22,7 +22,7 @@ jobs:
       - run: make lint
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     services:
       postgres:
         image: postgis/postgis:14-master
