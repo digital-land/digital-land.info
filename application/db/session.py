@@ -5,6 +5,9 @@ import logging
 from application.settings import get_settings
 from contextlib import contextmanager
 
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -31,6 +34,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_session() -> Iterator[Session]:
+    logger.info("hello")
     db = SessionLocal()
     try:
         yield db
