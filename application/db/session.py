@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from typing import Iterator
 import logging
 from application.settings import get_settings
+from contextlib import contextmanager
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -37,6 +38,10 @@ def get_session() -> Iterator[Session]:
         db.close()
 
 
+@contextmanager
 def get_context_session() -> Iterator[Session]:
-    with SessionLocal() as session:
+    session = SessionLocal()
+    try:
         yield session
+    finally:
+        session.close()
