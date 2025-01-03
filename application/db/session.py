@@ -5,10 +5,17 @@ from fastapi_utils.session import FastAPISessionMaker
 from sqlalchemy.orm import Session
 
 from application.settings import get_settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # this can be used in fast api path functions using Depends to inject a db session
 def get_session() -> Iterator[Session]:
+    logger.info(
+        f"Database engine created with pool_size={get_settings().DB_POOL_SIZE}, "
+        f"max_overflow={get_settings().DB_POOL_MAX_OVERFLOW}"
+    )
     yield from _get_fastapi_sessionmaker().get_db()
 
 
