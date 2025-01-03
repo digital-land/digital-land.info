@@ -22,7 +22,7 @@ def _create_engine():
 
     logger.info(
         f"Engine created with pool_size={engine.pool.size()}, "
-        f"max_overflow={engine.pool._max_overflow}, "
+        f"max_overflow={engine.pool._max_overflow} "
     )
 
     return engine
@@ -34,7 +34,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_session() -> Iterator[Session]:
-    logger.info("hello")
     db = SessionLocal()
     try:
         yield db
