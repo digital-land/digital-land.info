@@ -1,24 +1,50 @@
-from functools import lru_cache
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
 from typing import Iterator
-
-from fastapi_utils.session import FastAPISessionMaker
-from sqlalchemy.orm import Session
-
+import logging
 from application.settings import get_settings
+from contextlib import contextmanager
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
-# this can be used in fast api path functions using Depends to inject a db session
+def _create_engine():
+    settings = get_settings()
+    engine = create_engine(
+        settings.READ_DATABASE_URL,
+        pool_size=settings.DB_POOL_SIZE,
+        max_overflow=settings.DB_POOL_MAX_OVERFLOW,
+    )
+
+    logger.info(
+        f"Engine created with pool_size={engine.pool.size()}, "
+        f"max_overflow={engine.pool._max_overflow} "
+    )
+
+    return engine
+
+
+# Create session factory
+engine = _create_engine()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
 def get_session() -> Iterator[Session]:
-    yield from _get_fastapi_sessionmaker().get_db()
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-# this can be used in non path functions to create a context manager for a db session
-# see https://github.com/dmontagu/fastapi-utils/blob/master/fastapi_utils/session.py#L77:L91
+@contextmanager
 def get_context_session() -> Iterator[Session]:
-    return _get_fastapi_sessionmaker().context_session()
-
-
-@lru_cache()
-def _get_fastapi_sessionmaker() -> FastAPISessionMaker:
-    database_uri = get_settings().READ_DATABASE_URL
-    return FastAPISessionMaker(database_uri)
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
