@@ -57,10 +57,6 @@ jobs:
         environment: ${{ fromJSON(needs.detect-environments.outputs.environments) }}
     environment: ${{ matrix.environment }}
     steps:
-#      - name: Set up Python
-#        uses: actions/setup-python@v5
-#        with:
-#          python-version: 3.12
 
       - name: Install aws cli
         run: |
@@ -83,7 +79,6 @@ jobs:
           path: ./artifacts
 
       - name: Update AWS Synthetics Canary function code in development environment
-        if: ${{ matrix.environment == 'development' }}
         run: |
           zip_file_base64=$(base64 artifacts/smoke-test-package.zip)
           aws synthetics update-canary \
