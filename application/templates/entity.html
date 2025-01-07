@@ -71,7 +71,7 @@
           </thead>
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
-              {% if field != 'entity' %}
+              {% if field != 'entity' and field != 'geometry' %}
                 {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
                   <tr class="govuk-table__row">
                     <th scope="row" class="app-table__header app-table__header--row">
@@ -96,7 +96,7 @@
       {% endcall %}
 
       {% set jsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{row|digital_land_to_json}}</code></pre>
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0"></code></pre>
       {% endset %}
       {% set geojsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
