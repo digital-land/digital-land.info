@@ -166,7 +166,11 @@ def get_entity_name(entity):
 
 
 def digital_land_to_json(dict):
-    return json.dumps(dict, default=str, indent=4, cls=NoneToEmptyStringEncoder)
+    filtered_dict = {k: v for k, v in dict.items() if k != "geometry"}
+    # dict["geometry"] = dict["geometry"][:1000]
+    return json.dumps(
+        filtered_dict, default=str, indent=4, cls=NoneToEmptyStringEncoder
+    )
 
 
 def uri_encode(uri_template, kwarg_list):

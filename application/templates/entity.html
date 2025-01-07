@@ -8,6 +8,18 @@
 {%- from "components/entity-field/macro.jinja" import entityField %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
+{% if row['geometry'] %}
+  {% set truncated_geometry = row['geometry'][:10000] %}
+  {% set full_geometry = row['geometry'] %}
+{% else %}
+  {% set truncated_geometry = "" %}
+  {% set full_geometry = "" %}
+{% endif %}
+
+
+
+
+
 {% if row['name'] %}
   {%- set row_name = row['name'] %}
 {%- elif row['reference'] %}
@@ -71,19 +83,30 @@
           </thead>
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
-              {% if field != 'entity' and field != 'geometry' %}
-                {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
-                  <tr class="govuk-table__row">
-                    <th scope="row" class="app-table__header app-table__header--row">
-                      {{ entityField(field,fields,dataset_fields) }}
-                    </th>
-                    <td class="govuk-table__cell app-table__cell">
-                      {{ entityValue(field,row[field],fields,dataset_fields,organisation_entity,linked_entities)}}
-                    </td>
-                    {% if field is not in['dataset','organisation-entity','start-date','end-date','typology'] %}
-                      <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
-                        <a href="/fact?dataset={{row['dataset']}}&entity={{row['entity']}}&field={{field}}" class="govuk-link">Facts</a>
-                      </td>
+              {% if field != 'entity'%}
+              {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
+              <tr class="govuk-table__row">
+                <th scope="row" class="app-table__header app-table__header--row">
+                  {{ entityField(field, fields, dataset_fields) }}
+                </th>
+                <td class="govuk-table__cell app-table__cell">
+                  {% if field == 'geometry' %}
+                    <code class ="app-code-block" id="geometry-content">
+                      {% if row[field] is not none %}
+                        {{ row[field][:10000] }}{% if row[field]|length > 10000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
+                      {% endif %}
+                      </code>
+                    <code class ="app-code-block" id="geometry-full-content" style="display: none;">
+                      {{ row[field] }}
+                    </code>
+                  {% else %}
+                    {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities) }}
+                  {% endif %}
+                </td>
+                {% if field not in ['dataset', 'organisation-entity', 'start-date', 'end-date', 'typology'] %}
+                  <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
+                    <a href="/fact?dataset={{ row['dataset'] }}&entity={{ row['entity'] }}&field={{ field }}" class="govuk-link">Facts</a>
+                  </td>
                     {% else %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"><span class='govuk-visually-hidden'>no fact link</span></td>
                     {% endif %}
@@ -92,11 +115,18 @@
               {% endif %}
             {% endfor %}
           </tbody>
+          <script>
+            function expandGeometry() {
+              document.getElementById('geometry-content').style.display = 'none';
+              document.getElementById('geometry-full-content').style.display = 'block';
+            }
+          </script>
+
         </table>
       {% endcall %}
 
       {% set jsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0"></code></pre>
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ row | digital_land_to_json | safe }}</code></pre>
       {% endset %}
       {% set geojsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
@@ -339,6 +369,8 @@
 {%- endblock content %}}
 
 {%- block pageScripts %}
+
+
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
