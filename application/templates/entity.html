@@ -8,12 +8,16 @@
 {%- from "components/entity-field/macro.jinja" import entityField %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
+{% set is_truncated = false %}
 {% if row['geometry'] %}
-  {% set truncated_geometry = row['geometry'][:10000] %}
-  {% set full_geometry = row['geometry'] %}
+  {% if row['geometry']|length > 10000 %}
+    {% set is_truncated = true %}
+    {% set truncated_geometry = row['geometry'][:10000] %}
+  {% else %}
+    {% set truncated_geometry = row['geometry'] %}
+  {% endif %}
 {% else %}
   {% set truncated_geometry = "" %}
-  {% set full_geometry = "" %}
 {% endif %}
 
 
@@ -29,6 +33,7 @@
 {%- endif %}
 
 {% set geometry_url = "/entity/" + row["entity"] | string + ".geojson" if row['typology'] == "geography" else None %}
+{% set geometry_json_url = "/entity/" + row["entity"] | string + ".json" if row['typology'] == "geography" else None %}
 {% set geojson_data = entity %}
 
 {% if geometry_url or geojson_features %}
@@ -93,7 +98,7 @@
                   {% if field == 'geometry' %}
                     <code class ="app-code-block" id="geometry-content">
                       {% if row[field] is not none %}
-                        {{ row[field][:10000] }}{% if row[field]|length > 10000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
+                        {{ truncated_geometry }}{% if row[field]|length > 10000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
                       {% endif %}
                       </code>
                     <code class ="app-code-block" id="geometry-full-content" style="display: none;">
@@ -125,8 +130,23 @@
         </table>
       {% endcall %}
 
+      {% set data_to_send = {
+        'row': row,
+        'is_truncated': is_truncated
+      } %}
       {% set jsonHTML %}
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ row | digital_land_to_json | safe }}</code></pre>
+      {% if is_truncated %}
+      <a href="{{geometry_json_url}}"
+       class="govuk-button govuk-button--secondary"
+       style="margin-bottom: 10px;"
+       download>
+      Download JSON
+    </a>
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ data_to_send | digital_land_to_json | safe }}
+        </code></pre>
+      {% else %}
+      <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ data_to_send | digital_land_to_json | safe }}</code></pre>
+      {% endif %}
       {% endset %}
       {% set geojsonHTML %}
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" id="geojson-content" tabindex="0">Loading...</code></pre>
@@ -387,6 +407,14 @@
                   .catch(error => {
                       console.error('Error loading GeoJSON:', error);
                       geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
+                      // Create and append the download button
+                      const downloadButton = document.createElement('a');
+                      downloadButton.href = '{{ geometry_url }}';
+                      downloadButton.className = 'govuk-button govuk-button--secondary';
+                      downloadButton.style.marginTop = '10px';
+                      downloadButton.textContent = 'Download GeoJSON';
+
+                      geojsonContentElement.parentElement.appendChild(downloadButton);
                   });
           }
       }

@@ -166,7 +166,10 @@ def get_entity_name(entity):
 
 
 def digital_land_to_json(dict):
-    filtered_dict = {k: v for k, v in dict.items() if k != "geometry"}
+    filtered_dict = dict.get("row", {})
+    is_truncated = dict.get("is_truncated", False)
+    if is_truncated:
+        filtered_dict = {k: v for k, v in filtered_dict.items() if k != "geometry"}
     # dict["geometry"] = dict["geometry"][:1000]
     return json.dumps(
         filtered_dict, default=str, indent=4, cls=NoneToEmptyStringEncoder
