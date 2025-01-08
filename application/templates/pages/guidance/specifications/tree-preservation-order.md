@@ -1,4 +1,4 @@
-**Last updated:** 20 November 2024<br/>
+**Last updated:** 8 January 2025<br/>
 
 ---
 
@@ -100,12 +100,6 @@ Write in YYYY-MM-DD format.
 
 Example: `2022-12-20`
 
-### start-date
-
-The date that the tree preservation order came into force, written in `YYYY-MM-DD` format.
-
-Example: `1984-03-28`
-
 ### confirmed-date
 
 The date a tree preservation order is confirmed as being in effect, and the tree or trees are fully protected. This comes after all objections have been considered.
@@ -113,16 +107,6 @@ The date a tree preservation order is confirmed as being in effect, and the tree
 Write in YYYY-MM-DD format.
 
 Example: `2022-12-20`
-
-### end-date
-
-Where the tree preservation order is [revoked](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If the TPO is still active, leave this field blank. If the tree has been felled, use the felled-date field.
-
-Example: `1999-01-20`
-
-### felled-date
-
-If applicable, the date that the tree was felled, written in `YYYY-MM-DD` format. If the tree hasn't been felled, leave this field blank.
 
 ### entry-date
 
@@ -133,6 +117,18 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
+
+### start-date
+
+The date that the tree preservation order came into force, written in `YYYY-MM-DD` format.
+
+Example: `1984-03-28`
+
+### end-date
+
+Where the tree preservation order is [revoked](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If the TPO is still active, leave this field blank. If the tree has been felled, use the felled-date field.
+
+Example: `1999-01-20`
 
 ---
 
@@ -195,6 +191,16 @@ If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associat
 
 Optional text on how this data was made or produced, or how it can be interpreted.
 
+### entry-date
+
+The date the entity was last updated.
+
+If the entity has never been updated, enter the same date as start-date.
+
+Write in `YYYY-MM-DD` format.
+
+Example: `2022-12-20`
+
 ### start-date
 
 The date that the tree preservation order came into force, written in `YYYY-MM-DD` format.
@@ -207,15 +213,6 @@ If applicable, the date that the tree preservation order was revoked, written in
 
 Example: `1999-01-20`
 
-### entry-date
-
-The date the entity was last updated.
-
-If the entity has never been updated, enter the same date as start-date.
-
-Write in `YYYY-MM-DD` format.
-
-Example: `2022-12-20`
 
 ---
 
@@ -297,18 +294,6 @@ Example: `100 High Street, Bath`
 
 Optional text on how this data was made or produced, or how it can be interpreted.
 
-### start-date
-
-The date from which the tree preservation order affects the tree, written in `YYYY-MM-DD` format.
-
-Example: `1984-03-28`
-
-### end-date
-
-Where the tree preservation order is [revoked](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If the TPO is still active, leave this field blank. If the tree has been felled, use the felled-date field.
-
-Example: `1999-01-20`
-
 ### felled-date
 
 If applicable, the date that the tree was felled, written in `YYYY-MM-DD` format. If the tree hasn't been felled, leave this field blank.
@@ -322,6 +307,19 @@ If the entity has never been updated, enter the same date as start-date.
 Write in `YYYY-MM-DD` format.
 
 Example: `2022-12-20`
+
+### start-date
+
+The date from which the tree preservation order affects the tree, written in `YYYY-MM-DD` format.
+
+Example: `1984-03-28`
+
+### end-date
+
+Where the tree preservation order is [revoked](https://standards.planning-data.dev/principles/#we-shouldn%E2%80%99t-delete-entries-in-a-register), this should be the date that it was no longer in effect, written in `YYYY-MM-DD` format. If the TPO is still active, leave this field blank. If the tree has been felled, use the felled-date field.
+
+Example: `1999-01-20`
+
 
 ---
 
