@@ -413,7 +413,7 @@
                       downloadButton.className = 'govuk-button govuk-button--secondary';
                       downloadButton.style.marginTop = '10px';
                       downloadButton.textContent = 'Download GeoJSON';
-
+                      downloadButton.setAttribute('download', '{{ row["entity"] }}.geojson');
                       geojsonContentElement.parentElement.appendChild(downloadButton);
                   });
           }
