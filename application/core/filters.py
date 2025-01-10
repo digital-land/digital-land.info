@@ -169,7 +169,11 @@ def digital_land_to_json(dict):
     filtered_dict = dict.get("row", {})
     is_truncated = dict.get("is_truncated", False)
     if is_truncated:
-        filtered_dict = {k: v for k, v in filtered_dict.items() if k != "geometry"}
+        # Replace geometry with a placeholder message if truncated
+        if "geometry" in filtered_dict:
+            filtered_dict[
+                "geometry"
+            ] = "<i>Too large to display. Download JSON for full geometry.</i>"
     # dict["geometry"] = dict["geometry"][:1000]
     return json.dumps(
         filtered_dict, default=str, indent=4, cls=NoneToEmptyStringEncoder
@@ -262,7 +266,7 @@ def make_link_filter(eval_ctx, url, **kwargs):
 def get_entity_geometry(entity):
     data = None
     if entity and entity.geojson is not None:
-        data = entity.geojson.geometry
+        data = entity.geojson
 
     if data is None:
         logger.warning(
