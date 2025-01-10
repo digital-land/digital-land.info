@@ -266,7 +266,7 @@ def make_link_filter(eval_ctx, url, **kwargs):
 def get_entity_geometry(entity):
     data = None
     if entity and entity.geojson is not None:
-        data = entity.geojson
+        data = entity.geojson.geometry
 
     if data is None:
         logger.warning(
