@@ -132,11 +132,16 @@
       {% set jsonHTML %}
       {% if is_truncated %}
       <a href="{{geometry_json_url}}"
+      id = "download-json-button"
        class="govuk-button govuk-button--secondary"
        style="margin-bottom: 10px;"
        download>
-      Download JSON
+       <span id="download-text">Download JSON</span>
+      <div id="spinner" style="display: none;">
+        <div class="dl-map__spinning-loader" style="width: 10px; height: 10px;margin-top: -25px "></div>
+     </div>
     </a>
+
         <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ data_to_send | digital_land_to_json | safe }}
         </code></pre>
       {% else %}
@@ -424,6 +429,46 @@
           // Simulate a click event on the GeoJSON tab
           document.querySelector('#tab_geojson').click();
       }
+  });
+
+  document.getElementById('download-json-button').addEventListener('click', async function (event) {
+    const downloadButton = document.getElementById("download-json-button");
+    //const downloadText = document.getElementById("download-text");
+    const spinner = document.getElementById("spinner");
+
+    // Show spinner and disable button
+    downloadButton.disabled = true;
+    spinner.style.display = "block";
+    //downloadText.style.display = "none";
+
+    try {
+      // Fetch the file content
+      const response = await fetch("{{geometry_json_url}}");
+      if (!response.ok) {
+        throw new Error("Failed to fetch the file");
+      }
+      const blob = await response.blob();
+
+      // Create a Blob URL and trigger the download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "geometry.json"; // Optional: specify the file name
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Clean up the Blob URL
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error during download:", error);
+      alert("An error occurred while downloading the file.");
+    } finally {
+      // Restore button and hide spinner
+      downloadButton.disabled = false;
+      spinner.style.display = "none";
+      downloadText.style.display = "inline";
+    }
   });
 </script>
 {%- endblock %}
