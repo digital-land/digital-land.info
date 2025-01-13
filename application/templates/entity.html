@@ -10,14 +10,9 @@
 
 {% set is_truncated = false %}
 {% if row['geometry'] %}
-  {% if row['geometry']|length > 1000000 %}
+  {% if row['geometry']|length > 100000 %}
     {% set is_truncated = true %}
-    {% set truncated_geometry = row['geometry'][:1000000] %}
-  {% else %}
-    {% set truncated_geometry = row['geometry'] %}
   {% endif %}
-{% else %}
-  {% set truncated_geometry = "" %}
 {% endif %}
 
 
@@ -98,7 +93,7 @@
                   {% if field == 'geometry' %}
                     <code class ="app-code-block" id="geometry-content">
                       {% if row[field] is not none %}
-                        {{ truncated_geometry }}{% if row[field]|length > 1000000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
+                        {{ row[field][:100000] }}{% if row[field]|length > 100000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
                       {% endif %}
                       </code>
                     <code class ="app-code-block" id="geometry-full-content" style="display: none;">
