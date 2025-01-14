@@ -453,7 +453,6 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "geometry.json"; // Optional: specify the file name
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -462,7 +461,6 @@
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error during download:", error);
-      alert("An error occurred while downloading the file.");
     } finally {
       // Restore button and hide spinner
       downloadButton.disabled = false;
