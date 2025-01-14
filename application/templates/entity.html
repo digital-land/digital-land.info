@@ -406,7 +406,7 @@
                   })
                   .catch(error => {
                       console.error('Error loading GeoJSON:', error);
-                      geojsonContentElement.innerHTML = 'Error loading GeoJSON content';
+                      geojsonContentElement.innerHTML = 'Too large to display. Download GeoJSON instead. ';
                       // Create and append the download button
                       const downloadButton = document.createElement('a');
                       downloadButton.href = '{{ geometry_url }}';
