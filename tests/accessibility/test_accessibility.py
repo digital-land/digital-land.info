@@ -77,3 +77,6 @@ def test_accessibility_of_the_roadmap_page(server_url):
 
 def test_accessibility_of_the_accessibility_statement_page(server_url):
     accessibility_test(server_url + "/accessibility-statement")
+
+def test_accessibility_of_the_terms_and_conditions_page(server_url):
+    accessibility_test(server_url + "/terms-and-conditions")

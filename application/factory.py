@@ -164,6 +164,15 @@ def add_base_routes(app):
             {"request": request},
         )
 
+    @app.get(
+        "/terms-and-conditions", response_class=HTMLResponse, include_in_schema=False
+    )
+    def terms_and_conditions(request: Request):
+        return templates.TemplateResponse(
+            "pages/terms-and-conditions.html",
+            {"request": request},
+        )
+
     @app.get("/service-status", response_class=HTMLResponse, include_in_schema=False)
     def service_status(request: Request):
         return templates.TemplateResponse(
