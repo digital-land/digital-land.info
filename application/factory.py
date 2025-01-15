@@ -167,7 +167,7 @@ def add_base_routes(app):
     @app.get(
         "/terms-and-conditions", response_class=HTMLResponse, include_in_schema=False
     )
-    def accessibility_statement(request: Request):
+    def terms_and_conditions(request: Request):
         return templates.TemplateResponse(
             "pages/terms-and-conditions.html",
             {"request": request},
