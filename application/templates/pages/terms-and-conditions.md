@@ -52,7 +52,7 @@ You should read the terms and conditions, privacy policies and end user licences
 
 ## Disclaimer
 
-While we make reasonable effort to keep our content and data up to date, we do n’t provide any guarantees, conditions or warranties that the information will be: 
+While we make reasonable effort to keep our content and data up to date, we don’t provide any guarantees, conditions or warranties that the information will be: 
 
 * current  
 * secure  
