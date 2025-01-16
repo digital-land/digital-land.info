@@ -417,8 +417,62 @@
                       downloadButton.style.marginTop = '10px';
                       downloadButton.style.marginBottom = '10px';
                       downloadButton.textContent = 'Download GeoJSON';
+                      downloadButton.setAttribute('id','download-geojson-button')
                       downloadButton.setAttribute('download', '{{ row["entity"] }}.geojson');
                       geojsonContentElement.parentElement.appendChild(downloadButton);
+
+                      const spinnerDiv = document.createElement('div');
+                      spinnerDiv.id = 'spinner1';
+                      spinnerDiv.style.display = 'none'; // Hide the spinner initially
+
+                      // Create the spinner loader
+                      const spinnerLoader = document.createElement('div');
+                      spinnerLoader.className = 'dl-map__spinning-loader';
+                      spinnerLoader.style.width = '10px';
+                      spinnerLoader.style.height = '10px';
+                      spinnerLoader.style.marginTop = '-25px';
+
+                      // Append the spinner loader inside the spinner div
+                      spinnerDiv.appendChild(spinnerLoader);
+
+                      // Append the spinner div to the geojsonContentElement
+                      downloadButton.appendChild(spinnerDiv);
+
+                      downloadButton.addEventListener('click', async function(event) {
+                          console.info("hello")
+                          event.preventDefault();
+
+                          // Show the spinner and disable the download button
+                          spinnerDiv.style.display = 'block';
+                          downloadButton.disabled = true;
+
+                          try {
+                              // Simulate downloading the GeoJSON (you can replace this with the actual download logic)
+                              const response = await fetch('{{ geometry_url }}');
+                              if (!response.ok) {
+                                  throw new Error('Failed to fetch the file');
+                              }
+                              const blob = await response.blob();
+
+                              // Create a Blob URL and trigger the download
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = '{{ row["entity"] }}.geojson'; // Set the file name
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+
+                              // Clean up the Blob URL
+                              URL.revokeObjectURL(url);
+                          } catch (error) {
+                              console.error('Error during download:', error);
+                          } finally {
+                              // Hide the spinner and enable the download button after download
+                              spinnerDiv.style.display = 'none';
+                              downloadButton.disabled = false;
+                          }
+                      });
                   });
           }
       }
