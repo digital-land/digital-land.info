@@ -173,7 +173,7 @@ def digital_land_to_json(dict):
         if "geometry" in filtered_dict:
             filtered_dict[
                 "geometry"
-            ] = "<i>Too large to display. Download JSON for full geometry.</i>"
+            ] = "<b>Too large to display. Download JSON for full geometry.</b>"
     # dict["geometry"] = dict["geometry"][:1000]
     return json.dumps(
         filtered_dict, default=str, indent=4, cls=NoneToEmptyStringEncoder

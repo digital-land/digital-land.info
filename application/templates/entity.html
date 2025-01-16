@@ -131,12 +131,15 @@
       } %}
       {% set jsonHTML %}
       {% if is_truncated %}
+      <div class="govuk-inset-text" style="font-size: 15px; margin-top: -10px;">
+       The geometry is too large to be included in the JSON below. Download JSON for the full geometry.
+       </div>
       <a href="{{geometry_json_url}}"
       id = "download-json-button"
-       class="govuk-button govuk-button--secondary"
-       style="margin-bottom: 10px;"
-       download>
-       <span id="download-text">Download JSON</span>
+      class="govuk-button"
+      style="margin-bottom: 10px; margin-top: -10px;"
+      download>
+      <span id="download-text">Download JSON</span>
       <div id="spinner" style="display: none;">
         <div class="dl-map__spinning-loader" style="width: 10px; height: 10px;margin-top: -25px "></div>
      </div>
@@ -406,12 +409,13 @@
                   })
                   .catch(error => {
                       console.error('Error loading GeoJSON:', error);
-                      geojsonContentElement.innerHTML = 'Too large to display. Download GeoJSON instead. ';
+                      geojsonContentElement.innerHTML = '<b>Too large to display. Download GeoJSON instead.</b ';
                       // Create and append the download button
                       const downloadButton = document.createElement('a');
                       downloadButton.href = '{{ geometry_url }}';
-                      downloadButton.className = 'govuk-button govuk-button--secondary';
+                      downloadButton.className = 'govuk-button';
                       downloadButton.style.marginTop = '10px';
+                      downloadButton.style.marginBottom = '10px';
                       downloadButton.textContent = 'Download GeoJSON';
                       downloadButton.setAttribute('download', '{{ row["entity"] }}.geojson');
                       geojsonContentElement.parentElement.appendChild(downloadButton);
@@ -432,6 +436,7 @@
   });
 
   document.getElementById('download-json-button').addEventListener('click', async function (event) {
+    event.preventDefault();
     const downloadButton = document.getElementById("download-json-button");
     //const downloadText = document.getElementById("download-text");
     const spinner = document.getElementById("spinner");
@@ -448,12 +453,13 @@
         throw new Error("Failed to fetch the file");
       }
       const blob = await response.blob();
-
       // Create a Blob URL and trigger the download
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
+      a.download = "{{ row['entity'] }}.json";
       document.body.appendChild(a);
+
       a.click();
       document.body.removeChild(a);
 
@@ -465,7 +471,7 @@
       // Restore button and hide spinner
       downloadButton.disabled = false;
       spinner.style.display = "none";
-      downloadText.style.display = "inline";
+      //downloadText.style.display = "inline";
     }
   });
 </script>
