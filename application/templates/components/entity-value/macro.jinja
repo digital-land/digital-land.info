@@ -54,7 +54,7 @@
             <code class="app-code-block" tabindex="0">{{ value }}</code>
         {%- elif field in ["local-resilience-forum","local-authority-type","ownership-status","planning-permission-type","planning-permission-type","planning-permission-status","green-belt-core","ancient-woodland-status","design-code-category","design-code-status","listed-building-grade","park-and-garden-grade"] %}
             <a class ="govuk-link" href="{{ '/prefix/' + field + "/reference/" + value }}">{{ value }}</a>
-        {%- elif field in ["local-authority-district","local-planning-authority","parish","region"] %}
+        {%- elif field in ["local-authority-district","local-planning-authority","parish","region", "national-park"] %}
             <a class ="govuk-link" href="{{ '/prefix/statistical-geography/reference/' + value }}">{{ value }}</a>
         {%- elif field in ["combined-authority","local-authority"] %}
             <a class ="govuk-link" href="{{ '/prefix/local-authority/reference/' + value }}">{{ value }}</a>
