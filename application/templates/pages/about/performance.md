@@ -18,7 +18,7 @@ Many datasets have one owner providing the data nationally. There are 8 datasets
 
 229 data sources out of 584 provided by 50 local planning authorities. 74 more data sources added since last count.
 
-13 new local planning authorities providing data from last count (+5%).
+13 new local planning authorities providing data from last count.
 
 You can [help identify and design data](https://design.planning.data.gov.uk/how-to-contribute) that would be useful on the platform.
 
