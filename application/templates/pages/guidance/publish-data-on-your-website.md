@@ -12,7 +12,7 @@ Create your webpage
 
 The webpage must include, for each dataset:
 
-- the link to the data URL
+- the link to the endpoint URL
 - a summary of what the data is about
 - a statement that the data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
 
@@ -41,4 +41,4 @@ The email must include:
 - your full name
 - the name of your planning authority
 - a link to the webpage on your official planning authority website
-- a link to the data URL
+- a link to the endpoint URL
