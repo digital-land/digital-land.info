@@ -1,9 +1,10 @@
 import logging
 import sentry_sdk
 
-from datetime import timedelta
+from datetime import time, timedelta
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError
 from fastapi import FastAPI, Request, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
@@ -102,18 +103,30 @@ def add_base_routes(app):
     def health(session: Session = Depends(get_session)):
         from sqlalchemy.sql import select
 
-        try:
-            sql = select(EntityOrm.entity).limit(1)
-            result = session.execute(sql).fetchone()
-            status = {
-                "status": "OK",
-                "entities_present": "OK" if result is not None else "FAIL",
-            }
-            logger.info(f"healthcheck {status}")
-            return status
-        except Exception as e:
-            logger.exception(e)
-            raise e
+        max_retries = 3
+        retry_delay = 2
+        for attempt in range(1, max_retries + 1):
+            try:
+                sql = select(EntityOrm.entity).limit(1)
+                result = session.execute(sql).fetchone()
+                status = {
+                    "status": "OK",
+                    "entities_present": "OK" if result is not None else "FAIL",
+                }
+                logger.info(f"healthcheck {status}")
+                return status
+            except OperationalError as e:
+                logger.warning(
+                    f"Database connection error (attempt {attempt}/{max_retries}): {str(e)}"
+                )
+                if attempt < max_retries:
+                    time.sleep(retry_delay)
+                else:
+                    logger.error("Healthcheck failed after max retries")
+                    raise e
+            except Exception as e:
+                logger.exception(e)
+                raise e
 
     @app.get(
         "/invalid-geometries", response_class=JSONResponse, include_in_schema=False
