@@ -13,10 +13,11 @@ from application.data_access.entity_query_helpers import (
     get_spatial_function_for_relation,
     normalised_params,
 )
-from application.db.models import EntityOrm, OldEntityOrm
+from application.db.models import EntityOrm, OldEntityOrm, EntityFRZOrm
 from application.search.enum import GeometryRelation, PeriodOption
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
+from sqlalchemy.orm import aliased
 
 logger = logging.getLogger(__name__)
 
@@ -193,12 +194,30 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
     point = get_point(params)
+    entity_frz_alias = aliased(EntityFRZOrm)
     if point is not None:
-        query = query.filter(
-            and_(
-                EntityOrm.geometry.is_not(None),
-                func.ST_IsValid(EntityOrm.geometry),
-                func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
+        query = query.outerjoin(
+            entity_frz_alias,
+            EntityOrm.entity == entity_frz_alias.entity
+            # need to modify this during final implementation
+        ).filter(
+            or_(
+                and_(
+                    EntityOrm.dataset != "flood-risk-zone",
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    func.ST_Contains(
+                        EntityOrm.geometry, func.ST_GeomFromText(point, 4326)
+                    ),
+                ),
+                and_(
+                    entity_frz_alias.geometry_subdivided.is_not(None),
+                    func.ST_IsValid(entity_frz_alias.geometry_subdivided),
+                    func.ST_Contains(
+                        entity_frz_alias.geometry_subdivided,
+                        func.ST_GeomFromText(point, 4326),
+                    ),
+                ),
             )
         )
 
