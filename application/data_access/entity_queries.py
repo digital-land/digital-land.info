@@ -94,6 +94,7 @@ def get_entity_search(session: Session, parameters: dict):
 
 def _apply_exclusion_filters(query, params):
     exclude_fields = params.get("exclude_field", [])
+    print(exclude_fields)
     if exclude_fields:
         # Split the comma-separated string into a list of individual fields
         split_strings = [
@@ -110,14 +111,17 @@ def _apply_exclusion_filters(query, params):
             for column in EntityOrm.__table__.columns
             if column.name not in exclude_fields
         ]
-
+        print("all columns", all_columns)
+        print("")
+        print("selected_columns", selected_columns)
         if not selected_columns:
             raise ValueError(
                 "No columns left to select after exclusions. Please check the field names."
             )
-
         # Modify the query to select only the desired columns
         query = query.with_entities(*selected_columns)
+    else:
+        query = query.with_entities(*EntityOrm.__table__.columns)
 
     return query
 
