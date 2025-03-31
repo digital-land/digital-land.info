@@ -18,6 +18,7 @@ def _create_engine():
         settings.READ_DATABASE_URL,
         pool_size=settings.DB_POOL_SIZE,
         max_overflow=settings.DB_POOL_MAX_OVERFLOW,
+        pool_pre_ping=True,
     )
 
     logger.info(
