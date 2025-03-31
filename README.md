@@ -132,19 +132,13 @@ Note: if you are using WSL, playwright inspector wont work by default. you will 
 
 
 ###  Map Configuration Guide (Working with the OS API in the Development Environment)
-To configure the map in your development environment, you need to define the following environment variables in your `.env` file.
+To configure the map in your development environment, you need to define the following environment variables in your `.env` file. This is because the map page uses the OS api for background maps (roads,buildings etc.).
 
-    DATASETTE_TILES_URL=https://datasette-tiles.planning.data.gov.uk/
     OS_CLIENT_KEY=
     OS_CLIENT_SECRET=
 
-`OS_CLIENT_KEY` and `OS_CLIENT_SECRET` are necessary for accessing Ordnance Survey (OS) maps. To obtain access, please reach out to [Infrastructure team](https://github.com/eveleighoj) for credentials.
+`OS_CLIENT_KEY` and `OS_CLIENT_SECRET` are necessary for accessing Ordnance Survey (OS) maps. To obtain access, please reach out to [Infrastructure team](https://github.com/eveleighoj) for credentials. They wi provide a set of development credentials that are different to the production credentials.
 Note: **DO NOT** push API keys to the repository.
-
-**Updating MapController.js**
-To use the DATASETTE_TILES_URL, ensure it is passed as a parameter in MapController.js:
-
-    this.DATASETTE_TILES_URL= "https://datasette-tiles.planning.data.gov.uk/"
 
 
 ## Adding new python packages to the project
