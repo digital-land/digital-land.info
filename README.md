@@ -137,7 +137,7 @@ To configure the map in your development environment, you need to define the fol
     OS_CLIENT_KEY=
     OS_CLIENT_SECRET=
 
-`OS_CLIENT_KEY` and `OS_CLIENT_SECRET` are necessary for accessing Ordnance Survey (OS) maps. To obtain access, please reach out to [Infrastructure team](https://github.com/eveleighoj) for credentials. They wi provide a set of development credentials that are different to the production credentials.
+`OS_CLIENT_KEY` and `OS_CLIENT_SECRET` are necessary for accessing Ordnance Survey (OS) maps. To obtain access, please reach out to [Infrastructure team](https://github.com/eveleighoj) for credentials. They will provide a set of development credentials that are different to the production credentials.
 Note: **DO NOT** push API keys to the repository.
 
 
