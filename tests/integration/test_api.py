@@ -76,6 +76,7 @@ def test_lasso_geo_search_finds_results(client, test_data):
     response = client.get("/entity.geojson", params=params)
     assert response.status_code == 200
     data = response.json()
+    # assert False
     assert "type" in data
     assert "features" in data
     assert "FeatureCollection" == data["type"]

@@ -37,6 +37,8 @@ class EntityOrm(Base):
     @hybrid_property
     def geojson(self):
         if self._geometry_geojson is not None:
+            # print("name", self.name)
+            # print("geometry geojson", self._geometry_geojson)
             geometry = json.loads(self._geometry_geojson)
             return {"geometry": geometry, "type": "Feature"}
         elif self._point_geojson is not None:

@@ -86,7 +86,7 @@ def get_entity_search(
     query = _apply_location_filters(session, query, params)
     query = _apply_period_option_filter(query, params)
     query = _apply_limit_and_pagination_filters(query, params)
-    query = _apply_exclusion_filters(
+    query = _apply_field_filters(
         query, params, extension
     )  # Build the query without excluded params
     entities = query.all()
@@ -95,22 +95,31 @@ def get_entity_search(
     return {"params": params, "count": count, "entities": entities}
 
 
-def _apply_exclusion_filters(query, params, extension: Optional[SuffixEntity] = None):
+def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None):
+    # disable field filters on query for geojson?
+    # if extension and extension == "geojson":
+    #     return query.with_entities(EntityOrm)
     # if requested specific fields only request those from db:
     include_fields = params.get("field", [])
     print("include fields", include_fields)
+    print("extension", extension.value)
     if include_fields:
         fields = set([s.strip() for sub in include_fields for s in sub.split(",") if s])
-        # need to ensure we get the chosen extension column
+        # need to ensure we get at least the extension column
         if extension:
             fields.add(extension.value)
         print("fields", fields)
         columns = [
-            column for column in EntityOrm.__table__.columns if column.name in fields
+            column
+            for column in EntityOrm.__table__.columns
+            if column.name in fields or (column.name == "entity")
         ]
     else:
         # need to make copy of columns otherwise they are immutable
         columns = [column for column in EntityOrm.__table__.columns]
+        # columns.append(column_property(func.ST_AsGeoJSON(EntityOrm.geometry)))
+        # columns.append(column_property(func.ST_AsGeoJSON(EntityOrm.geometry)))
+
     print("columns", columns)
     exclude_fields = params.get("exclude_field", [])
     if exclude_fields:
@@ -119,10 +128,7 @@ def _apply_exclusion_filters(query, params, extension: Optional[SuffixEntity] = 
             s.strip() for sub in exclude_fields for s in sub.split(",") if s
         ]
         exclude_fields = set(split_strings)
-        all_columns = {column.name for column in EntityOrm.__table__.columns}
 
-        # Exclude fields not present in the table schema
-        exclude_fields = {field for field in exclude_fields if field in all_columns}
         # Dynamically construct the selected columns by excluding the specified fields
         selected_columns = [
             column for column in columns if column.name not in exclude_fields
