@@ -96,31 +96,29 @@ def get_entity_search(
 
 
 def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None):
-    # disable field filters on query for geojson?
-    # if extension and extension == "geojson":
-    #     return query.with_entities(EntityOrm)
+
+    # disable field filters if geojson as we already need to get them all
+    if extension and extension == "geojson":
+        return query
+
     # if requested specific fields only request those from db:
     include_fields = params.get("field", [])
-    print("include fields", include_fields)
-    print("extension", extension.value)
     if include_fields:
         fields = set([s.strip() for sub in include_fields for s in sub.split(",") if s])
         # need to ensure we get at least the extension column
         if extension:
             fields.add(extension.value)
-        print("fields", fields)
         columns = [
             column
             for column in EntityOrm.__table__.columns
             if column.name in fields or (column.name == "entity")
         ]
     else:
-        # need to make copy of columns otherwise they are immutable
+        # if no fields specified then get all columns
+        # need to make copy of columns for editing later otherwise they are immutable
         columns = [column for column in EntityOrm.__table__.columns]
-        # columns.append(column_property(func.ST_AsGeoJSON(EntityOrm.geometry)))
-        # columns.append(column_property(func.ST_AsGeoJSON(EntityOrm.geometry)))
 
-    print("columns", columns)
+    # now remove the exclude fields from included fields
     exclude_fields = params.get("exclude_field", [])
     if exclude_fields:
         # Split the comma-separated string into a list of individual fields
@@ -139,8 +137,7 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
             )
     else:
         selected_columns = columns
-    print("")
-    print("selected_columns", selected_columns)
+
     # Modify the query to select only the desired columns
     query = query.with_entities(*selected_columns)
 
