@@ -1,4 +1,4 @@
-**Last updated: 10 December 2024**<br/>
+**Last updated: 3 April 2025**<br/>
 
 ---
 
@@ -261,7 +261,7 @@ Example: `Leeds-LP01`
 
 ### document-type
 
-The code for the type of document this record refers to. Find the code you need using this [finder tool.](https://dluhc-datasets.planning-data.dev/dataset/local-plan-document-type/finder)
+The code for the type of document this record refers to. Find the code you need using this [finder tool.](https://dataset-editor.planning.data.gov.uk/dataset/local-plan-document-type/finder)
 
 If you can’t see the code for the document type you need, let us know in this [GitHub discussion.](https://github.com/digital-land/data-standards-backlog/discussions/97)
 
@@ -359,7 +359,7 @@ Example: `Leeds-LP01`
 
 ### local-plan-event
 
-The code for the type of event this record refers to. Find the code you need using [this finder tool.](https://dluhc-datasets.planning-data.dev/dataset/local-plan-event/finder)
+The code for the type of event this record refers to. Find the code you need using [this finder tool.](https://dataset-editor.planning.data.gov.uk/dataset/local-plan-event/finder)
 
 Example: `estimated-plan-adoption-date`
 
