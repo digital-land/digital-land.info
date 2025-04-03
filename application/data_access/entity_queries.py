@@ -105,6 +105,8 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
     include_fields = params.get("field", [])
     if include_fields:
         fields = set([s.strip() for sub in include_fields for s in sub.split(",") if s])
+        if extension:
+            fields.add(extension.value)
         columns = [
             column
             for column in EntityOrm.__table__.columns
