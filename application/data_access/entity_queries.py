@@ -105,16 +105,14 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
     include_fields = params.get("field", [])
     if include_fields:
         fields = set([s.strip() for sub in include_fields for s in sub.split(",") if s])
-        # need to ensure we get at least the extension column
-        if extension:
-            fields.add(extension.value)
         columns = [
             column
             for column in EntityOrm.__table__.columns
-            if column.name in fields or (column.name == "entity")
+            if column.name in fields
+            or (column.name == "entity")  # return at least entity column
         ]
     else:
-        # if no fields specified then get all columns
+        # if no fields specified then use all columns
         # need to make copy of columns for editing later otherwise they are immutable
         columns = [column for column in EntityOrm.__table__.columns]
 
