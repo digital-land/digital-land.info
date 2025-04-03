@@ -1,4 +1,4 @@
-**Last updated: 16 January 2025**<br/>
+**Last updated: 3 April 2025**<br/>
 
 ---
 
@@ -219,7 +219,7 @@ Example: `http://www.LPAwebsite.org.uk/conservationarea1.pdf`
 
 ### document-type
 
-The code for the type of document this record refers to. Find the code you need using this [finder tool](https://dluhc-datasets.planning-data.dev/dataset/conservation-area-document-type/finder).
+The code for the type of document this record refers to. Find the code you need using this [finder tool](https://dataset-editor.planning.data.gov.uk/dataset/conservation-area-document-type/finder).
 
 ### notes
 
