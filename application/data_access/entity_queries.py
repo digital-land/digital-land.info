@@ -97,12 +97,15 @@ def get_entity_search(
 
 def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None):
 
+    include_fields = params.get("field", [])
+    exclude_fields = params.get("exclude_field", [])
     # disable field filters if geojson as we already need to get them all
-    if extension and extension == "geojson":
+    if (extension and extension == SuffixEntity.geojson) or (
+        not include_fields and not exclude_fields
+    ):
         return query
 
     # if requested specific fields only request those from db:
-    include_fields = params.get("field", [])
     if include_fields:
         fields = set([s.strip() for sub in include_fields for s in sub.split(",") if s])
         if extension:
@@ -117,9 +120,8 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
         # if no fields specified then use all columns
         # need to make copy of columns for editing later otherwise they are immutable
         columns = [column for column in EntityOrm.__table__.columns]
-
+    print("columns", columns)
     # now remove the exclude fields from included fields
-    exclude_fields = params.get("exclude_field", [])
     if exclude_fields:
         # Split the comma-separated string into a list of individual fields
         split_strings = [
