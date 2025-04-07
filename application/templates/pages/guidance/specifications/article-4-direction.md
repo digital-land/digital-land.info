@@ -2,6 +2,16 @@
 
 ---
 
+Presumption to publish
+----------------------
+Ordnance Survey has confirmed that our assessment of this dataset is correct, provided the data meets our specification.
+
+[Read more about presumption to publish.](https://www.ordnancesurvey.co.uk/customers/public-sector/public-sector-licensing/publish-derived-data)
+
+[View the discussion on Github.](https://github.com/digital-land/data-standards-backlog/discussions/30#discussioncomment-10191053)
+
+---
+
 There are 2 datasets you must provide for article 4 directions:
 
 - [article 4 direction dataset](#{{ 'article 4 direction dataset' | slugify }})
