@@ -338,7 +338,7 @@ def search_entities(
     validate_dataset(query_params.get("dataset", None), dataset_names)
     validate_typologies(query_params.get("typology", None), typology_names)
     # Run entity query
-    data = get_entity_search(session, query_params)
+    data = get_entity_search(session, query_params, extension)
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
