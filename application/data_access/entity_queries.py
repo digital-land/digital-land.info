@@ -145,17 +145,17 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
 
 
 def lookup_entity_link(
-    session: Session, reference: str, dataset: str, organisation_entity: int
+    session: Session, reference: str, dataset: str, organisation_entity: int = None
 ):
     """
     This function takes an entity and a list of fields that are entity links.
     any entity link fields are then replaced with the entity object.
     """
-    search_params = {
-        "reference": [reference],
-        "dataset": [dataset],
-        "organisation-entity": [organisation_entity],
-    }
+    search_params = {"reference": [reference], "dataset": [dataset]}
+
+    if organisation_entity is not None:
+        search_params["organisation_entity"] = [organisation_entity]
+
     found_entities = get_entity_search(session, search_params)
     if found_entities["count"] == 1:
         found_entity = found_entities["entities"][0]
@@ -189,10 +189,6 @@ def _apply_base_filters(query, params):
         organisation_curies = params.get("organisation")
         for curie in organisation_curies:
             query = _apply_curie_filter(curie, query)
-
-    if params.get("organisation-entity") is not None:
-        organisation_entity = params.get("organisation-entity")
-        query = query.filter(EntityOrm.organisation_entity.in_(organisation_entity))
 
     return query
 
