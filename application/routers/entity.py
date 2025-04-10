@@ -168,7 +168,10 @@ def handle_entity_response(
     for field in entityLinkFields:
         if field in e_dict_sorted:
             linked_entity = lookup_entity_link(
-                session, e_dict_sorted[field], field, e_dict_sorted["dataset"]
+                session,
+                e_dict_sorted[field],
+                field,
+                e_dict_sorted["organisation-entity"],
             )
             if linked_entity is not None:
                 linked_entities[field] = linked_entity

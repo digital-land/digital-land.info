@@ -95,7 +95,6 @@ def get_entity_search(
 
 
 def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None):
-
     include_fields = params.get("field", [])
     exclude_fields = params.get("exclude_field", [])
     # disable field filters if geojson as we already need to get them all
@@ -190,6 +189,10 @@ def _apply_base_filters(query, params):
         organisation_curies = params.get("organisation")
         for curie in organisation_curies:
             query = _apply_curie_filter(curie, query)
+
+    if params.get("organisation-entity") is not None:
+        organisation_entity = params.get("organisation-entity")
+        query = query.filter(EntityOrm.organisation_entity.in_(organisation_entity))
 
     return query
 
