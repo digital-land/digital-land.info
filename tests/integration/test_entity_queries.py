@@ -47,6 +47,22 @@ def test__lookup_entity_link_returns_the_looked_up_entity_when_the_link_exists(
     assert linked_entity["reference"] == lookup_entity["reference"]
 
 
+def test__lookup_entity_link_returns_entity_without_organisation_entity(db_session):
+    lookup_entity = {
+        "entity": 106,
+        "reference": "a-reference",
+        "dataset": "article-4-direction",
+        "organisation_entity": 123,
+        "name": "A space",
+    }
+    db_session.add(EntityOrm(**lookup_entity))
+    linked_entity = lookup_entity_link(db_session, "a-reference", "article-4-direction")
+
+    assert linked_entity["entity"] == lookup_entity["entity"]
+    assert linked_entity["reference"] == lookup_entity["reference"]
+    assert linked_entity["dataset"] == lookup_entity["dataset"]
+
+
 @pytest.mark.parametrize("period", [["current"], ["historical"], ["all"]])
 def test_apply_period_option_filter(db_session, period):
     entities = [
