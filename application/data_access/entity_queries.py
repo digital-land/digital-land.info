@@ -95,7 +95,6 @@ def get_entity_search(
 
 
 def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None):
-
     include_fields = params.get("field", [])
     exclude_fields = params.get("exclude_field", [])
     # disable field filters if geojson as we already need to get them all
@@ -146,17 +145,17 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
 
 
 def lookup_entity_link(
-    session: Session, reference: str, dataset: str, organisation_entity: int
+    session: Session, reference: str, dataset: str, organisation_entity: int = None
 ):
     """
     This function takes an entity and a list of fields that are entity links.
     any entity link fields are then replaced with the entity object.
     """
-    search_params = {
-        "reference": [reference],
-        "dataset": [dataset],
-        "organisation-entity": [organisation_entity],
-    }
+    search_params = {"reference": [reference], "dataset": [dataset]}
+
+    if organisation_entity is not None:
+        search_params["organisation_entity"] = [organisation_entity]
+
     found_entities = get_entity_search(session, search_params)
     if found_entities["count"] == 1:
         found_entity = found_entities["entities"][0]
