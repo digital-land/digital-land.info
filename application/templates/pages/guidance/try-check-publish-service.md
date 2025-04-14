@@ -5,6 +5,7 @@ You can use the service to check your existing datasets against the specificatio
 For now the service supports:
 
 - [article 4 direction area dataset](https://www.planning.data.gov.uk/guidance/specifications/article-4-direction#article-4-direction-area)
+- [brownfield land dataset](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data)
 - [conservation area dataset](https://www.planning.data.gov.uk/guidance/specifications/conservation-area#conservation-area-dataset)
 - [listed building outline dataset](https://www.planning.data.gov.uk/guidance/specifications/listed-building#listed-buildings-outline-dataset)
 - [tree preservation zone dataset](https://www.planning.data.gov.uk/guidance/specifications/tree-preservation-order#tree-preservation-zone-dataset)
