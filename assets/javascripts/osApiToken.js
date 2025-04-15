@@ -19,13 +19,12 @@ export const getApiToken = () => {
 export const getFreshApiToken = () => {
     return new Promise((resolve, reject) => {
         makingRequest = true;
-        fetch('/os/getToken')
-            .then(res => res.json())
-            .then(res =>{
-                apiToken = res
-                makingRequest = false;
-                resolve(apiToken.access_token);
-            }
-        );
+        fetch("/os/getToken?cacheBust=" + Date.now())
+          .then((res) => res.json())
+          .then((res) => {
+            apiToken = res;
+            makingRequest = false;
+            resolve(apiToken.access_token);
+          });
     });
 }
