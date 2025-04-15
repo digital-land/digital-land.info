@@ -31,14 +31,14 @@ This dataset shows the locations of conservation areas. Conservation areas are d
 
 The data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
-Tell us about the webpage
+Submit your data
 -------------
 
-Send an email to [digitalland@communities.gov.uk](mailto:digitalland@communities.gov.uk).
+Once your data is published on your website, you can submit your data to the platform.
 
-The email must include:
+You'll need to provide your:
 
-- your full name
-- the name of your planning authority
-- a link to the webpage on your official planning authority website
-- a link to the endpoint URL
+- full name
+- work email address
+- endpoint URL: the URL of the data file or feed itself
+- webpage URL: the URL of the page on your website which contains information about the dataset and the link to your data

@@ -1,4 +1,15 @@
-**Last updated:** 8 January 2025<br/>
+**Last updated:** 7 April 2025<br/>
+
+---
+
+Presumption to publish
+----------------------
+
+Ordnance Survey has confirmed that our assessment of this dataset is correct, provided the data meets our specification.
+
+[Read more about presumption to publish.](https://www.ordnancesurvey.co.uk/customers/public-sector/public-sector-licensing/publish-derived-data)
+
+[View the discussion on Github.](https://github.com/digital-land/data-standards-backlog/discussions/43)
 
 ---
 

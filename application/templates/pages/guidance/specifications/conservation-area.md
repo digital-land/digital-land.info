@@ -1,4 +1,15 @@
-**Last updated: 16 January 2025**<br/>
+**Last updated: 7 April 2025**<br/>
+
+---
+
+Presumption to publish
+----------------------
+
+Ordnance Survey has confirmed that our assessment of this dataset is correct, provided the data meets our specification.
+
+[Read more about presumption to publish.](https://www.ordnancesurvey.co.uk/customers/public-sector/public-sector-licensing/publish-derived-data)
+
+[View the discussion on Github.](https://github.com/digital-land/data-standards-backlog/discussions/33)
 
 ---
 
@@ -219,7 +230,7 @@ Example: `http://www.LPAwebsite.org.uk/conservationarea1.pdf`
 
 ### document-type
 
-The code for the type of document this record refers to. Find the code you need using this [finder tool](https://dluhc-datasets.planning-data.dev/dataset/conservation-area-document-type/finder).
+The code for the type of document this record refers to. Find the code you need using this [finder tool](https://dataset-editor.planning.data.gov.uk/dataset/conservation-area-document-type/finder).
 
 ### notes
 
