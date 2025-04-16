@@ -11,3 +11,4 @@ SQLAlchemy-Utils
 pytest-mock
 pytest-md-report
 pre-commit
+locust
