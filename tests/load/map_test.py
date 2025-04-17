@@ -2,7 +2,8 @@ import os
 import random
 from locust import HttpUser, task
 from urllib.parse import urlencode
-import load.data as data
+import tests.load.data as data
+from tests.load.utils import skewed_random_triangular
 
 TEST_SEED = int(os.getenv("TEST_SEED")) if os.getenv("TEST_SEED") else 2025
 MAP_NUM_DATASET_TARGET = (
@@ -10,10 +11,6 @@ MAP_NUM_DATASET_TARGET = (
     if os.getenv("MAP_NUM_DATASET_TARGET")
     else 5
 )
-
-
-def skewed_random_triangular(N, target=5):
-    return round(random.triangular(0, N, target))
 
 
 class MapUser(HttpUser):
