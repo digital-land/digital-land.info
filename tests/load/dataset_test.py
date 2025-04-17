@@ -1,6 +1,6 @@
 from locust import HttpUser, task, between
 import random
-from data import DATASETS
+from tests.load.data import DATASETS
 
 
 class DatasetLoadTestUser(HttpUser):
