@@ -1064,3 +1064,14 @@ LOCATIONS = LOCATION_STR.split("\n")
 ORGANISATIONS = ORGANISATION_STR.split("\n")
 
 PERIODS = ["current", "historical"]
+
+data_tuples = [
+    # DATA, key
+    (TYPOLOGIES, "typology"),
+    (DATASETS, "dataset"),
+    (LOCATIONS, "location"),
+    (ORGANISATIONS, "organisation"),
+    (PERIODS, "period"),
+]
+
+FORMATS = [None, ".json", ".geojson"]
