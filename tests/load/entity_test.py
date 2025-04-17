@@ -80,7 +80,7 @@ def param_sample(modes=default_param_modes, clamp={}):
 
 
 def param_sample_to_url(param_sample, format=".json"):
-    assert format in [".json", ".geojson"]
+    assert format in [None, ".json", ".geojson"]
     return f"/entity{format or ''}?{urlencode(param_sample, doseq=True)}"
 
 
