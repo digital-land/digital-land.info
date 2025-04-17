@@ -2,7 +2,7 @@ import os
 import random
 from locust import HttpUser, task
 from urllib.parse import urlencode
-import tests.load.data as data
+import load.data as data
 
 TEST_SEED = int(os.getenv("TEST_SEED")) if os.getenv("TEST_SEED") else 2025
 MAP_NUM_DATASET_TARGET = (
@@ -19,7 +19,8 @@ def skewed_random_triangular(N, target=5):
 class MapUser(HttpUser):
     """Accesses the /map endpoint with a number of 'dataset' query params.
 
-    Use `MAP_NUM_DATASET_TARGET` env variable to set the mode of the distribution (int)"""
+    Use `MAP_NUM_DATASET_TARGET` env variable to set the mode of the distribution (int)
+    """
 
     @task
     def entity_page(self):

@@ -1,4 +1,6 @@
 from locust import HttpUser, task, between
+import random
+from data import DATASETS
 
 
 class DatasetLoadTestUser(HttpUser):
@@ -14,4 +16,5 @@ class DatasetLoadTestUser(HttpUser):
 
     @task
     def get_dataset(self):
-        self.client.get("/dataset/border")
+        dataset = random.choice(DATASETS)
+        self.client.get(f"/dataset/{dataset}")
