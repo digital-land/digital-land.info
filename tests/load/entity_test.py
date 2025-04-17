@@ -96,7 +96,7 @@ class EntityUser(HttpUser):
     def typologies(self):
         params = param_sample(self.modes)
         fmt = random.choice(FORMATS)
-        url = param_sample_to_url(params, format=None)
+        url = param_sample_to_url(params, format=fmt)
         self.client.get(url, name=f"/entity (heavy) {fmt}")
 
 
