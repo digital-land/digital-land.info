@@ -17,18 +17,6 @@ class WebsiteUser(HttpUser):
         self.client.get("/about")
 
     @task
-    def load_dataset_page(self):
-        self.client.get("/dataset")
-
-    @task(8)
-    def load_entity_page(self):
-        self.client.get("/entity")
-
-    @task
-    def load_map_page(self):
-        self.client.get("/map")
-
-    @task
     def load_api_page(self):
         self.client.get("/docs")
 
