@@ -108,7 +108,7 @@ class LightEntityUser(HttpUser):
     @tag("light")
     @task
     def typologies(self):
-        params = param_sample(self.modes, clamp={})
+        params = param_sample(self.modes, clamp=self.clamp_opts)
         fmt = random.choice(FORMATS)
         url = param_sample_to_url(params, format=fmt)
         self.client.get(url, name=f"/entity (light), {fmt}")
