@@ -84,6 +84,9 @@ def param_sample_to_url(param_sample, format=".json"):
     return f"/entity{format or ''}?{urlencode(param_sample, doseq=True)}"
 
 
+FORMATS = [None, ".json", ".geojson"]
+
+
 class EntityUser(HttpUser):
     wait_time = between(1, 3)
     modes = default_param_modes
@@ -92,8 +95,9 @@ class EntityUser(HttpUser):
     @task
     def typologies(self):
         params = param_sample(self.modes)
+        fmt = random.choice(FORMATS)
         url = param_sample_to_url(params, format=None)
-        self.client.get(url, name="/entity + param sample")
+        self.client.get(url, name=f"/entity (heavy) {fmt}")
 
 
 class LightEntityUser(HttpUser):
@@ -105,6 +109,6 @@ class LightEntityUser(HttpUser):
     @task
     def typologies(self):
         params = param_sample(self.modes, clamp={})
-        fmt = random.choice([None, ".json", ".geojson"])
+        fmt = random.choice(FORMATS)
         url = param_sample_to_url(params, format=fmt)
-        self.client.get(url, name="/entity + param sample")
+        self.client.get(url, name=f"/entity (light), {fmt}")
