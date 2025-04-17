@@ -59,10 +59,11 @@ idx_entity_reference = Index("idx_entity_reference", EntityOrm.reference)
 idx_entity_typology = Index("idx_entity_typology", EntityOrm.typology)
 
 
-class EntityFRZOrm(Base):
+class EntitySubdividedOrm(Base):
     __tablename__ = "entity_subdivided"
 
     entity = Column(BIGINT, primary_key=True, autoincrement=False)
+    dataset = Column(Text, nullable=True)
     geometry_subdivided = Column(
         Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True
     )
@@ -70,7 +71,7 @@ class EntityFRZOrm(Base):
 
 # Note geoalchemy2 automatically indexes Geometry columns
 idx_entity_subdivided_entity = Index(
-    "idx_entity_subdivided_entity", EntityFRZOrm.entity
+    "idx_entity_subdivided_entity", EntitySubdividedOrm.entity
 )
 
 

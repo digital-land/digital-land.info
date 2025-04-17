@@ -13,7 +13,7 @@ from application.data_access.entity_query_helpers import (
     get_spatial_function_for_relation,
     normalised_params,
 )
-from application.db.models import EntityOrm, OldEntityOrm, EntityFRZOrm
+from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
@@ -70,7 +70,6 @@ def get_entity_search(
     params = normalised_params(parameters)
     count: int
     entities: list[EntityModel]
-
     # get count
     subquery = session.query(EntityOrm.entity)
     subquery = _apply_base_filters(subquery, params)
@@ -216,11 +215,14 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
     point = get_point(params)
-    entity_frz_alias = aliased(EntityFRZOrm)
+    entity_subdivided_alias = aliased(EntitySubdividedOrm)
     if point is not None:
         query = query.outerjoin(
-            entity_frz_alias,
-            EntityOrm.entity == entity_frz_alias.entity
+            entity_subdivided_alias,
+            and_(
+                EntityOrm.entity == entity_subdivided_alias.entity,
+                EntityOrm.dataset == entity_subdivided_alias.dataset,
+            )
             # need to modify this during final implementation
         ).filter(
             or_(
@@ -233,10 +235,10 @@ def _apply_location_filters(session, query, params):
                     ),
                 ),
                 and_(
-                    entity_frz_alias.geometry_subdivided.is_not(None),
-                    func.ST_IsValid(entity_frz_alias.geometry_subdivided),
+                    entity_subdivided_alias.geometry_subdivided.is_not(None),
+                    func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
                     func.ST_Contains(
-                        entity_frz_alias.geometry_subdivided,
+                        entity_subdivided_alias.geometry_subdivided,
                         func.ST_GeomFromText(point, 4326),
                     ),
                 ),
