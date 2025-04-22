@@ -85,6 +85,7 @@ class RandomisedEntityUser(HttpUser):
             response.failure(msg)
 
     @task
+    @tag("static")
     def get_entities_from_static_pool(self):
         url = random.choice(POOL)
         response = self.client.get(url, name="/entity (static pool)")

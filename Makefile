@@ -163,6 +163,7 @@ docker-security-scan:
 		-f docker-compose.security.yml \
 		run --rm zap
 
+# locust tests will be run against the following host:
 TEST_HOST ?= http://localhost:8000
 
 test-load-website:
@@ -173,5 +174,7 @@ test-load-dataset:
 		locust -f tests/load/dataset_test.py -H $(TEST_HOST)
 test-load-entity:
 		locust -f tests/load/entity_test.py -H $(TEST_HOST)
-test-load-random:
-		 locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -E random
+test-load-entity-random:
+		 locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -T random
+test-load-entity-static-pool:
+		 locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -E random -T static
