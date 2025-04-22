@@ -16,7 +16,7 @@ def param_sample(modes, clamp={}):
     for data, key in data_tuples:
         n = len(data) - 1
         if key in clamp:
-            num = min(n, clamp[key])
+            n = min(n, clamp[key])
         num = skewed_random_triangular(n, modes["typology"])
         params[key] = random.sample(data, num)
     limit = random.randint(0, 100)
