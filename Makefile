@@ -162,3 +162,16 @@ docker-security-scan:
 	docker-compose \
 		-f docker-compose.security.yml \
 		run --rm zap
+
+TEST_HOST ?= http://localhost:8000
+
+test-load-website:
+		locust -f tests/load/website_test.py -H $(TEST_HOST)
+test-load-map:
+		locust -f tests/load/map_test.py -H $(TEST_HOST)
+test-load-dataset:
+		locust -f tests/load/dataset_test.py -H $(TEST_HOST)
+test-load-entity:
+		locust -f tests/load/entity_test.py -H $(TEST_HOST)
+test-load-random:
+		 locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -E random
