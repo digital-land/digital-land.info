@@ -3,6 +3,10 @@ import random
 import tests.load.data_entity as DE
 from tests.load.utils import param_sample, param_sample_to_url
 
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 default_param_modes = {
     "typology": 3,
@@ -47,7 +51,13 @@ class RandomisedEntityUser(HttpUser):
         params["organisation_entity"] = params["organisation"]
         params.pop("organisation")
         url = param_sample_to_url(params, format=fmt)
-        self.client.get(url, name=f"/entity, {fmt}")
+        with self.client.get(
+            url, name=f"/entity, {fmt}", catch_response=True
+        ) as response:
+            if response.status_code != 200:
+                msg = f"Failure response for URL: {url}"
+                logger.warning(msg)
+                response.failure(msg)
 
     @task
     @tag("random")
@@ -68,9 +78,17 @@ class RandomisedEntityUser(HttpUser):
     @tag("random")
     def get_entities_from_dynamic_pool(self):
         url = random.choice(self.pool)
-        self.client.get(url, name="/entity (static pool)")
+        response = self.client.get(url, name="/entity (static pool)")
+        if response.status_code != 200:
+            msg = f"Failure response for URL: {url} (dynamic pool)"
+            logger.warning(msg)
+            response.failure(msg)
 
     @task
     def get_entities_from_static_pool(self):
         url = random.choice(POOL)
-        self.client.get(url, name="/entity (static pool)")
+        response = self.client.get(url, name="/entity (static pool)")
+        if response.status_code != 200:
+            msg = f"Failure response for URL: {url} (static pool)"
+            logger.warning(msg)
+            response.failure(msg)
