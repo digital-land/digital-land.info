@@ -48,8 +48,8 @@ class RandomisedEntityUser(HttpUser):
     clamp_opts = default_clamp_opts
     pool = []
 
-    def on_start(self):
-        self.pool = create_url_pool(POOL_SIZE, self.modes, self.clamp_opts)
+    # def on_start(self):
+    #     self.pool = create_url_pool(POOL_SIZE, self.modes, self.clamp_opts)
 
     def request_entities(self, url, name):
         with self.client.get(url, name=name, catch_response=True) as response:
@@ -80,11 +80,11 @@ class RandomisedEntityUser(HttpUser):
     def get_entities_geojson(self):
         self.get_entities(".geojson")
 
-    @task
-    @tag("random")
-    def get_entities_from_dynamic_pool(self):
-        url = random.choice(self.pool)
-        self.request_entities(url, "/entity (dynamic pool)")
+    # @task
+    # @tag("random")
+    # def get_entities_from_dynamic_pool(self):
+    #     url = random.choice(self.pool)
+    #     self.request_entities(url, "/entity (dynamic pool)")
 
     @task
     @tag("static")
