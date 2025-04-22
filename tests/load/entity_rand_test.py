@@ -1,8 +1,8 @@
 from locust import HttpUser, task, tag, between
 import random
+import os
 import tests.load.data_entity as DE
 from tests.load.utils import param_sample, param_sample_to_url
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,9 @@ default_param_modes = {
 default_clamp_opts = {"dataset": 3, "organisation": 2, "location": 4}
 
 
+POOL_SIZE = int(os.getenv("URL_POOL_SIZE")) if os.getenv("URL_POOL_SIZE") else 100
+
+
 def create_url_pool(n, modes, clamp):
     pool = []
     for _ in range(n):
@@ -31,7 +34,7 @@ def create_url_pool(n, modes, clamp):
     return pool
 
 
-POOL = create_url_pool(100, default_param_modes, default_clamp_opts)
+POOL = create_url_pool(POOL_SIZE, default_param_modes, default_clamp_opts)
 
 
 class RandomisedEntityUser(HttpUser):
@@ -44,20 +47,22 @@ class RandomisedEntityUser(HttpUser):
     pool = []
 
     def on_start(self):
-        self.pool = create_url_pool(100, self.modes, self.clamp_opts)
+        logger.info(f"Using pool size: {POOL_SIZE}")
+        self.pool = create_url_pool(POOL_SIZE, self.modes, self.clamp_opts)
+
+    def request_entities(self, url, name):
+        with self.client.get(url, name=name, catch_response=True) as response:
+            if response.status_code != 200:
+                msg = f"status: {response.status_code} URL: {url}"
+                logger.warning(msg)
+                response.failure(msg)
 
     def get_entities(self, fmt):
         params = param_sample(self.modes, clamp=self.clamp_opts)
         params["organisation_entity"] = params["organisation"]
         params.pop("organisation")
         url = param_sample_to_url(params, format=fmt)
-        with self.client.get(
-            url, name=f"/entity, {fmt}", catch_response=True
-        ) as response:
-            if response.status_code != 200:
-                msg = f"Failure response for URL: {url}"
-                logger.warning(msg)
-                response.failure(msg)
+        self.request_entities(url, f"/entity, {fmt}")
 
     @task
     @tag("random")
@@ -78,22 +83,10 @@ class RandomisedEntityUser(HttpUser):
     @tag("random")
     def get_entities_from_dynamic_pool(self):
         url = random.choice(self.pool)
-        with self.client.get(
-            url, name="/entity (dynamic pool)", catch_response=True
-        ) as response:
-            if response.status_code != 200:
-                msg = f"Failure response for URL: {url} (dynamic pool)"
-                logger.warning(msg)
-                response.failure(msg)
+        self.request_entities(url, "/entity (dynamic pool)")
 
     @task
     @tag("static")
     def get_entities_from_static_pool(self):
         url = random.choice(POOL)
-        with self.client.get(
-            url, name="/entity (static pool)", catch_response=True
-        ) as response:
-            if response.status_code != 200:
-                msg = f"Failure response for URL: {url} (static pool)"
-                logger.warning(msg)
-                response.failure(msg)
+        self.request_entities(url, "/entity (static pool)")
