@@ -1,4 +1,4 @@
-from locust import HttpUser, task, between
+from locust import HttpUser, tag, task, between
 import random
 from tests.load.data import DATASETS
 
@@ -15,6 +15,7 @@ class DatasetLoadTestUser(HttpUser):
         self.client.get("/dataset.json")
 
     @task
+    @tag("random")
     def get_dataset(self):
         dataset = random.choice(DATASETS)
         self.client.get(f"/dataset/{dataset}")
