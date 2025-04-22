@@ -12,6 +12,8 @@ default_param_modes = {
     "period": 1,
 }
 
+default_clamp_opts = {"dataset": 3, "organisation": 2, "location": 4}
+
 
 def create_url_pool(n, modes, clamp):
     pool = []
@@ -22,6 +24,10 @@ def create_url_pool(n, modes, clamp):
         params.pop("organisation")
         url = param_sample_to_url(params, format=fmt)
         pool.append(url)
+    return pool
+
+
+POOL = create_url_pool(100, default_param_modes, default_clamp_opts)
 
 
 class RandomisedEntityUser(HttpUser):
@@ -30,7 +36,7 @@ class RandomisedEntityUser(HttpUser):
     wait_time = between(1, 3)
 
     modes = default_param_modes
-    clamp_opts = {"dataset": 3, "organisation": 2, "location": 4}
+    clamp_opts = default_clamp_opts
     pool = []
 
     def on_start(self):
@@ -58,13 +64,13 @@ class RandomisedEntityUser(HttpUser):
     def get_entities_geojson(self):
         self.get_entities(".geojson")
 
-    @tag("pooled_urls")
     @task
-    def get_entities_pooled(self):
-        fmt = random.choice(DE.FORMATS)
-        params = param_sample(self.modes, self.clamp_opts)
-        params["organisation_entity"] = params["organisation"]
-        params.pop("organisation")
+    @tag("random")
+    def get_entities_from_dynamic_pool(self):
+        url = random.choice(self.pool)
+        self.client.get(url, name="/entity (static pool)")
 
-        url = param_sample_to_url(params, format=fmt)
-        self.client.get(url, name=f"/entity (pooled URLs), {fmt}")
+    @task
+    def get_entities_from_static_pool(self):
+        url = random.choice(POOL)
+        self.client.get(url, name="/entity (static pool)")
