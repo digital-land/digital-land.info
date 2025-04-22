@@ -21,6 +21,8 @@ default_clamp_opts = {"dataset": 3, "organisation": 2, "location": 4}
 
 POOL_SIZE = int(os.getenv("URL_POOL_SIZE")) if os.getenv("URL_POOL_SIZE") else 100
 
+logger.info(f"Using pool size: {POOL_SIZE}")
+
 
 def create_url_pool(n, modes, clamp):
     pool = []
@@ -47,7 +49,6 @@ class RandomisedEntityUser(HttpUser):
     pool = []
 
     def on_start(self):
-        logger.info(f"Using pool size: {POOL_SIZE}")
         self.pool = create_url_pool(POOL_SIZE, self.modes, self.clamp_opts)
 
     def request_entities(self, url, name):
