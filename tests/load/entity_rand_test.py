@@ -78,18 +78,22 @@ class RandomisedEntityUser(HttpUser):
     @tag("random")
     def get_entities_from_dynamic_pool(self):
         url = random.choice(self.pool)
-        response = self.client.get(url, name="/entity (static pool)")
-        if response.status_code != 200:
-            msg = f"Failure response for URL: {url} (dynamic pool)"
-            logger.warning(msg)
-            response.failure(msg)
+        with self.client.get(
+            url, name="/entity (dynamic pool)", catch_response=True
+        ) as response:
+            if response.status_code != 200:
+                msg = f"Failure response for URL: {url} (dynamic pool)"
+                logger.warning(msg)
+                response.failure(msg)
 
     @task
     @tag("static")
     def get_entities_from_static_pool(self):
         url = random.choice(POOL)
-        response = self.client.get(url, name="/entity (static pool)")
-        if response.status_code != 200:
-            msg = f"Failure response for URL: {url} (static pool)"
-            logger.warning(msg)
-            response.failure(msg)
+        with self.client.get(
+            url, name="/entity (static pool)", catch_response=True
+        ) as response:
+            if response.status_code != 200:
+                msg = f"Failure response for URL: {url} (static pool)"
+                logger.warning(msg)
+                response.failure(msg)
