@@ -44,14 +44,17 @@ class RandomisedEntityUser(HttpUser):
         self.client.get(url, name=f"/entity, {fmt}")
 
     @task
+    @tag("random")
     def get_entities_json(self):
         self.get_entities(".json")
 
     @task
+    @tag("random")
     def get_entities_html(self):
         self.get_entities(None)
 
     @task
+    @tag("random")
     def get_entities_geojson(self):
         self.get_entities(".geojson")
 
