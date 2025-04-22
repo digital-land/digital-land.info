@@ -123,7 +123,21 @@ Note: if you are using WSL, playwright inspector wont work by default. you will 
 (you may need to create the file if it doesn't exist)
 
 
+### Run load tests
 
+See `tests/load` directory for a [Locust](https://locust.io) tests. There are a few `make` targets with "test-load-" prefix.
+Refer to examples below to see how to pass extra parameters to the tests.
+
+```sh
+# a limited number of randomised URLs
+URL_POOL_SIZE=100 make test-load-entity-static-pool TEST_HOST="https://www.staging.planning.data.gov.uk"
+
+# every URL randomised
+make test-load-entity-random TEST_HOST="https://www.staging.planning.data.gov.uk"
+
+# dataset, can be used to warm up the cache
+make test-load-dataset TEST_HOST="https://www.staging.planning.data.gov.uk"
+```
 
 ### Run the application
 
