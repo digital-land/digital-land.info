@@ -167,16 +167,16 @@ docker-security-scan:
 TEST_HOST ?= http://localhost:8000
 
 test-load-website:
-	locust -f tests/load/website_test.py -H $(TEST_HOST)
+	locust -f tests/load/website_test.py -H $(TEST_HOST) -t 5m
 test-load-map:
-	locust -f tests/load/map_test.py -H $(TEST_HOST)
+	locust -f tests/load/map_test.py -H $(TEST_HOST) -t 5m
 test-load-dataset:
-	locust -f tests/load/dataset_test.py -H $(TEST_HOST)
+	locust -f tests/load/dataset_test.py -H $(TEST_HOST) -t 5m
 test-load-entity:
-	locust -f tests/load/entity_test.py -H $(TEST_HOST)
+	locust -f tests/load/entity_test.py -H $(TEST_HOST) -t 5m
 test-load-entity-random:
-	locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -T random
+	locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -t 5m -T random
 test-load-entity-static-pool:
-	locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -E random -T static
+	locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -t 5m -E random -T static
 test-load-cache-warmup:
 	locust -f tests/load/cache_warmup_test.py -H $(TEST_HOST) -t 5m -u 2 -r 1 --print-stats --headless
