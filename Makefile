@@ -179,4 +179,4 @@ test-load-entity-random:
 test-load-entity-static-pool:
 	locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -t 5m -E random -T static
 test-load-cache-warmup:
-	locust -f tests/load/cache_warmup_test.py -H $(TEST_HOST) -t 5m -u 2 -r 1 --print-stats --headless
+	locust -f tests/load/cache_warmup_test.py -H $(TEST_HOST) -t 10m -u 3 -r 1 --headless
