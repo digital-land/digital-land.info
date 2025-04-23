@@ -6,6 +6,11 @@ class CacheWarmupUser(HttpUser):
     urls = [
         "/",
         "/about",
+        "/about/roadmap",
+        "/about/performance",
+        "/about/contact",
+        "/accessibility-statement",
+        "/terms-and-conditions",
         "/docs",
         "/entity",
         "/entity.json",
