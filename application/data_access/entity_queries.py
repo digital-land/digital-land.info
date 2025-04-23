@@ -20,6 +20,7 @@ from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
 
 logger = logging.getLogger(__name__)
+complex_datasets = ["flood-risk-zone"]
 
 
 def get_entity_query(
@@ -215,26 +216,21 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
     point = get_point(params)
-    entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    datasets = params.get("dataset", [])
+    use_subdivided = len(datasets) == 1 and "flood-risk-zone" in datasets
+
     if point is not None:
-        query = query.outerjoin(
-            entity_subdivided_alias,
-            and_(
-                EntityOrm.entity == entity_subdivided_alias.entity,
-                EntityOrm.dataset == entity_subdivided_alias.dataset,
-            )
-            # need to modify this during final implementation
-        ).filter(
-            or_(
+        if use_subdivided:
+            entity_subdivided_alias = aliased(EntitySubdividedOrm)
+            query = query.outerjoin(
+                entity_subdivided_alias,
                 and_(
-                    EntityOrm.dataset != "flood-risk-zone",
-                    EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
-                    func.ST_Contains(
-                        EntityOrm.geometry, func.ST_GeomFromText(point, 4326)
-                    ),
+                    EntityOrm.entity == entity_subdivided_alias.entity,
+                    EntityOrm.dataset == entity_subdivided_alias.dataset,
                 ),
+            ).filter(
                 and_(
+                    entity_subdivided_alias.dataset == "flood-risk-zone",
                     entity_subdivided_alias.geometry_subdivided.is_not(None),
                     func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
                     func.ST_Contains(
@@ -243,7 +239,16 @@ def _apply_location_filters(session, query, params):
                     ),
                 ),
             )
-        )
+        else:
+            query = query.filter(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    func.ST_Contains(
+                        EntityOrm.geometry, func.ST_GeomFromText(point, 4326)
+                    ),
+                )
+            )
 
     spatial_function = get_spatial_function_for_relation(
         params.get("geometry_relation", GeometryRelation.within)

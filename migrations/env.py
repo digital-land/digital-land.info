@@ -35,6 +35,7 @@ def run_migrations_offline():
     Calls to context.execute() here emit the given string to the
     script output.
     """
+    logging.info("Starting running migration offline")
     if "DATABASE_URL" in os.environ:
         url = os.environ["DATABASE_URL"].replace("postgres://", "postgresql://", 1)
     else:
@@ -61,6 +62,7 @@ def run_migrations_online():
     from application.settings import get_settings
     from sqlalchemy import create_engine
 
+    logging.info("Starting running migration online")
     if config.get_main_option("sqlalchemy.url"):
         url = config.get_main_option("sqlalchemy.url")
     else:
