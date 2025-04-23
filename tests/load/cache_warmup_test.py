@@ -1,5 +1,5 @@
 from locust import HttpUser, task, between
-from tests.load.data import DATASETS
+from tests.load.data import DATASETS, MAP_DATASETS
 
 class CacheWarmupUser(HttpUser):
     wait_time = between(1, 3)  # defines a random delay between requests
@@ -10,9 +10,6 @@ class CacheWarmupUser(HttpUser):
         "/entity",
         "/entity.json",
         "/entity.geojson",
-        "/entity/?dataset=local-plan-boundary",
-        "/entity.json?dataset=local-plan-boundary",
-        "/entity.geojson?dataset=local-plan-boundary",
         "/map",
         "/dataset",
         "/dataset.json",
@@ -20,6 +17,7 @@ class CacheWarmupUser(HttpUser):
         *[f"/entity/?dataset={dataset}" for dataset in DATASETS],
         *[f"/entity.json?dataset={dataset}" for dataset in DATASETS],
         *[f"/entity.geojson?dataset={dataset}" for dataset in DATASETS],
+        *[f"/map?dataset={dataset}" for dataset in MAP_DATASETS],
     ]
 
     @task
