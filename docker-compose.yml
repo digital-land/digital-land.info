@@ -16,8 +16,8 @@ services:
         condition: service_healthy
     env_file: ./.env.dev.docker
     environment:
-      DATASETTE_URL: https://datasette.digital-land.info
-      DATA_FILE_URL: https://data.digital-land.info
+      DATASETTE_URL: https://datasette.development.planning.data.gov.uk
+      DATA_FILE_URL: https://files.development.planning.data.gov.uk
     healthcheck:
       test: curl -v -i -f http://localhost:8000
       interval: 1s
