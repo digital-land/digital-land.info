@@ -69,12 +69,6 @@ class EntitySubdividedOrm(Base):
     )
 
 
-# Note geoalchemy2 automatically indexes Geometry columns
-idx_entity_subdivided_entity = Index(
-    "idx_entity_subdivided_entity", EntitySubdividedOrm.entity
-)
-
-
 class OldEntityOrm(Base):
     __tablename__ = "old_entity"
 
