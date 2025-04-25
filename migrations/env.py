@@ -62,7 +62,6 @@ def run_migrations_online():
     from application.settings import get_settings
     from sqlalchemy import create_engine
 
-    logging.info("Starting running migration online")
     if config.get_main_option("sqlalchemy.url"):
         url = config.get_main_option("sqlalchemy.url")
     else:
