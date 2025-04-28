@@ -35,7 +35,6 @@ def run_migrations_offline():
     Calls to context.execute() here emit the given string to the
     script output.
     """
-    logging.info("Starting running migration offline")
     if "DATABASE_URL" in os.environ:
         url = os.environ["DATABASE_URL"].replace("postgres://", "postgresql://", 1)
     else:
