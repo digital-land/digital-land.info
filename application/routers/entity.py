@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
     get_datasets,
+    get_all_datasets,
     get_local_authorities,
     get_typologies_with_entities,
     get_dataset_query,
@@ -384,7 +385,7 @@ def search_entities(
     typologies = get_typologies_with_entities(session)
     typologies = [t.dict() for t in typologies]
     # dataset facet
-    response = get_datasets(session)
+    response = get_all_datasets(session)
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 

@@ -6,6 +6,7 @@ from application.data_access.entity_queries import (
     get_linked_entities,
 )
 from application.db.models import EntityOrm
+from application.db.session import SESSION_CACHE
 
 
 def test__lookup_entity_link_returns_nothing_when_the_entity_isnt_found(db_session):
@@ -309,3 +310,5 @@ def test_get_organisations(db_session, organisation_entity):
         assert (
             organisations == []
         ), "Expected no organisations to be returned when name is None"
+
+    SESSION_CACHE.clear()

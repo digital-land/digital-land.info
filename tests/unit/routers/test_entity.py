@@ -599,6 +599,10 @@ def test_search_entities_no_entities_returned_no_query_params_html(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
     )
     mocker.patch(
+        "application.routers.entity.get_all_datasets",
+        return_value=multiple_dataset_models,
+    )
+    mocker.patch(
         "application.routers.entity.get_typologies_with_entities",
         return_value=typologies,
     )
@@ -714,6 +718,10 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     )
     mocker.patch(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
+    )
+    mocker.patch(
+        "application.routers.entity.get_all_datasets",
+        return_value=multiple_dataset_models,
     )
     mocker.patch(
         "application.routers.entity.get_typologies_with_entities",
