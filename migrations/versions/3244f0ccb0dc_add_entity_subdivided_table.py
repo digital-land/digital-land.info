@@ -21,8 +21,11 @@ def upgrade():
     op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
     op.create_table(
         "entity_subdivided",
+        sa.Column(
+            "entity_subdivided_id", sa.BIGINT(), autoincrement=True, nullable=False
+        ),
         sa.Column("entity", sa.BIGINT(), nullable=False),
-        sa.Column("dataset", sa.Text(), nullable=True),
+        sa.Column("dataset", sa.Text(), nullable=False),
         sa.Column(
             "geometry_subdivided",
             geoalchemy2.types.Geometry(
@@ -31,8 +34,9 @@ def upgrade():
                 from_text="ST_GeomFromEWKT",
                 name="geometry",
             ),
-            nullable=True,
+            nullable=False,
         ),
+        sa.PrimaryKeyConstraint("entity_subdivided_id"),
     )
     op.create_index(
         "idx_entity_subdivided_columns", "entity_subdivided", ["entity", "dataset"]
