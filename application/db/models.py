@@ -59,6 +59,17 @@ idx_entity_reference = Index("idx_entity_reference", EntityOrm.reference)
 idx_entity_typology = Index("idx_entity_typology", EntityOrm.typology)
 
 
+class EntitySubdividedOrm(Base):
+    __tablename__ = "entity_subdivided"
+
+    entity_subdivided_id = Column(BIGINT, primary_key=True, autoincrement=True)
+    entity = Column(BIGINT, nullable=False)
+    dataset = Column(Text, nullable=False)
+    geometry_subdivided = Column(
+        Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False
+    )
+
+
 class OldEntityOrm(Base):
     __tablename__ = "old_entity"
 
