@@ -28,7 +28,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      DATASETTE_URL: https://datasette.digital-land.info
+      DATASETTE_URL: https://datasette.staging.planning.data.gov.uk/
       DATA_FILE_URL: https://data.digital-land.info
       READ_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
       WRITE_DATABASE_URL: postgresql://postgres:postgres@localhost/digital_land_test
