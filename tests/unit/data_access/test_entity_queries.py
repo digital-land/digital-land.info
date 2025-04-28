@@ -1,7 +1,5 @@
 from sqlalchemy.orm import Query
-from application.data_access.entity_queries import (
-    _apply_limit_and_pagination_filters,
-)
+from application.data_access.entity_queries import _apply_limit_and_pagination_filters
 from application.db.models import EntityOrm
 
 
