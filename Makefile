@@ -63,17 +63,16 @@ docker-login:
 
 test-acceptance:
 	echo SKIPPING
-	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
- test-acceptance-debug:
+test-acceptance-debug:
 	python -m playwright install --with-deps chromium firefox webkit
 	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
- test-accessibility:
+test-accessibility:
 	python -m playwright install chromium
 	python -m pytest --browser chromium --md-report --md-report-color=never -p no:warnings tests/accessibility
 
- playwright-codegen:
+playwright-codegen:
 	python -m playwright codegen --viewport-size=800,600 localhost:8000
 
 test: test-unit test-integration test-acceptance test-accessibility
