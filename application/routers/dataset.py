@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from application.data_access.digital_land_queries import (
     get_dataset_query,
-    get_datasets,
+    get_all_datasets,
     get_latest_resource,
     get_publisher_coverage,
 )
@@ -57,7 +57,7 @@ def list_datasets(
     extension: Optional[SuffixDataset] = None,
     session: Session = Depends(get_session),
 ):
-    datasets = get_datasets(session)
+    datasets = get_all_datasets(session)
     entity_counts_response = get_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available

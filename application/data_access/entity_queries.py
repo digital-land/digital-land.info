@@ -15,6 +15,7 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
+from application.db.session import session_cache
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
@@ -447,6 +448,7 @@ def fetchEntityFromReference(
     return None
 
 
+@session_cache("organisations")
 def get_organisations(session: Session) -> List[EntityModel]:
     organisations = (
         session.query(EntityOrm)

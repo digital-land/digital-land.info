@@ -4,6 +4,8 @@ from typing import Iterator
 import logging
 from application.settings import get_settings
 from contextlib import contextmanager
+from functools import wraps
+from datetime import datetime
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -48,3 +50,38 @@ def get_context_session() -> Iterator[Session]:
         yield session
     finally:
         session.close()
+
+
+class CacheEntry:
+    def __init__(self, val):
+        self.value = val
+        self.added_at = datetime.now()
+
+    def is_expired(self, ttl_seconds):
+        now = datetime.now()
+        dt = now - self.added_at
+        return dt.total_seconds() > ttl_seconds
+
+
+SESSION_CACHE = {}
+
+
+def session_cache(key, ttl_seconds=60 * 60, *, cache=SESSION_CACHE):
+    def make_key(session):
+        return key
+
+    def decorator(user_func):
+        @wraps(user_func)
+        def wrapper(session):
+            cache_key = make_key(session)
+            entry = cache.get(cache_key)
+            if entry is None or entry.is_expired(ttl_seconds):
+                val = user_func(session)
+                entry = CacheEntry(val)
+                cache[cache_key] = entry
+                logger.info(f"session_cache miss for {key}, cache size: {len(cache)}")
+            return entry.value
+
+        return wrapper
+
+    return decorator
