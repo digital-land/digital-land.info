@@ -1,4 +1,4 @@
-from pytest import skip
+import pytest
 
 
 def test_dataset_page_loads_ok(server_url, page, app_test_data):
@@ -11,7 +11,7 @@ def test_dataset_page_loads_ok(server_url, page, app_test_data):
     assert heading.is_visible()
 
 
-@skip(reason="Temporarily disablind. Playwright Issues")
+@pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
 def test_download_data_for_dataset(server_url, page, app_test_data):
     page.goto(server_url)
 
@@ -45,7 +45,7 @@ def test_download_data_for_dataset(server_url, page, app_test_data):
     assert ".geojson" in geojson_href
 
 
-@skip(reason="Temporarily disablind. Playwright Issues")
+@pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
 def test_navigate_to_a_dataset_specification(server_url, page, app_test_data):
     page.goto(server_url)
     page.get_by_role("link", name="Datasets", exact=True).click()
@@ -60,7 +60,7 @@ def test_navigate_to_a_dataset_specification(server_url, page, app_test_data):
     assert heading.is_visible()
 
 
-@skip(reason="Temporarily disablind. Playwright Issues")
+@pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
 def test_give_feedback_on_a_dataset(server_url, page, app_test_data):
     page.goto(server_url)
 
@@ -75,7 +75,7 @@ def test_give_feedback_on_a_dataset(server_url, page, app_test_data):
     assert "Brownfield site" in linkHref
 
 
-@skip(reason="Temporarily disablind. Playwright Issues")
+@pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
 def test_datasets_correctly_show(server_url, page, app_test_data):
     page.goto(server_url)
 

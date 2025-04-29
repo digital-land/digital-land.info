@@ -1,5 +1,4 @@
 import pytest
-from pytest import skip
 
 from datetime import datetime
 
@@ -59,7 +58,7 @@ def app_typology_data():
     return typologies
 
 
-@skip(reason="Temporarily disablind. Playwright Issues")
+@pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
 def test_search_filters_show_correct_number_of_results(
     server_url, page, app_test_data, app_db_session, app_typology_data
 ):
