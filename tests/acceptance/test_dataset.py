@@ -96,6 +96,7 @@ def test_datasets_correctly_show(server_url, page, app_test_data):
     assert len(datasets) == 0, "there are still some datasets that are not in the list"
 
 
+@pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
 def test_list_filter_works_as_expected(server_url, page, app_test_data):
     timeout = 400
     page.goto(server_url)
