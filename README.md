@@ -128,7 +128,7 @@ Note: if you are using WSL, playwright inspector wont work by default. you will 
 See `tests/load` directory for a [Locust](https://docs.locust.io/en/stable/) tests. There are a few `make` targets with "test-load-" prefix.
 Refer to examples below to see how to pass extra parameters to the tests.
 
-Some of the test access randomised URLs, (search for tests with `@tag("random")`, you can specify which tags to include/exclude when running Locust), others access a limited set of URLs (e.g. `tests/load/cache_warmup_test.py`) and are good to warm up the cache or can be used as a kind of smoke test. The randomised runs use data "snapshot" from `tests/load/data.py` which has been extracted from live website.
+Some of the test access randomised URLs, (search for tests with `@tag("random")`, you can specify which tags to include/exclude when running Locust), others access a limited set of URLs (e.g. `tests/load/cache_warmup_test.py`) and are good to warm up the cache or can be used as a kind of smoke test. The randomised runs use data "snapshot" from `tests/load/data.py` and `tests/load/data_entity.py` which has been extracted from live website.
 
 To point Locust at a particular host, use the environment variable `TEST_HOST` (see below).
 
