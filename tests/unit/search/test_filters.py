@@ -123,7 +123,7 @@ def test_FactPathParams_hash_sha256_regex_validator_invalid_hash_supplied():
 
 def test_GeometryQueryParams():
     try:
-        QueryFilters(geometry=['{"type": "Polygon"}'])
+        QueryFilters(geometry=['{"type": "Polygon"}', "POINT(11 11)"])
     except ValidationError:
         assert True
 
