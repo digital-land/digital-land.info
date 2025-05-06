@@ -119,3 +119,17 @@ def test_FactPathParams_hash_sha256_regex_validator_invalid_hash_supplied():
         assert False, f" invalid hash :{fact} has been labelled as valid"
     except ValidationError:
         assert True
+
+
+def test_GeometryQueryParams():
+    try:
+        QueryFilters(geometry=['{"type": "Polygon"}'])
+    except ValidationError:
+        assert True
+
+    try:
+        QueryFilters(geometry=["{}"])
+    except ValidationError:
+        assert True
+
+    QueryFilters(geometry=["POINT(11 11)"])  # valid geometry
