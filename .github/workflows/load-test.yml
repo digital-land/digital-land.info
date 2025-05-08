@@ -1,8 +1,12 @@
 name: Load Test
 
 on:
-  push:
   workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'URL of the environment to test'
+        required: true
+        default: http://localhost:8000
 
 jobs:
   loadtest:
@@ -23,14 +27,15 @@ jobs:
         pip install -r requirements/requirements.txt
         pip install locust==2.34.0
 
-    - name: Verify Locust version
-      run: locust --version
-
     - name: Run Locust load test
       run: |
         locust -f tests/load/website_test.py \
-          -H http://localhost:8000 \
-          --csv=log --headless -u 10 -r 1 -t 1m > locust_output.txt || true
+          -H ${{ github.event.inputs.target_url }} \
+          --csv=log --html=locust_report.html \
+          --headless -u 10 -r 1 -t 1m > locust_output.txt || true
+          echo "### Locust Load Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "<a href='locust_report.html'>Click here to view the HTML report</a>" >> $GITHUB_STEP_SUMMARY
+
 
     - name: Upload Locust output
       uses: actions/upload-artifact@v4
@@ -40,3 +45,5 @@ jobs:
           locust_output.txt
           log_stats.csv
           log_failures.csv
+          log_exceptions.csv
+          log_stats_history.csv
