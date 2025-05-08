@@ -1,0 +1,42 @@
+name: Load Test
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  loadtest:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/requirements.txt
+        pip install locust==2.34.0
+
+    - name: Verify Locust version
+      run: locust --version
+
+    - name: Run Locust load test
+      run: |
+        locust -f tests/load/website_test.py \
+          -H http://localhost:8000 \
+          --csv=log --headless -u 10 -r 1 -t 1m > locust_output.txt || true
+
+    - name: Upload Locust output
+      uses: actions/upload-artifact@v4
+      with:
+        name: locust-results
+        path: |
+          locust_output.txt
+          log_stats.csv
+          log_failures.csv
