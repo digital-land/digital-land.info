@@ -1,8 +1,8 @@
 name: Load Test
 
 on:
-  # push:
-  #   branches: load-test-automation
+  push:
+    branches: load-test-automation
   workflow_dispatch:
     # inputs:
     #   target_url:
