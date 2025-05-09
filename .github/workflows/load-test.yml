@@ -1,14 +1,12 @@
 name: Load Test
 
 on:
-  push:
-    branches: load-test-automation
   workflow_dispatch:
-    # inputs:
-    #   target_url:
-    #     description: 'URL of the environment to test'
-    #     required: true
-    #     default: https://www.staging.planning.data.gov.uk/
+    inputs:
+      target_url:
+        description: 'URL of the environment to test'
+        required: true
+        default: https://www.staging.planning.data.gov.uk/
 
 jobs:
   loadtest:
@@ -31,9 +29,10 @@ jobs:
 
     - name: Run Locust load test
       run: |
-        locust -f tests/load/website_test.py \
-          -H http://localhost:8000 \
+        locust -f tests/load/entity_rand_test.py \
+          -H ${{ github.event.inputs.target_url }} \
           --csv=log --html=locust_report.html \
+          --only-summary \
           --headless -u 10 -r 1 -t 1m > locust_output.txt 2>&1 || true
 
     - name: Generate Locust markdown summary
