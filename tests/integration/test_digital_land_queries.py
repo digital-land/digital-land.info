@@ -75,7 +75,13 @@ def test_get_datasets_with_data_by_geography(db_session):
         dataset="cached-test-dataset",
         typology="geography",
     )
+    entity = EntityOrm(
+        entity=1,
+        dataset="cached-test-dataset",
+        typology="geography",
+    )
     db_session.add(dataset)
+    db_session.add(entity)
 
     datasets1 = get_datasets_with_data_by_geography(db_session)
     assert len(datasets1) == 1
