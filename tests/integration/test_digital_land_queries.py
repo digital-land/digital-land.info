@@ -1,5 +1,6 @@
 from application.data_access.digital_land_queries import (
     get_datasets_with_data_by_typology,
+    get_datasets_with_data_by_geography,
 )
 from application.db.models import DatasetOrm, EntityOrm
 
@@ -64,3 +65,15 @@ def test_get_datasets_with_data_by_typology_does_not_find_if_no_entities_exist(
     datasets = get_datasets_with_data_by_typology(db_session, "geography")
 
     assert len(datasets) == 0
+
+
+def test_get_datasets_with_data_by_geography(db_session):
+    dataset = DatasetOrm(
+        dataset="test-dataset",
+        typology="geography",
+    )
+    db_session.add(dataset)
+
+    datasets = get_datasets_with_data_by_geography(db_session)
+
+    assert len(datasets) == 1
