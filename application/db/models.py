@@ -1,7 +1,19 @@
 import json
 from datetime import datetime
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer, cast, func
+from sqlalchemy import (
+    Column,
+    Date,
+    BIGINT,
+    Text,
+    Index,
+    Integer,
+    cast,
+    func,
+    String,
+    ForeignKeyConstraint,
+    ForeignKey,
+)
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -13,6 +25,51 @@ from sqlalchemy.orm import (
 )
 
 Base = declarative_base()
+
+
+class FactOrm(Base):
+    __tablename__ = "fact"
+    fact = Column(String(64), primary_key=True, autoincrement=False)
+    entity = Column(Integer, nullable=False)
+    field = Column(String(64), nullable=False)
+    value = Column(Text, nullable=False)
+    entry_date = Column(Date, nullable=False)
+    priority = Column(Integer, nullable=True)
+    reference_entity = Column(BIGINT, nullable=True)
+    dataset = Column(Text, nullable=False)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["entity"], ["entity.entity"], deferrable=True, initially="DEFERRED"
+        ),
+    )
+
+
+class FactResourceOrm(Base):
+    __tablename__ = "fact_resource"
+    rowid = Column(BIGINT, primary_key=True, autoincrement=True)
+    fact = Column(String(64), nullable=False)
+    resource = Column(String(64), nullable=False)
+    entry_date = Column(Date, nullable=False)
+    entry_number = Column(Integer, nullable=False)
+    priority = Column(Integer, nullable=False)
+    reference_entity = Column(BIGINT, nullable=True)
+    dataset = Column(String(64), ForeignKey("dataset.dataset"), nullable=False)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fact"], ["fact.fact"], deferrable=True, initially="DEFERRED"
+        ),
+    )
+
+
+# Collection Provinance
+class ResourceOrm(Base):
+    __tablename__ = "resource"
+    resource = Column(String(64), primary_key=True, autoincrement=False)
+    end_date = Column(Date, nullable=True)
+    entry_date = Column(Date, nullable=False)
+    mime_type = Column(Text, nullable=True)
 
 
 class EntityOrm(Base):
