@@ -26,7 +26,7 @@ from application.db.models import (
     AttributionOrm,
     LicenceOrm,
 )
-from application.db.session import get_session
+from application.db.session import get_session, SESSION_CACHE
 from application.settings import Settings, get_settings
 from tests.utils.database import (
     add_base_datasets_to_database,
@@ -91,6 +91,11 @@ def db_session(db_engine) -> Generator[Session, None, None]:
     db_session.close()
     transaction.rollback()
     connection.close()
+
+
+@pytest.fixture(autouse=True)
+def clear_session_cache():
+    SESSION_CACHE.clear()
 
 
 # TODO dedupe from code below

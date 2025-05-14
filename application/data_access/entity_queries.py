@@ -13,12 +13,15 @@ from application.data_access.entity_query_helpers import (
     get_spatial_function_for_relation,
     normalised_params,
 )
-from application.db.models import EntityOrm, OldEntityOrm
+from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
+from application.db.session import session_cache
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
+from sqlalchemy.orm import aliased
 
 logger = logging.getLogger(__name__)
+complex_datasets = ["flood-risk-zone"]
 
 
 def get_entity_query(
@@ -69,7 +72,6 @@ def get_entity_search(
     params = normalised_params(parameters)
     count: int
     entities: list[EntityModel]
-
     # get count
     subquery = session.query(EntityOrm.entity)
     subquery = _apply_base_filters(subquery, params)
@@ -215,14 +217,42 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
     point = get_point(params)
+    datasets = params.get("dataset", [])
+    entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    use_subdivided = (
+        len(datasets) == 1 and datasets[0] in complex_datasets
+    )  # Make it generic after hackathon
+
     if point is not None:
-        query = query.filter(
-            and_(
-                EntityOrm.geometry.is_not(None),
-                func.ST_IsValid(EntityOrm.geometry),
-                func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
+        if use_subdivided:
+            query = query.outerjoin(
+                entity_subdivided_alias,
+                and_(
+                    EntityOrm.entity == entity_subdivided_alias.entity,
+                    EntityOrm.dataset == entity_subdivided_alias.dataset,
+                ),
+            ).filter(
+                and_(
+                    entity_subdivided_alias.dataset
+                    == "flood-risk-zone",  # Make it generic after hackathon
+                    entity_subdivided_alias.geometry_subdivided.is_not(None),
+                    func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
+                    func.ST_Contains(
+                        entity_subdivided_alias.geometry_subdivided,
+                        func.ST_GeomFromText(point, 4326),
+                    ),
+                ),
             )
-        )
+        else:
+            query = query.filter(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    func.ST_Contains(
+                        EntityOrm.geometry, func.ST_GeomFromText(point, 4326)
+                    ),
+                )
+            )
 
     spatial_function = get_spatial_function_for_relation(
         params.get("geometry_relation", GeometryRelation.within)
@@ -230,25 +260,45 @@ def _apply_location_filters(session, query, params):
 
     clauses = []
     for geometry in params.get("geometry", []):
-        clauses.append(
-            or_(
+        if use_subdivided:
+            query = query.outerjoin(
+                entity_subdivided_alias,
                 and_(
-                    EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
+                    EntityOrm.entity == entity_subdivided_alias.entity,
+                    EntityOrm.dataset == entity_subdivided_alias.dataset,
+                ),
+            )
+            clauses.append(
+                and_(
+                    entity_subdivided_alias.geometry_subdivided.is_not(None),
+                    func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
                     spatial_function(
-                        EntityOrm.geometry,
+                        entity_subdivided_alias.geometry_subdivided,
                         func.ST_GeomFromText(geometry, 4326),
                     ),
                 ),
-                and_(
-                    EntityOrm.point.is_not(None),
-                    func.ST_IsValid(EntityOrm.point),
-                    spatial_function(
-                        EntityOrm.point, func.ST_GeomFromText(geometry, 4326)
-                    ),
-                ),
             )
-        )
+
+        else:
+            clauses.append(
+                or_(
+                    and_(
+                        EntityOrm.geometry.is_not(None),
+                        func.ST_IsValid(EntityOrm.geometry),
+                        spatial_function(
+                            EntityOrm.geometry,
+                            func.ST_GeomFromText(geometry, 4326),
+                        ),
+                    ),
+                    and_(
+                        EntityOrm.point.is_not(None),
+                        func.ST_IsValid(EntityOrm.point),
+                        spatial_function(
+                            EntityOrm.point, func.ST_GeomFromText(geometry, 4326)
+                        ),
+                    ),
+                )
+            )
     if clauses:
         query = query.filter(or_(*clauses))
     intersecting_entities = params.get("geometry_entity", [])
@@ -398,6 +448,7 @@ def fetchEntityFromReference(
     return None
 
 
+@session_cache("organisations")
 def get_organisations(session: Session) -> List[EntityModel]:
     organisations = (
         session.query(EntityOrm)
