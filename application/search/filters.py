@@ -4,9 +4,9 @@ from typing import Optional, List
 from fastapi import Query, Header
 from pydantic import validator
 from pydantic.dataclasses import dataclass
-from sqlalchemy import text
+import shapely
 
-from application.db.session import get_context_session
+
 from application.exceptions import (
     InvalidGeometry,
 )
@@ -259,19 +259,13 @@ class QueryFilters:
         validate_curies
     )
 
-    # TODO Replace with a solution that doesn't need a database?
     @validator("geometry", pre=True)
     def validate_geometry(cls, v: Optional[list]):
         if not v:
             return v
-        with get_context_session() as session:
-            for geometry in v:
-                try:
-                    stmt = text("SELECT ST_IsValid(:geometry);")
-                    stmt = stmt.bindparams(geometry=geometry)
-                    session.execute(stmt)
-                except Exception:
-                    raise InvalidGeometry(f"Invalid geometry {geometry}")
+        for geometry in v:
+            if shapely.from_wkt(geometry, on_invalid="ignore") is None:
+                raise InvalidGeometry(f"Invalid geometry {geometry}")
         return v
 
 
