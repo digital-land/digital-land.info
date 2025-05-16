@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from typing import Iterator
+from typing import Iterator, Optional
 import logging
 import json
 from pydantic.json import pydantic_encoder
@@ -98,7 +98,7 @@ class DbSession:
     """A way to package DB and Redis sessions/connections as one param."""
 
     session: Session
-    redis: redis.Redis | None
+    redis: Optional[redis.Redis]
 
 
 _redis = None
