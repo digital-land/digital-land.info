@@ -98,7 +98,7 @@ class DbSession:
     """A way to package DB and Redis sessions/connections as one param."""
 
     session: Session
-    redis: redis.Redis = None
+    redis: redis.Redis | None
 
 
 _redis = None

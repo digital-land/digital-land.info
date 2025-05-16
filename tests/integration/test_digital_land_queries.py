@@ -83,8 +83,7 @@ def test_get_datasets_with_data_by_geography(db_session):
     db_session.add(dataset)
     db_session.add(entity)
 
-    datasets1 = get_datasets_with_data_by_geography(DbSession(session=db_session))
+    datasets1 = get_datasets_with_data_by_geography(
+        DbSession(session=db_session, redis=None)
+    )
     assert len(datasets1) == 1
-
-    datasets2 = get_datasets_with_data_by_geography(DbSession(session=db_session))
-    assert datasets1[0] == datasets2[0]

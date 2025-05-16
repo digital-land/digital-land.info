@@ -301,7 +301,7 @@ def test_get_organisations(db_session, organisation_entity):
     db_session.add(EntityOrm(**organisation_entity))
     db_session.commit()
 
-    organisations = get_organisations(DbSession(session=db_session))
+    organisations = get_organisations(DbSession(session=db_session, redis=None))
     if organisation_entity["name"]:
         assert (
             organisations[0].name == organisation_entity["name"]
