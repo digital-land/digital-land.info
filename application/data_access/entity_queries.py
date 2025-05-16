@@ -15,7 +15,7 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
-from application.db.session import session_cache
+from application.db.session import redis_cache, DbSession
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
@@ -448,10 +448,11 @@ def fetchEntityFromReference(
     return None
 
 
-@session_cache("organisations")
-def get_organisations(session: Session) -> List[EntityModel]:
+@redis_cache("organisations", model_class=EntityModel)
+def get_organisations(session: DbSession) -> List[EntityModel]:
+
     organisations = (
-        session.query(EntityOrm)
+        session.session.query(EntityOrm)
         .filter(EntityOrm.typology == "organisation")
         .filter(EntityOrm.organisation_entity.isnot(None))
         .filter(EntityOrm.name.isnot(None))

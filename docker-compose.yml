@@ -18,6 +18,9 @@ services:
     environment:
       DATASETTE_URL: https://datasette.digital-land.info
       DATA_FILE_URL: https://data.digital-land.info
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_SECURE: false
     healthcheck:
       test: curl -v -i -f http://localhost:8000
       interval: 1s
@@ -39,6 +42,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  redis:
+    image: redis:6.0.9
+    restart: on-failure
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres_data:
