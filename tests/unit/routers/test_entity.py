@@ -865,6 +865,7 @@ def test_search_entities_with_query_extension(
         query_filters=QueryFilters(),
         extension=extension,
         session=mock_get_session.return_value,
+        redis=None,
     )
     try:
         result.template.render(result.context)
