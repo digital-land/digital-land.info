@@ -125,3 +125,113 @@ def test__apply_location_filters_with_frz_and_others(db_session):
     )
     sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
     assert "entity_subdivided" in sql_str
+
+
+entities = [
+    {
+        "entity": 1,
+        "dataset": "conservation-area",
+        "reference": "CA1",
+        "geometry": "POLYGON((-0.3 52.4, -0.4 52.3, -0.2 52.3, -0.3 52.4))",
+    },
+    {
+        "entity": 2,
+        "dataset": "flood-risk-zone",
+        "reference": "FRZ1",
+        "geometry": "POLYGON((-6.31 49.81, -6.29 49.81, -6.29 49.79, -6.31 49.79, -6.31 49.81))",
+    },
+]
+
+
+@pytest.mark.parametrize(
+    "entities, parameters, expected_count, expected_entities",
+    [
+        (
+            [entities[0]],  # test case 1
+            {"dataset": ["conservation-area"]},
+            1,
+            [entities[0]],
+        ),
+        (
+            [entities[1]],  # test case 2
+            {"dataset": ["flood-risk-zone"]},
+            1,
+            [entities[1]],
+        ),
+        (
+            entities,  # test case 3: both
+            {"dataset": ["flood-risk-zone", "conservation-area"]},
+            2,
+            entities,
+        ),
+    ],
+)
+def test_get_entity_search(
+    db_session, entities, parameters, expected_count, expected_entities
+):
+    for entity in entities:
+        db_session.add(EntityOrm(**entity))
+    db_session.commit()
+
+    result = get_entity_search(db_session, parameters)
+
+    assert result["count"] > 0
+    assert result["count"] == expected_count
+    result_dataset = {e.dataset for e in result["entities"]}
+    expected_dataset = {e["dataset"] for e in expected_entities}
+    assert result_dataset == expected_dataset
+
+
+def test_get_entity_search_apply_location_filters_geometry(db_session):
+    entity = entities[0]
+    db_session.add(EntityOrm(**entity))
+    db_session.commit()
+
+    # Query with a polygon that includes the above entity geometry
+    result = get_entity_search(
+        db_session,
+        {
+            "geometry": [
+                "POLYGON((-0.07955040597019639 52.51338781409572, -0.5510502032408139 52.32210614595394, 0.03009961574087244 52.18134255828252, -0.07955040597019639 52.51338781409572))"  # noqa E501
+            ],
+            "dataset": ["conservation-area"],
+        },
+    )
+
+    assert result["count"] > 0
+    for entity in result["entities"]:
+        assert entity.dataset == "conservation-area"
+
+
+def test_get_entity_search_with_point_filter(db_session):
+    db_session.execute(
+        """
+        INSERT INTO entity (entity, dataset, reference, geometry)
+        VALUES (
+            2,
+            'flood-risk-zone',
+            'FRZ1',
+            ST_GeomFromText('MULTIPOLYGON(((-6.352507 49.893859, -6.352647 49.893866, -6.352645 49.893844, -6.352611 49.893845, -6.35261 49.893834, -6.352507 49.893859)))', 4326) # noqa E501
+        )
+    """
+    )
+    db_session.execute(
+        """
+        INSERT INTO entity_subdivided (entity, dataset, geometry_subdivided)
+        VALUES (
+            2,
+            'flood-risk-zone',
+            ST_GeomFromText('MULTIPOLYGON(((-6.352507 49.893859, -6.352647 49.893866, -6.352645 49.893844, -6.352611 49.893845, -6.35261 49.893834, -6.352507 49.893859)))', 4326) # noqa E501
+        )
+    """
+    )
+    db_session.commit()
+    params = {}
+    params["longitude"] = -6.352593
+    params["latitude"] = 49.893853
+    params["dataset"] = ["flood-risk-zone"]
+
+    result = get_entity_search(db_session, params)
+    print(result)
+    assert result["count"] == 1
+    assert all(e.dataset == "flood-risk-zone" for e in result["entities"])
