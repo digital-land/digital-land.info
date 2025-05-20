@@ -293,46 +293,34 @@ def _apply_location_filters(session, query, params):
 
     intersecting_entities = params.get("geometry_entity", [])
     if intersecting_entities:
-        intersecting_entities_query = session.query(EntityOrm.geometry).filter(
-            EntityOrm.entity.in_(intersecting_entities),
-            EntityOrm.dataset.notin_(complex_datasets),
-            EntityOrm.geometry.isnot(None),
-            func.ST_IsValid(EntityOrm.geometry),
+        intersecting_entities_query = (
+            session.query(EntityOrm.geometry)
+            .filter(EntityOrm.entity.in_(intersecting_entities))
+            .group_by(EntityOrm.entity)
+            .subquery()
         )
-        intersecting_entities_subdivided_query = session.query(
-            EntitySubdividedOrm.geometry_subdivided.label("entity_geometry")
-        ).filter(
-            EntitySubdividedOrm.entity.in_(intersecting_entities),
-            EntitySubdividedOrm.dataset.in_(complex_datasets),
-            EntitySubdividedOrm.geometry_subdivided.isnot(None),
-            func.ST_IsValid(EntitySubdividedOrm.geometry_subdivided),
-        )
-        union_geom_subq = union_all(
-            intersecting_entities_query, intersecting_entities_subdivided_query
-        ).subquery()
 
         query = query.join(
-            union_geom_subq,
+            intersecting_entities_query,
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
                     func.ST_IsValid(EntityOrm.geometry),
-                    func.ST_IsValid(union_geom_subq.c.entity_geometry),
+                    func.ST_IsValid(intersecting_entities_query.c.geometry),
                     spatial_function(
                         EntityOrm.geometry,
-                        union_geom_subq.c.entity_geometry,
+                        intersecting_entities_query.c.geometry,
                     ),
                 ),
                 and_(
                     EntityOrm.point.is_not(None),
-                    func.ST_IsValid(union_geom_subq.c.entity_geometry),
+                    func.ST_IsValid(intersecting_entities_query.c.geometry),
                     spatial_function(
-                        EntityOrm.point, union_geom_subq.c.entity_geometry
+                        EntityOrm.point, intersecting_entities_query.c.geometry
                     ),
                 ),
             ),
         )
-        query = query.distinct(EntityOrm.entity)
 
     references = params.get("geometry_reference", [])
     if references:
