@@ -19,7 +19,6 @@ from application.db.session import session_cache
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 complex_datasets = ["flood-risk-zone"]
@@ -73,25 +72,16 @@ def get_entity_search(
     params = normalised_params(parameters)
     count: int
     entities: list[EntityModel]
-    print("Starting count at: ", datetime.now())
     # get count
     subquery = session.query(EntityOrm.entity)
-    print("entity query at: ", datetime.now())
     subquery = _apply_base_filters(subquery, params)
     subquery = _apply_date_filters(subquery, params)
     subquery = _apply_location_filters(session, subquery, params)
     subquery = _apply_period_option_filter(subquery, params).subquery()
     count_query = session.query(func.count()).select_from(subquery)
-    print("querying on it finished at: ", datetime.now())
-    print(
-        "count query :",
-        datetime.now(),
-        "query::",
-        count_query.statement.compile(compile_kwargs={"literal_binds": True}),
-    )
+
     count = count_query.scalar()
 
-    print("starting main process at: ", datetime.now())
     query_args = [EntityOrm]
     query = session.query(*query_args)
     query = _apply_base_filters(query, params)
@@ -102,16 +92,9 @@ def get_entity_search(
     query = _apply_field_filters(
         query, params, extension
     )  # Build the query without excluded params
-    print(
-        "entity factory at:",
-        datetime.now(),
-        "query::",
-        query.statement.compile(compile_kwargs={"literal_binds": True}),
-    )
+
     entities = query.all()
-    print("entity queries at: ", datetime.now())
     entities = [entity_factory(entity_orm) for entity_orm in entities]
-    print("All done for get_entity_search at: ", datetime.now())
     return {"params": params, "count": count, "entities": entities}
 
 
