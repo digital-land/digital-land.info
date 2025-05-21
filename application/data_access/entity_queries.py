@@ -219,11 +219,9 @@ def _apply_date_filters(query, params):
 
 def _apply_location_filters(session, query, params):
     point = get_point(params)
-    # datasets = params.get("dataset", [])
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
-    # use_subdivided = not datasets or any(ds in complex_datasets for ds in datasets)
     if point is not None:
-        # Pre-filter EntityOrm table
+        # Pre-filter EntitySubdividedOrm table
         subdivided_ids_query = select(entity_subdivided_alias.entity).where(
             entity_subdivided_alias.dataset.in_(complex_datasets),
             entity_subdivided_alias.geometry_subdivided.isnot(None),
@@ -234,7 +232,7 @@ def _apply_location_filters(session, query, params):
             ),
         )
 
-        # Second select from entity
+        #  Pre-filter EntityOrm table
         entity_ids_query = select(EntityOrm.entity).where(
             EntityOrm.dataset.notin_(complex_datasets),
             EntityOrm.geometry.isnot(None),
