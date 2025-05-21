@@ -62,6 +62,11 @@ def get_datasets_with_data_by_typology(
     return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
+@session_cache("datasets-typology-geo")
+def get_datasets_with_data_by_geography(session: Session) -> List[DatasetModel]:
+    return get_datasets_with_data_by_typology(session, "geography")
+
+
 def get_typologies(session: Session) -> List[TypologyModel]:
     typologies = session.query(TypologyOrm).order_by(TypologyOrm.typology).all()
     return [TypologyModel.from_orm(t) for t in typologies]
