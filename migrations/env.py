@@ -24,6 +24,14 @@ fileConfig(config.config_file_name)
 target_metadata = Base.metadata
 
 
+# define an include objects function, this is mainly tto filter out postgis related tables
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table" and name == "spatial_ref_sys":
+        return False
+    else:
+        return True
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -45,6 +53,7 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -71,7 +80,11 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         logging.info(f"Running online migration against {url}")
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=include_object,
+        )
 
         with context.begin_transaction():
             context.run_migrations()

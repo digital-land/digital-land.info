@@ -31,6 +31,8 @@ class EntityOrm(Base):
     typology = Column(Text, nullable=True)
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True)
     point = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # conside removing the geojson column as it's just empty right now
+    geojson_col = Column(JSONB, name="geojson", nullable=True)
     _geometry_geojson = column_property(func.ST_AsGeoJSON(geometry))
     _point_geojson = column_property(func.ST_AsGeoJSON(point))
 
@@ -58,6 +60,22 @@ idx_entity_prefix = Index("idx_entity_prefix", EntityOrm.prefix)
 idx_entity_reference = Index("idx_entity_reference", EntityOrm.reference)
 idx_entity_typology = Index("idx_entity_typology", EntityOrm.typology)
 
+# add another index which is in the db. this was created initionally before the above was added
+# might want to examine if it's needed or not
+idx_entity_columns = Index(
+    "idx_entity_columns",
+    EntityOrm.entity,
+    EntityOrm.name,
+    EntityOrm.entry_date,
+    EntityOrm.start_date,
+    EntityOrm.end_date,
+    EntityOrm.dataset,
+    EntityOrm.organisation_entity,
+    EntityOrm.prefix,
+    EntityOrm.reference,
+    EntityOrm.typology,
+)
+
 
 class EntitySubdividedOrm(Base):
     __tablename__ = "entity_subdivided"
@@ -68,6 +86,14 @@ class EntitySubdividedOrm(Base):
     geometry_subdivided = Column(
         Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False
     )
+
+
+# Indexes for entity Subdivided
+idx_entity_subdivided_columns = Index(
+    "idx_entity_subdivided_columns",
+    EntitySubdividedOrm.entity,
+    EntitySubdividedOrm.dataset,
+)
 
 
 class OldEntityOrm(Base):
@@ -88,7 +114,7 @@ class OldEntityOrm(Base):
     status = Column(Integer, nullable=False)
     notes = Column(Text, nullable=True)
     new_entity_id = Column(BIGINT, name="entity", nullable=True)
-    dataset = Column(Text, nullable=False)
+    dataset = Column(Text, nullable=True)
     new_entity = relationship(
         EntityOrm,
         primaryjoin=remote(EntityOrm.entity) == foreign(new_entity_id),
