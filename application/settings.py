@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Optional
 
 from dotenv import load_dotenv
-from pydantic import BaseSettings, PostgresDsn, HttpUrl
+from pydantic import BaseSettings, PostgresDsn, HttpUrl, root_validator
 
 import logging
 
@@ -28,6 +28,15 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_SECURE: bool = True
+
+    @root_validator(pre=True)
+    def split_redis_host(cls, values):
+        host = values.get("REDIS_HOST")
+        if host and ":" in host:
+            h, p = host.split(":")
+            values["REDIS_HOST"] = h
+            values["REDIS_PORT"] = int(p)
+        return values
 
 
 @lru_cache()
