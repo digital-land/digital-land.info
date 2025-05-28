@@ -9,6 +9,7 @@ from pydantic.error_wrappers import ErrorWrapper
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.orm import Session
+import redis
 from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
     get_datasets,
@@ -41,7 +42,7 @@ from application.exceptions import (
     DatasetValueNotFound,
     TypologyValueNotFound,
 )
-from application.db.session import get_session
+from application.db.session import get_session, get_redis, DbSession
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -321,6 +322,7 @@ def search_entities(
     query_filters: QueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
+    redis: redis.Redis = Depends(get_redis),
 ):
     # Determine if the URL path includes an extension
     if "." in request.url.path:  # check if extension if in path parameter
@@ -382,17 +384,18 @@ def search_entities(
         geojson["links"] = links
         return geojson
 
-    typologies = get_typologies_with_entities(session)
+    db_session = DbSession(session=session, redis=redis)
+    typologies = get_typologies_with_entities(db_session)
     typologies = [t.dict() for t in typologies]
     # dataset facet
-    response = get_all_datasets(session)
+    response = get_all_datasets(db_session)
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
     local_authorities = get_local_authorities(session, "local-authority")
     local_authorities = [la.dict() for la in local_authorities]
 
-    organisations = get_organisations(session)
+    organisations = get_organisations(db_session)
     columns = ["entity", "organisation_entity", "name"]
     organisations_list = [
         organisation.dict(include=set(columns)) for organisation in organisations

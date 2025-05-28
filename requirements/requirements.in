@@ -21,3 +21,4 @@ govuk-frontend-jinja @ git+https://github.com/digital-land/govuk-frontend-jinja@
 validators
 pre-commit
 urllib3<2
+redis

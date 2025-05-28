@@ -2,7 +2,7 @@ import logging
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from application.db.session import session_cache
+from application.db.session import redis_cache, DbSession
 
 from application.core.models import (
     DatasetModel,
@@ -37,9 +37,9 @@ def get_datasets(session: Session, datasets=None) -> List[DatasetModel]:
     return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
-@session_cache("datasets")
-def get_all_datasets(session: Session) -> List[DatasetModel]:
-    return get_datasets(session)
+@redis_cache("datasets", model_class=DatasetModel)
+def get_all_datasets(session: DbSession) -> List[DatasetModel]:
+    return get_datasets(session.session)
 
 
 def get_dataset_query(session: Session, dataset) -> DatasetModel:
@@ -62,9 +62,9 @@ def get_datasets_with_data_by_typology(
     return [DatasetModel.from_orm(ds) for ds in datasets]
 
 
-@session_cache("datasets-typology-geo")
-def get_datasets_with_data_by_geography(session: Session) -> List[DatasetModel]:
-    return get_datasets_with_data_by_typology(session, "geography")
+@redis_cache("datasets-typology-geo", model_class=DatasetModel)
+def get_datasets_with_data_by_geography(session: DbSession) -> List[DatasetModel]:
+    return get_datasets_with_data_by_typology(session.session, "geography")
 
 
 def get_typologies(session: Session) -> List[TypologyModel]:
@@ -73,8 +73,11 @@ def get_typologies(session: Session) -> List[TypologyModel]:
 
 
 # returns all typologies with at least one dataset that falls under that typology
-@session_cache("typologies+entities")
-def get_typologies_with_entities(session: Session) -> List[TypologyModel]:
+
+
+@redis_cache("typologies+entities", model_class=TypologyModel)
+def get_typologies_with_entities(dbsession: DbSession) -> List[TypologyModel]:
+    session = dbsession.session
     typologiesNamesRes = session.query(EntityOrm.typology).distinct().all()
     if len(typologiesNamesRes) == 0:
         return []
