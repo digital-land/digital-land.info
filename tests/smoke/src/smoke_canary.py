@@ -21,7 +21,7 @@ def main():
 def visit_and_screenshot(browser, base_url, path):
     url = base_url + path
     browser.get(url)
-    browser.save_screenshot(f"${screenshot_dir}/${path}.png")
+    browser.save_screenshot(f"{screenshot_dir}/{path}.png")
     response_code = syn_webdriver.get_http_response(url)
     if not response_code or response_code < 200 or response_code > 299:
         raise Exception("Failed to load page!")
