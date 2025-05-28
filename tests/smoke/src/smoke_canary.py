@@ -22,11 +22,19 @@ def main():
 def visit_and_screenshot(browser, base_url, path):
     url = base_url + path
     browser.get(url)
+    path_string = path_to_string(path)
     time_string = time.strftime("%Y%m%d-%H%M%S")
-    browser.save_screenshot(f"{screenshot_dir}/{path}-{time_string}.png")
+    browser.save_screenshot(f"{screenshot_dir}/{path_string}-{time_string}.png")
     response_code = syn_webdriver.get_http_response(url)
     if not response_code or response_code < 200 or response_code > 299:
         raise Exception("Failed to load page!")
+
+
+def path_to_string(path):
+    if path == "/":
+        return "root"
+    else:
+        return path
 
 
 def handler(event, context):
