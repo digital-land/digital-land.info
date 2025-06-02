@@ -18,7 +18,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.responses import Response
 from http import HTTPStatus
 
-from application.db.session import get_session
+from application.db.session import get_session, init_redis
 from application.core.templates import templates
 from application.db.models import EntityOrm
 from application.exceptions import DigitalLandValidationError
@@ -66,6 +66,7 @@ tags_metadata = [
 
 
 def create_app():
+    init_redis(get_settings())
     app = FastAPI(
         title="planning.data.gov.uk API",
         description=description,

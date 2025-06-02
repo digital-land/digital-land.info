@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Request, HTTPException, Path, Depends
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
+from redis import Redis
 
 from application.data_access.digital_land_queries import (
     get_dataset_query,
@@ -18,7 +19,7 @@ from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
-from application.db.session import get_session
+from application.db.session import get_session, get_redis, DbSession
 
 
 router = APIRouter()
@@ -56,8 +57,9 @@ def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
     session: Session = Depends(get_session),
+    redis: Redis = Depends(get_redis),
 ):
-    datasets = get_all_datasets(session)
+    datasets = get_all_datasets(DbSession(session=session, redis=redis))
     entity_counts_response = get_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available

@@ -6,7 +6,7 @@ from application.data_access.entity_queries import (
     get_linked_entities,
 )
 from application.db.models import EntityOrm
-from application.db.session import SESSION_CACHE
+from application.db.session import SESSION_CACHE, DbSession
 
 
 def test__lookup_entity_link_returns_nothing_when_the_entity_isnt_found(db_session):
@@ -301,7 +301,7 @@ def test_get_organisations(db_session, organisation_entity):
     db_session.add(EntityOrm(**organisation_entity))
     db_session.commit()
 
-    organisations = get_organisations(db_session)
+    organisations = get_organisations(DbSession(session=db_session, redis=None))
     if organisation_entity["name"]:
         assert (
             organisations[0].name == organisation_entity["name"]

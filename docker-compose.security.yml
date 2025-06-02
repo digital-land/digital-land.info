@@ -22,6 +22,9 @@ services:
       DATA_FILE_URL: https://data.digital-land.info
       RELOAD: "true"
       PRE_START_PATH: "/src/prestart.sh"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_SECURE: false
     volumes:
       - .:/src
     healthcheck:
@@ -46,6 +49,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  redis:
+    image: redis:6.0.9
+    restart: on-failure
+    ports:
+      - "6379:6379"
 
   zap:
     image: ghcr.io/zaproxy/zaproxy:${ZAP_VERSION-2.15.0}

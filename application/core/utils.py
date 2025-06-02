@@ -21,9 +21,8 @@ def create_dict(keys_list, values_list):
 def model_dumps(obj, *args, **kwargs):
     import json
 
-    logging.warning(type(obj))
     if isinstance(obj, dict):
-        logging.warning(obj)
+        logging.debug(obj)
     items = []
     if isinstance(obj, List):
         for m in obj:
@@ -34,6 +33,7 @@ def model_dumps(obj, *args, **kwargs):
     if isinstance(obj, date):
         return json.dumps(obj.__str__(), *args, **kwargs)
     else:
+        logging.warning(f"model_dumps: obj is of type {type(obj)}")
         return json.dumps(obj, *args, **kwargs)
 
 
