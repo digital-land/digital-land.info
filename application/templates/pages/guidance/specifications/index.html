@@ -11,39 +11,10 @@
 
 {% block content_primary %}
 
-<p class="govuk-body">Your data does not need to be complete or perfect to start. Any data we have from you means we can start to index it and provide it on the platform. Start with what you have and improve it over time.</p>
+    {% set markdown_content %}
+    {%- include pageData.root_url + "specifications/index.md" with context -%}
+    {% endset %}
 
-<section class="govuk-!-margin-bottom-6">
-  <h2 class="govuk-heading-m">
-    Datasets the service supports
-  </h2>
-
-  <p class="govuk-body">
-    Right now, the service supports:
-  </p>
-
-  <ul class="govuk-list govuk-list--bullet">
-    <li><a href="./article-4-direction">article 4 direction area dataset</a></li>
-    <li><a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data">brownfield land dataset</a></li>
-    <li><a href="./conservation-area">conservation area dataset</a></li>
-    <li><a href="./listed-building">listed building outline dataset</a></li>
-    <li><a href="./tree-preservation-order">tree preservation zone dataset</a></li>
-  </ul>
-</section>
-
-<section class="govuk-!-margin-bottom-6">
-  <h2 class="govuk-heading-m">
-    Datasets we’re developing
-  </h2>
-
-  <p class="govuk-body">
-    We're currently testing and developing data standards for these planning considerations:
-  </p>
-
-  <ul class="govuk-list govuk-list--bullet">
-    <li><a href="./design-code">design codes</a></li>
-    <li><a href="./local-plan">local plans</a></li>
-  </ul>
-</section>
+    {{ markdown_content | render_markdown(govAttributes=True) }}
 
 {% endblock %}
