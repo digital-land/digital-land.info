@@ -1,0 +1,21 @@
+{%- do pageData.update({
+  'pageTitle': 'The Open Digital Planning community'
+}) %}
+{% extends "layouts/layout--guidance.html" %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/guidance/'
+  })}}
+{% endblock %}
+
+{% block content_primary %}
+
+    {% set markdown_content %}
+    {%- include pageData.root_url + "odp-community.md" with context -%}
+    {% endset %}
+
+    {{ markdown_content | render_markdown(govAttributes=True) }}
+
+{% endblock %}
