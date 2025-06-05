@@ -1,11 +1,15 @@
-Your data must be on a URL the public can access. We collect the latest data from there every day.
+Before you submit your data, you must publish your data on a webpage on your official planning authority website, usually ending in gov.uk. Your local planning authority will always be the source of truth about your data.
 
-You must link to that URL from a webpage about the data. This needs to be on your official planning authority website, usually ending in gov.uk.
+Your data must be on a URL the public can access. We collect the latest data from there every day. We call this the ‘endpoint URL’.
 
-Why publish on your website
-----------------
+You must link to your endpoint URL from your webpage URL.
 
-Your planning authority will always be the source of truth about your data.
+Endpoints typically fall into 1 of the following 2 categories:
+
+- a file hosted on your web server — these will usually be URLs which end in something like .json or .csv
+- a live feed of the data from an API — these are usually hosted by your GIS (Geographic Information System) software or open data platform
+
+Whenever your data changes, update it in the endpoint URL. Your endpoint URL must remain the same, do not change it when you make updates.
 
 Create your webpage
 --------------------
@@ -15,30 +19,3 @@ The webpage must include, for each dataset:
 - the link to the endpoint URL
 - a summary of what the data is about
 - a statement that the data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
-
-
-### Example webpage
-
-#### About the data
-
-This dataset shows the locations of conservation areas. Conservation areas are designated to safeguard areas of special architectural and historic interest, the character and appearance of which it is desirable to preserve and enhance.
-
-#### Data
-
-[Conservation areas (CSV, 188KB)](https://check.planning.data.gov.uk/public/downloadable/conservationArea.csv)
-
-#### Licensing
-
-The data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
-
-Submit your data
--------------
-
-Once your data is published on your website, you can submit your data to the platform.
-
-You'll need to provide your:
-
-- full name
-- work email address
-- endpoint URL: the URL of the data file or feed itself
-- webpage URL: the URL of the page on your website which contains information about the dataset and the link to your data
