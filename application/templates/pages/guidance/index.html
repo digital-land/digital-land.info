@@ -2,7 +2,7 @@
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 {% set templateName = 'dl-info/guidance/index.html' %}
 {%- do pageData.update({
-  'pageTitle': 'Provide planning and housing data for England'
+  'pageTitle': 'About the submit and update your planning data service'
 }) %}
 {% block breadcrumbs%}
   {{ dlBackButton({
@@ -10,46 +10,19 @@
   })}}
 {% endblock %}
 {% block content_primary %}
-
-    <p>
-      We’re working with over 100 local planning authorities (LPAs) through the <a class="govuk-link" href="https://opendigitalplanning.org/community-members" target="_blank">Open Digital Planning community</a> to help them provide data to our platform. There are 4 steps to follow.
+    <p class="govuk-body">
+      Creating a national index of planning data means that developers, housing associations, policy colleagues, researchers and journalists can access the data they need simply and quickly.
     </p>
 
-    <ol class="govuk-list govuk-list--number">
-      <li>Prepare data to the specifications.</li>
-      <li>Use our service to check your data conforms to specifications.</li>
-      <li>Publish data on your local authority website.</li>
-      <li>Keep your data up to date.</li>
-    </ol>
-
-    <h2 class="govuk-heading-m govuk-!-margin-bottom-1">
-      Using our service
-    </h2>
-
-    <p>
-      We’re making improvements to our service which will make it simpler and easier for LPAs to provide and maintain data for planning and housing.
+    <p class="govuk-body">
+      It means less overhead for local planning authorities and organisations, reducing the time spent preparing for data requests and freedom of information requests.
     </p>
 
-    <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
-      Check your existing data
-    </h3>
-    <p>
-      Easily map your existing data headings to the specifications, using real examples from your datasets, to help you plan your project.
+    <p class="govuk-body">
+      We’re working with a number of local planning authorities (LPAs) and other organisations through the Open Digital Planning community to help them submit data to our Planning Data Platform.
     </p>
 
-    <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
-      Track progress of tasks
-    </h3>
-    <p>
-      Our step-by-step process guides you and gives real-time feedback, helping you track progress and provide data confidently.
+    <p class="govuk-body">
+      <a class="govuk-link" href="https://submit.planning.data.gov.uk">Go to the submit and update your planning data service.</a>
     </p>
-
-    <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
-      Easy-to-follow instructions
-    </h3>
-    <p>
-      Get clear instructions to resolve issues or errors with your datasets, making it easier to conform to technical specifications and manage data quality.
-    </p>
-
-    {# <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--l"> #}
 {% endblock %}
