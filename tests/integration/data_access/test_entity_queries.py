@@ -3,6 +3,10 @@ import pytest
 
 from application.db.models import EntityOrm
 from application.data_access.entity_queries import get_entity_search
+from sqlalchemy.orm import Query
+from application.data_access.entity_queries import (
+    _apply_location_filters,
+)
 
 # set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -91,6 +95,24 @@ def test_get_entity_search_geometry_reference_queries_returns_correct_results(
 
     for entity in expected_entities:
         assert entity in [entity.entity for entity in results["entities"]], results
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"longitude": "-0.2", "latitude": "53.38", "dataset": ["flood-risk-zone"]},
+        {
+            "longitude": "-0.2",
+            "latitude": "53.38",
+            "dataset": ["flood-risk-zone", "conservation-area"],
+        },
+    ],
+)
+def test__apply_location_filters_with_frz(db_session, params):
+    query = Query(EntityOrm)
+    result = _apply_location_filters(db_session, query, params=params)
+    sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
+    assert "entity_subdivided" in sql_str
 
 
 entities = [
