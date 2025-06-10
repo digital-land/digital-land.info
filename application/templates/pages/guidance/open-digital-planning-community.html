@@ -1,7 +1,6 @@
 {%- do pageData.update({
-  'pageTitle': 'Keep your data up to date'
+  'pageTitle': 'The Open Digital Planning community'
 }) %}
-{% set templateName = 'dl-info/guidance/keep-your-data-up-to-date.html' %}
 {% extends "layouts/layout--guidance.html" %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
@@ -14,7 +13,7 @@
 {% block content_primary %}
 
     {% set markdown_content %}
-    {%- include pageData.root_url + "keep-your-data-up-to-date.md" with context -%}
+    {%- include pageData.root_url + "open-digital-planning-community.md" with context -%}
     {% endset %}
 
     {{ markdown_content | render_markdown(govAttributes=True) }}
