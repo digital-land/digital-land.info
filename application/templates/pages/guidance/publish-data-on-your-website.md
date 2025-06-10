@@ -1,4 +1,4 @@
-Before you submit your data, you must publish your data on a webpage on your official planning authority website, usually ending in gov.uk. Your local planning authority will always be the source of truth about your data.
+Before you provide your data, you must publish your data on a webpage on your official planning authority website, usually ending in gov.uk. Your local planning authority will always be the source of truth about your data.
 
 Your data must be on a URL the public can access. We collect the latest data from there every day. We call this the ‘endpoint URL’.
 
