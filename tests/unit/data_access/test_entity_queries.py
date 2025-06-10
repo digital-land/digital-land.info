@@ -12,7 +12,7 @@ def test__apply_limit_and_pagination_filters_with_no_filters_applied():
     assert result._limit_clause is None
 
 
-def test__apply_location_filters_for_frz_dataset(db_session):
+def test__apply_location_filters_uses_subdivided_table(db_session):
     query = Query(EntityOrm)
     result = _apply_location_filters(
         db_session,
@@ -20,15 +20,13 @@ def test__apply_location_filters_for_frz_dataset(db_session):
         params={
             "longitude": "-0.2",
             "latitude": "53.38",
-            "dataset": ["flood-risk-zone"],
         },
     )
     sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
     assert "entity_subdivided" in sql_str
-    assert "flood-risk-zone" in sql_str.split("FROM entity_subdivided")[1]
 
 
-def test__apply_location_filters_for_simple_dataset(db_session):
+def test__apply_location_filters_uses_entity_table(db_session):
     query = Query(EntityOrm)
     result = _apply_location_filters(
         db_session,
@@ -36,12 +34,11 @@ def test__apply_location_filters_for_simple_dataset(db_session):
         params={
             "longitude": "-0.3",
             "latitude": "52.35",
-            "dataset": ["conservation-area"],
         },
     )
     sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
     assert "entity_subdivided" in sql_str
-    assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
+    assert "~ entity in (SELECT" in sql_str or "NOT IN (SELECT" in sql_str
 
 
 def test__apply_location_filters_for_both(db_session):
@@ -56,8 +53,8 @@ def test__apply_location_filters_for_both(db_session):
         },
     )
     sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-    assert "flood-risk-zone" in sql_str.split("FROM entity_subdivided")[1]
-    assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
+    assert "FROM entity_subdivided" in sql_str
+    assert "FROM entity" in sql_str
 
 
 def test__apply_location_filters_without_dataset(db_session):

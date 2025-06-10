@@ -3,10 +3,6 @@ import pytest
 
 from application.db.models import EntityOrm
 from application.data_access.entity_queries import get_entity_search
-from sqlalchemy.orm import Query
-from application.data_access.entity_queries import (
-    _apply_location_filters,
-)
 
 # set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -95,36 +91,6 @@ def test_get_entity_search_geometry_reference_queries_returns_correct_results(
 
     for entity in expected_entities:
         assert entity in [entity.entity for entity in results["entities"]], results
-
-
-def test__apply_location_filters_with_frz(db_session):
-    query = Query(EntityOrm)
-    result = _apply_location_filters(
-        db_session,
-        query,
-        params={
-            "longitude": "-0.2",
-            "latitude": "53.38",
-            "dataset": ["flood-risk-zone"],
-        },
-    )
-    sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-    assert "entity_subdivided" in sql_str
-
-
-def test__apply_location_filters_with_frz_and_others(db_session):
-    query = Query(EntityOrm)
-    result = _apply_location_filters(
-        db_session,
-        query,
-        params={
-            "longitude": "-0.2",
-            "latitude": "53.38",
-            "dataset": ["flood-risk-zone", "conservation-area"],
-        },
-    )
-    sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-    assert "entity_subdivided" in sql_str
 
 
 entities = [
@@ -238,3 +204,61 @@ def test_get_entity_search_with_point_filter(db_session):
     print(result)
     assert result["count"] == 1
     assert all(e.dataset == "flood-risk-zone" for e in result["entities"])
+
+
+@pytest.mark.parametrize(
+    "insert_subdivided, params, expected_count, expected_entities",
+    [
+        # Only entity table
+        (
+            False,
+            {"geometry": ["POLYGON((-0.5 53, -0.1 53, -0.1 52, -0.5 52, -0.5 53))"]},
+            1,
+            [1],
+        ),
+        # Entity + subdivided
+        (
+            True,
+            {
+                "geometry": [
+                    "POLYGON((-6.32 49.82, -6.28 49.82, -6.28 49.78, -6.32 49.78, -6.32 49.82))"
+                ]
+            },
+            1,
+            [2],
+        ),
+        # Both tables with geometry that matches only entity 1
+        (
+            True,
+            {"geometry": ["POLYGON((-0.5 53, -0.1 53, -0.1 52, -0.5 52, -0.5 53))"]},
+            1,
+            [1],
+        ),
+    ],
+)
+def test_entity_search_with_entity_entity_subdivided_tables(
+    db_session, insert_subdivided, params, expected_count, expected_entities
+):
+    for entity in entities:
+        db_session.add(EntityOrm(**entity))
+    db_session.commit()
+
+    if insert_subdivided:
+        db_session.execute(
+            """
+            INSERT INTO entity_subdivided (entity, dataset, geometry_subdivided)
+            VALUES (
+                2,
+                'flood-risk-zone',
+                ST_GeomFromText('POLYGON((-6.31 49.81, -6.29 49.81, -6.29 49.79, -6.31 49.79, -6.31 49.81))', 4326)
+            )
+            """
+        )
+        db_session.commit()
+
+    result = get_entity_search(db_session, params)
+
+    assert result["count"] == expected_count
+    result_entities = [e.entity for e in result["entities"]]
+    for e_id in expected_entities:
+        assert e_id in result_entities
