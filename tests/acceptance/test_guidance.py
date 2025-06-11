@@ -3,27 +3,17 @@ def test_guidance_pages_load_ok(server_url, page):
     assert response.ok
     heading = page.get_by_role(
         "heading",
-        name="Provide planning and housing data for England",
+        name="About the check and provide your planning data service",
     ).last
     assert heading.is_visible()
 
     page.get_by_label("Guidance navigation").get_by_role(
-        "link", name="Prepare data to the specifications"
+        "link", name="Prepare your data"
     ).click()
     assert response.ok
     heading = page.get_by_role(
         "heading",
-        name="Prepare data to the specifications",
-    )
-    assert heading.is_visible()
-
-    page.get_by_label("Guidance navigation").get_by_role(
-        "link", name="Use our service to check your data"
-    ).click()
-    assert response.ok
-    heading = page.get_by_role(
-        "heading",
-        name="Use our service to check your data",
+        name="Prepare your data",
     )
     assert heading.is_visible()
 
@@ -38,11 +28,21 @@ def test_guidance_pages_load_ok(server_url, page):
     assert heading.is_visible()
 
     page.get_by_label("Guidance navigation").get_by_role(
-        "link", name="Keep your data up to date"
+        "link", name="The Open Digital Planning community"
     ).click()
     assert response.ok
     heading = page.get_by_role(
         "heading",
-        name="Keep your data up to date",
+        name="The Open Digital Planning community",
+    )
+    assert heading.is_visible()
+
+    page.get_by_label("Guidance navigation").get_by_role(
+        "link", name="Get help"
+    ).click()
+    assert response.ok
+    heading = page.get_by_role(
+        "heading",
+        name="Get help",
     )
     assert heading.is_visible()

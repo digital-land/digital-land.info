@@ -1,6 +1,4 @@
- {%- do pageData.update({
-  'pageTitle': 'Prepare data to the specifications'
-}) %}
+{%- do pageData.update({ 'pageTitle': 'Prepare your data' }) %}
 {% set templateName = 'dl-info/guidance/specification/index.html' %}
 {% extends "layouts/layout--guidance.html" %}
 
@@ -13,41 +11,10 @@
 
 {% block content_primary %}
 
-<p>Before you publish data on your website, you need to make sure it complies with our specifications. You can use our service to do this.</p>
+    {% set markdown_content %}
+    {%- include pageData.root_url + "specifications/index.md" with context -%}
+    {% endset %}
 
-<p>We understand you might not have all the fields available. You can start with what you have now. You’ll need to fill in the gaps later.</p>
-
-    <h2 class="govuk-heading-m govuk-!-margin-bottom-1">
-      Expected now
-    </h2>
-
-<p>We expect you to prepare and publish data for:</p>
-  <ul class="govuk-list govuk-list--bullet">
-    <li><a href="https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data">brownfield land</a></li>
-    <li><a href="https://www.gov.uk/guidance/publish-your-developer-contributions-data">developer contributions</a></li>
-  </ul>
-
-    <h2 class="govuk-heading-m govuk-!-margin-bottom-1">
-      Expected soon
-    </h2>
-
-<p>We’ll soon expect you to prepare and publish data for:</p>
-  <ul class="govuk-list govuk-list--bullet">
-    <li><a href="article-4-direction">article 4 directions</a></li>
-    <li><a href="conservation-area">conservation areas</a></li>
-    <li><a href="listed-building">listed buildings</a></li>
-    <li><a href="tree-preservation-order">tree preservation orders</a></li>
-  </ul>
-
-<p>Or you can provide this data now if you have published it.</p>
-
-<h2 class="govuk-heading-m govuk-!-margin-bottom-1">Guidance we're developing for new datasets</h2>
-
-<p>We're currently testing and developing data standards for these planning considerations:</p>
-<ul class="govuk-list govuk-list--bullet">
-  <li><a href="https://digital-land.github.io/guidance/publish-your-design-code-data/">design codes</a></li>
-  <li><a href="local-plan">local plans</a></li>
-</ul>
-
+    {{ markdown_content | render_markdown(govAttributes=True) }}
 
 {% endblock %}
