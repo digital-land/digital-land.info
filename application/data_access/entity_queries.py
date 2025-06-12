@@ -219,24 +219,51 @@ def _apply_date_filters(query, params):
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    dataset_values = params.get("dataset", [])
     if point is not None:
         # Pre-filter EntitySubdividedOrm table
-        subdivided_ids_query = select(entity_subdivided_alias.entity).where(
+        # subdivided_ids_query = select(entity_subdivided_alias.entity).where(
+        #     entity_subdivided_alias.geometry_subdivided.isnot(None),
+        #     func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
+        #     func.ST_Contains(
+        #         entity_subdivided_alias.geometry_subdivided,
+        #         func.ST_GeomFromText(point, 4326),
+        #     ),
+        # )
+        subdivided_conditions = [
             entity_subdivided_alias.geometry_subdivided.isnot(None),
             func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
             func.ST_Contains(
                 entity_subdivided_alias.geometry_subdivided,
                 func.ST_GeomFromText(point, 4326),
             ),
+        ]
+        if dataset_values:
+            subdivided_conditions.insert(
+                0, entity_subdivided_alias.dataset.in_(dataset_values)
+            )
+
+        subdivided_ids_query = select(entity_subdivided_alias.entity).where(
+            *subdivided_conditions
         )
 
         #  Pre-filter EntityOrm table
-        entity_ids_query = select(EntityOrm.entity).where(
+        # entity_ids_query = select(EntityOrm.entity).where(
+        #     ~EntityOrm.entity.in_(select(entity_subdivided_alias.entity)),
+        #     EntityOrm.geometry.isnot(None),
+        #     func.ST_IsValid(EntityOrm.geometry),
+        #     func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
+        # )
+        entity_conditions = [
             ~EntityOrm.entity.in_(select(entity_subdivided_alias.entity)),
             EntityOrm.geometry.isnot(None),
             func.ST_IsValid(EntityOrm.geometry),
             func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
-        )
+        ]
+        if dataset_values:
+            entity_conditions.insert(0, EntityOrm.dataset.in_(dataset_values))
+
+        entity_ids_query = select(EntityOrm.entity).where(*entity_conditions)
 
         # Combine using union_all
         union_ids = union_all(subdivided_ids_query, entity_ids_query).subquery()
