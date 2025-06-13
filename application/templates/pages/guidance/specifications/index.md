@@ -4,11 +4,11 @@ Your data does not need to be complete or perfect to start. Any data we have fro
 
 Right now, the service supports:
 
-- [article 4 direction area dataset](./article-4-direction)
-- [brownfield land dataset](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data)
-- [conservation area dataset](./conservation-area)
-- [listed building outline dataset](./listed-building)
-- [tree preservation zone dataset](./tree-preservation-order)
+- [article 4 directions](./article-4-direction)
+- [brownfield land](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data)
+- [conservation areas](./conservation-area)
+- [listed buildings](./listed-building)
+- [tree preservation orders](./tree-preservation-order)
 
 ## Datasets we’re developing
 
