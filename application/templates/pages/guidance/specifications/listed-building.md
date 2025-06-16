@@ -74,19 +74,11 @@ Example: `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.23491
 
 If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
-### document-url
-
-An optional URL of a document providing the authoritative source of the boundary. For example, a PDF containing a map of the area, indicated with a red-line boundary.
-
 ### listed-building
 
 The Historic England listed building reference for the listed building. This is recorded in the [register of listed buildings](https://historicengland.org.uk/listing/the-list/) as "List Entry Number".
 
 Example: `1480524`
-
-### listed-building-grade
-
-The Historic England listed-building-grade value for the listed building: I, II or II*.
 
 ### notes
 
