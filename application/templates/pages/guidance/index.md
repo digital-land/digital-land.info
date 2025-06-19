@@ -4,4 +4,4 @@ It means less overhead for local planning authorities and organisations, reducin
 
 We’re working with a number of local planning authorities (LPAs) and other organisations through the Open Digital Planning community to help them provide data to our Planning Data Platform.
 
-[Go to the check and provide your planning data service.](https://submit.planning.data.gov.uk)
+[Go to the check and provide your planning data service.](https://provide.planning.data.gov.uk)

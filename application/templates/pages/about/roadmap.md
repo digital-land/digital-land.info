@@ -27,9 +27,9 @@ We are working with LPA partners to provide data for these areas:
 
 We are also working with an [advisory group](https://design.planning.data.gov.uk/advisory-group) to develop a set of open, reusable data specifications to underpin planning applications. We're continuing to add [local plan boundaries, documents and timetables](https://www.planning.data.gov.uk/entity/?dataset=local-plan-boundary&dataset=local-plan-document&dataset=local-plan-timetable&entry_date_day=&entry_date_month=&entry_date_year=) to the platform.
 
-We are making it easier for data consumers and planning policymakers to get involved in our [data design process](https://design.planning.data.gov.uk/data-design-process). We are also taking more data specifications related to local planning through the [Screen and Research stages](https://design.planning.data.gov.uk/planning-consideration/?stage=Screen&stage=Research&stage=%5B%27screen%27%5D) of our process. 
+We are making it easier for data consumers and planning policymakers to get involved in our [data design process](https://design.planning.data.gov.uk/data-design-process). We are also taking more data specifications related to local planning through the [Screen and Research stages](https://design.planning.data.gov.uk/planning-consideration/?stage=Screen&stage=Research&stage=%5B%27screen%27%5D) of our process.
 
-Based on our [data quality framework](https://digital-land.github.io/technical-documentation/data-operations-manual/Explanation/Key-Concepts/Data-quality-needs/#measuring-data-quality), we're introducing checks and changes to data management processes that will ensure the accuracy, consistency, and integrity of all datasets. 
+Based on our [data quality framework](https://digital-land.github.io/technical-documentation/data-operations-manual/Explanation/Key-Concepts/Data-quality-needs/#measuring-data-quality), we're introducing checks and changes to data management processes that will ensure the accuracy, consistency, and integrity of all datasets.
 
 ### Next
 
@@ -39,13 +39,13 @@ We'll be adding more datasets needed by the Planning Inspectorate and nationally
 
 ### Now
 
-We are making it possible to rebuild our data quickly and reliably, in hours not days. We are also increasing the number of [title boundaries](https://www.planning.data.gov.uk/dataset/title-boundary) available on the platform after scaling our infrastructure. We're also making [our service for data providers](https://submit.planning.data.gov.uk) more responsive and reducing the time it takes to deploy changes to infrastructure.
+We are making it possible to rebuild our data quickly and reliably, in hours not days. We are also increasing the number of [title boundaries](https://www.planning.data.gov.uk/dataset/title-boundary) available on the platform after scaling our infrastructure. We're also making [our service for data providers](https://provide.planning.data.gov.uk) more responsive and reducing the time it takes to deploy changes to infrastructure.
 
-We are improving the guidance in [our service for data providers](https://submit.planning.data.gov.uk) and introducing email notifications, which will make it easier for local planning authorities to understand, address and improve the quality of the data they’ve provided. We're also bringing the data quality checks into the service, meaning local planning authorities can prepare and provide smaller datasets sooner, increasing the amount of authoritative data available on the platform.
+We are improving the guidance in [our service for data providers](https://provide.planning.data.gov.uk) and introducing email notifications, which will make it easier for local planning authorities to understand, address and improve the quality of the data they’ve provided. We're also bringing the data quality checks into the service, meaning local planning authorities can prepare and provide smaller datasets sooner, increasing the amount of authoritative data available on the platform.
 
 We are partnering with the Incubator for AI, exploring how to use generative artificial intelligence to extract data from planning documents.
 
-We are running a discovery to understand the value of the platform for policymakers, analysts, and property companies, and to provide more valuable features for PropTech companies, supporting a growing market of planning products and services using open data we make available. 
+We are running a discovery to understand the value of the platform for policymakers, analysts, and property companies, and to provide more valuable features for PropTech companies, supporting a growing market of planning products and services using open data we make available.
 
 ### Next
 
