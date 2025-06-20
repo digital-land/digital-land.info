@@ -231,20 +231,24 @@ def _apply_location_filters(session, query, params):
 
     if point is not None:
         # Pre-filter EntitySubdividedOrm table
-        subdivided_ids_query = select(entity_subdivided_alias.entity).where(
-            subdivided_dataset_filter,
-            entity_subdivided_alias.geometry_subdivided.isnot(None),
-            func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
-            func.ST_Contains(
-                entity_subdivided_alias.geometry_subdivided,
-                func.ST_GeomFromText(point, 4326),
-            ),
+        subdivided_ids_query = (
+            select(entity_subdivided_alias.entity)
+            .where(
+                subdivided_dataset_filter,
+                entity_subdivided_alias.geometry_subdivided.isnot(None),
+                func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
+                func.ST_Contains(
+                    entity_subdivided_alias.geometry_subdivided,
+                    func.ST_GeomFromText(point, 4326),
+                ),
+            )
+            .subquery()
         )
 
         #  Pre-filter EntityOrm table
         entity_ids_query = select(EntityOrm.entity).where(
-            ~EntityOrm.entity.in_(select(entity_subdivided_alias.entity)),
             entity_dataset_filter,
+            ~EntityOrm.entity.in_(select(subdivided_ids_query)),
             EntityOrm.geometry.isnot(None),
             func.ST_IsValid(EntityOrm.geometry),
             func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
@@ -275,7 +279,9 @@ def _apply_location_filters(session, query, params):
         # Entities from EntityOrm (for all other datasets)
         entity_query = select(EntityOrm.entity).where(
             entity_dataset_filter,
-            ~EntityOrm.entity.in_(select(entity_subdivided_alias.entity)),
+            ~EntityOrm.entity.in_(
+                select(entity_subdivided_alias.entity).where(subdivided_dataset_filter)
+            ),
             or_(
                 and_(
                     EntityOrm.geometry.is_not(None),
