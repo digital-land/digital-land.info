@@ -304,4 +304,4 @@ def test_fallback_when_entity_subdivided_empty(db_session):
 
     result = get_entity_search(db_session, params)
     assert result["count"] == 1
-    assert result["entities"][0].dataset == "flood-risk-zone"
+    assert result["entities"][0].dataset == "conservation-area"
