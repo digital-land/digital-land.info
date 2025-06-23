@@ -284,3 +284,24 @@ def test_entity_search_with_entity_entity_subdivided_tables(
     result_entities = [e.entity for e in result["entities"]]
     for e_id in expected_entities:
         assert e_id in result_entities
+
+
+def test_fallback_when_entity_subdivided_empty(db_session):
+    db_session.add(
+        EntityOrm(
+            entity=3,
+            dataset="conservation-area",
+            reference="CA1",
+            geometry="POLYGON((-0.3 52.4, -0.4 52.3, -0.2 52.3, -0.3 52.4))",
+        )
+    )
+    db_session.commit()
+
+    params = {
+        "geometry": ["POLYGON((-0.3 52.4, -0.4 52.3, -0.2 52.3, -0.3 52.4))"],
+        "dataset": ["conservation-area"],
+    }
+
+    result = get_entity_search(db_session, params)
+    assert result["count"] == 1
+    assert result["entities"][0].dataset == "flood-risk-zone"
