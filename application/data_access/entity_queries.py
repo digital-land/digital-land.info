@@ -17,7 +17,7 @@ from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
 from application.db.session import redis_cache, DbSession
 from sqlalchemy.types import Date
-from sqlalchemy.sql.expression import cast, true
+from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
 
 logger = logging.getLogger(__name__)
@@ -219,19 +219,9 @@ def _apply_date_filters(query, params):
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
-    requested_datasets = params.get("dataset", [])  # Handle optional dataset filter
-    if requested_datasets:
-        subdivided_dataset_filter = entity_subdivided_alias.dataset.in_(
-            requested_datasets
-        )
-        entity_dataset_filter = EntityOrm.dataset.in_(requested_datasets)
-    else:
-        subdivided_dataset_filter = true()  # Accept all datasets
-        entity_dataset_filter = true()
     if point is not None:
         # Pre-filter EntitySubdividedOrm table
         subdivided_ids_query = select(entity_subdivided_alias.entity).where(
-            subdivided_dataset_filter,
             entity_subdivided_alias.geometry_subdivided.isnot(None),
             func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
             func.ST_Contains(
@@ -240,35 +230,16 @@ def _apply_location_filters(session, query, params):
             ),
         )
 
-        entities_without_subdivided_query = (
-            select(EntityOrm.entity)
-            .select_from(
-                EntityOrm.__table__.outerjoin(
-                    entity_subdivided_alias,
-                    EntityOrm.entity == entity_subdivided_alias.entity,
-                )
-            )
-            .where(
-                entity_subdivided_alias.entity.is_(None),  # No subdivided geometry
-                EntityOrm.geometry.isnot(None),
-                func.ST_IsValid(EntityOrm.geometry),
-                func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
-                entity_dataset_filter,
-            )
+        #  Pre-filter EntityOrm table
+        entity_ids_query = select(EntityOrm.entity).where(
+            EntityOrm.entity.notin_(select(entity_subdivided_alias.entity)),
+            EntityOrm.geometry.isnot(None),
+            func.ST_IsValid(EntityOrm.geometry),
+            func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
         )
 
-        #  Pre-filter EntityOrm table
-        # entity_ids_query = select(EntityOrm.entity).where(
-        #     ~EntityOrm.entity.in_(select(entity_subdivided_alias.entity)),
-        #     EntityOrm.geometry.isnot(None),
-        #     func.ST_IsValid(EntityOrm.geometry),
-        #     func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
-        # )
-
         # Combine using union_all
-        union_ids = union_all(
-            subdivided_ids_query, entities_without_subdivided_query
-        ).subquery()
+        union_ids = union_all(subdivided_ids_query, entity_ids_query).subquery()
 
         # Step 2: Get full EntityOrm rows matching those IDs
         query = query.filter(EntityOrm.entity.in_(select(union_ids.c.entity)))
@@ -283,55 +254,27 @@ def _apply_location_filters(session, query, params):
 
         # Entities from entity_subdivided (for complex datasets)
         subdivided_query = select(entity_subdivided_alias.entity).where(
-            subdivided_dataset_filter,
             entity_subdivided_alias.geometry_subdivided.isnot(None),
             func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
             spatial_function(entity_subdivided_alias.geometry_subdivided, geom),
         )
 
-        entity_query = (
-            select(EntityOrm.entity)
-            .select_from(
-                EntityOrm.__table__.outerjoin(
-                    entity_subdivided_alias,
-                    EntityOrm.entity == entity_subdivided_alias.entity,
-                )
-            )
-            .where(
-                entity_subdivided_alias.entity.is_(
-                    None
-                ),  # No subdivided geometry, fallback
-                or_(
-                    and_(
-                        EntityOrm.geometry.isnot(None),
-                        func.ST_IsValid(EntityOrm.geometry),
-                        spatial_function(EntityOrm.geometry, geom),
-                    ),
-                    and_(
-                        EntityOrm.point.isnot(None),
-                        func.ST_IsValid(EntityOrm.point),
-                        spatial_function(EntityOrm.point, geom),
-                    ),
-                ),
-                entity_dataset_filter,
-            )
-        )
         # Entities from EntityOrm (for all other datasets)
-        # entity_query = select(EntityOrm.entity).where(
-        #     ~EntityOrm.entity.in_(select(entity_subdivided_alias.entity)),
-        #     or_(
-        #         and_(
-        #             EntityOrm.geometry.is_not(None),
-        #             func.ST_IsValid(EntityOrm.geometry),
-        #             spatial_function(EntityOrm.geometry, geom),
-        #         ),
-        #         and_(
-        #             EntityOrm.point.is_not(None),
-        #             func.ST_IsValid(EntityOrm.point),
-        #             spatial_function(EntityOrm.point, geom),
-        #         ),
-        #     ),
-        # )
+        entity_query = select(EntityOrm.entity).where(
+            EntityOrm.entity.notin_(select(entity_subdivided_alias.entity)),
+            or_(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    spatial_function(EntityOrm.geometry, geom),
+                ),
+                and_(
+                    EntityOrm.point.is_not(None),
+                    func.ST_IsValid(EntityOrm.point),
+                    spatial_function(EntityOrm.point, geom),
+                ),
+            ),
+        )
 
         # Combine results with UNION ALL
         entity_matches.append(subdivided_query.union_all(entity_query))
