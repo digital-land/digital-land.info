@@ -219,6 +219,7 @@ def _apply_date_filters(query, params):
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    subdivided_ids = select(entity_subdivided_alias.entity).distinct().subquery()
     if point is not None:
         # Pre-filter EntitySubdividedOrm table
         subdivided_ids_query = select(entity_subdivided_alias.entity).where(
@@ -229,14 +230,22 @@ def _apply_location_filters(session, query, params):
                 func.ST_GeomFromText(point, 4326),
             ),
         )
-
+        # print("subdivided_ids_query:", subdivided_ids_query)
         #  Pre-filter EntityOrm table
         entity_ids_query = select(EntityOrm.entity).where(
-            EntityOrm.entity.notin_(select(entity_subdivided_alias.entity)),
+            EntityOrm.entity.notin_(select(subdivided_ids)),
             EntityOrm.geometry.isnot(None),
             func.ST_IsValid(EntityOrm.geometry),
             func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
         )
+
+        # entity_ids_query = select(EntityOrm.entity).where(
+        #     EntityOrm.entity.notin_(select(entity_subdivided_alias.entity)),
+        #     EntityOrm.geometry.isnot(None),
+        #     func.ST_IsValid(EntityOrm.geometry),
+        #     func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
+        # )
+        # print("entity_ids_query:", entity_ids_query)
 
         # Combine using union_all
         union_ids = union_all(subdivided_ids_query, entity_ids_query).subquery()
@@ -258,24 +267,42 @@ def _apply_location_filters(session, query, params):
             func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
             spatial_function(entity_subdivided_alias.geometry_subdivided, geom),
         )
-
+        # print("subdivided_query:", subdivided_query)
         # Entities from EntityOrm (for all other datasets)
+        # entity_query = select(EntityOrm.entity).select_from(
+        #         outerjoin(EntityOrm, subdivided_entity_ids_cte,
+        #           EntityOrm.entity == subdivided_entity_ids_cte.c.entity)
+        #     ).where(
+        #     subdivided_entity_ids_cte.c.entity.is_(None),
+        #     or_(
+        #         and_(
+        #             EntityOrm.geometry.is_not(None),
+        #             func.ST_IsValid(EntityOrm.geometry),
+        #             spatial_function(EntityOrm.geometry, geom),
+        #         ),
+        #         and_(
+        #             EntityOrm.point.is_not(None),
+        #             func.ST_IsValid(EntityOrm.point),
+        #             spatial_function(EntityOrm.point, geom),
+        #         ),
+        #     ),
+        # )
         entity_query = select(EntityOrm.entity).where(
-            EntityOrm.entity.notin_(select(entity_subdivided_alias.entity)),
+            EntityOrm.entity.notin_(select(subdivided_ids)),  # use pre-materialised
             or_(
                 and_(
-                    EntityOrm.geometry.is_not(None),
+                    EntityOrm.geometry.isnot(None),
                     func.ST_IsValid(EntityOrm.geometry),
                     spatial_function(EntityOrm.geometry, geom),
                 ),
                 and_(
-                    EntityOrm.point.is_not(None),
+                    EntityOrm.point.isnot(None),
                     func.ST_IsValid(EntityOrm.point),
                     spatial_function(EntityOrm.point, geom),
                 ),
             ),
         )
-
+        # print("entity_query:", entity_query)
         # Combine results with UNION ALL
         entity_matches.append(subdivided_query.union_all(entity_query))
 
