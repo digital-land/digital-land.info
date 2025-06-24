@@ -25,7 +25,16 @@ def get_map(
     geography_datasets = get_datasets_with_data_by_geography(
         DbSession(session=session, redis=redis)
     )
+
+    # Extract the 'q' query parameter from the request
+    search_query = request.query_params.get("q", "").strip()
+
     return templates.TemplateResponse(
         "national-map.html",
-        {"request": request, "layers": geography_datasets, "settings": settings},
+        {
+            "request": request,
+            "layers": geography_datasets,
+            "settings": settings,
+            "search_query": search_query,
+        },
     )

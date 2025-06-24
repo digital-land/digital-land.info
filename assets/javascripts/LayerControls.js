@@ -236,10 +236,15 @@ export default class LayerControls {
       const urlParams = (new URL(document.location)).searchParams;
       urlParams.delete(this.layerURLParamName);
 
-      this.enabledLayers().forEach(layer => urlParams.append(this.layerURLParamName, layer.getDatasetName()));
-      let newURL = window.location.pathname
-      if(this.enabledLayers().length > 0)
-        newURL = newURL + '?' + urlParams.toString() + window.location.hash;
+      this.enabledLayers().forEach((layer) =>
+        urlParams.append(this.layerURLParamName, layer.getDatasetName())
+      );
+
+      let newURL =
+        window.location.pathname +
+        "?" +
+        urlParams.toString() +
+        window.location.hash;
 
       // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
       window.history.pushState({}, '', newURL);
