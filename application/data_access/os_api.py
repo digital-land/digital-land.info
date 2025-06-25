@@ -1,5 +1,10 @@
 import requests
 import os
+import re
+
+def is_valid_postcode(query: str):
+    postcode_regex = re.compile(r"^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$", re.IGNORECASE)
+    return postcode_regex.match(query.strip())
 
 def get_os_api_key():
     return os.getenv("OS_CLIENT_KEY")
@@ -35,5 +40,10 @@ def transform_search_results(results: dict):
     ]
 
 def search(query: str):
-    results = search_uprn(query) if query.isdigit() else search_postcode(query)
+    type = "uprn" if query.isdigit() else "postcode"
+
+    if len(query.strip()) == 0 or (type == "postcode" and not is_valid_postcode(query.strip())):
+        return []
+
+    results = search_uprn(query) if type == "uprn" else search_postcode(query)
     return transform_search_results(results)

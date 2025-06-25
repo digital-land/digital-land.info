@@ -97,12 +97,14 @@
   <script>
     const searchResult = {{ search_result | tojson }};
 
-    window.addEventListener('load',(e) => {
-      setTimeout(() => {
-        window.mapControllers.map.addPoint(searchResult.geometry);
-        window.mapControllers.map.flyTo(searchResult.geometry);
-      }, 1000);
-    });
+    if (searchResult.result) {
+      window.addEventListener('load',(e) => {
+        setTimeout(() => {
+          window.mapControllers.map.addPoint(searchResult.geometry);
+          window.mapControllers.map.flyTo(searchResult.geometry);
+        }, 1000);
+      });
+    }
   </script>
 
 {% endblock %}
