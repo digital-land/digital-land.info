@@ -52,6 +52,24 @@
           </svg>
         </button>
       </form>
+
+      {% if search_results and search_results|length > 1 %}
+        <div class="govuk-!-margin-top-6">
+          <h2 class="govuk-heading-m">Search results</h2>
+          <p class="govuk-body">Found {{ search_results|length }} results</p>
+
+          <ul class="govuk-list govuk-list--bullet">
+            {% for result in search_results %}
+              <li>{{ result.get("ADDRESS", {}) }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% elif search_results and search_results|length == 1 %}
+        <div class="govuk-!-margin-top-6">
+          <h2 class="govuk-heading-m">Search result for {{ search_results[0].get("ADDRESS", {}) }}</h2>
+          <p class="govuk-body">{{ search_results[0] }}</p>
+        </div>
+      {% endif %}
     </div>
   </div>
 

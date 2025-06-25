@@ -10,6 +10,7 @@ from application.data_access.digital_land_queries import (
     get_datasets_with_data_by_geography,
 )
 from application.db.session import get_session, get_redis, DbSession
+from application.data_access.os_api import search
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -28,6 +29,10 @@ def get_map(
 
     # Extract the 'q' query parameter from the request
     search_query = request.query_params.get("q", "").strip()
+    search_results = None
+
+    if search_query:
+        search_results = search(search_query) or []
 
     return templates.TemplateResponse(
         "national-map.html",
@@ -36,5 +41,6 @@ def get_map(
             "layers": geography_datasets,
             "settings": settings,
             "search_query": search_query,
+            "search_results": search_results,
         },
     )
