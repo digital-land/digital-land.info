@@ -60,14 +60,14 @@
 
           <ul class="govuk-list govuk-list--bullet">
             {% for result in search_results %}
-              <li>{{ result.get("ADDRESS", {}) }}</li>
+              <li>{{ result.get("ADDRESS", {}) }} ({{ result.get("UPRN", {}) }})</li>
             {% endfor %}
           </ul>
         </div>
       {% elif search_results and search_results|length == 1 %}
         <div class="govuk-!-margin-top-6">
           <h2 class="govuk-heading-m">Search result for {{ search_results[0].get("ADDRESS", {}) }}</h2>
-          <p class="govuk-body">{{ search_results[0] }}</p>
+          <p class="govuk-body">{{ search_results[0].get("ADDRESS", {}) }} ({{ search_results[0].get("UPRN", {}) }})</p>
         </div>
       {% endif %}
     </div>
