@@ -72,7 +72,6 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-
       {{
         map({
           'height': 700,
@@ -95,5 +94,21 @@
 {% block bodyEnd %}
 {{ super() }}
 
+  <script>
+    const searchResult = {{ search_result | tojson }};
+
+    window.addEventListener('load',(e) => {
+      setTimeout(() => {
+        window.mapControllers.map.addPoint({
+          name: searchResult.geometry.data.properties.name,
+          data: {
+            type: 'Point',
+            coordinates: [searchResult.geometry.data.coordinates[0], searchResult.geometry.data.coordinates[1]],
+          },
+        });
+        window.mapControllers.map.flyTo(searchResult.geometry);
+      }, 1000);
+    });
+  </script>
 
 {% endblock %}
