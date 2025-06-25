@@ -33,20 +33,23 @@ def get_map(
 
     if search_query:
         search_response = search(search_query) or []
-        result = search_response[0] if len(search_response) else None
         type = "uprn" if search_query.isdigit() else "postcode"
+        result = search_response[0] if len(search_response) else None
+        name = (result["POSTCODE"] if type == "postcode" else result["UPRN"]) if result else None
+
         search_result = {
             "type": type,
             "query": search_query,
             "result": result,
             "geometry": {
+                "name": name,
                 "type": "point",
                 "data": {
                     "type": "Point",
                     "coordinates": [result["LNG"], result["LAT"]],
                     "properties": {
                         **result,
-                        "name": result["POSTCODE"] if type == "postcode" else result["UPRN"],
+                        "name": name,
                     },
                 },
             } if result else None

@@ -99,13 +99,7 @@
 
     window.addEventListener('load',(e) => {
       setTimeout(() => {
-        window.mapControllers.map.addPoint({
-          name: searchResult.geometry.data.properties.name,
-          data: {
-            type: 'Point',
-            coordinates: [searchResult.geometry.data.coordinates[0], searchResult.geometry.data.coordinates[1]],
-          },
-        });
+        window.mapControllers.map.addPoint(searchResult.geometry);
         window.mapControllers.map.flyTo(searchResult.geometry);
       }, 1000);
     });
