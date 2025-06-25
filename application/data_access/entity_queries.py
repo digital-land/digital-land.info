@@ -216,31 +216,42 @@ def _apply_date_filters(query, params):
     return query
 
 
+def get_complex_datasets(session):
+    # Query distinct datasets that have subdivided geometries present
+    entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    complex_datasets_query = (
+        session.query(entity_subdivided_alias.dataset)
+        .filter(
+            entity_subdivided_alias.geometry_subdivided.isnot(None),
+            func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
+        )
+        .distinct()
+    )
+    return [row[0] for row in complex_datasets_query.all()]
+
+
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    complex_datasets = get_complex_datasets(session)
     if point is not None:
-        point_geom = func.ST_GeomFromText(point, 4326)
         # Pre-filter EntitySubdividedOrm table
         subdivided_ids_query = select(entity_subdivided_alias.entity).where(
+            entity_subdivided_alias.dataset.in_(complex_datasets),
             entity_subdivided_alias.geometry_subdivided.isnot(None),
             func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
-            func.ST_Contains(entity_subdivided_alias.geometry_subdivided, point_geom),
+            func.ST_Contains(
+                entity_subdivided_alias.geometry_subdivided,
+                func.ST_GeomFromText(point, 4326),
+            ),
         )
 
         #  Pre-filter EntityOrm table
-        entity_ids_query = (
-            select(EntityOrm.entity)
-            .outerjoin(
-                entity_subdivided_alias,
-                EntityOrm.entity == entity_subdivided_alias.entity,
-            )
-            .where(
-                entity_subdivided_alias.entity.is_(None),
-                EntityOrm.geometry.isnot(None),
-                func.ST_IsValid(EntityOrm.geometry),
-                func.ST_Contains(EntityOrm.geometry, point_geom),
-            )
+        entity_ids_query = select(EntityOrm.entity).where(
+            EntityOrm.dataset.notin_(complex_datasets),
+            EntityOrm.geometry.isnot(None),
+            func.ST_IsValid(EntityOrm.geometry),
+            func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
         )
 
         # Combine using union_all
@@ -259,33 +270,27 @@ def _apply_location_filters(session, query, params):
 
         # Entities from entity_subdivided (for complex datasets)
         subdivided_query = select(entity_subdivided_alias.entity).where(
+            entity_subdivided_alias.dataset.in_(complex_datasets),
             entity_subdivided_alias.geometry_subdivided.isnot(None),
             func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
             spatial_function(entity_subdivided_alias.geometry_subdivided, geom),
         )
 
         # Entities from EntityOrm (for all other datasets)
-        entity_query = (
-            select(EntityOrm.entity)
-            .outerjoin(
-                entity_subdivided_alias,
-                EntityOrm.entity == entity_subdivided_alias.entity,
-            )
-            .where(
-                entity_subdivided_alias.entity.is_(None),
-                or_(
-                    and_(
-                        EntityOrm.geometry.is_not(None),
-                        func.ST_IsValid(EntityOrm.geometry),
-                        spatial_function(EntityOrm.geometry, geom),
-                    ),
-                    and_(
-                        EntityOrm.point.is_not(None),
-                        func.ST_IsValid(EntityOrm.point),
-                        spatial_function(EntityOrm.point, geom),
-                    ),
+        entity_query = select(EntityOrm.entity).where(
+            EntityOrm.dataset.notin_(complex_datasets),
+            or_(
+                and_(
+                    EntityOrm.geometry.is_not(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    spatial_function(EntityOrm.geometry, geom),
                 ),
-            )
+                and_(
+                    EntityOrm.point.is_not(None),
+                    func.ST_IsValid(EntityOrm.point),
+                    spatial_function(EntityOrm.point, geom),
+                ),
+            ),
         )
 
         # Combine results with UNION ALL
