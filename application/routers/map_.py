@@ -29,10 +29,15 @@ def get_map(
 
     # Extract the 'q' query parameter from the request
     search_query = request.query_params.get("q", "").strip()
-    search_results = None
+    search_result = None
 
     if search_query:
-        search_results = search(search_query) or []
+        search_response = search(search_query) or []
+        search_result = {
+            "type": "uprn" if search_query.isdigit() else "postcode",
+            "query": search_query,
+            "result": search_response[0] if len(search_response) else None,
+        }
 
     return templates.TemplateResponse(
         "national-map.html",
@@ -41,6 +46,6 @@ def get_map(
             "layers": geography_datasets,
             "settings": settings,
             "search_query": search_query,
-            "search_results": search_results,
+            "search_result": search_result,
         },
     )

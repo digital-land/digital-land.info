@@ -53,21 +53,18 @@
         </button>
       </form>
 
-      {% if search_results and search_results|length > 1 %}
-        <div class="govuk-!-margin-top-6">
+      {% if search_result %}
+        <div class="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
           <h2 class="govuk-heading-m">Search results</h2>
-          <p class="govuk-body">Found {{ search_results|length }} results</p>
-
-          <ul class="govuk-list govuk-list--bullet">
-            {% for result in search_results %}
-              <li>{{ result.get("ADDRESS", {}) }} ({{ result.get("UPRN", {}) }})</li>
-            {% endfor %}
-          </ul>
-        </div>
-      {% elif search_results and search_results|length == 1 %}
-        <div class="govuk-!-margin-top-6">
-          <h2 class="govuk-heading-m">Search result for {{ search_results[0].get("ADDRESS", {}) }}</h2>
-          <p class="govuk-body">{{ search_results[0].get("ADDRESS", {}) }} ({{ search_results[0].get("UPRN", {}) }})</p>
+          <p class="govuk-body">
+            {% if search_result.get("type") == "postcode" and search_result.get("result") %}
+              Showing results for postcode: {{ search_result.get("result", {}).get("POSTCODE", {}) }}
+            {% elif search_result.get("type") == "uprn" and search_result.get("result") %}
+              Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", {}) }}
+            {% else %}
+              No results found for {{ search_query }}
+            {% endif %}
+          </p>
         </div>
       {% endif %}
     </div>
