@@ -90,7 +90,10 @@ async def catch_all(request: Request, url_path: str):
             {"from": "introduction", "to": "/guidance"},
             {"from": "how-to-provide-data", "to": "/guidance"},
             {"from": "try-check-publish-service", "to": "/guidance"},
-            {"from": "keep-your-data-up-to-date", "to": "/guidance/publish-data-on-your-website"},
+            {
+                "from": "keep-your-data-up-to-date",
+                "to": "/guidance/publish-data-on-your-website",
+            },
         ],
     )
 

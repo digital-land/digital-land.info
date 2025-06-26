@@ -1,6 +1,4 @@
-import pytest
-from unittest.mock import patch, Mock
-from fastapi.testclient import TestClient
+from unittest.mock import patch
 
 from application.db.models import DatasetOrm, EntityOrm
 from application.db.session import DbSession

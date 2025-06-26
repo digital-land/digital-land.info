@@ -35,7 +35,11 @@ def get_map(
         search_response = search(search_query) or []
         type = "uprn" if search_query.isdigit() else "postcode"
         result = search_response[0] if len(search_response) else None
-        name = (result["POSTCODE"] if type == "postcode" else result["UPRN"]) if result else None
+        name = (
+            (result["POSTCODE"] if type == "postcode" else result["UPRN"])
+            if result
+            else None
+        )
 
         search_result = {
             "type": type,
@@ -52,7 +56,9 @@ def get_map(
                         "name": name,
                     },
                 },
-            } if result else None
+            }
+            if result
+            else None,
         }
 
     return templates.TemplateResponse(

@@ -1,7 +1,6 @@
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from fastapi import Request
-from fastapi.responses import HTMLResponse
 
 from application.routers.map_ import get_map
 from application.core.models import DatasetModel
