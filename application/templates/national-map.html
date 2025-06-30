@@ -33,7 +33,7 @@
 
       <p id="aria-label-national-map" class="govuk-body-l">See the data we've collected and collated on a map.</p>
 
-      <form class="dl-find-an-area-form" method="get">
+      <form class="dl-find-an-area-form" method="get" id="dl-find-an-area-form">
         <div class="govuk-form-group">
           <h2 class="govuk-label-wrapper">
             <label class="govuk-label govuk-label--l" for="find-an-area">
@@ -93,18 +93,13 @@
 
 {% block bodyEnd %}
 {{ super() }}
-
+  <script src="/static/javascripts/FindAnAreaForm.js"></script>
   <script>
     const searchResult = {{ search_result | tojson }};
 
-    if (searchResult.result) {
-      window.addEventListener('load',(e) => {
-        setTimeout(() => {
-          window.mapControllers.map.addPoint(searchResult.geometry);
-          window.mapControllers.map.flyTo(searchResult.geometry);
-        }, 1000);
-      });
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+      new FindAnAreaForm(searchResult)
+    })
   </script>
 
 {% endblock %}
