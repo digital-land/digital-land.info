@@ -1,6 +1,7 @@
 from locust import HttpUser, task, between
 from tests.load.data import DATASETS, MAP_DATASETS
 
+
 class CacheWarmupUser(HttpUser):
     wait_time = between(1, 3)  # defines a random delay between requests
     urls = [

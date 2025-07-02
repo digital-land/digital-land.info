@@ -438,7 +438,6 @@ def fetchEntityFromReference(
 
 @redis_cache("organisations", model_class=EntityModel)
 def get_organisations(session: DbSession) -> List[EntityModel]:
-
     organisations = (
         session.session.query(EntityOrm)
         .filter(EntityOrm.typology == "organisation")
