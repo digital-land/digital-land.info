@@ -15,7 +15,7 @@ def test_navigate_to_organisation_from_entity(server_url, page, app_test_data):
     page.get_by_role("link", name="DAC").first.click()
 
     with page.expect_navigation() as navigation_info:
-        page.get_by_role("link", name="organisation").click()
+        page.get_by_role("link", name="organisation", exact=True).click()
 
     assert navigation_info.value.ok
     assert server_url + "/organisation" in navigation_info.value.url
