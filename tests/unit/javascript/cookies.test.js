@@ -136,16 +136,15 @@ describe('cookies.js', () => {
 
         test('sets up ga when cookie tracking policy is set and we have a measurement id', () => {
             vi.stubGlobal('dataLayer', [])
-
             let fakeMeasurementId = '1234';
             window.gaMeasurementId = fakeMeasurementId;
+
             setCookie('cookies_policy', JSON.stringify({usage: true}));
             setTrackingCookies();
-            expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(true);
 
-            // expect(Array.from(dataLayer[0])).toEqual(['js', new Date()]);
-            // expect(Array.from(dataLayer[1])).toEqual(['config', fakeMeasurementId]);
-
+            expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(false);
+            expect(Array.from(dataLayer[0])).toEqual(['js', new Date()]);
+            expect(Array.from(dataLayer[1])).toEqual(['config', fakeMeasurementId]);
         })
     })
 
