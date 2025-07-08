@@ -1,4 +1,4 @@
-**Last updated: 16 June 2025**<br/>
+**Last updated: 8 July 2025**<br/>
 
 ---
 
@@ -38,7 +38,7 @@ For example:
 
 These are all valid, and any uppercase characters will be converted to lowercase.
 
-Listed buildings outline dataset
+Listed building related area dataset
 ------------------------
 
 This dataset is about buildings listed on the National Heritage List for England because of their historical or architectural importance.
@@ -66,7 +66,7 @@ Example: `10 and 12, Lower Clapton Road E5`
 
 ### geometry
 
-The outline of the listed building as a single polygon or multipolygon value. All points in the polygon must be in the WGS84 coordinate reference system.
+The listed building and any related area geometry as a single polygon or multipolygon value. All points in the polygon must be in the WGS84 coordinate reference system.
 
 If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
@@ -79,6 +79,18 @@ If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associat
 The Historic England listed building reference for the listed building. This is recorded in the [register of listed buildings](https://historicengland.org.uk/listing/the-list/) as "List Entry Number".
 
 Example: `1480524`
+
+### uprns
+
+The unique property reference number or numbers, separated by a comma, if the listing covers more than one. 
+
+Example: `00021437334`
+
+### description
+
+Description of the location/setting of the listing.
+
+Example: `Small chapel located in the west of Chapel Woods`
 
 ### notes
 
