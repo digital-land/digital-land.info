@@ -156,6 +156,13 @@ def add_base_routes(app):
             {"request": request},
         )
 
+    @app.get("/privacy-notice", response_class=HTMLResponse, include_in_schema=False)
+    def privacy_notice(request: Request):
+        return templates.TemplateResponse(
+            "pages/privacy-notice.html",
+            {"request": request},
+        )
+
     @app.get(
         "/accessibility-statement", response_class=HTMLResponse, include_in_schema=False
     )

@@ -72,14 +72,14 @@
     </script>
 
     {% block analyticScripts %}
-        <script async src='https://www.google-analytics.com/analytics.js'></script>
-        <!-- Google tag (gtag.js) -->
-        <script>
-            window.gaMeasurementId = '{{ gaMeasurementId }}';
-            var scriptElement = document.createElement("script");
-            scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
-            document.head.appendChild(scriptElement);
-        </script>
+      <script async src='https://www.google-analytics.com/analytics.js'></script>
+      <!-- Google tag (gtag.js) -->
+      <script>
+        window.gaMeasurementId = '{{ gaMeasurementId }}';
+        var scriptElement = document.createElement("script");
+        scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
+        document.head.appendChild(scriptElement);
+      </script>
     {% endblock analyticScripts %}
 
     {% block libraryScripts %}
