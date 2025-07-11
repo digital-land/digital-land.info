@@ -10,6 +10,8 @@ Right now, the service supports:
 - [listed buildings](./listed-building)
 - [tree preservation orders](./tree-preservation-order)
 
+Soon, the service will support [developer contributions](https://www.gov.uk/guidance/publish-your-developer-contributions-data). Email the persistent URL for each CSV file to [DigitalLand@communities.gov.uk](mailto:DigitalLand@communities.gov.uk) and we will add them to the national register.
+
 ## Datasets we’re developing
 
 We're currently testing and developing data standards for these planning considerations:
