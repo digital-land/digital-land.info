@@ -9,9 +9,12 @@
 {% set includesMap = true %}
 {% block pageTitle %}Map of planning data for England | Planning Data{% endblock %}
 
-{%
-  set notePanel = '<p>Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.</p>'
-%}
+{% set notePanel %}
+  <p>
+    Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.
+    Basemap contains Ordnance Survey data, please view <a href="https://labs.os.uk/licensing/public-viewing-terms.pdf" class="govuk-link" target="_blank">OS Public Viewing Terms</a> for further information.
+  </p>
+{% endset %}
 
 {%- block mapAssets %}
   <script src='/static/javascripts/maplibre-gl.js'></script>
