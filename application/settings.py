@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str
     DATASETTE_URL: HttpUrl
     DATASETTE_TILES_URL: Optional[HttpUrl]
+    TILES_URL: Optional[HttpUrl] = None
     DATA_FILE_URL: HttpUrl
     GA_MEASUREMENT_ID: Optional[str] = None
     OS_CLIENT_KEY: Optional[str] = None
