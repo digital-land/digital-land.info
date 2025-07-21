@@ -71,7 +71,7 @@ def test_give_feedback_on_a_dataset(server_url, page, app_test_data):
         "link", name="Give feedback on this dataset"
     ).get_attribute("href")
 
-    assert "google.com/forms" in linkHref
+    assert "forms.microsoft.com" in linkHref
     assert "Brownfield site" in linkHref
 
 
