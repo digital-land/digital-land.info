@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_SECURE: bool = True
+    MINI_CMS_URL: HttpUrl = "https://cms.development.planning.data.gov.uk"
 
     @root_validator(pre=True)
     def split_redis_host(cls, values):

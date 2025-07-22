@@ -3,11 +3,29 @@ import logging
 from fastapi import APIRouter, Request
 from starlette.responses import RedirectResponse
 from application.core.templates import templates
+from application.core.utils import get
+from application.settings import get_settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 file_extension = ".html"
+settings = get_settings()
 
+# This is a mapping of URL paths to CMS guidance pages.
+cms_guidance_mapping = {
+    "index": "/collections/guidance_pages/index",
+    "publish-data-on-your-website": "/collections/guidance_pages/publish-data-on-your-website",
+    "how-to-provide-data": "/collections/guidance_pages/how-to-provide-data",
+    "open-digital-planning-community": "/collections/guidance_pages/open-digital-planning-community",
+    "get-help": "/collections/guidance_pages/get-help",
+    "specifications/index": "/collections/guidance_pages/specifications-index",
+    "specifications/article-4-direction": "/collections/guidance_pages/specifications-article-4-direction",
+    "specifications/conservation-area": "/collections/guidance_pages/specifications-conservation-area",
+    "specifications/design-code": "/collections/guidance_pages/specifications-design-code",
+    "specifications/listed-building": "/collections/guidance_pages/specifications-listed-building",
+    "specifications/local-plan": "/collections/guidance_pages/specifications-local-plan",
+    "specifications/tree-preservation-order": "/collections/guidance_pages/specifications-tree-preservation-order",
+}
 
 # get the 'page name' for use in tracking current page in
 # navigation
@@ -76,6 +94,25 @@ def handleGuidanceRedirects(url_path, redirects):
             return RedirectResponse(url=redirect["to"], status_code=301)
     return False
 
+def get_cms_content_item(url_path):
+    """
+    This function retrieves the CMS content item path for a given URL path.
+    It checks if the URL path exists in the cms_guidance_mapping dictionary.
+    If it does, it returns the corresponding CMS content item path.
+    """
+
+    try:
+        # Check if the URL path exists in the cms_guidance_mapping
+        if url_path in cms_guidance_mapping:
+            # Fetch the CMS content item from the CMS API
+            return get(f"{settings.MINI_CMS_URL}/api/v1{cms_guidance_mapping[url_path]}").json()
+        else:
+            # If the URL path does not exist in the mapping, return None
+            return None
+    except Exception as e:
+        logger.error(f"Error fetching CMS content item for {url_path} / {settings.MINI_CMS_URL}/api/v1{cms_guidance_mapping[url_path]}: {e}")
+        return None
+
 
 @router.get("/{url_path:path}")
 async def catch_all(request: Request, url_path: str):
@@ -112,6 +149,27 @@ async def catch_all(request: Request, url_path: str):
     url_path_to_file = root_url_path + url_path
     sys_path_to_file = f"application/templates/{url_path_to_file}{file_extension}"
     sys_path_directory = sys_path_to_file.replace(".html", "")
+
+    # if the URL path is in the mapping, redirect to the CMS guidance page
+    cms_content_item = get_cms_content_item(url_path) if url_path in cms_guidance_mapping else None
+
+    if cms_content_item:
+        return templates.TemplateResponse(
+            f"/pages/guidance/cms-content-template.html",
+            {
+                "request": request,
+                # a dictionary of useful data used by the tempaltes and layouts
+                "pageData": {
+                    "root_url": root_url_path,
+                    "url_path": url_path,
+                    "url_path_page": url_path_to_file,
+                    "name": get_pagename(url_path),
+                    "breadcrumbs": get_breadcrumbs(url_path),
+                },
+                **cms_content_item["data"]
+            },
+        )
+
 
     # if matched path is to a directory assume looking for index file
     if os.path.isdir(sys_path_directory):
