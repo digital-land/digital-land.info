@@ -13,18 +13,18 @@ settings = get_settings()
 
 # This is a mapping of URL paths to CMS guidance pages.
 cms_guidance_mapping = {
-    "index": "/collections/guidance_pages/index",
-    "publish-data-on-your-website": "/collections/guidance_pages/publish-data-on-your-website",
-    "how-to-provide-data": "/collections/guidance_pages/how-to-provide-data",
-    "open-digital-planning-community": "/collections/guidance_pages/open-digital-planning-community",
-    "get-help": "/collections/guidance_pages/get-help",
-    "specifications/index": "/collections/guidance_pages/specifications-index",
-    "specifications/article-4-direction": "/collections/guidance_pages/specifications-article-4-direction",
-    "specifications/conservation-area": "/collections/guidance_pages/specifications-conservation-area",
-    "specifications/design-code": "/collections/guidance_pages/specifications-design-code",
-    "specifications/listed-building": "/collections/guidance_pages/specifications-listed-building",
-    "specifications/local-plan": "/collections/guidance_pages/specifications-local-plan",
-    "specifications/tree-preservation-order": "/collections/guidance_pages/specifications-tree-preservation-order",
+    "index": "index",
+    "publish-data-on-your-website": "publish-data-on-your-website",
+    "how-to-provide-data": "how-to-provide-data",
+    "open-digital-planning-community": "open-digital-planning-community",
+    "get-help": "get-help",
+    "specifications/index": "specifications-index",
+    "specifications/article-4-direction": "specifications-article-4-direction",
+    "specifications/conservation-area": "specifications-conservation-area",
+    "specifications/design-code": "specifications-design-code",
+    "specifications/listed-building": "specifications-listed-building",
+    "specifications/local-plan": "specifications-local-plan",
+    "specifications/tree-preservation-order": "specifications-tree-preservation-order",
 }
 
 # get the 'page name' for use in tracking current page in
@@ -105,12 +105,12 @@ def get_cms_content_item(url_path):
         # Check if the URL path exists in the cms_guidance_mapping
         if url_path in cms_guidance_mapping:
             # Fetch the CMS content item from the CMS API
-            return get(f"{settings.MINI_CMS_URL}/api/v1{cms_guidance_mapping[url_path]}").json()
+            return get(f"{settings.MINI_CMS_URL}/api/v1/collections/guidance_pages/{cms_guidance_mapping[url_path]}").json()
         else:
             # If the URL path does not exist in the mapping, return None
             return None
     except Exception as e:
-        logger.error(f"Error fetching CMS content item for {url_path} / {settings.MINI_CMS_URL}/api/v1{cms_guidance_mapping[url_path]}: {e}")
+        logger.error(f"Error fetching CMS content item for {url_path} / {settings.MINI_CMS_URL}/api/v1/collections/guidance_pages/{cms_guidance_mapping[url_path]}: {e}")
         return None
 
 
