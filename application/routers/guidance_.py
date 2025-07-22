@@ -110,7 +110,8 @@ def get_cms_content_item(url_path):
             # If the URL path does not exist in the mapping, return None
             return None
     except Exception as e:
-        logger.error(f"Error fetching CMS content item for {url_path} / {settings.MINI_CMS_URL}/api/v1/collections/guidance_pages/{cms_guidance_mapping[url_path]}: {e}")
+        logger.error(f"Error fetching CMS content item for {url_path} / \
+                     {settings.MINI_CMS_URL}/api/v1/collections/guidance_pages/{cms_guidance_mapping[url_path]}: {e}")
         return None
 
 
@@ -155,7 +156,7 @@ async def catch_all(request: Request, url_path: str):
 
     if cms_content_item:
         return templates.TemplateResponse(
-            f"/pages/guidance/cms-content-template.html",
+            "/pages/guidance/cms-content-template.html",
             {
                 "request": request,
                 # a dictionary of useful data used by the tempaltes and layouts
