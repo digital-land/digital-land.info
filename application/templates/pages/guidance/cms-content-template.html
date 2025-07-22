@@ -1,0 +1,17 @@
+{%- do pageData.update({
+  'pageTitle': title
+}) %}
+{% extends "layouts/layout--guidance.html" %}
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": parentHref
+  })}}
+{% endblock %}
+
+{% block content_primary %}
+
+  {{ body | render_markdown(govAttributes=True) }}
+
+{% endblock %}
