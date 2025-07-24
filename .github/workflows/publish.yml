@@ -13,7 +13,7 @@ on:
 jobs:
   test:
     call-shared:
-      uses: ./.github/workflows/shared-workflow.yml
+      uses: ./.github/workflows/test.yml
 
   detect-environments:
     runs-on: ubuntu-latest
