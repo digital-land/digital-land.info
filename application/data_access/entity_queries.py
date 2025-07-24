@@ -157,8 +157,8 @@ def lookup_entity_link(
     """
     search_params = {"reference": [reference], "dataset": [dataset]}
 
-    # For most fields, we search for linked entities using dataset, reference and organisation
-    # However, for listed-building, we need to search the Historic England data so we remove the organisation restriction
+    # Normally we filter by dataset, reference, and organisation.
+    # For 'listed-building', we exclude organisation to match Historic England data.
     if dataset != "listed-building" and organisation_entity is not None:
         search_params["organisation_entity"] = [organisation_entity]
 
