@@ -20,10 +20,9 @@
 
 <div class="govuk-grid-row">
 	<div class="govuk-grid-column-full">
-
 		<h1 class="govuk-heading-xl">Datasets</h1>
-
 		<p class="govuk-body">Planning Data have collected data across a number of datasets. These have been grouped by type:</p>
+		{% include 'partials/data-coverage-banner.html' %}
 
 		<ul class="govuk-list govuk-list--bullet" aria-label="jump to dataset">
 		{% for typology in typologies.keys() %}

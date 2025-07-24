@@ -10,11 +10,15 @@ from tests.acceptance.pageObjectModels.searchPOM import SearchPOM
 def test_search_page_loads_ok(server_url, page):
     response = page.goto(server_url + "/entity/")
     assert response.ok
+
     heading = page.get_by_role(
         "heading",
         name="Search for planning and housing data",
     )
     assert heading.is_visible()
+
+    banner = page.locator('#dl-data-coverage-banner')
+    assert banner.is_visible()
 
 
 def test_blank_search(server_url, page):
