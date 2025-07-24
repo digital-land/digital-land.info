@@ -1,4 +1,4 @@
-name: security-scan
+name: Security Scan
 
 on:
   schedule:
