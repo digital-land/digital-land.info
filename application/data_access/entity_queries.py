@@ -157,7 +157,7 @@ def lookup_entity_link(
     """
     search_params = {"reference": [reference], "dataset": [dataset]}
 
-    if organisation_entity is not None:
+    if dataset != "listed-building" and organisation_entity is not None:
         search_params["organisation_entity"] = [organisation_entity]
 
     found_entities = get_entity_search(session, search_params)
