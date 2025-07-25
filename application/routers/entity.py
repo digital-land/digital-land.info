@@ -161,6 +161,8 @@ def handle_entity_response(
         "local-plan-boundary",
         "local-plan",
         "local-plan-event",
+        "conservation-area",
+        "listed-building",
     ]
 
     linked_entities = {}
