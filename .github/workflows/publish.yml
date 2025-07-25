@@ -16,7 +16,7 @@ jobs:
 
   detect-environments:
     runs-on: ubuntu-latest
-    needs: [test, lint]
+    needs: [test]
     outputs:
       environments: ${{ steps.environments.outputs.result }}
     if: github.ref_name == 'main'
