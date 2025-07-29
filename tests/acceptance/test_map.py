@@ -4,13 +4,19 @@ from tests.acceptance.pageObjectModels.mapPOM import MapPOM
 def test_map_page_loads_ok(server_url, page):
     mapPage = MapPOM(page, server_url)
     mapPage.navigate()
+
     response = page.goto(server_url + "/map/")
     assert response.ok
+
     heading = page.get_by_role(
         "heading",
         name="Map of planning data for England",
     )
     assert heading.is_visible()
+
+    banner = page.locator('#dl-data-coverage-banner')
+    assert banner.is_visible()
+
     page.screenshot(path="playwright-report/test_map_page_loads_ok/map.png")
 
 
