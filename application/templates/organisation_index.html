@@ -34,7 +34,6 @@
 
   <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
-
   <form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form">
     <label class="dl-list-filter__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
     <input class="dl-list-filter__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Transport">
@@ -72,4 +71,10 @@
   </div>
   {% endfor %}
 
+  <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
+
+  <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="download-the-data">
+    Download the data
+  </h2>
+  <p class="govuk-hint govuk-!-font-size-14">You can take a copy of this data as <a class="govuk-link" href="{{ data_file_url }}/organisation-collection/dataset/organisation.csv">CSV</a>.</p>
 {% endblock %}
