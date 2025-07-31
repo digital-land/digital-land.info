@@ -1,21 +1,15 @@
 {%- do pageData.update({
-  'pageTitle': 'Get help'
+  'pageTitle': title
 }) %}
 {% extends "layouts/layout--guidance.html" %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
 {% block breadcrumbs%}
   {{ dlBackButton({
-    "parentHref": '/guidance/'
+    "parentHref": parentHref
   })}}
 {% endblock %}
 
 {% block content_primary %}
-
-    {% set markdown_content %}
-    {%- include pageData.root_url + "get-help.md" with context -%}
-    {% endset %}
-
-    {{ markdown_content | render_markdown(govAttributes=True) }}
-
+  {{ body | render_markdown(govAttributes=True) }}
 {% endblock %}
