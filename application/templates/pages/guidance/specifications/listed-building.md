@@ -1,4 +1,4 @@
-**Last updated: 16 June 2025**<br/>
+**Last updated: 4 August 2025**<br/>
 
 ---
 
@@ -66,7 +66,7 @@ Example: `10 and 12, Lower Clapton Road E5`
 
 ### geometry
 
-The outline of the listed building as a single polygon or multipolygon value. All points in the polygon must be in the WGS84 coordinate reference system.
+The outline of the listed building including the [curtilage](https://historicengland.org.uk/images-books/publications/listed-buildings-and-curtilage-advice-note-10/) as a single polygon or multipolygon value. This is the boundary of the area to be considered for planning purposes. All points in the polygon must be in the WGS84 coordinate reference system.
 
 If you’re providing geometry in a CSV, geometry should be in well-known text (WKT).
 
