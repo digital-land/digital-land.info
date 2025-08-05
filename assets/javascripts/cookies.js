@@ -104,7 +104,40 @@ export function setTrackingCookies () {
     } else {
       console.warn('Google Analytics: No measurement ID specified');
     }
+
+    /* Smartlook */
+    if (window.smartlookId && window.smartlookId !== 'None') {
+      initialiseSmartlook();
+    }
   }
+}
+
+function initialiseSmartlook() {
+  const smartLookPromise = new Promise((resolve) => {
+    if (typeof window.smartlook === 'function') {
+      resolve();
+      return;
+    }
+
+    window.smartlook||(function(d) {
+      var o=window.smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+      var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+      c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+    })(document);
+
+    // Wait for the script to load and check if smartlook is available
+    setTimeout(() => {
+      if (typeof window.smartlook !== 'function') {
+        console.warn('Smartlook: Failed to load the script');
+      } else {
+        resolve();
+      }
+    }, 2000);
+  });
+
+  smartLookPromise.then(() => {
+    window.smartlook("init", window.smartlookId, { region: "eu" });
+  });
 }
 
 export class cookiePrefs{

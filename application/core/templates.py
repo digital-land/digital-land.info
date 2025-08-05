@@ -60,6 +60,7 @@ templates.env.globals["random_int"] = random_int
 templates.env.globals["templateVar"] = {"email": "digitalland@communities.gov.uk"}
 templates.env.globals["serviceStatus"] = False
 templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
+templates.env.globals["smartLookId"] = settings.SMARTLOOK_ID
 templates.env.globals["get_os_oauth2_token"] = get_os_oauth2_token
 templates.env.globals["cacheBust"] = cacheBust
 templates.env.filters["is_list"] = is_list_filter
