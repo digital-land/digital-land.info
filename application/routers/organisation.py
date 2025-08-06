@@ -13,6 +13,7 @@ from application.core.utils import DigitalLandJSONResponse
 from application.db.models import OrganisationOrm
 from application.db.session import get_session
 from application.search.enum import SuffixOrganisation
+from application.settings import get_settings, Settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -34,8 +35,10 @@ display_names = {
 def get_organisations(
     request: Request,
     extension: Optional[SuffixOrganisation] = None,
+    settings: Settings = Depends(get_settings),
     session: Session = Depends(get_session),
 ) -> OrganisationsByTypeModel:
+    data_file_url = settings.DATA_FILE_URL
     organisations_by_type = {
         o.type: []
         for o in session.query(
@@ -57,6 +60,7 @@ def get_organisations(
                 "organisations": organisations_by_type,
                 "display_names": display_names,
                 "today": date.today(),
+                "data_file_url": data_file_url,
             },
         )
 

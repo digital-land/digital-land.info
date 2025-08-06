@@ -89,7 +89,7 @@ export function showCookieConfirmation () {
 
 export function setTrackingCookies () {
   var cookiesPolicy = JSON.parse(getCookie('cookies_policy'))
-  var doNotTrack = true; //cookiesPolicy == null || !cookiesPolicy.usage
+  var doNotTrack = cookiesPolicy == null || !cookiesPolicy.usage
   if (doNotTrack) {
     if(window.gaMeasurementId){
       window[`ga-disable-${window.gaMeasurementId}`] = true;

@@ -60,7 +60,9 @@
             d.paint_options = d.paint_options || {};
             return {
               name: d.dataset,
-              vectorSource: "{{ params.DATASETTE_TILES_URL }}/-/tiles/" + d.dataset + "/{z}/{x}/{y}.vector.pbf",
+              vectorSource: params.TILES_URL ?
+              "{{ params.TILES_URL }}/" + d.dataset + "/{z}/{x}/{y}.pbf":
+              "{{ params.DATASETTE_TILES_URL }}/-/tiles/" + d.dataset + "/{z}/{x}/{y}.vector.pbf",
               dataType: d.paint_options.type,
               styleProps: {
                 colour: d.paint_options.colour,
