@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     TILES_URL: Optional[HttpUrl] = None
     DATA_FILE_URL: HttpUrl
     GA_MEASUREMENT_ID: Optional[str] = None
+    SMARTLOOK_ID: Optional[str] = None
     OS_CLIENT_KEY: Optional[str] = None
     OS_CLIENT_SECRET: Optional[str] = None
     DB_POOL_SIZE: Optional[int] = 5
