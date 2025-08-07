@@ -205,15 +205,21 @@
           </div>
         </fieldset>
       </div>
-
     </div>
   </div>
 
-    <div class="govuk-button-group">
-      {{ govukButton({
-        "text": "Search"
-      }) }}
-      <a href="{{ search_form_url }}" class="govuk-link">Clear</a>
-    </div>
+  <!-- Filter by Latitude and Longitude (hidden fields) -->
+  {% if query.params.get('latitude') %}
+    <input type="hidden" name="latitude" value="{{ query.params.get('latitude') }}" />
+  {% endif %}
+  {% if query.params.get('longitude') %}
+    <input type="hidden" name="longitude" value="{{ query.params.get('longitude') }}" />
+  {% endif %}
 
+  <div class="govuk-button-group">
+    {{ govukButton({
+      "text": "Search"
+    }) }}
+    <a href="{{ search_form_url }}" class="govuk-link">Clear</a>
+  </div>
 </form>
