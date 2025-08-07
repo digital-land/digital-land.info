@@ -1,4 +1,4 @@
-**Last updated: 6 August 2025**<br/>
+**Last updated: 7 August 2025**<br/>
 
 ---
 
@@ -38,7 +38,7 @@ For example:
 
 These are all valid, and any uppercase characters will be converted to lowercase.
 
-Listed building related area dataset
+Listed building outline dataset
 ------------------------
 
 This dataset is about buildings listed on the National Heritage List for England because of their historical or architectural importance.
