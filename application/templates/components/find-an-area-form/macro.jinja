@@ -2,6 +2,7 @@
 
 {% set search_query = params.get("search_query", "") %}
 {% set search_result = params.get("search_result", {}) %}
+{% set url_query_params = params.get("url_query_params", []) %}
 
 <form class="dl-find-an-area-form" method="get" id="dl-find-an-area-form">
   <div class="govuk-form-group">
@@ -14,6 +15,13 @@
       Search by a postcode, or a Unique Property Reference Number (UPRN)
     </div>
     <input class="govuk-input govuk-input--width-20" id="find-an-area" name="q" type="text" spellcheck="false" aria-describedby="find-an-area-hint" value="{{ search_query }}">
+
+    {# Include any additional hidden fields for URL query parameters, without "q" #}
+    {% for param_name, param_value in url_query_params %}
+      {% if param_name != "q" %}
+        <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
+      {% endif %}
+    {% endfor %}
   </div>
   <button type="submit" class="govuk-button govuk-button--start" data-module="govuk-button">
     Find
