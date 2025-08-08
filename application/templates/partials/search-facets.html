@@ -216,6 +216,11 @@
     <input type="hidden" name="longitude" value="{{ query.params.get('longitude') }}" />
   {% endif %}
 
+  <!-- Search Query: Postcode / UPRN -->
+  {% if query.params.get('q') %}
+    <input type="hidden" name="q" value="{{ query.params.get('q') }}" />
+  {% endif %}
+
   <div class="govuk-button-group">
     {{ govukButton({
       "text": "Search"
