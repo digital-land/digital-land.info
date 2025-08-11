@@ -137,11 +137,14 @@ function initialiseSmartlook() {
 
   smartLookPromise.then(() => {
     window.smartlook("init", window.smartlookId, {
-      region: "eu",
+      region: "eu"
+    });
+
+    window.smartlook("record", {
       forms: true,
       ips: false,
       emails: false,
-      numbers: true,
+      numbers: true
     });
   });
 }
