@@ -136,7 +136,13 @@ function initialiseSmartlook() {
   });
 
   smartLookPromise.then(() => {
-    window.smartlook("init", window.smartlookId, { region: "eu" });
+    window.smartlook("init", window.smartlookId, {
+      region: "eu",
+      forms: true,
+      ips: false,
+      emails: false,
+      numbers: true,
+    });
   });
 }
 
