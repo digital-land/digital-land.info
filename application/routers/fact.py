@@ -132,6 +132,8 @@ def get_fact(
         fact_dict = fact.dict(by_alias=True, exclude={"geojson"})
         fact_dict = _convert_resources_to_dict(fact_dict)
         dataset_obj = get_dataset_query(session, query_params["dataset"])
+        if dataset_obj is None:
+            raise HTTPException(status_code=404, detail="Dataset not found")
         return templates.TemplateResponse(
             "fact.html",
             {
