@@ -153,12 +153,12 @@ async def test_find_an_entity_via_the_search_page(
         dataset_name_displayed == expected_dataset_name
     ), f"Expected dataset name '{expected_dataset_name}', got '{dataset_name_displayed}'"
 
-    # Ensure raw dataset reference is NOT present anywhere on the page
-    page_content = await page.content()
-    assert (
-        "greenspace" not in page_content.lower()
-        or "greenspace" in dataset_name_displayed.lower()
-    ), "dataset reference should not appear except in dataset name"
+    # Assert the dataset cell renders the friendly name and links to the slug
+    dataset_cell = page.get_by_role("row", name="Dataset").get_by_role("cell").first
+    dataset_link = dataset_cell.get_by_role("link")
+    assert dataset_link.inner_text() == expected_dataset_name
+    href = dataset_link.get_attribute("href")
+    assert href and href.endswith("/dataset/greenspace")
 
     assert (
         page.get_by_role("row", name="Start date")
