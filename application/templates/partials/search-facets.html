@@ -1,6 +1,6 @@
 {% from 'components/filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
 {%- from "components/filter-group/macro.jinja" import dlFilterGroup %}
-<form action="{{ search_form_url }}" method="get">
+<form action="{{ search_form_url }}" method="get" id="search-facets-form">
 
   <h2 class="govuk-heading-m">Filters</h2>
   {%- if typologies %}
