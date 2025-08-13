@@ -240,8 +240,9 @@ def test_search_page_retains_latitude_and_longitude_filters(server_url, page):
     assert response.ok
 
     # Check that the latitude and longitude filters are still present
-    latitude_filter = page.locator('input[name="latitude"]')
-    longitude_filter = page.locator('input[name="longitude"]')
+    search_form = page.locator('#search-facets-form')
+    latitude_filter = search_form.locator('input[name="latitude"]')
+    longitude_filter = search_form.locator('input[name="longitude"]')
 
     # Check that the values are correctly set
     assert latitude_filter.input_value() == "53.74541799747043"
@@ -252,8 +253,9 @@ def test_search_page_retains_latitude_and_longitude_filters(server_url, page):
     page.wait_for_timeout(500)
 
     # Check that the latitude and longitude filters are still present
-    latitude_filter = page.locator('input[name="latitude"]')
-    longitude_filter = page.locator('input[name="longitude"]')
+    search_form = page.locator('#search-facets-form')
+    latitude_filter = search_form.locator('input[name="latitude"]')
+    longitude_filter = search_form.locator('input[name="longitude"]')
 
     # Check that the URL contains the latitude and longitude parameters
     assert "entity/" in page.url
