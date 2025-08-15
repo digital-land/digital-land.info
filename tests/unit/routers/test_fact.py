@@ -6,7 +6,12 @@ from unittest.mock import MagicMock
 from pydantic import BaseModel
 import pytest
 from application.routers.fact import _convert_model_to_dict, get_fact, search_facts
-from application.core.models import DatasetFieldModel, EntityModel, FactModel
+from application.core.models import (
+    DatasetFieldModel,
+    EntityModel,
+    FactModel,
+    DatasetModel,
+)
 from application.search.filters import (
     FactDatasetQueryFilters,
     FactQueryFilters,
@@ -122,12 +127,17 @@ def test_get_fact_fact_returned_for_html(
     mocker.patch(
         "application.routers.fact.get_fact_query", return_value=single_fact_model
     )
+    dataset_model = DatasetModel(name="Ancient Woodland", dataset="ancient-woodland")
+    mocker.patch(
+        "application.routers.fact.get_dataset_query", return_value=dataset_model
+    )
     request = MagicMock()
     result = get_fact(
         request=request,
         path_params=path_params,
         query_filters=query_params,
         extension=None,
+        session=MagicMock(),
     )
     # check response code and response type are correct
     assert (

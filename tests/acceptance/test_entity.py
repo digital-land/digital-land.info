@@ -129,6 +129,7 @@ async def test_find_an_entity_via_the_search_page(
         .lower()
         == mock_entities[0]["reference"].lower()
     )
+
     assert (
         page.get_by_role("row", name="Prefix")
         .get_by_role("cell")
@@ -143,13 +144,22 @@ async def test_find_an_entity_via_the_search_page(
         .lower()
         == mock_entities[0]["name"].lower()
     )
-    assert (
-        page.get_by_role("row", name="Dataset")
-        .get_by_role("cell")
-        .first.inner_text()
-        .lower()
-        == mock_entities[0]["dataset"].lower()
+    dataset_name_displayed = (
+        page.get_by_role("row", name="Dataset").get_by_role("cell").first.inner_text()
     )
+    expected_dataset_name = "Greenspace"
+
+    assert (
+        dataset_name_displayed == expected_dataset_name
+    ), f"Expected dataset name '{expected_dataset_name}', got '{dataset_name_displayed}'"
+
+    # Assert the dataset cell renders the friendly name and links to the slug
+    dataset_cell = page.get_by_role("row", name="Dataset").get_by_role("cell").first
+    dataset_link = dataset_cell.get_by_role("link")
+    assert dataset_link.inner_text() == expected_dataset_name
+    href = dataset_link.get_attribute("href")
+    assert href and href.endswith("/dataset/greenspace")
+
     assert (
         page.get_by_role("row", name="Start date")
         .get_by_role("cell")

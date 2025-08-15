@@ -56,7 +56,7 @@
   {{ super() }}
 {% endblock -%}
 
-{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Planning Data{% endblock -%}
+{%- block pageTitle %}{{ row_name }} | {{ dataset.name }} | Planning Data{% endblock -%}
 
 {%- block breadcrumbs -%}
     {{ dlBackButton({
@@ -67,7 +67,7 @@
 {%- block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      <span class="govuk-caption-xl">{{ pipeline_name|replace("-", " ")|capitalize }}</span>
+      <span class="govuk-caption-xl">{{ dataset.name }}</span>
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
     </div>
 
@@ -100,7 +100,7 @@
                       {{ row[field] }}
                     </code>
                   {% else %}
-                    {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities) }}
+                    {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
                   {% endif %}
                 </td>
                 {% if field not in ['dataset', 'organisation-entity', 'start-date', 'end-date', 'typology'] %}

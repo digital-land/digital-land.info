@@ -414,6 +414,14 @@ def search_entities(
         next_url = None
     # default is HTML
     has_geographies = any((e.typology == "geography" for e in data["entities"]))
+    # add dataset name
+    dataset_name_lookup = {d["dataset"]: d["name"] for d in datasets}
+    for entity in data["entities"]:
+        ref_name = entity.dataset
+        if ref_name and ref_name in dataset_name_lookup:
+            entity.dataset_name = dataset_name_lookup[ref_name]
+        else:
+            entity.dataset_name = ref_name
     return templates.TemplateResponse(
         "search.html",
         {
