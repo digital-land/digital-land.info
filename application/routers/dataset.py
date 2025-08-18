@@ -1,12 +1,14 @@
 import logging
 from typing import Optional
 
+from application.search.filters import QueryFilters
 from fastapi import APIRouter, Request, HTTPException, Path, Depends
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from redis import Redis
 
 from application.data_access.digital_land_queries import (
+    get_dataset_filter_fields,
     get_dataset_query,
     get_all_datasets,
     get_latest_resource,
@@ -56,10 +58,15 @@ def get_datasets_by_typology(datasets):
 def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
+    query_filters: QueryFilters = Depends(),
     session: Session = Depends(get_session),
     redis: Redis = Depends(get_redis),
 ):
     datasets = get_all_datasets(DbSession(session=session, redis=redis))
+
+    if query_filters.dataset:
+        datasets = [ds for ds in datasets if ds.dataset in query_filters.dataset]
+
     entity_counts_response = get_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available
@@ -70,11 +77,17 @@ def list_datasets(
             else 0
         )
         dataset.entity_count = count
-
     typologies = get_datasets_by_typology(datasets)
+
+    if query_filters.field:
+        datasets = [
+            get_dataset_filter_fields(ds, query_filters.field) for ds in datasets
+        ]
 
     data = {"datasets": datasets, "typologies": typologies}
     if extension is not None and extension.value == "json":
+        if not query_filters.include_typologies:
+            data["typologies"] = None
         return data
     else:
         return templates.TemplateResponse(

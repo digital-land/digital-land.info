@@ -49,6 +49,10 @@ def get_dataset_query(session: Session, dataset) -> DatasetModel:
     return None
 
 
+def get_dataset_filter_fields(dataset: DatasetModel, fields: List[str]):
+    return dataset.dict(include=set(fields))
+
+
 def get_datasets_with_data_by_typology(
     session: Session, typology
 ) -> List[DatasetModel]:

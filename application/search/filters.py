@@ -217,7 +217,10 @@ class QueryFilters:
         None,
         description="field parameter will take over any fields specified in the exclude_field parameter",
     )
-
+    include_typologies: bool = Query(
+        True,
+        description="Include typologies in dataset JSON response; set to false to remove.",
+    )
     # validators
     _validate_entry_date_year = validator("entry_date_year", allow_reuse=True)(
         validate_year_integer
