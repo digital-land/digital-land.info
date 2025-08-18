@@ -63,6 +63,7 @@ class EntityModel(DigitalLandDateFieldsModel, extra=Extra.allow):
     geojson: GeoJSON = None
     geometry: str = None
     point: str = None
+    dataset_name: Optional[str] = None
 
     _validate_geometry = validator("geometry", pre=True, always=True, allow_reuse=True)(
         _make_geometry
