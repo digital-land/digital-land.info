@@ -93,6 +93,6 @@ def test_list_datasets(
         assert "name" in result["datasets"][0]
 
     if expect_typologies:
-        assert result["typologies"] is not None
+        assert result["typologies"] != ""
     else:
-        assert result["typologies"] is None
+        assert result["typologies"] == ""

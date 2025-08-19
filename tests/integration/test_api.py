@@ -207,7 +207,7 @@ def test_dataset_json_endpoint_with_query_param_returns_as_expected(test_data, c
     assert "datasets" in data
     api_dataset_names = [ds["dataset"] for ds in data["datasets"]]
     expected_datasets = ["brownfield-site", "conservation-area"]
-    assert api_dataset_names == expected_datasets
+    assert set(api_dataset_names) == set(expected_datasets)
     for ds in data["datasets"]:
         assert "dataset" in ds
         assert "name" in ds

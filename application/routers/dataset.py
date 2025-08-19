@@ -88,7 +88,7 @@ def list_datasets(
             data["datasets"] = datasets
 
         if not query_filters.include_typologies:
-            data["typologies"] = None
+            data["typologies"] = ""
         return data
     else:
         return templates.TemplateResponse(

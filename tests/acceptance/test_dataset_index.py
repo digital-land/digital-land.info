@@ -16,31 +16,33 @@ def test_dataset_index_loads_ok(server_url, page):
 
 
 @pytest.mark.parametrize(
-    "query, expected_datasets, expected_fields, exclude_typologies",
+    "query, expected_datasets_name",
     [
         (
             "?dataset=brownfield-site",
-            ["brownfield-site"],
-            None,
-            False,
+            ["Brownfield site"],
         ),  # all data for just one dataset
         (
             "?dataset=brownfield-site&dataset=conservation-area",
-            ["brownfield-site", "conservation-area"],
-            None,
-            False,
+            ["Brownfield site", "Conservation area"],
         ),  # all data for just two dataset
     ],
 )
 def test_list_datasets_query_filter_html(
-    server_url, page, query, expected_datasets, expected_fields, exclude_typologies
+    server_url, page, app_test_data, query, expected_datasets_name
 ):
     url = f"{server_url}/dataset/{query}"
     response = page.goto(url)
     assert response.ok
 
     page_content = page.content()
+
     assert "dataset" in page_content
+    list_datasets = page.locator("ol.dl-list-filter__list li a").all()
+    dataset_names_on_page = [ld.text_content().strip() for ld in list_datasets]
+
+    for expected in expected_datasets_name:
+        assert expected in dataset_names_on_page
 
 
 @pytest.mark.parametrize(
@@ -61,7 +63,13 @@ def test_list_datasets_query_filter_html(
     ],
 )
 def test_list_datasets_query_filter_json(
-    server_url, page, query, expected_datasets, expected_fields, exclude_typologies
+    server_url,
+    page,
+    query,
+    app_test_data,
+    expected_datasets,
+    expected_fields,
+    exclude_typologies,
 ):
     url = f"{server_url}/dataset.json{query}"
     response = page.goto(url)
