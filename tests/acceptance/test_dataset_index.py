@@ -63,7 +63,7 @@ def test_list_datasets_query_filter_html(
 def test_list_datasets_query_filter_json(
     server_url, page, query, expected_datasets, expected_fields, exclude_typologies
 ):
-    url = f"{server_url}/dataset.json/{query}"
+    url = f"{server_url}/dataset.json{query}"
     response = page.goto(url)
     assert response.ok
     data = response.json()

@@ -79,13 +79,14 @@ def list_datasets(
         dataset.entity_count = count
     typologies = get_datasets_by_typology(datasets)
 
-    if query_filters.field:
-        datasets = [
-            get_dataset_filter_fields(ds, query_filters.field) for ds in datasets
-        ]
-
     data = {"datasets": datasets, "typologies": typologies}
     if extension is not None and extension.value == "json":
+        if query_filters.field:
+            datasets = [
+                get_dataset_filter_fields(ds, query_filters.field) for ds in datasets
+            ]
+            data["datasets"] = datasets
+
         if not query_filters.include_typologies:
             data["typologies"] = None
         return data
