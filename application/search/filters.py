@@ -28,7 +28,20 @@ from application.search.validators import (
 
 @dataclass
 class DatasetQueryFilters:
-    dataset: str = Query(None)
+    dataset: Optional[List[str]] = Query(
+        None, description="Search for datasets by dataset"
+    )
+    field: Optional[List[str]] = Query(
+        None, description="Fields to include in dataset JSON response"
+    )
+    exclude_field: Optional[str] = Query(
+        None,
+        description="Comma-separated fields to exclude from the dataset JSON response",
+    )
+    include_typologies: bool = Query(
+        True,
+        description="Include typologies in dataset JSON response; set to false to remove",
+    )
 
     _validate_dataset_name = validator("dataset", allow_reuse=True)(
         validate_dataset_name

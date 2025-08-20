@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock
-from application.search.filters import QueryFilters
+from application.core.utils import to_snake
+from application.search.filters import DatasetQueryFilters
 import pytest
 
 from application.routers.dataset import get_datasets_by_typology, list_datasets
@@ -40,14 +41,14 @@ def test_get_datasets_by_typology_both_have_greater_than_zero_entity(
 @pytest.mark.parametrize(
     "query_filters, expected_count, expect_typologies",
     [
-        (QueryFilters(), 2, True),  # No filters
+        (DatasetQueryFilters(), 2, True),  # No filters
         (
-            QueryFilters(dataset=["ancient-woodland-status"], field=["name"]),
+            DatasetQueryFilters(dataset=["ancient-woodland-status"], field=["name"]),
             1,
             True,
         ),  # Filter by dataset
         (
-            QueryFilters(
+            DatasetQueryFilters(
                 dataset=["ancient-woodland-status"],
                 field=["name"],
                 include_typologies=False,
@@ -55,6 +56,15 @@ def test_get_datasets_by_typology_both_have_greater_than_zero_entity(
             1,
             False,
         ),  # Exclude typologies
+        (
+            DatasetQueryFilters(
+                dataset=["ancient-woodland-status"],
+                field=["name"],
+                exclude_field="plural, collection",
+            ),
+            1,
+            True,
+        ),
     ],
 )
 def test_list_datasets(
@@ -96,3 +106,8 @@ def test_list_datasets(
         assert result["typologies"] != ""
     else:
         assert result["typologies"] == ""
+
+    if query_filters and query_filters.exclude_field:
+        excluded = set(to_snake(f.strip()) for f in query_filters.exclude_field)
+        for field in excluded:
+            assert field not in result["datasets"][0]

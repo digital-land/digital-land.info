@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from application.search.filters import QueryFilters
+from application.search.filters import DatasetQueryFilters
 from fastapi import APIRouter, Request, HTTPException, Path, Depends
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
@@ -18,7 +18,7 @@ from application.data_access.digital_land_queries import (
 from pydantic import Required
 from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
-from application.core.utils import DigitalLandJSONResponse
+from application.core.utils import DigitalLandJSONResponse, to_snake
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
 from application.db.session import get_session, get_redis, DbSession
@@ -58,7 +58,7 @@ def get_datasets_by_typology(datasets):
 def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
-    query_filters: QueryFilters = Depends(),
+    query_filters: DatasetQueryFilters = Depends(),
     session: Session = Depends(get_session),
     redis: Redis = Depends(get_redis),
 ):
@@ -86,6 +86,18 @@ def list_datasets(
                 get_dataset_filter_fields(ds, query_filters.field) for ds in datasets
             ]
             data["datasets"] = datasets
+
+        if query_filters.exclude_field:
+            exclude_fields = set(
+                to_snake(field.strip())
+                for field in query_filters.exclude_field.split(",")
+            )
+            data["datasets"] = [
+                ds
+                if isinstance(ds, dict)
+                else ds.dict(exclude=exclude_fields, by_alias=True)
+                for ds in data["datasets"]
+            ]
 
         if not query_filters.include_typologies:
             data["typologies"] = ""
