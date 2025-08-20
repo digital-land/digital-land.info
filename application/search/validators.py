@@ -1,30 +1,19 @@
 import re
-from typing import Optional, List, Union
+from typing import Optional, List
 
 from application.data_access.dataset_queries import get_dataset_names
-from application.db.session import get_context_session
 from application.exceptions import DatasetValueNotFound, DigitalLandValidationError
 
 
-def validate_dataset_name(
-    datasets: Optional[Union[str, List[str]]]
-) -> Optional[List[str]]:
-    if not datasets:
-        return datasets
-
-    if isinstance(datasets, str):
-        datasets = [datasets]
-
-    with get_context_session() as session:
-        dataset_names = get_dataset_names(session)
-        for dataset in datasets:
-            if dataset not in dataset_names:
-                raise DatasetValueNotFound(
-                    f"Requested dataset does not exist: {dataset}. "
-                    f"Valid dataset names: {','.join(dataset_names)}",
-                    dataset_names=dataset_names,
-                )
-    return datasets
+def validate_dataset_name(dataset):
+    dataset_names = get_dataset_names()
+    if dataset not in dataset_names:
+        raise DatasetValueNotFound(
+            f"Requested dataset does not exist: {dataset}. "
+            f"Valid dataset names: {','.join(dataset_names)}",
+            dataset_names=dataset_names,
+        )
+    return dataset
 
 
 def validate_day_integer(integer):

@@ -27,6 +27,14 @@ def multiple_dataset_models():
     return [model_1, model_2]
 
 
+@pytest.fixture(autouse=True)
+def mock_dataset_names(mocker, multiple_dataset_models):
+    mocker.patch(
+        "application.search.validators.get_dataset_names",
+        return_value=[ds.dataset for ds in multiple_dataset_models],
+    )
+
+
 def test_get_datasets_by_typology_both_have_greater_than_zero_entity(
     multiple_dataset_models,
 ):
@@ -81,20 +89,19 @@ def test_list_datasets(
     mocker.patch(
         "application.routers.dataset.get_datasets_by_typology",
         return_value={
-            "geography": [multiple_dataset_models[0]],
-            "category": [multiple_dataset_models[1]],
+            "geography": {"dataset": [multiple_dataset_models[0]]},
+            "category": {"dataset": [multiple_dataset_models[1]]},
         },
     )
 
-    mock_get_session = mocker.patch(
-        "application.routers.dataset.get_session", return_value=MagicMock()
-    )
+    mock_session = MagicMock()
+    mocker.patch("application.routers.dataset.get_session", return_value=mock_session)
 
     result = list_datasets(
         request=MagicMock(),
         extension=MagicMock(value="json"),
         query_filters=query_filters,
-        session=mock_get_session,
+        session=mock_session,
         redis=None,
     )
     assert len(result["datasets"]) == expected_count
@@ -108,6 +115,8 @@ def test_list_datasets(
         assert result["typologies"] == ""
 
     if query_filters and query_filters.exclude_field:
-        excluded = set(to_snake(f.strip()) for f in query_filters.exclude_field)
+        excluded = set(
+            to_snake(f.strip()) for f in query_filters.exclude_field.split(",")
+        )
         for field in excluded:
             assert field not in result["datasets"][0]
