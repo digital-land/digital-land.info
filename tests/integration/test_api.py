@@ -203,7 +203,7 @@ def test_dataset_json_endpoint_with_query_param_returns_as_expected(test_data, c
     response = client.get("/dataset.json", params=params)
     assert response.status_code == 200
     data = response.json()
-    assert data["typologies"] == ""
+    assert "typologies" not in data
     assert "datasets" in data
     api_dataset_names = [ds["dataset"] for ds in data["datasets"]]
     expected_datasets = ["brownfield-site", "conservation-area"]

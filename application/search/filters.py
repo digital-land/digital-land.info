@@ -34,9 +34,9 @@ class DatasetQueryFilters:
     field: Optional[List[str]] = Query(
         None, description="Fields to include in dataset JSON response"
     )
-    exclude_field: Optional[str] = Query(
+    exclude_field: Optional[List[str]] = Query(
         None,
-        description="Comma-separated fields to exclude from the dataset JSON response",
+        description="Fields to exclude from the dataset JSON response",
     )
     include_typologies: bool = Query(
         True,
@@ -230,10 +230,6 @@ class QueryFilters:
     exclude_field: Optional[List[str]] = Query(
         None,
         description="field parameter will take over any fields specified in the exclude_field parameter",
-    )
-    include_typologies: bool = Query(
-        True,
-        description="Include typologies in dataset JSON response; set to false to remove.",
     )
     # validators
     _validate_entry_date_year = validator("entry_date_year", allow_reuse=True)(

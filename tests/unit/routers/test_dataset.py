@@ -68,7 +68,7 @@ def test_get_datasets_by_typology_both_have_greater_than_zero_entity(
             DatasetQueryFilters(
                 dataset=["ancient-woodland-status"],
                 field=["name"],
-                exclude_field="plural, collection",
+                exclude_field=["plural, collection"],
             ),
             1,
             True,
@@ -110,13 +110,11 @@ def test_list_datasets(
         assert "name" in result["datasets"][0]
 
     if expect_typologies:
-        assert result["typologies"] != ""
+        assert "typologies" in result
     else:
-        assert result["typologies"] == ""
+        assert "typologies" not in result
 
     if query_filters and query_filters.exclude_field:
-        excluded = set(
-            to_snake(f.strip()) for f in query_filters.exclude_field.split(",")
-        )
+        excluded = set(to_snake(f.strip()) for f in query_filters.exclude_field)
         for field in excluded:
             assert field not in result["datasets"][0]
