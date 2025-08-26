@@ -115,6 +115,11 @@ def test_list_datasets(
         assert "typologies" not in result
 
     if query_filters and query_filters.exclude_field:
-        excluded = set(to_snake(f.strip()) for f in query_filters.exclude_field)
+        excluded = {
+            to_snake(part.strip())
+            for item in query_filters.exclude_field
+            for part in item.split(",")
+            if part.strip()
+        }
         for field in excluded:
             assert field not in result["datasets"][0]

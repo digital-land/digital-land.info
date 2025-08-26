@@ -18,7 +18,6 @@ from application.search.enum import (
 )
 from application.search.custom_data_types import FormInt
 from application.search.validators import (
-    # validate_dataset_name,
     validate_day_integer,
     validate_month_integer,
     validate_year_integer,
@@ -42,11 +41,6 @@ class DatasetQueryFilters:
         True,
         description="Include typologies in dataset JSON response; set to false to remove",
     )
-
-    # temporarily validation is not required.
-    # _validate_dataset_name = validator("dataset", allow_reuse=True)(
-    #     validate_dataset_name
-    # )
 
 
 @dataclass

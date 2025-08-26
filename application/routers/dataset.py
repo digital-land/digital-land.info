@@ -85,24 +85,32 @@ def list_datasets(
 
     if extension is not None and extension.value == "json":
         if query_filters.field:
-            include_fields = set(to_snake(f.strip()) for f in query_filters.field)
+            include_fields = {
+                to_snake(part.strip())
+                for item in query_filters.field
+                for part in item.split(",")
+                if part.strip()
+            }
             datasets = [
                 get_dataset_filter_fields(ds, include_fields) for ds in datasets
             ]
             data["datasets"] = datasets
 
         if query_filters.exclude_field:
-            exclude_fields = set(
-                to_snake(f.strip()) for f in query_filters.exclude_field
-            )
-
+            exclude_fields = {
+                to_snake(part.strip())
+                for item in query_filters.exclude_field
+                for part in item.split(",")
+                if part.strip()
+            }
             data["datasets"] = [
-                ds
-                if isinstance(ds, dict)
-                else ds.dict(exclude=exclude_fields, by_alias=True)
+                (
+                    {k: v for k, v in ds.items() if k not in exclude_fields}
+                    if isinstance(ds, dict)
+                    else ds.dict(exclude=exclude_fields, by_alias=True)
+                )
                 for ds in data["datasets"]
             ]
-
         return data
     else:
         return templates.TemplateResponse(
