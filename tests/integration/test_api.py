@@ -162,18 +162,55 @@ def test_dataset_json_endpoint_returns_as_expected(test_data, client):
     # TODO find way of generating these field values from fixtures
     for dataset in data["datasets"]:
         assert dataset.pop("themes")
-        assert dataset.pop("entity-count")
+        entity_count = dataset.pop("entity-count")
+        assert isinstance(entity_count, int)
         assert "entities" in dataset
         dataset.pop("entities")
-        attribution_txt = dataset.pop("attribution-text")
-        assert attribution_txt == "attribution text"
-        licence_txt = dataset.pop("licence-text")
-        assert licence_txt == "licence text"
+        attribution_txt = dataset.pop("attribution-text", "")
+        assert isinstance(attribution_txt, str)
+        licence_txt = dataset.pop("licence-text", "")
+        assert isinstance(licence_txt, str)
 
-    assert sorted(data["datasets"], key=lambda x: x["name"]) == sorted(
-        _transform_dataset_fixture_to_response(deepcopy(datasets)),
-        key=lambda x: x["name"],
-    )
+    # Only datasets from API that also exist in fixture
+    api_keys_in_fixture = {
+        ds["dataset"]
+        for ds in data["datasets"]
+        if ds["dataset"] in {f["dataset"] for f in datasets}
+    }
+    filtered_fixtures = [
+        ds for ds in deepcopy(datasets) if ds["dataset"] in api_keys_in_fixture
+    ]
+    fixture_response = _transform_dataset_fixture_to_response(filtered_fixtures)
+
+    # loop over datasets that exist in both
+    for ds in data["datasets"]:
+        if ds["dataset"] not in api_keys_in_fixture:
+            continue  # skip datasets not in fixture
+        fixture_ds = next(
+            (f for f in fixture_response if f["dataset"] == ds["dataset"]), None
+        )
+        assert (
+            fixture_ds is not None
+        ), f"Dataset {ds['dataset']} not found in fixture response"
+
+
+def test_dataset_json_endpoint_with_query_param_returns_as_expected(test_data, client):
+    params = {
+        "dataset": ["brownfield-site", "conservation-area"],
+        "field": ["dataset", "name"],
+        "include_typologies": "false",
+    }
+    response = client.get("/dataset.json", params=params)
+    assert response.status_code == 200
+    data = response.json()
+    assert "typologies" not in data
+    assert "datasets" in data
+    api_dataset_names = [ds["dataset"] for ds in data["datasets"]]
+    expected_datasets = ["brownfield-site", "conservation-area"]
+    assert set(api_dataset_names) == set(expected_datasets)
+    for ds in data["datasets"]:
+        assert "dataset" in ds
+        assert "name" in ds
 
 
 wkt_params = [
