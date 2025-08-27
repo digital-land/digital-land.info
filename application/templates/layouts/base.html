@@ -1,4 +1,4 @@
-{% set govukRebrand = False %}
+{%- set govukRebrand = true %}
 {% extends "govuk_frontend_jinja/template.html" %}
 
 {%- block pageTitle %}Planning data you can find, use and trust{% endblock -%}
@@ -95,7 +95,7 @@
     {% endblock libraryScripts %}
 
     {% block govScripts %}
-        <script src="{{ assetPath | default('/assets') }}/govuk/all.js"></script>
+        <script src="{{ assetPath | default('/assets') }}/govuk/all.bundle.js"></script>
         <script>
         // initiate all GOVUK components
         window.GOVUKFrontend.initAll();
