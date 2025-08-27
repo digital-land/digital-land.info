@@ -98,7 +98,9 @@ DATASET_TEMPLATE = r"""
               }
             },
             {
-              'html': '<a class="govuk-link" href="/entity?dataset=' + dataset["dataset"] + '">' + entity_count|commanum + '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"]) +'</span></a>'
+              'html': '<a class="govuk-link" href="/entity?dataset=' + dataset["dataset"] + '">' + entity_count|commanum + 
+                      '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"]) +
+                      '</span></a>'
             },
           ],
           [
@@ -203,7 +205,8 @@ DATASET_TEMPLATE = r"""
               {% for category in categories %}
                 <tr class="govuk-table__row">
                   <td class="govuk-table__cell app-table__cell">
-                      <a class="govuk-link"  href="/curie/{{dataset['dataset']}}:{{category['reference']}}">{{category['reference']}}</a>
+                      <a class="govuk-link"  
+                         href="/curie/{{dataset['dataset']}}:{{category['reference']}}">{{category['reference']}}</a>
                   </td>
                 </tr>
               {% endfor %}
@@ -258,11 +261,16 @@ DATASET_TEMPLATE = r"""
         <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="specification">
           Dataset definition
         </h2>
-        <p class="govuk-hint govuk-!-font-size-14">You can view the definition of this dataset including the list of fields</p>
+        <p class="govuk-hint govuk-!-font-size-14">
+          You can view the definition of this dataset including the list of fields
+        </p>
         <nav role="navigation" aria-labelledby="specification">
           <ul class="govuk-list govuk-!-font-size-16">
             <li>
-              <a class="govuk-link" href="https://digital-land.github.io/specification/dataset/{{ dataset["dataset"] }}">Dataset definition for {{ dataset["name"] }} dataset</a>
+              <a class="govuk-link" 
+                 href="https://digital-land.github.io/specification/dataset/{{ dataset["dataset"] }}">
+                Dataset definition for {{ dataset["name"] }} dataset
+              </a>
             </li>
           </ul>
         </nav>
@@ -271,11 +279,16 @@ DATASET_TEMPLATE = r"""
         <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="data-design">
           Designing the data
         </h2>
-        <p class="govuk-hint govuk-!-font-size-14">You can see details about how this dataset has been designed for planning.data.gov.uk</p>
+        <p class="govuk-hint govuk-!-font-size-14">
+          You can see details about how this dataset has been designed for planning.data.gov.uk
+        </p>
         <nav role="navigation" aria-labelledby="specification">
           <ul class="govuk-list govuk-!-font-size-16">
             <li>
-              <a class="govuk-link" href="https://design.planning.data.gov.uk/planning-consideration/{{ dataset['consideration'] }}">{{ dataset['consideration'] }} planning consideration</a>
+              <a class="govuk-link" 
+                 href="https://design.planning.data.gov.uk/planning-consideration/{{ dataset['consideration'] }}">
+                {{ dataset['consideration'] }} planning consideration
+              </a>
             </li>
           </ul>
         </nav>
