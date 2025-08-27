@@ -15,7 +15,7 @@
       "name": {{ dataset["name"]|tojson }},
       "description": {{ dataset["text"]|default('')|striptags|trim|tojson}},
       "url": {{ ("https://planning.data.gov.uk/dataset/" ~ dataset["dataset"])|tojson }},
-      "license": {{ dataset["licence_text"]|default('')|tojson}},
+      "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
       "isAccessibleForFree": true,
       "creator": {
         "@type": "Organization",
