@@ -1,7 +1,7 @@
 {% macro dlHeaderBar(params={}) %}
 {% set _navitems = params.get('items', []) %}
-<header class="govuk-header with-proposition dl-header{{ ' dl-header--full' if params.fullWidth }}{{ ' ' + params.classes if params.classes }}" data-module="govuk-header">
-  <div class="govuk-header__container govuk-width-container">
+<header class="govuk-header dl-header{{ ' ' + params.classes if params.classes }}" data-module="govuk-header">
+  <div class="govuk-header__container {{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container' }}">
     <div class="govuk-header__logo">
       <a href="{{ params.site_url|default('/') }}" class="govuk-header__link govuk-header__link--homepage">
         <svg
@@ -29,18 +29,32 @@
         </svg>
       </a>
     </div>
-    {% if _navitems | length > 0 %}
-      <nav class="govuk-header__navigation" aria-label="{{ params.navigationLabel | default('Menu') }}">
-        <button type="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation">Menu</button>
-        <ul id="navigation" class="govuk-header__navigation-list">
+  </div>
+</header>
+<section aria-label="Service information" class="govuk-service-navigation"
+  data-module="govuk-service-navigation">
+  <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}}">
+    <div class="govuk-service-navigation__container">
+      <span class="govuk-service-navigation__service-name">
+        <a href="/" class="govuk-service-navigation__link">
+          Planning and housing data in England
+        </a>
+      </span>
+      {% if _navitems | length > 0 %}
+      <nav aria-label="Menu" class="govuk-service-navigation__wrapper">
+        <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
+          Menu
+        </button>
+        <ul class="govuk-service-navigation__list" id="navigation">
           {% for item in _navitems %}
-          <li class="govuk-header__navigation-item">
-            <a class="govuk-header__link" href="{{ item.href }}">{{ item.text }}</a>
+          <li class="govuk-service-navigation__item">
+            <a class="govuk-service-navigation__link" href="{{ item.href }}">{{ item.text }}</a>
           </li>
           {% endfor %}
         </ul>
       </nav>
-    {% endif %}
+      {% endif %}
+    </div>
   </div>
-</header>
+</section>
 {% endmacro %}
