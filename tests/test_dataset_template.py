@@ -98,9 +98,10 @@ DATASET_TEMPLATE = r"""
               }
             },
             {
-              'html': '<a class="govuk-link" href="/entity?dataset=' + dataset["dataset"] + '">' + entity_count|commanum + 
-                      '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"]) +
-                      '</span></a>'
+              'html': '<a class="govuk-link" href="/entity?dataset=' + dataset["dataset"] + '">'
+                       + entity_count|commanum
+                       + '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"])
+                       + '</span></a>'
             },
           ],
           [
