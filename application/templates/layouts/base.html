@@ -46,12 +46,11 @@
     {% block mastHead %}
         {% include 'partials/service-status-banner.html' %}
         {% include 'partials/mast-head.html' %}
-        {% include 'partials/phase-banner.html' %}
+        {% if request.path != '/' %}
+          {% include 'partials/phase-banner.html' %}
+        {% endif %}
     {% endblock mastHead %}
-
 {% endblock header %}
-
-
 
 {% block beforeContent %}
 	{% block breadcrumbs %}{% endblock breadcrumbs %}

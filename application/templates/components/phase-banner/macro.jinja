@@ -2,7 +2,8 @@
 {% macro dlPhaseBanner(params={ 'phase': 'prototype' }) %}
   {{ govukPhaseBanner({
     "tag": {
-        "text": params.phase
+      "text": params.phase,
+      "classes": params.tagClasses,
     },
     "html": params.html | default('This is a prototype. Your <a class="govuk-link" href="mailto:digitalland@communities.gov.uk?subject=Prototype feedback">feedback</a> will help us to improve it.'),
     "classes": params.classes,
