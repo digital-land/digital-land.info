@@ -91,7 +91,7 @@ TEMPLATE_UNDER_TEST = r"""{% extends "layouts/layout.html" %}
         {
           "@type": "DataDownload",
           "encodingFormat": "CSV",
-          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.csv')|tojson}},
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.csv')|tojson}}
         },
         {
           "@type": "DataDownload",
@@ -386,7 +386,7 @@ def render(env, context: Dict[str, Any]) -> str:
     return tpl.render(**context)
 
 def extract_jsonld(html: str) -> Dict[str, Any]:
-    m = re.search(r'<script type="application/ld\+json">\s*(\{.*?\})\s*</script>', html, re.S)
+    m = re.search(r'<script type="application/ld\+json">\s*(\{.*\})\s*</script>', html, re.S)
     assert m, "JSON-LD script block not found"
     return json.loads(m.group(1))
 
