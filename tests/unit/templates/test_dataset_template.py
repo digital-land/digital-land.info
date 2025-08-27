@@ -566,3 +566,89 @@ def test_page_title_includes_dataset_name_and_suffix(jinja_env):
     m = re.search(r"<title>(.*?)</title>", html, re.S)
     assert m
     assert m.group(1) == "Conservation areas Dataset | Planning Data"
+# ---------------- Additional tests to extend coverage for dl-info/dataset.html ----------------
+
+def test_jsonld_includes_license_and_unicode_and_strips_html_in_description(jinja_env):
+    # Unicode should not be ASCII-escaped (tojson ensure_ascii=False), and description should be striptags+trim
+    ctx = make_base_context(dataset={"name": 'Café "Rúa"', "text": "  <b>Hello</b> & world  "})
+    html = render(jinja_env, ctx)
+    data = extract_jsonld(html)
+    assert data["license"] == ctx["dataset"]["licence_text"]
+    assert data["name"] == 'Café "Rúa"'
+    assert data["description"] == "Hello & world"
+
+def test_jsonld_creator_block_static_fields(jinja_env):
+    html = render(jinja_env, make_base_context())
+    data = extract_jsonld(html)
+    assert data["creator"]["@type"] == "Organization"
+    assert data["creator"]["name"] == "Ministry of Housing, Communities and Local Government"
+    assert data["creator"]["url"] == "https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government"
+
+def test_jsonld_distribution_count_depends_on_typology(jinja_env):
+    ctx_geo = make_base_context(dataset={"typology": "geography"})
+    html_geo = render(jinja_env, ctx_geo)
+    assert len(extract_jsonld(html_geo)["distribution"]) == 3
+
+    ctx_non = make_base_context(dataset={"typology": "dataset"})
+    html_non = render(jinja_env, ctx_non)
+    assert len(extract_jsonld(html_non)["distribution"]) == 2
+
+def test_about_table_has_aria_label_and_summary_card_heading(jinja_env):
+    html = render(jinja_env, make_base_context())
+    assert 'aria-label="About the dataset"' in html
+    assert '<div class="app-summary-card' in html
+    assert ">About this dataset<" in html
+
+def test_categories_none_hides_entries_section(jinja_env):
+    html = render(jinja_env, make_base_context(categories=None))
+    assert ">Entry<" not in html and ">Entries<" not in html
+
+def test_entity_count_pluralisation_zero_and_one(jinja_env):
+    # entity_count <= 1 should use singular dataset["name"]
+    ctx_zero = make_base_context(entity_count=0)
+    html_zero = render(jinja_env, ctx_zero)
+    assert f'class="govuk-!-font-size-14">{ctx_zero["dataset"]["name"]}</span>' in html_zero
+
+    ctx_one = make_base_context(entity_count=1)
+    html_one = render(jinja_env, ctx_one)
+    assert f'class="govuk-!-font-size-14">{ctx_one["dataset"]["name"]}</span>' in html_one
+
+def test_latest_resource_last_updated_present_when_available(jinja_env):
+    ctx = make_base_context(latest_resource=LatestResource(last_updated="2025-08-20"))
+    html = render(jinja_env, ctx)
+    assert ">2025-08-20<" in html
+
+def test_breadcrumbs_nav_and_back_button_text(jinja_env):
+    html = render(jinja_env, make_base_context())
+    assert 'id="breadcrumbs"' in html
+    assert 'class="app-back-button"' in html
+    assert ">Back<" in html
+
+def test_includes_feedback_and_coverage_banner_partials(jinja_env):
+    html = render(jinja_env, make_base_context())
+    assert '<div id="data-coverage-banner"></div>' in html
+    assert '<div id="feedback"></div>' in html
+
+def test_autoescape_in_dataset_heading(jinja_env):
+    # Ensure autoescape prevents HTML injection in visible H1
+    ctx = make_base_context(dataset={"name": '<script>alert("x")</script>'})
+    html = render(jinja_env, ctx)
+    m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
+    assert m
+    h1_content = m.group(1)
+    assert "<script>" not in h1_content
+    assert "&lt;script&gt;" in h1_content
+
+def test_publishers_count_non_numeric_falls_back_to_string(jinja_env):
+    # When commanum cannot coerce to int, it should return the original string
+    ctx = make_base_context(publishers={"current": "unknown"})
+    html = render(jinja_env, ctx)
+    assert ">unknown<" in html
+
+def test_jsonld_license_present_even_when_licence_false_and_table_row_omitted(jinja_env):
+    # JSON-LD 'license' should use licence_text regardless of 'licence' flag used for table rendering
+    ctx = make_base_context(dataset={"licence": False, "licence_text": "Custom Licence"})
+    html = render(jinja_env, ctx)
+    data = extract_jsonld(html)
+    assert data["license"] == "Custom Licence"
+    assert "<b>Licence</b>" not in html
