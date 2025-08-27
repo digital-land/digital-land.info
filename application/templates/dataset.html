@@ -25,17 +25,17 @@
       "distribution": [
         {
           "@type": "DataDownload",
-          "encodingFormat": "CSV",
+          "encodingFormat": "text/csv",
           "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.csv')|tojson}}
         },
         {
           "@type": "DataDownload",
-          "encodingFormat": "JSON",
+          "encodingFormat": "application/json",
           "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.json')|tojson}}
         }{% if dataset['typology'] == 'geography' %},
         {
           "@type": "DataDownload",
-          "encodingFormat": "GeoJSON",
+          "encodingFormat": "application/geo+json",
           "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.geojson')|tojson}}
         }
         {% endif %}
