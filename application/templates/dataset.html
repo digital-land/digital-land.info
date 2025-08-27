@@ -13,7 +13,7 @@
       "@context": "https://schema.org",
       "@type": "Dataset",
       "name": {{ dataset["plural"]|tojson }},
-      "description": {{ dataset["text"]|default('')|strip_markdown|striptags|trim|tojson}},
+      "description": {{ dataset["text"]|default('')|strip_markdown|striptags|trim|tojson }},
       "url": {{ ("https://planning.data.gov.uk/dataset/" ~ dataset["dataset"])|tojson }},
       "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
       "isAccessibleForFree": true,
@@ -26,17 +26,17 @@
         {
           "@type": "DataDownload",
           "encodingFormat": "text/csv",
-          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.csv')|tojson}}
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.csv')|tojson }}
         },
         {
           "@type": "DataDownload",
           "encodingFormat": "application/json",
-          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.json')|tojson}}
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.json')|tojson }}
         }{% if dataset['typology'] == 'geography' %},
         {
           "@type": "DataDownload",
           "encodingFormat": "application/geo+json",
-          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.geojson')|tojson}}
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.geojson')|tojson }}
         } {% endif %}
       ]
     }
