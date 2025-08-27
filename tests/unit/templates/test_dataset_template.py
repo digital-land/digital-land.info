@@ -144,7 +144,14 @@ TEMPLATE_UNDER_TEST = r"""{% extends "layouts/layout.html" %}
               }
             },
             {
-              'html': '<a class="govuk-link" href="/entity?dataset=' + dataset["dataset"] + '">' + entity_count|commanum + '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"]) +'</span></a>'
+              'html':
+                  '<a class="govuk-link" href="/entity?dataset='
+                  + dataset["dataset"]
+                  + '">'
+                  + entity_count|commanum
+                  + '<br><span class="govuk-!-font-size-14">'
+                  + (dataset["name"] if entity_count <= 1 else dataset["plural"])
+                  + '</span></a>'
             },
           ],
           [
@@ -249,7 +256,10 @@ TEMPLATE_UNDER_TEST = r"""{% extends "layouts/layout.html" %}
               {% for category in categories %}
                 <tr class="govuk-table__row">
                   <td class="govuk-table__cell app-table__cell">
-                      <a class="govuk-link"  href="/curie/{{dataset['dataset']}}:{{category['reference']}}">{{category['reference']}}</a>
+                      <a class="govuk-link"
+                         href="/curie/{{dataset['dataset']}}:{{category['reference']}}">
+                         {{category['reference']}}
+                      </a>
                   </td>
                 </tr>
               {% endfor %}
@@ -304,11 +314,16 @@ TEMPLATE_UNDER_TEST = r"""{% extends "layouts/layout.html" %}
         <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="specification">
           Dataset definition
         </h2>
-        <p class="govuk-hint govuk-!-font-size-14">You can view the definition of this dataset including the list of fields</p>
+        <p class="govuk-hint govuk-!-font-size-14">
+          You can view the definition of this dataset including the list of fields
+        </p>
         <nav role="navigation" aria-labelledby="specification">
           <ul class="govuk-list govuk-!-font-size-16">
             <li>
-              <a class="govuk-link" href="https://digital-land.github.io/specification/dataset/{{ dataset["dataset"] }}">Dataset definition for {{ dataset["name"] }} dataset</a>
+              <a class="govuk-link"
+                 href="https://digital-land.github.io/specification/dataset/{{ dataset['dataset'] }}">
+                 Dataset definition for {{ dataset['name'] }} dataset
+              </a>
             </li>
           </ul>
         </nav>
@@ -317,11 +332,16 @@ TEMPLATE_UNDER_TEST = r"""{% extends "layouts/layout.html" %}
         <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="data-design">
           Designing the data
         </h2>
-        <p class="govuk-hint govuk-!-font-size-14">You can see details about how this dataset has been designed for planning.data.gov.uk</p>
+        <p class="govuk-hint govuk-!-font-size-14">
+          You can see details about how this dataset has been designed for planning.data.gov.uk
+        </p>
         <nav role="navigation" aria-labelledby="specification">
           <ul class="govuk-list govuk-!-font-size-16">
             <li>
-              <a class="govuk-link" href="https://design.planning.data.gov.uk/planning-consideration/{{ dataset['consideration'] }}">{{ dataset['consideration'] }} planning consideration</a>
+              <a class="govuk-link"
+                 href="https://design.planning.data.gov.uk/planning-consideration/{{ dataset['consideration'] }}">
+                 {{ dataset['consideration'] }} planning consideration
+              </a>
             </li>
           </ul>
         </nav>
@@ -566,6 +586,7 @@ def test_page_title_includes_dataset_name_and_suffix(jinja_env):
     m = re.search(r"<title>(.*?)</title>", html, re.S)
     assert m
     assert m.group(1) == "Conservation areas Dataset | Planning Data"
+
 # ---------------- Additional tests to extend coverage for dl-info/dataset.html ----------------
 
 def test_jsonld_includes_license_and_unicode_and_strips_html_in_description(jinja_env):
