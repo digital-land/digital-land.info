@@ -8,6 +8,40 @@
 
 {% block headStart %}
   <meta name="generated-date" content="{{ now }}"/>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": {{ dataset["name"]|tojson }},
+      "description": {{ dataset["text"]|default('')|striptags|trim|tojson}},
+      "url": {{ ("https://planning.data.gov.uk/dataset/" ~ dataset["dataset"])|tojson }},
+      "license": {{ dataset["licence_text"]|default('')|tojson}},
+      "isAccessibleForFree": true,
+      "creator": {
+        "@type": "Organization",
+        "name": "Ministry of Housing, Communities and Local Government",
+        "url": "https://www.gov.uk/government/organisations/ministry-of-housing-communities-local-government"
+      },
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "CSV",
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.csv')|tojson}},
+        },
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "JSON",
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.json')|tojson}}
+        }{% if dataset['typology'] == 'geography' %},
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "GeoJSON",
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.geojson')|tojson}}
+        }
+        {% endif %}
+      ]
+    }
+  </script>
 {% endblock headStart %}
 
 {%- block breadcrumbs -%}
