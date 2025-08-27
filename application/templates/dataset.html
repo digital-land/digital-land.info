@@ -37,8 +37,7 @@
           "@type": "DataDownload",
           "encodingFormat": "GeoJSON",
           "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.geojson')|tojson}}
-        }
-        {% endif %}
+        }{% endif %}
       ]
     }
   </script>
