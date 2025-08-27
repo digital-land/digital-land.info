@@ -5,7 +5,6 @@ Tests for the 'dl-info/dataset.html' Jinja template.
 Testing library/framework: pytest with Jinja2 (no new dependencies).
 We use a DictLoader to stub the extended layout and imported macros/partials so the template can render in isolation.
 """
-
 import json
 import re
 from types import SimpleNamespace
@@ -100,7 +99,8 @@ DATASET_TEMPLATE = r"""
             {
               'html': '<a class="govuk-link" href="/entity?dataset=' + dataset["dataset"] + '">'
                        + entity_count|commanum
-                       + '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"])
+                       + '<br><span class="govuk-!-font-size-14">'
+                       + (dataset["name"] if entity_count <= 1 else dataset["plural"])
                        + '</span></a>'
             },
           ],
@@ -303,7 +303,6 @@ DATASET_TEMPLATE = r"""
   {% include "partials/feedback.html" %}
 {% endblock %}
 """
-
 # --- Jinja stubs for layout, macros, and partials ---
 LAYOUT = """
 <!doctype html>
@@ -318,7 +317,6 @@ LAYOUT = """
   </body>
 </html>
 """
-
 SUMMARY_CARD_MACRO = """
 {% macro appSummaryCard(params) -%}
 <div class="app-summary-card" data-title="{{ params.get('titleText') }}">
@@ -326,13 +324,11 @@ SUMMARY_CARD_MACRO = """
 </div>
 {%- endmacro %}
 """
-
 BACK_BUTTON_MACRO = """
 {% macro dlBackButton(params) -%}
 <a id="dl-back" href="{{ params['parentHref'] }}">Back</a>
 {%- endmacro %}
 """
-
 GOVUK_TABLE_MACRO = """
 {% macro govukTable(params) -%}
 {# Emit a simple table with row count to allow assertions without full GOV.UK macro #}
@@ -348,7 +344,6 @@ GOVUK_TABLE_MACRO = """
 </table>
 {%- endmacro %}
 """
-
 PARTIAL_DATA_COVERAGE = "<!-- data coverage banner placeholder -->"
 PARTIAL_FEEDBACK = "<!-- feedback placeholder -->"
 
