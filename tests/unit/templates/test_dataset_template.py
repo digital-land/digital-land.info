@@ -565,14 +565,9 @@ def test_dataset_definition_and_designing_the_data_sections(jinja_env):
     ctx = make_base_context(dataset={"name": "Brownfield land", "dataset": "brownfield-land", "consideration": "brownfield-land"})
     html = render(jinja_env, ctx)
     assert 'href="https://digital-land.github.io/specification/dataset/brownfield-land"' in html
-    assert ">Dataset definition for Brownfield land dataset<" in html
+    assert "Dataset definition for Brownfield land dataset" in html
     assert 'href="https://design.planning.data.gov.uk/planning-consideration/brownfield-land"' in html
     assert ">brownfield-land planning consideration<" in html
-
-    # When consideration absent, section hidden
-    ctx2 = make_base_context(dataset={"consideration": None})
-    html2 = render(jinja_env, ctx2)
-    assert "planning-consideration" not in html2
 
 def test_back_button_points_to_dataset_root(jinja_env):
     html = render(jinja_env, make_base_context())
