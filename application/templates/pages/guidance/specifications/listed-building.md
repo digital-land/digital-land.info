@@ -80,6 +80,10 @@ The Historic England listed building reference for the listed building. This is 
 
 Example: `1480524`
 
+If the building is no longer listed, you must add an end-date. This should be the date that it was no longer in effect, written in `YYYY-MM-DD` format.
+
+Example: `1999-01-20`
+
 ### uprns
 
 The unique property reference number or numbers, separated by a comma, if the listing covers more than one. 
