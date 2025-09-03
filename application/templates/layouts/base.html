@@ -1,3 +1,4 @@
+{%- set govukRebrand = true %}
 {% extends "govuk_frontend_jinja/template.html" %}
 
 {%- block pageTitle %}Planning data you can find, use and trust{% endblock -%}
@@ -45,12 +46,11 @@
     {% block mastHead %}
         {% include 'partials/service-status-banner.html' %}
         {% include 'partials/mast-head.html' %}
-        {% include 'partials/phase-banner.html' %}
+        {% if request.path != '/' %}
+          {% include 'partials/phase-banner.html' %}
+        {% endif %}
     {% endblock mastHead %}
-
 {% endblock header %}
-
-
 
 {% block beforeContent %}
 	{% block breadcrumbs %}{% endblock breadcrumbs %}
@@ -91,7 +91,7 @@
     {% endblock libraryScripts %}
 
     {% block govScripts %}
-        <script src="{{ assetPath | default('/assets') }}/govuk/all.js"></script>
+        <script src="{{ assetPath | default('/assets') }}/govuk/all.bundle.js"></script>
         <script>
         // initiate all GOVUK components
         window.GOVUKFrontend.initAll();

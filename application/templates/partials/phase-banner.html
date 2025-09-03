@@ -4,7 +4,8 @@
   dlPhaseBanner({
     'phase': 'Beta',
     'html': 'This is a new service – to help us improve it, <a href="https://forms.microsoft.com/e/VfSR3Jp8Nu?origin=lprLink" target="_blank" class="govuk-link">sign up to take part in research</a>',
-    'classes': 'govuk-width-container' if not fullWidthHeader else 'govuk-width-container dl-container--full-width',
+    'classes': ('govuk-width-container' if not fullWidthHeader else 'govuk-width-container dl-container--full-width') + (' app-phase-banner--inverse' if phaseBannerInverse else ''),
+    'tagClasses': 'app-tag--inverse' if phaseBannerInverse else '',
     'attributes': {
       'style': 'border-bottom: 0px' if hideBannerBorder else '' + '' if not fullWidthHeader else 'padding: 10px 0;'
     }

@@ -34,7 +34,7 @@ filelock==3.12.2
     # via virtualenv
 geoalchemy2==0.14.0
     # via -r requirements/requirements.in
-govuk-frontend-jinja @ git+https://github.com/digital-land/govuk-frontend-jinja@refactor/accessibilityImprovements
+govuk-frontend-jinja==3.7.0
     # via -r requirements/requirements.in
 gunicorn==20.1.0
     # via -r requirements/requirements.in
