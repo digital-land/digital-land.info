@@ -1,5 +1,6 @@
 import logging
 import sentry_sdk
+import os
 
 from datetime import timedelta
 
@@ -200,9 +201,14 @@ def add_base_routes(app):
             },
         )
 
-    @app.get("/robots.txt", response_class=FileResponse, include_in_schema=False)
+    @app.get("/robots.txt", response_class=Response, include_in_schema=False)
     def robots():
-        return FileResponse("static/robots.txt")
+        env = os.getenv('ENVIRONMENT', 'development')
+        if env == 'development':
+            content = "User-agent: *\nDisallow: /"
+        else:
+            content = "User-agent: *\nDisallow: /fact/"
+        return Response(content, media_type='text/plain')
 
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(
