@@ -3,6 +3,10 @@
 
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 
+{% block headStart %}
+  <meta name="robots" content="noindex">
+{% endblock headStart %}
+
 {% block content %}
   <main id="content" role="main">
     <section class="govuk-width-container govuk-!-padding-bottom-6">
