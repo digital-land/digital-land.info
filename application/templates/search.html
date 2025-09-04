@@ -18,6 +18,13 @@
   {{ super() }}
 {% endblock -%}
 
+{% block headStart %}
+  {{ super() }}
+  {% if query.params %}
+    <meta name="robots" content="noindex">
+  {% endif %}
+{% endblock headStart %}
+
 {% block breadcrumbs %}
   {{ dlBackButton({
     "parentHref": '/'
