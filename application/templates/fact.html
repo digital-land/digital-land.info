@@ -10,6 +10,10 @@
 
 {%- block pageTitle %}{{ row_name }} | {{ dataset.name }} | Planning Data{% endblock -%}
 
+{% block headStart %}
+  <meta name="robots" content="noindex">
+{% endblock headStart %}
+
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 {%- block breadcrumbs -%}
   {{ dlBackButton({
