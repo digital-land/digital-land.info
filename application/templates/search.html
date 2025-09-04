@@ -20,7 +20,7 @@
 
 {% block headStart %}
   {{ super() }}
-  {% if query.params %}
+  {% if url_query_params.str != "" %}
     <meta name="robots" content="noindex">
   {% endif %}
 {% endblock headStart %}
