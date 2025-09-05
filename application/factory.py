@@ -10,7 +10,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
@@ -201,14 +201,14 @@ def add_base_routes(app):
             },
         )
 
-    @app.get("/robots.txt", response_class=Response, include_in_schema=False)
+    @app.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
     def robots():
         env = os.getenv('ENVIRONMENT', 'development')
         if env == 'development':
             content = "User-agent: *\nDisallow: /"
         else:
             content = "User-agent: *\nDisallow: /fact/"
-        return Response(content, media_type='text/plain')
+        return PlainTextResponse(content, headers={"Cache-Control": "public, max-age=3600"})
 
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(
