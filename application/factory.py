@@ -204,7 +204,7 @@ def add_base_routes(app):
     @app.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
     def robots():
         env = os.getenv('ENVIRONMENT', 'development')
-        if env == ['development', 'staging']:
+        if env == 'development':
             content = "User-agent: *\nDisallow: /"
         else:
             content = "User-agent: *\nDisallow: /fact/"
