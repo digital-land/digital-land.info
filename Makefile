@@ -121,8 +121,7 @@ frontend:
 	rsync -r assets/images static/
 	cp node_modules/maplibre-gl/dist/maplibre-gl.css static/stylesheets/maplibre-gl.css
 	mkdir -p static/govuk/assets
-	cp node_modules/govuk-frontend/govuk/all.js node_modules/govuk-frontend/govuk/all.js.map static/govuk
-	cp -r node_modules/govuk-frontend/govuk/assets/* static/govuk/assets
+	cp -r node_modules/govuk-frontend/dist/govuk/* static/govuk
 
 frontend-all: clean frontend
 
