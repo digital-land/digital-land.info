@@ -53,7 +53,7 @@
         {% include 'partials/search-facets.html' %}
       </div>
       <!-- /.govuk-grid-column-one-third -->
-      <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-grid-column-two-thirds" id="search-results">
 
         <div class="app-results-summary">
           <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
@@ -286,7 +286,14 @@
 {% endblock %}
 
 {% block pageScripts %}
-{% if data and data|count > 0 %}
+<script src="/static/javascripts/SearchResultsPage.js"></script>
+<script>
 
-{% endif %}
+  document.addEventListener('DOMContentLoaded', function () {
+    new SearchResultsPage([document.getElementById('search-facets-form'), document.getElementById('dl-find-an-area-form')])
+  })
+</script>
+
+
 {% endblock pageScripts %}
+

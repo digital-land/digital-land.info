@@ -136,3 +136,27 @@
 .app-results-list__item {
 	@include govuk-responsive-margin(6, "bottom");
 }
+
+// loading state
+// gray out results area and show loading spinner
+.app-search--loading {
+	opacity: 0.5;
+	pointer-events: none;
+	filter: grayscale(80%);
+	animation: app-search-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes app-search-pulse {
+	0% {
+		opacity: 0.5;
+		filter: grayscale(80%);
+	}
+	50% {
+		opacity: 0.8;
+		filter: grayscale(60%);
+	}
+	100% {
+		opacity: 0.5;
+		filter: grayscale(80%);
+	}
+}
