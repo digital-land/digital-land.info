@@ -53,8 +53,7 @@
         {% include 'partials/search-facets.html' %}
       </div>
       <!-- /.govuk-grid-column-one-third -->
-      <div class="govuk-grid-column-two-thirds" id="search-results">
-
+      <div class="govuk-grid-column-two-thirds" id="search-results" role="region" aria-label="Search results" aria-busy="false">
         <div class="app-results-summary">
           <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
           {% macro removeFilterButton(params) %}
@@ -286,12 +285,14 @@
 {% endblock %}
 
 {% block pageScripts %}
-<script src="/static/javascripts/SearchResultsPage.js"></script>
+<script src="/static/javascripts/SearchResultsPage.js" defer></script>
 <script>
-
   document.addEventListener('DOMContentLoaded', function () {
-    new SearchResultsPage([document.getElementById('search-facets-form'), document.getElementById('dl-find-an-area-form')])
-  })
+    new SearchResultsPage([
+      document.getElementById('search-facets-form'),
+      document.getElementById('dl-find-an-area-form')
+    ].filter(Boolean));
+  });
 </script>
 
 

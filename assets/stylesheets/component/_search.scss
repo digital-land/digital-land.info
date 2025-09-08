@@ -144,6 +144,13 @@
 	pointer-events: none;
 	filter: grayscale(80%);
 	animation: app-search-pulse 1.2s infinite ease-in-out;
+	cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-search--loading {
+    animation: none;
+  }
 }
 
 @keyframes app-search-pulse {

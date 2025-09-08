@@ -6,8 +6,11 @@ logger = logging.getLogger(__name__)
 
 def find_an_area(q: str):
     # Implementation for finding an area based on the search query
-    search_query = q.strip()
+    search_query = (q or "").strip()
     search_result = None
+
+    if not search_query:
+        return None
 
     if search_query:
         try:
@@ -15,7 +18,7 @@ def find_an_area(q: str):
             type = "uprn" if search_query.isdigit() else "postcode"
             result = search_response[0] if len(search_response) else None
             name = (
-                (result["POSTCODE"] if type == "postcode" else result["UPRN"])
+                (result.get("POSTCODE") if type == "postcode" else result.get("UPRN"))
                 if result
                 else None
             )
@@ -29,7 +32,7 @@ def find_an_area(q: str):
                     "type": "point",
                     "data": {
                         "type": "Point",
-                        "coordinates": [result["LNG"], result["LAT"]],
+                        "coordinates": [result.get("LNG"), result.get("LAT")],
                         "properties": {
                             **result,
                             "name": name,

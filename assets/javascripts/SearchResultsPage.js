@@ -1,9 +1,9 @@
 class SearchResultsPage {
   constructor(formElements) {
-    this.forms = formElements;
+    this.forms = (formElements || []).filter(Boolean);
     this.resultsSection = document.getElementById('search-results');
 
-    this.initFormListener();
+    if (this.forms.length) this.initFormListener();
   }
 
   initFormListener() {
@@ -14,25 +14,32 @@ class SearchResultsPage {
 
   addSubmitListener(form) {
     form.addEventListener('submit', function (e) {
+      // Respect validation; show messages if invalid
+      const formEl = e.currentTarget;
+      if (formEl.reportValidity && !formEl.reportValidity()) {
+        return;
+      }
+
       e.preventDefault();
       try {
-        // Defensive UI updates; avoid throwing if elements are missing
         this.disableForms();
-
         if (this.resultsSection) {
           this.resultsSection.classList.add('app-search--loading');
+          this.resultsSection.setAttribute('aria-busy', 'true');
         }
       } finally {
-        // Always submit even if UI updates throw
-        HTMLFormElement.prototype.submit.call(e.currentTarget);
+        HTMLFormElement.prototype.submit.call(formEl);
       }
     }.bind(this))
   }
 
   disableForms() {
     this.forms.forEach(form => {
-      form.classList.add('app-search--loading');
       const submitButton = form.querySelector('[type="submit"]');
+
+      form.classList.add('app-search--loading');
+      form.setAttribute('aria-disabled', 'true');
+
       if (submitButton) {
         submitButton.disabled = true;
         submitButton.textContent = 'Searching...';
