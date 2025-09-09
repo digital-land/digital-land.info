@@ -28,6 +28,7 @@ from application.data_access.entity_queries import (
     fetchEntityFromReference,
 )
 from application.data_access.dataset_queries import get_dataset_names
+from application.data_access.find_an_area_helpers import find_an_area
 
 from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
@@ -342,6 +343,20 @@ def search_entities(
     dataset_names = get_dataset_names(session)
     typology_names = get_typology_names(session)
 
+    # Find an area - Postcode / UPRN search
+    find_an_area_result = None
+    if query_params.get('q') and query_params.get('q').strip():
+        find_an_area_result = find_an_area(query_params.get('q'))
+        find_an_area_latitude = find_an_area_result.get("result", {}).get("LAT")
+        find_an_area_longitude = find_an_area_result.get("result", {}).get("LNG")
+        if find_an_area_latitude and find_an_area_longitude:
+            query_params.update(
+                {
+                    "latitude": find_an_area_latitude,
+                    "longitude": find_an_area_longitude,
+                }
+            )
+
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
     validate_typologies(query_params.get("typology", None), typology_names)
@@ -451,6 +466,7 @@ def search_entities(
             "next_url": next_url,
             "prev_url": prev_url,
             "has_geographies": has_geographies,
+            "find_an_area_result": find_an_area_result,
         },
     )
 

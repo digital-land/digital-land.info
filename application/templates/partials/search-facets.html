@@ -1,6 +1,6 @@
 {% from 'components/filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
 {%- from "components/filter-group/macro.jinja" import dlFilterGroup %}
-<form action="{{ search_form_url }}" method="get">
+<form action="{{ search_form_url }}" method="get" id="search-facets-form">
 
   <h2 class="govuk-heading-m">Filters</h2>
   {%- if typologies %}
@@ -205,15 +205,27 @@
           </div>
         </fieldset>
       </div>
-
     </div>
   </div>
 
-    <div class="govuk-button-group">
-      {{ govukButton({
-        "text": "Search"
-      }) }}
-      <a href="{{ search_form_url }}" class="govuk-link">Clear</a>
-    </div>
+  <!-- Filter by Latitude and Longitude (hidden fields) -->
+  {% if query.params.get('latitude') %}
+    <input type="hidden" name="latitude" value="{{ query.params.get('latitude') }}" />
+  {% endif %}
+  {% if query.params.get('longitude') %}
+    <input type="hidden" name="longitude" value="{{ query.params.get('longitude') }}" />
+  {% endif %}
 
+  <!-- Search Query: Postcode / UPRN -->
+  {% if query.params.get('q') %}
+    <input type="hidden" name="q" value="{{ query.params.get('q') }}" />
+  {% endif %}
+
+  <div class="govuk-button-group">
+    {{ govukButton({
+      "text": "Search",
+      "type": "submit",
+    }) }}
+    <a href="{{ search_form_url }}" class="govuk-link">Clear</a>
+  </div>
 </form>

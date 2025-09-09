@@ -203,6 +203,12 @@ class QueryFilters:
     geometry_relation: Optional[GeometryRelation] = Query(
         None, description="DE-9IM spatial relationship, default is 'within'"
     )
+    q: Optional[str] = Query(
+        None,
+        description="""
+        Search by a postcode, or a Unique Property Reference Number (UPRN).
+        """,
+    )
 
     # pagination filters
     limit: Optional[int] = Query(
