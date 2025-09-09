@@ -344,18 +344,22 @@ def search_entities(
     typology_names = get_typology_names(session)
 
     # Find an area - Postcode / UPRN search
-    find_an_area_result = None
-    if query_params.get('q') and query_params.get('q').strip():
-        find_an_area_result = find_an_area(query_params.get('q'))
-        find_an_area_latitude = find_an_area_result.get("result", {}).get("LAT")
-        find_an_area_longitude = find_an_area_result.get("result", {}).get("LNG")
+    query = query_params.get('q')
+    if not query or not query.strip():
+        find_an_area_result = None
+    else:
+        find_an_area_result = find_an_area(query)
+
+    if find_an_area_result:
+        result_data = find_an_area_result.get("result", {})
+        find_an_area_latitude = result_data.get("LAT")
+        find_an_area_longitude = result_data.get("LNG")
+
         if find_an_area_latitude and find_an_area_longitude:
-            query_params.update(
-                {
-                    "latitude": find_an_area_latitude,
-                    "longitude": find_an_area_longitude,
-                }
-            )
+            query_params.update({
+                "latitude": find_an_area_latitude,
+                "longitude": find_an_area_longitude,
+            })
 
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
