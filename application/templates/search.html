@@ -288,10 +288,16 @@
 <script src="/static/javascripts/SearchResultsPage.js" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    new SearchResultsPage([
+    const forms = [
       document.getElementById('search-facets-form'),
       document.getElementById('dl-find-an-area-form')
-    ].filter(Boolean));
+    ].filter(Boolean);
+    const paginationLinks = Array.from(document.querySelectorAll('.app-pagination__link'));
+
+    new SearchResultsPage(
+      forms,
+      paginationLinks
+    );
   });
 </script>
 

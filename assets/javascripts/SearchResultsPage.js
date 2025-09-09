@@ -1,14 +1,22 @@
 class SearchResultsPage {
-  constructor(formElements) {
+  constructor(formElements, paginationElements) {
     this.forms = (formElements || []).filter(Boolean);
+    this.paginationLinks = (paginationElements || []).filter(Boolean);
     this.resultsSection = document.getElementById('search-results');
 
     if (this.forms.length) this.initFormListener();
+    if (this.paginationLinks.length) this.initPaginationListener();
   }
 
   initFormListener() {
     this.forms.forEach(form => {
       this.addSubmitListener(form);
+    })
+  }
+
+  initPaginationListener() {
+    this.paginationLinks.forEach(link => {
+      this.addPaginationListener(link);
     })
   }
 
@@ -22,15 +30,27 @@ class SearchResultsPage {
 
       e.preventDefault();
       try {
-        this.disableForms();
-        if (this.resultsSection) {
-          this.resultsSection.classList.add('app-search--loading');
-          this.resultsSection.setAttribute('aria-busy', 'true');
-        }
+        this.disableInteractiveElements();
       } finally {
         HTMLFormElement.prototype.submit.call(formEl);
       }
     }.bind(this))
+  }
+
+  addPaginationListener(link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      try {
+        this.disableInteractiveElements();
+      } finally {
+        window.location = link.href;
+      }
+    }.bind(this))
+  }
+
+  disableInteractiveElements() {
+    this.disableForms();
+    this.disableResultSection();
   }
 
   disableForms() {
@@ -45,5 +65,12 @@ class SearchResultsPage {
         submitButton.textContent = 'Searching...';
       }
     });
+  }
+
+  disableResultSection() {
+    if (this.resultsSection) {
+      this.resultsSection.classList.add('app-search--loading');
+      this.resultsSection.setAttribute('aria-busy', 'true');
+    }
   }
 }
