@@ -350,16 +350,19 @@ def search_entities(
     else:
         find_an_area_result = find_an_area(query)
 
-    if find_an_area_result:
+    find_an_area_latitude = None
+    find_an_area_longitude = None
+
+    if find_an_area_result and find_an_area_result.get("result", {}):
         result_data = find_an_area_result.get("result", {})
         find_an_area_latitude = result_data.get("LAT")
         find_an_area_longitude = result_data.get("LNG")
 
-        if find_an_area_latitude and find_an_area_longitude:
-            query_params.update({
-                "latitude": find_an_area_latitude,
-                "longitude": find_an_area_longitude,
-            })
+    if find_an_area_latitude and find_an_area_longitude:
+        query_params.update({
+            "latitude": find_an_area_latitude,
+            "longitude": find_an_area_longitude,
+        })
 
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
