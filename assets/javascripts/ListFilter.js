@@ -50,7 +50,7 @@ export class ListFilter{
             item.classList.add('js-hidden');
           });
 
-        this.updateListCounts(listsToFilter);
+        this.updateListCounts(listsToFilter, searchTerm);
     }
 
     termToMatchOn(item){
@@ -76,7 +76,7 @@ export class ListFilter{
         return false
     }
 
-    updateListCounts(lists){
+    updateListCounts(lists, searchTerm = ''){
         var totalMatches = 0;
         const list_section_selector = this.list_section_selector;
         const count_wrapper_selector = this.count_wrapper_selector;
@@ -102,8 +102,15 @@ export class ListFilter{
 
         // if no results show message
         if (this.$noMatches) {
+          const $searchTermDisplay = this.$noMatches.querySelector('.js-search-term-display');
           if (totalMatches === 0) {
             this.$noMatches.classList.remove('js-hidden');
+            // Update the search term display
+            if ($searchTermDisplay && searchTerm.trim()) {
+              $searchTermDisplay.textContent = `'${searchTerm}'`;
+            } else if ($searchTermDisplay) {
+              $searchTermDisplay.textContent = '';
+            }
           } else {
             this.$noMatches.classList.add('js-hidden');
           }

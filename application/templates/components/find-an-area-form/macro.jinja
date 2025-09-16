@@ -40,7 +40,13 @@
       {% elif search_result.get("type") == "uprn" and search_result.get("result") %}
         Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", {}) }}
       {% else %}
-        No results found for {{ search_query }}
+        No results found for '{{ search_query }}'.
+      </p>
+      <p class="govuk-body">
+        Check <a href=https://design.planning.data.gov.uk/what-we-are-working-on>our current priorities</a> to see if this data is being prepared for the platform.
+      </p>
+      <p class="govuk-body">
+        If it's not there, you can <a href=https://design.planning.data.gov.uk/get-involved-in-designing-data>contribute to our data design process</a> to help prioritise it.
       {% endif %}
     </p>
   </div>
