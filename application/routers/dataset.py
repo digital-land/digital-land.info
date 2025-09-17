@@ -13,6 +13,7 @@ from application.data_access.digital_land_queries import (
     get_all_datasets,
     get_latest_resource,
     get_publisher_coverage,
+    get_dataset_coverage_status,
 )
 
 from pydantic import Required
@@ -140,6 +141,8 @@ def get_dataset(
 
         latest_resource = get_latest_resource(session, dataset)
         publisher_coverage = get_publisher_coverage(session, dataset)
+        dataset_coverage_status = get_dataset_coverage_status(dataset)
+
         # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories
         if _dataset.typology == "category":
@@ -169,6 +172,7 @@ def get_dataset(
                 "categories": categories,
                 "data_file_url": data_file_url,
                 "dataset_origin_label": get_origin_label(_dataset),
+                "dataset_coverage_status": dataset_coverage_status,
             },
         )
 
