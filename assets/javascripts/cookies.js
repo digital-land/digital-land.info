@@ -97,9 +97,9 @@ export function setTrackingCookies () {
   } else {
     if(window.gaMeasurementId){
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', window.gaMeasurementId);
+      window.gtag = function(){dataLayer.push(arguments);}
+      window.gtag('js', new Date());
+      window.gtag('config', window.gaMeasurementId);
       window[`ga-disable-${window.gaMeasurementId}`] = false;
     } else {
       console.warn('Google Analytics: No measurement ID specified');

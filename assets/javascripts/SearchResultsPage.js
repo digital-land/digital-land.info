@@ -31,6 +31,11 @@ class SearchResultsPage {
       e.preventDefault();
       try {
         this.disableInteractiveElements();
+        this.sendAnalyticsEvent('search_term', {
+          'event_category': 'Search',
+          'event_label': 'Find an area form',
+          'value': formEl.querySelector('[name="q"]').value
+        });
       } finally {
         HTMLFormElement.prototype.submit.call(formEl);
       }
@@ -71,6 +76,12 @@ class SearchResultsPage {
     if (this.resultsSection) {
       this.resultsSection.classList.add('app-search--loading');
       this.resultsSection.setAttribute('aria-busy', 'true');
+    }
+  }
+
+  sendAnalyticsEvent(action, params) {
+    if (window.gtag) {
+      window.gtag('event', action, params);
     }
   }
 }
