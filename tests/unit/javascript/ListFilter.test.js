@@ -219,7 +219,7 @@ describe('ListFilter', () => {
         expect(listFilterMock.matchSearchTerm.bind).toHaveBeenCalledWith(listFilterMock);
         expect(boundFunctionMock).toHaveBeenCalledWith(domElementMock, 'test');
         expect(domElementMock.classList.add).toHaveBeenCalledWith('js-hidden');
-        expect(listFilterMock.updateListCounts).toHaveBeenCalledWith([domElementMock,domElementMock]);
+        expect(listFilterMock.updateListCounts).toHaveBeenCalledWith([domElementMock,domElementMock], 'test');
     });
 
     describe('updateListCounts', () => {
