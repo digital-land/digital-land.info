@@ -98,7 +98,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: 'planning-data-alerts'
+          channel-id: 'planning-data-notifications'
           payload: |
             {
               "text": "Security Scan: digital-land.info",
@@ -191,7 +191,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: 'planning-data-alerts'
+          channel-id: 'planning-data-notifications'
           payload: |
             {
               "text": "Security Scan: digital-land.info",
