@@ -19,3 +19,8 @@ The webpage must include, for each dataset:
 - the link to the endpoint URL
 - a summary of what the data is about
 - a statement that the data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
+
+Meeting accessibility requirements
+----------------------------------
+
+Publishing your planning data in [open formats](https://www.gov.uk/guidance/content-design/planning-content#open-formats), like CSV and GeoJSON, makes it accessible. Any [documents published in the HTML5 standard](https://www.gov.uk/government/publications/open-standards-for-government/viewing-government-documents), such as pages on your website, help meet [accessibility requirements](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps) too. This makes the information inside PDFs available to users with access needs. 
