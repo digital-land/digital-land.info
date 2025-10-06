@@ -23,4 +23,9 @@ The webpage must include, for each dataset:
 Meeting accessibility requirements
 ----------------------------------
 
-Publishing your planning data in [open formats](https://www.gov.uk/guidance/content-design/planning-content#open-formats), like CSV and GeoJSON, makes it accessible. Publishing the information as [pages on your website](https://www.gov.uk/government/publications/open-standards-for-government/viewing-government-documents) help meet [accessibility requirements](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps) by ensuring users are not limited to using PDFs only. 
+Where our guidance requires it, you should publish:
+
+- your planning data in [open formats](https://www.gov.uk/guidance/content-design/planning-content#open-formats), like CSV and GeoJSON
+- associated planning documents as a PDF
+
+Publishing the information in open formats and as [pages on your website](https://www.gov.uk/government/publications/open-standards-for-government/viewing-government-documents) helps meet [accessibility requirements](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps) by making sure users are not limited to using PDFs only.
