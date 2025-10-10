@@ -215,6 +215,7 @@ class TestGetMap:
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -276,6 +277,7 @@ class TestGetMap:
                         },
                     },
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -337,6 +339,7 @@ class TestGetMap:
                         },
                     },
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -386,6 +389,7 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -435,6 +439,7 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -489,6 +494,7 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -532,6 +538,7 @@ class TestGetMap:
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
