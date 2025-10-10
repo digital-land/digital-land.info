@@ -198,17 +198,20 @@ def add_base_routes(app):
                 "request": request,
                 "paths": open_api_dict["paths"],
                 "components": open_api_dict["components"],
+                "feedback_form_footer": True,
             },
         )
 
     @app.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
     def robots():
-        env = os.getenv('ENVIRONMENT', 'development')
-        if env == 'development':
+        env = os.getenv("ENVIRONMENT", "development")
+        if env == "development":
             content = "User-agent: *\nDisallow: /"
         else:
             content = "User-agent: *\nDisallow: /fact/"
-        return PlainTextResponse(content, headers={"Cache-Control": "public, max-age=3600"})
+        return PlainTextResponse(
+            content, headers={"Cache-Control": "public, max-age=3600"}
+        )
 
     @app.exception_handler(StarletteHTTPException)
     async def custom_404_exception_handler(

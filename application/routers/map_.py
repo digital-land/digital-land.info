@@ -39,5 +39,6 @@ def get_map(
             "settings": settings,
             "search_query": search_query,
             "search_result": search_result,
+            "feedback_form_footer": True,
         },
     )

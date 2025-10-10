@@ -207,6 +207,7 @@ def handle_entity_response(
             "dataset_fields": dataset_fields,
             "dataset": dataset,
             "organisation_entity": organisation_entity,
+            "feedback_form_footer": True,
         },
     )
 
@@ -344,7 +345,7 @@ def search_entities(
     typology_names = get_typology_names(session)
 
     # Find an area - Postcode / UPRN search
-    query = query_params.get('q')
+    query = query_params.get("q")
     if not query or not query.strip():
         find_an_area_result = None
     else:
@@ -359,10 +360,12 @@ def search_entities(
         find_an_area_longitude = result_data.get("LNG")
 
     if find_an_area_latitude and find_an_area_longitude:
-        query_params.update({
-            "latitude": find_an_area_latitude,
-            "longitude": find_an_area_longitude,
-        })
+        query_params.update(
+            {
+                "latitude": find_an_area_latitude,
+                "longitude": find_an_area_longitude,
+            }
+        )
 
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
@@ -474,6 +477,7 @@ def search_entities(
             "prev_url": prev_url,
             "has_geographies": has_geographies,
             "find_an_area_result": find_an_area_result,
+            "feedback_form_footer": True,
         },
     )
 

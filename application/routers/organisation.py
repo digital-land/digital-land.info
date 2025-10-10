@@ -61,6 +61,7 @@ def get_organisations(
                 "display_names": display_names,
                 "today": date.today(),
                 "data_file_url": data_file_url,
+                "feedback_form_footer": True,
             },
         )
 
