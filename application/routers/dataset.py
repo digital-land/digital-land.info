@@ -79,7 +79,7 @@ def list_datasets(
         )
         dataset.entity_count = count
 
-    data = {"datasets": datasets}
+    data = {"datasets": datasets, "feedback_form_footer": True}
 
     if query_filters.include_typologies:
         data["typologies"] = get_datasets_by_typology(datasets)
@@ -173,6 +173,7 @@ def get_dataset(
                 "data_file_url": data_file_url,
                 "dataset_origin_label": get_origin_label(_dataset),
                 "dataset_coverage_status": dataset_coverage_status,
+                "feedback_form_footer": True,
             },
         )
 

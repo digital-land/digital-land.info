@@ -82,12 +82,14 @@ def mock_search_response_uprn():
 
 
 @pytest.fixture
-def mock_find_an_area(type: str = 'postcode', search_query: str = 'SW1A 1AA'):
+def mock_find_an_area(type: str = "postcode", search_query: str = "SW1A 1AA"):
     """Mock find_an_area function"""
     return {
         "type": type,
         "query": search_query,
-        "result": mock_search_response_postcode[0] if type == 'postcode' else mock_search_response_uprn[0],
+        "result": mock_search_response_postcode[0]
+        if type == "postcode"
+        else mock_search_response_uprn[0],
         "geometry": {
             "name": "SW1A 1AA",
             "type": "point",
@@ -95,7 +97,11 @@ def mock_find_an_area(type: str = 'postcode', search_query: str = 'SW1A 1AA'):
                 "type": "Point",
                 "coordinates": [-0.124729, 51.501009],
                 "properties": {
-                    **(mock_search_response_postcode[0] if type == 'postcode' else mock_search_response_uprn[0]),
+                    **(
+                        mock_search_response_postcode[0]
+                        if type == "postcode"
+                        else mock_search_response_uprn[0]
+                    ),
                     "name": "SW1A 1AA",
                 },
             },
@@ -173,6 +179,7 @@ def mock_find_an_area_uprn():
         },
     }
 
+
 class TestGetMap:
     """Test cases for the get_map function"""
 
@@ -215,6 +222,7 @@ class TestGetMap:
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -276,6 +284,7 @@ class TestGetMap:
                         },
                     },
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -337,6 +346,7 @@ class TestGetMap:
                         },
                     },
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -386,6 +396,7 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -435,6 +446,7 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -489,6 +501,7 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
@@ -532,6 +545,7 @@ class TestGetMap:
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
