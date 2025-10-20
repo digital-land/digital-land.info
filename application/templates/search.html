@@ -274,7 +274,19 @@
 
         </div>
         <!-- /.app-results-body -->
-
+        {% elif count == 0 %}
+        <div class="app-results-body">
+          <p class="govuk-body">No results found</p>
+          <p class="govuk-body">
+            Check <a href="https://design.planning.data.gov.uk/what-we-are-working-on">our current priorities</a> to see if
+            this data is being prepared for the platform.
+          </p>
+          <p class="govuk-body">
+            If it's not there, you can <a href="https://design.planning.data.gov.uk/get-involved-in-designing-data">contribute
+              to our data design
+              process</a> to help prioritise it.
+          </p>
+        </div>
         {% endif %}
       </div>
       <!-- /.govuk-grid-column-two-thirds -->
@@ -302,5 +314,5 @@
 </script>
 
 
-{% endblock pageScripts %}
 
+{% endblock pageScripts %}
