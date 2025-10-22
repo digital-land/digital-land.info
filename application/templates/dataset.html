@@ -51,12 +51,12 @@
 
 {% block content %}
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <span class="govuk-caption-xl">Dataset</span>
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <span class="govuk-caption-xl">Dataset</span>
       <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
       {% if dataset_coverage_status != "full" %}
-        {% include 'partials/data-coverage-banner.html' %}
+        {% include 'partials/planning-application-banner.html' %}
       {% endif %}
     </div>
   </div>
