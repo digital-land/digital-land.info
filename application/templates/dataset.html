@@ -145,16 +145,16 @@
       {% endif %}
 
       {% if dataset.text %}
-        {{
-          rows.append([
+        {%- set rows = [
+          [
             {
               'html': '<b>Summary</b>'
             },
             {
               'html': dataset.text | render_markdown(govAttributes=True)
-            },
-          ]) or ''
-        }}
+            }
+          ]
+        ] + rows -%}
       {% endif %}
 
       {{
