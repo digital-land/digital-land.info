@@ -30,6 +30,9 @@ tags
 __pycache__
 .mypy_cache
 
+env/
+venv/
+digital_land_env/
 .env
 .env.test
 .db-data
