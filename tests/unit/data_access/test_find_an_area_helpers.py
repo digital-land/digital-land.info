@@ -76,6 +76,36 @@ def test_find_an_area_selects_middle_item_when_more_than_two(mock_search):
 
 
 @patch("application.data_access.find_an_area_helpers.search")
+def test_find_an_area_selects_first_item_when_only_two_results(mock_search):
+    """
+    Tests that when there are only 2 results, the first item is returned.
+    """
+    mock_search.return_value = [
+        {
+            "UPRN": "10010001",
+            "ADDRESS": "40, Winter Road",
+            "LNG": 0.1,
+            "LAT": 1.1,
+            "POSTCODE": "AB1 2CD",
+        },
+        {
+            "UPRN": "10010002",
+            "ADDRESS": "41, Winter Road",
+            "LNG": 0.2,
+            "LAT": 1.2,
+            "POSTCODE": "AB1 2CD",
+        },
+    ]
+    result = find_an_area("AB1 2CD")
+    assert result["type"] == "postcode"
+    assert result["query"] == "AB1 2CD"
+    assert result["result"]["UPRN"] == "10010001"
+    assert result["result"]["ADDRESS"] == "40, Winter Road"
+    assert result["geometry"]["name"] == "AB1 2CD"
+    assert result["geometry"]["data"]["coordinates"] == [0.1, 1.1]
+
+
+@patch("application.data_access.find_an_area_helpers.search")
 def test_find_an_area_no_results(mock_search):
     mock_search.return_value = []
     result = find_an_area("SOMEQUERY")
