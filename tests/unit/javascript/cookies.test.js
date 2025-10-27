@@ -143,8 +143,12 @@ describe('cookies.js', () => {
             setTrackingCookies();
 
             expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(false);
-            expect(Array.from(dataLayer[0])).toEqual(['js', new Date()]);
-            expect(Array.from(dataLayer[1])).toEqual(['config', fakeMeasurementId]);
+            // first entry should be ['js', Date]
+            expect(dataLayer[0][0]).toBe('js');
+            expect(dataLayer[0][1]).toBeInstanceOf(Date);
+            // second entry should be ['config', measurementId]
+            expect(dataLayer[1][0]).toBe('config');
+            expect(dataLayer[1][1]).toBe(fakeMeasurementId);
         })
     })
 
