@@ -16,7 +16,16 @@ def find_an_area(q: str):
         try:
             search_response = search(search_query) or []
             type = "uprn" if search_query.isdigit() else "postcode"
-            result = search_response[0] if len(search_response) else None
+            # If there are more than 2 results, choose the item in the middle
+            # (user expectation: return the middle item for longer lists).
+            if not search_response:
+                result = None
+            elif len(search_response) > 2:
+                mid = len(search_response) // 2
+                result = search_response[mid]
+            else:
+                # Keep existing behaviour for 1 or 2 items (first item)
+                result = search_response[0]
             name = (
                 (result.get("POSTCODE") if type == "postcode" else result.get("UPRN"))
                 if result
