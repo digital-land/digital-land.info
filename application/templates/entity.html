@@ -103,7 +103,7 @@
                     {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
                   {% endif %}
                 </td>
-                {% if field not in ['dataset', 'organisation-entity', 'start-date', 'end-date', 'typology'] %}
+                {% if field not in ['curie', 'dataset', 'organisation-entity', 'start-date', 'end-date', 'typology'] %}
                   <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
                     <a href="/fact?dataset={{ row['dataset'] }}&entity={{ row['entity'] }}&field={{ field }}" class="govuk-link">Facts</a>
                   </td>
