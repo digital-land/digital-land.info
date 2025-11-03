@@ -136,6 +136,15 @@ def handle_entity_response(
     e_dict_sorted = {
         key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
     }
+
+    # CURIE field composed by the Prefix:Reference fields
+    prefix = e_dict.get("prefix")
+    reference = e_dict.get("reference")
+    curie = f"{prefix}:{reference}" if prefix and reference else None
+
+    # Add CURIE field to dict and make it first
+    e_dict_sorted = {"curie": curie, **e_dict_sorted}
+
     # need to remove any dependency on facts this should be changed when fields added to postgis
     fields = None
     # get field specifications and convert to dictionary to easily access

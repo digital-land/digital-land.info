@@ -162,8 +162,8 @@ def to_snake(string: str) -> str:
 
 
 ENTITY_ATTRIBUTE_ORDER = {
-    "reference": 0,
-    "prefix": 1,
+    "prefix": 0,
+    "reference": 1,
     "name": 2,
     "dataset": 3,
     "organisation-entity": 4,
