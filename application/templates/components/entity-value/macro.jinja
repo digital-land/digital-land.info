@@ -8,7 +8,7 @@
             {% elif field_spec[field]['datatype'] == 'wkt' %}
                 <div class="app-code-block">{{ value }}</div>
             {% elif field in ["organisation-entity"] %}
-                <a class ="govuk-link" href="{{ '/entity/' + value }}">
+                <a class ="govuk-link" href="{{ '/curie/' + value }}">
                     {% if organisation_entity %}
                         {{ organisation_entity|get_entity_name }}
                     {% else %}
@@ -63,7 +63,7 @@
         {%- elif field in ["combined-authority","local-authority"] %}
             <a class ="govuk-link" href="{{ '/prefix/local-authority/reference/' + value }}">{{ value }}</a>
         {%- elif field in ["organisation-entity"] %}
-            <a class ="govuk-link" href="{{ '/entity/' + value }}">
+            <a class ="govuk-link" href="{{ '/curie/' + value }}">
                 {% if organisation_entity %}
                     {{ organisation_entity|get_entity_name }}
                 {% else %}
