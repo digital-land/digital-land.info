@@ -162,7 +162,12 @@ def handle_entity_response(
 
     dataset = get_dataset_query(session, e.dataset)
 
-    organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+    organisation_entity = None
+    if e.organisation_entity is not None:
+        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+        if organisation_entity:
+            organisation_curie = f"{organisation_entity.prefix}:{organisation_entity.reference}"
+            e_dict_sorted["organisation-entity"] = organisation_curie
 
     entityLinkFields = [
         "article-4-direction",
