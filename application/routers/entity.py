@@ -159,16 +159,7 @@ def handle_entity_response(
         dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
     ]
     dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
-
     dataset = get_dataset_query(session, e.dataset)
-
-    organisation_entity = None
-    if e.organisation_entity is not None:
-        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
-        if organisation_entity:
-            organisation_curie = f"{organisation_entity.prefix}:{organisation_entity.reference}"
-            e_dict_sorted["organisation-entity"] = organisation_curie
-
     entityLinkFields = [
         "article-4-direction",
         "permitted-development-rights",
@@ -181,7 +172,6 @@ def handle_entity_response(
     ]
 
     linked_entities = {}
-
     # for each entityLinkField, if that key exists in the entity dict, then
     # lookup the entity and add it to the linked_entities dict
     for field in entityLinkFields:
@@ -199,6 +189,13 @@ def handle_entity_response(
     local_plans, local_plan_boundary_geojson = fetch_linked_local_plans(
         session, e_dict_sorted
     )
+
+    organisation_entity = None
+    if e.organisation_entity is not None:
+        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+        if organisation_entity:
+            organisation_curie = f"{organisation_entity.prefix}:{organisation_entity.reference}"
+            e_dict_sorted["organisation-entity"] = organisation_curie
 
     return templates.TemplateResponse(
         "entity.html",
