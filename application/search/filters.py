@@ -231,6 +231,12 @@ class QueryFilters:
         None,
         description="field parameter will take over any fields specified in the exclude_field parameter",
     )
+
+    quality: Optional[List[str]] = Query(
+        None,
+        description="Search for entities by quality",
+    )
+
     # validators
     _validate_entry_date_year = validator("entry_date_year", allow_reuse=True)(
         validate_year_integer
