@@ -10,7 +10,7 @@ from application.data_access.digital_land_queries import (
     get_datasets_with_data_by_geography,
 )
 from application.db.session import get_session, get_redis, DbSession
-from application.data_access.os_api import search
+from application.data_access.find_an_area_helpers import find_an_area
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -29,42 +29,7 @@ def get_map(
 
     # Extract the 'q' query parameter from the request
     search_query = request.query_params.get("q", "").strip()
-    search_result = None
-
-    if search_query:
-        try:
-            search_response = search(search_query) or []
-            type = "uprn" if search_query.isdigit() else "postcode"
-            result = search_response[0] if len(search_response) else None
-            name = (
-                (result["POSTCODE"] if type == "postcode" else result["UPRN"])
-                if result
-                else None
-            )
-
-            search_result = {
-                "type": type,
-                "query": search_query,
-                "result": result,
-                "geometry": {
-                    "name": name,
-                    "type": "point",
-                    "data": {
-                        "type": "Point",
-                        "coordinates": [result["LNG"], result["LAT"]],
-                        "properties": {
-                            **result,
-                            "name": name,
-                        },
-                    },
-                }
-                if result
-                else None,
-            }
-        except Exception as e:
-            logger.warning(f"Search failed for query '{search_query}': {str(e)}")
-            # Continue without search result - the map will still render
-            search_result = None
+    search_result = find_an_area(search_query) if search_query else None
 
     return templates.TemplateResponse(
         "national-map.html",
@@ -74,5 +39,6 @@ def get_map(
             "settings": settings,
             "search_query": search_query,
             "search_result": search_result,
+            "feedback_form_footer": True,
         },
     )

@@ -1,22 +1,25 @@
 import logging
 from typing import Optional
 
+from application.search.filters import DatasetQueryFilters
 from fastapi import APIRouter, Request, HTTPException, Path, Depends
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from redis import Redis
 
 from application.data_access.digital_land_queries import (
+    get_dataset_filter_fields,
     get_dataset_query,
     get_all_datasets,
     get_latest_resource,
     get_publisher_coverage,
+    get_dataset_coverage_status,
 )
 
 from pydantic import Required
 from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
-from application.core.utils import DigitalLandJSONResponse
+from application.core.utils import DigitalLandJSONResponse, to_snake
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
 from application.db.session import get_session, get_redis, DbSession
@@ -56,10 +59,15 @@ def get_datasets_by_typology(datasets):
 def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
+    query_filters: DatasetQueryFilters = Depends(),
     session: Session = Depends(get_session),
     redis: Redis = Depends(get_redis),
 ):
     datasets = get_all_datasets(DbSession(session=session, redis=redis))
+
+    if query_filters.dataset:
+        datasets = [ds for ds in datasets if ds.dataset in query_filters.dataset]
+
     entity_counts_response = get_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available
@@ -71,10 +79,39 @@ def list_datasets(
         )
         dataset.entity_count = count
 
-    typologies = get_datasets_by_typology(datasets)
+    data = {"datasets": datasets, "feedback_form_footer": True}
 
-    data = {"datasets": datasets, "typologies": typologies}
+    if query_filters.include_typologies:
+        data["typologies"] = get_datasets_by_typology(datasets)
+
     if extension is not None and extension.value == "json":
+        if query_filters.field:
+            include_fields = {
+                to_snake(part.strip())
+                for item in query_filters.field
+                for part in item.split(",")
+                if part.strip()
+            }
+            datasets = [
+                get_dataset_filter_fields(ds, include_fields) for ds in datasets
+            ]
+            data["datasets"] = datasets
+
+        if query_filters.exclude_field:
+            exclude_fields = {
+                to_snake(part.strip())
+                for item in query_filters.exclude_field
+                for part in item.split(",")
+                if part.strip()
+            }
+            data["datasets"] = [
+                (
+                    {k: v for k, v in ds.items() if k not in exclude_fields}
+                    if isinstance(ds, dict)
+                    else ds.dict(exclude=exclude_fields, by_alias=True)
+                )
+                for ds in data["datasets"]
+            ]
         return data
     else:
         return templates.TemplateResponse(
@@ -104,6 +141,8 @@ def get_dataset(
 
         latest_resource = get_latest_resource(session, dataset)
         publisher_coverage = get_publisher_coverage(session, dataset)
+        dataset_coverage_status = get_dataset_coverage_status(dataset)
+
         # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories
         if _dataset.typology == "category":
@@ -133,6 +172,8 @@ def get_dataset(
                 "categories": categories,
                 "data_file_url": data_file_url,
                 "dataset_origin_label": get_origin_label(_dataset),
+                "dataset_coverage_status": dataset_coverage_status,
+                "feedback_form_footer": True,
             },
         )
 

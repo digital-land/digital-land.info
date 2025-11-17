@@ -81,6 +81,105 @@ def mock_search_response_uprn():
     ]
 
 
+@pytest.fixture
+def mock_find_an_area(type: str = "postcode", search_query: str = "SW1A 1AA"):
+    """Mock find_an_area function"""
+    return {
+        "type": type,
+        "query": search_query,
+        "result": mock_search_response_postcode[0]
+        if type == "postcode"
+        else mock_search_response_uprn[0],
+        "geometry": {
+            "name": "SW1A 1AA",
+            "type": "point",
+            "data": {
+                "type": "Point",
+                "coordinates": [-0.124729, 51.501009],
+                "properties": {
+                    **(
+                        mock_search_response_postcode[0]
+                        if type == "postcode"
+                        else mock_search_response_uprn[0]
+                    ),
+                    "name": "SW1A 1AA",
+                },
+            },
+        },
+    }
+
+
+@pytest.fixture
+def mock_find_an_area_no_results():
+    """Mock find_an_area function with no results"""
+    return {
+        "type": "postcode",
+        "query": "INVALID123",
+        "result": None,
+        "geometry": None,
+    }
+
+
+@pytest.fixture
+def mock_find_an_area_postcode():
+    """Mock find_an_area function for postcode search"""
+    return {
+        "type": "postcode",
+        "query": "SW1A 1AA",
+        "result": {
+            "POSTCODE": "SW1A 1AA",
+            "LAT": 51.501009,
+            "LNG": -0.124729,
+            "ADDRESS": "10 DOWNING STREET, LONDON, SW1A 1AA",
+        },
+        "geometry": {
+            "name": "SW1A 1AA",
+            "type": "point",
+            "data": {
+                "type": "Point",
+                "coordinates": [-0.124729, 51.501009],
+                "properties": {
+                    "POSTCODE": "SW1A 1AA",
+                    "LAT": 51.501009,
+                    "LNG": -0.124729,
+                    "ADDRESS": "10 DOWNING STREET, LONDON, SW1A 1AA",
+                    "name": "SW1A 1AA",
+                },
+            },
+        },
+    }
+
+
+@pytest.fixture
+def mock_find_an_area_uprn():
+    """Mock find_an_area function for UPRN search"""
+    return {
+        "type": "uprn",
+        "query": "123456789",
+        "result": {
+            "UPRN": "123456789",
+            "LAT": 51.501009,
+            "LNG": -0.124729,
+            "ADDRESS": "10 DOWNING STREET, LONDON, SW1A 1AA",
+        },
+        "geometry": {
+            "name": "123456789",
+            "type": "point",
+            "data": {
+                "type": "Point",
+                "coordinates": [-0.124729, 51.501009],
+                "properties": {
+                    "UPRN": "123456789",
+                    "LAT": 51.501009,
+                    "LNG": -0.124729,
+                    "ADDRESS": "10 DOWNING STREET, LONDON, SW1A 1AA",
+                    "name": "123456789",
+                },
+            },
+        },
+    }
+
+
 class TestGetMap:
     """Test cases for the get_map function"""
 
@@ -123,18 +222,19 @@ class TestGetMap:
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
-    @patch("application.routers.map_.search")
+    @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_postcode_search(
         self,
         mock_templates,
-        mock_search,
+        mock_find_an_area,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -143,6 +243,7 @@ class TestGetMap:
         mock_geography_datasets,
         mock_search_response_postcode,
         mock_settings,
+        mock_find_an_area_postcode,
     ):
         """Test get_map with postcode search query"""
         # Setup
@@ -150,7 +251,7 @@ class TestGetMap:
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
-        mock_search.return_value = mock_search_response_postcode
+        mock_find_an_area.return_value = mock_find_an_area_postcode
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -158,7 +259,7 @@ class TestGetMap:
         result = get_map(mock_request, mock_session, mock_redis)
 
         # Assert
-        mock_search.assert_called_once_with(search_query)
+        mock_find_an_area.assert_called_once_with(search_query)
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -183,18 +284,19 @@ class TestGetMap:
                         },
                     },
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
-    @patch("application.routers.map_.search")
+    @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_uprn_search(
         self,
         mock_templates,
-        mock_search,
+        mock_find_an_area,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -203,6 +305,7 @@ class TestGetMap:
         mock_geography_datasets,
         mock_search_response_uprn,
         mock_settings,
+        mock_find_an_area_uprn,
     ):
         """Test get_map with UPRN search query"""
         # Setup
@@ -210,7 +313,7 @@ class TestGetMap:
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
-        mock_search.return_value = mock_search_response_uprn
+        mock_find_an_area.return_value = mock_find_an_area_uprn
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -218,7 +321,7 @@ class TestGetMap:
         result = get_map(mock_request, mock_session, mock_redis)
 
         # Assert
-        mock_search.assert_called_once_with(search_query)
+        mock_find_an_area.assert_called_once_with(search_query)
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -243,18 +346,19 @@ class TestGetMap:
                         },
                     },
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
-    @patch("application.routers.map_.search")
+    @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_search_no_results(
         self,
         mock_templates,
-        mock_search,
+        mock_find_an_area,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -262,6 +366,7 @@ class TestGetMap:
         mock_redis,
         mock_geography_datasets,
         mock_settings,
+        mock_find_an_area_no_results,
     ):
         """Test get_map with search query that returns no results"""
         # Setup
@@ -269,7 +374,7 @@ class TestGetMap:
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
-        mock_search.return_value = []  # No results
+        mock_find_an_area.return_value = mock_find_an_area_no_results
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -277,7 +382,7 @@ class TestGetMap:
         result = get_map(mock_request, mock_session, mock_redis)
 
         # Assert
-        mock_search.assert_called_once_with(search_query)
+        mock_find_an_area.assert_called_once_with(search_query)
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -291,18 +396,19 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
-    @patch("application.routers.map_.search")
+    @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_search_none_response(
         self,
         mock_templates,
-        mock_search,
+        mock_find_an_area,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -310,6 +416,7 @@ class TestGetMap:
         mock_redis,
         mock_geography_datasets,
         mock_settings,
+        mock_find_an_area_no_results,
     ):
         """Test get_map with search query that returns None"""
         # Setup
@@ -317,7 +424,7 @@ class TestGetMap:
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
-        mock_search.return_value = None  # None response
+        mock_find_an_area.return_value = mock_find_an_area_no_results
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -325,7 +432,7 @@ class TestGetMap:
         result = get_map(mock_request, mock_session, mock_redis)
 
         # Assert
-        mock_search.assert_called_once_with(search_query)
+        mock_find_an_area.assert_called_once_with(search_query)
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -339,18 +446,19 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
-    @patch("application.routers.map_.search")
+    @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_whitespace_search_query(
         self,
         mock_templates,
-        mock_search,
+        mock_find_an_area,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -358,6 +466,7 @@ class TestGetMap:
         mock_redis,
         mock_geography_datasets,
         mock_settings,
+        mock_find_an_area_no_results,
     ):
         """Test get_map with search query that has whitespace"""
         # Setup
@@ -365,7 +474,12 @@ class TestGetMap:
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
-        mock_search.return_value = []
+        mock_find_an_area.return_value = {
+            "type": "postcode",
+            "query": "SW1A 1AA",
+            "result": None,
+            "geometry": None,
+        }
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -373,7 +487,7 @@ class TestGetMap:
         result = get_map(mock_request, mock_session, mock_redis)
 
         # Assert
-        mock_search.assert_called_once_with("SW1A 1AA")  # Should be stripped
+        mock_find_an_area.assert_called_once_with("SW1A 1AA")  # Should be stripped
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -387,18 +501,19 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
-    @patch("application.routers.map_.search")
+    @patch("application.data_access.find_an_area_helpers.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_empty_search_query_after_strip(
         self,
         mock_templates,
-        mock_search,
+        mock_find_an_area,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -413,6 +528,7 @@ class TestGetMap:
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_find_an_area.return_value = mock_find_an_area_no_results
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -420,7 +536,7 @@ class TestGetMap:
         result = get_map(mock_request, mock_session, mock_redis)
 
         # Assert
-        mock_search.assert_not_called()  # Should not be called for empty query
+        mock_find_an_area.assert_not_called()  # Should not be called for empty query
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -429,6 +545,7 @@ class TestGetMap:
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "feedback_form_footer": True,
             },
         )
         assert result == mock_template_response

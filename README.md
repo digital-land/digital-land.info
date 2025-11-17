@@ -305,3 +305,9 @@ There are a set of workflows for continuous integration and running scans on the
 * Security Scan - runs both dynamic and static security audits in our code base. Can be triggered manually but is automatically ran once a week.
 * Load Test - runs performance based testing for the application. As it's performance it needs to be ran against a live version of the service in staging or production hence it asks for a url to use.
 * Deploy Smoke Test - experimental action to deploy unique canaries in AWS to monitor the site.
+
+## Updating list of datasets that have full coverage
+
+To update the list of datasets with full coverage, add the dataset ID to the [config/dataset_coverage.yml](/config/dataset_coverage.yml) file.
+
+Note: Please ensure the list is in alphabetical order.

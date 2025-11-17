@@ -1,0 +1,11 @@
+<div class="govuk-warning-text" id="dl-data-coverage-banner">
+  <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+  <strong class="govuk-warning-text__text">
+    <span class="govuk-visually-hidden">Warning</span>
+    {% if dataset["name"] == "Planning application" %}
+      The {{ dataset["name"]|lower }} dataset is incomplete and is not yet ready for use. You can <a class="govuk-link" href="https://design.planning.data.gov.uk/project/planning-applications" rel="noopener noreferrer">contribute to its development</a>.
+    {% else %}
+      The data may be incomplete and not yet cover all of England. We're working to improve its availability and quality.
+    {% endif %}
+  </strong>
+</div>

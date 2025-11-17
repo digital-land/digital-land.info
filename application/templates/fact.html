@@ -8,7 +8,11 @@
 {%- from "components/data-table/macro.jinja" import dlDataTableWrapper %}
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 
-{%- block pageTitle %}{{ row_name }} | {{ pipeline_name|capitalize }} | Planning Data{% endblock -%}
+{%- block pageTitle %}{{ row_name }} | {{ dataset.name }} | Planning Data{% endblock -%}
+
+{% block headStart %}
+  <meta name="robots" content="noindex">
+{% endblock headStart %}
 
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 {%- block breadcrumbs -%}

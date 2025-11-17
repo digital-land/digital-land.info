@@ -8,6 +8,39 @@
 
 {% block headStart %}
   <meta name="generated-date" content="{{ now }}"/>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": {{ dataset["plural"]|tojson }},
+      "description": {{ dataset["text"]|default('')|render_markdown|striptags|trim|tojson }},
+      "url": {{ ("https://planning.data.gov.uk/dataset/" ~ dataset["dataset"])|tojson }},
+      "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+      "isAccessibleForFree": true,
+      "creator": {
+        "@type": "Organization",
+        "name": "Ministry of Housing, Communities and Local Government",
+        "url": "https://www.gov.uk/government/organisations/ministry-of-housing-communities-local-government"
+      },
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "text/csv",
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.csv')|tojson}}
+        },
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.json')|tojson}}
+        }{% if dataset['typology'] == 'geography' %},
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/geo+json",
+          "contentUrl": {{ (data_file_url ~ '/dataset/' ~ dataset["dataset"] ~ '.geojson')|tojson}}
+        }{% endif %}
+      ]
+    }
+  </script>
 {% endblock headStart %}
 
 {%- block breadcrumbs -%}
@@ -18,11 +51,13 @@
 
 {% block content %}
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <span class="govuk-caption-xl">Dataset</span>
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <span class="govuk-caption-xl">Dataset</span>
       <h1 class="govuk-heading-xl">{{ dataset["name"] }}</h1>
-      {% include 'partials/data-coverage-banner.html' %}
+      {% if dataset_coverage_status != "full" %}
+        {% include 'partials/planning-application-banner.html' %}
+      {% endif %}
     </div>
   </div>
   <!-- /.govuk-grid-row -->
@@ -110,16 +145,16 @@
       {% endif %}
 
       {% if dataset.text %}
-        {{
-          rows.append([
+        {%- set rows = [
+          [
             {
               'html': '<b>Summary</b>'
             },
             {
               'html': dataset.text | render_markdown(govAttributes=True)
-            },
-          ]) or ''
-        }}
+            }
+          ]
+        ] + rows -%}
       {% endif %}
 
       {{

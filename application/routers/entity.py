@@ -28,6 +28,7 @@ from application.data_access.entity_queries import (
     fetchEntityFromReference,
 )
 from application.data_access.dataset_queries import get_dataset_names
+from application.data_access.find_an_area_helpers import find_an_area
 
 from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
@@ -206,6 +207,7 @@ def handle_entity_response(
             "dataset_fields": dataset_fields,
             "dataset": dataset,
             "organisation_entity": organisation_entity,
+            "feedback_form_footer": True,
         },
     )
 
@@ -342,6 +344,29 @@ def search_entities(
     dataset_names = get_dataset_names(session)
     typology_names = get_typology_names(session)
 
+    # Find an area - Postcode / UPRN search
+    query = query_params.get("q")
+    if not query or not query.strip():
+        find_an_area_result = None
+    else:
+        find_an_area_result = find_an_area(query)
+
+    find_an_area_latitude = None
+    find_an_area_longitude = None
+
+    if find_an_area_result and find_an_area_result.get("result", {}):
+        result_data = find_an_area_result.get("result", {})
+        find_an_area_latitude = result_data.get("LAT")
+        find_an_area_longitude = result_data.get("LNG")
+
+    if find_an_area_latitude and find_an_area_longitude:
+        query_params.update(
+            {
+                "latitude": find_an_area_latitude,
+                "longitude": find_an_area_longitude,
+            }
+        )
+
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
     validate_typologies(query_params.get("typology", None), typology_names)
@@ -414,6 +439,14 @@ def search_entities(
         next_url = None
     # default is HTML
     has_geographies = any((e.typology == "geography" for e in data["entities"]))
+    # add dataset name
+    dataset_name_lookup = {d["dataset"]: d["name"] for d in datasets}
+    for entity in data["entities"]:
+        ref_name = entity.dataset
+        if ref_name and ref_name in dataset_name_lookup:
+            entity.dataset_name = dataset_name_lookup[ref_name]
+        else:
+            entity.dataset_name = ref_name
     return templates.TemplateResponse(
         "search.html",
         {
@@ -443,6 +476,8 @@ def search_entities(
             "next_url": next_url,
             "prev_url": prev_url,
             "has_geographies": has_geographies,
+            "find_an_area_result": find_an_area_result,
+            "feedback_form_footer": True,
         },
     )
 

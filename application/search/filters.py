@@ -18,7 +18,6 @@ from application.search.enum import (
 )
 from application.search.custom_data_types import FormInt
 from application.search.validators import (
-    validate_dataset_name,
     validate_day_integer,
     validate_month_integer,
     validate_year_integer,
@@ -28,10 +27,19 @@ from application.search.validators import (
 
 @dataclass
 class DatasetQueryFilters:
-    dataset: str = Query(None)
-
-    _validate_dataset_name = validator("dataset", allow_reuse=True)(
-        validate_dataset_name
+    dataset: Optional[List[str]] = Query(
+        None, description="Search for datasets by dataset"
+    )
+    field: Optional[List[str]] = Query(
+        None, description="Fields to include in dataset JSON response"
+    )
+    exclude_field: Optional[List[str]] = Query(
+        None,
+        description="Fields to exclude from the dataset JSON response",
+    )
+    include_typologies: bool = Query(
+        True,
+        description="Include typologies in dataset JSON response; set to false to remove",
     )
 
 
@@ -195,6 +203,12 @@ class QueryFilters:
     geometry_relation: Optional[GeometryRelation] = Query(
         None, description="DE-9IM spatial relationship, default is 'within'"
     )
+    q: Optional[str] = Query(
+        None,
+        description="""
+        Search by a postcode, or a Unique Property Reference Number (UPRN).
+        """,
+    )
 
     # pagination filters
     limit: Optional[int] = Query(
@@ -217,7 +231,6 @@ class QueryFilters:
         None,
         description="field parameter will take over any fields specified in the exclude_field parameter",
     )
-
     # validators
     _validate_entry_date_year = validator("entry_date_year", allow_reuse=True)(
         validate_year_integer

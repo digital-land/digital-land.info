@@ -30,8 +30,20 @@ class FindAnAreaForm {
       // Build final query string
       const queryString = params.toString();
 
+      this.sendAnalyticsEvent('search_term', {
+        'event_category': 'Search',
+        'event_label': 'Find an area form',
+        'value': input.value
+      });
+
       // Redirect with merged query parameters
       window.location.href = `${url.pathname}?${queryString}`;
     }.bind(this));
+  }
+
+  sendAnalyticsEvent(action, params) {
+    if (window.gtag) {
+      window.gtag('event', action, params);
+    }
   }
 }

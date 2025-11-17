@@ -2,6 +2,7 @@ import logging
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+import yaml
 from application.db.session import redis_cache, DbSession
 
 from application.core.models import (
@@ -47,6 +48,10 @@ def get_dataset_query(session: Session, dataset) -> DatasetModel:
     if dataset is not None:
         return DatasetModel.from_orm(dataset)
     return None
+
+
+def get_dataset_filter_fields(dataset: DatasetModel, fields: List[str]):
+    return dataset.dict(include=set(fields))
 
 
 def get_datasets_with_data_by_typology(
@@ -130,3 +135,12 @@ def get_latest_resource(session: Session, dataset) -> DatasetCollectionModel:
         return DatasetCollectionModel.from_orm(result)
     else:
         return None
+
+def get_dataset_coverage_status(dataset: str) -> bool:
+    with open("config/dataset_coverage.yml", "r") as file:
+        coverage_data = yaml.safe_load(file)
+
+    coverage_datasets = coverage_data.get("datasets_with_full_coverage", [])
+    full_coverage = dataset in coverage_datasets
+
+    return "full" if full_coverage else "partial"

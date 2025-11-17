@@ -71,10 +71,23 @@
   </div>
   {% endfor %}
 
+  <div class="dl-list-filter__no-filter-match js-hidden">
+		<p class="govuk-body">No dataset matches <span class="js-search-term-display"></span>.</p>
+		<p class="govuk-body">
+			Check <a href="https://design.planning.data.gov.uk/what-we-are-working-on">our current priorities</a> to see if
+			this data is being prepared for the platform.
+		</p>
+		<p class="govuk-body">
+			If it's not there, you can <a
+				href="https://design.planning.data.gov.uk/get-involved-in-designing-data">contribute to our data design
+				process</a> to help prioritise it.
+		</p>
+	</div>
+
   <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
   <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="download-the-data">
     Download the data
   </h2>
-  <p class="govuk-hint govuk-!-font-size-14">You can take a copy of this data as <a class="govuk-link" href="{{ data_file_url }}/organisation-collection/dataset/organisation.csv">CSV</a>.</p>
+  <p class="govuk-hint govuk-!-font-size-14">You can take a copy of this data as <a class="govuk-link" href="{{ data_file_url }}/organisation-collection/dataset/organisation.csv">CSV</a> and <a class="govuk-link" href="/organisation.json">JSON</a>.</p>
 {% endblock %}

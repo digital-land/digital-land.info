@@ -113,13 +113,9 @@ javascripts:
 	npm run build
 	rsync -r assets/javascripts static/
 
-robots:
-	cp assets/robots.txt static/robots.txt
-
 frontend:
 	npm i
 	make javascripts
-	make robots
 	make stylesheets
 	make govukAssets
 	rsync -r assets/images static/
