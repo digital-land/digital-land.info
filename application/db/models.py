@@ -31,6 +31,7 @@ class EntityOrm(Base):
     typology = Column(Text, nullable=True)
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True)
     point = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    quality = Column(Text, nullable=True)
     # conside removing the geojson column as it's just empty right now
     geojson_col = Column(JSONB, name="geojson", nullable=True)
     _geometry_geojson = column_property(func.ST_AsGeoJSON(geometry))

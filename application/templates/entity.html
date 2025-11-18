@@ -83,7 +83,7 @@
           </thead>
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
-              {% if field != 'entity'%}
+              {% if field is not in ['entity','quality'] %}
               {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
               <tr class="govuk-table__row">
                 <th scope="row" class="app-table__header app-table__header--row">
