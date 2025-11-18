@@ -19,7 +19,7 @@ server: export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 endif
 
 init::
-	python -m pip install "pip<=25.2" --force-reinstall
+# 	python -m pip install "pip<=25.2" --force-reinstall
 	python -m pip install pip-tools
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 	python -m pre_commit install
