@@ -1,4 +1,4 @@
-"""Modue to test that the quality parameter is working as expected"""
+"""Module to test that the quality parameter is working as expected"""
 
 import pytest
 from application.db.models import EntityOrm
@@ -46,8 +46,7 @@ mock_entities = [
 )
 def test_quality_filters_rows(client, db_session, quality, expected_count):
     """
-    Test that only the correct fields are returned from an entity request which doesn't use the field parameters
-    this can be changed but may affect users so should be deliberate
+    Test that the quality parameter correctly filters entities by quality value.
     """
     # add an entity with the correct_curie
     for entity in mock_entities:
