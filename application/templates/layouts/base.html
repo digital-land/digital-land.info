@@ -68,6 +68,9 @@
   {% block bodyScripts %}
     <script type="module">
       import {showCookieBannerIfNotSetAndSetTrackingCookies, cookiePrefs} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
+      // Expose module symbols globally to allow inline `onclick` handlers to use them
+      window.cookiePrefs = cookiePrefs;
+      window.showCookieBannerIfNotSetAndSetTrackingCookies = showCookieBannerIfNotSetAndSetTrackingCookies;
       showCookieBannerIfNotSetAndSetTrackingCookies();
       cookiePrefs.get();
     </script>
