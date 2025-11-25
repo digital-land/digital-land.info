@@ -28,7 +28,7 @@
           <div class="app-results-summary">
             <h2 class="app-results-summary__title">{{ facts|length|commanum }} result{{ "" if facts|length == 1 else "s" }}</h2>
             {% macro removeFilterButton(params) %}
-              <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
+              <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" aria-label="Remove filter for {{ params.filter.name }}">
                 <span class="app-facet-tag__icon" aria-hidden="true">
                   <svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
