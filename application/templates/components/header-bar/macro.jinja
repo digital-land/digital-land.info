@@ -35,8 +35,8 @@
   <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}}">
     <div class="govuk-service-navigation__container">
       <span class="govuk-service-navigation__service-name">
-        <a href="/" class="govuk-service-navigation__link">
-          Planning and housing data in England
+        <a href="{{ params.site_url|default('/') }}" class="govuk-service-navigation__link">
+          {{ params.serviceName|default('Planning and housing data in England') }}
         </a>
       </span>
       {% if _navitems | length > 0 %}
