@@ -1,13 +1,15 @@
 {% from "components/phase-banner/macro.jinja" import dlPhaseBanner %}
 
-{{
-  dlPhaseBanner({
-    'phase': 'Beta',
-    'html': 'This is a new service - your <a href="https://forms.office.com/e/3tJn8Szq4U" target="_blank" rel="noopener noreferrer" class="govuk-link">feedback</a> will help us to improve it.',
-    'classes': ('govuk-width-container' if not fullWidthHeader else 'govuk-width-container dl-container--full-width') + (' app-phase-banner--inverse' if phaseBannerInverse else ''),
-    'tagClasses': 'app-tag--inverse' if phaseBannerInverse else '',
-    'attributes': {
-      'style': 'border-bottom: 0px' if hideBannerBorder else '' + '' if not fullWidthHeader else 'padding: 10px 0;'
-    }
-  })
-}}
+<div role="region" aria-label="Phase banner">
+  {{
+    dlPhaseBanner({
+      'phase': 'Beta',
+      'html': 'This is a new service - your <a href="https://forms.office.com/e/3tJn8Szq4U" target="_blank" rel="noopener noreferrer" class="govuk-link">feedback</a> will help us to improve it.',
+      'classes': ('govuk-width-container' if not fullWidthHeader else 'govuk-width-container dl-container--full-width') + (' app-phase-banner--inverse' if phaseBannerInverse else ''),
+      'tagClasses': 'app-tag--inverse' if phaseBannerInverse else '',
+      'attributes': {
+        'style': 'border-bottom: 0px' if hideBannerBorder else '' + '' if not fullWidthHeader else 'padding: 10px 0;'
+      }
+    })
+  }}
+</div>
