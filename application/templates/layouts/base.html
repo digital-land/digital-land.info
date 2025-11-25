@@ -1,20 +1,19 @@
-{%- set govukRebrand = true %}
 {% extends "govuk_frontend_jinja/template.html" %}
 
 {%- block pageTitle %}Planning data you can find, use and trust{% endblock -%}
 
 {% block headIcons %}
-  <link rel="icon" type="image/svg+xml" href="{{ cacheBust((assetPath | default('/assets')) + '/images/favicon.svg') }}">
-  <link rel="shortcut icon" href="{{ cacheBust((assetPath | default('/assets')) + '/images/favicon.ico') }}" type="image/x-icon">
-  <link rel="mask-icon" href="{{ cacheBust((assetPath | default('/assets')) + '/images/govuk-icon-mask.svg') }}" color="#0b0c0c">
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ cacheBust((assetPath | default('/assets')) + '/images/govuk-icon-180.png') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ cacheBust((assetPath | default('/assets')) + '/govuk/assets/rebrand/images/favicon.svg') }}">
+  <link rel="shortcut icon" href="{{ cacheBust((assetPath | default('/assets')) + '/govuk/assets/rebrand/images/favicon.ico') }}" type="image/x-icon">
+  <link rel="mask-icon" href="{{ cacheBust((assetPath | default('/assets')) + '/govuk/assets/rebrand/images/govuk-icon-mask.svg') }}" color="{{'#1d70b8' if govukRebrand else '#0b0c0c'}}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ cacheBust((assetPath | default('/assets')) + '/govuk/assets/rebrand/images/govuk-icon-180.png') }}">
   <link rel="apple-touch-icon" sizes="167x167" href="{{ cacheBust((assetPath | default('/assets')) + '/images/govuk-icon-167.png') }}">
   <link rel="apple-touch-icon" sizes="152x152" href="{{ cacheBust((assetPath | default('/assets')) + '/images/govuk-icon-152.png') }}">
   <link rel="apple-touch-icon" href="{{ cacheBust((assetPath | default('/assets')) + '/images/govuk-icon-128.png') }}">
   <link rel="manifest" href="{{ cacheBust((assetPath | default('/assets')) + '/images/site.webmanifest') }}">
-  <meta name="msapplication-TileColor" content="#0b0c0c">
+  <meta name="msapplication-TileColor" content="{{'#1d70b8' if govukRebrand else '#0b0c0c'}}">
   <meta name="msapplication-config" content="{{ cacheBust((assetPath | default('/assets')) + '/images/browserconfig.xml') }}">
-  <meta name="theme-color" content="#0b0c0c">
+  <meta name="theme-color" content="{{'#1d70b8' if govukRebrand else '#0b0c0c'}}">
   {% if opengraph_image %}<meta property="og:image" content="{{ cacheBust((assetPath | default('/assets')) + '/images/opengraph.png') }}">{% endif %}
 {% endblock %}
 
@@ -50,11 +49,17 @@
           {% include 'partials/phase-banner.html' %}
         {% endif %}
     {% endblock mastHead %}
+
+
 {% endblock header %}
 
 {% block beforeContent %}
 	{% block breadcrumbs %}{% endblock breadcrumbs %}
 {% endblock beforeContent %}
+
+{% block bodyStart %}
+  <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
+{% endblock bodyStart %}
 
 {% block footer %}
 	{% block footerStart %}{% endblock footerStart %}
