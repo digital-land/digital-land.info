@@ -99,10 +99,11 @@
     {% endblock libraryScripts %}
 
     {% block govScripts %}
-        <script src="{{ assetPath | default('/assets') }}/govuk/all.bundle.js"></script>
-        <script>
-        // initiate all GOVUK components
-        window.GOVUKFrontend.initAll();
+        <script type="module" src="{{ assetPath | default('/static') }}/govuk/govuk-frontend.min.js"></script>
+        <script type="module">
+          // initiate all GOVUK components
+          import { initAll } from "{{ assetPath | default('/static') }}/govuk/govuk-frontend.min.js"
+          initAll()
         </script>
         <script type="module" async>
           import {ListFilter} from "{{ assetPath | default('/assets') }}/javascripts/ListFilter.js";
