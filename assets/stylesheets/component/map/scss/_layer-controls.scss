@@ -18,6 +18,7 @@ $govuk-checkboxes-size: 40px;
   .govuk-checkboxes__input {
     right: -10px;
     left: unset;
+    position: absolute;
   }
 
   .govuk-checkboxes__label {

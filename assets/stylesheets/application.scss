@@ -1,11 +1,11 @@
 // Override the govuk-frontend font stack
-$govuk-font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
+//$govuk-font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
 $govuk-assets-path: "/static/govuk/assets/";
 $govuk-new-link-styles: true;
 $govuk-link-underline-offset: .2em;
 
 // import all govuk frontend scss
-@import "govuk-frontend/govuk/all";
+@import "govuk-frontend/dist/govuk/all";
 
 // planning.data.gov.uk specific styles
 // --------------------------------------------------------
