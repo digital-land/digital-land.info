@@ -5,11 +5,13 @@
 <header class="govuk-header dl-header{{ ' ' + params.classes if params.classes }}" role="banner" data-module="govuk-header">
   <div class="govuk-header__container {{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container' }}">
     <div class="govuk-header__logo">
-      <a href="{{ params.site_url|default('/') }}" class="govuk-header__link govuk-header__link--homepage">
+      <a href="{{ params.site_url|default('/') }}" class="govuk-header__link govuk-header__link--homepage" aria-label="{{ params.serviceName|default('Planning and housing data in England') }}">
         {{ govukLogo({
           'classes': 'govuk-header__logotype',
           'rebrand': govukRebrand})
         }}
+        {# Provide accessible link text for screen readers #}
+        <span class="govuk-visually-hidden">{{ params.serviceName|default('Planning and housing data in England') }}</span>
       </a>
     </div>
   </div>
