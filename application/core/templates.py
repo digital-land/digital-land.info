@@ -61,6 +61,10 @@ templates.env.globals["templateVar"] = {"email": "digitalland@communities.gov.uk
 templates.env.globals["serviceStatus"] = False
 templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
 templates.env.globals["smartLookId"] = settings.SMARTLOOK_ID
+# Set a global `govukRebrand` variable to allow the
+# class `govuk-template--rebranded` being added to the base template
+# ensuring Govuk Rebrand is applied
+templates.env.globals["govukRebrand"] = True
 templates.env.globals["get_os_oauth2_token"] = get_os_oauth2_token
 templates.env.globals["cacheBust"] = cacheBust
 templates.env.filters["is_list"] = is_list_filter

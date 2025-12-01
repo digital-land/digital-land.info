@@ -162,7 +162,7 @@
     <h1 class="govuk-heading-xl">Documentation</h1>
 
     <h2 class="govuk-heading-m">Downloading the data</h2>
-    <p class="govuk-body">You can download datasets in bulk in various formats from each <a href="/dataset">dataset page</a>.</p>
+    <p class="govuk-body">You can download datasets in bulk in various formats from each <a href="/dataset" class="govuk-link">dataset page</a>.</p>
     <p class="govuk-body">Downloads are available as CSV, JSON and where applicable as GeoJSON.</p>
 
     <h2 class="govuk-heading-m">Getting the data through the API</h2>
@@ -174,8 +174,8 @@
 
     <p class="govuk-body">Contents:</p>
     <ul class="govuk-list govuk-list--bullet" aria-label="Contents">
-      <li><a href="#api">Planning data API</a></li>
-      <li><a href="#openapi">Planning data OpenAPI</a></li>
+      <li><a href="#api" class="govuk-link">Planning data API</a></li>
+      <li><a href="#openapi" class="govuk-link">Planning data OpenAPI</a></li>
     </ul>
 
     <hr class="govuk-section-break govuk-section-break--l">
@@ -184,7 +184,7 @@
 </div>
 
 <div class="govuk-grid-row">
-  <div class="">
+  <div class="govuk-grid-column-full">
 
     <h2 class="govuk-heading-l" id="api">Planning Data API</h2>
 
@@ -209,7 +209,7 @@
     <section aria-label="Planning data openAPI">
       <h2 class="govuk-heading-l" id="openapi">Planning Data OpenAPI</h2>
 
-      <p class="govuk-body">You can generate a client library from our OpenAPI file using <a href="https://editor.swagger.io/?url=https://www.planning.data.gov.uk/openapi.json">Swagger Editor</a>.</p>
+      <p class="govuk-body">You can generate a client library from our OpenAPI file using <a class="govuk-link" href="https://editor.swagger.io/?url=https://www.planning.data.gov.uk/openapi.json">Swagger Editor</a>.</p>
       <p class="govuk-body">This may be an easier way for you to integrate your service with the planning data platform than writing a client library from scratch.</p>
 
       {% call appSummaryCard({
@@ -235,7 +235,7 @@
                 'html': govukTag({ 'text': 'GET', 'classes': 'govuk-tag--green'})
               },
               {
-                'html': '<span class="app-code-block"><a href="https://www.planning.data.gov.uk/openapi.json">https://www.planning.data.gov.uk/openapi.json</a></span>'
+                'html': '<span class="app-code-block"><a class="govuk-link" href="https://www.planning.data.gov.uk/openapi.json">https://www.planning.data.gov.uk/openapi.json</a></span>'
               }
             ]
           ]
