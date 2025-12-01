@@ -4,7 +4,7 @@
 
     {%  set e = entity.dict(by_alias=True) %}
     {% set propertiesArr = [
-            { "key": "Dataset", "value": e.get("dataset_name", e["dataset"]) },
+            { "key": "Dataset", "value": e["dataset"] },
             { "key": "Reference", "value": e["reference"] },
         ]
     %}
@@ -55,7 +55,10 @@
                     {% if property.key == "Dataset" %}
                         <dt class="govuk-summary-list__key">{{ property.key }}</dt>
                         <dd class="govuk-summary-list__value">
-                        {%  if property.value %}<a class="govuk-link" href="/dataset/{{ property.value }}">{{ property.value }}</a> {%  endif %}
+                            {% set dataset_label = e.get("dataset_name", property.value|replace("-", " ")|capitalize) %}
+                            {%  if property.value %}
+                                <a class="govuk-link" href="/dataset/{{ property.value }}">{{ dataset_label }}</a> 
+                            {%  endif %}
                         </dd>
                     {% elif property.key == "Reference" %}
                         <dt class="govuk-summary-list__key">{{ property.key }}</dt>
