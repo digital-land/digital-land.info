@@ -47,11 +47,22 @@ export function getCookie (name) {
 }
 
 export function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
+  let cookiesAccepted = true
   setCookie('cookies_preferences_set', true, 365)
   setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
   hideCookieBanner()
-  showCookieConfirmation()
+  // explicitly show acceptance confirmation
+  showCookieConfirmation(cookiesAccepted)
   setTrackingCookies()
+}
+
+export function rejectCookies (cookiePrefs = { essential: true, settings: false, usage: false, campaigns: false }) { // eslint-disable-line no-unused-vars
+  let cookiesAccepted = false
+  setCookie('cookies_preferences_set', true, 365)
+  setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
+  hideCookieBanner()
+  // explicitly show rejection confirmation
+  showCookieConfirmation(cookiesAccepted)
 }
 
 export function hideCookieBanner () {
@@ -72,19 +83,33 @@ export function showCookieBanner () {
 
 export function hideCookieConfirmation () {
   hideCookieBanner ()
-  var cookieBanner = document.getElementById('cookie-confirmation')
-  if(cookieBanner){
-    cookieBanner.style.display = 'none'
-    cookieBanner.ariaHidden = true
+
+  let acceptBanner = document.getElementById('cookie-confirmation-accept-banner')
+  let rejectBanner = document.getElementById('cookie-confirmation-reject-banner')
+
+  const updateBanner = (el) => {
+    if (!el) return
+    el.style.display = 'none'
+    el.ariaHidden = true
   }
+
+  updateBanner(acceptBanner)
+  updateBanner(rejectBanner)
 }
 
-export function showCookieConfirmation () {
-  var cookieBanner = document.getElementById('cookie-confirmation')
-  if(cookieBanner){
-    cookieBanner.style.display = 'block'
-    cookieBanner.ariaHidden = false
+export function showCookieConfirmation (cookiesAccepted) {
+  const acceptBanner = document.getElementById('cookie-confirmation-accept-banner')
+  const rejectBanner = document.getElementById('cookie-confirmation-reject-banner')
+
+  const updateBanner = (el, show) => {
+    // If the element doesn't exist, return
+    if (!el) return
+    el.style.display = show ? 'block' : 'none'
+    el.ariaHidden = !show
   }
+
+  updateBanner(acceptBanner, cookiesAccepted)
+  updateBanner(rejectBanner, !cookiesAccepted)
 }
 
 export function setTrackingCookies () {
