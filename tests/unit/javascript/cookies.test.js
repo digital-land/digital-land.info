@@ -75,6 +75,11 @@ describe('cookies.js', () => {
 
     beforeEach(() => {
         documentCookieMock.cookie = null;
+        delete window.dataLayer;
+        delete window.gtag;
+        delete window.smartlook;
+        delete window.smartlookId;
+        delete window.gaMeasurementId;
     });
 
     test('setCookie', () => {
@@ -145,6 +150,15 @@ describe('cookies.js', () => {
             window.gaMeasurementId = fakeMeasurementId;
             setTrackingCookies();
             expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(true);
+        })
+
+        test('disables ga when \'Reject analytics cookies\' is choosen, even if usage allowed', () => {
+            let fakeMeasurementId = '5678';
+            window.gaMeasurementId = fakeMeasurementId;
+            setCookie('cookies_policy', JSON.stringify({usage: true}));
+            setTrackingCookies(false);
+            expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(true);
+            expect(window.gtag).toBeUndefined();
         })
 
         test('sets up ga when cookie tracking policy is set and we have a measurement id', () => {

@@ -77,6 +77,7 @@ export function rejectCookies (cookiePrefs = { essential: true, settings: false,
   hideCookieBanner()
   // explicitly show rejection confirmation
   showCookieConfirmation(cookiesAccepted)
+  setTrackingCookies(false)
 }
 
 export function hideCookieBanner () {
@@ -136,28 +137,44 @@ export function showCookieConfirmation (cookiesAccepted = true) {
   updateBanner(rejectBanner, !cookiesAccepted)
 }
 
-export function setTrackingCookies () {
-  var cookiesPolicy = JSON.parse(getCookie('cookies_policy'))
-  var doNotTrack = cookiesPolicy == null || !cookiesPolicy.usage
-  if (doNotTrack) {
-    if(window.gaMeasurementId){
-      window[`ga-disable-${window.gaMeasurementId}`] = true;
-    }
-  } else {
-    if(window.gaMeasurementId){
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function(){dataLayer.push(arguments);}
-      window.gtag('js', new Date());
-      window.gtag('config', window.gaMeasurementId);
-      window[`ga-disable-${window.gaMeasurementId}`] = false;
-    } else {
-      console.warn('Google Analytics: No measurement ID specified');
-    }
+/**
+ * Enables or disables third-party tracking based on preference data.
+ * @param {boolean} shouldTrack - When false, disables analytics regardless of cookie values.
+ */
+export function setTrackingCookies (shouldTrack = true) {
+  let cookiesPolicy = null
+  const rawPolicy = getCookie('cookies_policy')
 
-    /* Smartlook */
-    if (window.smartlookId && window.smartlookId !== 'None') {
-      initialiseSmartlook();
+  if (rawPolicy) {
+    try {
+      cookiesPolicy = JSON.parse(rawPolicy)
+    } catch (error) {
+      console.warn('Cookies policy cookie could not be parsed', error)
     }
+  }
+
+  const usageAllowed = shouldTrack && cookiesPolicy && cookiesPolicy.usage
+
+  if (!usageAllowed) {
+    if (window.gaMeasurementId) {
+      window[`ga-disable-${window.gaMeasurementId}`] = true
+    }
+    return
+  }
+
+  if(window.gaMeasurementId){
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){dataLayer.push(arguments);}
+    window.gtag('js', new Date());
+    window.gtag('config', window.gaMeasurementId);
+    window[`ga-disable-${window.gaMeasurementId}`] = false;
+  } else {
+    console.warn('Google Analytics: No measurement ID specified');
+  }
+
+  /* Smartlook */
+  if (window.smartlookId && window.smartlookId !== 'None') {
+    initialiseSmartlook();
   }
 }
 
