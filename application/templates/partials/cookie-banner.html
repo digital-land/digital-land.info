@@ -1,9 +1,10 @@
 {% from 'govuk_frontend_jinja/components/cookie-banner/macro.html' import govukCookieBanner %}
 
 <script type="module">
-  import {acceptCookies, hideCookieBanner, hideCookieConfirmation} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
+  import {acceptCookies, rejectCookies, hideCookieBanner, hideCookieConfirmation} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
 
   window.acceptCookies = acceptCookies;
+  window.rejectCookies = rejectCookies;
   window.hideCookieBanner = hideCookieBanner;
   window.hideCookieConfirmation = hideCookieConfirmation
 </script>
@@ -14,71 +15,101 @@
 {% endset %}
 
 {% set acceptHtml %}
-  <p class="govuk-notification-banner__heading">
-    You have accepted additional cookies. You can <a class="govuk-notification-banner__link" href="/cookies">change your cookie settings</a> at any time.
+  <p class="govuk-body">
+    You have accepted additional cookies. You can <a class="govuk-link" href="/cookies">change your cookie settings</a> at any time.
+  </p>
+{% endset %}
+
+{%- set rejectHtml %}
+  <p class="govuk-body">
+    You have rejected additional cookies. You can <a class="govuk-link" href="/cookies">change your cookie settings</a> at any time.
   </p>
 {% endset %}
 
 {{ govukCookieBanner({
-    "ariaLabel": "Cookies on planning.data.gov.uk",
-    "attributes": {
-      "id": "cookie-banner",
-      "aria-label":'Cookies on planning.data.gov.uk',
-      "style": 'display: none',
-      "aria-hidden": 'true',
-    },
-    "messages": [
-      {
-        'headingText': "Cookies on planning.data.gov.uk",
-        'html': html,
-        'actions': [
-          {
-            'text': "Accept analytics cookies",
-            'type': "button",
-            'name': "cookies",
-            'value': "accept",
-            'attributes': {
-              'onclick': 'acceptCookies({ essential: true, settings: false, usage: true, campaigns: false });',
-            }
-          },
-          {
-            'text': "Reject analytics cookies",
-            'type': "button",
-            'name': "cookies",
-            'value': "reject",
-            'attributes': {
-              'onclick': 'acceptCookies({ essential: true, settings: false, usage: false, campaigns: false });',
-            }
-          },
-          {
-            'text': "Customise cookie preferences",
-            'href': "/cookies"
-          }
-        ]
-      }
-    ]
-  }) }}
-
-  {{ govukCookieBanner({
-    'ariaLabel': "Cookies on planning.data.gov.uk",
-    'attributes': {
-      'id': 'cookie-confirmation',
-      'style': 'display: none',
-      'aria-hidden': 'true',
-    },
-    'messages': [
-      {
-        'html': acceptHtml,
-        'actions': [
+  'ariaLabel': "Cookies on planning.data.gov.uk",
+  'attributes': {
+    'id': 'cookie-banner',
+    'aria-label':'Cookies on planning.data.gov.uk',
+    'style': 'display: none',
+    'aria-hidden': 'true',
+  },
+  'messages': [
+    {
+      'headingText': 'Cookies on planning.data.gov.uk',
+      'html': html,
+      'actions': [
         {
-          'text': "Hide cookie message",
-          'href': "#",
-          'type': "button",
+          'text': 'Accept analytics cookies',
+          'type': 'button',
+          'name': 'cookies',
+          'value': 'accept',
+          'attributes': {
+            'onclick': 'acceptCookies({ essential: true, settings: false, usage: true, campaigns: false });',
+          }
+        },
+        {
+          'text': 'Reject analytics cookies',
+          'type': 'button',
+          'name': 'cookies',
+          'value': 'reject',
+          'attributes': {
+            'onclick': 'rejectCookies({ essential: true, settings: false, usage: false, campaigns: false });',
+          }
+        },
+        {
+          'text': 'Customise cookie preferences',
+          'href': '/cookies'
+        }
+      ]
+    }
+  ]
+}) }}
+
+{{ govukCookieBanner({
+  'ariaLabel': 'Cookies on planning.data.gov.uk',
+  'attributes': {
+    'id': 'cookie-confirmation-accept-banner',
+    'style': 'display: none',
+    'aria-hidden': 'true',
+  },
+  'messages': [
+    {
+      'html': acceptHtml,
+      'actions': [
+        {
+          'text': 'Hide cookie message',
+          'href': '#',
+          'type': 'button',
           'attributes': {
             'onclick': 'hideCookieConfirmation();'
           }
         }
-        ]
-      }
-    ]
-  }) }}
+      ]
+    }
+  ]
+}) }}
+
+{{ govukCookieBanner({
+  'ariaLabel': 'Cookies on planning.data.gov.uk',
+  'attributes': {
+    'id': 'cookie-confirmation-reject-banner',
+    'style': 'display: none',
+    'aria-hidden': 'true',
+  },
+  'messages': [
+    {
+      'html': rejectHtml,
+      'actions': [
+        {
+          'text': 'Hide cookie message',
+          'href': '#',
+          'type': 'button',
+          'attributes': {
+            'onclick': 'hideCookieConfirmation();'
+          }
+        }
+      ]
+    }
+  ]
+}) }}

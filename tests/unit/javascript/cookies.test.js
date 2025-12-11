@@ -27,7 +27,14 @@ describe('cookies.js', () => {
         ariaHidden: true
     }
 
-    let cookieConfirmationMock = {
+    let cookieConfirmationAcceptMock = {
+        style: {
+            display: 'none'
+        },
+        ariaHidden: true
+    }
+
+    let cookieConfirmationRejectMock = {
         style: {
             display: 'none'
         },
@@ -37,10 +44,12 @@ describe('cookies.js', () => {
     let documentCookieMock = {
         cookie: null,
         getElementById: (id) => {
-            if(id == 'cookie-banner')
-                return cookieBannerMock;
-            if(id == 'cookie-confirmation')
-                return cookieConfirmationMock;
+                if(id == 'cookie-banner')
+                    return cookieBannerMock;
+                if(id == 'cookie-confirmation-accept-banner')
+                    return cookieConfirmationAcceptMock;
+                if(id == 'cookie-confirmation-reject-banner')
+                    return cookieConfirmationRejectMock;
         }
     };
     Object.defineProperty(documentCookieMock, 'cookie', {
@@ -115,15 +124,19 @@ describe('cookies.js', () => {
     })
 
     test('showCookieConfirmation', () => {
-        showCookieConfirmation();
-        expect(cookieConfirmationMock.style.display).toBe('block')
-        expect(cookieConfirmationMock.ariaHidden).toBe(false)
+        // explicitly show the accept confirmation banner
+        showCookieConfirmation(true);
+        expect(cookieConfirmationAcceptMock.style.display).toBe('block')
+        expect(cookieConfirmationAcceptMock.ariaHidden).toBe(false)
     })
 
     test('hideCookieConfirmation', () => {
         hideCookieConfirmation();
-        expect(cookieConfirmationMock.style.display).toBe('none')
-        expect(cookieConfirmationMock.ariaHidden).toBe(true)
+        // both accept and reject banners should be hidden
+        expect(cookieConfirmationAcceptMock.style.display).toBe('none')
+        expect(cookieConfirmationAcceptMock.ariaHidden).toBe(true)
+        expect(cookieConfirmationRejectMock.style.display).toBe('none')
+        expect(cookieConfirmationRejectMock.ariaHidden).toBe(true)
     })
 
     describe('setTrackingCookies', () => {
