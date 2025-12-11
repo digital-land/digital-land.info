@@ -46,6 +46,13 @@ export function getCookie (name) {
   return null
 }
 
+/**
+ * Records the acceptance of additional analytical cookies,
+ * hides the banner, and enables tracking scripts.
+ *
+ * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * describing which categories of cookies are permitted.
+ */
 export function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
   let cookiesAccepted = true
   setCookie('cookies_preferences_set', true, 365)
@@ -56,6 +63,13 @@ export function acceptCookies (cookiePrefs = { essential: true, settings: true, 
   setTrackingCookies()
 }
 
+/**
+ * Records the rejection of additional analytical cookies,
+ * hides the banner, and keeps only essential cookies.
+ *
+ * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * describing which categories of cookies are permitted.
+ */
 export function rejectCookies (cookiePrefs = { essential: true, settings: false, usage: false, campaigns: false }) { // eslint-disable-line no-unused-vars
   let cookiesAccepted = false
   setCookie('cookies_preferences_set', true, 365)
@@ -81,6 +95,9 @@ export function showCookieBanner () {
   }
 }
 
+/**
+ * Hides cookies banner and any confirmation banners already rendered.
+ */
 export function hideCookieConfirmation () {
   hideCookieBanner ()
 
@@ -97,7 +114,14 @@ export function hideCookieConfirmation () {
   updateBanner(rejectBanner)
 }
 
-export function showCookieConfirmation (cookiesAccepted) {
+/**
+ * Shows the confirmation banner that corresponds to the user's
+ * latest choice.
+ *
+ * @param {boolean} cookiesAccepted - Indicates whether the user
+ * accepted (true) or rejected (false) additional cookies.
+ */
+export function showCookieConfirmation (cookiesAccepted = true) {
   const acceptBanner = document.getElementById('cookie-confirmation-accept-banner')
   const rejectBanner = document.getElementById('cookie-confirmation-reject-banner')
 
