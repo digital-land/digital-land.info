@@ -75,6 +75,7 @@ describe('cookies.js', () => {
 
     beforeEach(() => {
         documentCookieMock.cookie = null;
+        document.activeElement = null;
         delete window.dataLayer;
         delete window.gtag;
         delete window.smartlook;
@@ -128,6 +129,17 @@ describe('cookies.js', () => {
         expect(cookieBannerMock.ariaHidden).toBe(true)
     })
 
+    test('hideCookieBanner blurs focused element inside banner', () => {
+        const blurMock = vi.fn();
+        document.activeElement = {
+            blur: blurMock,
+            closest: vi.fn(() => cookieBannerMock)
+        };
+
+        hideCookieBanner();
+        expect(blurMock).toHaveBeenCalled();
+    })
+
     test('showCookieConfirmation', () => {
         // explicitly show the accept confirmation banner
         showCookieConfirmation(true);
@@ -142,6 +154,17 @@ describe('cookies.js', () => {
         expect(cookieConfirmationAcceptMock.ariaHidden).toBe(true)
         expect(cookieConfirmationRejectMock.style.display).toBe('none')
         expect(cookieConfirmationRejectMock.ariaHidden).toBe(true)
+    })
+
+    test('hideCookieConfirmation blurs focused element inside confirmation', () => {
+        const blurMock = vi.fn();
+        document.activeElement = {
+            blur: blurMock,
+            closest: vi.fn(() => ({}))
+        };
+
+        hideCookieConfirmation();
+        expect(blurMock).toHaveBeenCalled();
     })
 
     describe('setTrackingCookies', () => {

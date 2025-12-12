@@ -80,9 +80,26 @@ export function rejectCookies (cookiePrefs = { essential: true, settings: false,
   setTrackingCookies(false)
 }
 
+/**
+ * Releases focus if the currently active element lives within the provided
+ * selector.
+ *
+ * @param {string} selector - CSS selector used to determine whether the
+ * focused element needs blurring.
+ */
+function activeElementBlurRelease (selector) {
+  const activeElement = document.activeElement
+  const isInsideBanner = activeElement?.closest?.(selector)
+
+  if (isInsideBanner && typeof activeElement.blur === 'function') {
+    activeElement.blur()
+  }
+}
+
 export function hideCookieBanner () {
   var cookieBanner = document.getElementById('cookie-banner')
   if(cookieBanner){
+    activeElementBlurRelease('#cookie-banner')
     cookieBanner.style.display = 'none'
     cookieBanner.ariaHidden = true
   }
@@ -105,6 +122,7 @@ export function hideCookieConfirmation () {
   let acceptBanner = document.getElementById('cookie-confirmation-accept-banner')
   let rejectBanner = document.getElementById('cookie-confirmation-reject-banner')
 
+  activeElementBlurRelease('#cookie-confirmation-accept-banner, #cookie-confirmation-reject-banner')
   const updateBanner = (el) => {
     if (!el) return
     el.style.display = 'none'
