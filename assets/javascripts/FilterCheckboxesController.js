@@ -26,7 +26,7 @@ export default class FilterCheckboxesController{
         let searchValue = this.searchBox.value.toLowerCase();
         this.checkboxStrings.forEach((checkboxString, index) => {
             if(checkboxString.toLowerCase().indexOf(searchValue) > -1){
-                this.checkboxes[index].style.display = "block";
+                this.checkboxes[index].style.display = "flex";
             } else {
                 this.checkboxes[index].style.display = "none";
             }

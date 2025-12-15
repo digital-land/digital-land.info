@@ -127,15 +127,15 @@ describe('FilterCheckboxesController', () => {
 
         filterCheckboxController.filterCheckboxes();
 
-        expect(fooCheckboxMock.style.display).toEqual('block');
-        expect(barCheckboxMock.style.display).toEqual('block');
-        expect(fobaCheckboxMock.style.display).toEqual('block');
+        expect(fooCheckboxMock.style.display).toEqual('flex');
+        expect(barCheckboxMock.style.display).toEqual('flex');
+        expect(fobaCheckboxMock.style.display).toEqual('flex');
 
         searchBox.value = 'foo';
 
         filterCheckboxController.filterCheckboxes();
 
-        expect(fooCheckboxMock.style.display).toEqual('block');
+        expect(fooCheckboxMock.style.display).toEqual('flex');
         expect(barCheckboxMock.style.display).toEqual('none');
         expect(fobaCheckboxMock.style.display).toEqual('none');
 
@@ -144,8 +144,8 @@ describe('FilterCheckboxesController', () => {
         filterCheckboxController.filterCheckboxes();
 
         expect(fooCheckboxMock.style.display).toEqual('none');
-        expect(barCheckboxMock.style.display).toEqual('block');
-        expect(fobaCheckboxMock.style.display).toEqual('block');
+        expect(barCheckboxMock.style.display).toEqual('flex');
+        expect(fobaCheckboxMock.style.display).toEqual('flex');
 
 
 
