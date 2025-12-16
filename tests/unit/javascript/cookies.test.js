@@ -175,7 +175,7 @@ describe('cookies.js', () => {
             expect(window[`ga-disable-${fakeMeasurementId}`]).toBe(true);
         })
 
-        test('disables ga when \'Reject analytics cookies\' is choosen, even if usage allowed', () => {
+        test('disables ga when \'Reject analytics cookies\' is chosen, even if usage allowed', () => {
             let fakeMeasurementId = '5678';
             window.gaMeasurementId = fakeMeasurementId;
             setCookie('cookies_policy', JSON.stringify({usage: true}));
