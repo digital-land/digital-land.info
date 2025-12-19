@@ -46,6 +46,13 @@ export function getCookie (name) {
   return null
 }
 
+/**
+ * Records the acceptance of additional analytical cookies,
+ * hides the banner, and enables tracking scripts.
+ *
+ * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * describing which categories of cookies are permitted.
+ */
 export function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
   let cookiesAccepted = true
   setCookie('cookies_preferences_set', true, 365)
@@ -56,6 +63,13 @@ export function acceptCookies (cookiePrefs = { essential: true, settings: true, 
   setTrackingCookies()
 }
 
+/**
+ * Records the rejection of additional analytical cookies,
+ * hides the banner, and keeps only essential cookies.
+ *
+ * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * describing which categories of cookies are permitted.
+ */
 export function rejectCookies (cookiePrefs = { essential: true, settings: false, usage: false, campaigns: false }) { // eslint-disable-line no-unused-vars
   let cookiesAccepted = false
   setCookie('cookies_preferences_set', true, 365)
@@ -63,11 +77,29 @@ export function rejectCookies (cookiePrefs = { essential: true, settings: false,
   hideCookieBanner()
   // explicitly show rejection confirmation
   showCookieConfirmation(cookiesAccepted)
+  setTrackingCookies(false)
+}
+
+/**
+ * Releases focus if the currently active element lives within the provided
+ * selector.
+ *
+ * @param {string} selector - CSS selector used to determine whether the
+ * focused element needs blurring.
+ */
+function activeElementBlurRelease (selector) {
+  const activeElement = document.activeElement
+  const isInsideBanner = activeElement?.closest?.(selector)
+
+  if (isInsideBanner && typeof activeElement.blur === 'function') {
+    activeElement.blur()
+  }
 }
 
 export function hideCookieBanner () {
   var cookieBanner = document.getElementById('cookie-banner')
   if(cookieBanner){
+    activeElementBlurRelease('#cookie-banner')
     cookieBanner.style.display = 'none'
     cookieBanner.ariaHidden = true
   }
@@ -81,12 +113,16 @@ export function showCookieBanner () {
   }
 }
 
+/**
+ * Hides cookies banner and any confirmation banners already rendered.
+ */
 export function hideCookieConfirmation () {
   hideCookieBanner ()
 
   let acceptBanner = document.getElementById('cookie-confirmation-accept-banner')
   let rejectBanner = document.getElementById('cookie-confirmation-reject-banner')
 
+  activeElementBlurRelease('#cookie-confirmation-accept-banner, #cookie-confirmation-reject-banner')
   const updateBanner = (el) => {
     if (!el) return
     el.style.display = 'none'
@@ -97,7 +133,14 @@ export function hideCookieConfirmation () {
   updateBanner(rejectBanner)
 }
 
-export function showCookieConfirmation (cookiesAccepted) {
+/**
+ * Shows the confirmation banner that corresponds to the user's
+ * latest choice.
+ *
+ * @param {boolean} cookiesAccepted - Indicates whether the user
+ * accepted (true) or rejected (false) additional cookies.
+ */
+export function showCookieConfirmation (cookiesAccepted = true) {
   const acceptBanner = document.getElementById('cookie-confirmation-accept-banner')
   const rejectBanner = document.getElementById('cookie-confirmation-reject-banner')
 
@@ -112,28 +155,44 @@ export function showCookieConfirmation (cookiesAccepted) {
   updateBanner(rejectBanner, !cookiesAccepted)
 }
 
-export function setTrackingCookies () {
-  var cookiesPolicy = JSON.parse(getCookie('cookies_policy'))
-  var doNotTrack = cookiesPolicy == null || !cookiesPolicy.usage
-  if (doNotTrack) {
-    if(window.gaMeasurementId){
-      window[`ga-disable-${window.gaMeasurementId}`] = true;
-    }
-  } else {
-    if(window.gaMeasurementId){
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function(){dataLayer.push(arguments);}
-      window.gtag('js', new Date());
-      window.gtag('config', window.gaMeasurementId);
-      window[`ga-disable-${window.gaMeasurementId}`] = false;
-    } else {
-      console.warn('Google Analytics: No measurement ID specified');
-    }
+/**
+ * Enables or disables third-party tracking based on preference data.
+ * @param {boolean} shouldTrack - When false, disables analytics regardless of cookie values.
+ */
+export function setTrackingCookies (shouldTrack = true) {
+  let cookiesPolicy = null
+  const rawPolicy = getCookie('cookies_policy')
 
-    /* Smartlook */
-    if (window.smartlookId && window.smartlookId !== 'None') {
-      initialiseSmartlook();
+  if (rawPolicy) {
+    try {
+      cookiesPolicy = JSON.parse(rawPolicy)
+    } catch (error) {
+      console.warn('Cookies policy cookie could not be parsed', error)
     }
+  }
+
+  const usageAllowed = shouldTrack && cookiesPolicy && cookiesPolicy.usage
+
+  if (!usageAllowed) {
+    if (window.gaMeasurementId) {
+      window[`ga-disable-${window.gaMeasurementId}`] = true
+    }
+    return
+  }
+
+  if(window.gaMeasurementId){
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){dataLayer.push(arguments);}
+    window.gtag('js', new Date());
+    window.gtag('config', window.gaMeasurementId);
+    window[`ga-disable-${window.gaMeasurementId}`] = false;
+  } else {
+    console.warn('Google Analytics: No measurement ID specified');
+  }
+
+  /* Smartlook */
+  if (window.smartlookId && window.smartlookId !== 'None') {
+    initialiseSmartlook();
   }
 }
 
