@@ -1,0 +1,17 @@
+// Custom: Ensure checkbox inputs and labels are vertically aligned
+// when both GOV.UK checkbox and generic govuk-label styles are present.
+// This is a narrow override to keep markup changes non-invasive.
+.govuk-checkboxes__item {
+  align-items: center;
+
+  .govuk-checkboxes__input {
+    margin-top: 0; // reset any label-driven offset
+  }
+
+  // Support cases where govuk-label is also used alongside checkbox label
+  .govuk-checkboxes__label,
+  .govuk-label.govuk-checkboxes__label {
+    margin-left: 0; // reset left margin
+    margin-top: 0; // reset top margin
+  }
+}
