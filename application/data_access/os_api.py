@@ -1,6 +1,15 @@
-import requests
+import logging
 import os
 import re
+import requests
+
+from typing import List, Dict
+
+from application.data_access.entity_queries import get_entity_map_lpa
+from application.db.session import get_context_session
+
+
+logger = logging.getLogger(__name__)
 
 
 def is_valid_postcode(query: str):
@@ -45,24 +54,49 @@ def search_uprn(query: str):
         return None
 
 
-def transform_search_results(results: dict):
+def transform_search_results(results: dict, search_type: str = ""):
+    if search_type == "lpa":
+        return [results] if isinstance(results, dict) else []
+
     if not results or not isinstance(results, dict):
         return []
     results_list = results.get("results", [])
+
     if results_list is None:
         return []
     return [result.get("DPA", {}) for result in results_list]
 
 
-def search(query: str):
-    type = "uprn" if query.isdigit() else "postcode"
-
-    if len(query.strip()) == 0 or (
-        type == "postcode" and not is_valid_postcode(query.strip())
-    ):
+def search_local_planning_authority_or_town(query: str) -> List[Dict]:
+    try:
+        with get_context_session() as session:
+            entity = get_entity_map_lpa(session, {"name": query})
+    except Exception as exc:
+        logger.warning(
+            "search_local_planning_authority_or_town(): failed for '%s': %s",
+            query,
+            exc,
+        )
         return []
 
-    results = search_uprn(query) if type == "uprn" else search_postcode(query)
+    return entity.dict()
+
+
+def search(query: str, search_type: str):
+    if not query:
+        return []
+
+    results = None
+    if search_type == "uprn":
+        results = search_uprn(query)
+    elif search_type == "lpa":
+        results = search_local_planning_authority_or_town(query)
+    else:
+        if not is_valid_postcode(query):
+            return []
+        results = search_postcode(query)
+
     if results is None or not isinstance(results, dict):
         return []
-    return transform_search_results(results)
+
+    return transform_search_results(results, search_type)
