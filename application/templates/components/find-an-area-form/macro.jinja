@@ -42,6 +42,10 @@
       <p class="govuk-body">
         Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", {}) }}
       </p>
+    {% elif search_result.get("type") == "lpa" and search_result.get("result") %}
+      <p class="govuk-body">
+        Showing results for local planning authority: {{ search_result.get("result", {}).get("name", {}) }}
+      </p>
     {% else %}
       <p class="govuk-body">
         No results found for '{{ search_query }}'.

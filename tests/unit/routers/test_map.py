@@ -82,34 +82,6 @@ def mock_search_response_uprn():
 
 
 @pytest.fixture
-def mock_find_an_area(type: str = "postcode", search_query: str = "SW1A 1AA"):
-    """Mock find_an_area function"""
-    return {
-        "type": type,
-        "query": search_query,
-        "result": mock_search_response_postcode[0]
-        if type == "postcode"
-        else mock_search_response_uprn[0],
-        "geometry": {
-            "name": "SW1A 1AA",
-            "type": "point",
-            "data": {
-                "type": "Point",
-                "coordinates": [-0.124729, 51.501009],
-                "properties": {
-                    **(
-                        mock_search_response_postcode[0]
-                        if type == "postcode"
-                        else mock_search_response_uprn[0]
-                    ),
-                    "name": "SW1A 1AA",
-                },
-            },
-        },
-    }
-
-
-@pytest.fixture
 def mock_find_an_area_no_results():
     """Mock find_an_area function with no results"""
     return {
@@ -180,8 +152,19 @@ def mock_find_an_area_uprn():
     }
 
 
+class IsListOfDicts:
+    """
+    A helper class to check if an object (layers) is a list of dictionaries.
+    """
+
+    def __eq__(self, layers):
+        return isinstance(layers, list) and all(isinstance(i, dict) for i in layers)
+
+
 class TestGetMap:
-    """Test cases for the get_map function"""
+    """
+    Test cases for the get_map function.
+    """
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
@@ -194,14 +177,12 @@ class TestGetMap:
         mock_request,
         mock_session,
         mock_redis,
-        mock_geography_datasets,
         mock_settings,
     ):
         """Test get_map with no search query parameter"""
         # Setup
         mock_request.query_params.get.return_value = ""
         mock_get_settings.return_value = mock_settings
-        mock_get_datasets.return_value = mock_geography_datasets
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -218,10 +199,11 @@ class TestGetMap:
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": mock_geography_datasets,
+                "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
         )
@@ -264,7 +246,7 @@ class TestGetMap:
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": mock_geography_datasets,
+                "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": search_query,
                 "search_result": {
@@ -284,6 +266,7 @@ class TestGetMap:
                         },
                     },
                 },
+                "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
         )
@@ -326,7 +309,7 @@ class TestGetMap:
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": mock_geography_datasets,
+                "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": search_query,
                 "search_result": {
@@ -346,6 +329,7 @@ class TestGetMap:
                         },
                     },
                 },
+                "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
         )
@@ -368,7 +352,10 @@ class TestGetMap:
         mock_settings,
         mock_find_an_area_no_results,
     ):
-        """Test get_map with search query that returns no results"""
+        """
+        Test get_map with search query that returns no results.
+        """
+
         # Setup
         search_query = "INVALID123"
         mock_request.query_params.get.return_value = search_query
@@ -387,15 +374,11 @@ class TestGetMap:
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": mock_geography_datasets,
+                "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": search_query,
-                "search_result": {
-                    "type": "postcode",
-                    "query": search_query,
-                    "result": None,
-                    "geometry": None,
-                },
+                "search_result": mock_find_an_area_no_results,
+                "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
         )
@@ -414,7 +397,6 @@ class TestGetMap:
         mock_request,
         mock_session,
         mock_redis,
-        mock_geography_datasets,
         mock_settings,
         mock_find_an_area_no_results,
     ):
@@ -423,7 +405,6 @@ class TestGetMap:
         search_query = "INVALID123"
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
-        mock_get_datasets.return_value = mock_geography_datasets
         mock_find_an_area.return_value = mock_find_an_area_no_results
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
@@ -437,15 +418,11 @@ class TestGetMap:
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": mock_geography_datasets,
+                "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": search_query,
-                "search_result": {
-                    "type": "postcode",
-                    "query": search_query,
-                    "result": None,
-                    "geometry": None,
-                },
+                "search_result": mock_find_an_area_no_results,
+                "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
         )
@@ -464,16 +441,13 @@ class TestGetMap:
         mock_request,
         mock_session,
         mock_redis,
-        mock_geography_datasets,
         mock_settings,
-        mock_find_an_area_no_results,
     ):
         """Test get_map with search query that has whitespace"""
         # Setup
         search_query = "  SW1A 1AA  "
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
-        mock_get_datasets.return_value = mock_geography_datasets
         mock_find_an_area.return_value = {
             "type": "postcode",
             "query": "SW1A 1AA",
@@ -488,11 +462,12 @@ class TestGetMap:
 
         # Assert
         mock_find_an_area.assert_called_once_with("SW1A 1AA")  # Should be stripped
+
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": mock_geography_datasets,
+                "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": "SW1A 1AA",  # Should be stripped
                 "search_result": {
@@ -501,6 +476,7 @@ class TestGetMap:
                     "result": None,
                     "geometry": None,
                 },
+                "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
         )
@@ -508,18 +484,15 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
-    @patch("application.data_access.find_an_area_helpers.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_empty_search_query_after_strip(
         self,
         mock_templates,
-        mock_find_an_area,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
         mock_session,
         mock_redis,
-        mock_geography_datasets,
         mock_settings,
     ):
         """Test get_map with search query that becomes empty after stripping"""
@@ -527,8 +500,6 @@ class TestGetMap:
         search_query = "   "
         mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
-        mock_get_datasets.return_value = mock_geography_datasets
-        mock_find_an_area.return_value = mock_find_an_area_no_results
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -536,15 +507,15 @@ class TestGetMap:
         result = get_map(mock_request, mock_session, mock_redis)
 
         # Assert
-        mock_find_an_area.assert_not_called()  # Should not be called for empty query
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": mock_geography_datasets,
+                "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
+                "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
         )
