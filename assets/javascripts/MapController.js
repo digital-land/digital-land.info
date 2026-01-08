@@ -105,21 +105,29 @@ export default class MapController {
   };
 
   async setup() {
-    console.log('setup')
+    // Prevent setup from running multiple times
+    if (this._setupComplete) {
+      console.log('setup already complete, skipping');
+      return;
+    }
+
     try{
       await this.loadImages(this.images);
     }catch(e){
       console.log('error loading images: ' + e)
     }
-    console.log('past load images')
+
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
+
     if(this.geojsonLayers.length == 1){
       this.flyTo(this.geojsons[0]);
     }
+
     this.addControls()
     this.addClickHandlers();
     this.overwriteWheelEventsForControls();
+    this._setupComplete = true;
 
     const handleMapMove = () => {
       const center = this.map.getCenter()
@@ -135,7 +143,6 @@ export default class MapController {
   };
 
   loadImages(imageSrc=[]) {
-    console.log('loading images' + imageSrc.length + ' images')
     return new Promise((resolve, reject) => {
       const promiseArray = imageSrc.map(({src, name}) => {
         return new Promise((resolve, reject) => {
@@ -154,10 +161,8 @@ export default class MapController {
         })
       });
       Promise.all(promiseArray).then(() => {
-        console.log('resolved')
         resolve();
       }).catch((error) => {
-        console.log('rejected')
         reject(error);
       });
     })
@@ -210,7 +215,18 @@ export default class MapController {
   addGeojsonSources(geojsons = []) {
     // add geojsons sources to map
     const addedLayers = [];
+    // Filter out duplicate geometries by name to prevent "source already exists" errors
+    const uniqueGeojsons = [];
+    const seenNames = new Set();
+
     geojsons.forEach(geojson => {
+      if (!seenNames.has(geojson.name)) {
+        seenNames.add(geojson.name);
+        uniqueGeojsons.push(geojson);
+      }
+    });
+
+    uniqueGeojsons.forEach(geojson => {
       if(geojson.data.type == 'Point')
         addedLayers.push(this.addPoint(geojson, this.images[0]));
       else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
@@ -306,6 +322,16 @@ export default class MapController {
   }
 
   addPolygon(geometry) {
+    // Check if source already exists and remove it first
+    if (this.map.getSource(geometry.name)) {
+      // Remove the fill-extrusion layer (the actual layer name format is sourceName-layerType)
+      const layerName = `${geometry.name}-fill-extrusion`;
+      if (this.map.getLayer(layerName)) {
+        this.map.removeLayer(layerName);
+      }
+      this.map.removeSource(geometry.name);
+    }
+
     this.map.addSource(geometry.name, {
       'type': 'geojson',
       'data': {
@@ -347,6 +373,21 @@ export default class MapController {
   }
 
   addPoint(geometry, image=undefined){
+    // Check if source already exists and remove it first
+    if (this.map.getSource(geometry.name)) {
+      // Remove potential layer types (symbol or circle)
+      const symbolLayerName = `${geometry.name}-symbol`;
+      const circleLayerName = `${geometry.name}-circle`;
+
+      if (this.map.getLayer(symbolLayerName)) {
+        this.map.removeLayer(symbolLayerName);
+      }
+      if (this.map.getLayer(circleLayerName)) {
+        this.map.removeLayer(circleLayerName);
+      }
+      this.map.removeSource(geometry.name);
+    }
+
     this.map.addSource(geometry.name, {
       'type': 'geojson',
       'data': {

@@ -20,6 +20,7 @@
 {%- block mapAssets %}
   <script src='/static/javascripts/maplibre-gl.js'></script>
   <link href='/static/stylesheets/maplibre-gl.css' rel='stylesheet' />
+  <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
   {{ super() }}
 {% endblock -%}
 
@@ -46,6 +47,22 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
+      {% if search_result and search_result.type == 'lpa' and search_result.geometry %}
+      {{
+        map({
+          'height': 700,
+          'layers': layers,
+          'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
+          'TILES_URL': settings.TILES_URL,
+          'notePanel': notePanel,
+          'enableZoomControls': true,
+          'enableLayerControls': true,
+          'enableZoomCounter': true,
+          'geojsons': [search_result.geometry],
+          'paint_options': entity_paint_options,
+        })
+      }}
+      {% else %}
       {{
         map({
           'height': 700,
@@ -58,6 +75,7 @@
           'enableZoomCounter': true,
         })
       }}
+      {% endif %}
 
       <p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">This prototype map is automatically created using data from planning.data.gov.uk. Find out more <a href="/about">about the Planning Data Platform</a></p>
 

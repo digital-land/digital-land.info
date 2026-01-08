@@ -17,6 +17,13 @@ def create_dict(keys_list, values_list):
     return dict(zip_iterator)
 
 
+# Custom JSON encoder that handles dates
+def date_encoder(obj):
+    if isinstance(obj, date):
+        return obj.isoformat()
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
+
 # Used to customize jinja tojson filter
 def model_dumps(obj, *args, **kwargs):
     import json
@@ -26,15 +33,21 @@ def model_dumps(obj, *args, **kwargs):
     items = []
     if isinstance(obj, List):
         for m in obj:
-            items.append(json.loads(m.json()))
-        return json.dumps(items, *args, **kwargs)
+            if isinstance(m, BaseModel):
+                items.append(json.loads(m.json()))
+            elif isinstance(m, dict):
+                items.append(m)
+            else:
+                items.append(m)
+        # Use custom date encoder for serializing items
+        return json.dumps(items, default=date_encoder, *args, **kwargs)
     if isinstance(obj, BaseModel):
         return obj.json()
     if isinstance(obj, date):
         return json.dumps(obj.__str__(), *args, **kwargs)
     else:
         logging.warning(f"model_dumps: obj is of type {type(obj)}")
-        return json.dumps(obj, *args, **kwargs)
+        return json.dumps(obj, default=date_encoder, *args, **kwargs)
 
 
 def make_url(url: str, params: dict) -> str:

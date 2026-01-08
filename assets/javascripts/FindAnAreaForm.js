@@ -10,7 +10,8 @@ class FindAnAreaForm {
   flyToSearchResult() {
       setTimeout(() => {
         if (this.searchResult && this.searchResult.geometry && window.mapControllers.map) {
-          window.mapControllers.map.addPoint(searchResult.geometry)
+          // Don't add the geometry again - it's already added
+          // via geojsons param in map initialization
           window.mapControllers.map.flyTo(searchResult.geometry)
         }
       }, 1000)

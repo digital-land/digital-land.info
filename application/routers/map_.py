@@ -1,3 +1,4 @@
+import json
 import logging
 
 from fastapi import APIRouter, Request, Depends
@@ -27,18 +28,34 @@ def get_map(
         DbSession(session=session, redis=redis)
     )
 
+    # Convert DatasetModel objects to dictionaries so that it can be used in
+    # the template
+    geography_datasets_dicts = [json.loads(d.json()) for d in geography_datasets]
+
     # Extract the 'q' query parameter from the request
     search_query = request.query_params.get("q", "").strip()
+
     search_result = find_an_area(search_query) if search_query else None
+
+    # Get paint options when search type is "lpa"
+    entity_paint_options = None
+    if search_result and search_result.get("type") == "lpa":
+        result = search_result.get("result")
+        if result and result.get("dataset"):
+            dataset = result.get("dataset")
+            matching_datasets = [d for d in geography_datasets if d.dataset == dataset]
+            if matching_datasets:
+                entity_paint_options = matching_datasets[0].paint_options
 
     return templates.TemplateResponse(
         "national-map.html",
         {
             "request": request,
-            "layers": geography_datasets,
+            "layers": geography_datasets_dicts,
             "settings": settings,
             "search_query": search_query,
             "search_result": search_result,
+            "entity_paint_options": entity_paint_options,
             "feedback_form_footer": True,
         },
     )
