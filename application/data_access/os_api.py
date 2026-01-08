@@ -67,13 +67,13 @@ def transform_search_results(results: dict, search_type: str = ""):
     return [result.get("DPA", {}) for result in results_list]
 
 
-def search_local_planning_authority_or_town(query: str) -> List[Dict]:
+def search_local_planning_authority(query: str) -> List[Dict]:
     try:
         with get_context_session() as session:
             entity = get_entity_map_lpa(session, {"name": query})
     except Exception as exc:
-        logger.warning(
-            "search_local_planning_authority_or_town(): failed for '%s': %s",
+        logger.info(
+            "search_local_planning_authority_or_town(): entity NOT FOUND for '%s': %s",
             query,
             exc,
         )
@@ -90,7 +90,7 @@ def search(query: str, search_type: str):
     if search_type == "uprn":
         results = search_uprn(query)
     elif search_type == "lpa":
-        results = search_local_planning_authority_or_town(query)
+        results = search_local_planning_authority(query)
     else:
         if not is_valid_postcode(query):
             return []

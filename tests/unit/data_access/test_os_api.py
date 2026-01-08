@@ -9,7 +9,7 @@ from application.data_access.os_api import (
     is_valid_postcode,
     get_os_api_key,
     base_search_params,
-    search_local_planning_authority_or_town,
+    search_local_planning_authority,
 )
 
 
@@ -258,7 +258,7 @@ class TestOSAPI:
 
     @patch("application.data_access.os_api.get_entity_map_lpa")
     @patch("application.data_access.os_api.get_context_session")
-    def test_search_local_planning_authority_or_town_returns_serialised_results(
+    def test_search_local_planning_authority_returns_serialised_results(
         self, mock_get_context_session, mock_get_entity_map_lpa
     ):
         context_manager = MagicMock()
@@ -276,7 +276,7 @@ class TestOSAPI:
         }
         mock_get_entity_map_lpa.return_value = mock_entity
 
-        results = search_local_planning_authority_or_town("Manchester")
+        results = search_local_planning_authority("Manchester")
 
         mock_get_entity_map_lpa.assert_called_once_with(
             mock_session, {"name": "Manchester"}
@@ -287,8 +287,31 @@ class TestOSAPI:
             "dataset": "local-planning-authority",
         }
 
+    @patch("application.data_access.os_api.get_entity_map_lpa")
+    @patch("application.data_access.os_api.get_context_session")
+    def test_search_local_planning_authority_returns_empty_results(
+        self, mock_get_context_session, mock_get_entity_map_lpa
+    ):
+        context_manager = MagicMock()
+        mock_session = MagicMock()
+        context_manager.__enter__.return_value = mock_session
+        context_manager.__exit__.return_value = None
+        mock_get_context_session.return_value = context_manager
+
+        # Mock that get_entity_map_lpa raises AttributeError
+        mock_get_entity_map_lpa.side_effect = AttributeError(
+            "'NoneType' object has no attribute 'json'"
+        )
+
+        results = search_local_planning_authority("Super manchester")
+        mock_get_entity_map_lpa.assert_called_once_with(
+            mock_session, {"name": "Super manchester"}
+        )
+
+        assert results == []
+
     @patch(
-        "application.data_access.os_api.search_local_planning_authority_or_town",
+        "application.data_access.os_api.search_local_planning_authority",
         return_value={"entity": 1, "name": "Manchester LPA"},
     )
     def test_search_with_alpha_query_calls_lpa(self, mock_lpa_search):
