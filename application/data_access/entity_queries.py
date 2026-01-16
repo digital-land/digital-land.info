@@ -100,8 +100,11 @@ def get_entity_search(
 
 def get_entity_map_lpa(session: Session, parameters: dict):
     """
-    Retrieve the local planning authority matching the name
-    passed in the query.
+    Retrieves a local planning authority entity which name contains
+    a matching substring passed in the parameters.
+
+    Uses prefix matching (name starts with query) which can efficiently
+    use the B-tree index on the name column.
     """
 
     if parameters is None:
@@ -111,10 +114,11 @@ def get_entity_map_lpa(session: Session, parameters: dict):
     if not name_query or not isinstance(name_query, str):
         return []
 
+    # Prefix match - can use btree index efficiently
     query = (
         session.query(EntityOrm)
         .filter(EntityOrm.dataset == "local-planning-authority")
-        .filter(EntityOrm.name.ilike(f"%{name_query}%"))
+        .filter(EntityOrm.name.ilike(f"{name_query}%"))
         .order_by(func.lower(EntityOrm.name))
     )
 
