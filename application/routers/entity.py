@@ -3,7 +3,8 @@ import logging
 from dataclasses import asdict
 from typing import Optional, List, Set, Dict, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Path
+from fastapi import APIRouter, Depends, HTTPException, Request, Path, Query
+from sqlalchemy import func
 from pydantic import Required
 from pydantic.error_wrappers import ErrorWrapper
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -44,9 +45,46 @@ from application.exceptions import (
     TypologyValueNotFound,
 )
 from application.db.session import get_session, get_redis, DbSession
+from application.db.models import EntityOrm
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+@router.get(
+    "/dataset-name-search.json",
+    response_class=DigitalLandJSONResponse,
+    tags=["Entity"],
+)
+def dataset_name_search(
+    request: Request,
+    search: Optional[str] = None,
+    dataset: Optional[str] = None,
+    limit: int = 10,
+    session: Session = Depends(get_session),
+):
+    """
+    Return a compact list of entity names for a given dataset.
+
+    This will aid the type-search functionality so that we
+    can display potential matches for the query being typed.
+    """
+    if not dataset or not search:
+        return {"entities": []}
+
+    try:
+        sql = (
+            session.query(EntityOrm.name)
+            .filter(EntityOrm.dataset == dataset)
+            .filter(EntityOrm.name.ilike(f"%{search}%"))
+            .order_by(func.lower(EntityOrm.name))
+            .limit(limit)
+        )
+        rows = sql.all()
+        names = [{"name": row[0]} for row in rows]
+        return {"entities": names}
+    except Exception:
+        return {"entities": []}
 
 
 def _get_geojson(
@@ -194,7 +232,9 @@ def handle_entity_response(
     if e.organisation_entity is not None:
         organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
         if organisation_entity:
-            organisation_curie = f"{organisation_entity.prefix}:{organisation_entity.reference}"
+            organisation_curie = (
+                f"{organisation_entity.prefix}:{organisation_entity.reference}"
+            )
             e_dict_sorted["organisation-entity"] = organisation_curie
 
     return templates.TemplateResponse(
@@ -334,6 +374,7 @@ def validate_typologies(typologies, typology_names):
 
 def search_entities(
     request: Request,
+    search_query: str = Query("", alias="q"),
     query_filters: QueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
@@ -356,17 +397,14 @@ def search_entities(
     typology_names = get_typology_names(session)
 
     # Find an area - Postcode / UPRN search
-    query = query_params.get("q")
-    if not query or not query.strip():
-        find_an_area_result = None
-    else:
-        find_an_area_result = find_an_area(query)
+    search_query = search_query.strip()
+    search_result = find_an_area(search_query) if search_query else None
 
     find_an_area_latitude = None
     find_an_area_longitude = None
 
-    if find_an_area_result and find_an_area_result.get("result", {}):
-        result_data = find_an_area_result.get("result", {})
+    if search_result and search_result.get("result", {}):
+        result_data = search_result.get("result", {})
         find_an_area_latitude = result_data.get("LAT")
         find_an_area_longitude = result_data.get("LNG")
 
@@ -487,7 +525,7 @@ def search_entities(
             "next_url": next_url,
             "prev_url": prev_url,
             "has_geographies": has_geographies,
-            "find_an_area_result": find_an_area_result,
+            "find_an_area_result": search_result,
             "feedback_form_footer": True,
         },
     )
