@@ -103,7 +103,7 @@ def test_find_an_area_selects_first_item_when_only_two_results(mock_search):
 @patch("application.data_access.find_an_area_helpers.search")
 def test_find_an_area_no_results(mock_search):
     mock_search.return_value = []
-    result = find_an_area("SUPER CITY")
+    result = find_an_area("SUPER CITY", "lpa")
     assert result["type"] == "lpa"
     assert result["query"] == "SUPER CITY"
     assert result["result"] is None

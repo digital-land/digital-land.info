@@ -245,7 +245,7 @@ def test_get_entity_old_entity_gone_returned_html(mocker):
         assert True
     except Exception:
         if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
+            logging.warning(f"context: {result.context}")
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
@@ -458,7 +458,7 @@ def test_get_entity_entity_returned_html(
         assert True
     except Exception:
         if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
+            logging.warning(f"context: {result.context}")
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
@@ -624,6 +624,7 @@ def test_search_entities_no_entities_returned_no_query_params_html(
     request = MagicMock()
     result = search_entities(
         request=request,
+        search_query="",
         query_filters=QueryFilters(),
         extension=None,
     )
@@ -632,7 +633,7 @@ def test_search_entities_no_entities_returned_no_query_params_html(
         assert True
     except Exception:
         if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
+            logging.warning(f"context: {result.context}")
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
@@ -658,6 +659,7 @@ def test_search_entities_no_entities_returned_no_query_params_json(mocker):
     extension.value = "json"
     result = search_entities(
         request=request,
+        search_query="",
         query_filters=QueryFilters(),
         extension=extension,
     )
@@ -687,6 +689,7 @@ def test_search_entities_no_entities_returned_no_query_params_geojson(mocker):
     extension.value = "geojson"
     result = search_entities(
         request=request,
+        search_query="",
         query_filters=QueryFilters(),
         extension=extension,
     )
@@ -745,6 +748,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     request = MagicMock()
     result = search_entities(
         request=request,
+        search_query="",
         query_filters=QueryFilters(),
         extension=None,
     )
@@ -753,7 +757,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
         assert True
     except Exception:
         if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
+            logging.warning(f"context: {result.context}")
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
@@ -784,6 +788,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_json(
     extension.value = "json"
     result = search_entities(
         request=request,
+        search_query="",
         query_filters=QueryFilters(),
         extension=extension,
     )
@@ -819,6 +824,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
     extension.value = "geojson"
     result = search_entities(
         request=request,
+        search_query="",
         query_filters=QueryFilters(),
         extension=extension,
     )
@@ -862,6 +868,7 @@ def test_search_entities_with_query_extension(
 
     result = search_entities(
         request=request,
+        search_query="",
         query_filters=QueryFilters(),
         extension=extension,
         session=mock_get_session.return_value,
@@ -872,7 +879,7 @@ def test_search_entities_with_query_extension(
         assert True
     except Exception:
         if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
+            logging.warning(f"context: {result.context}")
         else:
             logging.warning("result has no context")
             assert False, "template unable to render, missing variable(s) from context"
@@ -909,7 +916,7 @@ def test_get_entity_with_linked_local_plans(
         assert True
     except Exception:
         if hasattr(result, "context"):
-            logging.warning(f"context:{result.context}")
+            logging.warning(f"context: {result.context}")
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"

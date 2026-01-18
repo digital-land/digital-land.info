@@ -1,7 +1,7 @@
 import json
 import logging
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from redis import Redis
@@ -22,24 +22,25 @@ def get_map(
     request: Request,
     session: Session = Depends(get_session),
     redis: Redis = Depends(get_redis),
+    search_query: str = Query("", alias="q"),
+    search_type: str = Query(None, alias="type"),
 ):
     settings = get_settings()
     geography_datasets = get_datasets_with_data_by_geography(
         DbSession(session=session, redis=redis)
     )
 
-    # Convert DatasetModel objects to dictionaries so that it can be used in
-    # the template
+    # Convert DatasetModel objects to dictionaries so that
+    # it can be used in the template
     geography_datasets_dicts = [json.loads(d.json()) for d in geography_datasets]
 
     # Extract the 'q' query parameter from the request
-    search_query = request.query_params.get("q", "").strip()
-
-    search_result = find_an_area(search_query) if search_query else None
+    search_query = search_query.strip()
+    search_result = find_an_area(search_query, search_type) if search_query else None
 
     # Get paint options when search type is "lpa"
     entity_paint_options = None
-    if search_result and search_result.get("type") == "lpa":
+    if search_result and search_type == "lpa":
         result = search_result.get("result")
         if result and result.get("dataset"):
             dataset = result.get("dataset")

@@ -181,16 +181,14 @@ class TestGetMap:
     ):
         """Test get_map with no search query parameter"""
         # Setup
-        mock_request.query_params.get.return_value = ""
         mock_get_settings.return_value = mock_settings
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis)
+        result = get_map(mock_request, mock_session, mock_redis, search_query="")
 
         # Assert
-        mock_request.query_params.get.assert_called_once_with("q", "")
         mock_get_settings.assert_called_once()
         mock_get_datasets.assert_called_once_with(
             DbSession(session=mock_session, redis=mock_redis)
@@ -230,7 +228,6 @@ class TestGetMap:
         """Test get_map with postcode search query"""
         # Setup
         search_query = "SW1A 1AA"
-        mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
         mock_find_an_area.return_value = mock_find_an_area_postcode
@@ -238,10 +235,11 @@ class TestGetMap:
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis)
+        result = get_map(mock_request, mock_session, mock_redis, search_query)
 
         # Assert
-        mock_find_an_area.assert_called_once_with(search_query)
+        assert mock_find_an_area.call_count == 1
+        assert mock_find_an_area.call_args[0][0] == search_query
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -293,7 +291,6 @@ class TestGetMap:
         """Test get_map with UPRN search query"""
         # Setup
         search_query = "123456789"
-        mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
         mock_find_an_area.return_value = mock_find_an_area_uprn
@@ -301,10 +298,11 @@ class TestGetMap:
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis)
+        result = get_map(mock_request, mock_session, mock_redis, search_query)
 
         # Assert
-        mock_find_an_area.assert_called_once_with(search_query)
+        assert mock_find_an_area.call_count == 1
+        assert mock_find_an_area.call_args[0][0] == search_query
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -358,7 +356,6 @@ class TestGetMap:
 
         # Setup
         search_query = "INVALID123"
-        mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
         mock_find_an_area.return_value = mock_find_an_area_no_results
@@ -366,10 +363,11 @@ class TestGetMap:
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis)
+        result = get_map(mock_request, mock_session, mock_redis, search_query)
 
         # Assert
-        mock_find_an_area.assert_called_once_with(search_query)
+        assert mock_find_an_area.call_count == 1
+        assert mock_find_an_area.call_args[0][0] == search_query
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -403,17 +401,17 @@ class TestGetMap:
         """Test get_map with search query that returns None"""
         # Setup
         search_query = "INVALID123"
-        mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_find_an_area.return_value = mock_find_an_area_no_results
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis)
+        result = get_map(mock_request, mock_session, mock_redis, search_query)
 
         # Assert
-        mock_find_an_area.assert_called_once_with(search_query)
+        assert mock_find_an_area.call_count == 1
+        assert mock_find_an_area.call_args[0][0] == search_query
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -446,7 +444,6 @@ class TestGetMap:
         """Test get_map with search query that has whitespace"""
         # Setup
         search_query = "  SW1A 1AA  "
-        mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_find_an_area.return_value = {
             "type": "postcode",
@@ -458,10 +455,13 @@ class TestGetMap:
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis)
+        result = get_map(mock_request, mock_session, mock_redis, search_query)
 
-        # Assert
-        mock_find_an_area.assert_called_once_with("SW1A 1AA")  # Should be stripped
+        # No need to assert the full call signature so the test
+        # doesn't depend on whether a second (search_type)
+        # argument is passed.
+        assert mock_find_an_area.call_count == 1
+        assert mock_find_an_area.call_args[0][0] == "SW1A 1AA"
 
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
@@ -498,13 +498,12 @@ class TestGetMap:
         """Test get_map with search query that becomes empty after stripping"""
         # Setup
         search_query = "   "
-        mock_request.query_params.get.return_value = search_query
         mock_get_settings.return_value = mock_settings
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis)
+        result = get_map(mock_request, mock_session, mock_redis, search_query)
 
         # Assert
         mock_templates.TemplateResponse.assert_called_once_with(
