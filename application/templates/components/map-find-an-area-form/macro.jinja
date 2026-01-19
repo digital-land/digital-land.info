@@ -26,6 +26,7 @@
 
     {# Search dropdown #}
     <div class="govuk-form-group">
+      <label class="govuk-label govuk-label--s govuk-visually-hidden" for="select-method">Search method</label>
       <select class="govuk-select" id="select-method" name="select-method">
           <option value="" {{ '' if selected_sort else 'selected' }}>Search method by</option>
           <option value="postcode" {{ 'selected' if selected_sort == 'postcode' else '' }}>Postcode</option>
