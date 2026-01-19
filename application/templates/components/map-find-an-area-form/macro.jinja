@@ -28,7 +28,7 @@
     <div class="govuk-form-group">
       <label class="govuk-label govuk-label--s govuk-visually-hidden" for="select-method">Search method</label>
       <select class="govuk-select" id="select-method" name="select-method">
-          <option value="" {{ '' if selected_sort else 'selected' }}>Search method by</option>
+          <option value="" {{ '' if selected_sort else 'selected' }}>Choose search method</option>
           <option value="postcode" {{ 'selected' if selected_sort == 'postcode' else '' }}>Postcode</option>
           <option value="uprn" {{ 'selected' if selected_sort == 'uprn' else '' }}>UPRN</option>
           <option value="lpa" {{ 'selected' if selected_sort == 'lpa' else '' }}>Local Planning Authority</option>
@@ -49,7 +49,7 @@
 
     {# LPA type-search input: visible when type == 'lpa' via JS. Uses same name 'q' so form submission works. #}
     <div id="lpa-container">
-        <input id="lpa-autocomplete-input" class="govuk-input dl-filter-group__auto-filter__input govuk-input--width-20" type="text" name="q" placeholder="Type to search LPAs" aria-describedby="find-an-area-hint" autocomplete="off" value="{{ search_query }}">
+        <input id="lpa-autocomplete-input" class="govuk-input dl-filter-group__auto-filter__input govuk-input--width-20" type="text" name="q" placeholder="e.g. Manchester LPA" aria-describedby="find-an-area-hint" autocomplete="off" value="{{ search_query }}">
         <ul id="lpa-autocomplete-suggestions" role="listbox" aria-label="Local planning authority suggestions" style="display:none; margin:0; padding:0; list-style:none; border:1px solid #ccc; background:#fff; max-height:200px; overflow:auto;"></ul>
     </div>
   </div>
