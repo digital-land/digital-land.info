@@ -40,14 +40,14 @@ def model_dumps(obj, *args, **kwargs):
             else:
                 items.append(m)
         # Use custom date encoder for serializing items
-        return json.dumps(items, default=date_encoder, *args, **kwargs)
+        return json.dumps(items, *args, default=date_encoder, **kwargs)
     if isinstance(obj, BaseModel):
         return obj.json()
     if isinstance(obj, date):
         return json.dumps(obj.__str__(), *args, **kwargs)
     else:
         logging.warning(f"model_dumps: obj is of type {type(obj)}")
-        return json.dumps(obj, default=date_encoder, *args, **kwargs)
+        return json.dumps(obj, *args, default=date_encoder, **kwargs)
 
 
 def make_url(url: str, params: dict) -> str:
