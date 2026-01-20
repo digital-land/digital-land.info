@@ -73,13 +73,13 @@ def search_local_planning_authority(query: str) -> List[Dict]:
             entity = get_entity_map_lpa(session, {"name": query})
     except Exception as exc:
         logger.info(
-            "search_local_planning_authority_or_town(): entity NOT FOUND for '%s': %s",
+            "search_local_planning_authority(): entity NOT FOUND for '%s': %s",
             query,
             exc,
         )
         return []
 
-    return entity.dict()
+    return entity.dict() if entity else {}
 
 
 def search(query: str, search_type: str):
