@@ -56,8 +56,7 @@ def search_uprn(query: str):
 
 def transform_search_results(results: dict, search_type: str = ""):
     if search_type == "lpa":
-        return [results] if isinstance(results, dict) else []
-
+        return [results] if isinstance(results, dict) and results else []
     if not results or not isinstance(results, dict):
         return []
     results_list = results.get("results", [])
