@@ -123,7 +123,7 @@ def get_entity_map_lpa(session: Session, parameters: dict):
     )
 
     entity = query.first()
-    return entity_factory(entity)
+    return entity_factory(entity) if entity else None
 
 
 def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None):
