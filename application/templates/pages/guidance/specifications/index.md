@@ -17,4 +17,4 @@ Soon, the service will support [developer contributions](https://www.gov.uk/guid
 We're currently testing and developing data standards for these planning considerations:
 
 - [design codes](./design-code)
-- [local plans](./local-plan)
+- [development plans](https://digital-land.github.io/specification/guidance/development-plan/)
