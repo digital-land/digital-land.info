@@ -7,10 +7,9 @@ Right now, the service supports:
 - [article 4 directions](./article-4-direction)
 - [brownfield land](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data)
 - [conservation areas](./conservation-area)
+- [developer contributions](https://www.gov.uk/guidance/publish-your-developer-contributions-data)
 - [listed buildings](./listed-building)
 - [tree preservation orders](./tree-preservation-order)
-
-Soon, the service will support [developer contributions](https://www.gov.uk/guidance/publish-your-developer-contributions-data). Email the persistent URL for each CSV file to [DigitalLand@communities.gov.uk](mailto:DigitalLand@communities.gov.uk) and we will add them to the national register.
 
 ## Datasets we’re developing
 
