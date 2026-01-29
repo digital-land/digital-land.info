@@ -44,7 +44,7 @@
 
       {# Non LPA search input: visible when type == 'postcode' or type == 'uprn' #}
       <div id="postcode-container">
-        <label class="govuk-label govuk-label--s" for="postcode-input">Postcode</label>
+        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="postcode-input">Postcode</label>
         <input id="postcode-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" aria-describedby="find-an-area-hint" value="{{ search_query or '' }}">
 
         {# Include any additional hidden fields for URL query parameters, without "q" #}
@@ -57,7 +57,7 @@
 
       {# UPRN search input: visible when type == 'uprn' #}
       <div id="uprn-container" class="js-hidden">
-        <label class="govuk-label govuk-label--s" for="uprn-search-input">UPRN</label>
+        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="uprn-search-input">UPRN</label>
         <input id="uprn-search-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" aria-describedby="find-an-area-hint" value="{{ search_query or '' }}">
 
         {# Include any additional hidden fields for URL query parameters, without "q" #}
@@ -101,15 +101,15 @@
     <h2 class="govuk-heading-m">Search results</h2>
     {% if search_result.get("type") == "postcode" and search_result.get("result") %}
       <p class="govuk-body">
-        Showing results for postcode: {{ search_result.get("result", {}).get("POSTCODE", {}) }}
+        Showing results for postcode: {{ search_result.get("result", {}).get("POSTCODE", "") }}
       </p>
     {% elif search_result.get("type") == "uprn" and search_result.get("result") %}
       <p class="govuk-body">
-        Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", {}) }}
+        Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", "") }}
       </p>
     {% elif search_result.get("type") == "lpa" and search_result.get("result") %}
       <p class="govuk-body">
-        Showing results for local planning authority: {{ search_result.get("result", {}).get("name", {}) }}
+        Showing results for local planning authority: {{ search_result.get("result", {}).get("name", "") }}
       </p>
     {% else %}
       <p class="govuk-body">
