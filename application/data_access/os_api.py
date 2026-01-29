@@ -70,7 +70,7 @@ def search_local_planning_authority(query: str) -> List[Dict]:
     try:
         with get_context_session() as session:
             entity = get_entity_map_lpa(session, {"name": query})
-    except Exception as exc:
+    except (AttributeError, TypeError) as exc:
         logger.info(
             "search_local_planning_authority(): entity NOT FOUND for '%s': %s",
             query,

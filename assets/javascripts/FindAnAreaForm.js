@@ -224,7 +224,7 @@ class FindAnAreaForm {
     try {
       const url = new URL('/entity/dataset-name-search.json', window.location.origin)
       url.searchParams.set('dataset', 'local-planning-authority')
-      // Backend expects `q` for the query term
+      // Backend expects `search` for the query term
       url.searchParams.set('search', term)
       url.searchParams.set('limit', '10')
 

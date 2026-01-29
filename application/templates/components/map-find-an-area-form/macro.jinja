@@ -70,8 +70,15 @@
 
       {# LPA type-search input: visible when type == 'lpa'. Uses same name 'q' so form submission works. #}
       <div id="lpa-container" class="js-hidden">
-        <label class="govuk-label govuk-label--s" for="lpa-autocomplete-input">Local planning authority</label>
-        <input id="lpa-autocomplete-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" type="text" name="q" aria-describedby="find-an-area-hint" autocomplete="off" value="{{ search_query }}">
+        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="lpa-autocomplete-input">Local planning authority</label>
+        <input id="lpa-autocomplete-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" type="text" name="q" aria-describedby="find-an-area-hint" autocomplete="off" value="{{ search_query or '' }}">
+
+        {# Include any additional hidden fields for URL query parameters, without "q" #}
+        {% for param_name, param_value in url_query_params %}
+          {% if param_name != "q" %}
+            <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
+          {% endif %}
+        {% endfor %}
       </div>
       <div id="lpa-suggestions">
         <ul id="lpa-autocomplete-suggestions" role="listbox" aria-label="Local planning authority suggestions"></ul>

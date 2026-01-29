@@ -4,12 +4,13 @@ from dataclasses import asdict
 from typing import Optional, List, Set, Dict, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Path, Query
-from sqlalchemy import func
 from pydantic import Required
 from pydantic.error_wrappers import ErrorWrapper
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 import redis
 from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
@@ -57,7 +58,7 @@ logger = logging.getLogger(__name__)
     tags=["Entity"],
 )
 def dataset_name_search(
-    request: Request,
+    _request: Request,
     search: Optional[str] = None,
     dataset: Optional[str] = None,
     limit: int = 10,
@@ -69,6 +70,9 @@ def dataset_name_search(
     This will aid the type-search functionality so that we
     can display potential matches for the query being typed.
     """
+    if search is not None:
+        search = search.strip()
+
     if not dataset or not search:
         return {"entities": []}
 
@@ -83,7 +87,11 @@ def dataset_name_search(
         rows = sql.all()
         names = [{"name": row[0]} for row in rows]
         return {"entities": names}
-    except Exception:
+    except SQLAlchemyError:
+        logger.exception(
+            "entity_name_search failed",
+            extra={"dataset": dataset, "search": search},
+        )
         return {"entities": []}
 
 
