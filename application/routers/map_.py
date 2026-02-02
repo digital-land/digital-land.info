@@ -63,13 +63,15 @@ def get_map(
             elif search_type == "uprn":
                 error = "Enter a UPRN"
             elif search_type == "lpa":
-                error = "Enter a local planning authority"
+                error = "Select a local planning authority"
         else:
             if search_type == "postcode":
                 if not is_valid_postcode(search_query):
-                    error = "The Postcode entered is invalid"
+                    error = "Enter a full UK postcode"
             elif search_type == "uprn" and not search_query.isdigit():
-                error = "The UPRN entered is invalid (digits only)"
+                error = "UPRN must be a number"
+            elif search_type == "uprn" and len(search_query) != 12:
+                error = "UPRN must be 12 digits"
 
         # Execution logic
         if not error and search_query:
