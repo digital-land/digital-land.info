@@ -179,7 +179,7 @@ class TestGetMap:
         mock_redis,
         mock_settings,
     ):
-        """Test get_map with no search query parameter"""
+        """Test `get_map()` with no search query parameter displays the map correctly."""
         # Setup
         mock_get_settings.return_value = mock_settings
         mock_template_response = Mock()
@@ -215,6 +215,156 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.templates")
+    def test_get_map_with_invalid_uprn(
+        self,
+        mock_templates,
+        mock_get_datasets,
+        mock_get_settings,
+        mock_request,
+        mock_session,
+        mock_redis,
+        mock_geography_datasets,
+        mock_settings,
+    ):
+        """Test `get_map()` with invalid UPRN search query raises error."""
+
+        # Setup
+        search_query = "12345ABC"
+        search_type = "uprn"
+        mock_get_settings.return_value = mock_settings
+        mock_get_datasets.return_value = mock_geography_datasets
+        mock_template_response = Mock()
+        mock_templates.TemplateResponse.return_value = mock_template_response
+
+        # Execute
+        result = get_map(
+            mock_request,
+            mock_session,
+            mock_redis,
+            search_query,
+            search_type,
+        )
+
+        # Assert
+        mock_templates.TemplateResponse.assert_called_once_with(
+            "national-map.html",
+            {
+                "request": mock_request,
+                "layers": IsListOfDicts(),
+                "settings": mock_settings,
+                "search_query": search_query.strip(),
+                "search_result": None,
+                "error": "UPRN must be a number",
+                "entity_paint_options": None,
+                "feedback_form_footer": True,
+            },
+        )
+        assert result == mock_template_response
+
+    @patch("application.routers.map_.get_settings")
+    @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.templates")
+    def test_get_map_with_invalid_uprn_length(
+        self,
+        mock_templates,
+        mock_get_datasets,
+        mock_get_settings,
+        mock_request,
+        mock_session,
+        mock_redis,
+        mock_geography_datasets,
+        mock_settings,
+    ):
+        """
+        Test `get_map()` with UPRN that is 9 digits length instead of 12
+        raises error.
+        """
+
+        # Setup
+        search_query = "123456789"  # 9 digits instead of 12
+        search_type = "uprn"
+        mock_get_settings.return_value = mock_settings
+        mock_get_datasets.return_value = mock_geography_datasets
+        mock_template_response = Mock()
+        mock_templates.TemplateResponse.return_value = mock_template_response
+
+        # Execute
+        result = get_map(
+            mock_request,
+            mock_session,
+            mock_redis,
+            search_query,
+            search_type,
+        )
+
+        # Assert: wrong-length UPRN should trigger validation error
+        mock_templates.TemplateResponse.assert_called_once_with(
+            "national-map.html",
+            {
+                "request": mock_request,
+                "layers": IsListOfDicts(),
+                "settings": mock_settings,
+                "search_query": search_query.strip(),
+                "search_result": None,
+                "error": "UPRN must be 12 digits",
+                "entity_paint_options": None,
+                "feedback_form_footer": True,
+            },
+        )
+        assert result == mock_template_response
+
+    @patch("application.routers.map_.get_settings")
+    @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.templates")
+    def test_get_map_with_empty_search_query_for_lpa_raises_error(
+        self,
+        mock_templates,
+        mock_get_datasets,
+        mock_get_settings,
+        mock_request,
+        mock_session,
+        mock_redis,
+        mock_geography_datasets,
+        mock_settings,
+    ):
+        """Test `get_map()` with empty search query for LPA raises error."""
+
+        # Setup
+        search_query = "   "
+        search_type = "lpa"
+        mock_get_settings.return_value = mock_settings
+        mock_get_datasets.return_value = mock_geography_datasets
+        mock_template_response = Mock()
+        mock_templates.TemplateResponse.return_value = mock_template_response
+
+        # Execute
+        result = get_map(
+            mock_request,
+            mock_session,
+            mock_redis,
+            search_query,
+            search_type,
+        )
+
+        # Assert: empty LPA should use the LPA-specific error message from map_.py
+        mock_templates.TemplateResponse.assert_called_once_with(
+            "national-map.html",
+            {
+                "request": mock_request,
+                "layers": IsListOfDicts(),
+                "settings": mock_settings,
+                "search_query": "",
+                "search_result": None,
+                "error": "Select a local planning authority",
+                "entity_paint_options": None,
+                "feedback_form_footer": True,
+            },
+        )
+        assert result == mock_template_response
+
+    @patch("application.routers.map_.get_settings")
+    @patch("application.routers.map_.get_datasets_with_data_by_geography")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_postcode_search(
@@ -231,7 +381,10 @@ class TestGetMap:
         mock_settings,
         mock_find_an_area_postcode,
     ):
-        """Test get_map with postcode search query"""
+        """
+        Test `get_map()` with a valid postcode search query displays the search results
+        correctly on the map.
+        """
         # Setup
         search_query = "SW1A 1AA"
         search_type = "postcode"
@@ -301,7 +454,10 @@ class TestGetMap:
         mock_settings,
         mock_find_an_area_uprn,
     ):
-        """Test get_map with UPRN search query"""
+        """
+        Test `get_map()` with a UPRN search query displays the search results
+        correctly on the map.
+        """
         # Setup
         search_query = "123456789012"
         search_type = "uprn"
@@ -357,7 +513,94 @@ class TestGetMap:
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
-    def test_get_map_with_search_no_results(
+    def test_get_map_sets_entity_options_when_called_with_valid_lpa(
+        self,
+        mock_templates,
+        mock_find_an_area,
+        mock_get_datasets,
+        mock_get_settings,
+        mock_request,
+        mock_session,
+        mock_redis,
+        mock_settings,
+    ):
+        """Tests `get_map()` sets entity_paint_options when called with a valid LPA search_query."""
+        geography_datasets = [
+            DatasetModel(
+                collection="other-dataset",
+                dataset="other-dataset",
+                name="Other dataset",
+                plural="Other datasets",
+                typology="geography",
+                paint_options=None,
+            ),
+            DatasetModel(
+                collection="lpa-collection",
+                dataset="local-planning-authority",
+                name="Local planning authority",
+                plural="Local planning authorities",
+                typology="geography",
+                paint_options={"foo": "bar"},
+            ),
+        ]
+
+        search_query = "Some LPA"
+        search_type = "lpa"
+        mock_get_settings.return_value = mock_settings
+        mock_get_datasets.return_value = geography_datasets
+        mock_find_an_area.return_value = {
+            "type": "lpa",
+            "query": search_query,
+            "result": {
+                "name": "Some LPA",
+                "dataset": "local-planning-authority",
+                "entity": 123,
+                "geojson": {"geometry": {"type": "Polygon", "coordinates": []}},
+            },
+            "geometry": {
+                "name": "Some LPA",
+                "type": "geometry",
+                "data": {"type": "Polygon", "coordinates": []},
+                "entity": 123,
+            },
+        }
+
+        mock_template_response = Mock()
+        mock_templates.TemplateResponse.return_value = mock_template_response
+
+        # Execute
+        result = get_map(
+            mock_request,
+            mock_session,
+            mock_redis,
+            search_query,
+            search_type,
+        )
+
+        # Assert
+        assert mock_find_an_area.call_count == 1
+        assert mock_find_an_area.call_args[0][0] == search_query
+
+        # entity_paint_options should be taken from the matching dataset
+        mock_templates.TemplateResponse.assert_called_once_with(
+            "national-map.html",
+            {
+                "request": mock_request,
+                "layers": IsListOfDicts(),
+                "settings": mock_settings,
+                "search_query": search_query,
+                "search_result": mock_find_an_area.return_value,
+                "entity_paint_options": {"foo": "bar"},
+                "feedback_form_footer": True,
+            },
+        )
+        assert result == mock_template_response
+
+    @patch("application.routers.map_.get_settings")
+    @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.find_an_area")
+    @patch("application.routers.map_.templates")
+    def test_get_map_infers_postcode_when_type_omitted(
         self,
         mock_templates,
         mock_find_an_area,
@@ -367,27 +610,33 @@ class TestGetMap:
         mock_session,
         mock_redis,
         mock_geography_datasets,
+        mock_find_an_area_postcode,
         mock_settings,
-        mock_find_an_area_no_results,
     ):
         """
-        Test get_map with search query that returns no results.
+        Tests `get_map()` with a valid postcode search query but without search type
+        does not trigger a call to `find_an_area()`
         """
-
-        # Setup
-        search_query = "INVALID123"
+        search_query = "SW1A 1AA"
+        search_type = None
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
-        mock_find_an_area.return_value = mock_find_an_area_no_results
+        mock_find_an_area.return_value = mock_find_an_area_postcode
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis, search_query)
+        result = get_map(
+            mock_request,
+            mock_session,
+            mock_redis,
+            search_query,
+            search_type,
+        )
 
-        # Assert
-        assert mock_find_an_area.call_count == 1
-        assert mock_find_an_area.call_args[0][0] == search_query
+        # Assert: since search_type is None, we do not call find_an_area(), and
+        # no search_result is passed to the template.
+        mock_find_an_area.assert_not_called()
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
@@ -395,7 +644,7 @@ class TestGetMap:
                 "layers": IsListOfDicts(),
                 "settings": mock_settings,
                 "search_query": search_query,
-                "search_result": mock_find_an_area_postcode,
+                "search_result": None,
                 "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
@@ -419,7 +668,7 @@ class TestGetMap:
         mock_settings,
         mock_find_an_area_no_results,
     ):
-        """Test get_map with an invalid postcode triggers validation error."""
+        """Test `get_map()` with an invalid postcode search query raises error."""
 
         # Setup
         search_query = "INVALID123"  # Not a valid UK postcode
@@ -459,7 +708,7 @@ class TestGetMap:
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
-    def test_get_map_with_whitespace_search_query(
+    def test_get_map_strips_whitespaces_from_search_query(
         self,
         mock_templates,
         mock_find_an_area,
@@ -470,7 +719,7 @@ class TestGetMap:
         mock_redis,
         mock_settings,
     ):
-        """Test get_map with search query that has whitespace"""
+        """Test `get_map()` strips whitespaces from search query."""
         # Setup
         search_query = "  SW1A 1AA  "
         search_type = "postcode"
@@ -485,7 +734,9 @@ class TestGetMap:
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis, search_query, search_type)
+        result = get_map(
+            mock_request, mock_session, mock_redis, search_query, search_type
+        )
 
         # No need to assert the full call signature so the test
         # doesn't depend on whether a second (search_type)
@@ -526,8 +777,7 @@ class TestGetMap:
         mock_settings,
     ):
         """
-        Test get_map with an empty search query will raise
-        'Enter a postcode' error.
+        Test `get_map()` with an empty postcode search query will raise error.
         """
         # Setup
         search_query = "   "
@@ -546,7 +796,9 @@ class TestGetMap:
         mock_templates.TemplateResponse.return_value = mock_template_response
 
         # Execute
-        result = get_map(mock_request, mock_session, mock_redis, search_query, search_type)
+        result = get_map(
+            mock_request, mock_session, mock_redis, search_query, search_type
+        )
 
         # Assert
         mock_templates.TemplateResponse.assert_called_once_with(

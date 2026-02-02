@@ -74,7 +74,7 @@ def get_map(
                 error = "UPRN must be 12 digits"
 
         # Execution logic
-        if not error and search_query:
+        if not error and (search_query and search_type):
             search_result = find_an_area(search_query, search_type)
 
             # Paint options when search type is "lpa"
