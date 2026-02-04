@@ -58,7 +58,12 @@ const mapMock = {
     moveLayer: vi.fn(),
     getCanvas: vi.fn().mockImplementation(() => {
         return domElementMock;
-    })
+    }),
+    getSource: vi.fn().mockImplementation(() => {
+        return undefined;
+    }),
+    removeSource: vi.fn(),
+    removeLayer: vi.fn()
 };
 
 const mapControllerMock = {

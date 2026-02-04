@@ -2,7 +2,7 @@
 {% set templateName = "dl-info/national-map.html" %}
 
 {%- from "components/map/macro.jinja" import map %}
-{%- from "components/find-an-area-form/macro.jinja" import dlFindAnAreaForm %}
+{%- from "components/map-find-an-area-form/macro.jinja" import dlFindAnAreaForm %}
 
 {% set containerClasses = 'dl-container--full-width' %}
 {% set fullWidthHeader = true %}
@@ -20,6 +20,7 @@
 {%- block mapAssets %}
   <script src='/static/javascripts/maplibre-gl.js'></script>
   <link href='/static/stylesheets/maplibre-gl.css' rel='stylesheet' />
+  <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
   {{ super() }}
 {% endblock -%}
 
@@ -40,12 +41,29 @@
       {{ dlFindAnAreaForm({
         "search_result": search_result,
         "search_query": search_query,
+        "error": error,
       }) }}
     </div>
   </div>
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
+      {% if search_result and search_result.geometry %}
+      {{
+        map({
+          'height': 700,
+          'layers': layers,
+          'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
+          'TILES_URL': settings.TILES_URL,
+          'notePanel': notePanel,
+          'enableZoomControls': true,
+          'enableLayerControls': true,
+          'enableZoomCounter': true,
+          'geojsons': [search_result.geometry],
+          'paint_options': entity_paint_options,
+        })
+      }}
+      {% else %}
       {{
         map({
           'height': 700,
@@ -58,6 +76,7 @@
           'enableZoomCounter': true,
         })
       }}
+      {% endif %}
 
       <p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">This prototype map is automatically created using data from planning.data.gov.uk. Find out more <a href="/about">about the Planning Data Platform</a></p>
 

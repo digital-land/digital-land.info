@@ -3,3 +3,46 @@
   padding: govuk-spacing(4);
   margin-bottom: govuk-spacing(4);
 }
+
+.dl-find-an-area-form .dl-find-an-area-controls {
+  display: inline-block;
+  margin-right: 15px;
+  // align-items: center;
+  // gap: govuk-spacing(3);
+  // flex-wrap: wrap;
+}
+
+.dl-find-an-area-form .dl-find-an-area-controls .govuk-select {
+  min-width: 12rem;
+}
+
+.dl-find-an-area-form #postcode-container,
+.dl-find-an-area-form #uprn-container,
+.dl-find-an-area-form #lpa-container {
+  /* allow inputs to appear inline next to the select */
+  display: inline-block;
+  margin-left: 10px;
+}
+
+/* Suggestions container for LPA autocomplete: force a full-width row under controls */
+.dl-find-an-area-form #lpa-suggestions {
+  width: 100%;
+  flex-basis: 100%;
+  // margin-top: govuk-spacing(2);
+}
+
+.dl-find-an-area-form #lpa-autocomplete-suggestions {
+  display: block; /* JS will toggle visibility; ensure default block layout when visible */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #ccc;
+  background: #fff;
+  max-height: 200px;
+  overflow: auto;
+}
+
+/* Respect the js-hidden utility which hides elements by setting display:none */
+.dl-find-an-area-form .js-hidden {
+  display: none !important;
+}

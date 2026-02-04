@@ -1,0 +1,127 @@
+{% macro dlFindAnAreaForm(params) %}
+
+{% set search_query = params.get("search_query", "") %}
+{% set search_result = params.get("search_result", {}) %}
+{% set url_query_params = params.get("url_query_params", []) %}
+{% set error = params.get("error", []) %}
+
+{# Determine currently selected option value from url_query_params list #}
+{% set selected_sort = "" %}
+{% for p_name, p_val in url_query_params %}
+  {% if p_name == 'type' %}
+    {% set selected_sort = p_val %}
+  {% endif %}
+{% endfor %}
+
+<form class="dl-find-an-area-form" method="get" id="dl-find-an-area-form">
+  <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+    <h2 class="govuk-label-wrapper">
+      <label class="govuk-label govuk-label--l" for="find-an-area">
+        Find an area
+      </label>
+    </h2>
+
+    <div id="find-an-area-hint" class="govuk-hint">
+        Search by a postcode, Unique Property Reference Number (UPRN), or a Local Planning Authority
+    </div>
+
+    {% if error %}
+      <p id="find-an-area-error" class="govuk-error-message">
+        <span>{{ error }}</span>
+      </p>
+    {% endif %}
+
+    {# Search controls row: select + inputs placed inline; visibility toggled with JS via .js-hidden #}
+    <div class="dl-find-an-area-controls">
+      <label class="govuk-label govuk-label--s govuk-visually-hidden" for="select-method">Search method</label>
+
+      {# Use name="type" so native (non-JS) form submissions send the expected query param #}
+      <select class="govuk-select" id="select-method" name="type">
+        <option value="postcode" {{ 'selected' if selected_sort == 'postcode' else '' }}>Postcode</option>
+        <option value="uprn" {{ 'selected' if selected_sort == 'uprn' else '' }}>UPRN</option>
+        <option value="lpa" {{ 'selected' if selected_sort == 'lpa' else '' }}>Local Planning Authority</option>
+      </select>
+
+      {# Non LPA search input: visible when type == 'postcode' or type == 'uprn' #}
+      <div id="postcode-container">
+        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="postcode-input">Postcode</label>
+        <input id="postcode-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" aria-describedby="find-an-area-hint" value="{{ search_query or '' }}">
+
+        {# Include any additional hidden fields for URL query parameters, without "q" #}
+        {% for param_name, param_value in url_query_params %}
+          {% if param_name != "q" %}
+          <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {# UPRN search input: visible when type == 'uprn' #}
+      <div id="uprn-container" class="js-hidden">
+        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="uprn-search-input">UPRN</label>
+        <input id="uprn-search-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" aria-describedby="find-an-area-hint" value="{{ search_query or '' }}">
+
+        {# Include any additional hidden fields for URL query parameters, without "q" #}
+        {% for param_name, param_value in url_query_params %}
+          {% if param_name != "q" %}
+          <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {# LPA type-search input: visible when type == 'lpa'. Uses same name 'q' so form submission works. #}
+      <div id="lpa-container" class="js-hidden">
+        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="lpa-autocomplete-input">Local planning authority</label>
+        <input id="lpa-autocomplete-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" type="text" name="q" aria-describedby="find-an-area-hint" autocomplete="off" value="{{ search_query or '' }}">
+
+        {# Include any additional hidden fields for URL query parameters, without "q" #}
+        {% for param_name, param_value in url_query_params %}
+          {% if param_name != "q" %}
+            <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div id="lpa-suggestions">
+        <ul id="lpa-autocomplete-suggestions" role="listbox" aria-label="Local planning authority suggestions"></ul>
+      </div>
+    </div>
+  </div>
+
+  {# Button #}
+  <button type="submit" id="find-an-area-submit" class="govuk-button govuk-button--start" data-module="govuk-button">
+    Find
+    <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+    </svg>
+  </button>
+</form>
+
+{# Search results #}
+{% if search_result %}
+  <div class="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <h2 class="govuk-heading-m">Search results</h2>
+    {% if search_result.get("type") == "postcode" and search_result.get("result") %}
+      <p class="govuk-body">
+        Showing results for postcode: {{ search_result.get("result", {}).get("POSTCODE", "") }}
+      </p>
+    {% elif search_result.get("type") == "uprn" and search_result.get("result") %}
+      <p class="govuk-body">
+        Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", "") }}
+      </p>
+    {% elif search_result.get("type") == "lpa" and search_result.get("result") %}
+      <p class="govuk-body">
+        Showing results for local planning authority: {{ search_result.get("result", {}).get("name", "") }}
+      </p>
+    {% else %}
+      <p class="govuk-body">
+        No results found for '{{ search_query }}'.
+      </p>
+      <p class="govuk-body">
+        Check <a href="https://design.planning.data.gov.uk/what-we-are-working-on">our current priorities</a> to see if this data is being prepared for the platform.
+      </p>
+      <p class="govuk-body">
+        If it's not there, you can <a href="https://design.planning.data.gov.uk/get-involved-in-designing-data">contribute to our data design process</a> to help prioritise it.
+      </p>
+    {% endif %}
+  </div>
+{% endif %}
+{% endmacro %}

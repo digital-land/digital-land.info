@@ -1,4 +1,4 @@
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
 import os
 
 from application.data_access.os_api import (
@@ -9,6 +9,7 @@ from application.data_access.os_api import (
     is_valid_postcode,
     get_os_api_key,
     base_search_params,
+    search_local_planning_authority,
 )
 
 
@@ -165,7 +166,7 @@ class TestOSAPI:
             "results": [{"DPA": {"POSTCODE": "SW1A 1AA"}}]
         }
 
-        result = search("SW1A 1AA")
+        result = search("SW1A 1AA", "postcode")
 
         mock_search_postcode.assert_called_once_with("SW1A 1AA")
         assert result == [{"POSTCODE": "SW1A 1AA"}]
@@ -175,24 +176,14 @@ class TestOSAPI:
         """Test that search calls search_uprn for numeric queries"""
         mock_search_uprn.return_value = {"results": [{"DPA": {"UPRN": "123456789"}}]}
 
-        result = search("123456789")
+        result = search("123456789", "uprn")
 
         mock_search_uprn.assert_called_once_with("123456789")
         assert result == [{"UPRN": "123456789"}]
 
     def test_search_with_empty_query(self):
         """Test that search returns empty list for empty query"""
-        result = search("")
-        assert result == []
-
-    def test_search_with_whitespace_only_query(self):
-        """Test that search returns empty list for whitespace-only query"""
-        result = search("   ")
-        assert result == []
-
-    def test_search_with_invalid_postcode(self):
-        """Test that search returns empty list for invalid postcode"""
-        result = search("INVALID")
+        result = search("", "")
         assert result == []
 
     @patch("application.data_access.os_api.search_postcode")
@@ -200,7 +191,7 @@ class TestOSAPI:
         """Test that search handles None response from search_postcode"""
         mock_search_postcode.return_value = None
 
-        result = search("SW1A 1AA")
+        result = search("SW1A 1AA", "postcode")
 
         assert result == []
 
@@ -209,7 +200,7 @@ class TestOSAPI:
         """Test that search handles None response from search_uprn"""
         mock_search_uprn.return_value = None
 
-        result = search("123456789")
+        result = search("123456789", "uprn")
 
         assert result == []
 
@@ -218,7 +209,7 @@ class TestOSAPI:
         """Test that search handles empty results from search_postcode"""
         mock_search_postcode.return_value = {"results": []}
 
-        result = search("SW1A 1AA")
+        result = search("SW1A 1AA", "postcode")
 
         assert result == []
 
@@ -227,7 +218,7 @@ class TestOSAPI:
         """Test that search handles empty results from search_uprn"""
         mock_search_uprn.return_value = {"results": []}
 
-        result = search("123456789")
+        result = search("123456789", "uprn")
 
         assert result == []
 
@@ -236,7 +227,7 @@ class TestOSAPI:
         """Test that search handles malformed data from search_postcode"""
         mock_search_postcode.return_value = {"malformed": "data"}
 
-        result = search("SW1A 1AA")
+        result = search("SW1A 1AA", "postcode")
 
         assert result == []
 
@@ -245,7 +236,7 @@ class TestOSAPI:
         """Test that search handles malformed data from search_uprn"""
         mock_search_uprn.return_value = {"malformed": "data"}
 
-        result = search("123456789")
+        result = search("123456789", "uprn")
 
         assert result == []
 
@@ -254,7 +245,7 @@ class TestOSAPI:
         # Test with very long numeric string (should be treated as UPRN)
         with patch("application.data_access.os_api.search_uprn") as mock_search_uprn:
             mock_search_uprn.return_value = {"results": []}
-            search("12345678901234567890")
+            search("12345678901234567890", "uprn")
             mock_search_uprn.assert_called_once_with("12345678901234567890")
 
         # Test with mixed alphanumeric (should be treated as postcode)
@@ -262,8 +253,71 @@ class TestOSAPI:
             "application.data_access.os_api.search_postcode"
         ) as mock_search_postcode:
             mock_search_postcode.return_value = {"results": []}
-            search("A1B 2CD")  # Valid postcode format: A1B 2CD
+            search("A1B 2CD", "postcode")  # Valid postcode format: A1B 2CD
             mock_search_postcode.assert_called_once_with("A1B 2CD")
+
+    @patch("application.data_access.os_api.get_entity_map_lpa")
+    @patch("application.data_access.os_api.get_context_session")
+    def test_search_local_planning_authority_returns_serialised_results(
+        self, mock_get_context_session, mock_get_entity_map_lpa
+    ):
+        context_manager = MagicMock()
+        mock_session = MagicMock()
+        context_manager.__enter__.return_value = mock_session
+        context_manager.__exit__.return_value = None
+        mock_get_context_session.return_value = context_manager
+
+        # Mock EntityModel object with a dict() method
+        mock_entity = MagicMock()
+        mock_entity.dict.return_value = {
+            "entity": 1,
+            "name": "Manchester LPA",
+            "dataset": "local-planning-authority",
+        }
+        mock_get_entity_map_lpa.return_value = mock_entity
+
+        results = search_local_planning_authority("Manchester")
+
+        mock_get_entity_map_lpa.assert_called_once_with(
+            mock_session, {"name": "Manchester"}
+        )
+        assert results == {
+            "entity": 1,
+            "name": "Manchester LPA",
+            "dataset": "local-planning-authority",
+        }
+
+    @patch("application.data_access.os_api.get_entity_map_lpa")
+    @patch("application.data_access.os_api.get_context_session")
+    def test_search_local_planning_authority_returns_empty_results(
+        self, mock_get_context_session, mock_get_entity_map_lpa
+    ):
+        context_manager = MagicMock()
+        mock_session = MagicMock()
+        context_manager.__enter__.return_value = mock_session
+        context_manager.__exit__.return_value = None
+        mock_get_context_session.return_value = context_manager
+
+        # Mock that get_entity_map_lpa raises AttributeError
+        mock_get_entity_map_lpa.side_effect = AttributeError(
+            "'NoneType' object has no attribute 'json'"
+        )
+
+        results = search_local_planning_authority("Super manchester")
+        mock_get_entity_map_lpa.assert_called_once_with(
+            mock_session, {"name": "Super manchester"}
+        )
+
+        assert results == []
+
+    @patch(
+        "application.data_access.os_api.search_local_planning_authority",
+        return_value={"entity": 1, "name": "Manchester LPA"},
+    )
+    def test_search_with_alpha_query_calls_lpa(self, mock_lpa_search):
+        result = search("Manchester", "lpa")
+        mock_lpa_search.assert_called_once_with("Manchester")
+        assert result == [{"entity": 1, "name": "Manchester LPA"}]
 
     @patch("application.data_access.os_api.requests.get")
     @patch("application.data_access.os_api.base_search_params")
