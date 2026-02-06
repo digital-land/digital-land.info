@@ -17,6 +17,10 @@
             {{ field|replace("-entity", "")|capitalize }}
         {%- elif field == "curie" %}
             {{ field|upper }}
+        {%- elif field == "local-authority-district" %}
+            {{ field|replace("-", " ")|title}}
+        {%- elif field == "opendatacommunities-uri" %}
+            Open Data Communities URI
         {%- else %}
             {{ field|replace("-", " ")|replace("url","URL")|capitalize }}
         {%- endif %}
