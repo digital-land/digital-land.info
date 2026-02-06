@@ -114,6 +114,8 @@ def test_fetch_linked_local_plans(db_session):
     # Since it is estimated, it should not come in the list
     assert timetable_entities[0].development_plan_event.name == "Plan published"
 
+    assert "local-plan-housing" in linked_entities
+    assert linked_entities["local-plan-housing"] == []
 
 def test_fetch_linked_local_plans_boundary(db_session):
     lp_entity = {
@@ -165,3 +167,71 @@ def test_fetch_linked_local_plans_boundary(db_session):
     assert "development-plan-timetable" in linked_entities
     assert linked_entities["development-plan-timetable"] == []
     assert linked_entities["development-plan-document"] == []
+    assert "local-plan-housing" in linked_entities
+    assert linked_entities["local-plan-housing"] == []
+
+
+def test_fetch_linked_local_plans_housing(db_session):
+    lp_entity = {
+        "entity": 4220006,
+        "name": "Local-plan test",
+        "entry_date": "2019-01-07",
+        "start_date": "2019-01-05",
+        "end_date": "2020-01-07",
+        "dataset": "local-plan",
+        "json": {
+            "adopted-date": "2018-09-27",
+            "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
+            "local-plan-boundary": "E07000012",
+        },
+        "organisation_entity": 123,
+        "prefix": "local-plan",
+        "reference": "1481207",
+        "typology": "legal-instrument",
+    }
+
+    housing_entity = {
+        "entity": 1100001,
+        "name": "Local-plan-housing test",
+        "entry_date": "2024-10-26",
+        "start_date": "2024-10-26",
+        "end_date": "",
+        "dataset": "local-plan-housing",
+        "json": {
+            "local-plan": "1481207",
+            "required-housing": 111,
+            "allocated-housing": 222,
+            "committed-housing": 333,
+            "windfall-housing": 44,
+            "broad-locations-housing": 555,
+        },
+        "organisation_entity": 123,
+        "prefix": "local-plan-housing",
+        "reference": "housing-ref-1",
+        "typology": "legal-instrument",
+    }
+
+    db_session.add(EntityOrm(**lp_entity))
+    db_session.add(EntityOrm(**housing_entity))
+
+    params = {
+        "reference": "1481207",
+        "name": "Local-plan test",
+        "dataset": "local-plan",
+        "entity": 4220006,
+        "local-plan-boundary": "E07000012",
+    }
+
+    linked_entities, boundary = fetch_linked_local_plans(db_session, params)
+
+    assert boundary is None
+    assert "local-plan-housing" in linked_entities
+    housing_entities = linked_entities["local-plan-housing"]
+
+    assert isinstance(housing_entities, list)
+    assert len(housing_entities) == 1
+    assert housing_entities[0].required_housing == 111
+    assert housing_entities[0].allocated_housing == 222
+    assert housing_entities[0].committed_housing == 333
+    assert housing_entities[0].windfall_housing == 44
+    assert housing_entities[0].broad_locations_housing == 555
