@@ -51,7 +51,14 @@ def test_file_download_tracking_respects_cookie_consent(
     geojson_link = page.locator('a[href*=".geojson"]').first
     if geojson_link.count() > 0:
         gtag_calls.clear()  # Clear any existing calls
-        geojson_link.click()
+        # Prevent actual navigation/download so the page stays intact
+        page.evaluate(
+            """
+            const link = document.querySelector('a[href*=".geojson"]');
+            link.addEventListener('click', (e) => e.preventDefault());
+            link.click();
+            """
+        )
         page.wait_for_timeout(500)  # Give handler time to fire
 
         # Should NOT see any file_download events
@@ -74,7 +81,14 @@ def test_file_download_tracking_respects_cookie_consent(
 
     if download_link.count() > 0:
         gtag_calls.clear()
-        download_link.click()
+        # Prevent actual navigation/download so the page stays intact
+        page.evaluate(
+            """
+            const link = document.querySelector('a[href*=".geojson"]');
+            link.addEventListener('click', (e) => e.preventDefault());
+            link.click();
+            """
+        )
         page.wait_for_timeout(500)
 
         # Should see exactly one file_download event
@@ -175,7 +189,9 @@ def test_file_download_tracking_ignores_non_download_links(server_url, page: Pag
     ), f"Regular links should not trigger file_download tracking, but got: {file_download_events}"
 
 
-@pytest.mark.parametrize("extension", ["geojson", "json", "xml", "gml", "kml"])
+@pytest.mark.parametrize(
+    "extension", ["geojson", "json", "xml", "gml", "kml", "gpkg", "shp"]
+)
 def test_file_download_tracking_captures_different_extensions(
     server_url, page: Page, extension
 ):
@@ -227,7 +243,13 @@ def test_file_download_tracking_captures_different_extensions(
 
     # Click the injected link
     gtag_calls.clear()
-    page.locator("#test-download-link").click()
+    page.evaluate(
+        """
+        const link = document.getElementById('test-download-link');
+        link.addEventListener('click', (e) => e.preventDefault());
+        link.click();
+        """
+    )
     page.wait_for_timeout(500)
 
     # Should see one file_download event
