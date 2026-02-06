@@ -254,6 +254,43 @@
       {% endif %}
     {% endif %}
 
+    {% if local_plans.get('local-plan-housing') and local_plans['local-plan-housing']|length > 0 %}
+      <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+        {% call appSummaryCard({
+          'classes': 'govuk-!-margin-bottom-0',
+          'titleText': 'Local plan housing'
+        }) %}
+          <table class="govuk-table">
+            <thead class="govuk-table__head">
+              <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Entity</th>
+                <th scope="col" class="govuk-table__header">Required Housing</th>
+                <th scope="col" class="govuk-table__header">Allocated Housing</th>
+                <th scope="col" class="govuk-table__header">Committed Housing</th>
+                <th scope="col" class="govuk-table__header">Windfall Housing</th>
+                <th scope="col" class="govuk-table__header">Broad Locations Housing</th>
+              </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+              {% for housing in local_plans['local-plan-housing'] %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell app-table__cell">
+                    <a class="govuk-link" style="white-space: nowrap;" href="{{ housing.entity }}">
+                      {{ housing.entity }}
+                    </a>
+                  </td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.required_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.allocated_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.committed_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.windfall_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.broad_locations_housing }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endcall %}
+      </div>
+    {% endif %}
 
     {% if local_plans.get('development-plan-timetable') %}
       <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
