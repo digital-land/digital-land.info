@@ -195,7 +195,7 @@ def test_fetch_linked_local_plans_housing(db_session):
         "name": "Local-plan-housing test",
         "entry_date": "2024-10-26",
         "start_date": "2024-10-26",
-        "end_date": "",
+        "end_date": None,
         "dataset": "local-plan-housing",
         "json": {
             "local-plan": "1481207",
