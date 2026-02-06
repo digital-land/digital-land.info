@@ -24,35 +24,35 @@ def test_fetch_linked_local_plans(db_session):
 
     lpd_entity = {
         "entity": 4220005,
-        "name": "Local-plan-timetable test",
+        "name": "Development-plan-timetable test",
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-timetable",
+        "dataset": "development-plan-timetable",
         "json": {
             "event-date": "2018-11-20",
             "local-plan": "1481207",
-            "local-plan-event": "plan-published",
+            "development-plan-event": "plan-published",
         },
         "organisation_entity": 123,
-        "prefix": "local-plan-timetable",
+        "prefix": "development-plan-timetable",
         "reference": "test-timetable",
         "typology": "timetable",
     }
     lpd_entity1 = {
         "entity": 4220004,
-        "name": "Local-plan-timetable test1",
+        "name": "development-plan-timetable test1",
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-timetable",
+        "dataset": "development-plan-timetable",
         "json": {
             "event-date": "2018-11-20",
             "local-plan": "1481207",
-            "local-plan-event": "estimated-plan-published",
+            "development-plan-event": "estimated-plan-published",
         },
         "organisation_entity": 123,
-        "prefix": "local-plan-timetable",
+        "prefix": "development-plan-timetable",
         "reference": "test-timetable1",
         "typology": "timetable",
     }
@@ -63,9 +63,9 @@ def test_fetch_linked_local_plans(db_session):
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-event",
+        "dataset": "development-plan-event",
         "organisation_entity": 123,
-        "prefix": "local-plan-event",
+        "prefix": "development-plan-event",
         "typology": "category",
     }
     lpe_entity1 = {
@@ -75,9 +75,9 @@ def test_fetch_linked_local_plans(db_session):
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-event",
+        "dataset": "development-plan-event",
         "organisation_entity": 123,
-        "prefix": "local-plan-event",
+        "prefix": "development-plan-event",
         "typology": "category",
     }
 
@@ -98,9 +98,9 @@ def test_fetch_linked_local_plans(db_session):
     linked_entities, boundary = fetch_linked_local_plans(db_session, params)
 
     assert boundary is None
-    assert "local-plan-timetable" in linked_entities
+    assert "development-plan-timetable" in linked_entities
     # Fetch the timetable entities
-    timetable_entities = linked_entities["local-plan-timetable"]
+    timetable_entities = linked_entities["development-plan-timetable"]
 
     # Ensure timetable_entities is a list
     assert isinstance(
@@ -109,10 +109,10 @@ def test_fetch_linked_local_plans(db_session):
 
     # Ensure at least one timetable entity exists
     assert len(timetable_entities) == 2, "Expected 2 timetable entity in 'local-plan'"
-    assert isinstance(timetable_entities[0].local_plan_event, EntityModel)
-    assert timetable_entities[1].local_plan_event is None
+    assert isinstance(timetable_entities[0].development_plan_event, EntityModel)
+    assert timetable_entities[1].development_plan_event is None
     # Since it is estimated, it should not come in the list
-    assert timetable_entities[0].local_plan_event.name == "Plan published"
+    assert timetable_entities[0].development_plan_event.name == "Plan published"
 
 
 def test_fetch_linked_local_plans_boundary(db_session):
@@ -162,6 +162,6 @@ def test_fetch_linked_local_plans_boundary(db_session):
 
     linked_entities, boundary = fetch_linked_local_plans(db_session, params)
     assert hasattr(boundary, "geojson")
-    assert "local-plan-timetable" in linked_entities
-    assert linked_entities["local-plan-timetable"] == []
-    assert linked_entities["local-plan-document"] == []
+    assert "development-plan-timetable" in linked_entities
+    assert linked_entities["development-plan-timetable"] == []
+    assert linked_entities["development-plan-document"] == []
