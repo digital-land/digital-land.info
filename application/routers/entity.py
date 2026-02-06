@@ -304,12 +304,11 @@ def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
     if dataset in linked_datasets:
         linked_dataset_value = linked_datasets[dataset]
         for linked_dataset in linked_dataset_value:
-            if dataset in ["local-plan-boundary", "minerals-plan-boundary", "waste-plan-boundary"]:
-                if linked_dataset in e_dict_sorted:
-                    development_plan_boundary_geojson = fetchEntityFromReference(
-                        session, linked_dataset, e_dict_sorted[linked_dataset]
-                    )
-                    
+            if linked_dataset == f"{dataset}-boundary" and linked_dataset in e_dict_sorted:
+                development_plan_boundary_geojson = fetchEntityFromReference(
+                    session, linked_dataset, e_dict_sorted[linked_dataset]
+                )
+     
             linked_entities = get_linked_entities(
                 session, linked_dataset, reference, linked_dataset=dataset
             )
