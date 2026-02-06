@@ -36,10 +36,10 @@
   {% set includesMap = true %}
 {% endif %}
 
-{% if pipeline_name == 'local-plan'%}
-  {% if local_plan_geojson != none %}
+{% if pipeline_name in ['local-plan', 'minerals-plan', 'waste-plan'] %}
+  {% if development_plan_geojson != none %}
     {% set includesMap = true %}
-    {% set geojson_data = local_plan_geojson %}
+    {% set geojson_data = development_plan_geojson %}
   {% endif %}
 {% endif %}
 
@@ -195,11 +195,11 @@
 
     </div>
 
-    {% if local_plans['local-plan'] %}
+    {% if local_plans.get('local-plan') %}
     <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plans'
+      'titleText': 'Related Local Plan'
       }) %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
@@ -225,17 +225,77 @@
       </table>
       {% endcall %}
     </div>
-    {% elif entity.dataset == "local-plan-boundary" %}
+    {% elif local_plans.get('minerals-plan') %}
     <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plans'
+      'titleText': 'Related Minerals Plan'
+      }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Minerals Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for plan in local_plans['minerals-plan'] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
+            </td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% elif local_plans.get('waste-plan') %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Waste Plan'
+      }) %}
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Waste Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for plan in local_plans['waste-plan'] %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
+            </td>
+            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+            <td class="govuk-table__cell app-table__cell">
+              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endcall %}
+    </div>
+    {% elif entity.dataset in ["local-plan-boundary", "minerals-plan-boundary", "waste-plan-boundary"] %}
+    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      {% call appSummaryCard({
+      'classes': 'govuk-!-margin-bottom-0',
+      'titleText': 'Related Plans'
       }) %}
       <table class="govuk-table">
         <tbody class="govuk-table__body">
           <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell govuk-body">
-              No related local plans are available for this entity.
+              No related plans are available for this entity.
             </td>
           </tr>
         </tbody>
@@ -244,11 +304,12 @@
     </div>
     {% endif %}
 
-    {% if local_plans['development-plan-timetable'] %}
+
+    {% if local_plans.get('development-plan-timetable') %}
       <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
         {% call appSummaryCard({
             'classes': 'govuk-!-margin-bottom-0',
-            'titleText': 'Related Local Plan Timetable'
+            'titleText': 'Related Development Plan Timetable'
         }) %}
         <ol class="dl-timeline dl-timeline--dates">
             {% for plan in local_plans['development-plan-timetable'] %}
@@ -273,11 +334,11 @@
     </div>
   {% endif %}
 
-    {% if local_plans['development-plan-document'] %}
+    {% if local_plans.get('development-plan-document') %}
     <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plan Document'
+      'titleText': 'Related Development Plan Documents'
       }) %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
@@ -311,9 +372,18 @@
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
       {%- if includesMap %}
+        {% if pipeline_name == 'local-plan' %}
+          {% set map_title = 'Local Plan Boundary' %}
+        {% elif pipeline_name == 'minerals-plan' %}
+          {% set map_title = 'Minerals Plan Boundary' %}
+        {% elif pipeline_name == 'waste-plan' %}
+          {% set map_title = 'Waste Plan Boundary' %}
+        {% else %}
+          {% set map_title = 'Geographical area' %}
+        {% endif %}
         {% call appSummaryCard({
           'classes': 'govuk-!-margin-bottom-0',
-          'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
+          'titleText': map_title,
           'actions': {
             'items': [
               {
