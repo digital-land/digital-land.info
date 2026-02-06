@@ -347,7 +347,7 @@ def single_entity_model():
 
 @pytest.fixture
 def linked_entity_model():
-    model = EntityModel(
+    plan_entity = EntityModel(
         entity=4220006,
         entry_date="2022-03-23",
         name="test Local Plan",
@@ -360,7 +360,14 @@ def linked_entity_model():
             "local-plan-boundary": "E07000012",
         },
     )
-    return model, None
+    
+    # Return dictionary of linked datasets and boundary geojson
+    return {
+        'local-plan': [plan_entity],
+        'development-plan-document': [],
+        'development-plan-timetable': [],
+        'local-plan-boundary': []
+    }, None
 
 
 @pytest.fixture

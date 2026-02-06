@@ -8,6 +8,40 @@
 {%- from "components/entity-field/macro.jinja" import entityField %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
+{% macro planTable(plans, key, titleText, columnLabel) %}
+  {% if plans.get(key) %}
+  <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    {% call appSummaryCard({
+    'classes': 'govuk-!-margin-bottom-0',
+    'titleText': titleText
+    }) %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
+          <th scope="col" class="govuk-table__header" style="white-space: nowrap;">{{ columnLabel }}</th>
+          <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for plan in plans[key] %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell app-table__cell">
+            <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
+          </td>
+          <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+          <td class="govuk-table__cell app-table__cell">
+            <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endcall %}
+  </div>
+  {% endif %}
+{% endmacro %}
+
 {% set is_truncated = false %}
 {% if row['geometry'] %}
   {% if row['geometry']|length > 100000 %}
@@ -195,97 +229,12 @@
 
     </div>
 
-    {% if local_plans.get('local-plan') %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
-      {% call appSummaryCard({
-      'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plan'
-      }) %}
-      <table class="govuk-table">
-        <thead class="govuk-table__head">
-          <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
-          </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-          {% for plan in local_plans['local-plan'] %}
-          <tr class="govuk-table__row">
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
-            </td>
-            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% endcall %}
-    </div>
-    {% elif local_plans.get('minerals-plan') %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
-      {% call appSummaryCard({
-      'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Minerals Plan'
-      }) %}
-      <table class="govuk-table">
-        <thead class="govuk-table__head">
-          <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Minerals Plan Name</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
-          </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-          {% for plan in local_plans['minerals-plan'] %}
-          <tr class="govuk-table__row">
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
-            </td>
-            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% endcall %}
-    </div>
-    {% elif local_plans.get('waste-plan') %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
-      {% call appSummaryCard({
-      'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Waste Plan'
-      }) %}
-      <table class="govuk-table">
-        <thead class="govuk-table__head">
-          <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Waste Plan Name</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
-          </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-          {% for plan in local_plans['waste-plan'] %}
-          <tr class="govuk-table__row">
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
-            </td>
-            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% endcall %}
-    </div>
-    {% elif entity.dataset in ["local-plan-boundary", "minerals-plan-boundary", "waste-plan-boundary"] %}
+    {{ planTable(local_plans, 'local-plan', 'Related Local Plan', 'Local Plan Name') }}
+    {{ planTable(local_plans, 'minerals-plan', 'Related Minerals Plan', 'Minerals Plan Name') }}
+    {{ planTable(local_plans, 'waste-plan', 'Related Waste Plan', 'Waste Plan Name') }}
+    
+    {% if not local_plans.get('local-plan') and not local_plans.get('minerals-plan') and not local_plans.get('waste-plan') %}
+      {% if entity.dataset in ["local-plan-boundary", "minerals-plan-boundary", "waste-plan-boundary"] %}
     <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
@@ -302,6 +251,7 @@
       </table>
       {% endcall %}
     </div>
+      {% endif %}
     {% endif %}
 
 
