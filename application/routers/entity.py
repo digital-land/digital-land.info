@@ -279,6 +279,7 @@ linked_datasets = {
         "development-plan-document",
         "development-plan-timetable",
         "local-plan-boundary",
+        "local-plan-housing",
     ],
     "minerals-plan-boundary": ["minerals-plan"],
     "minerals-plan": [
