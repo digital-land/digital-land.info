@@ -377,13 +377,13 @@
                 'text': 'Download geojson',
                 'href': (
                 '/entity/' +
-                (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"]) | string +
+                (geojson_data["entity"] if pipeline_name in ['local-plan', 'minerals-plan', 'waste-plan'] else row["entity"]) | string +
                 '.geojson'
               ),
                 'attributes': [
                   {
                     'key': 'download',
-                    'value': (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"])
+                    'value': (geojson_data["entity"] if pipeline_name in ['local-plan', 'minerals-plan', 'waste-plan'] else row["entity"])
                       | string + '.geojson'
                   }
                 ]
