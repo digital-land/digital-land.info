@@ -212,7 +212,7 @@ def handle_entity_response(
         "tree-preservation-order",
         "local-plan-boundary",
         "local-plan",
-        "minerals-plan,
+        "minerals-plan",
         "waste-plan",
         "development-plan-event",
         "conservation-area",
