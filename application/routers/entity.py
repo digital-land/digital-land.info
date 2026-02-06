@@ -212,7 +212,7 @@ def handle_entity_response(
         "tree-preservation-order",
         "local-plan-boundary",
         "local-plan",
-        "local-plan-event",
+        "development-plan-event",
         "conservation-area",
         "listed-building",
     ]
@@ -274,8 +274,8 @@ def handle_entity_response(
 linked_datasets = {
     "local-plan-boundary": ["local-plan"],
     "local-plan": [
-        "local-plan-document",
-        "local-plan-timetable",
+        "development-plan-document",
+        "development-plan-timetable",
         "local-plan-boundary",
     ],
 }
@@ -299,19 +299,19 @@ def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
             )
             results[linked_dataset] = linked_entities
 
-            # Handle special case for "local-plan-timetable"
-            if dataset == "local-plan" and linked_dataset == "local-plan-timetable":
+            # Handle special case for "deevlopment-plan-timetable"
+            if dataset == "local-plan" and linked_dataset == "development-plan-timetable":
                 for entity in linked_entities:
                     if (
-                        hasattr(entity, "local_plan_event")
-                        and entity.local_plan_event
-                        and not entity.local_plan_event.startswith("estimated")
+                        hasattr(entity, "development_plan_event")
+                        and entity.development_plan_event
+                        and not entity.development_plan_event.startswith("estimated")
                     ):
-                        entity.local_plan_event = fetchEntityFromReference(
-                            session, "local-plan-event", entity.local_plan_event
+                        entity.development_plan_event = fetchEntityFromReference(
+                            session, "development-plan-event", entity.development_plan_event
                         )
                     else:
-                        entity.local_plan_event = None
+                        entity.development_plan_event = None
 
     return results, local_plan_boundary_geojson
 
