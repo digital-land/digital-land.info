@@ -1031,5 +1031,5 @@ def test_get_entity_local_plan_renders_housing_when_present(
 
     assert result.status_code == 200
     html = result.template.render(result.context)
-    assert "Local Plan housing" in html
+    assert "Local plan housing" in html
     assert "111" in html
