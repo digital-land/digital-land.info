@@ -299,7 +299,7 @@ def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
             )
             results[linked_dataset] = linked_entities
 
-            # Handle special case for "deevlopment-plan-timetable"
+            # Handle special case for "development-plan-timetable"
             if dataset == "local-plan" and linked_dataset == "development-plan-timetable":
                 for entity in linked_entities:
                     if (
