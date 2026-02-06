@@ -244,18 +244,18 @@
     </div>
     {% endif %}
 
-    {% if local_plans['local-plan-timetable'] %}
+    {% if local_plans['development-plan-timetable'] %}
       <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
         {% call appSummaryCard({
             'classes': 'govuk-!-margin-bottom-0',
             'titleText': 'Related Local Plan Timetable'
         }) %}
         <ol class="dl-timeline dl-timeline--dates">
-            {% for plan in local_plans['local-plan-timetable'] %}
-            {% if plan.local_plan_event %}
+            {% for plan in local_plans['development-plan-timetable'] %}
+            {% if plan.development_plan_event %}
             <li class="dl-timeline__entry">
               <h3 class="govuk-heading-s dl-timeline__entry-heading">
-                    {{ plan.local_plan_event.name }}
+                    {{ plan.development_plan_event.name }}
                 </h3>
                 <p class="dl-timeline__entry-details govuk-body-s">
                     {{ plan.event_date | format_date}}
@@ -273,7 +273,7 @@
     </div>
   {% endif %}
 
-    {% if local_plans['local-plan-document'] %}
+    {% if local_plans['development-plan-document'] %}
     <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
@@ -289,7 +289,7 @@
           </tr>
         </thead>
         <tbody class="govuk-table__body">
-          {% for plan in local_plans['local-plan-document'] %}
+          {% for plan in local_plans['development-plan-document'] %}
           <tr class="govuk-table__row">
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
