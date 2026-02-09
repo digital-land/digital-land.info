@@ -1,231 +1,279 @@
 {% from 'components/filter-checkboxes/macro.jinja' import dlFilterCheckboxes %}
 {%- from "components/filter-group/macro.jinja" import dlFilterGroup %}
-<form action="{{ search_form_url }}" method="get" id="search-facets-form">
 
-  <h2 class="govuk-heading-m">Filters</h2>
-  {%- if typologies %}
-  <!-- typology facet -->
-  <div class="govuk-form-group">
-    {% call dlFilterGroup({
+<form action="{{ search_form_url }}" method="get" id="search-facets-form">
+    <h2 class="govuk-heading-m">Filters</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    {%- if typologies %}
+        <!-- typology facet -->
+        <div class="govuk-form-group">
+            {% call dlFilterGroup({
       "title": "Typology",
       "is_open": True if query.params.get('typology') else False,
       "selected": query.params.get('typology')|length if query.params.get('typology') else 0
     }) %}
-    <div class="govuk-checkboxes">
-      {% for typology in typologies %}
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="typology-{{loop.index}}" name="typology" type="checkbox" value="{{ typology['typology'] }}" {% if query.params.get('typology') and typology['typology'] in query.params.get('typology') %}checked="checked"{% endif %}>
-        <label class="govuk-label govuk-checkboxes__label" for="typology-{{loop.index}}">
-          {{ typology['name'] }}
-        </label>
-      </div>
-      {% endfor %}
-    </div>
-    {% endcall %}
-  </div>
-  {% endif -%}
+                <div class="govuk-checkboxes">
+                    {% for typology in typologies %}
+                        <div class="govuk-checkboxes__item">
+                            <input class="govuk-checkboxes__input" id="typology-{{ loop.index }}" name="typology"
+                                   type="checkbox" value="{{ typology['typology'] }}"
+                                   {% if query.params.get('typology') and typology['typology'] in query.params.get('typology') %}checked="checked"{% endif %}>
+                            <label class="govuk-label govuk-checkboxes__label" for="typology-{{ loop.index }}">
+                                {{ typology['name'] }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endcall %}
+        </div>
+    {% endif -%}
 
-  {%- if datasets %}
-  <!-- dataset facet -->
-  <div class="govuk-form-group">
-    {% set checkboxesHTML %}
-      {% for dataset in datasets %}
-      <div class="govuk-checkboxes__item" id="dataset-{{dataset['name']}}">
-        <input class="govuk-checkboxes__input" id="dataset-{{loop.index}}" name="dataset" type="checkbox" value="{{ dataset['dataset'] }}" {% if query.params.get('dataset') and dataset['dataset'] in query.params.get('dataset') %}checked="checked"{% endif %}>
-        <label class="govuk-label govuk-checkboxes__label" for="dataset-{{loop.index}}">
-          {{ dataset['name'] }}
-        </label>
-      </div>
-      {% endfor %}
-    {% endset %}
+    {%- if datasets %}
+    <!-- dataset facet -->
+    <div class="govuk-form-group">
+        {% set checkboxesHTML %}
+        {% for dataset in datasets %}
+            <div class="govuk-checkboxes__item" id="dataset-{{ dataset['name'] }}">
+                <input class="govuk-checkboxes__input" id="dataset-{{ loop.index }}" name="dataset" type="checkbox"
+                       value="{{ dataset['dataset'] }}"
+                       {% if query.params.get('dataset') and dataset['dataset'] in query.params.get('dataset') %}checked="checked"{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="dataset-{{ loop.index }}">
+                    {{ dataset['name'] }}
+                </label>
+            </div>
+        {% endfor %}
+        {% endset %}
 
-    {% call dlFilterGroup({
+        {% call dlFilterGroup({
       "title": "Dataset",
       "is_open": True,
       "selected": query.params.get('dataset')|length if query.params.get('dataset') else 0
     }) %}
-    {{ dlFilterCheckboxes({
+            {{ dlFilterCheckboxes({
       "uniqueID": random_int(5),
       "checkboxesHTML": checkboxesHTML
     }) }}
-    {% endcall %}
-  </div>
-  {% endif -%}
+        {% endcall %}
+    </div>
+    {% endif -%}
 
-  {%- if local_authorities %}
-  <!-- local authority district facet -->
-  {# this is messy until geometry_reference accepts a list #}
-  {% set checkboxesHTML %}
+    {%- if local_authorities %}
+    <!-- local authority district facet -->
+    {# this is messy until geometry_reference accepts a list #}
+    {% set checkboxesHTML %}
     {% for district in local_authorities %}
-      {% set district_curie = 'statistical-geography:' + district['statistical_geography'] %}
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="geometry-{{loop.index}}" name="geometry_curie" type="checkbox" value="{{ district_curie }}"
-        {% if query.params.get('geometry_curie') and  district_curie in query.params.get('geometry_curie') %}checked="checked"{% endif %}>
-        <label class="govuk-label govuk-checkboxes__label" for="geometry-{{loop.index}}">
-          {{ district['name'] }} District
-        </label>
-      </div>
+        {% set district_curie = 'statistical-geography:' + district['statistical_geography'] %}
+        <div class="govuk-checkboxes__item">
+            <input class="govuk-checkboxes__input" id="geometry-{{ loop.index }}" name="geometry_curie" type="checkbox"
+                   value="{{ district_curie }}"
+                   {% if query.params.get('geometry_curie') and  district_curie in query.params.get('geometry_curie') %}checked="checked"{% endif %}>
+            <label class="govuk-label govuk-checkboxes__label" for="geometry-{{ loop.index }}">
+                {{ district['name'] }} District
+            </label>
+        </div>
     {% endfor %}
-  {% endset %}
+    {% endset %}
 
-  <div class="govuk-form-group">
-    {% call dlFilterGroup({
+    <div class="govuk-form-group">
+        {% call dlFilterGroup({
       "title": "Location",
       "is_open": True if query.params.get('geometry_curie') else False,
       "selected": query.params.get('geometry_curie')|geometry_reference_count if query.params.get('geometry_curie') else 0
     }) %}
-    {{ dlFilterCheckboxes({
+            {{ dlFilterCheckboxes({
       "uniqueID": random_int(5),
       "checkboxesHTML": checkboxesHTML
     }) }}
-    {% endcall %}
-  </div>
-  {% endif -%}
+        {% endcall %}
+    </div>
+    {% endif -%}
 
-  {%- if organisations %}
-  <!-- organisation facet -->
+<!-- Search by postcode or uprn  -->
     <div class="govuk-form-group">
-      {% set checkboxesHTML %}
+        {% set search_query = query.params.get("q", "") %}
+        <div class="dl-filter-group">
+            <h2 class="dl-filter-group__heading govuk-heading-s">
+                <label class="govuk-label govuk-label--s" for="find-an-area">
+                    Postcode or Unique Property Reference Number (UPRN)
+                </label>
+            </h2>
+            <fieldset class="govuk-fieldset dl-filter-group__fieldset">
+                <input class="govuk-input dl-filter-group__auto-filter__input" id="find-an-area" name="q" type="text"
+                       spellcheck="false"
+                       aria-describedby="find-an-area-hint" value="{{ search_query }}"
+                >
+            </fieldset>
+        </div>
+    </div>
+
+
+    {%- if organisations %}
+    <!-- organisation facet -->
+    <div class="govuk-form-group">
+        {% set checkboxesHTML %}
         {% for organisation in organisations %}
-          <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="organisation_entity-{{ loop.index }}" name="organisation_entity"
-              type="checkbox" value="{{ organisation['organisation_entity'] }}" {% if organisation['organisation_entity'] in
+            <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="organisation_entity-{{ loop.index }}"
+                       name="organisation_entity"
+                       type="checkbox" value="{{ organisation['organisation_entity'] }}" {% if organisation['organisation_entity'] in
               query.params.get('organisation_entity', []) | map('string') %} checked="checked" {% endif %}>
-            <label class="govuk-label govuk-checkboxes__label" for="organisation_entity-{{ loop.index }}">
-              {{ organisation['name'] }}
-            </label>
-          </div>
+                <label class="govuk-label govuk-checkboxes__label" for="organisation_entity-{{ loop.index }}">
+                    {{ organisation['name'] }}
+                </label>
+            </div>
         {% endfor %}
-      {% endset %}
-      {% call dlFilterGroup({
+        {% endset %}
+        {% call dlFilterGroup({
           "title": "Organisation",
           "is_open": True if query.params.get('organisation_entity') else False,
           "selected": query.params.get('organisation_entity')|length if query.params.get('organisation_entity') else 0
         }) %}
-        {{ dlFilterCheckboxes({
+            {{ dlFilterCheckboxes({
           "uniqueID": random_int(5),
           "checkboxesHTML": checkboxesHTML
         }) }}
-      {% endcall %}
+        {% endcall %}
     </div>
-  {% endif -%}
+    {% endif -%}
 
-  <!-- filter by period type -->
-  {% set checkboxesHTML %}
+    <!-- filter by period type -->
+    {% set checkboxesHTML %}
     <div class="govuk-checkboxes__item">
-      <input class="govuk-checkboxes__input" id="period-2" name="period" type="checkbox" value="current" {% if query.params.get('period') and 'current' in query.params.get('period') %}checked=checked{% endif %}>
-      <label class="govuk-label govuk-checkboxes__label" for="period-2">
-        Current
-      </label>
+        <input class="govuk-checkboxes__input" id="period-2" name="period" type="checkbox" value="current"
+               {% if query.params.get('period') and 'current' in query.params.get('period') %}checked=checked{% endif %}>
+        <label class="govuk-label govuk-checkboxes__label" for="period-2">
+            Current
+        </label>
     </div>
     <div class="govuk-checkboxes__item">
-      <input class="govuk-checkboxes__input" id="period-3" name="period" type="checkbox" value="historical" {% if query.params.get('period') and 'historical' in query.params.get('period') %}checked=checked{% endif %}>
-      <label class="govuk-label govuk-checkboxes__label" for="period-3">
-        Historical
-      </label>
+        <input class="govuk-checkboxes__input" id="period-3" name="period" type="checkbox" value="historical"
+               {% if query.params.get('period') and 'historical' in query.params.get('period') %}checked=checked{% endif %}>
+        <label class="govuk-label govuk-checkboxes__label" for="period-3">
+            Historical
+        </label>
     </div>
-  {% endset %}
-  <div class="govuk-form-group">
-    {% call dlFilterGroup({
+    {% endset %}
+    <div class="govuk-form-group">
+        {% call dlFilterGroup({
       "title": "Period",
       "is_open": False,
       "selected": query.params.get('period')|length if query.params.get('period') else 0
     }) %}
-      {{ dlFilterCheckboxes({
+            {{ dlFilterCheckboxes({
         "uniqueID": random_int(5),
         "checkboxesHTML": checkboxesHTML
       }) }}
-    {% endcall %}
-  </div>
-
-  <!-- filter by entry date -->
-  <div class="dl-filter-group govuk-!-margin-bottom-6">
-    <h2 class="dl-filter-group__heading govuk-heading-s">Entry date</h2>
-    <div class="app-filter-group__body">
-
-      <div class="govuk-form-group">
-        <fieldset class="govuk-fieldset" role="group" aria-describedby="entry-date-hint">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-            <h1 class="govuk-fieldset__heading govuk-visually-hidden">
-              Which date are you interested in?
-            </h1>
-          </legend>
-          <div id="entry-date-hint" class="govuk-hint">
-            For example, 27 3 2021
-          </div>
-          <div class="govuk-date-input" id="entry-date">
-            <div class="govuk-date-input__item">
-              <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label" for="entry_date_day">
-                  Day
-                </label>
-                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry_date_day" name="entry_date_day" type="text" pattern="[0-9]*" inputmode="numeric"{% if query.params.get('entry_date_day') %} value={{ query.params.get('entry_date_day') }}{% endif %}>
-              </div>
-            </div>
-            <div class="govuk-date-input__item">
-              <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label" for="entry_date_month">
-                  Month
-                </label>
-                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="entry_date_month" name="entry_date_month" type="text" pattern="[0-9]*" inputmode="numeric"{% if query.params.get('entry_date_month') %} value={{ query.params.get('entry_date_month') }}{% endif %}>
-              </div>
-            </div>
-            <div class="govuk-date-input__item">
-              <div class="govuk-form-group">
-                <label class="govuk-label govuk-date-input__label" for="entry_date_year">
-                  Year
-                </label>
-                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="entry_date_year" name="entry_date_year" type="text" pattern="[0-9]*" inputmode="numeric"{% if query.params.get('entry_date_year') %} value={{ query.params.get('entry_date_year') }}{% endif %}>
-              </div>
-            </div>
-          </div>
-        </fieldset>
-      </div>
-
-      <div class="govuk-form-group">
-        <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-            <h1 class="govuk-fieldset__heading govuk-visually-hidden">
-              Do you want to see entries since the date or after the date?
-            </h1>
-          </legend>
-          <div class="govuk-radios">
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="entry_date_match" name="entry_date_match" type="radio" value="since" {% if query.params.get('entry_date_match') and 'since' in query.params.get('entry_date_match') %}checked=checked{% endif %}>
-              <label class="govuk-label govuk-radios__label" for="entry_date_match">
-                Since
-              </label>
-            </div>
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="entry_date_match-2" name="entry_date_match" type="radio" value="before" {% if query.params.get('entry_date_match') and 'before' in query.params.get('entry_date_match') %}checked=checked{% endif %}>
-              <label class="govuk-label govuk-radios__label" for="entry_date_match-2">
-                Before
-              </label>
-            </div>
-          </div>
-        </fieldset>
-      </div>
+        {% endcall %}
     </div>
-  </div>
 
-  <!-- Filter by Latitude and Longitude (hidden fields) -->
-  {% if query.params.get('latitude') %}
-    <input type="hidden" name="latitude" value="{{ query.params.get('latitude') }}" />
-  {% endif %}
-  {% if query.params.get('longitude') %}
-    <input type="hidden" name="longitude" value="{{ query.params.get('longitude') }}" />
-  {% endif %}
+    <!-- filter by entry date -->
+    <div class="dl-filter-group govuk-!-margin-bottom-6">
+        <h2 class="dl-filter-group__heading govuk-heading-s">Entry date</h2>
+        <div class="app-filter-group__body">
 
-  <!-- Search Query: Postcode / UPRN -->
-  {% if query.params.get('q') %}
-    <input type="hidden" name="q" value="{{ query.params.get('q') }}" />
-  {% endif %}
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset" role="group" aria-describedby="entry-date-hint">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                            Which date are you interested in?
+                        </h1>
+                    </legend>
+                    <div id="entry-date-hint" class="govuk-hint">
+                        For example, 27 3 2021
+                    </div>
+                    <div class="govuk-date-input" id="entry-date">
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label govuk-date-input__label" for="entry_date_day">
+                                    Day
+                                </label>
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-2"
+                                       id="entry_date_day" name="entry_date_day" type="text" pattern="[0-9]*"
+                                       inputmode="numeric"{% if query.params.get('entry_date_day') %} value=
+                                    {{ query.params.get('entry_date_day') }}{% endif %}>
+                            </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label govuk-date-input__label" for="entry_date_month">
+                                    Month
+                                </label>
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-2"
+                                       id="entry_date_month" name="entry_date_month" type="text" pattern="[0-9]*"
+                                       inputmode="numeric"{% if query.params.get('entry_date_month') %} value=
+                                    {{ query.params.get('entry_date_month') }}{% endif %}>
+                            </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label govuk-date-input__label" for="entry_date_year">
+                                    Year
+                                </label>
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-4"
+                                       id="entry_date_year" name="entry_date_year" type="text" pattern="[0-9]*"
+                                       inputmode="numeric"{% if query.params.get('entry_date_year') %} value=
+                                    {{ query.params.get('entry_date_year') }}{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
 
-  <div class="govuk-button-group">
-    {{ govukButton({
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                        <h1 class="govuk-fieldset__heading govuk-visually-hidden">
+                            Do you want to see entries since the date or after the date?
+                        </h1>
+                    </legend>
+                    <div class="govuk-radios">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="entry_date_match" name="entry_date_match"
+                                   type="radio" value="since"
+                                   {% if query.params.get('entry_date_match') and 'since' in query.params.get('entry_date_match') %}checked=checked{% endif %}>
+                            <label class="govuk-label govuk-radios__label" for="entry_date_match">
+                                Since
+                            </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="entry_date_match-2" name="entry_date_match"
+                                   type="radio" value="before"
+                                   {% if query.params.get('entry_date_match') and 'before' in query.params.get('entry_date_match') %}checked=checked{% endif %}>
+                            <label class="govuk-label govuk-radios__label" for="entry_date_match-2">
+                                Before
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <div class="govuk-button-group">
+        {{ govukButton({
       "text": "Search",
       "type": "submit",
     }) }}
-    <a href="{{ search_form_url }}" class="govuk-link">Clear</a>
-  </div>
+        <a href="{{ search_form_url }}" class="govuk-link">Clear</a>
+    </div>
 </form>
