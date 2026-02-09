@@ -74,17 +74,15 @@ def test_file_download_tracking_respects_cookie_consent(
     # ACCEPT analytics (additional) cookies
     page.evaluate("window.cookiePrefs = { usage: true }")
 
-    # Click another download link
-    download_link = page.locator('a[href*=".json"]').first
-    if download_link.count() == 0:
-        download_link = page.locator('a[href*=".geojson"]').first
+    # Click the geojson download link (with cookies now accepted)
+    download_link = page.locator('a[href*=".geojson"]').first
 
     if download_link.count() > 0:
         gtag_calls.clear()
         # Prevent actual navigation/download so the page stays intact
         page.evaluate(
             """
-            const link = document.querySelector('a[href*=".geojson"]');
+            const link = document.querySelector('a[href$=".geojson"]');
             link.addEventListener('click', (e) => e.preventDefault());
             link.click();
             """
