@@ -70,7 +70,7 @@ def get_map(
                     error = "Enter a full UK postcode"
             elif search_type == "uprn" and not search_query.isdigit():
                 error = "UPRN must be a number"
-            elif search_type == "uprn" and len(search_query) != 12:
+            elif search_type == "uprn" and len(search_query) > 12:
                 error = "UPRN must be 12 digits"
 
         # Execution logic

@@ -73,7 +73,7 @@ def mock_search_response_uprn():
     """Mock OS API search response for UPRN"""
     return [
         {
-            "UPRN": "123456789012",
+            "UPRN": "123456789",
             "LAT": 51.501009,
             "LNG": -0.124729,
             "ADDRESS": "10 DOWNING STREET, LONDON, SW1A 1AA",
@@ -127,25 +127,25 @@ def mock_find_an_area_uprn():
     """Mock find_an_area function for UPRN search"""
     return {
         "type": "uprn",
-        "query": "123456789012",
+        "query": "123456789",
         "result": {
-            "UPRN": "123456789012",
+            "UPRN": "123456789",
             "LAT": 51.501009,
             "LNG": -0.124729,
             "ADDRESS": "10 DOWNING STREET, LONDON, SW1A 1AA",
         },
         "geometry": {
-            "name": "123456789012",
+            "name": "123456789",
             "type": "point",
             "data": {
                 "type": "Point",
                 "coordinates": [-0.124729, 51.501009],
                 "properties": {
-                    "UPRN": "123456789012",
+                    "UPRN": "123456789",
                     "LAT": 51.501009,
                     "LNG": -0.124729,
                     "ADDRESS": "10 DOWNING STREET, LONDON, SW1A 1AA",
-                    "name": "123456789012",
+                    "name": "123456789",
                 },
             },
         },
@@ -277,12 +277,12 @@ class TestGetMap:
         mock_settings,
     ):
         """
-        Test `get_map()` with UPRN that is 9 digits length instead of 12
-        raises error.
+        Test `get_map()` with UPRN that is 13 digits length instead a
+        a max of 12 raises error.
         """
 
         # Setup
-        search_query = "123456789"  # 9 digits instead of 12
+        search_query = "1234567890123"  # 13 digits instead a max of 12
         search_type = "uprn"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
@@ -459,7 +459,7 @@ class TestGetMap:
         correctly on the map.
         """
         # Setup
-        search_query = "123456789012"
+        search_query = "123456789"
         search_type = "uprn"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
@@ -491,14 +491,14 @@ class TestGetMap:
                     "query": search_query,
                     "result": mock_search_response_uprn[0],
                     "geometry": {
-                        "name": "123456789012",
+                        "name": "123456789",
                         "type": "point",
                         "data": {
                             "type": "Point",
                             "coordinates": [-0.124729, 51.501009],
                             "properties": {
                                 **mock_search_response_uprn[0],
-                                "name": "123456789012",
+                                "name": "123456789",
                             },
                         },
                     },
