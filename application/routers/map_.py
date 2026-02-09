@@ -71,7 +71,7 @@ def get_map(
             elif search_type == "uprn" and not search_query.isdigit():
                 error = "UPRN must be a number"
             elif search_type == "uprn" and len(search_query) > 12:
-                error = "UPRN must be 12 digits"
+                error = "UPRN must be up to 12 digits"
 
         # Execution logic
         if not error and (search_query and search_type):

@@ -307,7 +307,7 @@ class TestGetMap:
                 "settings": mock_settings,
                 "search_query": search_query.strip(),
                 "search_result": None,
-                "error": "UPRN must be 12 digits",
+                "error": "UPRN must be up to 12 digits",
                 "entity_paint_options": None,
                 "feedback_form_footer": True,
             },
