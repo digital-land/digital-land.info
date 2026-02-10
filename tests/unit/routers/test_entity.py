@@ -2,6 +2,7 @@ import logging
 import pytest
 from application.data_access.entity_query_helpers import normalised_params
 from dataclasses import asdict
+from bs4 import BeautifulSoup
 
 from application.routers.entity import (
     _get_entity_json,
@@ -920,3 +921,221 @@ def test_get_entity_with_linked_local_plans(
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
+
+
+def _mock_search_entities_html_dependencies(
+    mocker,
+    query_filters,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    normalised_query_params = normalised_params(asdict(query_filters))
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_query_params,
+            "count": 0,
+            "entities": [],
+        },
+    )
+    mocker.patch(
+        "application.routers.entity.get_all_datasets",
+        return_value=multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.get_typologies_with_entities",
+        return_value=typologies,
+    )
+    mocker.patch(
+        "application.routers.entity.get_local_authorities",
+        return_value=local_authorities,
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_names",
+        return_value=["conservation-area"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_typology_names",
+        return_value=["geography"],
+    )
+    mocker.patch(
+        "application.routers.entity.get_organisations",
+        return_value=organisation_list,
+    )
+
+
+def _make_search_request(query):
+    request = MagicMock()
+    request.url.scheme = "https"
+    request.url.netloc = "example.org"
+    request.url.path = "/entity/"
+    request.url.query = query
+    request.query_params.get.return_value = None
+    request.query_params._list = [
+        ("q", "SW1A 1AA"),
+        ("dataset", "conservation-area"),
+        ("latitude", "51.501"),
+        ("longitude", "-0.141"),
+    ]
+    return request
+
+
+def test_search_entities_area_chip_label_postcode(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(q="SW1A 1AA", dataset=["conservation-area"])
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.find_an_area",
+        return_value={
+            "type": "postcode",
+            "result": {"POSTCODE": "SW1A 1AA", "LAT": 51.501, "LNG": -0.141},
+        },
+    )
+
+    request = _make_search_request("q=SW1A+1AA&dataset=conservation-area")
+    result = search_entities(
+        request=request,
+        search_query="SW1A 1AA",
+        query_filters=query_filters,
+        extension=None,
+    )
+    rendered = result.template.render(result.context)
+
+    assert "Postcode:" in rendered
+    assert "UPRN:" not in rendered
+
+
+def test_search_entities_area_chip_label_uprn(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(q="100023336956", dataset=["conservation-area"])
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.find_an_area",
+        return_value={
+            "type": "uprn",
+            "result": {"UPRN": "100023336956", "LAT": 51.501, "LNG": -0.141},
+        },
+    )
+
+    request = _make_search_request("q=100023336956&dataset=conservation-area")
+    result = search_entities(
+        request=request,
+        search_query="100023336956",
+        query_filters=query_filters,
+        extension=None,
+    )
+    rendered = result.template.render(result.context)
+
+    assert "UPRN:" in rendered
+    assert "Postcode:" not in rendered
+
+
+def test_search_entities_area_chip_label_fallback_to_search_query_type(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(q="SW1A 1AA", dataset=["conservation-area"])
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch("application.routers.entity.find_an_area", return_value=None)
+
+    request = _make_search_request("q=SW1A+1AA&dataset=conservation-area")
+    result = search_entities(
+        request=request,
+        search_query="SW1A 1AA",
+        query_filters=query_filters,
+        extension=None,
+    )
+    rendered = result.template.render(result.context)
+
+    assert "Postcode:" in rendered
+    assert "UPRN:" not in rendered
+
+
+def test_search_entities_area_chip_remove_link_clears_area_params(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(
+        q="SW1A 1AA",
+        dataset=["conservation-area"],
+        latitude=51.501,
+        longitude=-0.141,
+    )
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.find_an_area",
+        return_value={
+            "type": "postcode",
+            "result": {"POSTCODE": "SW1A 1AA", "LAT": 51.501, "LNG": -0.141},
+        },
+    )
+
+    request = _make_search_request(
+        "q=SW1A+1AA&dataset=conservation-area&latitude=51.501&longitude=-0.141"
+    )
+    result = search_entities(
+        request=request,
+        search_query="SW1A 1AA",
+        query_filters=query_filters,
+        extension=None,
+    )
+    rendered = result.template.render(result.context)
+    soup = BeautifulSoup(rendered, "html.parser")
+    area_label = soup.find("span", string="Postcode:")
+    assert area_label is not None
+    area_group = area_label.find_parent("div", class_="app-applied-filter__group")
+    assert area_group is not None
+    area_link = area_group.find("a", class_="app-applied-filter__button")
+    assert area_link is not None
+
+    area_href = area_link.get("href", "")
+    assert "dataset=conservation-area" in area_href
+    assert "q=" not in area_href
+    assert "latitude=" not in area_href
+    assert "longitude=" not in area_href
