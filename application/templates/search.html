@@ -130,7 +130,7 @@
 
             {% if query.params and query.params.get('q') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Area:</span>
+              <span class="app-applied-filter__name govuk-!-font-weight-bold">{{ area_filter_label or 'Area' }}:</span>
               <span class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {

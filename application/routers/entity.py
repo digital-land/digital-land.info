@@ -30,7 +30,7 @@ from application.data_access.entity_queries import (
     fetchEntityFromReference,
 )
 from application.data_access.dataset_queries import get_dataset_names
-from application.data_access.find_an_area_helpers import find_an_area
+from application.data_access.find_an_area_helpers import find_an_area, search_query_type
 
 from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
@@ -407,6 +407,7 @@ def search_entities(
     # Find an area - Postcode / UPRN search
     search_query = search_query.strip()
     search_result = find_an_area(search_query) if search_query else None
+    area_filter_label = None
 
     find_an_area_latitude = None
     find_an_area_longitude = None
@@ -423,6 +424,15 @@ def search_entities(
                 "longitude": find_an_area_longitude,
             }
         )
+
+    if search_query:
+        area_search_type = (
+            search_result.get("type")
+            if search_result and isinstance(search_result, dict)
+            else search_query_type(search_query)
+        )
+        area_filter_label_map = {"postcode": "Postcode", "uprn": "UPRN"}
+        area_filter_label = area_filter_label_map.get(area_search_type, "Area")
 
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
@@ -534,6 +544,7 @@ def search_entities(
             "prev_url": prev_url,
             "has_geographies": has_geographies,
             "find_an_area_result": search_result,
+            "area_filter_label": area_filter_label,
             "feedback_form_footer": True,
         },
     )
