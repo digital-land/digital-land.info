@@ -90,6 +90,9 @@
         scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
         document.head.appendChild(scriptElement);
       </script>
+
+      {# Google analytics custom download tracker #}
+      <script src="{{ staticPath | default('/static') }}/javascripts/analytics/file-download.js" defer></script>
     {% endblock analyticScripts %}
 
     {% block libraryScripts %}
