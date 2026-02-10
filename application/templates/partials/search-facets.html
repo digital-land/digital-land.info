@@ -113,14 +113,14 @@
         {% set search_query = query.params.get("q", "") %}
         <div class="dl-filter-group">
             <h2 class="dl-filter-group__heading govuk-heading-s">
-                <label class="govuk-label govuk-label--s" for="find-an-area">
+                <label class="govuk-label govuk-label--s" for="find-an-area" id="find-an-area-label">
                     Postcode or Unique Property Reference Number (UPRN)
                 </label>
             </h2>
             <fieldset class="govuk-fieldset dl-filter-group__fieldset">
                 <input class="govuk-input dl-filter-group__auto-filter__input" id="find-an-area" name="q" type="text"
                        spellcheck="false"
-                       aria-describedby="find-an-area-hint" value="{{ search_query }}"
+                       aria-describedby="find-an-area-label" value="{{ search_query }}"
                 >
             </fieldset>
         </div>

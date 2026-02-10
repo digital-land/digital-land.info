@@ -1,6 +1,7 @@
 import pytest
 
 from datetime import datetime
+from urllib.parse import parse_qs, urlsplit
 
 from application.db.models import TypologyOrm, EntityOrm
 
@@ -17,7 +18,7 @@ def test_search_page_loads_ok(server_url, page):
     )
     assert heading.is_visible()
 
-    banner = page.locator('#dl-data-coverage-banner')
+    banner = page.locator("#dl-data-coverage-banner")
     assert banner.is_visible()
 
 
@@ -235,33 +236,27 @@ def test_extension_query_parameter_ignored(
             response_json["entities"], list
         ), "'entities' should be a list"
 
-def test_search_page_retains_latitude_and_longitude_filters(server_url, page):
-    response = page.goto(server_url + "/entity/?latitude=53.74541799747043&longitude=-0.33737897872924805")
+
+def test_search_page_retains_area_query_filter(server_url, page):
+    response = page.goto(server_url + "/entity/?q=m1+2wd")
     assert response.ok
 
-    # Check that the latitude and longitude filters are still present
-    search_form = page.locator('#search-facets-form')
-    latitude_filter = search_form.locator('input[name="latitude"]')
-    longitude_filter = search_form.locator('input[name="longitude"]')
-
-    # Check that the values are correctly set
-    assert latitude_filter.input_value() == "53.74541799747043"
-    assert longitude_filter.input_value() == "-0.33737897872924805"
+    # Check that the area query is persisted in the filter form
+    search_form = page.locator("#search-facets-form")
+    area_query_filter = search_form.locator('input[name="q"]')
+    assert area_query_filter.input_value() == "m1 2wd"
 
     # Perform a search to ensure the filters are applied
-    page.click("button:has-text(' Search ')")
-    page.wait_for_timeout(500)
+    with page.expect_navigation() as navigation_info:
+        search_form.get_by_role("button", name="Search").click()
+    assert navigation_info.value.ok
 
-    # Check that the latitude and longitude filters are still present
-    search_form = page.locator('#search-facets-form')
-    latitude_filter = search_form.locator('input[name="latitude"]')
-    longitude_filter = search_form.locator('input[name="longitude"]')
-
-    # Check that the URL contains the latitude and longitude parameters
+    # Check that the URL still contains the area query parameter
+    query_params = parse_qs(urlsplit(page.url).query)
     assert "entity/" in page.url
-    assert "latitude=53.74541799747043" in page.url
-    assert "longitude=-0.33737897872924805" in page.url
+    assert query_params.get("q") == ["m1 2wd"]
 
-    # Check that the values are correctly set
-    assert latitude_filter.input_value() == "53.74541799747043"
-    assert longitude_filter.input_value() == "-0.33737897872924805"
+    # Check that q remains present in the filter form after submitting
+    search_form = page.locator("#search-facets-form")
+    area_query_filter = search_form.locator('input[name="q"]')
+    assert area_query_filter.input_value() == "m1 2wd"
