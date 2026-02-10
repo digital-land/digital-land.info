@@ -137,7 +137,7 @@
                     "name": "area",
                     "value": query.params.get('q')
                   },
-                  "url": "?" + query.params|make_url_param_str(exclude_params=['q', 'latitude', 'longitude'])
+                  "url": "?" + query.params|make_url_param_str(exclude_params=['q', 'latitude', 'longitude', 'resolved_q'])
                 }) }}
               </span>
             </div>

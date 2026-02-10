@@ -1,4 +1,5 @@
 import logging
+import re
 
 from dataclasses import asdict
 from typing import Optional, List, Set, Dict, Union
@@ -50,6 +51,12 @@ from application.db.models import EntityOrm
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _canonicalise_area_query(search_query: Optional[str]) -> Optional[str]:
+    if search_query is None:
+        return None
+    return re.sub(r"\s+", " ", search_query.strip().upper())
 
 
 @router.get(
@@ -406,18 +413,33 @@ def search_entities(
 
     # Find an area - Postcode / UPRN search
     search_query = search_query.strip()
-    search_result = find_an_area(search_query) if search_query else None
+    canonical_search_query = _canonicalise_area_query(search_query)
+    canonical_resolved_query = _canonicalise_area_query(
+        request.query_params.get("resolved_q")
+    )
+    existing_latitude = query_params.get("latitude")
+    existing_longitude = query_params.get("longitude")
+    search_result = None
     area_filter_label = None
+    resolved_q_value = None
 
-    find_an_area_latitude = None
-    find_an_area_longitude = None
+    find_an_area_latitude = existing_latitude
+    find_an_area_longitude = existing_longitude
 
-    if search_result and search_result.get("result", {}):
-        result_data = search_result.get("result", {})
-        find_an_area_latitude = result_data.get("LAT")
-        find_an_area_longitude = result_data.get("LNG")
+    if search_query:
+        is_resolved_area_query = (
+            existing_latitude is not None
+            and existing_longitude is not None
+            and canonical_search_query == canonical_resolved_query
+        )
+        if not is_resolved_area_query:
+            search_result = find_an_area(search_query)
+            if search_result and search_result.get("result", {}):
+                result_data = search_result.get("result", {})
+                find_an_area_latitude = result_data.get("LAT")
+                find_an_area_longitude = result_data.get("LNG")
 
-    if find_an_area_latitude and find_an_area_longitude:
+    if find_an_area_latitude is not None and find_an_area_longitude is not None:
         query_params.update(
             {
                 "latitude": find_an_area_latitude,
@@ -433,6 +455,11 @@ def search_entities(
         )
         area_filter_label_map = {"postcode": "Postcode", "uprn": "UPRN"}
         area_filter_label = area_filter_label_map.get(area_search_type, "Area")
+        if (
+            query_params.get("latitude") is not None
+            and query_params.get("longitude") is not None
+        ):
+            resolved_q_value = canonical_search_query
 
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
@@ -514,6 +541,12 @@ def search_entities(
             entity.dataset_name = dataset_name_lookup[ref_name]
         else:
             entity.dataset_name = ref_name
+    filtered_url_query_params = [
+        (name, value)
+        for name, value in request.query_params._list
+        if name != "resolved_q"
+    ]
+
     return templates.TemplateResponse(
         "search.html",
         {
@@ -535,16 +568,17 @@ def search_entities(
                 "str": ("&").join(
                     [
                         "{}={}".format(param[0], param[1])
-                        for param in request.query_params._list
+                        for param in filtered_url_query_params
                     ]
                 ),
-                "list": request.query_params._list,
+                "list": filtered_url_query_params,
             },
             "next_url": next_url,
             "prev_url": prev_url,
             "has_geographies": has_geographies,
             "find_an_area_result": search_result,
             "area_filter_label": area_filter_label,
+            "resolved_q_value": resolved_q_value,
             "feedback_form_footer": True,
         },
     )

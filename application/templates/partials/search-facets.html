@@ -249,6 +249,16 @@
         </div>
     </div>
 
+    {% if query.params.get('latitude') is not none %}
+        <input type="hidden" name="latitude" value="{{ query.params.get('latitude') }}">
+    {% endif %}
+    {% if query.params.get('longitude') is not none %}
+        <input type="hidden" name="longitude" value="{{ query.params.get('longitude') }}">
+    {% endif %}
+    {% if resolved_q_value %}
+        <input type="hidden" name="resolved_q" value="{{ resolved_q_value }}">
+    {% endif %}
+
     <div class="govuk-button-group">
         {{ govukButton({
       "text": "Search",
