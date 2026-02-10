@@ -212,7 +212,11 @@ def handle_entity_response(
         "tree-preservation-order",
         "local-plan-boundary",
         "local-plan",
-        "local-plan-event",
+        "minerals-plan",
+        "minerals-plan-boundary",
+        "waste-plan",
+        "waste-plan-boundary",
+        "development-plan-event",
         "conservation-area",
         "listed-building",
     ]
@@ -232,7 +236,7 @@ def handle_entity_response(
                 linked_entities[field] = linked_entity
 
     # Fetch linked local plans/document/timetable
-    local_plans, local_plan_boundary_geojson = fetch_linked_local_plans(
+    local_plans, development_plan_boundary_geojson = fetch_linked_local_plans(
         session, e_dict_sorted
     )
 
@@ -250,7 +254,7 @@ def handle_entity_response(
         {
             "request": request,
             "row": e_dict_sorted,
-            "local_plan_geojson": local_plan_boundary_geojson,
+            "development_plan_geojson": development_plan_boundary_geojson,
             "linked_entities": linked_entities,
             "local_plans": local_plans,
             "entity": e,
@@ -274,46 +278,60 @@ def handle_entity_response(
 linked_datasets = {
     "local-plan-boundary": ["local-plan"],
     "local-plan": [
-        "local-plan-document",
-        "local-plan-timetable",
+        "development-plan-document",
+        "development-plan-timetable",
         "local-plan-boundary",
+        "local-plan-housing",
+    ],
+    "minerals-plan-boundary": ["minerals-plan"],
+    "minerals-plan": [
+        "development-plan-document",
+        "development-plan-timetable",
+        "minerals-plan-boundary",
+    ],
+    "waste-plan-boundary": ["waste-plan"],
+    "waste-plan": [
+        "development-plan-document",
+        "development-plan-timetable",
+        "waste-plan-boundary",
     ],
 }
 
 
 def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
     results = {}
-    local_plan_boundary_geojson = None
+    development_plan_boundary_geojson = None
     dataset = e_dict_sorted["dataset"]
     reference = e_dict_sorted["reference"]
+    
     if dataset in linked_datasets:
         linked_dataset_value = linked_datasets[dataset]
         for linked_dataset in linked_dataset_value:
-            if dataset == "local-plan" and linked_dataset == "local-plan-boundary":
-                if linked_dataset in e_dict_sorted:
-                    local_plan_boundary_geojson = fetchEntityFromReference(
-                        session, linked_dataset, e_dict_sorted[linked_dataset]
-                    )
+            if linked_dataset == f"{dataset}-boundary" and linked_dataset in e_dict_sorted:
+                development_plan_boundary_geojson = fetchEntityFromReference(
+                    session, linked_dataset, e_dict_sorted[linked_dataset]
+                )
+     
             linked_entities = get_linked_entities(
                 session, linked_dataset, reference, linked_dataset=dataset
             )
             results[linked_dataset] = linked_entities
 
-            # Handle special case for "local-plan-timetable"
-            if dataset == "local-plan" and linked_dataset == "local-plan-timetable":
+            # Handle special case for "development-plan-timetable"
+            if dataset in ["local-plan", "minerals-plan", "waste-plan"] and linked_dataset == "development-plan-timetable":
                 for entity in linked_entities:
                     if (
-                        hasattr(entity, "local_plan_event")
-                        and entity.local_plan_event
-                        and not entity.local_plan_event.startswith("estimated")
+                        hasattr(entity, "development_plan_event")
+                        and entity.development_plan_event
+                        and not entity.development_plan_event.startswith("estimated")
                     ):
-                        entity.local_plan_event = fetchEntityFromReference(
-                            session, "local-plan-event", entity.local_plan_event
+                        entity.development_plan_event = fetchEntityFromReference(
+                            session, "development-plan-event", entity.development_plan_event
                         )
                     else:
-                        entity.local_plan_event = None
+                        entity.development_plan_event = None
 
-    return results, local_plan_boundary_geojson
+    return results, development_plan_boundary_geojson
 
 
 def get_entity(

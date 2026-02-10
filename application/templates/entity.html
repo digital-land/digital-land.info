@@ -8,6 +8,40 @@
 {%- from "components/entity-field/macro.jinja" import entityField %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
+{% macro planTable(plans, key, titleText, columnLabel) %}
+  {% if plans.get(key) %}
+  <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    {% call appSummaryCard({
+    'classes': 'govuk-!-margin-bottom-0',
+    'titleText': titleText
+    }) %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
+          <th scope="col" class="govuk-table__header" style="white-space: nowrap;">{{ columnLabel }}</th>
+          <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for plan in plans[key] %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell app-table__cell">
+            <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
+          </td>
+          <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
+          <td class="govuk-table__cell app-table__cell">
+            <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endcall %}
+  </div>
+  {% endif %}
+{% endmacro %}
+
 {% set is_truncated = false %}
 {% if row['geometry'] %}
   {% if row['geometry']|length > 100000 %}
@@ -36,10 +70,10 @@
   {% set includesMap = true %}
 {% endif %}
 
-{% if pipeline_name == 'local-plan'%}
-  {% if local_plan_geojson != none %}
+{% if pipeline_name in ['local-plan', 'minerals-plan', 'waste-plan'] %}
+  {% if development_plan_geojson != none %}
     {% set includesMap = true %}
-    {% set geojson_data = local_plan_geojson %}
+    {% set geojson_data = development_plan_geojson %}
   {% endif %}
 {% endif %}
 
@@ -195,67 +229,81 @@
 
     </div>
 
-    {% if local_plans['local-plan'] %}
+    {{ planTable(local_plans, 'local-plan', 'Related Local Plan', 'Local Plan Name') }}
+    {{ planTable(local_plans, 'minerals-plan', 'Related Minerals Plan', 'Minerals Plan Name') }}
+    {{ planTable(local_plans, 'waste-plan', 'Related Waste Plan', 'Waste Plan Name') }}
+    
+    {% if not local_plans.get('local-plan') and not local_plans.get('minerals-plan') and not local_plans.get('waste-plan') %}
+      {% if entity.dataset in ["local-plan-boundary", "minerals-plan-boundary", "waste-plan-boundary"] %}
     <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plans'
-      }) %}
-      <table class="govuk-table">
-        <thead class="govuk-table__head">
-          <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
-          </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-          {% for plan in local_plans['local-plan'] %}
-          <tr class="govuk-table__row">
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
-            </td>
-            <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
-            <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% endcall %}
-    </div>
-    {% elif entity.dataset == "local-plan-boundary" %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
-      {% call appSummaryCard({
-      'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plans'
+      'titleText': 'Related Plans'
       }) %}
       <table class="govuk-table">
         <tbody class="govuk-table__body">
           <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell govuk-body">
-              No related local plans are available for this entity.
+              No related plans are available for this entity.
             </td>
           </tr>
         </tbody>
       </table>
       {% endcall %}
     </div>
+      {% endif %}
     {% endif %}
 
-    {% if local_plans['local-plan-timetable'] %}
+    {% if local_plans.get('local-plan-housing') and local_plans['local-plan-housing']|length > 0 %}
+      <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+        {% call appSummaryCard({
+          'classes': 'govuk-!-margin-bottom-0',
+          'titleText': 'Local plan housing'
+        }) %}
+          <table class="govuk-table">
+            <thead class="govuk-table__head">
+              <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Entity</th>
+                <th scope="col" class="govuk-table__header">Required Housing</th>
+                <th scope="col" class="govuk-table__header">Allocated Housing</th>
+                <th scope="col" class="govuk-table__header">Committed Housing</th>
+                <th scope="col" class="govuk-table__header">Windfall Housing</th>
+                <th scope="col" class="govuk-table__header">Broad Locations Housing</th>
+              </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+              {% for housing in local_plans['local-plan-housing'] %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell app-table__cell">
+                    <a class="govuk-link" style="white-space: nowrap;" href="{{ housing.entity }}">
+                      {{ housing.entity }}
+                    </a>
+                  </td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.required_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.allocated_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.committed_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.windfall_housing }}</td>
+                  <td class="govuk-table__cell app-table__cell">{{ housing.broad_locations_housing }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endcall %}
+      </div>
+    {% endif %}
+
+    {% if local_plans.get('development-plan-timetable') %}
       <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
         {% call appSummaryCard({
             'classes': 'govuk-!-margin-bottom-0',
-            'titleText': 'Related Local Plan Timetable'
+            'titleText': 'Related Development Plan Timetable'
         }) %}
         <ol class="dl-timeline dl-timeline--dates">
-            {% for plan in local_plans['local-plan-timetable'] %}
-            {% if plan.local_plan_event %}
+            {% for plan in local_plans['development-plan-timetable'] %}
+            {% if plan.development_plan_event %}
             <li class="dl-timeline__entry">
               <h3 class="govuk-heading-s dl-timeline__entry-heading">
-                    {{ plan.local_plan_event.name }}
+                    {{ plan.development_plan_event.name }}
                 </h3>
                 <p class="dl-timeline__entry-details govuk-body-s">
                     {{ plan.event_date | format_date}}
@@ -273,11 +321,11 @@
     </div>
   {% endif %}
 
-    {% if local_plans['local-plan-document'] %}
+    {% if local_plans.get('development-plan-document') %}
     <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plan Document'
+      'titleText': 'Related Development Plan Documents'
       }) %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
@@ -289,7 +337,7 @@
           </tr>
         </thead>
         <tbody class="govuk-table__body">
-          {% for plan in local_plans['local-plan-document'] %}
+          {% for plan in local_plans['development-plan-document'] %}
           <tr class="govuk-table__row">
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
@@ -311,22 +359,31 @@
     <div class="govuk-grid-column-full">
     {% block recordGeometry -%}
       {%- if includesMap %}
+        {% if pipeline_name == 'local-plan' %}
+          {% set map_title = 'Local Plan Boundary' %}
+        {% elif pipeline_name == 'minerals-plan' %}
+          {% set map_title = 'Minerals Plan Boundary' %}
+        {% elif pipeline_name == 'waste-plan' %}
+          {% set map_title = 'Waste Plan Boundary' %}
+        {% else %}
+          {% set map_title = 'Geographical area' %}
+        {% endif %}
         {% call appSummaryCard({
           'classes': 'govuk-!-margin-bottom-0',
-          'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
+          'titleText': map_title,
           'actions': {
             'items': [
               {
                 'text': 'Download geojson',
                 'href': (
                 '/entity/' +
-                (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"]) | string +
+                (geojson_data["entity"] if pipeline_name in ['local-plan', 'minerals-plan', 'waste-plan'] else row["entity"]) | string +
                 '.geojson'
               ),
                 'attributes': [
                   {
                     'key': 'download',
-                    'value': (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"])
+                    'value': (geojson_data["entity"] if pipeline_name in ['local-plan', 'minerals-plan', 'waste-plan'] else row["entity"])
                       | string + '.geojson'
                   }
                 ]

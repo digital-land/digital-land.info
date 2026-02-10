@@ -347,7 +347,7 @@ def single_entity_model():
 
 @pytest.fixture
 def linked_entity_model():
-    model = EntityModel(
+    plan_entity = EntityModel(
         entity=4220006,
         entry_date="2022-03-23",
         name="test Local Plan",
@@ -360,7 +360,15 @@ def linked_entity_model():
             "local-plan-boundary": "E07000012",
         },
     )
-    return model, None
+    
+    # Return dictionary of linked datasets and boundary geojson
+    return {
+        'local-plan': [plan_entity],
+        'development-plan-document': [],
+        'development-plan-timetable': [],
+        'local-plan-boundary': [],
+        'local-plan-housing': []
+    }, None
 
 
 @pytest.fixture
@@ -386,6 +394,16 @@ def local_plan_boundary_dataset():
         paint_options={"colour": "#78AA00"},
     )
 
+@pytest.fixture
+def local_plan_dataset():
+    return DatasetModel(
+        collection="local-plan",
+        dataset="local-plan",
+        name="Local plan",
+        plural="Local plans",
+        typology="legal-instrument",
+        paint_options={"colour": "#78AA00"},
+    )
 
 @pytest.fixture
 def historic_england_dataset():
@@ -431,6 +449,21 @@ def local_plan_dataset_model():
     )
     return model
 
+@pytest.fixture
+def local_plan_entity_model():
+    return EntityModel(
+        entity=4220006,
+        entry_date="2022-03-23",
+        name="test Local Plan",
+        reference="1481207",
+        dataset="local-plan",
+        prefix="local-plan",
+        json={
+            "adopted-date": "2018-09-27",
+            "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
+            "local-plan-boundary": "E07000012",
+        },
+    )
 
 def test_get_entity_entity_returned_html(
     mocker, single_entity_model, multiple_dataset_models, ancient_woodland_dataset
@@ -920,3 +953,83 @@ def test_get_entity_with_linked_local_plans(
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
+
+def test_get_entity_local_plan_does_not_render_housing_when_empty(
+    mocker, local_plan_entity_model, local_plan_dataset, local_plan_boundary_dataset
+):
+    mocker.patch(
+        "application.routers.entity.get_entity_query",
+        return_value=(local_plan_entity_model, None, None),
+    )
+    mocker.patch(
+        "application.routers.entity.get_datasets",
+        return_value=[local_plan_boundary_dataset],
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=local_plan_dataset,
+    )
+    mocker.patch(
+        "application.routers.entity.fetch_linked_local_plans",
+        return_value=(
+            {
+                "development-plan-document": [],
+                "development-plan-timetable": [],
+                "local-plan-boundary": [],
+                "local-plan-housing": [],
+            },
+            None,
+        ),
+    )
+
+    request = MagicMock()
+    result = get_entity(request=request, entity="4220006", extension=None)
+
+    assert result.status_code == 200
+    html = result.template.render(result.context)
+    assert "Related Local Plan Housing" not in html
+
+
+def test_get_entity_local_plan_renders_housing_when_present(
+    mocker, local_plan_entity_model, local_plan_dataset, local_plan_boundary_dataset
+):
+    housing = MagicMock()
+    housing.entity = "1100001"
+    housing.required_housing = 111
+    housing.allocated_housing = 222
+    housing.committed_housing = 333
+    housing.windfall_housing = 44
+    housing.broad_locations_housing = 555
+
+    mocker.patch(
+        "application.routers.entity.get_entity_query",
+        return_value=(local_plan_entity_model, None, None),
+    )
+    mocker.patch(
+        "application.routers.entity.get_datasets",
+        return_value=[local_plan_boundary_dataset],
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=local_plan_dataset,
+    )
+    mocker.patch(
+        "application.routers.entity.fetch_linked_local_plans",
+        return_value=(
+            {
+                "development-plan-document": [],
+                "development-plan-timetable": [],
+                "local-plan-boundary": [],
+                "local-plan-housing": [housing],
+            },
+            None,
+        ),
+    )
+
+    request = MagicMock()
+    result = get_entity(request=request, entity="4220006", extension=None)
+
+    assert result.status_code == 200
+    html = result.template.render(result.context)
+    assert "Local plan housing" in html
+    assert "111" in html
