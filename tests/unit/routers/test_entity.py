@@ -3,6 +3,7 @@ import pytest
 from application.data_access.entity_query_helpers import normalised_params
 from dataclasses import asdict
 from bs4 import BeautifulSoup
+from urllib.parse import parse_qsl
 
 from application.routers.entity import (
     _get_entity_json,
@@ -931,14 +932,16 @@ def _mock_search_entities_html_dependencies(
     organisation_list,
     multiple_dataset_models,
 ):
-    normalised_query_params = normalised_params(asdict(query_filters))
-    mocker.patch(
-        "application.routers.entity.get_entity_search",
-        return_value={
-            "params": normalised_query_params,
+    def _mock_get_entity_search(_session, params, _extension):
+        return {
+            "params": normalised_params(params),
             "count": 0,
             "entities": [],
-        },
+        }
+
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        side_effect=_mock_get_entity_search,
     )
     mocker.patch(
         "application.routers.entity.get_all_datasets",
@@ -972,13 +975,12 @@ def _make_search_request(query):
     request.url.netloc = "example.org"
     request.url.path = "/entity/"
     request.url.query = query
-    request.query_params.get.return_value = None
-    request.query_params._list = [
-        ("q", "SW1A 1AA"),
-        ("dataset", "conservation-area"),
-        ("latitude", "51.501"),
-        ("longitude", "-0.141"),
-    ]
+    query_param_list = parse_qsl(query, keep_blank_values=True)
+    request.query_params._list = query_param_list
+    query_param_map = dict(query_param_list)
+    request.query_params.get.side_effect = (
+        lambda key, default=None: query_param_map.get(key, default)
+    )
     return request
 
 
@@ -1117,7 +1119,7 @@ def test_search_entities_area_chip_remove_link_clears_area_params(
     )
 
     request = _make_search_request(
-        "q=SW1A+1AA&dataset=conservation-area&latitude=51.501&longitude=-0.141"
+        "q=SW1A+1AA&dataset=conservation-area&latitude=51.501&longitude=-0.141&resolved_q=SW1A+1AA"
     )
     result = search_entities(
         request=request,
@@ -1139,3 +1141,181 @@ def test_search_entities_area_chip_remove_link_clears_area_params(
     assert "q=" not in area_href
     assert "latitude=" not in area_href
     assert "longitude=" not in area_href
+    assert "resolved_q=" not in area_href
+
+
+def test_search_entities_reuses_persisted_area_coordinates_when_query_unchanged(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(
+        q="SW1A 1AA",
+        dataset=["conservation-area"],
+        latitude=51.501,
+        longitude=-0.141,
+    )
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    find_an_area_mock = mocker.patch("application.routers.entity.find_an_area")
+
+    request = _make_search_request(
+        "q=SW1A+1AA&dataset=conservation-area&latitude=51.501&longitude=-0.141&resolved_q=SW1A+1AA"
+    )
+    result = search_entities(
+        request=request,
+        search_query="SW1A 1AA",
+        query_filters=query_filters,
+        extension=None,
+    )
+
+    find_an_area_mock.assert_not_called()
+    assert result.context["query"]["params"]["latitude"] == 51.501
+    assert result.context["query"]["params"]["longitude"] == -0.141
+    assert result.context["resolved_q_value"] == "SW1A 1AA"
+    assert ("resolved_q", "SW1A 1AA") not in result.context["url_query_params"]["list"]
+
+
+def test_search_entities_relooks_up_area_coordinates_when_query_changed(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(
+        q="M33 3BU",
+        dataset=["conservation-area"],
+        latitude=51.501,
+        longitude=-0.141,
+    )
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    find_an_area_mock = mocker.patch(
+        "application.routers.entity.find_an_area",
+        return_value={
+            "type": "postcode",
+            "result": {"POSTCODE": "M33 3BU", "LAT": 53.4258, "LNG": -2.3248},
+        },
+    )
+
+    request = _make_search_request(
+        "q=M33+3BU&dataset=conservation-area&latitude=51.501&longitude=-0.141&resolved_q=SW1A+1AA"
+    )
+    result = search_entities(
+        request=request,
+        search_query="M33 3BU",
+        query_filters=query_filters,
+        extension=None,
+    )
+
+    find_an_area_mock.assert_called_once_with("M33 3BU")
+    assert result.context["query"]["params"]["latitude"] == 53.4258
+    assert result.context["query"]["params"]["longitude"] == -2.3248
+    assert result.context["resolved_q_value"] == "M33 3BU"
+
+
+def test_search_entities_relooks_up_area_coordinates_when_coordinates_missing(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(q="M33 3BU", dataset=["conservation-area"])
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    find_an_area_mock = mocker.patch(
+        "application.routers.entity.find_an_area",
+        return_value={
+            "type": "postcode",
+            "result": {"POSTCODE": "M33 3BU", "LAT": 53.4258, "LNG": -2.3248},
+        },
+    )
+
+    request = _make_search_request("q=M33+3BU&dataset=conservation-area")
+    result = search_entities(
+        request=request,
+        search_query="M33 3BU",
+        query_filters=query_filters,
+        extension=None,
+    )
+
+    find_an_area_mock.assert_called_once_with("M33 3BU")
+    assert result.context["query"]["params"]["latitude"] == 53.4258
+    assert result.context["query"]["params"]["longitude"] == -2.3248
+    assert result.context["resolved_q_value"] == "M33 3BU"
+
+
+def test_search_entities_renders_hidden_resolved_area_inputs(
+    mocker,
+    typologies,
+    local_authorities,
+    organisation_list,
+    multiple_dataset_models,
+):
+    query_filters = QueryFilters(
+        q="SW1A 1AA",
+        dataset=["conservation-area"],
+        latitude=51.501,
+        longitude=-0.141,
+    )
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch("application.routers.entity.find_an_area")
+
+    request = _make_search_request(
+        "q=SW1A+1AA&dataset=conservation-area&latitude=51.501&longitude=-0.141&resolved_q=SW1A+1AA"
+    )
+    result = search_entities(
+        request=request,
+        search_query="SW1A 1AA",
+        query_filters=query_filters,
+        extension=None,
+    )
+    rendered = result.template.render(result.context)
+    soup = BeautifulSoup(rendered, "html.parser")
+    search_form = soup.find("form", id="search-facets-form")
+    assert search_form is not None
+    assert search_form.find("input", {"type": "hidden", "name": "latitude"}) is not None
+    assert (
+        search_form.find("input", {"type": "hidden", "name": "latitude"}).get("value")
+        == "51.501"
+    )
+    assert (
+        search_form.find("input", {"type": "hidden", "name": "longitude"}) is not None
+    )
+    assert (
+        search_form.find("input", {"type": "hidden", "name": "longitude"}).get("value")
+        == "-0.141"
+    )
+    assert (
+        search_form.find("input", {"type": "hidden", "name": "resolved_q"}).get("value")
+        == "SW1A 1AA"
+    )
