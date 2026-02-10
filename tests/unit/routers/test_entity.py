@@ -624,6 +624,12 @@ def test_search_entities_no_entities_returned_no_query_params_html(
     )
 
     request = MagicMock()
+    request.url.scheme = "https"
+    request.url.netloc = "example.org"
+    request.url.path = "/entity/"
+    request.url.query = ""
+    request.query_params.get.return_value = None
+    request.query_params._list = []
     result = search_entities(
         request=request,
         search_query="",
@@ -748,6 +754,12 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
     )
 
     request = MagicMock()
+    request.url.scheme = "https"
+    request.url.netloc = "example.org"
+    request.url.path = "/entity/"
+    request.url.query = ""
+    request.query_params.get.return_value = None
+    request.query_params._list = []
     result = search_entities(
         request=request,
         search_query="",
