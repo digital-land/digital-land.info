@@ -1,9 +1,9 @@
 import logging
-from typing import List
-from sqlalchemy.orm import Session
-from sqlalchemy import func
+import time
 import yaml
-from application.db.session import redis_cache, DbSession
+from typing import List
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from application.core.models import (
     DatasetModel,
@@ -12,6 +12,7 @@ from application.core.models import (
     DatasetCollectionModel,
     DatasetPublicationCountModel,
 )
+from application.db.session import redis_cache, DbSession
 from application.db.models import (
     DatasetOrm,
     EntityOrm,
@@ -25,17 +26,37 @@ logger = logging.getLogger(__name__)
 
 
 def get_datasets(session: Session, datasets=None) -> List[DatasetModel]:
-    query = (
-        session.query(DatasetOrm)
-        .filter(DatasetOrm.typology != "specification")
-        .order_by(DatasetOrm.dataset)
-    )
+    start_time = time.time()
 
-    if datasets:
-        query = query.filter(DatasetOrm.dataset.in_(datasets))
+    try:
+        query = (
+            session.query(DatasetOrm)
+            .filter(DatasetOrm.typology != "specification")
+            .order_by(DatasetOrm.dataset)
+        )
 
-    datasets = query.all()
-    return [DatasetModel.from_orm(ds) for ds in datasets]
+        if datasets:
+            logger.debug(f"Filtering by {len(datasets)} datasets")
+            query = query.filter(DatasetOrm.dataset.in_(datasets))
+
+        dataset_results = query.all()
+        elapsed_time = time.time() - start_time
+        logger.info(
+            "Query executed successfully",
+            extra={
+                "elapsed_seconds": round(elapsed_time, 2),
+                "num_results": len(dataset_results),
+            },
+        )
+        return [DatasetModel.from_orm(ds) for ds in dataset_results]
+    except Exception as e:
+        elapsed_time = time.time() - start_time
+        logger.error(
+            f"Error in get_datasets: {str(e)}",
+            extra={"elapsed_seconds": round(elapsed_time, 2)},
+            exc_info=True,
+        )
+        raise
 
 
 @redis_cache("datasets", model_class=DatasetModel)
@@ -135,6 +156,7 @@ def get_latest_resource(session: Session, dataset) -> DatasetCollectionModel:
         return DatasetCollectionModel.from_orm(result)
     else:
         return None
+
 
 def get_dataset_coverage_status(dataset: str) -> bool:
     with open("config/dataset_coverage.yml", "r") as file:
