@@ -5,6 +5,7 @@ import requests
 
 from typing import List, Dict
 
+from application.core.utils import log_slow_execution
 from application.data_access.entity_queries import get_entity_map_lpa
 from application.db.session import get_context_session
 
@@ -28,6 +29,7 @@ def base_search_params():
     }
 
 
+@log_slow_execution(threshold_seconds=1.0)
 def search_postcode(query: str):
     try:
         url = "https://api.os.uk/search/places/v1/postcode"
@@ -41,6 +43,7 @@ def search_postcode(query: str):
         return None
 
 
+@log_slow_execution(threshold_seconds=1.0)
 def search_uprn(query: str):
     try:
         url = "https://api.os.uk/search/places/v1/uprn"
@@ -66,6 +69,7 @@ def transform_search_results(results: dict, search_type: str = ""):
     return [result.get("DPA", {}) for result in results_list]
 
 
+@log_slow_execution(threshold_seconds=1.0)
 def search_local_planning_authority(query: str) -> List[Dict]:
     try:
         with get_context_session() as session:
