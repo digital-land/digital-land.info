@@ -26,6 +26,9 @@ def _create_engine():
         pool_size=settings.DB_POOL_SIZE,
         max_overflow=settings.DB_POOL_MAX_OVERFLOW,
         pool_pre_ping=True,
+        # REPEATABLE READ helps on read replicas
+        isolation_level="REPEATABLE READ",
+        echo_pool=False,
     )
 
     logger.info(
