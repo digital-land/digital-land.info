@@ -8,7 +8,6 @@
 {%- from "govuk_frontend_jinja/components/tag/macro.html" import govukTag -%}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 {%- from "components/entity-card/macro.jinja" import entityCard %}
-{%- from "components/find-an-area-form/macro.jinja" import dlFindAnAreaForm %}
 {% from 'components/pagination/macro.jinja' import appPagination %}
 
 {%- block mapAssets %}
@@ -36,16 +35,6 @@
   <section class="govuk-width-container govuk-!-padding-bottom-6">
     <h1 class="govuk-heading-xl">Search for planning and housing data</h1>
     {% include 'partials/data-coverage-banner.html' %}
-
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-full">
-        {{ dlFindAnAreaForm({
-          "search_result": find_an_area_result,
-          "search_query": query.params.get('q') or '',
-          "url_query_params": url_query_params.list,
-        }) }}
-      </div>
-    </div>
 
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-third">

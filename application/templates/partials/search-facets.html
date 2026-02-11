@@ -82,6 +82,51 @@
   </div>
   {% endif -%}
 
+  <!-- search uprn and postcode -->
+  <div class="govuk-form-group">
+    {% set search_query = query.params.get("q", "") %}
+    {% call dlFilterGroup({
+      "title": "Postcode or Unique Property Reference Number (UPRN)",
+      "is_open": True,
+      "selected": 0
+    }) %}
+      <input
+        class="govuk-input govuk-input--width-20"
+        id="find-an-area" name="q" type="text"
+        spellcheck="false"
+        aria-describedby="find-an-area-hint" value="{{ search_query }}">
+
+      <!--
+      I've copied and pasted this code from `find-an-area-form/macro.jinja` but it should be
+      properly converted to be displayed (if needed) under the results
+      -->
+      {% if find_an_area_result %}
+        <div class="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+          <h2 class="govuk-heading-m">Search results</h2>
+          {% if find_an_area_result.get("type") == "postcode" and find_an_area_result.get("result") %}
+            <p class="govuk-body">
+              Showing results for postcode: {{ find_an_area_result.get("result", {}).get("POSTCODE", {}) }}
+            </p>
+          {% elif find_an_area_result.get("type") == "uprn" and find_an_area_result.get("result") %}
+            <p class="govuk-body">
+              Showing results for UPRN: {{ find_an_area_result.get("result", {}).get("UPRN", {}) }}
+            </p>
+          {% else %}
+            <p class="govuk-body">
+              No results found for '{{ search_query }}'.
+            </p>
+            <p class="govuk-body">
+              Check <a href="https://design.planning.data.gov.uk/what-we-are-working-on">our current priorities</a> to see if this data is being prepared for the platform.
+            </p>
+            <p class="govuk-body">
+              If it's not there, you can <a href="https://design.planning.data.gov.uk/get-involved-in-designing-data">contribute to our data design process</a> to help prioritise it.
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endcall %}
+  </div>
+
   {%- if organisations %}
   <!-- organisation facet -->
     <div class="govuk-form-group">
