@@ -1,5 +1,4 @@
 import logging
-import time
 import yaml
 from typing import List
 from sqlalchemy import func
@@ -13,6 +12,7 @@ from application.core.models import (
     DatasetPublicationCountModel,
 )
 from application.db.session import redis_cache, DbSession
+from application.core.utils import log_slow_execution
 from application.db.models import (
     DatasetOrm,
     EntityOrm,
@@ -25,38 +25,24 @@ from application.db.models import (
 logger = logging.getLogger(__name__)
 
 
+@log_slow_execution(threshold_seconds=1.0)
 def get_datasets(session: Session, datasets=None) -> List[DatasetModel]:
-    start_time = time.time()
+    query = (
+        session.query(DatasetOrm)
+        .filter(DatasetOrm.typology != "specification")
+        .order_by(DatasetOrm.dataset)
+    )
 
-    try:
-        query = (
-            session.query(DatasetOrm)
-            .filter(DatasetOrm.typology != "specification")
-            .order_by(DatasetOrm.dataset)
-        )
+    if datasets:
+        logger.debug(f"Filtering by {len(datasets)} datasets")
+        query = query.filter(DatasetOrm.dataset.in_(datasets))
 
-        if datasets:
-            logger.debug(f"Filtering by {len(datasets)} datasets")
-            query = query.filter(DatasetOrm.dataset.in_(datasets))
-
-        dataset_results = query.all()
-        elapsed_time = time.time() - start_time
-        logger.info(
-            "Query executed successfully",
-            extra={
-                "elapsed_seconds": round(elapsed_time, 2),
-                "num_results": len(dataset_results),
-            },
-        )
-        return [DatasetModel.from_orm(ds) for ds in dataset_results]
-    except Exception as e:
-        elapsed_time = time.time() - start_time
-        logger.error(
-            f"Error in get_datasets: {str(e)}",
-            extra={"elapsed_seconds": round(elapsed_time, 2)},
-            exc_info=True,
-        )
-        raise
+    dataset_results = query.all()
+    logger.info(
+        "Query executed successfully",
+        extra={"num_results": len(dataset_results)},
+    )
+    return [DatasetModel.from_orm(ds) for ds in dataset_results]
 
 
 @redis_cache("datasets", model_class=DatasetModel)
