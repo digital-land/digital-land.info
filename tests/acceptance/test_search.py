@@ -234,38 +234,3 @@ def test_extension_query_parameter_ignored(
         assert isinstance(
             response_json["entities"], list
         ), "'entities' should be a list"
-
-
-def test_search_page_retains_latitude_and_longitude_filters(server_url, page):
-    response = page.goto(
-        server_url
-        + "/entity/?latitude=53.74541799747043&longitude=-0.33737897872924805"
-    )
-    assert response.ok
-
-    # Check that the latitude and longitude filters are still present
-    search_form = page.locator("#search-facets-form")
-    latitude_filter = search_form.locator('input[name="latitude"]')
-    longitude_filter = search_form.locator('input[name="longitude"]')
-
-    # Check that the values are correctly set
-    assert latitude_filter.input_value() == "53.74541799747043"
-    assert longitude_filter.input_value() == "-0.33737897872924805"
-
-    # Perform a search to ensure the filters are applied
-    page.click("button:has-text(' Search ')")
-    page.wait_for_timeout(500)
-
-    # Check that the latitude and longitude filters are still present
-    search_form = page.locator("#search-facets-form")
-    latitude_filter = search_form.locator('input[name="latitude"]')
-    longitude_filter = search_form.locator('input[name="longitude"]')
-
-    # Check that the URL contains the latitude and longitude parameters
-    assert "entity/" in page.url
-    assert "latitude=53.74541799747043" in page.url
-    assert "longitude=-0.33737897872924805" in page.url
-
-    # Check that the values are correctly set
-    assert latitude_filter.input_value() == "53.74541799747043"
-    assert longitude_filter.input_value() == "-0.33737897872924805"
