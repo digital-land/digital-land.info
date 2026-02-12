@@ -1,15 +1,20 @@
 import copy
 import json
+import time
 import typing
 import urllib
 from typing import List
 import logging
 
 import requests
-from pydantic import BaseModel
 from datetime import date
-
+from functools import wraps
+from pydantic import BaseModel
 from starlette.responses import Response
+
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 def create_dict(keys_list, values_list):
@@ -197,3 +202,45 @@ def entity_attribute_sort_key(val, sort_order=ENTITY_ATTRIBUTE_ORDER):
             return len(sort_order)
     else:
         raise ValueError("Value provided is not a string")
+
+
+def log_slow_execution(threshold_seconds=1.0):
+    """
+    Decorator that logs when a function execution time exceeds 1 second ( >1 seconds ).
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+
+            try:
+                result = func(*args, **kwargs)
+                elapsed_time = time.time() - start_time
+
+                if elapsed_time > threshold_seconds:
+                    logger.info(
+                        f"{func.__name__} SLOW execution",
+                        extra={
+                            "elapsed_seconds": round(elapsed_time, 2),
+                            "function": func.__name__,
+                        },
+                    )
+                return result
+            except Exception as e:
+                elapsed_time = time.time() - start_time
+
+                if elapsed_time > threshold_seconds:
+                    logger.error(
+                        f"Error in {func.__name__}: {str(e)}",
+                        extra={
+                            "elapsed_seconds": round(elapsed_time, 2),
+                            "function": func.__name__,
+                        },
+                        exc_info=True,
+                    )
+                raise
+
+        return wrapper
+
+    return decorator
