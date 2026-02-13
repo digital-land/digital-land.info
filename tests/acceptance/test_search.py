@@ -1,6 +1,7 @@
 import pytest
 
 from datetime import datetime
+from urllib.parse import parse_qs, urlsplit
 
 from application.db.models import TypologyOrm, EntityOrm
 
@@ -234,3 +235,22 @@ def test_extension_query_parameter_ignored(
         assert isinstance(
             response_json["entities"], list
         ), "'entities' should be a list"
+
+
+def test_search_second_submit_replaces_area_query_without_duplicate_q(server_url, page):
+    response = page.goto(server_url + "/entity/?q=M1+2WD")
+    assert response.ok
+
+    search_form = page.locator("#search-facets-form")
+    area_input = search_form.locator('input[name="q"]')
+    assert area_input.count() == 1
+    area_input.fill("SW1P 4DF")
+
+    with page.expect_navigation() as navigation_info:
+        search_form.get_by_role("button", name="Search").click()
+    assert navigation_info.value.ok
+
+    query_params = parse_qs(urlsplit(page.url).query)
+    assert query_params.get("q") == ["SW1P 4DF"]
+    assert len(query_params.get("q", [])) == 1
+    assert "M1 2WD" not in query_params.get("q", [])
