@@ -43,7 +43,7 @@
 
   <div class="govuk-grid-row dl-list-filter__count">
     <div class="govuk-grid-column-one-third">
-      <h2 class="govuk-heading-m list-filter__count__name" id="{{org_type}}">{%  if display_names.get(org_type) %}{{ display_names[org_type] }}{% else %}{{ org_type | replace("-", " ") | capitalize }}{% endif %}</h2>
+      <h2 class="govuk-heading-m" id="{{org_type}}">{%  if display_names.get(org_type) %}{{ display_names[org_type] }}{% else %}{{ org_type | replace("-", " ") | capitalize }}{% endif %}</h2>
       <div class="dl-list-filter__count__wrapper">
         <p class="govuk-visually-hidden">There {{"is" if organisations[org_type]|length == 1 else "are"}}
           <span class="js-accessible-list-filter__count">{{ organisations[org_type]|length }}</span>
