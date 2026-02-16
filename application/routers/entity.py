@@ -407,6 +407,7 @@ def search_entities(
     # Find an area - Postcode / UPRN search
     search_query = search_query.strip()
     search_result = find_an_area(search_query) if search_query else None
+    logger.debug("Search results retrieved")
 
     find_an_area_latitude = None
     find_an_area_longitude = None
@@ -429,6 +430,8 @@ def search_entities(
     validate_typologies(query_params.get("typology", None), typology_names)
     # Run entity query
     data = get_entity_search(session, query_params, extension)
+    logger.debug("Entity search data retrieved")
+
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
@@ -473,6 +476,8 @@ def search_entities(
     typologies = [t.dict() for t in typologies]
     # dataset facet
     response = get_all_datasets(db_session)
+    logger.debug("All datasets data retrieved")
+
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 
@@ -484,6 +489,7 @@ def search_entities(
     organisations_list = [
         organisation.dict(include=set(columns)) for organisation in organisations
     ]
+    logger.debug("Organisations data retrieved")
 
     if links.get("prev") is not None:
         prev_url = links["prev"]
