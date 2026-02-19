@@ -34,16 +34,28 @@
 
   <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
-  <form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form">
+  <form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form" data-boolean-filter-attribute="data-dissolved" data-boolean-filter-value="True" data-boolean-filter-default="true">
+
+    <!-- Text filter -->
     <label class="dl-list-filter__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
-    <input class="dl-list-filter__input govuk-input" type="text" id="filter-organisations-list" placeholder="For example, Transport">
+    <input class="dl-list-filter__input govuk-input govuk-!-margin-bottom-3" type="text" id="filter-organisations-list" placeholder="For example, Transport">
+
+  <!-- Boolean filter checkbox -->
+    <div class="govuk-checkboxes govuk-checkboxes--small govuk-!-margin-bottom-3">
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="filter-hide-dissolved" type="checkbox" data-filter="boolean-input">
+        <label class="govuk-label govuk-checkboxes__label" for="filter-hide-dissolved">
+          Hide dissolved organisations
+        </label>
+      </div>
+    </div>
   </form>
 
   {% for org_type in organisations.keys()  %}
 
   <div class="govuk-grid-row dl-list-filter__count">
     <div class="govuk-grid-column-one-third">
-      <h2 class="govuk-heading-m list-filter__count__name" id="{{org_type}}">{%  if display_names.get(org_type) %}{{ display_names[org_type] }}{% else %}{{ org_type | replace("-", " ") | capitalize }}{% endif %}</h2>
+      <h2 class="govuk-heading-m" id="{{org_type}}">{%  if display_names.get(org_type) %}{{ display_names[org_type] }}{% else %}{{ org_type | replace("-", " ") | capitalize }}{% endif %}</h2>
       <div class="dl-list-filter__count__wrapper">
         <p class="govuk-visually-hidden">There {{"is" if organisations[org_type]|length == 1 else "are"}}
           <span class="js-accessible-list-filter__count">{{ organisations[org_type]|length }}</span>
@@ -57,9 +69,10 @@
 
       <ol class="dl-list-filter__list" data-filter="list">
         {% for organisation in organisations[org_type]|sort(attribute='name')  %}
-          <li class="dl-list-filter__item" data-filter="item">
+            {% set is_dissolved = organisation.end_date and organisation.end_date < today %}
+          <li class="dl-list-filter__item" data-filter="item" data-dissolved="{{ is_dissolved }}">
             <a href="/entity/{{ organisation.entity }}" class="govuk-link dl-list-filter__item-title">{{ organisation.name }}</a>
-            {% if organisation.end_date and organisation.end_date < today  %}
+            {% if is_dissolved %}
               <strong class="govuk-tag govuk-tag--grey">
                 Dissolved
               </strong>

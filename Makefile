@@ -125,6 +125,25 @@ frontend:
 
 frontend-all: clean frontend
 
+watch-stylesheets:
+	npx sass assets/stylesheets/application.scss:static/stylesheets/application.css --load-path=node_modules --watch
+
+watch-javascripts:
+	@echo "Starting JavaScript watch (rollup + file sync)..."
+	@npm run build -- --watch & \
+	while true; do \
+		rsync -r assets/javascripts static/; \
+		if command -v fswatch >/dev/null 2>&1; then \
+			fswatch -1 -r assets/javascripts; \
+		else \
+			sleep 2; \
+		fi; \
+	done
+
+frontend-watch:
+	@echo "Starting frontend watch (stylesheets + javascripts)..."
+	@make -j 2 watch-stylesheets watch-javascripts
+
 black:
 	black .
 
