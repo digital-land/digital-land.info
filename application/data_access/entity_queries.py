@@ -27,7 +27,7 @@ complex_datasets = ["flood-risk-zone"]
 def get_entity_query(
     session: Session,
     id: int,
-) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
+) -> Tuple[Optional[EntityModel], Optional[int], Optional[int], Optional[int]]:
     old_entity = (
         session.query(OldEntityOrm)
         .filter(OldEntityOrm.old_entity_id == id)
@@ -36,15 +36,24 @@ def get_entity_query(
     if old_entity:
         return (
             None,
+            None,
             old_entity.status,
             old_entity.new_entity_id,
         )
     else:
         entity = session.query(EntityOrm).get(id)
+
         if not entity:
-            return None, None, None
-        else:
-            return entity_factory(entity), None, None
+            return None, None, None, None
+
+        # Query the number of entities with the same reference and prefix
+        duplicate_curies = (
+            session.query(EntityOrm)
+            .filter(EntityOrm.reference == entity.reference)
+            .filter(EntityOrm.prefix == entity.prefix)
+            .count()
+        )
+        return entity_factory(entity), duplicate_curies, None, None
 
 
 def get_entity_count(session: Session, dataset: Optional[str] = None):

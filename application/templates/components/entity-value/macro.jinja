@@ -1,4 +1,4 @@
-{% macro entityValue(field, value, field_spec, dataset_fields, organisation_entity, linked_entities, dataset) %}
+{% macro entityValue(field, value, field_spec, dataset_fields, organisation_entity, linked_entities, dataset, duplicate_curies=0) %}
     {% if field_spec and field_spec[field] %}
         {% if field_spec[field]['typology'] == 'value' %}
             {% if field_spec[field]['datatype'] == 'url' %}
@@ -52,7 +52,11 @@
             <a class="govuk-link" href="{{ '/' + field + '/' + value }}">{{ dataset.name }}</a>
         {%- elif field == "curie" %}
             {%- if value %}
-                <a class="govuk-link" href="/curie/{{ value }}">{{ value }}</a>
+                {%- if duplicate_curies is defined and duplicate_curies > 1 %}
+                    <a class="govuk-link" href="/entity">{{ value }}</a>
+                {%- else %}
+                    <a class="govuk-link" href="/curie/{{ value }}">{{ value }}</a>
+                {%- endif %}
             {%- endif %}
         {%- elif field in ["geometry","point"] %}
             <code class="app-code-block" tabindex="0">{{ value }}</code>
