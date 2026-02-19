@@ -82,6 +82,24 @@
   </div>
   {% endif -%}
 
+    <!-- Search by postcode or uprn  -->
+    <div class="govuk-form-group">
+        {% set search_query = query.params.get("q", "") %}
+        <div class="dl-filter-group">
+            <h2 class="dl-filter-group__heading govuk-heading-s">
+                <label class="govuk-label govuk-label--s" for="find-an-area">
+                    Postcode or Unique Property Reference Number (UPRN)
+                </label>
+            </h2>
+            <div class="app-filter-group__body">
+                <input class="govuk-input dl-filter-group__auto-filter__input" id="find-an-area" name="q" type="text"
+                       spellcheck="false"
+                       value="{{ search_query }}"
+                >
+            </div>
+        </div>
+    </div>
+
   {%- if organisations %}
   <!-- organisation facet -->
     <div class="govuk-form-group">
@@ -207,19 +225,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Filter by Latitude and Longitude (hidden fields) -->
-  {% if query.params.get('latitude') %}
-    <input type="hidden" name="latitude" value="{{ query.params.get('latitude') }}" />
-  {% endif %}
-  {% if query.params.get('longitude') %}
-    <input type="hidden" name="longitude" value="{{ query.params.get('longitude') }}" />
-  {% endif %}
-
-  <!-- Search Query: Postcode / UPRN -->
-  {% if query.params.get('q') %}
-    <input type="hidden" name="q" value="{{ query.params.get('q') }}" />
-  {% endif %}
 
   <div class="govuk-button-group">
     {{ govukButton({
