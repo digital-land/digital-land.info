@@ -100,7 +100,7 @@
                       {{ row[field] }}
                     </code>
                   {% else %}
-                    {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
+                    {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset, duplicate_curies) }}
                   {% endif %}
                 </td>
                 {% if field not in ['curie', 'dataset', 'organisation-entity', 'start-date', 'end-date', 'typology'] %}

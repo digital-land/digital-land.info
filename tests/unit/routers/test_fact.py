@@ -146,7 +146,7 @@ def test_get_fact_fact_returned_for_html(
     try:
         result.template.render(result.context)
     except Exception:
-        logging.warning(f"context:{result.context}")
+        logging.warning(f"context: {result.context}")
         assert False, "template unable to render, missing variable(s) from context"
 
 
@@ -265,7 +265,7 @@ def test_search_facts_no_facts_returned_html(
     )
     mocker.patch(
         "application.routers.fact.get_entity_query",
-        return_value=(single_entity_model, None, None),
+        return_value=(single_entity_model, 1, None, None),
     )
     request = MagicMock()
     result = search_facts(
@@ -280,7 +280,7 @@ def test_search_facts_no_facts_returned_html(
     try:
         result.template.render(result.context)
     except Exception:
-        logging.warning(f"context:{result.context}")
+        logging.warning(f"context: {result.context}")
         assert False, "template unable to render, missing variable(s) from context"
 
 
@@ -294,7 +294,7 @@ def test_search_facts_no_facts_returned_json(
     )
     mocker.patch(
         "application.routers.fact.get_entity_query",
-        return_value=(single_entity_model, None, None),
+        return_value=(single_entity_model, 1, None, None),
     )
 
     request = MagicMock()
@@ -321,7 +321,7 @@ def test_search_facts_multiple_facts_returned_html(
         return_value=multiple_dataset_field_models,
     )
     get_entity_query_mock = MagicMock()
-    get_entity_query_mock.return_value = (None, None, None)
+    get_entity_query_mock.return_value = (None, None, None, None)
     mocker.patch("application.routers.fact.get_entity_query", get_entity_query_mock)
     request = MagicMock()
     result = search_facts(
@@ -337,7 +337,7 @@ def test_search_facts_multiple_facts_returned_html(
     try:
         result.template.render(result.context)
     except Exception:
-        logging.warning(f"context:{result.context}")
+        logging.warning(f"context: {result.context}")
         assert False, "template unable to render, missing variable(s) from context"
 
 
@@ -350,7 +350,7 @@ def test_search_facts_multiple_facts_returned_json(
         return_value=multiple_dataset_field_models,
     )
     get_entity_query_mock = MagicMock()
-    get_entity_query_mock.return_value = (None, None, None)
+    get_entity_query_mock.return_value = (None, None, None, None)
     mocker.patch("application.routers.fact.get_entity_query", get_entity_query_mock)
     request = MagicMock()
     extension = MagicMock()

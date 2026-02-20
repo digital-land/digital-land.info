@@ -182,7 +182,7 @@ def test_get_entity_json_with_multiple_exclude_fields(multiple_entity_models):
 
 def test_get_entity_no_entity_returned_html(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, None, None)
+        "application.routers.entity.get_entity_query", return_value=(None, None, None, None)
     )
     mocker.patch(
         "application.routers.entity.get_dataset_names",
@@ -202,7 +202,7 @@ def test_get_entity_no_entity_returned_html(mocker):
 
 def test_get_entity_no_entity_returned_json(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, None, None)
+        "application.routers.entity.get_entity_query", return_value=(None, None, None, None)
     )
     request = MagicMock()
     extension = MagicMock()
@@ -220,7 +220,7 @@ def test_get_entity_no_entity_returned_json(mocker):
 
 def test_get_entity_no_entity_returned_geojson(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, None, None)
+        "application.routers.entity.get_entity_query", return_value=(None, None, None, None)
     )
     request = MagicMock()
     extension = MagicMock()
@@ -238,7 +238,7 @@ def test_get_entity_no_entity_returned_geojson(mocker):
 
 def test_get_entity_old_entity_gone_returned_html(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, 410, None)
+        "application.routers.entity.get_entity_query", return_value=(None, None, 410, None)
     )
     request = MagicMock()
     result = get_entity(request=request, entity="11000000", extension=None)
@@ -255,7 +255,7 @@ def test_get_entity_old_entity_gone_returned_html(mocker):
 
 def test_get_entity_old_entity_gone_returned_json(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, 410, None)
+        "application.routers.entity.get_entity_query", return_value=(None, None, 410, None)
     )
     request = MagicMock()
     extension = MagicMock()
@@ -269,7 +269,7 @@ def test_get_entity_old_entity_gone_returned_json(mocker):
 
 def test_get_entity_old_entity_gone_returned_geojson(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, 410, None)
+        "application.routers.entity.get_entity_query", return_value=(None, None, 410, None)
     )
     request = MagicMock()
     extension = MagicMock()
@@ -283,7 +283,7 @@ def test_get_entity_old_entity_gone_returned_geojson(mocker):
 
 def test_get_entity_old_entity_redirect_returned_html(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, 301, 1100000)
+        "application.routers.entity.get_entity_query", return_value=(None, None, 301, 1100000)
     )
     request = MagicMock()
     result = get_entity(request=request, entity="11000000", extension=None)
@@ -294,7 +294,7 @@ def test_get_entity_old_entity_redirect_returned_html(mocker):
 
 def test_get_entity_old_entity_redirect_returned_json(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, 301, 1100000)
+        "application.routers.entity.get_entity_query", return_value=(None, None, 301, 1100000)
     )
     request = MagicMock()
     extension = MagicMock()
@@ -307,7 +307,7 @@ def test_get_entity_old_entity_redirect_returned_json(mocker):
 
 def test_get_entity_old_entity_redirect_returned_geojson(mocker):
     mocker.patch(
-        "application.routers.entity.get_entity_query", return_value=(None, 301, 1100000)
+        "application.routers.entity.get_entity_query", return_value=(None, None, 301, 1100000)
     )
     request = MagicMock()
     extension = MagicMock()
@@ -439,7 +439,7 @@ def test_get_entity_entity_returned_html(
 ):
     mocker.patch(
         "application.routers.entity.get_entity_query",
-        return_value=(single_entity_model, None, None),
+        return_value=(single_entity_model, 1, None, None),
     )
     mocker.patch(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
@@ -471,7 +471,7 @@ def test_get_entity_entity_returned_json(
 ):
     mocker.patch(
         "application.routers.entity.get_entity_query",
-        return_value=(single_entity_model, None, None),
+        return_value=(single_entity_model, 1, None, None),
     )
     mocker.patch(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
@@ -496,7 +496,7 @@ def test_get_entity_entity_returned_geojson(
 ):
     mocker.patch(
         "application.routers.entity.get_entity_query",
-        return_value=(single_entity_model, None, None),
+        return_value=(single_entity_model, 1, None, None),
     )
     mocker.patch(
         "application.routers.entity.get_datasets", return_value=multiple_dataset_models
@@ -1081,7 +1081,7 @@ def test_get_entity_with_linked_local_plans(
 ):
     mocker.patch(
         "application.routers.entity.get_entity_query",
-        return_value=(local_plan_dataset_model, None, None),
+        return_value=(local_plan_dataset_model, 1, None, None),
     )
     mocker.patch(
         "application.routers.entity.get_datasets",
