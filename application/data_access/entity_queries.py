@@ -21,7 +21,6 @@ from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
 
 logger = logging.getLogger(__name__)
-complex_datasets = ["flood-risk-zone"]
 
 
 def get_entity_query(
@@ -247,9 +246,24 @@ def _apply_date_filters(query, params):
     return query
 
 
+def get_complex_datasets(session):
+    # Query distinct datasets that have subdivided geometries present
+    entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    complex_datasets_query = (
+        session.query(entity_subdivided_alias.dataset)
+        .filter(
+            entity_subdivided_alias.geometry_subdivided.isnot(None),
+            func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
+        )
+        .distinct()
+    )
+    return [row[0] for row in complex_datasets_query.all()]
+
+
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    complex_datasets = get_complex_datasets(session)
     if point is not None:
         # Pre-filter EntitySubdividedOrm table
         subdivided_ids_query = select(entity_subdivided_alias.entity).where(
