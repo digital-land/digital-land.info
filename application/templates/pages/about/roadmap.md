@@ -73,4 +73,22 @@ We are running a discovery to understand the value of the platform for policymak
 
 - We will make users more aware of how their data is benefitting other people and organisations
 
+## Extract
+
+Extract uses AI to unlock historical planning data from documents, reducing the effort for local planning authorities to prepare and provide standardised planning data. Developed in partnership with the Incubator for AI, Department of Science, Innovation and Technology.
+
+### Now
+
+We're testing Extract with real planning documents and staff working at local planning authorities to understand where it helps most and where it needs improvement (also known as the [alpha phase](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works)). We're improving the experience so it's clearer, easier and faster to turn documents into trustworthy data, and ensuring that it outputs high-quality data reliably.
+
+### Next
+
+- Invite 30 to 50 local planning authorities to use Extract during the [beta phase](https://www.gov.uk/service-manual/agile-delivery/how-the-beta-phase-works), ensuring that it works reliably and can be scaled to meet the demands of all local planning authorities in England
+- Conduct an accessibility audit and ensure Extract is accessible to Web Content Accessibility Guidelines 2.2
+- Continue to iterate and improve Extract based on feedback from local planning authorities using it day-to-day
+
+### Later
+
+- Make Extract available for all local planning authorities in England
+
 <br>
