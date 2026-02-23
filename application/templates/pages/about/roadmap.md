@@ -4,7 +4,7 @@ We work in 3-month cycles and we aim to update this roadmap every 3 months. Our 
 
 Last updated 7 February 2026.
 
-## Designing Data
+## Designing data
 
 We are designing and collecting data that is valuable to housing and planning, and improving the quantity of [data on the platform](https://www.planning.data.gov.uk/dataset/).
 
@@ -25,7 +25,7 @@ Based on our [data quality framework](https://digital-land.github.io/technical-d
 
 ### Later
 
-## Collecting & Managing Data
+## Collecting and managing data
 
 ### Now
 
@@ -58,7 +58,7 @@ Our ambition is for all local planning authorities in England to provide plannin
 - We will explore alternative options for warehousing reporting data to make it cheaper to run the platform
 - We will implement more complex data quality checks so that the data is easier to trust
 
-## Consuming Data
+## Making data easier to consume
 
 ### Now
 
