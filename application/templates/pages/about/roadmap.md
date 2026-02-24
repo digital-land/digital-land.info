@@ -58,7 +58,7 @@ Our ambition is for all local planning authorities in England to provide plannin
 - We will explore alternative options for warehousing reporting data to make it cheaper to run the platform
 - We will implement more complex data quality checks so that the data is easier to trust
 
-## Consuming dataMaking data easier to consume
+## Consuming data
 
 ### Now
 
