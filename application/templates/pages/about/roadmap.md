@@ -58,20 +58,23 @@ Our ambition is for all local planning authorities in England to provide plannin
 - We will explore alternative options for warehousing reporting data to make it cheaper to run the platform
 - We will implement more complex data quality checks so that the data is easier to trust
 
-## Making data easier to consume
+## Consuming dataMaking data easier to consume
 
 ### Now
 
-We are running a discovery to understand the value of the platform for policymakers, analysts, and property companies, and to provide more valuable features for PropTech companies, supporting a growing market of planning products and services using open data we make available.
+- We are publishing live platform performance metrics so users can clearly understand reliability and availability.
+- We are publishing dataset quality and coverage information so users can understand what data we currently have.
+- We are improving map search by Local Planning Authority and Town so users can find relevant data more easily.
 
 ### Next
 
-- We will add new features that make it easier for people to consume the data, based on the findings from our discovery
-- We will explain the principles that guide us in making planning and housing data easy to find at a national scale
+- We plan to provide datasets in formats such as Parquet to support large‑scale analysis and reuse.
+- We intend to package datasets around common user needs, with clearer context and guidance, to make them easier to use and consume.
 
 ### Later
 
-- We will make users more aware of how their data is benefitting other people and organisations
+- We expect to improve discoverability on the search and map through smarter, more intuitive search.
+- We will explore whether lightweight authenticated access, such as API keys, could support enhanced services while maintaining open access to data.
 
 ## Extract
 
