@@ -44,7 +44,7 @@ We are also developing Extract in partnership with the Incubator for AI, Departm
 
 ### Next
 
-- We will increase the number of datasets available through the Provide service including developer contributions and local plans.
+- We will increase the number of datasets available through the Provide service, including developer contributions and local plans.
 - We will create an internal tool to speed up and simplify getting new data onto the platform.
 - We will continue to scale our platform’s ability to transform large datasets, including index polygons and UPRNs.
 - We will revisit how we play back data quality checks to LPAs, focusing on which tasks will have the greatest impact on their quality score.
