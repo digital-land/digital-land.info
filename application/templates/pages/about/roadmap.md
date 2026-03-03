@@ -62,9 +62,9 @@ Our ambition is for all local planning authorities in England to provide plannin
 
 ### Now
 
-- We are publishing live platform performance metrics so users can clearly understand reliability and availability.
-- We are publishing dataset quality and coverage information so users can understand what data we currently have.
-- We are improving map search by Local Planning Authority and Town so users can find relevant data more easily.
+- We are publishing live platform performance metrics, so users can clearly understand reliability and availability.
+- We are publishing dataset quality and coverage information, so users can understand what data we currently have.
+- We are improving map search by Local Planning Authority and Town, so users can find relevant data more easily.
 
 ### Next
 
