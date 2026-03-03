@@ -48,7 +48,7 @@
 	<div class="govuk-grid-row dl-list-filter__count">
 		<div class="govuk-grid-column-one-third">
 		{% set plural = typology | replace("-"," ")| title %}
-			<h2 class="govuk-heading-m list-filter__count__name" id="{{typology}}">{{plural}}</h2>
+			<h2 class="govuk-heading-m" id="{{typology}}">{{plural}}</h2>
 			<div class="dl-list-filter__count__wrapper">
 				<p class="govuk-visually-hidden">There {{"is" if typologies[typology]['dataset']|length == 1 else "are"}}
 					<span class="js-accessible-list-filter__count">{{ typologies[typology]['dataset']|length }}</span>

@@ -8,6 +8,8 @@ export class ListFilter{
         this.$form = $form;
         this.filterTimeout = null;
         this.$noMatches = document.querySelector('.dl-list-filter__no-filter-match');
+        this.$booleanFilterCheckbox = null;
+        this.booleanFilterConfig = null;
         this.init();
     }
 
@@ -19,9 +21,12 @@ export class ListFilter{
         // We don't want the form to submit/refresh the page on enter key
         $form.addEventListener('submit', function () { return false });
 
-        const $input = $form.querySelector('input');
+        const $input = $form.querySelector('input[type="text"]');
         const boundFilterViaTimeout = this.filterViaTimeout.bind(this);
         $input.addEventListener('input', boundFilterViaTimeout);
+
+        // Set up boolean filter if configured
+        this.setupBooleanFilter();
 
         // make sure no matches message is initially hidden
         this.$noMatches.classList.add('js-hidden');
@@ -42,7 +47,13 @@ export class ListFilter{
         const searchTerm = e.target.value;
 
         const boundMatchSearchTerm = this.matchSearchTerm.bind(this);
+
+        // Only filter items not already hidden by boolean filter
         itemsToFilter
+          .filter(function ($item) {
+            // Skip items hidden by boolean filter
+            return !$item._hiddenByBooleanFilter;
+          })
           .filter(function ($item) {
             return !boundMatchSearchTerm($item, searchTerm)
           })
@@ -68,7 +79,10 @@ export class ListFilter{
     matchSearchTerm(item, term){
         // const itemLabels = item.dataset.filterItemLabels
         const contentToMatchOn = this.termToMatchOn(item);
-        item.classList.remove('js-hidden');
+        // Only remove js-hidden if item is not hidden by boolean filter
+        if (!item._hiddenByBooleanFilter) {
+            item.classList.remove('js-hidden');
+        }
         var searchTermRegexp = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
         if (searchTermRegexp.exec(contentToMatchOn) !== null) {
           return true
@@ -77,16 +91,16 @@ export class ListFilter{
     }
 
     updateListCounts(lists, searchTerm = ''){
-        var totalMatches = 0;
+        let totalMatches = 0;
         const list_section_selector = this.list_section_selector;
         const count_wrapper_selector = this.count_wrapper_selector;
 
         lists.forEach(function (list) {
-          var matchingCount = list.querySelectorAll('[data-filter="item"]:not(.js-hidden)').length;
-          var listSection = list.closest(list_section_selector);
-          var countWrapper = listSection.querySelector(count_wrapper_selector);
-          var listCount = countWrapper.querySelector('.js-list-filter__count');
-          var accessibleListCount = countWrapper.querySelector('.js-accessible-list-filter__count');
+          let matchingCount = list.querySelectorAll('[data-filter="item"]:not(.js-hidden)').length;
+          let listSection = list.closest(list_section_selector);
+          let countWrapper = listSection.querySelector(count_wrapper_selector);
+          let listCount = countWrapper.querySelector('.js-list-filter__count');
+          let accessibleListCount = countWrapper.querySelector('.js-accessible-list-filter__count');
 
           // show/hide sections with matching items
           if (matchingCount > 0) {
@@ -121,5 +135,94 @@ export class ListFilter{
         params = params || {};
         this.list_section_selector = params.list_section_selector || '.dl-list-filter__count';
         this.count_wrapper_selector = params.count_wrapper_selector || '.dl-list-filter__count__wrapper';
+    }
+
+    setupBooleanFilter(){
+        const $form = this.$form;
+        const booleanAttribute = $form.dataset.booleanFilterAttribute;
+        const booleanValue = $form.dataset.booleanFilterValue;
+        const booleanDefault = $form.dataset.booleanFilterDefault;
+
+        // If no boolean filter config, skip setup
+        if (!booleanAttribute || !booleanValue) {
+            return;
+        }
+
+        // Find checkbox with data-filter="boolean-input"
+        this.$booleanFilterCheckbox = $form.querySelector('input[data-filter="boolean-input"]');
+
+        if (!this.$booleanFilterCheckbox) {
+            console.warn('Boolean filter configured but no checkbox found with data-filter="boolean-input"');
+            return;
+        }
+
+        // Store configuration
+        this.booleanFilterConfig = {
+            attribute: booleanAttribute,
+            value: booleanValue,
+            defaultEnabled: booleanDefault === 'true'
+        };
+
+        // Set initial checkbox state
+        this.$booleanFilterCheckbox.checked = this.booleanFilterConfig.defaultEnabled;
+
+        // Apply initial filter if default is enabled
+        if (this.booleanFilterConfig.defaultEnabled) {
+            this.applyBooleanFilter();
+            // Update counts after applying initial filter
+            const listsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="list"]'));
+            this.updateListCounts(listsToFilter);
+        }
+
+        // Add change event listener
+        const boundApplyAllFilters = this.applyAllFilters.bind(this);
+        this.$booleanFilterCheckbox.addEventListener('change', boundApplyAllFilters);
+    }
+
+    applyBooleanFilter(){
+        // If no boolean filter configured, skip
+        if (!this.booleanFilterConfig || !this.$booleanFilterCheckbox) {
+            return;
+        }
+
+        const itemsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="item"]'));
+        const isChecked = this.$booleanFilterCheckbox.checked;
+        const config = this.booleanFilterConfig;
+
+        itemsToFilter.forEach(function(item) {
+            if (isChecked) {
+                // Get the attribute value (case-insensitive comparison)
+                const itemValue = item.getAttribute(config.attribute);
+                if (itemValue && itemValue.toLowerCase() === config.value.toLowerCase()) {
+                    item.classList.add('js-hidden');
+                    item._hiddenByBooleanFilter = true;
+                } else {
+                    // Clear the flag if item doesn't match
+                    delete item._hiddenByBooleanFilter;
+                }
+            } else {
+                // When unchecked, remove js-hidden if it was added by boolean filter
+                if (item._hiddenByBooleanFilter) {
+                    item.classList.remove('js-hidden');
+                    delete item._hiddenByBooleanFilter;
+                }
+            }
+        });
+    }
+
+    applyAllFilters(){
+        // Apply boolean filter first
+        this.applyBooleanFilter();
+
+        // Then apply text filter (if there's a search term)
+        const $form = this.$form;
+        const $input = $form.querySelector('input[type="text"]');
+        if ($input && $input.value) {
+            this.filterListItems({ target: $input });
+        } else {
+            // If no search term, just update counts
+            const listsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="list"]'));
+            this.updateListCounts(listsToFilter);
+        }
     }
 }
