@@ -38,7 +38,8 @@ def get_entity_redirect_by_curie(
             # If there are more than 1 entities with the same
             # CURIE (prefix:reference) as a temporary work-around
             # we redirect the users to the search page
-            url = request.url_for("search_entities")
+            # displaying all the duplicates
+            url = f"{request.url_for('search_entities')}?curie={prefix}:{reference}"
         elif extension:
             url = request.url_for(
                 "get_entity", entity=lookup[0], extension=extension.value

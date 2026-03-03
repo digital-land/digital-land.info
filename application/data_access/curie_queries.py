@@ -19,8 +19,8 @@ def get_lookup_by_curie(session: Session, prefix: str, reference: str):
         prefix (str): The prefix component of the CURIE
         reference (str): The reference component of the CURIE
     Returns:
-        list: A list of lookup IDs matching the given CURIE prefix
-              and reference. May contain up to 2 results.
+        list: A list of entity IDs sourced from matching lookup rows
+              for the given CURIE prefix and reference. May contain up to 2 results.
     """
     statement = (
         session.query(LookupOrm.entity.label("entity"))
