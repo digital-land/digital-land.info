@@ -32,7 +32,7 @@ We regularly ask our community to help us decide the things we need to work on a
 
 We are supporting local planning authorities across England to help them provide planning and housing data through our platform. Through the [Open Digital Planning community](https://opendigitalplanning.org/community-members), we’re supporting over 200 LPAs to publish data, improve its quality and adopt digital planning products such as [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital). Alongside this, we are ensuring that our data collection pipeline remains performant as we grow the amount of data that we collect, standardise and index each night.
 
-We're also developing Extract in partnership with the Incubator for AI, Department of Science, Innovation and Technology. Using AI to [unlock historical planning data from documents](https://mhclgdigital.blog.gov.uk/2025/06/12/extract-using-ai-to-unlock-historic-planning-data/), we are aiming to reduce the effort for local planning authorities to prepare and provide standardised planning data. We expect it will increase the amount of usable, trustworthy planning data available on the platform. 
+We are also developing Extract in partnership with the Incubator for AI, Department of Science, Innovation and Technology. Using AI to [unlock historical planning data from documents](https://mhclgdigital.blog.gov.uk/2025/06/12/extract-using-ai-to-unlock-historic-planning-data/), we are aiming to reduce the effort for local planning authorities to prepare and provide standardised planning data. We expect it will increase the amount of usable, trustworthy planning data available on the platform. 
 
 ### Now
 
