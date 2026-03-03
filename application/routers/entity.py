@@ -162,11 +162,7 @@ def prepare_geojson(e):
 
 
 def handle_entity_response(
-    request: Request,
-    e,
-    duplicate_curies,
-    extension: Optional[SuffixEntity],
-    session: Session,
+    request: Request, e, extension: Optional[SuffixEntity], session: Session
 ):
     if extension is not None and extension.value == "json":
         return e.dict(by_alias=True, exclude={"geojson"})
@@ -242,7 +238,7 @@ def handle_entity_response(
 
     organisation_entity = None
     if e.organisation_entity is not None:
-        organisation_entity, _, _, _ = get_entity_query(session, e.organisation_entity)
+        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
         if organisation_entity:
             organisation_curie = (
                 f"{organisation_entity.prefix}:{organisation_entity.reference}"
@@ -271,7 +267,6 @@ def handle_entity_response(
             "dataset": dataset,
             "organisation_entity": organisation_entity,
             "feedback_form_footer": True,
-            "duplicate_curies": duplicate_curies,
         },
     )
 
@@ -327,16 +322,14 @@ def get_entity(
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
-    e, duplicate_curies, old_entity_status, new_entity_id = get_entity_query(
-        session, entity
-    )
+    e, old_entity_status, new_entity_id = get_entity_query(session, entity)
 
     if old_entity_status == 410:
         return handle_gone_entity(request, entity, extension)
     elif old_entity_status == 301:
         return handle_moved_entity(entity, new_entity_id, extension)
     elif e is not None:
-        return handle_entity_response(request, e, duplicate_curies, extension, session)
+        return handle_entity_response(request, e, extension, session)
     else:
         raise HTTPException(status_code=404, detail="entity not found")
 
@@ -434,6 +427,7 @@ def search_entities(
     # additional validations
     validate_dataset(query_params.get("dataset", None), dataset_names)
     validate_typologies(query_params.get("typology", None), typology_names)
+
     # Run entity query
     data = get_entity_search(session, query_params, extension)
     # the query does some normalisation to remove empty
