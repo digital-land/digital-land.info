@@ -146,7 +146,7 @@ def test_get_fact_fact_returned_for_html(
     try:
         result.template.render(result.context)
     except Exception:
-        logging.warning(f"context:{result.context}")
+        logging.warning(f"context: {result.context}")
         assert False, "template unable to render, missing variable(s) from context"
 
 
@@ -280,7 +280,7 @@ def test_search_facts_no_facts_returned_html(
     try:
         result.template.render(result.context)
     except Exception:
-        logging.warning(f"context:{result.context}")
+        logging.warning(f"context: {result.context}")
         assert False, "template unable to render, missing variable(s) from context"
 
 
@@ -337,7 +337,7 @@ def test_search_facts_multiple_facts_returned_html(
     try:
         result.template.render(result.context)
     except Exception:
-        logging.warning(f"context:{result.context}")
+        logging.warning(f"context: {result.context}")
         assert False, "template unable to render, missing variable(s) from context"
 
 

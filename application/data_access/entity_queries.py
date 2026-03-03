@@ -41,6 +41,7 @@ def get_entity_query(
         )
     else:
         entity = session.query(EntityOrm).get(id)
+
         if not entity:
             return None, None, None
         else:
