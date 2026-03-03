@@ -21,7 +21,7 @@ Based on our [data quality framework](https://digital-land.github.io/technical-d
 ### Next
 
 - We’ll be adding more datasets needed by the Planning Inspectorate and nationally significant infrastructure projects (consultees and geographies). We will draft a template Statutory Instrument for potential data standards.
-- We will make it possible for local planning authorities to provide planning applications and decisions through our service
+- We will make it possible for local planning authorities to provide planning applications and decisions through our service.
 
 ### Later
 
