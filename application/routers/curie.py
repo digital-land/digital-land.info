@@ -34,15 +34,15 @@ def get_entity_redirect_by_curie(
     if len(lookup) == 0:
         raise HTTPException(status_code=404)
     else:
-        if extension:
-            url = request.url_for(
-                "get_entity", entity=lookup[0], extension=extension.value
-            )
-        elif len(lookup) > 1:
+        if len(lookup) > 1:
             # If there are more than 1 entities with the same
             # CURIE (prefix:reference) as a temporary work-around
             # we redirect the users to the search page
             url = request.url_for("search_entities")
+        elif extension:
+            url = request.url_for(
+                "get_entity", entity=lookup[0], extension=extension.value
+            )
         else:
             # If the entity is unique there should be only 1 ID
             # being returned from the query, which we can access

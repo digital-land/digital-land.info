@@ -1,12 +1,10 @@
 import logging
 
-from fastapi import APIRouter
 from sqlalchemy.orm import Session
 
 from application.db.models import LookupOrm, EntityOrm
 
 
-router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
