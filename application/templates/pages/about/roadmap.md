@@ -44,19 +44,19 @@ We are also developing Extract in partnership with the Incubator for AI, Departm
 
 ### Next
 
-- We will increase the number of datasets available through the Provide service including developer contributions and local plans
-- We will create an internal tool to speed up and simplify getting new data onto the platform
+- We will increase the number of datasets available through the Provide service including developer contributions and local plans.
+- We will create an internal tool to speed up and simplify getting new data onto the platform.
 - We will continue to scale our platform’s ability to transform large datasets, including index polygons and UPRNs.
-- We will revisit how we playback data quality checks to LPAs, focusing on which tasks will have the greatest impact on their quality score
-- Invite 30 to 50 local planning authorities to use Extract during the [beta phase](https://www.gov.uk/service-manual/agile-delivery/how-the-beta-phase-works), ensuring that it works reliably and can be scaled to meet the demands of all local planning authorities in England
-- Conduct an accessibility audit and ensure Extract is accessible to Web Content Accessibility Guidelines 2.2
-- Continue to iterate and improve Extract based on feedback from local planning authorities using it day-to-day
+- We will revisit how we play back data quality checks to LPAs, focusing on which tasks will have the greatest impact on their quality score.
+- Invite 30 to 50 local planning authorities to use Extract during the [beta phase](https://www.gov.uk/service-manual/agile-delivery/how-the-beta-phase-works), ensuring that it works reliably and can be scaled to meet the demands of all local planning authorities in England.
+- Conduct an accessibility audit and ensure Extract is accessible to Web Content Accessibility Guidelines 2.2.
+- Continue to iterate and improve Extract based on feedback from local planning authorities using it day-to-day.
 
 ### Later
 
-- We will explore alternative options for warehousing reporting data to make it cheaper to run the platform
-- We will implement more complex data quality checks so that the data is easier to trust
-- Make Extract available for all local planning authorities in England
+- We will explore alternative options for warehousing reporting data to make it cheaper to run the platform.
+- We will implement more complex data quality checks so that the data is easier to trust.
+- Make Extract available for all local planning authorities in England.
 
 ## Consuming data
 
