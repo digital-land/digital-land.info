@@ -189,13 +189,11 @@ def search_facts(
             entity_prefix = facts_dicts[0]["entity-prefix"]
             entity_reference = facts_dicts[0]["entity-reference"]
         else:
-            e, _, old_entity_status, new_entity_id = get_entity_query(
-                session, query_params["entity"]
-            )
-            if e:
-                entity_name = e.name
-                entity_prefix = e.prefix
-                entity_reference = e.reference
+            entity, _, _ = get_entity_query(session, query_params["entity"])
+            if entity:
+                entity_name = entity.name
+                entity_prefix = entity.prefix
+                entity_reference = entity.reference
             else:
                 entity_name = None
                 entity_prefix = None
