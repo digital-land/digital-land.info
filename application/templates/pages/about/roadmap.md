@@ -2,7 +2,7 @@ This roadmap shows our current plans for making it easier to find, use and trust
 
 We work in 3-month cycles and we aim to update this roadmap every 3 months. Our plans can change based on what we learn from speaking to our users, testing iterations, and how we can better deliver on our mission.
 
-Last updated 3 March 2026.
+Last updated 3 March 2026. Next update due June 2026.
 
 ## Designing data
 
@@ -30,27 +30,27 @@ We regularly ask our community to help us decide the things we need to work on a
 
 ## Collecting and managing data
 
-We are supporting local planning authorities across England to help them provide planning and housing data through our platform. Through the [Open Digital Planning community](https://opendigitalplanning.org/community-members), we’re supporting over 200 LPAs to publish data, improve its quality and adopt digital planning products such as [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital). Alongside this, we are ensuring that our data collection pipeline remains performant as we grow the amount of data that we collect, standardise and index each night.
+We are supporting local planning authorities across England to help them provide planning and housing data through our platform. Through the [Open Digital Planning community](https://opendigitalplanning.org/community-members), we’re supporting over 200 Local Planning Authorities (LPAs) to publish data, improve its quality and adopt digital planning products such as [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital). Alongside this, we are ensuring that our data collection pipeline remains performant as we grow the amount of data that we collect, standardise and index each night.
 
-We are also developing Extract in partnership with the Incubator for AI, Department of Science, Innovation and Technology. Using AI to [unlock historical planning data from documents](https://mhclgdigital.blog.gov.uk/2025/06/12/extract-using-ai-to-unlock-historic-planning-data/), we are aiming to reduce the effort for local planning authorities to prepare and provide standardised planning data. We expect it will increase the amount of usable, trustworthy planning data available on the platform. 
+We are also developing Extract in partnership with the [Incubator for AI](https://ai.gov.uk/) ([Department of Science, Innovation and Techology](https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology)) - an AI tool that [unlocks historical planning data from documents](https://mhclgdigital.blog.gov.uk/2025/06/12/extract-using-ai-to-unlock-historic-planning-data/), reducing the effort for LPAs to provide standardised data and increasing the amount of trusted data on the platform. 
 
 ### Now
 
 - We are making it faster and more reliable to build and rebuild planning data. Our platform can now be refreshed in hours rather than days, giving users quicker access to up-to-date, authoritative information. This work has also allowed us to scale our infrastructure, increasing the number of [title boundaries](https://www.planning.data.gov.uk/dataset/title-boundary) available on the platform. 
 - We are improving [our service for data providers](https://provide.planning.data.gov.uk). The service is now more responsive, with faster loading times, clearer guidance and new features such as showing non-authoritative data from alternative public sources. All of these help LPAs understand, improve and maintain the quality of the data they’ve provided.
-- We are  bringing data quality checks directly into the service. This allows LPAs to validate data earlier, submit smaller datasets more easily, and publish high-quality data sooner - increasing the amount of trusted, authoritative data available on the platform.
+- We are bringing data quality checks directly into the service. This allows LPAs to validate data earlier, submit smaller datasets more easily, and publish high-quality data sooner - increasing the amount of trusted, authoritative data available on the platform.
 - We are testing Extract with real planning documents and staff working at local planning authorities to understand where it helps most and where it needs improvement (also known as the [alpha phase](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works)). 
 - We are improving the experience so it’s clearer, easier and faster to turn documents into trustworthy data, and ensuring that it outputs high-quality data reliably.
 
 ### Next
 
 - We will increase the number of datasets available through the Provide service, including developer contributions and local plans.
-- We will create an internal tool to speed up and simplify getting new data onto the platform.
+- We will create an internal tool to get new data onto the platform faster, reducing the time between data being provided to us and users being able to access it.
 - We will continue to scale our platform’s ability to transform large datasets, including index polygons and UPRNs.
 - We will revisit how we play back data quality checks to LPAs, focusing on which tasks will have the greatest impact on their quality score.
-- Invite 30 to 50 local planning authorities to use Extract during the [beta phase](https://www.gov.uk/service-manual/agile-delivery/how-the-beta-phase-works), ensuring that it works reliably and can be scaled to meet the demands of all local planning authorities in England.
-- Conduct an accessibility audit and ensure Extract is accessible to Web Content Accessibility Guidelines 2.2.
-- Continue to iterate and improve Extract based on feedback from local planning authorities using it day-to-day.
+- Invite 30-50 local planning authorities to use Extract during the [beta phase](https://www.gov.uk/service-manual/agile-delivery/how-the-beta-phase-works), ensuring that it works reliably and can be scaled to meet the demands of all local planning authorities in England.
+- We will conduct an accessibility audit and ensure Extract is accessible to Web Content Accessibility Guidelines 2.2.
+- We will continue to iterate and improve Extract based on feedback from local planning authorities using it day-to-day.
 
 ### Later
 
@@ -59,6 +59,8 @@ We are also developing Extract in partnership with the Incubator for AI, Departm
 - Make Extract available for all local planning authorities in England.
 
 ## Consuming data
+
+We are making planning and housing data easier to access, understand and reuse - whether developers building planning tools, analysts working with large datasets, or policymakers needing reliable evidence.
 
 ### Now
 
@@ -75,5 +77,3 @@ We are also developing Extract in partnership with the Incubator for AI, Departm
 
 - We expect to improve discoverability on the search and map through smarter, more intuitive search.
 - We will explore whether lightweight authenticated access, such as API keys, could support enhanced services while maintaining open access to data.
-
-<br>
