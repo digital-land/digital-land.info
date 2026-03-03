@@ -78,11 +78,14 @@ Our ambition is for all local planning authorities in England to provide plannin
 
 ## Extract
 
-Extract uses AI to unlock historical planning data from documents, reducing the effort for local planning authorities to prepare and provide standardised planning data. Developed in partnership with the Incubator for AI, Department of Science, Innovation and Technology.
+Extract uses AI to [unlock historical planning data from documents](https://mhclgdigital.blog.gov.uk/2025/06/12/extract-using-ai-to-unlock-historic-planning-data/), reducing the effort for local planning authorities to prepare and provide standardised planning data. We expect it will increase the amount of usable, trustworthy planning data available on the platform. 
+
+Developed in partnership with the Incubator for AI, Department of Science, Innovation and Technology.
 
 ### Now
 
-We’re testing Extract with real planning documents and staff working at local planning authorities to understand where it helps most and where it needs improvement (also known as the [alpha phase](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works)). We’re improving the experience so it’s clearer, easier and faster to turn documents into trustworthy data, and ensuring that it outputs high-quality data reliably.
+- We’re testing Extract with real planning documents and staff working at local planning authorities to understand where it helps most and where it needs improvement (also known as the [alpha phase](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works)). 
+- We’re improving the experience so it’s clearer, easier and faster to turn documents into trustworthy data, and ensuring that it outputs high-quality data reliably.
 
 ### Next
 
