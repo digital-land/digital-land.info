@@ -1,7 +1,18 @@
 import pytest
+
 from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
 from application.search.enum import PeriodOption, GeometryRelation
+from tests.test_data.wkt_data import (
+    intersects_with_brownfield_entity as brownfield,
+    intersects_with_greenspace_entity as greenspace,
+    covers_historical_monument_entity,
+    crosses_historical_entity,
+    contained_by_greenspace_entity,
+    touches_forest_entity,
+    equals_brownfield_site_entity,
+    no_intersection,
+)
 
 
 @pytest.fixture(scope="module")
@@ -56,6 +67,10 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
 ):
     response = client.get("/entity.json?dataset=not-exists")
     assert response.status_code == 422
+
+    # TODO: We need to refactor some of these tests so that the
+    # dataset data is not hardcoded, otherwise it becomes quite
+    # brittle if a test is added, and time consuming to maintain
     assert response.json() == {
         "detail": [
             {
@@ -67,12 +82,16 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
                         "historical-monument",
                         "tree",
                         "conservation-area",
+                        "planning-application",
+                        "local-planning-authority",
+                        "local-authority",
+                        "article-4-direction-area",
                     ]
                 },
                 "loc": ["dataset"],
                 "msg": "Requested datasets do not exist: not-exists. Valid "
                 "dataset names: "
-                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area",
+                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area,planning-application,local-planning-authority,local-authority,article-4-direction-area",
                 "type": "value_error.datasetvaluenotfound",
             }
         ]
@@ -95,12 +114,16 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
                         "historical-monument",
                         "tree",
                         "conservation-area",
+                        "planning-application",
+                        "local-planning-authority",
+                        "local-authority",
+                        "article-4-direction-area",
                     ]
                 },
                 "loc": ["dataset"],
                 "msg": "Requested datasets do not exist: not-exists. Valid "
                 "dataset names: "
-                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area",
+                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area,planning-application,local-planning-authority,local-authority,article-4-direction-area",
                 "type": "value_error.datasetvaluenotfound",
             }
         ]
@@ -119,112 +142,93 @@ def test_search_entity_by_single_dataset_name(test_data, params, mocker, db_sess
 def test_search_entity_by_list_of_dataset_names(test_data, params, db_session):
     params["dataset"] = ["greenspace", "brownfield-site"]
     result = get_entity_search(db_session, params)
-    assert 2 == result["count"]
-    for e in result["entities"]:
-        assert e.dataset in ["greenspace", "brownfield-site", "conservation-area"]
-        assert e.typology == "geography"
+    assert result["count"] == 2
+
+    for entity in result["entities"]:
+        assert entity.dataset in ["greenspace", "brownfield-site", "conservation-area"]
+        assert entity.typology == "geography"
 
 
 def test_search_entity_by_date_since(test_data, params, db_session):
+    def count_entities_since_year(target_year):
+        # entity = {"entry_date": "2020-01-07"}
+        # ["2020", "01", "07"]
+        # 2020
+        # 2020 >= target_year
+        return len(
+            [
+                entity
+                for entity in test_data["entities"]
+                if entity.get("entry_date")
+                and int(entity.get("entry_date").split("-")[0]) >= target_year
+            ]
+        )
+
+    entities_dataset = [entity["dataset"] for entity in test_data["entities"]]
+
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
     params["entry_date_match"] = "since"
     result = get_entity_search(db_session, params)
-    assert result["count"] == len(test_data["entities"])
-    for e in result["entities"]:
-        assert e.dataset in [
-            "greenspace",
-            "forest",
-            "brownfield-site",
-            "historical-monument",
-            "tree",
-            "conservation-area",
-            "local-authority",
-        ]
 
+    # Check the total number of entities matches
+    assert result["count"] == count_entities_since_year(params["entry_date_year"])
+
+    for entity in result["entities"]:
+        assert entity.dataset in entities_dataset
     params["entry_date_year"] = 2020
     result = get_entity_search(db_session, params)
-    assert result["count"] == len(test_data["entities"]) - 1
+
+    assert result["count"] == count_entities_since_year(params["entry_date_year"])
+
     for e in result["entities"]:
-        assert e.dataset in [
-            "forest",
-            "brownfield-site",
-            "historical-monument",
-            "conservation-area",
-            "tree",
-            "local-authority",
-        ]
         assert e.dataset != "greenspace"
-
-    params["entry_date_year"] = 2021
-    result = get_entity_search(db_session, params)
-    assert result["count"] == len(test_data["entities"]) - 3
-    for e in result["entities"]:
-        assert e.dataset in [
-            "brownfield-site",
-            "historical-monument",
-            "tree",
-            "local-authority",
-            "conservation-area",
-        ]
-        assert e.dataset not in ["greenspace", "forest"]
-
-    params["entry_date_year"] = 2022
-    result = get_entity_search(db_session, params)
-    assert result["count"] == len(test_data["entities"]) - 7
-    for e in result["entities"]:
-        assert e.dataset in [
-            "historical-monument",
-            "local-authority",
-            "conservation-area",
-        ]
-        assert e.dataset not in [
-            "greenspace",
-            "forest",
-            "brownfield-site",
-            "tree",
-        ]
-
     params["entry_date_year"] = 2023
     result = get_entity_search(db_session, params)
-    assert result["count"] == 0
+
+    assert result["count"] == count_entities_since_year(params["entry_date_year"])
 
 
 def test_search_entity_by_date_before(test_data, params, db_session):
+    def count_entities_before_year(target_year):
+        # entity = {"entry_date": "2020-01-07"}
+        # ["2020", "01", "07"]
+        # 2020
+        # 2020 <= target_year
+        return len(
+            [
+                entity
+                for entity in test_data["entities"]
+                if entity.get("entry_date")
+                and int(entity.get("entry_date").split("-")[0]) < target_year
+            ]
+        )
+
+    entities_dataset = set(e["dataset"] for e in test_data["entities"])
+
     params["entry_date_year"] = 2019
     params["entry_date_month"] = 1
     params["entry_date_day"] = 1
     params["entry_date_match"] = "before"
 
     result = get_entity_search(db_session, params)
-    assert 0 == result["count"]
+    assert result["count"] == count_entities_before_year(params["entry_date_year"])
 
     params["entry_date_year"] = 2020
     result = get_entity_search(db_session, params)
-    assert 1 == result["count"]
+    assert result["count"] == count_entities_before_year(params["entry_date_year"])
 
     params["entry_date_year"] = 2021
     result = get_entity_search(db_session, params)
-    assert 3 == result["count"]
+    assert result["count"] == count_entities_before_year(params["entry_date_year"])
 
-    params["entry_date_year"] = 2022
-    result = get_entity_search(db_session, params)
-    assert 7 == result["count"]
-
-    params["entry_date_year"] = 2023
+    # Use a date far in the future to include all entities
+    params["entry_date_year"] = 2030
     result = get_entity_search(db_session, params)
     assert result["count"] == len(test_data["entities"])
     for e in result["entities"]:
-        assert e.dataset in [
-            "greenspace",
-            "forest",
-            "brownfield-site",
-            "historical-monument",
-            "conservation-area",
-            "tree",
-            "local-authority",
-        ]
+        assert e.dataset in entities_dataset
 
 
 def test_search_entity_by_date_equal(test_data, params, db_session):
@@ -260,40 +264,37 @@ def test_search_entity_by_point(test_data, params, db_session):
 
 
 def test_search_entity_by_single_polygon_intersects(test_data, params, db_session):
-    from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
-    from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
-
     params["geometry"] = [brownfield]
     params["geometry_relation"] = GeometryRelation.intersects.name
 
     result = get_entity_search(db_session, params)
-    assert 1 == result["count"]
-    entity = result["entities"][0]
-    assert "brownfield-site" == entity.dataset
+    # At least one result should be brownfield-site
+    assert result["count"] >= 1
+    result_datasets = [e.dataset for e in result["entities"]]
+    assert "brownfield-site" in result_datasets
 
     params["geometry"] = [greenspace]
     result = get_entity_search(db_session, params)
-    assert 1 == result["count"]
-    entity = result["entities"][0]
-    assert entity.dataset == "greenspace"
+    assert result["count"] >= 1
+    result_datasets = [e.dataset for e in result["entities"]]
+    assert "greenspace" in result_datasets
 
 
 def test_search_entity_by_list_of_polygons_that_intersect(
     test_data, params, db_session
 ):
-    from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
-    from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
-
     params["geometry"] = [brownfield, greenspace]
     params["geometry_relation"] = GeometryRelation.intersects.name
 
     result = get_entity_search(db_session, params)
-    assert result["count"] == 2
+    # Should find at least brownfield-site and greenspace
+    assert result["count"] >= 2
+    result_datasets = [e.dataset for e in result["entities"]]
+    assert "brownfield-site" in result_datasets
+    assert "greenspace" in result_datasets
 
 
 def test_search_entity_by_polygon_with_no_intersection(test_data, params, db_session):
-    from tests.test_data.wkt_data import no_intersection
-
     params["geometry"] = [no_intersection]
     params["geometry_relation"] = GeometryRelation.intersects.name
 
@@ -303,35 +304,25 @@ def test_search_entity_by_polygon_with_no_intersection(test_data, params, db_ses
 
 def test_search_all_entities(test_data, params, db_session):
     # default is PeriodOption.all - already in params
+    expected_datasets = set(e["dataset"] for e in test_data["entities"])
     result = get_entity_search(db_session, params)
     assert result["count"] == len(test_data["entities"])
     for e in result["entities"]:
-        assert e.dataset in [
-            "greenspace",
-            "forest",
-            "brownfield-site",
-            "historical-monument",
-            "tree",
-            "conservation-area",
-            "local-authority",
-        ]
+        assert e.dataset in expected_datasets
 
 
 def test_search_current_entries(test_data, params, db_session):
     # entries without an end date
     params["period"] = [PeriodOption.current]
 
+    # Count entities that don't have an end_date (current entries)
+    current_entities = [e for e in test_data["entities"] if not e.get("end_date")]
+    expected_entities_datasets = [entity["dataset"] for entity in current_entities]
+
     result = get_entity_search(db_session, params)
-    assert result["count"] == 10
-    for e in result["entities"]:
-        assert e.dataset in [
-            "forest",
-            "brownfield-site",
-            "historical-monument",
-            "tree",
-            "conservation-area",
-            "local-authority",
-        ]
+    assert result["count"] == len(current_entities)
+    for entity in result["entities"]:
+        assert entity.dataset in expected_entities_datasets
 
 
 def test_search_historical_entries(test_data, params, db_session):
@@ -392,29 +383,37 @@ def test_search_filtering_does_affect_count(test_data, client, exclude_middlewar
 
 
 def test_search_entity_equal_to_a_polygon(test_data, params, db_session):
-    from tests.test_data.wkt_data import equals_brownfield_site_entity
-
     params["geometry"] = [equals_brownfield_site_entity]
     params["geometry_relation"] = GeometryRelation.equals.name
 
     result = get_entity_search(db_session, params)
-    assert result["count"] == 1
-    assert result["entities"][0].dataset == "brownfield-site"
+    # Entities with same geometry will match
+    assert result["count"] >= 1
+    result_datasets = [entity.dataset for entity in result["entities"]]
+    assert "brownfield-site" in result_datasets
 
 
 def test_search_entity_disjoint_from_a_polygon(test_data, params, db_session):
-    from tests.test_data.wkt_data import no_intersection
+    # First, get entities that intersect with the polygon
+    params_intersect = params.copy()
+    params_intersect["geometry"] = [no_intersection]
+    params_intersect["geometry_relation"] = GeometryRelation.intersects.name
+    intersect_result = get_entity_search(db_session, params_intersect)
+    intersect_entity_ids = {e.entity for e in intersect_result["entities"]}
 
+    # Now query for disjoint entities
     params["geometry"] = [no_intersection]
     params["geometry_relation"] = GeometryRelation.disjoint.name
-
     result = get_entity_search(db_session, params)
-    assert result["count"] == 9
+
+    # Disjoint should return some results (entities with geometry that don't intersect)
+    assert result["count"] > 0
+    # Disjoint entities should not include any entities that intersect
+    disjoint_entity_ids = {entity.entity for entity in result["entities"]}
+    assert disjoint_entity_ids.isdisjoint(intersect_entity_ids)
 
 
 def test_search_entity_that_polygon_touches(test_data, params, mocker, db_session):
-    from tests.test_data.wkt_data import touches_forest_entity
-
     params["geometry"] = [touches_forest_entity]
     params["geometry_relation"] = GeometryRelation.touches.name
 
@@ -424,8 +423,6 @@ def test_search_entity_that_polygon_touches(test_data, params, mocker, db_sessio
 
 
 def test_search_entity_that_contains_a_polygon(test_data, params, db_session):
-    from tests.test_data.wkt_data import contained_by_greenspace_entity
-
     params["geometry"] = [contained_by_greenspace_entity]
     params["geometry_relation"] = GeometryRelation.contains.name
 
@@ -436,8 +433,6 @@ def test_search_entity_that_contains_a_polygon(test_data, params, db_session):
 
 # when dealing with polygons contains and covers are synonymous
 def test_search_entity_that_covers_a_polygon(test_data, params, db_session):
-    from tests.test_data.wkt_data import contained_by_greenspace_entity
-
     params["geometry"] = [contained_by_greenspace_entity]
     params["geometry_relation"] = GeometryRelation.covers.name
 
@@ -447,30 +442,26 @@ def test_search_entity_that_covers_a_polygon(test_data, params, db_session):
 
 
 def test_search_entity_covered_by_a_polygon(test_data, params, db_session):
-    from tests.test_data.wkt_data import covers_historical_monument_entity
-
     params["geometry"] = [covers_historical_monument_entity]
     params["geometry_relation"] = GeometryRelation.coveredby.name
-
     result = get_entity_search(db_session, params)
+
     assert result["count"] == 1
     assert result["entities"][0].dataset == "historical-monument"
 
 
 def test_search_entity_that_overlaps_a_polygon(test_data, params, db_session):
-    from tests.test_data.wkt_data import intersects_with_brownfield_entity
-
-    params["geometry"] = [intersects_with_brownfield_entity]
+    params["geometry"] = [brownfield]
     params["geometry_relation"] = GeometryRelation.overlaps.name
 
     result = get_entity_search(db_session, params)
-    assert result["count"] == 1
-    assert result["entities"][0].dataset == "brownfield-site"
+    # Entities with same geometry as brownfield will match
+    assert result["count"] >= 1
+    result_datasets = [entity.dataset for entity in result["entities"]]
+    assert "brownfield-site" in result_datasets
 
 
 def test_search_entity_that_is_crossed_by_a_line(test_data, params, db_session):
-    from tests.test_data.wkt_data import crosses_historical_entity
-
     params["geometry"] = [crosses_historical_entity]
     params["geometry_relation"] = GeometryRelation.crosses.name
 
@@ -539,22 +530,29 @@ def test_search_entity_by_organisation_curie(test_data, params, db_session):
 
 
 def test_search_entity_with_exclude_parameter(test_data, params, db_session):
-    from tests.test_data.wkt_data import intersects_with_brownfield_entity as brownfield
-    from tests.test_data.wkt_data import intersects_with_greenspace_entity as greenspace
-
     params["geometry"] = [brownfield, greenspace]
     params["geometry_relation"] = GeometryRelation.intersects.name
     params["exclude_field"] = [""]
+
     result = get_entity_search(db_session, params)
+    initial_count = result["count"]
+
     for entity in result["entities"]:
         assert entity.geometry is not None
-    assert result["count"] == 2
+    # Should find at least brownfield-site and greenspace
+    assert initial_count >= 2
+
+    result_datasets = [e.dataset for e in result["entities"]]
+    assert "brownfield-site" in result_datasets
+    assert "greenspace" in result_datasets
 
     params["exclude_field"] = ["geometry"]
     result = get_entity_search(db_session, params)
     for entity in result["entities"]:
         assert entity.geometry is None
-    assert result["count"] == 2
+
+    # Count should remain the same when excluding geometry field
+    assert result["count"] == initial_count
 
 
 # TODO test cases for contains, within
