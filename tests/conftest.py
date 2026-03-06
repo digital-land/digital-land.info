@@ -107,7 +107,10 @@ def test_data(db_session: Session):
         dictreader = csv.DictReader(f, delimiter="|")
         for dataset in dictreader:
             dataset = {k: (v if v != "" else None) for k, v in dataset.items()}
-            dataset["paint_options"] = json.loads(dataset["paint_options"])
+
+            if dataset["paint_options"] is not None:
+                dataset["paint_options"] = json.loads(dataset["paint_options"])
+
             datasets.append(dataset)
             themes = dataset.pop("themes").split(",")
             ds = DatasetOrm(**dataset)
@@ -302,7 +305,10 @@ def app_test_data(app_db_session: Session):
         dictreader = csv.DictReader(f, delimiter="|")
         for dataset in dictreader:
             dataset = {k: (v if v != "" else None) for k, v in dataset.items()}
-            dataset["paint_options"] = json.loads(dataset["paint_options"])
+
+            if dataset["paint_options"] is not None:
+                dataset["paint_options"] = json.loads(dataset["paint_options"])
+
             datasets.append(dataset)
             themes = dataset.pop("themes").split(",")
             ds = DatasetOrm(**dataset)
