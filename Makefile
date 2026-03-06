@@ -38,7 +38,7 @@ postgresql::
 
 insertBaseData::
 	python -c 'from tests.utils.database import reset_database; reset_database()'
-	python -c 'from tests.utils.database import *; add_base_entities_to_database(); add_base_datasets_to_database(); add_base_typology_to_database()'
+	python -c 'from tests.utils.database import *; add_base_entities_to_database(); add_base_organisations_to_database(); add_base_datasets_to_database(); add_base_typology_to_database()'
 
 emptyDatabase::
 	python -c 'from tests.utils.database import reset_database; reset_database()'
@@ -62,11 +62,11 @@ docker-login:
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
 test-acceptance:
-	python -m playwright install --with-deps chromium firefox webkit
+	python -m playwright install chromium firefox webkit
 	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
 test-acceptance-debug:
-	python -m playwright install --with-deps chromium firefox webkit
+	python -m playwright install chromium firefox webkit
 	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
 test-accessibility:

@@ -28,4 +28,5 @@ def load_data(name, delimiter="|"):
 
 datasets = load_data("datasets")
 entities = load_data("entities")
+organisations = load_data("organisations")
 invalid_geometry = load_data("invalid_geometry", delimiter=",")
