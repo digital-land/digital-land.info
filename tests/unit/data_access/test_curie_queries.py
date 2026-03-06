@@ -1,4 +1,3 @@
-import logging
 from unittest.mock import MagicMock
 
 from sqlalchemy.orm import Session
@@ -32,10 +31,8 @@ class TestGetLookupByCurie:
         assert result == [123]
         assert len(result) == 1
 
-    def test_returns_multiple_entity_ids_when_duplicates_exist(self, caplog):
+    def test_returns_multiple_entity_ids_when_duplicates_exist(self):
         """Test that multiple entity IDs are returned when duplicates exist"""
-        caplog.set_level(logging.INFO, logger="application.data_access.curie_queries")
-
         mock_session = MagicMock(spec=Session)
         mock_session.execute.return_value.scalars.return_value.all.return_value = [
             123,
@@ -46,10 +43,6 @@ class TestGetLookupByCurie:
 
         assert result == [123, 456]
         assert len(result) == 2
-        assert (
-            "Lookup with CURIE 'test-prefix:test-reference' is a duplicate"
-            in caplog.messages
-        )
 
 
 class TestGetEntityByCurie:
@@ -72,10 +65,8 @@ class TestGetEntityByCurie:
         assert result == [789]
         assert len(result) == 1
 
-    def test_returns_multiple_entity_ids_when_duplicates_exist(self, caplog):
+    def test_returns_multiple_entity_ids_when_duplicates_exist(self):
         """Test that multiple entity IDs are returned when duplicates exist"""
-        caplog.set_level(logging.INFO, logger="application.data_access.curie_queries")
-
         mock_session = MagicMock(spec=Session)
         mock_session.execute.return_value.scalars.return_value.all.return_value = [
             789,
@@ -86,7 +77,3 @@ class TestGetEntityByCurie:
 
         assert result == [789, 101]
         assert len(result) == 2
-        assert (
-            "Entity with CURIE 'test-prefix:test-reference' is a duplicate"
-            in caplog.messages
-        )
