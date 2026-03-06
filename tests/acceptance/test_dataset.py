@@ -1,5 +1,7 @@
 import pytest
 
+from playwright.sync_api._generated import Page
+
 
 def test_dataset_page_loads_ok(server_url, page, app_test_data):
     response = page.goto(server_url + "/dataset/brownfield-site")
@@ -9,6 +11,46 @@ def test_dataset_page_loads_ok(server_url, page, app_test_data):
         name="Brownfield site",
     )
     assert heading.is_visible()
+
+
+def test_dataset_page_displays_conditional_warning_text(
+    server_url: str, page: Page, app_test_data: dict[str, list]
+):
+    """
+    Tests that the warning text displayed when viewing
+    'Planning application' is different from when viewing
+    all other datasets.
+    """
+    response = page.goto(server_url + "/dataset/planning-application")
+    assert response.ok
+
+    expected_warning_text = (
+        "The planning application dataset is incomplete "
+        "and is not yet ready for use. You can "
+        "contribute to its development."
+    )
+    warning_text = page.get_by_text(
+        "The planning application dataset is incomplete and is not yet ready for use."
+    )
+
+    assert warning_text.is_visible()
+    assert warning_text.inner_text().split("\n")[1] == expected_warning_text
+
+    # Check that the warning message for a different dataset is different
+    response = page.goto(server_url + "/dataset/brownfield-site")
+    assert response.ok
+
+    expected_warning_text = (
+        "The data may be incomplete and not yet cover all "
+        "of England. We're working to improve its "
+        "availability and quality."
+    )
+    warning_text = page.get_by_text(
+        "The data may be incomplete and not yet cover all of England."
+    )
+
+    assert warning_text.is_visible()
+    assert warning_text.inner_text().split("\n")[1] == expected_warning_text
 
 
 @pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
