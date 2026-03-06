@@ -149,7 +149,7 @@ def handle_moved_entity(
     entity: int, new_entity_id: int, extension: Optional[SuffixEntity]
 ):
     if extension:
-        return RedirectResponse(f"/entity/{new_entity_id}.{extension}", status_code=301)
+        return RedirectResponse(f"/entity/{new_entity_id}.{extension.value}", status_code=301)
     return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
 
 

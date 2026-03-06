@@ -89,9 +89,11 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
                     ]
                 },
                 "loc": ["dataset"],
-                "msg": "Requested datasets do not exist: not-exists. Valid "
-                "dataset names: "
-                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area,planning-application,local-planning-authority,local-authority,article-4-direction-area",
+                "msg": "Requested datasets do not exist: not-exists. Valid dataset "
+                "names: "
+                "greenspace,forest,brownfield-site,historical-monument,tree,"
+                "conservation-area,planning-application,local-planning-authority,"
+                "local-authority,article-4-direction-area",
                 "type": "value_error.datasetvaluenotfound",
             }
         ]
@@ -123,7 +125,9 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
                 "loc": ["dataset"],
                 "msg": "Requested datasets do not exist: not-exists. Valid "
                 "dataset names: "
-                "greenspace,forest,brownfield-site,historical-monument,tree,conservation-area,planning-application,local-planning-authority,local-authority,article-4-direction-area",
+                "greenspace,forest,brownfield-site,historical-monument,tree,"
+                "conservation-area,planning-application,local-planning-authority,"
+                "local-authority,article-4-direction-area",
                 "type": "value_error.datasetvaluenotfound",
             }
         ]

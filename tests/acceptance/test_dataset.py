@@ -34,7 +34,11 @@ def test_dataset_page_displays_conditional_warning_text(
     )
 
     assert warning_text.is_visible()
-    assert warning_text.inner_text().split("\n")[1] == expected_warning_text
+    actual_text = " ".join(warning_text.inner_text().split())
+    # Remove "Warning" prefix from visually hidden span
+    if actual_text.startswith("Warning "):
+        actual_text = actual_text[8:]
+    assert actual_text == expected_warning_text
 
     # Check that the warning message for a different dataset is different
     response = page.goto(server_url + "/dataset/brownfield-site")
@@ -50,7 +54,11 @@ def test_dataset_page_displays_conditional_warning_text(
     )
 
     assert warning_text.is_visible()
-    assert warning_text.inner_text().split("\n")[1] == expected_warning_text
+    actual_text = " ".join(warning_text.inner_text().split())
+    # Remove "Warning" prefix from visually hidden span
+    if actual_text.startswith("Warning "):
+        actual_text = actual_text[8:]
+    assert actual_text == expected_warning_text
 
 
 @pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
