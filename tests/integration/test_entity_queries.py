@@ -169,23 +169,23 @@ def test__local_plan_linked_entity_timetable(
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-timetable",
+        "dataset": "development-plan-timetable",
         "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
         "organisation_entity": 123,
-        "prefix": "local-plan-timetable",
+        "prefix": "development-plan-timetable",
         "reference": "test-timetable",
         "typology": "timetable",
     }
     lpd_entity1 = {
         "entity": 4220004,
-        "name": "Local-plan-document test",
+        "name": "development-plan-document test",
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-document",
+        "dataset": "development-plan-document",
         "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
         "organisation_entity": 123,
-        "prefix": "local-plan-document",
+        "prefix": "development-plan-document",
         "reference": "test-document",
         "typology": "document",
     }
@@ -195,7 +195,7 @@ def test__local_plan_linked_entity_timetable(
     db_session.add(EntityOrm(**lpd_entity1))
 
     linked_entities = get_linked_entities(
-        db_session, "local-plan-timetable", "1481207", "local-plan"
+        db_session, "development-plan-timetable", "1481207", "local-plan"
     )
 
     # Assert the linked entity has reference 'test-document'
@@ -227,14 +227,14 @@ def test__local_plan_linked_entity_timetable_order_check(
 
     lpd_entity = {
         "entity": 4220005,
-        "name": "Local-plan-document test",
+        "name": "development-plan-document test",
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-timetable",
+        "dataset": "development-plan-timetable",
         "json": {"event-date": "2018-11-20", "local-plan": "1481207"},
         "organisation_entity": 123,
-        "prefix": "local-plan-document",
+        "prefix": "development-plan-document",
         "reference": "test-document",
         "typology": "document",
     }
@@ -244,10 +244,10 @@ def test__local_plan_linked_entity_timetable_order_check(
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-timetable",
+        "dataset": "development-plan-timetable",
         "json": {"event-date": "2022-11-20", "local-plan": "1481207"},
         "organisation_entity": 123,
-        "prefix": "local-plan-document",
+        "prefix": "development-plan-document",
         "reference": "test-document",
         "typology": "document",
     }
@@ -257,7 +257,7 @@ def test__local_plan_linked_entity_timetable_order_check(
     db_session.add(EntityOrm(**lpd_entity1))
 
     linked_entities = get_linked_entities(
-        db_session, "local-plan-timetable", "1481207", "local-plan"
+        db_session, "development-plan-timetable", "1481207", "local-plan"
     )
 
     # Assert the linked entity has reference 'test-document'
