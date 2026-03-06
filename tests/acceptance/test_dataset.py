@@ -1,5 +1,7 @@
 import pytest
 
+from playwright.sync_api._generated import Page
+
 
 def test_dataset_page_loads_ok(server_url, page, app_test_data):
     response = page.goto(server_url + "/dataset/brownfield-site")
