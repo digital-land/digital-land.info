@@ -28,7 +28,7 @@ from application.db.models import (
     AttributionOrm,
     LicenceOrm,
 )
-from application.db.session import get_session, SESSION_CACHE
+from application.db.session import get_session, get_redis, SESSION_CACHE
 from application.settings import Settings, get_settings
 from tests.utils.database import (
     add_base_datasets_to_database,
@@ -225,15 +225,10 @@ def client(app: FastAPI, db_session: Session) -> TestClient:
 
     app.dependency_overrides[get_session] = lambda: db_session
 
-    # Patch get_context_session in modules that use it directly
-    with patch(
-        "application.data_access.entity_queries.get_context_session",
-        mock_get_context_session,
-    ), patch(
-        "application.data_access.os_api.get_context_session",
-        mock_get_context_session,
-    ):
-        yield TestClient(app)
+    # Disable Redis caching when running integration tests
+    # see line 372 in this file for more info
+    app.dependency_overrides[get_redis] = lambda: None
+    return TestClient(app)
 
 
 # TODO Can we remove this?
@@ -381,6 +376,20 @@ def get_context_session_override():
 
 appInstance = create_app()
 appInstance.dependency_overrides[get_session] = get_context_session_override
+
+# Disable Redis caching when running acceptance tests
+#
+# get_all_datasets() uses @redis_cache which caches results for up to 6 hours.
+#
+# Locally, Redis has stale cached data from previous runs, so the server
+# returns old/empty datasets instead of querying the fresh test data, but
+# on GitHub Actions, Redis caching is bypassed.
+#
+# This fix, adds `appInstance.dependency_overrides[get_redis] = lambda: None`
+# which disables Redis caching during acceptance tests. The redis_cache
+# decorator skips caching when Redis is None and queries the database
+# directly.
+appInstance.dependency_overrides[get_redis] = lambda: None
 HOST = "0.0.0.0"
 PORT = 9000
 
