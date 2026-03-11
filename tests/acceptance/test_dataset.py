@@ -11,7 +11,7 @@ def test_dataset_page_loads_ok(server_url, page, app_test_data):
     assert heading.is_visible()
 
 
-@pytest.mark.skip(reason="Temporarily disablind. Playwright Issues")
+@pytest.mark.skip(reason="Temporarily disabled. Playwright Issues")
 def test_download_data_for_dataset(server_url, page, app_test_data):
     page.goto(server_url)
 
