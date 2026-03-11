@@ -2,6 +2,12 @@
 
 {% macro dlHeaderBar(params={}) %}
 {% set _navitems = params.get('items', []) %}
+{% set _subnav = [] %}
+{% for item in _navitems %}
+  {% if item.children %}
+    {% set _ = _subnav.extend(item.children) %}
+  {% endif %}
+{% endfor %}
 <header class="govuk-header dl-header{{ ' ' + params.classes if params.classes }}" role="banner" data-module="govuk-header">
   <div class="govuk-header__container {{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container' }}">
     <div class="govuk-header__logo">
@@ -32,8 +38,19 @@
         </button>
         <ul class="govuk-service-navigation__list" id="navigation">
           {% for item in _navitems %}
-          <li class="govuk-service-navigation__item">
+          <li class="govuk-service-navigation__item{% if item.children %} govuk-service-navigation__item--toggle{% endif %}" data-nav-href="{{ item.href }}">
+            {% if item.children %}
+            <button type="button" class="govuk-service-navigation__link dl-subnav-toggle" aria-expanded="false" aria-controls="dl-subnav">
+              {{ item.text }}
+              <span class="dl-subnav-toggle__icon">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9999 10.5177L17.7928 16.3105L19.207 14.8963L11.9999 7.68923L4.79282 14.8963L6.20703 16.3105L11.9999 10.5177Z" fill="currentColor"/>
+                </svg>
+              </span>
+            </button>
+            {% else %}
             <a class="govuk-service-navigation__link" href="{{ item.href }}">{{ item.text }}</a>
+            {% endif %}
           </li>
           {% endfor %}
         </ul>
@@ -41,5 +58,66 @@
       {% endif %}
     </div>
   </div>
+  {% if _subnav | length > 0 %}
+  <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}} dl-service-navigation__subnav" id="dl-subnav" hidden>
+    <nav aria-label="Data collections" class="dl-service-navigation__subnav-wrapper">
+      <ul class="govuk-service-navigation__list dl-service-navigation__subnav-list">
+        {% for child in _subnav %}
+        <li class="dl-service-navigation__subnav-item" data-subnav-href="{{ child.href }}">
+          <a class="govuk-service-navigation__link" href="{{ child.href }}">{{ child.text }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
 </section>
+<script>
+  (function() {
+    // Get the pathname from the URL
+    var pathname = window.location.pathname;
+
+    // Mark current main nav item
+    var navItems = document.querySelectorAll('.govuk-service-navigation__item');
+    navItems.forEach(function(item) {
+      // Get the `data-nav-href` attribute value and check if it
+      // matches the value of the pathname, e.g. "/docs"
+      var href = item.getAttribute('data-nav-href');
+      if (href && pathname.startsWith(href)) {
+        item.classList.add('govuk-service-navigation__item--current');
+      }
+    });
+
+    var toggle = document.querySelector('.dl-subnav-toggle');
+    var subnav = document.getElementById('dl-subnav');
+
+    if (toggle && subnav) {
+      // Set the selected sub-menu to `--current`
+      var subnavItems = subnav.querySelectorAll('.dl-service-navigation__subnav-item');
+      subnavItems.forEach(function(item) {
+        var href = item.getAttribute('data-subnav-href');
+
+        if (href && pathname.startsWith(href)) {
+          item.classList.add('dl-service-navigation__subnav-item--current');
+        }
+
+      });
+
+      // Make the sub-menu visible when the user is on a child page
+      if (pathname.startsWith('/dataset') || pathname.startsWith('/organisation')) {
+        toggle.setAttribute('aria-expanded', 'true');
+        subnav.hidden = false;
+      }
+
+      toggle.addEventListener('click', function() {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !expanded);
+        subnav.hidden = expanded;
+        // Remove focus on click up to simulate page load
+        toggle.blur();
+      });
+    }
+
+  })();
+</script>
 {% endmacro %}

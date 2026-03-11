@@ -15,3 +15,131 @@
   @include govuk-font($size: 24);
   padding-left: $govuk-gutter-half;
 }
+
+// Sub-navigation row for Data collections
+.dl-service-navigation__subnav {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  padding: govuk-spacing(2) 0 0 0;
+}
+
+.dl-service-navigation__subnav-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.dl-service-navigation__subnav-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: govuk-spacing(4);
+}
+
+.dl-service-navigation__subnav-item {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 5px;
+}
+
+.dl-service-navigation__subnav-item {
+  // Current page indicator - underline at bottom of subnav section
+  &--current {
+    // border-bottom: 4px solid $govuk-link-colour;
+
+    .govuk-service-navigation__link {
+      box-shadow: 0 4px 0 0 currentColor;
+      padding-bottom: 2px;
+      text-decoration: none;
+    }
+  }
+}
+
+.dl-service-navigation__subnav-item
+.govuk-service-navigation__link:hover {
+  color: $govuk-link-hover-colour;
+  box-shadow: 0 4px 0 0 currentColor;
+  padding-bottom: 2px;
+  text-decoration: none;
+}
+
+// Style for main nav links (About, Search, Map, API, etc.)
+.govuk-service-navigation__item {
+  .govuk-service-navigation__link {
+    text-decoration: none;
+    padding-bottom: 2px;
+
+    &:hover {
+      color: $govuk-link-hover-colour;
+      box-shadow: 0 4px 0 0 currentColor;
+      text-decoration: none;
+    }
+  }
+
+  // Current page indicator
+  &--current > .govuk-service-navigation__link {
+    box-shadow: 0 4px 0 0 currentColor;
+    text-decoration: none;
+  }
+}
+
+// Style for parent nav items with children
+.govuk-service-navigation__item--toggle {
+  .dl-subnav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    padding-bottom: 0px;
+    font: inherit;
+
+    // Remove default text-decoration underline
+    // from GDS Design so that we can use box-shadow
+    text-decoration: none;
+
+    &:hover {
+      // Use box-shadow for underline to avoid pushing elements down
+      color: $govuk-link-hover-colour;
+      box-shadow: 0 4px 0 0;
+    }
+
+    // Show underline when expanded (current section)
+    &[aria-expanded="true"] {
+      box-shadow: 0 4px 0 0;
+    }
+
+    &:active {
+      // Yellow background with underline like govuk-focused-text
+      outline: $govuk-focus-width solid transparent;
+      color: $govuk-focus-text-colour;
+      background-color: $govuk-focus-colour;
+      box-shadow:
+        0 -2px $govuk-focus-colour,
+        0 4px $govuk-focus-text-colour;
+    }
+
+    .dl-subnav-toggle__icon {
+      display: inline-flex;
+      width: 10px;
+      height: 10px;
+      transition: transform 0.2s ease;
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    // Arrow points up when collapsed
+    &[aria-expanded="false"] .dl-subnav-toggle__icon {
+      transform: rotate(0deg);
+    }
+
+    // Arrow points down when expanded
+    &[aria-expanded="true"] .dl-subnav-toggle__icon {
+      transform: rotate(180deg);
+    }
+  }
+}
