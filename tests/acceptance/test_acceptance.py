@@ -12,24 +12,41 @@ def test_acceptance(
 ):
     page.goto(server_url)
 
-    page.click("text=Datasets")
-    assert page.url == f"{server_url}/dataset/"
-    assert page.text_content("h1") == "Datasets"
+    # Assert About page loads
+    page.click("text=About")
+    assert page.url == f"{server_url}/about/"
+    assert page.text_content("h1") == "About the Planning Data Platform"
     page.goto(server_url)
 
-    page.click("text=Map")
-    assert page.url == f"{server_url}/map/"
-    assert page.text_content("h1") == "Map of planning data for England"
-    page.goto(server_url)
-
+    # Assert Search page loads
     page.click("text=Search")
     assert page.url == f"{server_url}/entity/"
     assert page.text_content("h1") == "Search for planning and housing data"
     page.goto(server_url)
 
-    page.click("text=Datasets")
+    # Assert Data -> Datasets page loads
+    page.locator("#dl-subnav-toggle").click()
+    page.locator("#dl-subnav").wait_for(state="visible")
+    page.locator("#dl-subnav >> text=Datasets").click()
     assert page.url == f"{server_url}/dataset/"
+    assert page.text_content("h1") == "Datasets"
+    page.goto(server_url)
 
+    # Assert Data -> Organisations page loads
+    page.locator("#dl-subnav-toggle").click()
+    page.locator("#dl-subnav").wait_for(state="visible")
+    page.locator("#dl-subnav >> text=Organisations").click()
+    assert page.url == f"{server_url}/organisation/"
+    assert page.text_content("h1") == "Organisations"
+    page.goto(server_url)
+
+    # Assert Map page loads
+    page.click("text=Map")
+    assert page.url == f"{server_url}/map/"
+    assert page.text_content("h1") == "Map of planning data for England"
+    page.goto(server_url)
+
+    # Assert API documentation page loads
     page.click("text=API")
     assert page.url == f"{server_url}/docs"
     assert page.text_content("h1") == "Documentation"
