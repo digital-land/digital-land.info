@@ -40,7 +40,7 @@
           {% for item in _navitems %}
           <li class="govuk-service-navigation__item{% if item.children %} govuk-service-navigation__item--toggle{% endif %}" data-nav-href="{{ item.href }}">
             {% if item.children %}
-            <button type="button" class="govuk-service-navigation__link dl-subnav-toggle" aria-expanded="false" aria-controls="dl-subnav">
+            <button type="button" class="govuk-service-navigation__link" id="dl-subnav-toggle" aria-expanded="false" aria-controls="dl-subnav">
               {{ item.text }}
               <span class="dl-subnav-toggle__icon">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -59,11 +59,11 @@
     </div>
   </div>
   {% if _subnav | length > 0 %}
-  <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}} dl-service-navigation__subnav" id="dl-subnav" hidden>
-    <nav aria-label="Data collections" class="dl-service-navigation__subnav-wrapper">
-      <ul class="govuk-service-navigation__list dl-service-navigation__subnav-list">
+  <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}}" id="dl-subnav" hidden>
+    <nav aria-label="Data sub-menu" class="govuk-service-navigation__wrapper">
+      <ul class="govuk-service-navigation__list" id="navigation">
         {% for child in _subnav %}
-        <li class="dl-service-navigation__subnav-item" data-subnav-href="{{ child.href }}">
+        <li class="govuk-service-navigation__item" data-subnav-href="{{ child.href }}">
           <a class="govuk-service-navigation__link" href="{{ child.href }}">{{ child.text }}</a>
         </li>
         {% endfor %}
@@ -77,28 +77,28 @@
     // Get the pathname from the URL
     var pathname = window.location.pathname;
 
-    // Mark current main nav item
+    // Mark active main nav item
     var navItems = document.querySelectorAll('.govuk-service-navigation__item');
     navItems.forEach(function(item) {
       // Get the `data-nav-href` attribute value and check if it
       // matches the value of the pathname, e.g. "/docs"
       var href = item.getAttribute('data-nav-href');
       if (href && pathname.startsWith(href)) {
-        item.classList.add('govuk-service-navigation__item--current');
+        item.classList.add('govuk-service-navigation__item--active');
       }
     });
 
-    var toggle = document.querySelector('.dl-subnav-toggle');
+    var toggle = document.getElementById('dl-subnav-toggle');
     var subnav = document.getElementById('dl-subnav');
 
     if (toggle && subnav) {
-      // Set the selected sub-menu to `--current`
-      var subnavItems = subnav.querySelectorAll('.dl-service-navigation__subnav-item');
+      // Set the selected sub-menu to `--active`
+      var subnavItems = subnav.querySelectorAll('.govuk-service-navigation__item');
       subnavItems.forEach(function(item) {
         var href = item.getAttribute('data-subnav-href');
 
         if (href && pathname.startsWith(href)) {
-          item.classList.add('dl-service-navigation__subnav-item--current');
+          item.classList.add('govuk-service-navigation__item--active');
         }
 
       });
@@ -107,6 +107,7 @@
       if (pathname.startsWith('/dataset') || pathname.startsWith('/organisation')) {
         toggle.setAttribute('aria-expanded', 'true');
         subnav.hidden = false;
+        toggle.parentElement.classList.add("govuk-service-navigation__item--active")
       }
 
       toggle.addEventListener('click', function() {
