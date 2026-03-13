@@ -24,16 +24,18 @@ def test_acceptance(
     assert page.text_content("h1") == "Search for planning and housing data"
     page.goto(server_url)
 
-    # Assert Data collections -> Datasets page loads
-    page.click("text=Data collections")
-    page.click("text=Datasets")
+    # Assert Data -> Datasets page loads
+    page.locator("#dl-subnav-toggle").click()
+    page.locator("#dl-subnav").wait_for(state="visible")
+    page.locator("#dl-subnav >> text=Datasets").click()
     assert page.url == f"{server_url}/dataset/"
     assert page.text_content("h1") == "Datasets"
     page.goto(server_url)
 
-    # Assert Data collections -> Organisations page loads
-    page.click("text=Data collections")
-    page.click("text=Organisations")
+    # Assert Data -> Organisations page loads
+    page.locator("#dl-subnav-toggle").click()
+    page.locator("#dl-subnav").wait_for(state="visible")
+    page.locator("#dl-subnav >> text=Organisations").click()
     assert page.url == f"{server_url}/organisation/"
     assert page.text_content("h1") == "Organisations"
     page.goto(server_url)

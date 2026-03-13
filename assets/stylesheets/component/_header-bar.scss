@@ -35,7 +35,7 @@
     @include govuk-link-style-no-visited-state;
 
     &:not(:hover):not(:focus) {
-      color: govuk-colour("black");
+      color: $govuk-link-colour;
     }
 
     .dl-subnav-toggle__icon {

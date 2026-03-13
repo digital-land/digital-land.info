@@ -61,7 +61,7 @@
   {% if _subnav | length > 0 %}
   <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}}" id="dl-subnav" hidden>
     <nav aria-label="Data sub-menu" class="govuk-service-navigation__wrapper">
-      <ul class="govuk-service-navigation__list" id="navigation">
+      <ul class="govuk-service-navigation__list" id="sub-navigation-list">
         {% for child in _subnav %}
         <li class="govuk-service-navigation__item" data-subnav-href="{{ child.href }}">
           <a class="govuk-service-navigation__link" href="{{ child.href }}">{{ child.text }}</a>
