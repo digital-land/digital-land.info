@@ -34,7 +34,7 @@
     @include govuk-link-style-no-underline;
     @include govuk-link-style-no-visited-state;
 
-    &:not(:hover):not(:focus) {
+    &:not(:hover, :focus) {
       color: $govuk-link-colour;
     }
 

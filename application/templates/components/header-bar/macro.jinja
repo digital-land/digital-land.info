@@ -59,7 +59,7 @@
     </div>
   </div>
   {% if _subnav | length > 0 %}
-  <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}}" id="dl-subnav" hidden>
+  <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}}" id="dl-subnav">
     <nav aria-label="Data sub-menu" class="govuk-service-navigation__wrapper">
       <ul class="govuk-service-navigation__list" id="sub-navigation-list">
         {% for child in _subnav %}
@@ -92,6 +92,8 @@
     var subnav = document.getElementById('dl-subnav');
 
     if (toggle && subnav) {
+      subnav.hidden = true;
+
       // Set the selected sub-menu to `--active`
       var subnavItems = subnav.querySelectorAll('.govuk-service-navigation__item');
       subnavItems.forEach(function(item) {
@@ -114,8 +116,11 @@
         var expanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', !expanded);
         subnav.hidden = expanded;
-        // Remove focus on click up to simulate page load
-        toggle.blur();
+
+        // Only blur if clicked by mouse and not keyboard
+        if (event.detail > 0) {
+          toggle.blur();
+        }
       });
     }
 
