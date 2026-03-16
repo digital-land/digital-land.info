@@ -5,6 +5,7 @@ from sqlalchemy import select, func, or_, and_, tuple_, union_all
 from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
+from application.core.utils import log_slow_execution
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
     get_date_to_filter,
@@ -67,35 +68,28 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     return [entity_factory(e) for e in entities]
 
 
+@log_slow_execution(threshold_seconds=0.1)
 def get_entity_search(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
     params = normalised_params(parameters)
-    count: int
-    entities: list[EntityModel]
-    # get count
-    subquery = session.query(EntityOrm.entity)
+
+    # Build filtered queries once
+    subquery = session.query(EntityOrm)
     subquery = _apply_base_filters(subquery, params)
     subquery = _apply_date_filters(subquery, params)
     subquery = _apply_location_filters(session, subquery, params)
-    subquery = _apply_period_option_filter(subquery, params).subquery()
-    count_query = session.query(func.count()).select_from(subquery)
+    subquery = _apply_period_option_filter(subquery, params)
 
-    count = count_query.scalar()
+    # Database 1st call - get count from the filtered query (no pagination)
+    count = subquery.with_entities(func.count(EntityOrm.entity)).scalar()
 
-    query_args = [EntityOrm]
-    query = session.query(*query_args)
-    query = _apply_base_filters(query, params)
-    query = _apply_date_filters(query, params)
-    query = _apply_location_filters(session, query, params)
-    query = _apply_period_option_filter(query, params)
-    query = _apply_limit_and_pagination_filters(query, params)
-    query = _apply_field_filters(
-        query, params, extension
-    )  # Build the query without excluded params
+    # Pagination and field filters
+    query = _apply_limit_and_pagination_filters(subquery, params)
+    query = _apply_field_filters(query, params, extension)
 
-    entities = query.all()
-    entities = [entity_factory(entity_orm) for entity_orm in entities]
+    # Database 2nd call
+    entities = [entity_factory(entity_orm) for entity_orm in query.all()]
     return {"params": params, "count": count, "entities": entities}
 
 
