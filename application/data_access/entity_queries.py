@@ -69,23 +69,63 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
 
 
 @log_slow_execution(threshold_seconds=0.1)
+def get_entity_search_OLD_VERSION(
+    session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
+):
+    params = normalised_params(parameters)
+    count: int
+    entities: list[EntityModel]
+    # get count
+    subquery = session.query(EntityOrm.entity)
+    subquery = _apply_base_filters(subquery, params)
+    subquery = _apply_date_filters(subquery, params)
+    subquery = _apply_location_filters(session, subquery, params)
+    subquery = _apply_period_option_filter(subquery, params).subquery()
+    count_query = session.query(func.count()).select_from(subquery)
+
+    count = count_query.scalar()
+
+    query_args = [EntityOrm]
+    query = session.query(*query_args)
+    query = _apply_base_filters(query, params)
+    query = _apply_date_filters(query, params)
+    query = _apply_location_filters(session, query, params)
+    query = _apply_period_option_filter(query, params)
+    query = _apply_limit_and_pagination_filters(query, params)
+    query = _apply_field_filters(
+        query, params, extension
+    )  # Build the query without excluded params
+
+    entities = query.all()
+    entities = [entity_factory(entity_orm) for entity_orm in entities]
+    return {"params": params, "count": count, "entities": entities}
+
+
+@log_slow_execution(threshold_seconds=0.1)
 def get_entity_search(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
     params = normalised_params(parameters)
 
-    # Build filtered queries once
-    subquery = session.query(EntityOrm)
-    subquery = _apply_base_filters(subquery, params)
-    subquery = _apply_date_filters(subquery, params)
-    subquery = _apply_location_filters(session, subquery, params)
-    subquery = _apply_period_option_filter(subquery, params)
+    # Build filtered query once
+    basequery = session.query(EntityOrm)
+    basequery = _apply_base_filters(basequery, params)
+    basequery = _apply_date_filters(basequery, params)
+    basequery = _apply_location_filters(session, basequery, params)
+    basequery = _apply_period_option_filter(basequery, params)
 
-    # Database 1st call - get count from the filtered query (no pagination)
-    count = subquery.with_entities(func.count(EntityOrm.entity)).scalar()
+    # Create a `subquery()` that selects only the "entity" column from the
+    # existing query (basequery)
+    #
+    # `with_entities()` modifies the SELECT clause fo the query to return
+    # only the "entity" column from the "EntityOrm" model
+    count_subquery = basequery.with_entities(EntityOrm.entity).subquery()
+
+    # Database 1st call
+    count = session.query(func.count()).select_from(count_subquery).scalar()
 
     # Pagination and field filters
-    query = _apply_limit_and_pagination_filters(subquery, params)
+    query = _apply_limit_and_pagination_filters(basequery, params)
     query = _apply_field_filters(query, params, extension)
 
     # Database 2nd call
