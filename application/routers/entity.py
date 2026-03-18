@@ -409,8 +409,6 @@ def search_entities(
     # Find an area - Postcode / UPRN search
     search_query = search_query.strip()
     search_result = find_an_area(search_query) if search_query else None
-    logger.error("Search results retrieved")
-
     find_an_area_latitude = None
     find_an_area_longitude = None
 
