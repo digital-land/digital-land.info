@@ -13,7 +13,11 @@
         <article class="app-card app-card--result">
         <div class="app-card__header">
             <div class="app-card__header__primary">
-            <h3 class="app-card__title">{{ e["name"] }}</h3>
+            <h3 class="app-card__title">
+                {% if e["name"] is not none %}
+                    {{ e["name"] }}
+                {% endif %}
+            </h3>
             </div>
             <div class="app-card__header__secondary">
             <label id="typologyLabel" class="govuk-visually-hidden">Typology type</label>
@@ -57,7 +61,7 @@
                         <dd class="govuk-summary-list__value">
                             {% set dataset_label = e.get("dataset_name", property.value|replace("-", " ")|capitalize) %}
                             {%  if property.value %}
-                                <a class="govuk-link" href="/dataset/{{ property.value }}">{{ dataset_label }}</a> 
+                                <a class="govuk-link" href="/dataset/{{ property.value }}">{{ dataset_label }}</a>
                             {%  endif %}
                         </dd>
                     {% elif property.key == "Reference" %}
