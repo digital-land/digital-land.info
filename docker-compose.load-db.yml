@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   load-db-entity:
     image: 955696714113.dkr.ecr.eu-west-2.amazonaws.com/digital-land-postgres
