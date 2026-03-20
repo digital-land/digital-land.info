@@ -1,4 +1,7 @@
 from typing import Generator, Dict, List, Union
+from contextlib import contextmanager
+from unittest.mock import patch
+import os
 
 import pytest
 import alembic
@@ -35,7 +38,9 @@ from tests.utils.database import (
     reset_database,
 )
 
-DEFAULT_TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost/digital_land_test"
+DEFAULT_TEST_DATABASE_URL = os.environ.get(
+    "READ_DATABASE_URL", "postgresql://postgres:postgres@localhost/digital_land_test"
+)
 
 
 @pytest.fixture(scope="session")
@@ -212,8 +217,20 @@ def client(app: FastAPI, db_session: Session) -> TestClient:
     this should be used for api calls does not spin up a local server
     so separate programs e.g. a browser cannot interact with it
     """
+
+    @contextmanager
+    def mock_get_context_session():
+        """Mock context manager that yields the test db_session."""
+        yield db_session
+
     app.dependency_overrides[get_session] = lambda: db_session
-    return TestClient(app)
+
+    # Patch get_context_session in modules that use it directly
+    with patch(
+        "application.data_access.entity_queries.get_context_session",
+        mock_get_context_session,
+    ):
+        yield TestClient(app)
 
 
 # TODO Can we remove this?

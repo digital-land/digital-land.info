@@ -137,9 +137,7 @@ def test_get_entity_query_no_pool_exhaustion():
         session.close = track_close
         return session
 
-    with patch(
-        "application.db.session.SessionLocal", side_effect=mock_session_factory
-    ):
+    with patch("application.db.session.SessionLocal", side_effect=mock_session_factory):
 
         with patch(
             "application.data_access.entity_queries.get_context_session",
@@ -151,9 +149,9 @@ def test_get_entity_query_no_pool_exhaustion():
                 get_entity_query(i)
 
             # Check all query sessions are closed
-            assert len(sessions_created) == num_calls, (
-                f"Expected {num_calls} sessions created, got {len(sessions_created)}"
-            )
+            assert (
+                len(sessions_created) == num_calls
+            ), f"Expected {num_calls} sessions created, got {len(sessions_created)}"
             assert len(sessions_closed) == num_calls, (
                 f"Expected {num_calls} sessions closed, got {len(sessions_closed)}. "
                 "Sessions not being closed will cause QueuePool exhaustion."
