@@ -15,7 +15,7 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
-from application.db.session import redis_cache, DbSession
+from application.db.session import redis_cache, DbSession, get_context_session
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
@@ -25,27 +25,28 @@ complex_datasets = ["flood-risk-zone"]
 
 
 def get_entity_query(
-    session: Session,
     id: int,
 ) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
-    old_entity = (
-        session.query(OldEntityOrm)
-        .filter(OldEntityOrm.old_entity_id == id)
-        .one_or_none()
-    )
-    if old_entity:
-        return (
-            None,
-            old_entity.status,
-            old_entity.new_entity_id,
-        )
-    else:
-        entity = session.query(EntityOrm).get(id)
 
-        if not entity:
-            return None, None, None
+    with get_context_session() as session:
+        old_entity = (
+            session.query(OldEntityOrm)
+            .filter(OldEntityOrm.old_entity_id == id)
+            .one_or_none()
+        )
+        if old_entity:
+            return (
+                None,
+                old_entity.status,
+                old_entity.new_entity_id,
+            )
         else:
-            return entity_factory(entity), None, None
+            entity = session.query(EntityOrm).get(id)
+
+            if not entity:
+                return None, None, None
+            else:
+                return entity_factory(entity), None, None
 
 
 def get_entity_count(session: Session, dataset: Optional[str] = None):
