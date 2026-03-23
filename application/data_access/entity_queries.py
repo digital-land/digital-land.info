@@ -40,13 +40,12 @@ def get_entity_query(
                 old_entity.status,
                 old_entity.new_entity_id,
             )
-        else:
-            entity = session.query(EntityOrm).get(id)
 
-            if not entity:
-                return None, None, None
-            else:
-                return entity_factory(entity), None, None
+        entity = session.get(EntityOrm, id)
+        if not entity:
+            return None, None, None
+        else:
+            return entity_factory(entity), None, None
 
 
 def get_entity_count(session: Session, dataset: Optional[str] = None):

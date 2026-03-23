@@ -157,7 +157,6 @@ def search_facts(
     request: Request,
     query_filters: FactQueryFilters = Depends(validate_fact_query_filters),
     extension: Optional[SuffixEntity] = None,
-    session: Session = Depends(get_session),
 ):
     query_params = asdict(query_filters)
 
