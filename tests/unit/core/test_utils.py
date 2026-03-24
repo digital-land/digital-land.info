@@ -83,8 +83,8 @@ class TestLogSlowExecution:
     @patch("application.core.utils.logger")
     def test_slow_function_logs_execution_time(self, mock_logger):
         """
-        Tests when `fast_function()` is called successfully but its slow and
-        the threshold time is above what is specified the
+        Tests when slow_function() is called successfully but it's slow and
+        the execution time is above the specified threshold, the
         info logging is triggered.
         """
         result = slow_function()
@@ -100,21 +100,21 @@ class TestLogSlowExecution:
         assert call_args[1]["extra"]["function"] == "slow_function"
 
     @patch("application.core.utils.logger")
-    def test_fast_error_does_not_log(self, mock_logger):
+    def test_fast_error_does_log(self, mock_logger):
         """
-        Tests when `error_fast_function()` raises an error but within the
-        threshold time, neither info or error logging is not triggered.
+        Tests when `error_fast_function()` raises an exception within
+        the threshold time, only an exception error is logged.
         """
         with pytest.raises(ValueError, match="Quick error"):
             error_fast_function()
 
         mock_logger.info.assert_not_called()
-        mock_logger.error.assert_not_called()
+        mock_logger.error.assert_called()
 
     @patch("application.core.utils.logger")
     def test_slow_error_logs_execution_time(self, mock_logger):
         """
-        Tests when `error_fast_function()` raises a slow error outside the
+        Tests when `error_slow_function()` raises an error outside the
         threshold time, error logging is triggered.
         """
         with pytest.raises(ValueError, match="Slow error"):

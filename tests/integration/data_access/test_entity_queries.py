@@ -1,5 +1,6 @@
 import logging
 import pytest
+import time
 
 from application.db.models import EntityOrm
 from application.data_access.entity_queries import (
@@ -253,7 +254,6 @@ def test_get_entity_changes(db_session):
 
     The `-s` argument allows the output of print() statements.
     """
-    import time
 
     def benchmark(func, session, params, runs=10):
         times = []
@@ -271,4 +271,9 @@ def test_get_entity_changes(db_session):
 
     print(f"V1: {v1_results}")
     print(f"V2: {v2_results}")
-    print(f"Speedup: {v1_results['avg'] / v2_results['avg']:.2f}x")
+    speedup = (
+        v1_results["avg"] / v2_results["avg"] if v2_results["avg"] > 0 else float("inf")
+    )
+
+    # Assert new version is not slower than old version (allow 10% tolerance)
+    assert speedup >= v2_results["avg"]
