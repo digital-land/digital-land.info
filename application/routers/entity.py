@@ -476,7 +476,6 @@ def search_entities(
     typologies = [t.dict() for t in typologies]
     # dataset facet
     response = get_all_datasets(db_session)
-
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
 

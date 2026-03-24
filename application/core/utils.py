@@ -241,6 +241,8 @@ def log_slow_execution(threshold_seconds=1.0):
                         },
                         exc_info=True,
                     )
+                    raise
+
                 # Log fast exception errors
                 logger.error(
                     f"Error in {func.__name__}: {str(e)}",
