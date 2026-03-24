@@ -431,7 +431,6 @@ def search_entities(
 
     # Run entity query
     data = get_entity_search(session, query_params, extension)
-    logger.error("Entity search data retrieved")
 
     # the query does some normalisation to remove empty
     # params and they get returned from search
@@ -477,7 +476,6 @@ def search_entities(
     typologies = [t.dict() for t in typologies]
     # dataset facet
     response = get_all_datasets(db_session)
-    logger.error(f"All datasets data retrieved, len: {len(response)}")
 
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.dict(include=set(columns)) for dataset in response]
@@ -490,7 +488,6 @@ def search_entities(
     organisations_list = [
         organisation.dict(include=set(columns)) for organisation in organisations
     ]
-    logger.error(f"Organisations data retrieved, len: {len(organisations_list)}")
 
     if links.get("prev") is not None:
         prev_url = links["prev"]
@@ -512,9 +509,6 @@ def search_entities(
         else:
             entity.dataset_name = ref_name
 
-    logger.error(f"Data count, len: {data['count']}")
-    logger.error(f"Entities count, len: {len(data['entities'])}")
-    logger.error(f"Datasets count, len: {len(datasets)}")
     return templates.TemplateResponse(
         "search.html",
         {
