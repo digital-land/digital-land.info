@@ -68,14 +68,14 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     return [entity_factory(e) for e in entities]
 
 
-@log_slow_execution(threshold_seconds=0.1)
+# TODO: move this function into test_entity_queries.py and use it as a
+# comparisson helper/benchmark
 def get_entity_search_OLD_VERSION(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
     params = normalised_params(parameters)
     count: int
     entities: list[EntityModel]
-    # get count
     subquery = session.query(EntityOrm.entity)
     subquery = _apply_base_filters(subquery, params)
     subquery = _apply_date_filters(subquery, params)
