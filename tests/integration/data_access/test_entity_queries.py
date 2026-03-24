@@ -271,9 +271,7 @@ def test_get_entity_changes(db_session):
 
     print(f"V1: {v1_results}")
     print(f"V2: {v2_results}")
-    speedup = (
-        v1_results["avg"] / v2_results["avg"] if v2_results["avg"] > 0 else float("inf")
-    )
+    print(f"Speedup: {v1_results['avg'] / v2_results['avg']:.2f}x")
 
     # Assert new version is not slower than old version (allow 10% tolerance)
-    assert speedup >= v2_results["avg"]
+    assert v2_results["avg"] <= v1_results["avg"] * 1.1
