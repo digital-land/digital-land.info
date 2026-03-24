@@ -219,6 +219,7 @@ def log_slow_execution(threshold_seconds=1.0):
                 elapsed_time = time.time() - start_time
 
                 if elapsed_time > threshold_seconds:
+                    # Log slow executions
                     logger.info(
                         f"{func.__name__} SLOW execution",
                         extra={
@@ -231,6 +232,7 @@ def log_slow_execution(threshold_seconds=1.0):
                 elapsed_time = time.time() - start_time
 
                 if elapsed_time > threshold_seconds:
+                    # Log slow exception errors
                     logger.error(
                         f"Error in {func.__name__}: {str(e)}",
                         extra={
@@ -239,6 +241,15 @@ def log_slow_execution(threshold_seconds=1.0):
                         },
                         exc_info=True,
                     )
+                # Log fast exception errors
+                logger.error(
+                    f"Error in {func.__name__}: {str(e)}",
+                    extra={
+                        "elapsed_seconds": round(elapsed_time, 2),
+                        "function": func.__name__,
+                    },
+                    exc_info=True,
+                )
                 raise
 
         return wrapper
