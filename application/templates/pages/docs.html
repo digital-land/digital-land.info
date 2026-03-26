@@ -159,16 +159,207 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <div class="govuk-caption-xl">Planning Data</div>
-    <h1 class="govuk-heading-xl">Documentation</h1>
+    <h1 class="govuk-heading-xl">API Documentation</h1>
 
+    <p class="govuk-body">The Planning Data API gives you access to over 100 planning and housing datasets for England through a single, consistent interface – from conservation areas and listed buildings to brownfield land and planning applications.</p>
+
+    <h2 class="govuk-heading-l" id="getting-started">Getting started</h2>
+    <p class="govuk-body">
+      This guide shows how to use it for typical property and planning tasks.
+    </p>
+    
+    <h3 class="govuk-heading-m" id="check-planning-constraints">1. Check planning constraints for a location</h3>
+    <p class="govuk-body">
+      You want to find specific planning considerations that apply to a specific address or site - conservation areas,
+      listed buildings, flood risk zones, Article 4 directions, and so on.
+    </p>
+
+    <h4 class="govuk-heading-s" id="query-by-coordinate">Query by coordinate</h4>
+    <p class="govuk-body">
+      Pass a <code>latitude</code> and <code>longitude</code> to return all entities whose geometry intersects that point.
+      Specify the datasets you care about.
+    </p>
+    <pre><code>GET /entity.json
+  ?latitude=51.5074
+  &amp;longitude=-0.1278
+  &amp;dataset=conservation-area
+  &amp;dataset=listed-building
+  &amp;dataset=green-belt
+  &amp;dataset=flood-risk-zone
+  &amp;dataset=article-4-direction-area
+  &amp;dataset=tree-preservation-zone
+  &amp;limit=100</code></pre>
+    <p class="govuk-body">
+      You can pass multiple <code>dataset</code> parameters. The API returns entities from any of those datasets whose
+      geometry covers the point.
+    </p>
+
+    <h4 class="govuk-heading-s" id="query-by-uprn">Query by UPRN</h4>
+    <p class="govuk-body">
+      If you have a Unique Property Reference Number, pass it using the <code>q</code> parameter. This is more precise
+      than a coordinate for registered properties.
+    </p>
+    <pre><code>GET /entity.json?q=10008315764&amp;dataset=conservation-area&amp;dataset=listed-building&amp;limit=100</code></pre>
+
+    <h4 class="govuk-heading-s" id="what-you-get-back">What you get back</h4>
+    <p class="govuk-body">
+      Each entity includes <code>name</code>, <code>dataset</code>, <code>start-date</code>, <code>geometry</code> (WKT), and
+      <code>point</code> (WKT), plus other fields. Show constraints grouped by dataset and make clear to users that an
+      absence of results does not mean no constraints exist - data coverage varies by area.
+    </p>
+
+    <h3 class="govuk-heading-m" id="find-development-sites">2. Find development sites in an area</h3>
+    <p class="govuk-body">
+      You want to find all brownfield land or planning activity within a specific local planning authority.
+    </p>
+
+    <h4 class="govuk-heading-s" id="find-lpa">Find a local planning authority</h4>
+    <p class="govuk-body">
+      Fetch all 337 LPAs with their entity IDs in one request, then filter by name in your application:
+    </p>
+    <pre><code>GET /entity.json?dataset=local-planning-authority&amp;limit=500&amp;field=name&amp;field=entity</code></pre>
+    <p class="govuk-body">
+      For example, Lambeth LPA has entity ID <code>626195</code>. Use this in subsequent spatial queries.
+    </p>
+
+    <h4 class="govuk-heading-s" id="find-brownfield-land">Find brownfield land within that boundary</h4>
+    <p class="govuk-body">
+      Use <code>geometry_entity</code> to filter by the LPA's geometry rather than pasting in a raw polygon.
+    </p>
+    <pre><code>GET /entity.json
+  ?dataset=brownfield-land
+  &amp;geometry_entity=626195
+  &amp;geometry_relation=within
+  &amp;limit=100</code></pre>
+
+    <h4 class="govuk-heading-s" id="find-recent-planning-applications">Find recent planning applications</h4>
+    <p class="govuk-body">
+      <strong>Note:</strong> the planning applications data standard is currently in development and may change.
+      <a class="govuk-link" href="https://design.planning.data.gov.uk/project/planning-applications">Stay up to date</a>
+      with developments.
+    </p>
+    <p class="govuk-body">Get applications within the LPA boundary:</p>
+    <pre><code>GET /entity.json
+  ?dataset=planning-application
+  &amp;geometry_entity=626195
+  &amp;geometry_relation=within
+  &amp;limit=100</code></pre>
+    <p class="govuk-body">Or filter all applications by <code>start_date</code> (when the application was submitted):</p>
+    <pre><code>GET /entity.json
+  ?dataset=planning-application
+  &amp;start_date_year=2022
+  &amp;start_date_month=1
+  &amp;start_date_day=1
+  &amp;start_date_match=after
+  &amp;limit=100</code></pre>
+
+    <h3 class="govuk-heading-m" id="research-heritage-environment">3. Research heritage and environmental designations</h3>
+    <p class="govuk-body">
+      You want a structured view of statutory heritage and environmental designations for a specific property.
+    </p>
+
+    <h4 class="govuk-heading-s" id="research-query-by-uprn">Query by UPRN</h4>
+    <p class="govuk-body">
+      Pass a UPRN using the <code>q</code> parameter to return all matching entities for that property.
+    </p>
+    <pre><code>GET /entity.json
+  ?q=10008315764
+  &amp;dataset=listed-building
+  &amp;dataset=conservation-area
+  &amp;dataset=scheduled-monument
+  &amp;dataset=site-of-special-scientific-interest
+  &amp;dataset=ancient-woodland
+  &amp;dataset=flood-risk-zone
+  &amp;dataset=heritage-at-risk
+  &amp;dataset=area-of-outstanding-natural-beauty
+  &amp;limit=100</code></pre>
+    <p class="govuk-body">
+      Listed building entities include a <code>listed_building_grade</code> field (Grade I, II*, or II). You do not need a
+      separate query to get this.
+    </p>
+
+    <h3 class="govuk-heading-m" id="monitor-planning-applications">4. Monitor new planning applications</h3>
+    <p class="govuk-body">
+      You want to monitor new planning applications within a geography or track activity over time.
+    </p>
+
+    <h4 class="govuk-heading-s" id="query-recent-applications">Query recent applications</h4>
+    <p class="govuk-body">Use <code>start_date</code> to filter by when a planning application was submitted.</p>
+    <pre><code>GET /entity.json
+  ?dataset=planning-application
+  &amp;start_date_year=2022
+  &amp;start_date_month=1
+  &amp;start_date_day=1
+  &amp;start_date_match=after
+  &amp;limit=100
+  &amp;offset=0</code></pre>
+
+    <h4 class="govuk-heading-s" id="search-custom-area">Search within a custom area</h4>
+    <p class="govuk-body">
+      Pass a polygon in Well-Known Text format to the <code>geometry</code> parameter. Spaces in the WKT string must be
+      percent-encoded but most HTTP client libraries handle this automatically.
+    </p>
+    <pre><code>GET /entity.json
+  ?dataset=planning-application
+  &amp;geometry=POLYGON((-0.15%2051.50,-0.10%2051.50,-0.10%2051.52,-0.15%2051.52,-0.15%2051.50))
+  &amp;geometry_relation=intersects
+  &amp;limit=100</code></pre>
+    <p class="govuk-body">Coordinates should be in WGS84 (EPSG:4326).</p>
+
+    <h4 class="govuk-heading-s" id="paginating-results">Paginating results</h4>
+    <p class="govuk-body">
+      Use <code>offset</code> to page through large result sets. Increment it by your <code>limit</code> value for each
+      subsequent request.
+    </p>
+    <pre><code>GET /entity.json?dataset=planning-application&amp;limit=100&amp;offset=0   # page 1
+GET /entity.json?dataset=planning-application&amp;limit=100&amp;offset=100  # page 2</code></pre>
+    <p class="govuk-body">
+      The response includes a <code>links</code> object with pre-built <code>next</code>, <code>prev</code>, <code>first</code>,
+      and <code>last</code> URLs, so you can follow pagination without calculating offsets manually.
+    </p>
+
+    <h3 class="govuk-heading-m" id="screen-portfolio-risk">5. Screen a portfolio against planning risk</h3>
+    <p class="govuk-body">
+      You want to check a list of properties against planning designations to flag potential risk.
+    </p>
+
+    <h4 class="govuk-heading-s" id="query-per-property">Query per property</h4>
+    <p class="govuk-body">
+      The API does not have a batch endpoint. Issue one request per property. Use the <code>field</code> parameter to
+      limit the response to what you need.
+    </p>
+    <pre><code>GET /entity.json
+  ?latitude=52.5306
+  &amp;longitude=-1.9561
+  &amp;dataset=flood-risk-zone
+  &amp;dataset=conservation-area
+  &amp;dataset=article-4-direction-area
+  &amp;dataset=green-belt
+  &amp;field=name
+  &amp;field=dataset
+  &amp;field=reference
+  &amp;limit=50</code></pre>
+    <p class="govuk-body">Apply polite rate-limiting between requests.</p>
+
+    <h4 class="govuk-heading-s" id="bulk-downloads">Use bulk downloads for large portfolios</h4>
+    <p class="govuk-body">
+      For hundreds of properties or more, download datasets in bulk and run spatial intersections locally. This avoids
+      rate limits and gives you a stable snapshot.
+    </p>
+    <p class="govuk-body">
+      Datasets are available as CSV and GeoJSON from each dataset's page on
+      <a class="govuk-link" href="https://www.planning.data.gov.uk/dataset">planning.data.gov.uk/dataset</a>.
+      Download links are listed on each individual dataset page - the URL format varies by dataset.
+    </p>
+    
     <h2 class="govuk-heading-m">Downloading the data</h2>
     <p class="govuk-body">You can download datasets in bulk in various formats from each <a href="/dataset" class="govuk-link">dataset page</a>.</p>
     <p class="govuk-body">Downloads are available as CSV, JSON and where applicable as GeoJSON.</p>
 
     <h2 class="govuk-heading-m">Getting the data through the API</h2>
-    <p class="govuk-body">We are also developing an experimental API. Developers can use these APIs to explore our data and test services. As we are still in beta,
-      these should not be used for building production-ready systems.</p>
-    <p class="govuk-body">You can read about the API below. Get in touch with the team if you are interested in building a service using the planning data API.</p>
+    <p class="govuk-body">Developers can use our APIs to explore our data and build services. As we are still in beta,
+      you should be aware there may be changes to the API if you're building production-ready systems.</p>
+    <p class="govuk-body">You can read about the API below. Get in touch with the team if you are interested in getting support using the planning data API.</p>
 
     <hr class="govuk-section-break govuk-section-break--m">
 
