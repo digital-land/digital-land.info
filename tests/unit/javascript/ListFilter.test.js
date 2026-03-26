@@ -106,6 +106,7 @@ describe('ListFilter', () => {
         let mockListFilter = {
             termToMatchOn: vi.fn().mockImplementation((value) => value.textContent),
             matchSearchTerm: ListFilter.prototype.matchSearchTerm,
+            booleanHiddenItems: new Set()
         }
 
         let item1 = {
@@ -201,10 +202,12 @@ describe('ListFilter', () => {
         let boundFunctionMock = vi.fn();
 
         let listFilterMock = {
+            cachedItems: [domElementMock, domElementMock],
+            booleanHiddenItems: new Set(),
             filterListItems: ListFilter.prototype.filterListItems,
             matchSearchTerm: {
                 bind: vi.fn().mockImplementation((that) => {
-                    return boundFunctionMock;
+                    return boundFunctionMock.mockReturnValue(false); // Return false to trigger hiding
                 }),
             },
             updateListCounts: vi.fn(),
@@ -313,14 +316,14 @@ describe('ListFilter', () => {
             it('should configure correctly when attributes are present', () => {
                 stubGlobalDocument();
                 const mockCheckbox = {
-                    checked: false,
+                    checked: true,
                     addEventListener: vi.fn()
                 };
                 const mockForm = {
                     dataset: {
                         booleanFilterAttribute: 'data-dissolved',
                         booleanFilterValue: 'True',
-                        booleanFilterDefault: 'true'
+                        booleanFilterDefault: 'false'
                     },
                     querySelector: vi.fn().mockReturnValue(mockCheckbox)
                 };
@@ -338,9 +341,9 @@ describe('ListFilter', () => {
                 expect(listFilterMock.booleanFilterConfig).toEqual({
                     attribute: 'data-dissolved',
                     value: 'True',
-                    defaultEnabled: true
+                    defaultEnabled: false
                 });
-                expect(mockCheckbox.checked).toBe(true);
+                expect(mockCheckbox.checked).toBe(false);
                 expect(listFilterMock.applyBooleanFilter).toHaveBeenCalled();
                 expect(listFilterMock.updateListCounts).toHaveBeenCalled();
                 expect(mockCheckbox.addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
@@ -367,16 +370,17 @@ describe('ListFilter', () => {
                 consoleWarnSpy.mockRestore();
             });
 
-            it('should set initial checkbox state correctly when default is false', () => {
+            it('should set initial checkbox state correctly when default is true', () => {
+                stubGlobalDocument();
                 const mockCheckbox = {
-                    checked: true,
+                    checked: false,
                     addEventListener: vi.fn()
                 };
                 const mockForm = {
                     dataset: {
                         booleanFilterAttribute: 'data-dissolved',
                         booleanFilterValue: 'True',
-                        booleanFilterDefault: 'false'
+                        booleanFilterDefault: 'true'
                     },
                     querySelector: vi.fn().mockReturnValue(mockCheckbox)
                 };
@@ -384,13 +388,15 @@ describe('ListFilter', () => {
                     $form: mockForm,
                     setupBooleanFilter: ListFilter.prototype.setupBooleanFilter,
                     applyBooleanFilter: vi.fn(),
-                    applyAllFilters: vi.fn()
+                    applyAllFilters: vi.fn(),
+                    updateListCounts: vi.fn()
                 };
 
                 listFilterMock.setupBooleanFilter();
 
-                expect(mockCheckbox.checked).toBe(false);
-                expect(listFilterMock.applyBooleanFilter).not.toHaveBeenCalled();
+                expect(mockCheckbox.checked).toBe(true);
+                expect(listFilterMock.applyBooleanFilter).toHaveBeenCalled();
+                expect(listFilterMock.updateListCounts).toHaveBeenCalled();
             });
         });
 
@@ -413,15 +419,17 @@ describe('ListFilter', () => {
                 vi.stubGlobal('document', dom.window.document);
             });
 
-            it('should hide items matching boolean value when checked', () => {
-                const mockCheckbox = { checked: true };
+            it('should hide items matching boolean value when unchecked', () => {
+                const mockCheckbox = { checked: false };
                 const listFilterMock = {
                     booleanFilterConfig: {
                         attribute: 'data-dissolved',
                         value: 'True',
-                        defaultEnabled: true
+                        defaultEnabled: false
                     },
                     $booleanFilterCheckbox: mockCheckbox,
+                    booleanHiddenItems: new Set(),
+                    cachedItems: items,
                     applyBooleanFilter: ListFilter.prototype.applyBooleanFilter
                 };
 
@@ -431,41 +439,48 @@ describe('ListFilter', () => {
                 expect(items[1].classList.contains('js-hidden')).toBe(true);
                 expect(items[2].classList.contains('js-hidden')).toBe(true);
                 expect(items[3].classList.contains('js-hidden')).toBe(false);
-                expect(items[1]._hiddenByBooleanFilter).toBe(true);
-                expect(items[2]._hiddenByBooleanFilter).toBe(true);
+                expect(listFilterMock.booleanHiddenItems.has(items[1])).toBe(true);
+                expect(listFilterMock.booleanHiddenItems.has(items[2])).toBe(true);
             });
 
-            it('should show all items when unchecked', () => {
-                // First hide some items
+            it('should show all items when checked', () => {
+                // First hide dissolved items (both items[1] and items[2])
                 items[1].classList.add('js-hidden');
-                items[1]._hiddenByBooleanFilter = true;
+                items[2].classList.add('js-hidden');
+                const booleanHiddenItems = new Set([items[1], items[2]]);
 
-                const mockCheckbox = { checked: false };
+                const mockCheckbox = { checked: true };
                 const listFilterMock = {
                     booleanFilterConfig: {
                         attribute: 'data-dissolved',
                         value: 'True',
-                        defaultEnabled: true
+                        defaultEnabled: false
                     },
                     $booleanFilterCheckbox: mockCheckbox,
+                    booleanHiddenItems: booleanHiddenItems,
+                    cachedItems: items,
                     applyBooleanFilter: ListFilter.prototype.applyBooleanFilter
                 };
 
                 listFilterMock.applyBooleanFilter();
 
                 expect(items[1].classList.contains('js-hidden')).toBe(false);
-                expect(items[1]._hiddenByBooleanFilter).toBeUndefined();
+                expect(items[2].classList.contains('js-hidden')).toBe(false);
+                expect(listFilterMock.booleanHiddenItems.has(items[1])).toBe(false);
+                expect(listFilterMock.booleanHiddenItems.has(items[2])).toBe(false);
             });
 
             it('should be case-insensitive when matching values', () => {
-                const mockCheckbox = { checked: true };
+                const mockCheckbox = { checked: false };
                 const listFilterMock = {
                     booleanFilterConfig: {
                         attribute: 'data-dissolved',
                         value: 'TRUE',
-                        defaultEnabled: true
+                        defaultEnabled: false
                     },
                     $booleanFilterCheckbox: mockCheckbox,
+                    booleanHiddenItems: new Set(),
+                    cachedItems: items,
                     applyBooleanFilter: ListFilter.prototype.applyBooleanFilter
                 };
 
@@ -479,10 +494,43 @@ describe('ListFilter', () => {
                 const listFilterMock = {
                     booleanFilterConfig: null,
                     $booleanFilterCheckbox: null,
+                    booleanHiddenItems: new Set(),
                     applyBooleanFilter: ListFilter.prototype.applyBooleanFilter
                 };
 
                 expect(() => listFilterMock.applyBooleanFilter()).not.toThrow();
+            });
+
+            it('should handle round-trip: uncheck → check → uncheck', () => {
+                const mockCheckbox = { checked: false };
+                const listFilterMock = {
+                    booleanFilterConfig: {
+                        attribute: 'data-dissolved',
+                        value: 'True',
+                        defaultEnabled: false
+                    },
+                    $booleanFilterCheckbox: mockCheckbox,
+                    booleanHiddenItems: new Set(),
+                    cachedItems: items,
+                    applyBooleanFilter: ListFilter.prototype.applyBooleanFilter
+                };
+
+                // First unchecked (hide dissolved)
+                listFilterMock.applyBooleanFilter();
+                expect(items[1].classList.contains('js-hidden')).toBe(true);
+                expect(items[2].classList.contains('js-hidden')).toBe(true);
+
+                // Then check (show all)
+                mockCheckbox.checked = true;
+                listFilterMock.applyBooleanFilter();
+                expect(items[1].classList.contains('js-hidden')).toBe(false);
+                expect(items[2].classList.contains('js-hidden')).toBe(false);
+
+                // Finally uncheck again (hide dissolved)
+                mockCheckbox.checked = false;
+                listFilterMock.applyBooleanFilter();
+                expect(items[1].classList.contains('js-hidden')).toBe(true);
+                expect(items[2].classList.contains('js-hidden')).toBe(true);
             });
         });
 
@@ -495,19 +543,15 @@ describe('ListFilter', () => {
                 // Manually create items for this test
                 items = [
                     {
-                        _hiddenByBooleanFilter: false,
                         classList: { contains: vi.fn(), add: vi.fn(), remove: vi.fn() }
                     },
                     {
-                        _hiddenByBooleanFilter: true,
                         classList: { contains: vi.fn(), add: vi.fn(), remove: vi.fn() }
                     },
                     {
-                        _hiddenByBooleanFilter: false,
                         classList: { contains: vi.fn(), add: vi.fn(), remove: vi.fn() }
                     },
                     {
-                        _hiddenByBooleanFilter: true,
                         classList: { contains: vi.fn(), add: vi.fn(), remove: vi.fn() }
                     }
                 ];
@@ -524,15 +568,16 @@ describe('ListFilter', () => {
             });
 
             it('should only search non-boolean-hidden items with text filter', () => {
-                // Mark dissolved items as hidden by boolean filter
-                items[1]._hiddenByBooleanFilter = true;
-                items[3]._hiddenByBooleanFilter = true;
+                // Create a Set with dissolved items marked as hidden by boolean filter
+                const booleanHiddenItems = new Set([items[1], items[3]]);
 
                 const mockEvent = {
                     target: { value: 'Transport' }
                 };
 
                 const listFilterMock = {
+                    cachedItems: items,
+                    booleanHiddenItems: booleanHiddenItems,
                     filterListItems: ListFilter.prototype.filterListItems,
                     matchSearchTerm: vi.fn()
                         .mockReturnValueOnce(true)  // Active Transport - matches
@@ -552,14 +597,16 @@ describe('ListFilter', () => {
             });
 
             it('should not remove js-hidden from boolean-filtered items', () => {
+                const booleanHiddenItems = new Set();
                 const item = {
-                    _hiddenByBooleanFilter: true,
                     classList: {
                         remove: vi.fn()
                     }
                 };
+                booleanHiddenItems.add(item);
 
                 const listFilterMock = {
+                    booleanHiddenItems: booleanHiddenItems,
                     matchSearchTerm: ListFilter.prototype.matchSearchTerm,
                     termToMatchOn: vi.fn().mockReturnValue('Dissolved Transport Organisation')
                 };
