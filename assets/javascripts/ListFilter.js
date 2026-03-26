@@ -10,6 +10,8 @@ export class ListFilter{
         this.$noMatches = document.querySelector('.dl-list-filter__no-filter-match');
         this.$booleanFilterCheckbox = null;
         this.booleanFilterConfig = null;
+        this.booleanHiddenItems = new Set(); // Track items hidden by boolean filter
+        this.cachedItems = null; // Cache filtered items
         this.init();
     }
 
@@ -24,6 +26,9 @@ export class ListFilter{
         const $input = $form.querySelector('input[type="text"]');
         const boundFilterViaTimeout = this.filterViaTimeout.bind(this);
         $input.addEventListener('input', boundFilterViaTimeout);
+
+        // Cache DOM items for performance
+        this.cachedItems = convertNodeListToArray(document.querySelectorAll('[data-filter="item"]'));
 
         // Set up boolean filter if configured
         this.setupBooleanFilter();
@@ -42,7 +47,7 @@ export class ListFilter{
     }
 
     filterListItems(e){
-        const itemsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="item"]'));
+        const itemsToFilter = this.cachedItems || convertNodeListToArray(document.querySelectorAll('[data-filter="item"]'));
         const listsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="list"]'));
         const searchTerm = e.target.value;
 
@@ -52,8 +57,8 @@ export class ListFilter{
         itemsToFilter
           .filter(function ($item) {
             // Skip items hidden by boolean filter
-            return !$item._hiddenByBooleanFilter;
-          })
+            return !this.booleanHiddenItems.has($item);
+          }.bind(this))
           .filter(function ($item) {
             return !boundMatchSearchTerm($item, searchTerm)
           })
@@ -80,7 +85,7 @@ export class ListFilter{
         // const itemLabels = item.dataset.filterItemLabels
         const contentToMatchOn = this.termToMatchOn(item);
         // Only remove js-hidden if item is not hidden by boolean filter
-        if (!item._hiddenByBooleanFilter) {
+        if (!this.booleanHiddenItems.has(item)) {
             item.classList.remove('js-hidden');
         }
         var searchTermRegexp = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
@@ -166,13 +171,10 @@ export class ListFilter{
         // Set initial checkbox state
         this.$booleanFilterCheckbox.checked = this.booleanFilterConfig.defaultEnabled;
 
-        // Apply initial filter if default is enabled
-        if (this.booleanFilterConfig.defaultEnabled) {
-            this.applyBooleanFilter();
-            // Update counts after applying initial filter
-            const listsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="list"]'));
-            this.updateListCounts(listsToFilter);
-        }
+        // Apply initial filter (hide dissolved items when unchecked by default)
+        this.applyBooleanFilter();
+        const listsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="list"]'));
+        this.updateListCounts(listsToFilter);
 
         // Add change event listener
         const boundApplyAllFilters = this.applyAllFilters.bind(this);
@@ -185,26 +187,26 @@ export class ListFilter{
             return;
         }
 
-        const itemsToFilter = convertNodeListToArray(document.querySelectorAll('[data-filter="item"]'));
+        const itemsToFilter = this.cachedItems || convertNodeListToArray(document.querySelectorAll('[data-filter="item"]'));
         const isChecked = this.$booleanFilterCheckbox.checked;
         const config = this.booleanFilterConfig;
 
-        itemsToFilter.forEach(function(item) {
+        this.booleanHiddenItems.clear();
+
+        itemsToFilter.forEach((item) => {
+            const itemValue = item.getAttribute(config.attribute);
+            const matchesFilter = itemValue && itemValue.toLowerCase() === config.value.toLowerCase();
+
             if (isChecked) {
-                // Get the attribute value (case-insensitive comparison)
-                const itemValue = item.getAttribute(config.attribute);
-                if (itemValue && itemValue.toLowerCase() === config.value.toLowerCase()) {
-                    item.classList.add('js-hidden');
-                    item._hiddenByBooleanFilter = true;
-                } else {
-                    // Clear the flag if item doesn't match
-                    delete item._hiddenByBooleanFilter;
+                // When checked ("Show dissolved"), show all items
+                if (item.classList.contains('js-hidden')) {
+                    item.classList.remove('js-hidden');
                 }
             } else {
-                // When unchecked, remove js-hidden if it was added by boolean filter
-                if (item._hiddenByBooleanFilter) {
-                    item.classList.remove('js-hidden');
-                    delete item._hiddenByBooleanFilter;
+                // When unchecked, hide items matching the boolean value (dissolved=True)
+                if (matchesFilter) {
+                    item.classList.add('js-hidden');
+                    this.booleanHiddenItems.add(item);
                 }
             }
         });

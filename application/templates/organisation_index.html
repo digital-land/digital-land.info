@@ -34,7 +34,7 @@
 
   <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
-  <form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form" data-boolean-filter-attribute="data-dissolved" data-boolean-filter-value="True" data-boolean-filter-default="true">
+  <form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form" data-boolean-filter-attribute="data-dissolved" data-boolean-filter-value="True" data-boolean-filter-default="false">
 
     <!-- Text filter -->
     <label class="dl-list-filter__label govuk-label govuk-!-font-weight-bold" for="filter-organisations-list">I'm looking for</label>
@@ -43,9 +43,9 @@
   <!-- Boolean filter checkbox -->
     <div class="govuk-checkboxes govuk-checkboxes--small govuk-!-margin-bottom-3">
       <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="filter-hide-dissolved" type="checkbox" data-filter="boolean-input">
-        <label class="govuk-label govuk-checkboxes__label" for="filter-hide-dissolved">
-          Hide dissolved organisations
+        <input class="govuk-checkboxes__input" id="filter-show-dissolved" type="checkbox" data-filter="boolean-input">
+        <label class="govuk-label govuk-checkboxes__label" for="filter-show-dissolved">
+          Show dissolved organisations
         </label>
       </div>
     </div>
