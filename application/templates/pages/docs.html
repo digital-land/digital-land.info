@@ -179,7 +179,7 @@
       Pass a <span class="app-code-block app-code-block--inline">latitude</span> and <span class="app-code-block app-code-block--inline">longitude</span> to return all entities whose geometry intersects that point.
       Specify the datasets you care about.
     </p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?latitude=51.5074
   &amp;longitude=-0.1278
   &amp;dataset=conservation-area
@@ -188,7 +188,7 @@
   &amp;dataset=flood-risk-zone
   &amp;dataset=article-4-direction-area
   &amp;dataset=tree-preservation-zone
-  &amp;limit=100</span>
+  &amp;limit=100</div>
     <p class="govuk-body">
       You can pass multiple <span class="app-code-block app-code-block--inline">dataset</span> parameters. The API returns entities from any of those datasets whose
       geometry covers the point.
@@ -199,7 +199,7 @@
       If you have a Unique Property Reference Number, pass it using the <span class="app-code-block app-code-block--inline">q</span> parameter. This is more precise
       than a coordinate for registered properties.
     </p>
-    <span class="app-code-block">GET /entity.json?q=10008315764&amp;dataset=conservation-area&amp;dataset=listed-building&amp;limit=100</span>
+    <div class="app-code-block">GET /entity.json?q=10008315764&amp;dataset=conservation-area&amp;dataset=listed-building&amp;limit=100</div>
 
     <h4 class="govuk-heading-s" id="what-you-get-back">What you get back</h4>
     <p class="govuk-body">
@@ -217,7 +217,7 @@
     <p class="govuk-body">
       Fetch all 337 LPAs with their entity IDs in one request, then filter by name in your application:
     </p>
-    <span class="app-code-block">GET /entity.json?dataset=local-planning-authority&amp;limit=500&amp;field=name&amp;field=entity</span>
+    <div class="app-code-block">GET /entity.json?dataset=local-planning-authority&amp;limit=500&amp;field=name&amp;field=entity</div>
     <p class="govuk-body">
       For example, Lambeth LPA has entity ID <span class="app-code-block app-code-block--inline">626195</span>. Use this in subsequent spatial queries.
     </p>
@@ -226,11 +226,11 @@
     <p class="govuk-body">
       Use <span class="app-code-block app-code-block--inline">geometry_entity</span> to filter by the LPA's geometry rather than pasting in a raw polygon.
     </p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?dataset=brownfield-land
   &amp;geometry_entity=626195
   &amp;geometry_relation=within
-  &amp;limit=100</span>
+  &amp;limit=100</div>
 
     <h4 class="govuk-heading-s" id="find-recent-planning-applications">Find recent planning applications</h4>
     <p class="govuk-body">
@@ -239,19 +239,19 @@
       with developments.
     </p>
     <p class="govuk-body">Get applications within the LPA boundary:</p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?dataset=planning-application
   &amp;geometry_entity=626195
   &amp;geometry_relation=within
-  &amp;limit=100</span>
+  &amp;limit=100</div>
     <p class="govuk-body">Or filter all applications by <span class="app-code-block app-code-block--inline">start_date</span> (when the application was submitted):</p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?dataset=planning-application
   &amp;start_date_year=2022
   &amp;start_date_month=1
   &amp;start_date_day=1
   &amp;start_date_match=after
-  &amp;limit=100</span>
+  &amp;limit=100</div>
 
     <h3 class="govuk-heading-m" id="research-heritage-environment">3. Research heritage and environmental designations</h3>
     <p class="govuk-body">
@@ -262,7 +262,7 @@
     <p class="govuk-body">
       Pass a UPRN using the <span class="app-code-block app-code-block--inline">q</span> parameter to return all matching entities for that property.
     </p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?q=10008315764
   &amp;dataset=listed-building
   &amp;dataset=conservation-area
@@ -272,7 +272,7 @@
   &amp;dataset=flood-risk-zone
   &amp;dataset=heritage-at-risk
   &amp;dataset=area-of-outstanding-natural-beauty
-  &amp;limit=100</span>
+  &amp;limit=100</div>
     <p class="govuk-body">
       Listed building entities include a <span class="app-code-block app-code-block--inline">listed_building_grade</span> field (Grade I, II*, or II). You do not need a
       separate query to get this.
@@ -285,25 +285,25 @@
 
     <h4 class="govuk-heading-s" id="query-recent-applications">Query recent applications</h4>
     <p class="govuk-body">Use <span class="app-code-block app-code-block--inline">start_date</span> to filter by when a planning application was submitted.</p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?dataset=planning-application
   &amp;start_date_year=2022
   &amp;start_date_month=1
   &amp;start_date_day=1
   &amp;start_date_match=after
   &amp;limit=100
-  &amp;offset=0</span>
+  &amp;offset=0</div>
 
     <h4 class="govuk-heading-s" id="search-custom-area">Search within a custom area</h4>
     <p class="govuk-body">
       Pass a polygon in Well-Known Text format to the <span class="app-code-block app-code-block--inline">geometry</span> parameter. Spaces in the WKT string must be
       percent-encoded but most HTTP client libraries handle this automatically.
     </p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?dataset=planning-application
   &amp;geometry=POLYGON((-0.15%2051.50,-0.10%2051.50,-0.10%2051.52,-0.15%2051.52,-0.15%2051.50))
   &amp;geometry_relation=intersects
-  &amp;limit=100</span>
+  &amp;limit=100</div>
     <p class="govuk-body">Coordinates should be in WGS84 (EPSG:4326).</p>
 
     <h4 class="govuk-heading-s" id="paginating-results">Paginating results</h4>
@@ -311,8 +311,8 @@
       Use <span class="app-code-block app-code-block--inline">offset</span> to page through large result sets. Increment it by your <span class="app-code-block app-code-block--inline">limit</span> value for each
       subsequent request.
     </p>
-    <span class="app-code-block">GET /entity.json?dataset=planning-application&amp;limit=100&amp;offset=0   # page 1
-  GET /entity.json?dataset=planning-application&amp;limit=100&amp;offset=100  # page 2</span>
+    <div class="app-code-block">GET /entity.json?dataset=planning-application&amp;limit=100&amp;offset=0   # page 1
+  GET /entity.json?dataset=planning-application&amp;limit=100&amp;offset=100  # page 2</div>
     <p class="govuk-body">
       The response includes a <span class="app-code-block app-code-block--inline">links</span> object with pre-built <span class="app-code-block app-code-block--inline">next</span>, <span class="app-code-block app-code-block--inline">prev</span>, <span class="app-code-block app-code-block--inline">first</span>,
       and <span class="app-code-block app-code-block--inline">last</span> URLs, so you can follow pagination without calculating offsets manually.
@@ -328,7 +328,7 @@
       The API does not have a batch endpoint. Issue one request per property. Use the <span class="app-code-block app-code-block--inline">field</span> parameter to
       limit the response to what you need.
     </p>
-    <span class="app-code-block">GET /entity.json
+    <div class="app-code-block">GET /entity.json
   ?latitude=52.5306
   &amp;longitude=-1.9561
   &amp;dataset=flood-risk-zone
@@ -338,7 +338,7 @@
   &amp;field=name
   &amp;field=dataset
   &amp;field=reference
-  &amp;limit=50</span>
+  &amp;limit=50</div>
     <p class="govuk-body">Apply polite rate-limiting between requests.</p>
 
     <h4 class="govuk-heading-s" id="bulk-downloads">Use bulk downloads for large portfolios</h4>
