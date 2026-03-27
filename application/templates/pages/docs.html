@@ -203,7 +203,7 @@
 
     <h3 class="govuk-heading-m" id="find-development-sites">2. Find development sites in an area</h3>
     <p class="govuk-body">
-      You want to find all brownfield land or planning activity within a specific local planning authority.
+      You want to find all brownfield land within a specific local planning authority.
     </p>
 
     <h4 class="govuk-heading-s" id="find-lpa">Find a local planning authority</h4>
@@ -222,19 +222,6 @@
     </p>
     <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=brownfield-land&</br>geometry_entity=626195&</br>geometry_relation=within&</br>limit=100</div>
     <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=brownfield-land&geometry_entity=626195&geometry_relation=within&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
-
-    <h4 class="govuk-heading-s" id="find-recent-planning-applications">Find recent planning applications</h4>
-    <p class="govuk-body">
-      <strong>Note:</strong> the planning applications data standard is currently in development and may change.
-      <a class="govuk-link" href="https://design.planning.data.gov.uk/project/planning-applications">Stay up to date</a>
-      with developments.
-    </p>
-    <p class="govuk-body">Get applications within the LPA boundary:</p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&</br>geometry_entity=626195&</br>geometry_relation=within&</br>limit=100</div>
-    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=planning-application&geometry_entity=626195&geometry_relation=within&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
-    <p class="govuk-body">Or filter all applications by <span class="app-code-block app-code-block--inline">start_date</span> (when the application was submitted):</p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&</br>start_date_year=2025&</br>start_date_month=5&</br>start_date_day=1&</br>start_date_match=since&</br>limit=100</div>
-    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=planning-application&start_date_year=2025&start_date_month=5&start_date_day=1&start_date_match=since&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
 
     <h3 class="govuk-heading-m" id="research-heritage-environment">3. Research heritage and environmental designations</h3>
     <p class="govuk-body">
@@ -255,6 +242,11 @@
     <h3 class="govuk-heading-m" id="monitor-planning-applications">4. Monitor new planning applications</h3>
     <p class="govuk-body">
       You want to monitor new planning applications within a geography or track activity over time.
+    </p>
+    <p class="govuk-body">
+      <strong>Note:</strong> the planning applications data specification is currently in development and may change. Local planning authorities are not currently required to share application data to this specification.
+      <a class="govuk-link" href="https://design.planning.data.gov.uk/project/planning-applications">Stay up to date</a>
+      with developments.
     </p>
 
     <h4 class="govuk-heading-s" id="query-recent-applications">Query recent applications</h4>
