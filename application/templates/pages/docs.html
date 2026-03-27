@@ -179,7 +179,8 @@
       Pass a <span class="app-code-block app-code-block--inline">latitude</span> and <span class="app-code-block app-code-block--inline">longitude</span> to return all entities whose geometry intersects that point.
       Specify the datasets you care about.
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>latitude=51.5074&amp;</br>longitude=-0.1278&amp;</br>dataset=conservation-area&amp;</br>dataset=listed-building&amp;</br>dataset=green-belt&amp;</br>dataset=flood-risk-zone&amp;</br>dataset=article-4-direction-area&amp;</br>dataset=tree-preservation-zone&amp;</br>limit=100</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>latitude=51.5074&</br>longitude=-0.1278&</br>dataset=conservation-area&</br>dataset=listed-building&</br>dataset=green-belt&</br>dataset=flood-risk-zone&</br>dataset=article-4-direction-area&</br>dataset=tree-preservation-zone&</br>limit=100</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?latitude=51.5074&longitude=-0.1278&dataset=conservation-area&dataset=listed-building&dataset=green-belt&dataset=flood-risk-zone&dataset=article-4-direction-area&dataset=tree-preservation-zone&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
     <p class="govuk-body">
       You can pass multiple <span class="app-code-block app-code-block--inline">dataset</span> parameters. The API returns entities from any of those datasets whose
       geometry covers the point.
@@ -190,7 +191,8 @@
       If you have a Unique Property Reference Number, pass it using the <span class="app-code-block app-code-block--inline">q</span> parameter. This is more precise
       than a coordinate for registered properties.
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>q=10008315764&amp;</br>dataset=conservation-area&amp;</br>dataset=listed-building&amp;</br>limit=100</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>q=10008315764&</br>dataset=conservation-area&</br>dataset=listed-building&</br>limit=100</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?q=10008315764&dataset=conservation-area&dataset=listed-building&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
 
     <h4 class="govuk-heading-s" id="what-you-get-back">What you get back</h4>
     <p class="govuk-body">
@@ -208,7 +210,8 @@
     <p class="govuk-body">
       Fetch all 337 LPAs with their entity IDs in one request, then filter by name in your application:
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=local-planning-authority&amp;</br>limit=500&amp;</br>field=name&amp;</br>field=entity</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=local-planning-authority&</br>limit=500&</br>field=name&</br>field=entity</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=local-planning-authority&limit=500&field=name&field=entity" target="_blank" rel="noopener noreferrer">View API response</a></p>
     <p class="govuk-body">
       For example, Lambeth LPA has entity ID <span class="app-code-block app-code-block--inline">626195</span>. Use this in subsequent spatial queries.
     </p>
@@ -217,7 +220,8 @@
     <p class="govuk-body">
       Use <span class="app-code-block app-code-block--inline">geometry_entity</span> to filter by the LPA's geometry rather than pasting in a raw polygon.
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=brownfield-land&amp;</br>geometry_entity=626195&amp;</br>geometry_relation=within&amp;</br>limit=100</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=brownfield-land&</br>geometry_entity=626195&</br>geometry_relation=within&</br>limit=100</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=brownfield-land&geometry_entity=626195&geometry_relation=within&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
 
     <h4 class="govuk-heading-s" id="find-recent-planning-applications">Find recent planning applications</h4>
     <p class="govuk-body">
@@ -226,9 +230,11 @@
       with developments.
     </p>
     <p class="govuk-body">Get applications within the LPA boundary:</p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&amp;</br>geometry_entity=626195&amp;</br>geometry_relation=within&amp;</br>limit=100</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&</br>geometry_entity=626195&</br>geometry_relation=within&</br>limit=100</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=planning-application&geometry_entity=626195&geometry_relation=within&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
     <p class="govuk-body">Or filter all applications by <span class="app-code-block app-code-block--inline">start_date</span> (when the application was submitted):</p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&amp;</br>start_date_year=2022&amp;</br>start_date_month=1&amp;</br>start_date_day=1&amp;</br>start_date_match=after&amp;</br>limit=100</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&</br>start_date_year=2022&</br>start_date_month=1&</br>start_date_day=1&</br>start_date_match=after&</br>limit=100</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=planning-application&start_date_year=2022&start_date_month=1&start_date_day=1&start_date_match=after&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
 
     <h3 class="govuk-heading-m" id="research-heritage-environment">3. Research heritage and environmental designations</h3>
     <p class="govuk-body">
@@ -239,7 +245,8 @@
     <p class="govuk-body">
       Pass a UPRN using the <span class="app-code-block app-code-block--inline">q</span> parameter to return all matching entities for that property.
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>q=10008315764&amp;</br>dataset=listed-building&amp;</br>dataset=conservation-area&amp;</br>dataset=scheduled-monument&amp;</br>dataset=site-of-special-scientific-interest&amp;</br>dataset=ancient-woodland&amp;</br>dataset=flood-risk-zone&amp;</br>dataset=heritage-at-risk&amp;</br>dataset=area-of-outstanding-natural-beauty&amp;</br>limit=100</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>q=10008315764&</br>dataset=listed-building&</br>dataset=conservation-area&</br>dataset=scheduled-monument&</br>dataset=site-of-special-scientific-interest&</br>dataset=ancient-woodland&</br>dataset=flood-risk-zone&</br>dataset=heritage-at-risk&</br>dataset=area-of-outstanding-natural-beauty&</br>limit=100</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?q=10008315764&dataset=listed-building&dataset=conservation-area&dataset=scheduled-monument&dataset=site-of-special-scientific-interest&dataset=ancient-woodland&dataset=flood-risk-zone&dataset=heritage-at-risk&dataset=area-of-outstanding-natural-beauty&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
     <p class="govuk-body">
       Listed building entities include a <span class="app-code-block app-code-block--inline">listed_building_grade</span> field (Grade I, II*, or II). You do not need a
       separate query to get this.
@@ -252,14 +259,16 @@
 
     <h4 class="govuk-heading-s" id="query-recent-applications">Query recent applications</h4>
     <p class="govuk-body">Use <span class="app-code-block app-code-block--inline">start_date</span> to filter by when a planning application was submitted.</p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&amp;</br>start_date_year=2022&amp;</br>start_date_month=1&amp;</br>start_date_day=1&amp;</br>start_date_match=after&amp;</br>limit=100&amp;</br>offset=0</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&</br>start_date_year=2022&</br>start_date_month=1&</br>start_date_day=1&</br>start_date_match=after&</br>limit=100&</br>offset=0</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=planning-application&start_date_year=2022&start_date_month=1&start_date_day=1&start_date_match=after&limit=100&offset=0" target="_blank" rel="noopener noreferrer">View API response</a></p>
 
     <h4 class="govuk-heading-s" id="search-custom-area">Search within a custom area</h4>
     <p class="govuk-body">
       Pass a polygon in Well-Known Text format to the <span class="app-code-block app-code-block--inline">geometry</span> parameter. Spaces in the WKT string must be
       percent-encoded but most HTTP client libraries handle this automatically.
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&amp;</br>geometry=POLYGON((-0.15%2051.50,-0.10%2051.50,-0.10%2051.52,-0.15%2051.52,-0.15%2051.50))&amp;</br>geometry_relation=intersects&amp;</br>limit=100</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&</br>geometry=POLYGON((-0.15%2051.50,-0.10%2051.50,-0.10%2051.52,-0.15%2051.52,-0.15%2051.50))&</br>geometry_relation=intersects&</br>limit=100</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=planning-application&geometry=POLYGON((-0.15%2051.50,-0.10%2051.50,-0.10%2051.52,-0.15%2051.52,-0.15%2051.50))&geometry_relation=intersects&limit=100" target="_blank" rel="noopener noreferrer">View API response</a></p>
     <p class="govuk-body">Coordinates should be in WGS84 (EPSG:4326).</p>
 
     <h4 class="govuk-heading-s" id="paginating-results">Paginating results</h4>
@@ -267,7 +276,8 @@
       Use <span class="app-code-block app-code-block--inline">offset</span> to page through large result sets. Increment it by your <span class="app-code-block app-code-block--inline">limit</span> value for each
       subsequent request.
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&amp;</br>limit=100&amp;</br>offset=0   # page 1 </br>GET /entity.json?</br>dataset=planning-application&amp;</br>limit=100&amp;</br>offset=100  # page 2</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>dataset=planning-application&</br>limit=100&</br>offset=0   # page 1 </br>GET /entity.json?</br>dataset=planning-application&</br>limit=100&</br>offset=100  # page 2</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?dataset=planning-application&limit=100&offset=0" target="_blank" rel="noopener noreferrer">View API response (page 1)</a></p>
     <p class="govuk-body">
       The response includes a <span class="app-code-block app-code-block--inline">links</span> object with pre-built <span class="app-code-block app-code-block--inline">next</span>, <span class="app-code-block app-code-block--inline">prev</span>, <span class="app-code-block app-code-block--inline">first</span>,
       and <span class="app-code-block app-code-block--inline">last</span> URLs, so you can follow pagination without calculating offsets manually.
@@ -283,7 +293,8 @@
       The API does not have a batch endpoint. Issue one request per property. Use the <span class="app-code-block app-code-block--inline">field</span> parameter to
       limit the response to what you need.
     </p>
-    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>latitude=52.5306&amp;</br>longitude=-1.9561&amp;</br>dataset=flood-risk-zone&amp;</br>dataset=conservation-area&amp;</br>dataset=article-4-direction-area&amp;</br>dataset=green-belt&amp;</br>field=name&amp;</br>field=dataset&amp;</br>field=reference&amp;</br>limit=50</div>
+    <div class="app-code-block govuk-!-margin-bottom-4" tabindex="0">GET /entity.json?</br>latitude=52.5306&</br>longitude=-1.9561&</br>dataset=flood-risk-zone&</br>dataset=conservation-area&</br>dataset=article-4-direction-area&</br>dataset=green-belt&</br>field=name&</br>field=dataset&</br>field=reference&</br>limit=50</div>
+    <p class="govuk-body govuk-!-font-size-16"><a class="govuk-link" href="https://www.planning.data.gov.uk/entity.json?latitude=52.5306&longitude=-1.9561&dataset=flood-risk-zone&dataset=conservation-area&dataset=article-4-direction-area&dataset=green-belt&field=name&field=dataset&field=reference&limit=50" target="_blank" rel="noopener noreferrer">View API response</a></p>
     <p class="govuk-body">Apply polite rate-limiting between requests.</p>
 
     <h4 class="govuk-heading-s" id="bulk-downloads">Use bulk downloads for large portfolios</h4>
