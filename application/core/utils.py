@@ -251,7 +251,7 @@ def log_slow_execution(threshold_seconds=1.0):
 ENTITY_QUALITY_DESCRIPTION = {
     "authoritative": "We have some data from the authoritative source",
     "some": "We have some data from an alternative source",
-    "trustworthy": "We have authorititive data linked to material information",
+    "trustworthy": "We have authoritative data linked to material information",
     "usable": "We have data from the authoritative source",
 }
 
