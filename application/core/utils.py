@@ -183,14 +183,15 @@ ENTITY_ATTRIBUTE_ORDER = {
     "prefix": 0,
     "reference": 1,
     "name": 2,
-    "dataset": 3,
-    "organisation-entity": 4,
-    "start-date": 5,
-    "end-date": 6,
-    "entry-date": 7,
-    "typology": 8,
-    "geometry": 9,
-    "point": 10,
+    "quality": 3,
+    "dataset": 4,
+    "organisation-entity": 5,
+    "start-date": 6,
+    "end-date": 7,
+    "entry-date": 8,
+    "typology": 9,
+    "geometry": 10,
+    "point": 11,
 }
 
 
@@ -245,3 +246,30 @@ def log_slow_execution(threshold_seconds=1.0):
         return wrapper
 
     return decorator
+
+
+ENTITY_QUALITY_DESCRIPTION = {
+    "authoritative": "We have some data from the authoritative source",
+    "some": "We have some data from an alternative source",
+    "trustworthy": "We have authorititive data linked to material information",
+    "usable": "We have data from the authoritative source",
+}
+
+
+def map_entity_quality_to_description(e_dict_sorted: dict) -> dict:
+    """
+    Maps the `quality` entity field to the right description and
+    re-formats the entity quality field to be `[quality]: [description]`
+    without having to update the original quality value on the model.
+    """
+
+    quality = e_dict_sorted.get("quality")
+    if quality:
+        description = ENTITY_QUALITY_DESCRIPTION.get(quality, "")
+        if description:
+            e_dict_sorted["quality"] = f"{str(quality).capitalize()}: {description}"
+        else:
+            e_dict_sorted["quality"] = str(quality).capitalize()
+    else:
+        e_dict_sorted["quality"] = "We have no data"
+    return e_dict_sorted
