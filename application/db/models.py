@@ -31,8 +31,11 @@ class EntityOrm(Base):
     typology = Column(Text, nullable=True)
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=True)
     point = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+
+    # TODO: We need to create a model for `QualityOrm` and map it to `quality`
+    # so that we can access other quality attributes and remove the
+    # `map_entity_quality_to_description()` function
     quality = Column(Text, nullable=True)
-    # conside removing the geojson column as it's just empty right now
     geojson_col = Column(JSONB, name="geojson", nullable=True)
     _geometry_geojson = column_property(func.ST_AsGeoJSON(geometry))
     _point_geojson = column_property(func.ST_AsGeoJSON(point))
