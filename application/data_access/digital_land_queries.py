@@ -136,6 +136,7 @@ def get_latest_resource(session: Session, dataset) -> DatasetCollectionModel:
     else:
         return None
 
+
 def get_dataset_coverage_status(dataset: str) -> bool:
     with open("config/dataset_coverage.yml", "r") as file:
         coverage_data = yaml.safe_load(file)
@@ -144,3 +145,34 @@ def get_dataset_coverage_status(dataset: str) -> bool:
     full_coverage = dataset in coverage_datasets
 
     return "full" if full_coverage else "partial"
+
+
+def get_dataset_quality_values(session: Session, datasets: List[str] = None) -> dict:
+    """
+    Get all unique `quality` values for each dataset.
+    """
+
+    # In order to get all `quality` values for each dataset, we need
+    # to query all entities for each dataset since the `quality` field is
+    # within an entity
+    query = session.query(EntityOrm.dataset, EntityOrm.quality).distinct()
+
+    if datasets:
+        query = query.filter(EntityOrm.dataset.in_(datasets))
+
+    results = query.all()
+
+    # Group quality values by dataset
+    dataset_quality_mapping = {}
+    for dataset, quality in results:
+        if dataset not in dataset_quality_mapping:
+            dataset_quality_mapping[dataset] = set()
+        dataset_quality_mapping[dataset].add(quality)
+
+    # Convert set values to sorted lists
+    for dataset in dataset_quality_mapping:
+        dataset_quality_mapping[dataset] = sorted(
+            list(dataset_quality_mapping[dataset]), key=lambda x: (x is None, x or "")
+        )
+
+    return dataset_quality_mapping
