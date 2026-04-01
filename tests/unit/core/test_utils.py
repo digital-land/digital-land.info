@@ -77,5 +77,6 @@ def test_map_entity_quality_to_description_with_unknown_quality():
     entity_dict = {"quality": "special quality", "name": "Test Entity"}
     result = map_entity_quality_to_description(entity_dict)
 
-    # Should title case the quality even if description not found
+    # Should capitalize the quality field value even
+    # if description is not found
     assert result["quality"] == "Special quality"
