@@ -83,7 +83,7 @@
           </thead>
           <tbody class="govuk-table__body">
             {% for field in row.keys() %}
-              {% if field is not in ['entity','quality'] %}
+              {% if field is not in ['entity'] %}
               {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
               <tr class="govuk-table__row">
                 <th scope="row" class="app-table__header app-table__header--row">
@@ -103,7 +103,7 @@
                     {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
                   {% endif %}
                 </td>
-                {% if field not in ['curie', 'dataset', 'organisation-entity', 'typology'] %}
+                {% if field not in ['curie', 'dataset', 'organisation-entity', 'start-date', 'end-date', 'typology', 'quality'] %}
                   <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
                     <a href="/fact?dataset={{ row['dataset'] }}&entity={{ row['entity'] }}&field={{ field }}" class="govuk-link">Facts</a>
                   </td>
@@ -126,7 +126,7 @@
       {% endcall %}
 
       {% set data_to_send = {
-        'row': row,
+        'row': json_row,
         'is_truncated': is_truncated
       } %}
       {% set jsonHTML %}
