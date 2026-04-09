@@ -157,7 +157,6 @@ def search_facts(
     request: Request,
     query_filters: FactQueryFilters = Depends(validate_fact_query_filters),
     extension: Optional[SuffixEntity] = None,
-    session: Session = Depends(get_session),
 ):
     query_params = asdict(query_filters)
 
@@ -189,7 +188,7 @@ def search_facts(
             entity_prefix = facts_dicts[0]["entity-prefix"]
             entity_reference = facts_dicts[0]["entity-reference"]
         else:
-            entity, _, _ = get_entity_query(session, query_params["entity"])
+            entity, _, _ = get_entity_query(query_params["entity"])
             if entity:
                 entity_name = entity.name
                 entity_prefix = entity.prefix

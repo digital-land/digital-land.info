@@ -149,7 +149,9 @@ def handle_moved_entity(
     entity: int, new_entity_id: int, extension: Optional[SuffixEntity]
 ):
     if extension:
-        return RedirectResponse(f"/entity/{new_entity_id}.{extension}", status_code=301)
+        return RedirectResponse(
+            f"/entity/{new_entity_id}.{extension.value}", status_code=301
+        )
     return RedirectResponse(f"/entity/{new_entity_id}", status_code=301)
 
 
@@ -238,7 +240,7 @@ def handle_entity_response(
 
     organisation_entity = None
     if e.organisation_entity is not None:
-        organisation_entity, _, _ = get_entity_query(session, e.organisation_entity)
+        organisation_entity, _, _ = get_entity_query(e.organisation_entity)
         if organisation_entity:
             organisation_curie = (
                 f"{organisation_entity.prefix}:{organisation_entity.reference}"
@@ -322,7 +324,7 @@ def get_entity(
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
-    e, old_entity_status, new_entity_id = get_entity_query(session, entity)
+    e, old_entity_status, new_entity_id = get_entity_query(entity)
 
     if old_entity_status == 410:
         return handle_gone_entity(request, entity, extension)
