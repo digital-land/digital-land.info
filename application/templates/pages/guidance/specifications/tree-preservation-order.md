@@ -1,4 +1,4 @@
-**Last updated:** 7 April 2025<br/>
+**Last updated:** 10 April 2025<br/>
 
 ---
 
@@ -66,12 +66,14 @@ Example: `TPO1`
 
 ### name
 
-This will be the title of the page hosting data about this tree preservation order on your website. This can be:
+This will be the name of the TPO as referenced on your website. This can be any combination of:
 
 -   name
 -   reference
 -   address
 -   blank
+
+This can also be left blank if the TPO does not have a name
 
 ### document-url
 
