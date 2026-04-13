@@ -26,7 +26,7 @@ The `documentation-url` is the URL of the specific section of your webpage that 
 
 There are two ways to do this:
 
-- **One page per record**: each record has its own webpage. The URL for each record is its full page URL, for example `yourwebsite.gov.uk/planning/article-4-directions/smith-road`.
+- **One page per record**: each record has its own webpage. The URL for each record is its full-page URL, for example `yourwebsite.gov.uk/planning/article-4-directions/smith-road`.
 - **Multiple records on one page**: all records are listed on a single page, with an anchor link for each one, for example `yourwebsite.gov.uk/planning/article-4-directions#smith-road`. Your publishing system will need to support anchor links (fragment identifiers) for each record.
 
 Where your data includes a link to a legal document such as a direction notice or order, you should also provide a `document-url` pointing directly to that file.
