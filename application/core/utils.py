@@ -203,7 +203,7 @@ def entity_attribute_sort_key(val, sort_order=ENTITY_ATTRIBUTE_ORDER):
 ENTITY_QUALITY_DESCRIPTION = {
     "authoritative": "We have some data from the authoritative source",
     "some": "We have some data from an alternative source",
-    "trustworthy": "We have authorititive data linked to material information",
+    "trustworthy": "We have authoritative data linked to material information",
     "usable": "We have data from the authoritative source",
 }
 
