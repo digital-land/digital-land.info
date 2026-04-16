@@ -16,20 +16,53 @@
 
 .dl-map__side-panel__heading {
   box-sizing: border-box;
-  position: absolute;
   z-index: 1002;
   top: 0;
   width: 100%;
-  padding: $govuk-gutter-half;
-  border-bottom: 1px solid $govuk-border-colour;
   background: govuk-colour("white");
+
+  .govuk-tabs {
+    margin-bottom: 0px;
+  }
 }
 
 .dl-map__side-panel__content {
   box-sizing: border-box;
-  max-height: 100%;
-  padding: 70px $govuk-gutter-half $govuk-gutter-half;
+  height: 500px;
   overflow-y: auto;
+
+  .govuk-tabs__panel {
+    border: none;
+    padding: 15px 10px 5px;
+  }
+
+  .govuk-list {
+    padding: 0px 10px;
+    margin-bottom: 0px;
+  }
+
+  &--with-footer {
+    height: 415px;
+  }
+}
+
+.dl-map__side-panel__footer {
+  border-top: 1px solid #b1b4b6;
+  height: 130px;
+  overflow-y: auto;
+
+  .govuk-list {
+    padding: 0px 10px;
+  }
+}
+
+.govuk-frontend-supported .govuk-tabs__list-item--selected {
+  border-top: none;
+}
+
+.govuk-frontend-supported .govuk-tabs__list-item {
+  background-color: inherit;
+  margin-right: 0px;
 }
 
 .dl-map__side-panel__section {
@@ -84,4 +117,42 @@
   background-repeat: no-repeat;
   background-position: 11px 11.5px;
   background-size: 18px 17px;
+}
+
+// Quality colour box styles for footer descriptions
+.govuk-colourbox__item {
+  display: flex;
+  align-items: center;
+
+  .govuk-colourbox__span {
+    margin-left: 0;
+    margin-top: 0;
+    position: relative;
+    padding-left: 53px;
+    cursor: default;
+    font-size: 1rem;
+    display: block;
+    flex: 1;
+    line-height: 1.4;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      margin-top: -8px;
+      border: 2px solid var(--quality-color, #003078);
+      background: var(--quality-color, #003078);
+      opacity: var(--quality-opacity, 0.7);
+      box-sizing: border-box;
+    }
+  }
+}
+
+// Update govuk-radios label font size to match dl-label__key
+.govuk-radios__label {
+  font-size: 1rem;
 }

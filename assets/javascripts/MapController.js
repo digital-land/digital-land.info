@@ -263,7 +263,7 @@ export default class MapController {
   overwriteWheelEventsForControls() {
     const mapEl = document.getElementById(this.mapId)
     const mapControlsArray = mapEl.querySelectorAll('.maplibregl-control-container')
-    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content']), {passive: false}));
+    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content', '.dl-map__side-panel__footer']), {passive: false}));
   }
 
   addClickHandlers() {

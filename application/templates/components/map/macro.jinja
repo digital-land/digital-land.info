@@ -1,5 +1,4 @@
 {%- macro map(params) %}
-
     {#- Set the default params #}
     {%- do params.update({'layers': params.layers|default([])}) -%}
 
@@ -79,6 +78,9 @@
             enabled: {{params.enableLayerControls|lower if params.enableLayerControls else 'false'}},
             layerURLParamName: "dataset",
             redirectURLParamNames: ["layer"],
+            enableTabs: {{params.enableLayerTabs|lower if params.enableLayerTabs else 'false'}},
+            dataQualityLayers: {{params.dataQualityLayers|tojson if params.dataQualityLayers else '[]'}},
+            dataQualityInfo: {{params.dataQualityInfo|tojson if params.dataQualityInfo else '[]'}},
           },
           FullscreenControl: {
             enabled: true,
@@ -94,9 +96,7 @@
       })
 
     </script>
-
 {% endmacro %}
-
 
 {% macro layerControlItem(layer) %}
     <li class="dl-map__layer-item govuk-!-margin-bottom-1" data-layer-control="{{ layer.dataset }}"
