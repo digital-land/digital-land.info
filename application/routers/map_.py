@@ -9,7 +9,9 @@ from application.settings import get_settings
 from application.core.templates import templates
 from application.data_access.digital_land_queries import (
     get_datasets_with_data_by_geography,
+    get_dataset_quality_values,
 )
+from application.core.utils import ENTITY_QUALITY_DESCRIPTION
 from application.db.session import get_session, get_redis, DbSession
 from application.data_access.find_an_area_helpers import find_an_area
 from application.data_access.os_api import is_valid_postcode
@@ -17,6 +19,21 @@ from application.data_access.os_api import is_valid_postcode
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def get_quality_colour(quality: str) -> str:
+    """
+    Map quality values to colours for visualization.
+    """
+    quality_colours = {
+        "authoritative": "#CCE2D8",
+        "some": "#FFF7BF",
+        "usable": "#817D0D",
+        "trustworthy": "#3ffd00",
+    }
+    return quality_colours.get(
+        quality, "#FCD6C3"
+    )  # Default orange if no quality data is found
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -49,6 +66,33 @@ def get_map(
     # Convert DatasetModel objects to dictionaries so that it can be used
     # in the template
     geography_datasets_dicts = [json.loads(d.json()) for d in geography_datasets]
+
+    # Get quality information for all datasets
+    dataset_names = [dataset.dataset for dataset in geography_datasets]
+    dataset_quality_map = get_dataset_quality_values(session, dataset_names)
+
+    # Generate data quality layers
+    data_quality_info = []
+    for dataset in geography_datasets:
+        dataset_name = dataset.dataset
+        quality_values = dataset_quality_map.get(dataset_name, [])
+
+        for quality in quality_values:
+            description = ENTITY_QUALITY_DESCRIPTION.get(quality, "We have no data")
+            if description:
+                quality_layer = {
+                    "dataset": f"{dataset_name}-{quality}",
+                    "name": f"{dataset.name} - {description}",
+                    "description": description,
+                    "quality": quality,
+                    "source_dataset": dataset_name,
+                    "paint_options": {
+                        "colour": get_quality_colour(quality),
+                        "opacity": 0.7,
+                    },
+                }
+                data_quality_info.append(quality_layer)
+
     search_result = None
     error = ""
     entity_paint_options = None
@@ -94,6 +138,7 @@ def get_map(
     context = {
         "request": request,
         "layers": geography_datasets_dicts,
+        "data_quality_info": data_quality_info,
         "settings": settings,
         "search_query": search_query,
         "search_result": search_result,

@@ -168,10 +168,12 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.templates")
     def test_get_map_no_search_query(
         self,
         mock_templates,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -180,17 +182,21 @@ class TestGetMap:
         mock_settings,
     ):
         """Test `get_map()` with no search query parameter displays the map correctly."""
-        # Setup
+
+        # Setup (no search scenario, no form submission)
+        mock_request.query_params = {}
         mock_get_settings.return_value = mock_settings
+        mock_get_datasets.return_value = []
+        mock_get_quality_values.return_value = {}
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
-        # Execute
+        # Execute (no search performed - use None to represent no search)
         result = get_map(
             mock_request,
             mock_session,
             mock_redis,
-            search_query="",
+            search_query=None,
             search_type=None,
         )
 
@@ -203,9 +209,10 @@ class TestGetMap:
             "national-map.html",
             {
                 "request": mock_request,
-                "layers": IsListOfDicts(),
+                "layers": [],
+                "data_quality_info": [],
                 "settings": mock_settings,
-                "search_query": "",
+                "search_query": None,
                 "search_result": None,
                 "entity_paint_options": None,
                 "feedback_form_footer": True,
@@ -215,10 +222,12 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.templates")
     def test_get_map_with_invalid_uprn(
         self,
         mock_templates,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -234,6 +243,7 @@ class TestGetMap:
         search_type = "uprn"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -252,6 +262,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": search_query.strip(),
                 "search_result": None,
@@ -264,10 +275,12 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.templates")
     def test_get_map_with_invalid_uprn_length(
         self,
         mock_templates,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -286,6 +299,7 @@ class TestGetMap:
         search_type = "uprn"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -304,6 +318,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": search_query.strip(),
                 "search_result": None,
@@ -316,10 +331,12 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.templates")
     def test_get_map_with_empty_search_query_for_lpa_raises_error(
         self,
         mock_templates,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -335,6 +352,7 @@ class TestGetMap:
         search_type = "lpa"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -347,12 +365,13 @@ class TestGetMap:
             search_type,
         )
 
-        # Assert: empty LPA should use the LPA-specific error message from map_.py
+        # Assert (empty LPA should use the LPA-specific error message from map_.py)
         mock_templates.TemplateResponse.assert_called_once_with(
             "national-map.html",
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,
@@ -365,12 +384,14 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_postcode_search(
         self,
         mock_templates,
         mock_find_an_area,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -390,6 +411,7 @@ class TestGetMap:
         search_type = "postcode"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_find_an_area.return_value = mock_find_an_area_postcode
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
@@ -411,6 +433,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": search_query,
                 "search_result": {
@@ -438,12 +461,14 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_uprn_search(
         self,
         mock_templates,
         mock_find_an_area,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -463,6 +488,7 @@ class TestGetMap:
         search_type = "uprn"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_find_an_area.return_value = mock_find_an_area_uprn
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
@@ -484,6 +510,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": search_query,
                 "search_result": {
@@ -511,12 +538,14 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_sets_entity_options_when_called_with_valid_lpa(
         self,
         mock_templates,
         mock_find_an_area,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -548,6 +577,7 @@ class TestGetMap:
         search_type = "lpa"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_find_an_area.return_value = {
             "type": "lpa",
             "query": search_query,
@@ -587,6 +617,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": search_query,
                 "search_result": mock_find_an_area.return_value,
@@ -598,12 +629,14 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_infers_postcode_when_type_omitted(
         self,
         mock_templates,
         mock_find_an_area,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -621,6 +654,7 @@ class TestGetMap:
         search_type = None
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_find_an_area.return_value = mock_find_an_area_postcode
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
@@ -642,6 +676,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": search_query,
                 "search_result": None,
@@ -653,12 +688,14 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_with_an_invalid_postcode_triggers_validation_error(
         self,
         mock_templates,
         mock_find_an_area,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -675,6 +712,7 @@ class TestGetMap:
         search_type = "postcode"
         mock_get_settings.return_value = mock_settings
         mock_get_datasets.return_value = mock_geography_datasets
+        mock_get_quality_values.return_value = {}
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -694,6 +732,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": search_query,
                 "search_result": None,
@@ -706,12 +745,14 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.find_an_area")
     @patch("application.routers.map_.templates")
     def test_get_map_strips_whitespaces_from_search_query(
         self,
         mock_templates,
         mock_find_an_area,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -724,6 +765,8 @@ class TestGetMap:
         search_query = "  SW1A 1AA  "
         search_type = "postcode"
         mock_get_settings.return_value = mock_settings
+        mock_get_datasets.return_value = []
+        mock_get_quality_values.return_value = {}
         mock_find_an_area.return_value = {
             "type": "postcode",
             "query": "SW1A 1AA",
@@ -749,8 +792,9 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
-                "search_query": "SW1A 1AA",  # Should be stripped
+                "search_query": "SW1A 1AA",  # Strips the empty spaces in the string
                 "search_result": {
                     "type": "postcode",
                     "query": "SW1A 1AA",
@@ -765,10 +809,12 @@ class TestGetMap:
 
     @patch("application.routers.map_.get_settings")
     @patch("application.routers.map_.get_datasets_with_data_by_geography")
+    @patch("application.routers.map_.get_dataset_quality_values")
     @patch("application.routers.map_.templates")
     def test_get_map_with_empty_search_query_raises_error(
         self,
         mock_templates,
+        mock_get_quality_values,
         mock_get_datasets,
         mock_get_settings,
         mock_request,
@@ -792,6 +838,7 @@ class TestGetMap:
                 typology="geography",
             )
         ]
+        mock_get_quality_values.return_value = {}
         mock_template_response = Mock()
         mock_templates.TemplateResponse.return_value = mock_template_response
 
@@ -806,6 +853,7 @@ class TestGetMap:
             {
                 "request": mock_request,
                 "layers": IsListOfDicts(),
+                "data_quality_info": [],
                 "settings": mock_settings,
                 "search_query": "",
                 "search_result": None,

@@ -53,12 +53,15 @@
         map({
           'height': 700,
           'layers': layers,
+          'dataQualityLayers': layers,
+          'dataQualityInfo': data_quality_info,
           'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
           'TILES_URL': settings.TILES_URL,
           'notePanel': notePanel,
           'enableZoomControls': true,
           'enableLayerControls': true,
           'enableZoomCounter': true,
+          'enableLayerTabs': true,
           'geojsons': [search_result.geometry],
           'paint_options': entity_paint_options,
         })
@@ -68,12 +71,15 @@
         map({
           'height': 700,
           'layers': layers,
+          'dataQualityLayers': layers,
+          'dataQualityInfo': data_quality_info,
           'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
           'TILES_URL': settings.TILES_URL,
           'notePanel': notePanel,
           'enableZoomControls': true,
           'enableLayerControls': true,
           'enableZoomCounter': true,
+          'enableLayerTabs': true,
         })
       }}
       {% endif %}
