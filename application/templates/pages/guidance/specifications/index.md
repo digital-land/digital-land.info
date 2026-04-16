@@ -10,7 +10,7 @@ Right now, the service supports:
 - [developer contributions](https://www.gov.uk/guidance/publish-your-developer-contributions-data)
 - [infrastructure funding statements](https://digital-land.github.io/specification/specification/infrastructure-funding-statement/)
 - [listed buildings](./listed-building)
-- [plans including local plans, supplementary plans and minerals and waste plans](https://digital-land.github.io/specification/specification/plan/)
+- [plans including local plans, supplementary plans and minerals and waste plans](https://www.gov.uk/government/publications/publish-your-plan-data)
 - [tree preservation orders](./tree-preservation-order)
 
 ## Datasets we’re developing
