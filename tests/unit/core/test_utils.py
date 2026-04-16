@@ -49,7 +49,7 @@ quality_test_data = [
     ),
     (
         {"quality": "trustworthy", "name": "Historic England"},
-        "Trustworthy: We have authorititive data linked to material information",
+        "Trustworthy: We have authoritative data linked to material information",
     ),
     (
         {"quality": "usable", "name": "Green space"},
