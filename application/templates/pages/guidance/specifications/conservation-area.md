@@ -1,4 +1,4 @@
-**Last updated: 7 April 2025**<br/>
+**Last updated: 10 April 2026**<br/>
 
 ---
 
@@ -176,8 +176,6 @@ With dates, some data is better than no data, so:
 ## Conservation area documents dataset
 
 This dataset is about documents that provide sources for the information contained in the conservation areas dataset. If you can, you should provide this dataset in addition to the conservation area dataset.
-
-If your conservation area documents are all held in a single page, you add the URL of that page in the conservation area dataset instead of providing a separate conservation area documents dataset. Add the URL in the documentation-url field.
 
 These documents are the authoritative source and provide the context around the history and impact of the conservation area. They can be:
 
