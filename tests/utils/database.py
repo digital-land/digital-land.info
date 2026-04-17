@@ -1,6 +1,6 @@
-from application.db.models import EntityOrm, DatasetOrm, TypologyOrm
+from application.db.models import EntityOrm, DatasetOrm, TypologyOrm, OrganisationOrm
 from application.db.session import get_session
-from tests.test_data import datasets, entities
+from tests.test_data import datasets, entities, organisations
 
 
 def add_entity_to_database(entity: EntityOrm):
@@ -23,6 +23,14 @@ def add_base_entities_to_database():
     session = next(get_session())
     for entity in entities:
         session.add(EntityOrm(**entity))
+    session.commit()
+
+
+# this function adds the base organisations to the database
+def add_base_organisations_to_database():
+    session = next(get_session())
+    for organisation in organisations:
+        session.add(OrganisationOrm(**organisation))
     session.commit()
 
 
@@ -74,6 +82,7 @@ def reset_database():
     session.query(EntityOrm).delete()
     session.query(DatasetOrm).delete()
     session.query(TypologyOrm).delete()
+    session.query(OrganisationOrm).delete()
     session.commit()
 
 
