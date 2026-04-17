@@ -1,16 +1,10 @@
 import logging
 import pytest
-import time
 
 from application.db.models import EntityOrm
-from application.data_access.entity_queries import (
-    get_entity_search,
-    get_entity_search_OLD_VERSION,
-)
+from application.data_access.entity_queries import get_entity_search
 from sqlalchemy.orm import Query
-from application.data_access.entity_queries import (
-    _apply_location_filters,
-)
+from application.data_access.entity_queries import _apply_location_filters
 
 # set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -84,7 +78,7 @@ def test_get_entity_search_geometry_reference_queries_returns_correct_results(
     entities, parameters, expected_count, expected_entities, db_session
 ):
     """
-    A test to check if the correct results are returned when using the geometry_reference parameter
+    Tests if the correct results are returned when using the geometry_reference parameter
     """
     # load data points into entity table
     # add datasets
@@ -242,36 +236,3 @@ def test_get_entity_search_with_point_filter(db_session):
     print(result)
     assert result["count"] == 1
     assert all(e.dataset == "flood-risk-zone" for e in result["entities"])
-
-
-def test_get_entity_changes(db_session):
-    """
-    Tests the changes made to `get_entity_search()` have an impact on performance.
-
-    To run this test in isolation and see the difference, run:
-
-    > pytest tests/integration/data_access/test_entity_queries.py::test_get_entity_changes -s
-
-    The `-s` argument allows the output of print() statements.
-    """
-
-    def benchmark(func, session, params, runs=10):
-        times = []
-
-        for _ in range(runs):
-            start = time.perf_counter()
-            func(session, params)
-            times.append(time.perf_counter() - start)
-        return {"min": min(times), "max": max(times), "avg": sum(times) / len(times)}
-
-    # Run comparison
-    params = {"dataset": ["conservation-area"], "limit": 100}
-    v1_results = benchmark(get_entity_search_OLD_VERSION, db_session, params)
-    v2_results = benchmark(get_entity_search, db_session, params)
-
-    print(f"V1: {v1_results}")
-    print(f"V2: {v2_results}")
-    print(f"Speedup: {v1_results['avg'] / v2_results['avg']:.2f}x")
-
-    # Assert new version is not slower than old version (allow 10% tolerance)
-    assert v2_results["avg"] <= v1_results["avg"] * 1.1

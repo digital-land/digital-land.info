@@ -68,8 +68,8 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     return [entity_factory(e) for e in entities]
 
 
-# TODO: move this function into test_entity_queries.py and use it as a
-# comparisson helper/benchmark
+# TODO: this function will be moved in the next PR into a performance
+# test folder and use it as a comparisson helper/benchmark
 def get_entity_search_OLD_VERSION(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
