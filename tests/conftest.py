@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 import pytest
 import alembic
+from unittest.mock import patch
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from alembic.config import Config
@@ -174,15 +175,15 @@ def test_data_old_entities(
 
     old_entity_redirect = [
         OldEntityOrm(
-            old_entity=entity_models[0],
-            new_entity=entity_models[0],
+            old_entity_id=999001,  # Use unique IDs that don't conflict with existing entities
+            new_entity_id=entity_models[0].entity,
             status=301,
             dataset="greenspace",
         )
     ]
     db_session.add(old_entity_redirect[0])
     old_entity_gone = [
-        OldEntityOrm(old_entity=entity_models[1], status=410, dataset="greenspace")
+        OldEntityOrm(old_entity_id=999002, status=410, dataset="greenspace")
     ]
     db_session.add(old_entity_gone[0])
     db_session.commit()
@@ -227,7 +228,13 @@ def client(app: FastAPI, db_session: Session) -> TestClient:
     # Disable Redis caching when running integration tests
     # see line 372 in this file for more info
     app.dependency_overrides[get_redis] = lambda: None
-    return TestClient(app)
+
+    # Patch get_context_session to use the test database session
+    with patch(
+        "application.data_access.entity_queries.get_context_session",
+        mock_get_context_session,
+    ):
+        yield TestClient(app)
 
 
 # TODO Can we remove this?
