@@ -1,6 +1,5 @@
 from typing import Generator, Dict, List, Union
 from contextlib import contextmanager
-from unittest.mock import patch
 
 import pytest
 import alembic
