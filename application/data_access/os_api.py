@@ -40,6 +40,7 @@ def search_postcode(query: str):
         response = requests.get(url, params=params)
         return response.json()
     except Exception:
+        logger.exception("search_postcode failed", extra={"query": query})
         return None
 
 
@@ -54,6 +55,7 @@ def search_uprn(query: str):
         response = requests.get(url, params=params)
         return response.json()
     except Exception:
+        logger.exception("search_uprn failed", extra={"query": query})
         return None
 
 
