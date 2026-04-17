@@ -206,7 +206,9 @@ def entity_attribute_sort_key(val, sort_order=ENTITY_ATTRIBUTE_ORDER):
 
 def log_slow_execution(threshold_seconds=1.0):
     """
-    Decorator that logs when a function execution time exceeds 1 second ( >1 seconds ).
+    Decorator that logs when a function's execution time exceeds `threshold_seconds`
+    (default: 1.0s). Exceptions raised by the wrapped function are logged at error
+    level (with `exc_info`) and re-raised.
     """
 
     def decorator(func):
