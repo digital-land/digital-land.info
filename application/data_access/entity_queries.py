@@ -69,7 +69,7 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
 
 
 # TODO: this function will be moved in the next PR into a performance
-# test folder and use it as a comparisson helper/benchmark
+# test folder and use it as a comparison helper/benchmark
 def get_entity_search_OLD_VERSION(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
@@ -101,7 +101,7 @@ def get_entity_search_OLD_VERSION(
     return {"params": params, "count": count, "entities": entities}
 
 
-@log_slow_execution(threshold_seconds=0.1)
+@log_slow_execution(threshold_seconds=1)
 def get_entity_search(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
