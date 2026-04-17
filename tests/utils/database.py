@@ -26,7 +26,7 @@ def add_base_entities_to_database():
     session.commit()
 
 
-# this function adds the base entities to the database
+# this function adds the base organisations to the database
 def add_base_organisations_to_database():
     session = next(get_session())
     for organisation in organisations:
