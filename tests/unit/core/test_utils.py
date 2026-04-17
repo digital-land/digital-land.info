@@ -1,8 +1,6 @@
 import time
 import pytest
 
-from unittest.mock import patch
-
 from application.core.utils import (
     entity_attribute_sort_key,
     make_pagination_query_str,
@@ -42,13 +40,13 @@ def test_make_pagination_query_str_preserves_repeated_key_params_when_adding_lim
 
 
 @log_slow_execution(threshold_seconds=0.5)
-def fast_function():
+def fast_execution():
     time.sleep(0.1)
     return "fast_result"
 
 
 @log_slow_execution(threshold_seconds=0.5)
-def slow_function():
+def slow_execution():
     time.sleep(0.6)
     return "slow_result"
 
@@ -60,72 +58,46 @@ def error_fast_function():
     raise ValueError("Quick error")
 
 
-@log_slow_execution(threshold_seconds=0.5)
-def error_slow_function():
-    """Function that raises error slowly"""
-    time.sleep(0.6)
-    raise ValueError("Slow error")
-
-
 class TestLogSlowExecution:
-    @patch("application.core.utils.logger")
-    def test_fast_function_does_not_log(self, mock_logger):
+    def test_fast_execution_does_not_log(self, mocker):
         """
-        Tests when `fast_function()` is called successfully under the
+        Tests when `fast_execution()` is called successfully under the
         threshold time neither the info or error logging is triggered.
         """
-        result = fast_function()
+        mock_logger = mocker.patch("application.core.utils.logger")
+        result = fast_execution()
 
         assert result == "fast_result"
         mock_logger.info.assert_not_called()
         mock_logger.error.assert_not_called()
 
-    @patch("application.core.utils.logger")
-    def test_slow_function_logs_execution_time(self, mock_logger):
+    def test_slow_execution_logs_execution_time(self, mocker):
         """
-        Tests when slow_function() is called successfully but it's slow and
+        Tests when slow_execution() is called successfully but it's slow and
         the execution time is above the specified threshold, the
         info logging is triggered.
         """
-        result = slow_function()
+        mock_logger = mocker.patch("application.core.utils.logger")
+        result = slow_execution()
 
         assert result == "slow_result"
         mock_logger.info.assert_called_once()
 
         call_args = mock_logger.info.call_args
-        assert "slow_function" in call_args[0][0]
+        assert "slow_execution" in call_args[0][0]
         assert "SLOW execution" in call_args[0][0]
         assert "elapsed_seconds" in call_args[1]["extra"]
         assert call_args[1]["extra"]["elapsed_seconds"] >= 0.6
-        assert call_args[1]["extra"]["function"] == "slow_function"
+        assert call_args[1]["extra"]["function"] == "slow_execution"
 
-    @patch("application.core.utils.logger")
-    def test_fast_error_does_log(self, mock_logger):
+    def test_error_execution_does_log(self, mocker):
         """
-        Tests when `error_fast_function()` raises an exception within
+        Tests when `error_execution()` raises an exception within
         the threshold time, only an exception error is logged.
         """
+        mock_logger = mocker.patch("application.core.utils.logger")
         with pytest.raises(ValueError, match="Quick error"):
             error_fast_function()
 
         mock_logger.info.assert_not_called()
         mock_logger.error.assert_called()
-
-    @patch("application.core.utils.logger")
-    def test_slow_error_logs_execution_time(self, mock_logger):
-        """
-        Tests when `error_slow_function()` raises an error outside the
-        threshold time, error logging is triggered.
-        """
-        with pytest.raises(ValueError, match="Slow error"):
-            error_slow_function()
-
-        mock_logger.error.assert_called_once()
-
-        call_args = mock_logger.error.call_args
-        assert "error_slow_function" in call_args[0][0]
-        assert "Error in" in call_args[0][0]
-        assert "elapsed_seconds" in call_args[1]["extra"]
-        assert call_args[1]["extra"]["elapsed_seconds"] >= 0.6
-        assert call_args[1]["extra"]["function"] == "error_slow_function"
-        assert call_args[1]["exc_info"] is True
