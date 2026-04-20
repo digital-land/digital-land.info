@@ -343,6 +343,7 @@ def add_middleware(app):
             environment=settings.ENVIRONMENT,
             traces_sample_rate=settings.SENTRY_TRACE_SAMPLE_RATE,
             release=settings.RELEASE_TAG,
+            enable_logs=True,
         )
         app.add_middleware(SentryAsgiMiddleware)
 
