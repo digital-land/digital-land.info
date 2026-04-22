@@ -12,7 +12,7 @@ psycopg2
 alembic
 fastapi-utils
 Shapely
-sentry-sdk
+sentry-sdk>=2.35.0
 jsonpickle
 uritemplate
 beautifulsoup4

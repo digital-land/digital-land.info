@@ -39,6 +39,35 @@ from application.settings import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+# Currently our sentry is only logging ERROR event levels, this is also
+# known as The Breadcrumb Strategy (Recommended): When an error happens,
+# we open that specific error in Sentry and scroll down to the "Breadcrumbs"
+# section.
+#
+# There we can see all the INFO logs in the order they happened right before
+# the crash. This gives us context without cluttering our
+# inboxes/slack/sentry.
+#
+# However If we want to see INFO level logs as default we need to implement
+# the following code.
+#
+# On line 15 add the following import:
+# from sentry_sdk.integrations.logging import LoggingIntegration
+#
+# On line 42 add the following code:
+# sentry_logging = LoggingIntegration(
+#     level=logger.INFO,        # Default is INFO
+#     event_level=logger.INFO   # Default is ERROR
+# )
+#
+# Then update sentry_sdk initialization on line 370 to include
+# `integrations` option
+# sentry_sdk.init(
+#     dsn=SENTRY_DSN,
+#     environment="development",
+#     integrations=[sentry_logging],
+# )
+
 SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
 
 # Add markdown here
@@ -343,6 +372,7 @@ def add_middleware(app):
             environment=settings.ENVIRONMENT,
             traces_sample_rate=settings.SENTRY_TRACE_SAMPLE_RATE,
             release=settings.RELEASE_TAG,
+            enable_logs=True,
         )
         app.add_middleware(SentryAsgiMiddleware)
 
