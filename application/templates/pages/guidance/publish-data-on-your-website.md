@@ -1,15 +1,43 @@
-Before you provide your data, you must publish your data on a webpage on your official planning authority website, usually ending in gov.uk. Your local planning authority will always be the source of truth about your data.
+Publish your data
+--------------------
 
-Your data must be on a URL the public can access. We collect the latest data from there every day. We call this the ‘endpoint URL’.
+You must publish your data:
 
-You must link to your endpoint URL from your webpage URL.
+- on a webpage on your official planning authority's website - which usually ends in **gov.uk**
+- in a format that is clear and easy to understand
 
-Endpoints typically fall into 1 of the following 2 categories:
+Provide your data
+--------------------
 
-- a file hosted on your web server — these will usually be URLs which end in something like .json or .csv
-- a live feed of the data from an API — these are usually hosted by your GIS (Geographic Information System) software or open data platform
+After you publish, you should provide your data to the Planning Data Platform.
 
-Whenever your data changes, update it in the endpoint URL. Your endpoint URL must remain the same, do not change it when you make updates.
+You need to submit:
+
+- your full name
+- your work email address
+- the URL where anyone can download your data - called your **endpoint URL**
+- the URL for your **gov.uk** website where you can view or select a link to view the data - called your **source webpage URL**
+
+Each URL must be:
+
+- accessible to the public
+- hosted on a server that does not block access due to set permissions
+
+We automatically collect the latest data from your endpoint URL every day, you do not need to provide anything again.
+
+Your local planning authority is the source of truth for the data.
+
+Hosting your data
+--------------------
+
+Endpoints are usually either a:
+
+- file hosted on your web server - like URLs that end in **.json** or **.csv**
+- live data feed from an API - hosted by your Geographic Information System (GIS) software or open data platform
+
+*Help with providing data using an ArcGIS link*
+
+You only need to make changes to your dataat your endpoint URL. Do not change your endpoint URL when you make updates.
 
 Create your webpage
 --------------------
