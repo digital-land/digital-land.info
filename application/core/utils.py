@@ -46,7 +46,7 @@ def model_dumps(obj, *args, **kwargs):
     if isinstance(obj, date):
         return json.dumps(obj.__str__(), *args, **kwargs)
     else:
-        logging.warning(f"model_dumps: obj is of type {type(obj)}")
+        logging.debug(f"model_dumps: obj is of type {type(obj)}")
         return json.dumps(obj, *args, default=date_encoder, **kwargs)
 
 
