@@ -55,7 +55,7 @@ Endpoints are usually either a:
   </div>
 </details>
 
-You only need to make changes to your dataat your endpoint URL. Do not change your endpoint URL when you make updates.
+You only need to make changes to your data at your endpoint URL. Do not change your endpoint URL when you make updates.
 
 Create your webpage
 --------------------
