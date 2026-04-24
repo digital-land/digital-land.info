@@ -38,7 +38,7 @@ Endpoints are usually either a:
 <details class="govuk-details">
   <summary class="govuk-details__summary">
     <span class="govuk-details__summary-text">
-      Help with providing data using an ArcGIS link
+      Help with providing data using an ArcGIS data layer
     </span>
   </summary>
   <div class="govuk-details__text">
