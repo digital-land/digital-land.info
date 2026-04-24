@@ -35,7 +35,25 @@ Endpoints are usually either a:
 - file hosted on your web server - like URLs that end in **.json** or **.csv**
 - live data feed from an API - hosted by your Geographic Information System (GIS) software or open data platform
 
-*Help with providing data using an ArcGIS link*
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Help with providing data using an ArcGIS link
+    </span>
+  </summary>
+  <div class="govuk-details__text">
+    <p class="govuk-body">An ArcGIS data layer URL usually looks like this:</p>
+    <p class="govuk-body"><code>https://maps.example.gov.uk/arcgis/rest/services/Planning/LocalPlans/FeatureServer/0</code></p>
+    <p class="govuk-body">This URL is made up of:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>the organisation's website (maps.example.gov.uk)</li>
+      <li>the ArcGIS REST services path (/arcgis/rest/services)</li>
+      <li>the name of the service (Planning/LocalPlans)</li>
+      <li>the type of service (for example FeatureServer or MapServer)</li>
+      <li>a number that identifies the layer within the service (/0)</li>
+    </ul>
+  </div>
+</details>
 
 You only need to make changes to your dataat your endpoint URL. Do not change your endpoint URL when you make updates.
 
