@@ -43,8 +43,7 @@ def geometry_reference_count(v):
 
 def make_param_str_filter(exclude_value, exclude_param, all):
     filtered_params = [
-        (param[0], param[1])
-        for param in all
+        (param[0], param[1]) for param in all
         if exclude_param != param[0] or exclude_value != param[1]
     ]
     return urlencode(filtered_params)
