@@ -480,7 +480,7 @@ def get_linked_entities(
         .filter(EntityOrm.json.contains({linked_dataset: reference}))
     )
 
-    if dataset in ["local-plan-timetable"]:
+    if dataset in ["development-plan-timetable"]:
         query = query.order_by(cast(EntityOrm.json["event-date"].astext, Date).desc())
 
     entities = query.all()
