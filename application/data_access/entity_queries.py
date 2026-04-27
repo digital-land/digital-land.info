@@ -5,6 +5,7 @@ from sqlalchemy import select, func, or_, and_, tuple_, union_all
 from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
+from application.core.utils import log_slow_execution
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
     get_date_to_filter,
@@ -67,13 +68,14 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     return [entity_factory(e) for e in entities]
 
 
-def get_entity_search(
+# TODO: this function will be moved in the next PR into a performance
+# test folder and use it as a comparison helper/benchmark
+def get_entity_search_OLD_VERSION(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
     params = normalised_params(parameters)
     count: int
     entities: list[EntityModel]
-    # get count
     subquery = session.query(EntityOrm.entity)
     subquery = _apply_base_filters(subquery, params)
     subquery = _apply_date_filters(subquery, params)
@@ -96,6 +98,38 @@ def get_entity_search(
 
     entities = query.all()
     entities = [entity_factory(entity_orm) for entity_orm in entities]
+    return {"params": params, "count": count, "entities": entities}
+
+
+@log_slow_execution(threshold_seconds=1)
+def get_entity_search(
+    session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
+):
+    params = normalised_params(parameters)
+
+    # Build filtered query once
+    basequery = session.query(EntityOrm)
+    basequery = _apply_base_filters(basequery, params)
+    basequery = _apply_date_filters(basequery, params)
+    basequery = _apply_location_filters(session, basequery, params)
+    basequery = _apply_period_option_filter(basequery, params)
+
+    # Create a `subquery()` that selects only the "entity" column from the
+    # existing query (basequery)
+    #
+    # `with_entities()` modifies the SELECT clause fo the query to return
+    # only the "entity" column from the "EntityOrm" model
+    count_subquery = basequery.with_entities(EntityOrm.entity).subquery()
+
+    # Database 1st call
+    count = session.query(func.count()).select_from(count_subquery).scalar()
+
+    # Pagination and field filters
+    query = _apply_limit_and_pagination_filters(basequery, params)
+    query = _apply_field_filters(query, params, extension)
+
+    # Database 2nd call
+    entities = [entity_factory(entity_orm) for entity_orm in query.all()]
     return {"params": params, "count": count, "entities": entities}
 
 

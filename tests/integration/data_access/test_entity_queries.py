@@ -4,9 +4,7 @@ import pytest
 from application.db.models import EntityOrm
 from application.data_access.entity_queries import get_entity_search
 from sqlalchemy.orm import Query
-from application.data_access.entity_queries import (
-    _apply_location_filters,
-)
+from application.data_access.entity_queries import _apply_location_filters
 
 # set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -80,7 +78,7 @@ def test_get_entity_search_geometry_reference_queries_returns_correct_results(
     entities, parameters, expected_count, expected_entities, db_session
 ):
     """
-    A test to check if the correct results are returned when using the geometry_reference parameter
+    Tests if the correct results are returned when using the geometry_reference parameter
     """
     # load data points into entity table
     # add datasets

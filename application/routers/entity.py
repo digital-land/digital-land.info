@@ -409,7 +409,6 @@ def search_entities(
     # Find an area - Postcode / UPRN search
     search_query = search_query.strip()
     search_result = find_an_area(search_query) if search_query else None
-
     find_an_area_latitude = None
     find_an_area_longitude = None
 
@@ -432,6 +431,7 @@ def search_entities(
 
     # Run entity query
     data = get_entity_search(session, query_params, extension)
+
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
@@ -507,6 +507,7 @@ def search_entities(
             entity.dataset_name = dataset_name_lookup[ref_name]
         else:
             entity.dataset_name = ref_name
+
     return templates.TemplateResponse(
         "search.html",
         {
