@@ -37,7 +37,7 @@
     {{ govukButton({
       "text": "Search"
     }) }}
-    <a href="{{ fact_search_form_url }}?dataset={{query_params['dataset']}}&entity={{query_params['entity']}}" class="govuk-link">Clear</a>
+    <a href="{{ fact_search_form_url }}?{{ {'dataset': query_params['dataset'], 'entity': query_params['entity']}|make_url_param_str }}" class="govuk-link">Clear</a>
   </div>
 
 </form>

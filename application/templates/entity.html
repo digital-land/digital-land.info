@@ -105,7 +105,7 @@
                 </td>
                 {% if field not in ['curie', 'dataset', 'organisation-entity', 'typology'] %}
                   <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
-                    <a href="/fact?dataset={{ row['dataset'] }}&entity={{ row['entity'] }}&field={{ field }}" class="govuk-link">Facts</a>
+                    <a href="/fact?{{ {'dataset': row['dataset'], 'entity': row['entity'], 'field': field}|make_url_param_str }}" class="govuk-link">Facts</a>
                   </td>
                     {% else %}
                       <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"><span class='govuk-visually-hidden'>no fact link</span></td>
