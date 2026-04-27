@@ -177,18 +177,20 @@ def test_make_param_str_filter_no_exclusions():
 
 def test_make_param_str_filter_prevents_malformed_urls():
     """Tests that make_param_str_filter prevents creation of malformed URLs like &amp;entity=."""
-    params = [("dataset", "planning"), ("entity", "11500041"), ("field", "entry-date")]
+    params = [("dataset", "planning"), ("entity", "115;00041"), ("field", "entry-date")]
     exclude_value = "nonexistent"
     exclude_param = "nonexistent"
 
     result = make_param_str_filter(exclude_value, exclude_param, params)
 
+    assert "115%3B00041" in result  # Semicolon is enconded
+    assert ";" not in result  # Raw semicoln does not leak through
     assert "amp;" not in result  # No amp; prefixes
     assert "&amp;" not in result  # No HTML-encoded ampersands
     assert (
         "%3B" not in result or ";" not in result
     )  # Either encoded or unencoded, not mixed
 
-    expected_parts = ["dataset=planning", "entity=11500041", "field=entry-date"]
+    expected_parts = ["dataset=planning", "entity=115%3B00041", "field=entry-date"]
     for part in expected_parts:
         assert part in result
