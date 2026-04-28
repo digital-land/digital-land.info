@@ -20,7 +20,7 @@ quality_test_data = [
     ),
     (
         {"quality": "trustworthy", "name": "Historic England"},
-        "Trustworthy: We have authorititive data linked to material information",
+        "Trustworthy: We have authoritative data linked to material information",
     ),
     (
         {"quality": "usable", "name": "Green space"},
@@ -126,20 +126,20 @@ class TestLogSlowExecution:
 
 class TestEntityQualityMapsToDescription:
     @pytest.mark.parametrize("entity_dict, expected", quality_test_data)
-    def test_entity_quality_maps_to_description_successfully(entity_dict, expected):
+    def test_entity_quality_maps_to_description_successfully(
+        self, entity_dict, expected
+    ):
         """Tests mapping the quality field value to the right description."""
         result = map_entity_quality_to_description(entity_dict)
         assert result["quality"] == expected
 
-
-    def test_entity_quality_maps_to_description_with_empty_quality():
+    def test_entity_quality_maps_to_description_with_empty_quality(self):
         """Tests function when the quality value is `None`."""
         entity_dict = {"quality": None, "name": "Test Entity"}
         result = map_entity_quality_to_description(entity_dict)
         assert result["quality"] == "We have no data"
 
-
-    def test_entity_quality_maps_to_description_with_unknown_quality():
+    def test_entity_quality_maps_to_description_with_unknown_quality(self):
         """Tests mapping fails, falls back gracefully."""
         entity_dict = {"quality": "special quality", "name": "Test Entity"}
         result = map_entity_quality_to_description(entity_dict)
