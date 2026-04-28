@@ -5,7 +5,28 @@ from application.core.utils import (
     entity_attribute_sort_key,
     make_pagination_query_str,
     log_slow_execution,
+    map_entity_quality_to_description,
 )
+
+
+quality_test_data = [
+    (
+        {"quality": "authoritative", "name": "Brownfield site"},
+        "Authoritative: We have some data from the authoritative source",
+    ),
+    (
+        {"quality": "some", "name": "Historical monument"},
+        "Some: We have some data from an alternative source",
+    ),
+    (
+        {"quality": "trustworthy", "name": "Historic England"},
+        "Trustworthy: We have authoritative data linked to material information",
+    ),
+    (
+        {"quality": "usable", "name": "Green space"},
+        "Usable: We have data from the authoritative source",
+    ),
+]
 
 
 def test_entity_attribute_sort_key_only_excepts_string():
@@ -101,3 +122,27 @@ class TestLogSlowExecution:
 
         mock_logger.info.assert_not_called()
         mock_logger.error.assert_called()
+
+
+class TestEntityQualityMapsToDescription:
+    @pytest.mark.parametrize("entity_dict, expected", quality_test_data)
+    def test_entity_quality_maps_to_description_successfully(
+        self, entity_dict, expected
+    ):
+        """Tests mapping the quality field value to the right description."""
+        result = map_entity_quality_to_description(entity_dict)
+        assert result["quality"] == expected
+
+    def test_entity_quality_maps_to_description_with_empty_quality(self):
+        """Tests function when the quality value is `None`."""
+        entity_dict = {"quality": None, "name": "Test Entity"}
+        result = map_entity_quality_to_description(entity_dict)
+        assert result["quality"] == "We have no data"
+
+    def test_entity_quality_maps_to_description_with_unknown_quality(self):
+        """Tests mapping fails, falls back gracefully."""
+        entity_dict = {"quality": "special quality", "name": "Test Entity"}
+        result = map_entity_quality_to_description(entity_dict)
+
+        # Should title case the quality even if description not found
+        assert result["quality"] == "Special quality"

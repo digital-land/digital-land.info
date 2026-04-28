@@ -39,6 +39,7 @@ from application.core.utils import (
     DigitalLandJSONResponse,
     to_snake,
     entity_attribute_sort_key,
+    map_entity_quality_to_description,
     make_links,
 )
 from application.exceptions import (
@@ -185,13 +186,16 @@ def handle_entity_response(
         key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
     }
 
-    # CURIE field composed by the Prefix:Reference fields
+    # CURIE field composed by the prefix and reference fields
     prefix = e_dict.get("prefix")
     reference = e_dict.get("reference")
     curie = f"{prefix}:{reference}" if prefix and reference else None
 
     # Add CURIE field to dict and make it first
     e_dict_sorted = {"curie": curie, **e_dict_sorted}
+
+    # Map and re-format the quality value to include a description
+    e_dict_sorted = map_entity_quality_to_description(e_dict_sorted)
 
     # need to remove any dependency on facts this should be changed when fields added to postgis
     fields = None
@@ -252,6 +256,7 @@ def handle_entity_response(
         {
             "request": request,
             "row": e_dict_sorted,
+            "json_row": e_dict,
             "local_plan_geojson": local_plan_boundary_geojson,
             "linked_entities": linked_entities,
             "local_plans": local_plans,
