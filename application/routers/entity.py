@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode
 
 from dataclasses import asdict
 from typing import Optional, List, Set, Dict, Union
@@ -531,12 +532,7 @@ def search_entities(
                 if filter_name != "limit" and values is not None
             ],
             "url_query_params": {
-                "str": ("&").join(
-                    [
-                        "{}={}".format(param[0], param[1])
-                        for param in request.query_params._list
-                    ]
-                ),
+                "str": urlencode(request.query_params._list),
                 "list": request.query_params._list,
             },
             "next_url": next_url,

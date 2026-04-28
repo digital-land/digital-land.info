@@ -3,6 +3,7 @@ from application.core.filters import (
     remove_param_from_param_dict,
     remove_values_from_param_dict,
     make_url_param_str,
+    make_param_str_filter,
     cacheBust,
     append_uri_param,
     hash_file,
@@ -134,3 +135,62 @@ def test_make_url_param_str_all_arguements():
     expected = "field=typology&test=test_value_1&test=test_value_2&test=test_value_3"
     result = make_url_param_str(input_param_dict, exclude_values, exclude_params)
     assert result == expected
+
+
+def test_make_param_str_filter_url_encoding():
+    """Tests that special characters are properly URL encoded."""
+    params = [
+        ("dataset", "planning-application"),
+        ("entity", "123;456"),
+        ("field", "test&value"),
+    ]
+    exclude_value = "nonexistent"
+    exclude_param = "nonexistent"
+
+    result = make_param_str_filter(exclude_value, exclude_param, params)
+
+    assert "dataset=planning-application" in result
+    assert "entity=123%3B456" in result  # ; becomes %3B
+    assert "field=test%26value" in result  # & becomes %26
+
+
+def test_make_param_str_filter_with_empty_params():
+    """Tests passing empty parameter list to `make_param_str_filter` returns empty string."""
+    params = []
+    exclude_value = "test"
+    exclude_param = "test"
+
+    result = make_param_str_filter(exclude_value, exclude_param, params)
+    assert result == ""
+
+
+def test_make_param_str_filter_no_exclusions():
+    """Tests no parameters match the exclusion criteria."""
+    params = [("dataset", "test"), ("entity", "123")]
+    exclude_value = "nonexistent"
+    exclude_param = "nonexistent"
+
+    result = make_param_str_filter(exclude_value, exclude_param, params)
+    assert "dataset=test" in result
+    assert "entity=123" in result
+
+
+def test_make_param_str_filter_prevents_malformed_urls():
+    """Tests that make_param_str_filter prevents creation of malformed URLs like &amp;entity=."""
+    params = [("dataset", "planning"), ("entity", "115;00041"), ("field", "entry-date")]
+    exclude_value = "nonexistent"
+    exclude_param = "nonexistent"
+
+    result = make_param_str_filter(exclude_value, exclude_param, params)
+
+    assert "115%3B00041" in result  # Semicolon is enconded
+    assert ";" not in result  # Raw semicoln does not leak through
+    assert "amp;" not in result  # No amp; prefixes
+    assert "&amp;" not in result  # No HTML-encoded ampersands
+    assert (
+        "%3B" not in result or ";" not in result
+    )  # Either encoded or unencoded, not mixed
+
+    expected_parts = ["dataset=planning", "entity=115%3B00041", "field=entry-date"]
+    for part in expected_parts:
+        assert part in result
