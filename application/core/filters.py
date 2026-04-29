@@ -352,3 +352,16 @@ def format_date(date_str):
     # Format the date with the ordinal suffix
     formatted_date = f"{day}{suffix} {date_obj.strftime('%B %Y')}"
     return formatted_date
+
+
+def is_past_date(date_obj):
+    """
+    Checks if the date obj passed as an argument is in the past.
+    """
+    if not date_obj:
+        return False
+
+    try:
+        return date_obj < datetime.now().date()
+    except (ValueError, TypeError):
+        return False

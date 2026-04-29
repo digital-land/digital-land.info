@@ -15,10 +15,6 @@
   {% endif %}
 {% endif %}
 
-
-
-
-
 {% if row['name'] %}
   {%- set row_name = row['name'] %}
 {%- elif row['reference'] %}
@@ -66,6 +62,22 @@
 
 {%- block content %}
   <div class="govuk-grid-row">
+
+    {% if row['end-date'] and row['end-date'] | is_past_date %}
+      <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+          <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            Important
+          </h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+          <p class="govuk-notification-banner__heading">
+            No longer in effect.
+          </p>
+        </div>
+      </div>
+    {% endif %}
+
     <div class="govuk-grid-column-full">
       <span class="govuk-caption-xl">{{ dataset.name }}</span>
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
