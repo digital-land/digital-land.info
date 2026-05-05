@@ -43,7 +43,7 @@ Endpoints are usually either a:
   </summary>
   <div class="govuk-details__text">
     <p class="govuk-body">An ArcGIS data layer URL usually looks like this:</p>
-    <p class="govuk-body"><code>https://maps.example.gov.uk/arcgis/rest/services/Planning/LocalPlans/FeatureServer/0</code></p>
+    <p class="govuk-body"><code style="word-break: break-all;">https://maps.example.gov.uk/arcgis/rest/services/Planning/LocalPlans/FeatureServer/0</code></p>
     <p class="govuk-body">This URL is made up of:</p>
     <ul class="govuk-list govuk-list--bullet">
       <li>the organisation's website (maps.example.gov.uk)</li>
