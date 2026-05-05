@@ -4,9 +4,7 @@ from typing import Optional, List
 from fastapi import Query, Header
 from pydantic import validator
 from pydantic.dataclasses import dataclass
-from sqlalchemy import text
 
-from application.db.session import get_context_session
 from application.exceptions import (
     InvalidGeometry,
 )
@@ -23,6 +21,8 @@ from application.search.validators import (
     validate_year_integer,
     validate_curies,
 )
+from shapely import wkt
+from shapely.geometry.base import BaseGeometry
 
 
 @dataclass
@@ -278,44 +278,24 @@ class QueryFilters:
         validate_curies
     )
 
-    # TODO Replace with a solution that doesn't need a database?
     @validator("geometry", pre=True)
     def validate_geometry(cls, geometry_values_list: Optional[list]):
         if not geometry_values_list:
             return geometry_values_list
-        with get_context_session() as session:
-            for geometry in geometry_values_list:
-                try:
-                    stmt = text("SELECT ST_GeomFromText(:geometry, 4326);")
-                    stmt = stmt.bindparams(geometry=geometry)
-                    result = session.execute(stmt).fetchone()
-
-                    if result[0] is None:
-                        raise InvalidGeometry(f"Invalid geometry {geometry}")
-
-                    # Validate Geometry
-                    validate_stmt = text(
-                        "SELECT ST_IsValid(ST_GeomFromText(:geometry, 4326));"
-                    )
-                    validate_stmt = validate_stmt.bindparams(geometry=geometry)
-                    is_valid_result = session.execute(validate_stmt).fetchone()
-
-                    if not is_valid_result[0]:
-                        raise InvalidGeometry(f"Invalid geometry {geometry}")
-
-                except Exception as e:
-                    # Check if the geometry passed has GeoJSON format instead
-                    geometry_str = str(geometry).strip()
-                    if geometry_str.startswith('{"type"') or geometry_str.startswith(
-                        '"{"type"'
-                    ):
-                        raise InvalidGeometry(
-                            f"Invalid geometry format. Expected WKT format "
-                            f"(e.g., 'POLYGON((...))'), but received GeoJSON format. "
-                            f"Please convert your GeoJSON to WKT format."
-                        )
-                    else:
-                        raise InvalidGeometry(f"Invalid geometry {geometry}")
+        for geometry in geometry_values_list:
+            try:
+                geom: BaseGeometry = wkt.loads(geometry)
+                if not geom.is_valid:
+                    raise InvalidGeometry(f"Invalid geometry {geometry}")
+            except InvalidGeometry:
+                raise
+            except Exception as err:
+                geometry_str = str(geometry).strip()
+                if '{"type"' in geometry_str:
+                    raise InvalidGeometry(
+                        "Expected WKT format, received GeoJSON instead"
+                    ) from err
+                raise InvalidGeometry(f"Invalid geometry {geometry}") from err
         return geometry_values_list
 
 
