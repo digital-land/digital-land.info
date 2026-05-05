@@ -220,6 +220,14 @@ wkt_params = [
     ("\t", 422),
 ]
 
+geojson_params = [
+    (
+        '{"type":"Polygon","coordinates":[[[-0.1459907,51.4805203],[-0.1429907,51.4805203],[-0.1429907,51.4835203],[-0.1459907,51.4835203],[-0.1459907,51.4805203]]]}',
+        422,
+    ),
+    ('"{"type":"Point","coordinates":[-0.33753991127014155,53.74458682618967]}"', 422),
+]
+
 
 @pytest.mark.parametrize("point, expected_status_code", wkt_params)
 def test_api_handles_invalid_wkt(point, expected_status_code, client, test_data):
@@ -229,6 +237,21 @@ def test_api_handles_invalid_wkt(point, expected_status_code, client, test_data)
     data = response.json()
     if data.get("detail") is not None:
         assert f"Invalid geometry {point}" == data["detail"][0]["msg"]
+
+
+@pytest.mark.parametrize("geojson_geometry, expected_status_code", geojson_params)
+def test_api_rejects_geojson_format_with_helpful_error(
+    geojson_geometry, expected_status_code, client, test_data
+):
+    params = {"geometry_relation": "intersects", "geometry": geojson_geometry}
+    response = client.get("/entity.geojson", params=params)
+    assert response.status_code == expected_status_code
+    data = response.json()
+    if data.get("detail") is not None:
+        error_msg = data["detail"][0]["msg"]
+        assert "Expected WKT format" in error_msg
+        assert "GeoJSON format" in error_msg
+        assert "Please convert" in error_msg
 
 
 def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_data):

@@ -280,18 +280,43 @@ class QueryFilters:
 
     # TODO Replace with a solution that doesn't need a database?
     @validator("geometry", pre=True)
-    def validate_geometry(cls, v: Optional[list]):
-        if not v:
-            return v
+    def validate_geometry(cls, geometry_values_list: Optional[list]):
+        if not geometry_values_list:
+            return geometry_values_list
         with get_context_session() as session:
-            for geometry in v:
+            for geometry in geometry_values_list:
                 try:
-                    stmt = text("SELECT ST_IsValid(:geometry);")
+                    stmt = text("SELECT ST_GeomFromText(:geometry, 4326);")
                     stmt = stmt.bindparams(geometry=geometry)
-                    session.execute(stmt)
-                except Exception:
-                    raise InvalidGeometry(f"Invalid geometry {geometry}")
-        return v
+                    result = session.execute(stmt).fetchone()
+
+                    if result[0] is None:
+                        raise InvalidGeometry(f"Invalid geometry {geometry}")
+
+                    # Validate Geometry
+                    validate_stmt = text(
+                        "SELECT ST_IsValid(ST_GeomFromText(:geometry, 4326));"
+                    )
+                    validate_stmt = validate_stmt.bindparams(geometry=geometry)
+                    is_valid_result = session.execute(validate_stmt).fetchone()
+
+                    if not is_valid_result[0]:
+                        raise InvalidGeometry(f"Invalid geometry {geometry}")
+
+                except Exception as e:
+                    # Check if the geometry passed has GeoJSON format instead
+                    geometry_str = str(geometry).strip()
+                    if geometry_str.startswith('{"type"') or geometry_str.startswith(
+                        '"{"type"'
+                    ):
+                        raise InvalidGeometry(
+                            f"Invalid geometry format. Expected WKT format "
+                            f"(e.g., 'POLYGON((...))'), but received GeoJSON format. "
+                            f"Please convert your GeoJSON to WKT format."
+                        )
+                    else:
+                        raise InvalidGeometry(f"Invalid geometry {geometry}")
+        return geometry_values_list
 
 
 @dataclass
