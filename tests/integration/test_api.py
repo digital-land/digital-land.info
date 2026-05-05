@@ -230,7 +230,7 @@ geojson_params = [
     ),
     (
         '"{"type":"Point","coordinates":[-0.33753991127014155,53.74458682618967]}"',
-        'Invalid geometry "{"type":"Point","coordinates":[-0.33753991127014155,53.74458682618967]}"',
+        "Expected WKT format, received GeoJSON instead",
         422,
     ),
 ]
