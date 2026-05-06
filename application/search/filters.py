@@ -4,9 +4,7 @@ from typing import Optional, List
 from fastapi import Query, Header
 from pydantic import validator
 from pydantic.dataclasses import dataclass
-from sqlalchemy import text
 
-from application.db.session import get_context_session
 from application.exceptions import (
     InvalidGeometry,
 )
@@ -23,6 +21,8 @@ from application.search.validators import (
     validate_year_integer,
     validate_curies,
 )
+from shapely import wkt
+from shapely.geometry.base import BaseGeometry
 
 
 @dataclass
@@ -278,20 +278,25 @@ class QueryFilters:
         validate_curies
     )
 
-    # TODO Replace with a solution that doesn't need a database?
     @validator("geometry", pre=True)
-    def validate_geometry(cls, v: Optional[list]):
-        if not v:
-            return v
-        with get_context_session() as session:
-            for geometry in v:
-                try:
-                    stmt = text("SELECT ST_IsValid(:geometry);")
-                    stmt = stmt.bindparams(geometry=geometry)
-                    session.execute(stmt)
-                except Exception:
+    def validate_geometry(cls, geometry_values_list: Optional[list]):
+        if not geometry_values_list:
+            return geometry_values_list
+        for geometry in geometry_values_list:
+            try:
+                geom: BaseGeometry = wkt.loads(geometry)
+                if not geom.is_valid:
                     raise InvalidGeometry(f"Invalid geometry {geometry}")
-        return v
+            except InvalidGeometry:
+                raise
+            except Exception as err:
+                geometry_str = str(geometry).strip()
+                if '{"type"' in geometry_str:
+                    raise InvalidGeometry(
+                        "Expected WKT format, received GeoJSON instead"
+                    ) from err
+                raise InvalidGeometry(f"Invalid geometry {geometry}") from err
+        return geometry_values_list
 
 
 @dataclass
