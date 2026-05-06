@@ -1,3 +1,6 @@
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 from application.core.filters import (
     _remove_value_from_list,
     remove_param_from_param_dict,
@@ -7,6 +10,7 @@ from application.core.filters import (
     cacheBust,
     append_uri_param,
     hash_file,
+    is_past_date,
 )
 
 
@@ -194,3 +198,24 @@ def test_make_param_str_filter_prevents_malformed_urls():
     expected_parts = ["dataset=planning", "entity=115%3B00041", "field=entry-date"]
     for part in expected_parts:
         assert part in result
+def test_is_past_date():
+    """
+    Tests `is_past_date()` only returns True when a date object passed
+    as an argument is in the past.
+    """
+    today = datetime.today()
+
+    # Assert with a end-date in the future
+    end_date_two_years_in_future = (today + relativedelta(years=2)).date()
+    result = is_past_date(end_date_two_years_in_future)
+    assert result is False
+
+    # Assert with today's date
+    end_date_is_today = today.date()
+    result = is_past_date(end_date_is_today)
+    assert result is False
+
+    # Assert with a end-date in the past
+    end_date_three_years_in_past = (today - relativedelta(years=3)).date()
+    result = is_past_date(end_date_three_years_in_past)
+    assert result is True

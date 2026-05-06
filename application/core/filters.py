@@ -43,7 +43,8 @@ def geometry_reference_count(v):
 
 def make_param_str_filter(exclude_value, exclude_param, all):
     filtered_params = [
-        (param[0], param[1]) for param in all
+        (param[0], param[1])
+        for param in all
         if exclude_param != param[0] or exclude_value != param[1]
     ]
     return urlencode(filtered_params)
@@ -352,3 +353,18 @@ def format_date(date_str):
     # Format the date with the ordinal suffix
     formatted_date = f"{day}{suffix} {date_obj.strftime('%B %Y')}"
     return formatted_date
+
+
+def is_past_date(date_obj):
+    """
+    Checks if the date passed as an argument is in the past.
+    """
+    if not date_obj:
+        return False
+
+    try:
+        if isinstance(date_obj, str):
+            date_obj = datetime.fromisoformat(date_obj).date()
+        return date_obj < datetime.now().date()
+    except (ValueError, TypeError):
+        return False

@@ -25,6 +25,7 @@ from application.core.filters import (
     get_entity_paint_options,
     get_os_oauth2_token,
     format_date,
+    is_past_date,
 )
 
 from application.core.utils import model_dumps
@@ -84,6 +85,7 @@ templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key
 templates.env.filters["get_entity_geometry"] = get_entity_geometry
 templates.env.filters["format_date"] = format_date
+templates.env.filters["is_past_date"] = is_past_date
 
 # TODO This is a filter which should only need one variable, apparently ther
 # eis something called context processors that we should use

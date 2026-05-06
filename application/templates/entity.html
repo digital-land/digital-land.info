@@ -15,10 +15,6 @@
   {% endif %}
 {% endif %}
 
-
-
-
-
 {% if row['name'] %}
   {%- set row_name = row['name'] %}
 {%- elif row['reference'] %}
@@ -66,6 +62,14 @@
 
 {%- block content %}
   <div class="govuk-grid-row">
+
+    {% if row['end-date'] and row['end-date'] | is_past_date %}
+      <div class="govuk-inset-text">
+        <p class="govuk-body govuk-!-font-weight-bold">This entity is out of date</p>
+        <p>You should only use this entity if you need to check data from the past.</p>
+      </div>
+    {% endif %}
+
     <div class="govuk-grid-column-full">
       <span class="govuk-caption-xl">{{ dataset.name }}</span>
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
