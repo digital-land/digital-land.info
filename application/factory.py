@@ -14,6 +14,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+from sentry_sdk.integrations.logging import LoggingIntegration
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import Response
@@ -42,34 +43,10 @@ from application.settings import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-# Currently our sentry is only logging ERROR event levels, this is also
-# known as The Breadcrumb Strategy (Recommended): When an error happens,
-# we open that specific error in Sentry and scroll down to the "Breadcrumbs"
-# section.
-#
-# There we can see all the INFO logs in the order they happened right before
-# the crash. This gives us context without cluttering our
-# inboxes/slack/sentry.
-#
-# However If we want to see INFO level logs as default we need to implement
-# the following code.
-#
-# On line 15 add the following import:
-# from sentry_sdk.integrations.logging import LoggingIntegration
-#
-# On line 42 add the following code:
-# sentry_logging = LoggingIntegration(
-#     level=logger.INFO,        # Default is INFO
-#     event_level=logger.INFO   # Default is ERROR
-# )
-#
-# Then update sentry_sdk initialization on line 370 to include
-# `integrations` option
-# sentry_sdk.init(
-#     dsn=SENTRY_DSN,
-#     environment="development",
-#     integrations=[sentry_logging],
-# )
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,  # Capture INFO logs as breadcrumbs only
+    event_level=logging.WARNING,  # Only send WARNING and above (ERROR, CRITICAL) to Sentry
+)
 
 SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
 
@@ -378,6 +355,7 @@ def add_middleware(app):
             traces_sample_rate=settings.SENTRY_TRACE_SAMPLE_RATE,
             release=settings.RELEASE_TAG,
             enable_logs=True,
+            integrations=[sentry_logging],
         )
         app.add_middleware(SentryAsgiMiddleware)
 
