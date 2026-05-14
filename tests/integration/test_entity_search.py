@@ -1,5 +1,5 @@
 import pytest
-from datetime import date
+from datetime import datetime
 
 from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
@@ -69,13 +69,16 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
     response = client.get("/entity.json?dataset=not-exists")
     assert response.status_code == 422
 
-    detail = response.json()["detail"][0]
-    expected_dataset_names = [d["dataset"] for d in test_data["datasets"]]
+    payload = response.json()
+    assert len(payload["detail"]) == 1
+    error = payload["detail"][0]
 
-    assert detail["loc"] == ["dataset"]
-    assert detail["type"] == "value_error.datasetvaluenotfound"
-    assert set(detail["ctx"]["dataset_names"]) == set(expected_dataset_names)
-    assert "Requested datasets do not exist: not-exists." in detail["msg"]
+    assert error["loc"] == ["dataset"]
+    assert error["type"] == "value_error.datasetvaluenotfound"
+    assert "Requested datasets do not exist: not-exists" in error["msg"]
+
+    expected_dataset_names = [dataset["dataset"] for dataset in test_data["datasets"]]
+    assert set(error["ctx"]["dataset_names"]) == set(expected_dataset_names)
 
 
 def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
@@ -83,13 +86,17 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
 ):
     response = client.get("/entity.json?dataset=not-exists&dataset=greenspace")
     assert response.status_code == 422
-    detail = response.json()["detail"][0]
-    expected_dataset_names = [d["dataset"] for d in test_data["datasets"]]
 
-    assert detail["loc"] == ["dataset"]
-    assert detail["type"] == "value_error.datasetvaluenotfound"
-    assert set(detail["ctx"]["dataset_names"]) == set(expected_dataset_names)
-    assert "Requested datasets do not exist: not-exists." in detail["msg"]
+    payload = response.json()
+    assert len(payload["detail"]) == 1
+    error = payload["detail"][0]
+
+    assert error["loc"] == ["dataset"]
+    assert error["type"] == "value_error.datasetvaluenotfound"
+    assert "Requested datasets do not exist: not-exists" in error["msg"]
+
+    expected_dataset_names = [dataset["dataset"] for dataset in test_data["datasets"]]
+    assert set(error["ctx"]["dataset_names"]) == set(expected_dataset_names)
 
 
 def test_search_entity_by_single_dataset_name(test_data, params, mocker, db_session):
@@ -277,11 +284,13 @@ def test_search_current_entries(test_data, params, db_session):
     # entries without an end date
     params["period"] = [PeriodOption.current]
 
-    # "current" means entities with no end_date OR an end_date in the future.
+    # Count entities that don't have an end_date (current entries)
+    today = datetime.now().date()
     current_entities = [
         e
         for e in test_data["entities"]
-        if not e.get("end_date") or e["end_date"] > date.today().isoformat()
+        if (not e.get("end_date"))
+        or datetime.fromisoformat(e["end_date"]).date() > today
     ]
     expected_entities_datasets = [entity["dataset"] for entity in current_entities]
 
