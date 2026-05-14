@@ -12,4 +12,4 @@ pytest-mock
 pytest-md-report
 pre-commit
 locust==2.34.0
-requests>=2.33.0
+requests==2.32.5
