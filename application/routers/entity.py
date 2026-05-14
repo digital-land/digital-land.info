@@ -1,4 +1,5 @@
 import logging
+import sentry_sdk
 from urllib.parse import urlencode
 
 from dataclasses import asdict
@@ -333,12 +334,21 @@ def get_entity(
     e, old_entity_status, new_entity_id = get_entity_query(entity)
 
     if old_entity_status == 410:
+        sentry_sdk.metrics.count(
+            "entity.gone", 1, tags={"dataset": e.dataset, "entity": str(entity)}
+        )
         return handle_gone_entity(request, entity, extension)
     elif old_entity_status == 301:
+        sentry_sdk.metrics.count(
+            "entity.moved",
+            1,
+            tags={"entity": str(entity), "new_entity": str(new_entity_id)},
+        )
         return handle_moved_entity(entity, new_entity_id, extension)
     elif e is not None:
         return handle_entity_response(request, e, extension, session)
     else:
+        sentry_sdk.metrics.count("entity.not_found", 1, tags={"entity": str(entity)})
         raise HTTPException(status_code=404, detail="entity not found")
 
 
