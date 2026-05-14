@@ -1,4 +1,5 @@
 import logging
+import sentry_sdk
 from typing import Optional
 
 from application.search.filters import DatasetQueryFilters
@@ -154,6 +155,12 @@ def get_dataset(
             ]
         else:
             categories = None
+
+        sentry_sdk.metrics.count(
+            "endpoint.dataset.get",
+            1,
+            tags={"dataset": dataset, "has_entities": entity_count > 0},
+        )
 
         return templates.TemplateResponse(
             "dataset.html",
