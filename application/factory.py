@@ -44,8 +44,9 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 sentry_logging = LoggingIntegration(
+    sentry_logs_level=logging.WARNING,
     level=logging.INFO,  # Capture INFO logs as breadcrumbs only
-    event_level=logging.WARNING,  # Only send WARNING and above (ERROR, CRITICAL) to Sentry
+    event_level=logging.ERROR,  # Only send ERROR and above (CRITICAL) to Sentry
 )
 
 SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
