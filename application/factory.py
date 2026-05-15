@@ -43,6 +43,10 @@ from application.settings import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+# TODO: We should get the logging levels from environment variables so that
+# if we need to change them for testing reasons, or if we want to have
+# different environments with different levels we don't need to change
+# the code all the time
 sentry_logging = LoggingIntegration(
     sentry_logs_level=logging.WARNING,
     level=logging.INFO,  # Capture INFO logs as breadcrumbs only
