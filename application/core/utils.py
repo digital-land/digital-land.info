@@ -3,6 +3,7 @@ import json
 import time
 import typing
 import urllib
+import sentry_sdk
 from typing import List
 import logging
 
@@ -240,6 +241,19 @@ def log_slow_execution(threshold_seconds=1.0):
                         "function": func.__name__,
                     },
                     exc_info=True,
+                )
+                sentry_sdk.metrics.count(
+                    "function.exception",
+                    1000,
+                    attributes={
+                        "function": func.__name__,
+                        "module": func.__module__,
+                        "exception_type": type(e).__name__,
+                        "elapsed_seconds": round(elapsed_time, 2),
+                        "threshold_seconds": threshold_seconds,
+                        "args_count": len(args),
+                        "kwargs_keys": ",".join(sorted(kwargs.keys())),
+                    },
                 )
                 raise
 
