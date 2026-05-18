@@ -15,13 +15,15 @@ services:
     env_file: ./.env.dev.docker
     environment:
       DATASETTE_URL: https://datasette.development.planning.data.gov.uk
+      DATASETTE_TILES_URL: https://datasette-tiles.development.planning.data.gov.uk
+      TILES_URL: https://tiles.development.planning.data.gov.uk
       DATA_FILE_URL: https://files.development.planning.data.gov.uk
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_SECURE: false
     healthcheck:
       test: curl -v -i -f http://localhost:8000
-      interval: 1s
+      interval: ${WEB_HEALTHCHECK_INTERVAL:-5s}
       timeout: 3s
       retries: 60
 
