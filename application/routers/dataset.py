@@ -184,15 +184,6 @@ def get_dataset(
         else:
             categories = None
 
-        sentry_sdk.metrics.count(
-            "endpoint.dataset.get",
-            1,
-            attributes={
-                "dataset": dataset,
-                "has_entities": (entity_count[1] if entity_count else 0) > 0,
-            },
-        )
-
         return templates.TemplateResponse(
             "dataset.html",
             {

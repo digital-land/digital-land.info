@@ -242,17 +242,13 @@ def log_slow_execution(threshold_seconds=1.0):
                     },
                     exc_info=True,
                 )
+
                 sentry_sdk.metrics.count(
                     "function.exception",
-                    1000,
+                    1,
                     attributes={
                         "function": func.__name__,
-                        "module": func.__module__,
                         "exception_type": type(e).__name__,
-                        "elapsed_seconds": round(elapsed_time, 2),
-                        "threshold_seconds": threshold_seconds,
-                        "args_count": len(args),
-                        "kwargs_keys": ",".join(sorted(kwargs.keys())),
                     },
                 )
                 raise
