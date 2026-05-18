@@ -1,10 +1,12 @@
 import logging
+import sentry_sdk
 from typing import Optional
 
 from application.search.filters import DatasetQueryFilters
 from fastapi import APIRouter, Request, HTTPException, Path, Depends
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from redis import Redis
 
 from application.data_access.digital_land_queries import (
@@ -147,7 +149,34 @@ def get_dataset(
         # for categoric datasets provide list of categories
         if _dataset.typology == "category":
             entity_query_params = {"dataset": [dataset]}
-            categories = get_entity_search(session, entity_query_params)["entities"]
+            try:
+                categories = get_entity_search(session, entity_query_params)["entities"]
+            except SQLAlchemyError as e:
+                extension_tag = extension.value if extension is not None else "html"
+                error_tag = (
+                    "ssl_syscall_eof"
+                    if "SSL SYSCALL error: EOF detected" in str(e)
+                    else "db_error"
+                )
+
+                sentry_sdk.metrics.count(
+                    "entity.search.error",
+                    1,
+                    attributes={
+                        "error": error_tag,
+                        "extension": extension_tag,
+                        "dataset": dataset,
+                    },
+                )
+
+                logger.exception(
+                    "Error in get_entity_search",
+                    extra={
+                        "extension": extension_tag,
+                        "dataset_filters": [dataset],
+                    },
+                )
+                raise
             categories = [
                 category.dict(by_alias=True, exclude={"geojson"})
                 for category in categories

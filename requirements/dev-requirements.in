@@ -2,7 +2,7 @@
 pytest
 flake8
 pre-commit
-playwright
+playwright==1.40.0
 pytest-playwright
 axe-playwright-python
 black>=22.3.0
@@ -12,3 +12,4 @@ pytest-mock
 pytest-md-report
 pre-commit
 locust==2.34.0
+requests==2.32.5

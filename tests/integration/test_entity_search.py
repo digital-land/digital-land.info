@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 
 from application.core.models import EntityModel
 from application.data_access.entity_queries import get_entity_search
@@ -68,36 +69,16 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
     response = client.get("/entity.json?dataset=not-exists")
     assert response.status_code == 422
 
-    # TODO: We need to refactor some of these tests so that the
-    # dataset data is not hardcoded, otherwise it becomes quite
-    # brittle if a test is added, and time consuming to maintain
-    assert response.json() == {
-        "detail": [
-            {
-                "ctx": {
-                    "dataset_names": [
-                        "greenspace",
-                        "forest",
-                        "brownfield-site",
-                        "historical-monument",
-                        "tree",
-                        "conservation-area",
-                        "planning-application",
-                        "local-planning-authority",
-                        "local-authority",
-                        "article-4-direction-area",
-                    ]
-                },
-                "loc": ["dataset"],
-                "msg": "Requested datasets do not exist: not-exists. Valid dataset "
-                "names: "
-                "greenspace,forest,brownfield-site,historical-monument,tree,"
-                "conservation-area,planning-application,local-planning-authority,"
-                "local-authority,article-4-direction-area",
-                "type": "value_error.datasetvaluenotfound",
-            }
-        ]
-    }
+    payload = response.json()
+    assert len(payload["detail"]) == 1
+    error = payload["detail"][0]
+
+    assert error["loc"] == ["dataset"]
+    assert error["type"] == "value_error.datasetvaluenotfound"
+    assert "Requested datasets do not exist: not-exists" in error["msg"]
+
+    expected_dataset_names = [dataset["dataset"] for dataset in test_data["datasets"]]
+    assert set(error["ctx"]["dataset_names"]) == set(expected_dataset_names)
 
 
 def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
@@ -105,33 +86,17 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
 ):
     response = client.get("/entity.json?dataset=not-exists&dataset=greenspace")
     assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "ctx": {
-                    "dataset_names": [
-                        "greenspace",
-                        "forest",
-                        "brownfield-site",
-                        "historical-monument",
-                        "tree",
-                        "conservation-area",
-                        "planning-application",
-                        "local-planning-authority",
-                        "local-authority",
-                        "article-4-direction-area",
-                    ]
-                },
-                "loc": ["dataset"],
-                "msg": "Requested datasets do not exist: not-exists. Valid "
-                "dataset names: "
-                "greenspace,forest,brownfield-site,historical-monument,tree,"
-                "conservation-area,planning-application,local-planning-authority,"
-                "local-authority,article-4-direction-area",
-                "type": "value_error.datasetvaluenotfound",
-            }
-        ]
-    }
+
+    payload = response.json()
+    assert len(payload["detail"]) == 1
+    error = payload["detail"][0]
+
+    assert error["loc"] == ["dataset"]
+    assert error["type"] == "value_error.datasetvaluenotfound"
+    assert "Requested datasets do not exist: not-exists" in error["msg"]
+
+    expected_dataset_names = [dataset["dataset"] for dataset in test_data["datasets"]]
+    assert set(error["ctx"]["dataset_names"]) == set(expected_dataset_names)
 
 
 def test_search_entity_by_single_dataset_name(test_data, params, mocker, db_session):
@@ -320,7 +285,13 @@ def test_search_current_entries(test_data, params, db_session):
     params["period"] = [PeriodOption.current]
 
     # Count entities that don't have an end_date (current entries)
-    current_entities = [e for e in test_data["entities"] if not e.get("end_date")]
+    today = datetime.now().date()
+    current_entities = [
+        e
+        for e in test_data["entities"]
+        if (not e.get("end_date"))
+        or datetime.fromisoformat(e["end_date"]).date() > today
+    ]
     expected_entities_datasets = [entity["dataset"] for entity in current_entities]
 
     result = get_entity_search(db_session, params)
