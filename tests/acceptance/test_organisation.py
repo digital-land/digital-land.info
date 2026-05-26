@@ -10,7 +10,7 @@ def test_organisation_page_loads_ok(server_url, page):
 
 def test_navigate_to_organisation_from_entity(server_url, page, app_test_data):
     page.goto(server_url)
-    page.click("text=Search")
+    page.locator("a[href='/entity']:visible").first.click()
 
     page.get_by_role("link", name="DAC").first.click()
 
