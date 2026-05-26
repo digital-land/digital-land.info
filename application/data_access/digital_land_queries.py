@@ -152,3 +152,17 @@ def get_dataset_coverage_status(dataset: str) -> bool:
     full_coverage = dataset in coverage_datasets
 
     return "full" if full_coverage else "partial"
+
+
+def filter_datasets(session: Session, **kwargs):
+    """
+    Return datasets matching the provided filters.
+    Only known dataset fields are applied; unknown filter keys are ignored.
+    """
+    filters = [
+        getattr(DatasetOrm, key) == value
+        for key, value in kwargs.items()
+        if hasattr(DatasetOrm, key)
+    ]
+    dataset_results = session.query(DatasetOrm).filter(*filters).all()
+    return [DatasetModel.from_orm(ds) for ds in dataset_results]
