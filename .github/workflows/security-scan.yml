@@ -22,7 +22,7 @@ jobs:
       alerts_high: ${{ steps.report.outputs.alerts_high }}
       alerts_total: ${{ steps.report.outputs.alerts_total }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: setup
         run: |
@@ -38,7 +38,7 @@ jobs:
           cat zap-working-dir/zap-report.md >> $GITHUB_STEP_SUMMARY
 
       - name: upload log
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: zap.log
@@ -61,9 +61,9 @@ jobs:
       alerts_medium: ${{ steps.report.outputs.alerts_medium }}
       alerts_high: ${{ steps.report.outputs.alerts_high }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.9'
 
@@ -94,13 +94,13 @@ jobs:
       - static-audit
     steps:
       - name: send report notification
-        uses: slackapi/slack-github-action@v1
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: slackapi/slack-github-action@v3
         with:
-          channel-id: 'planning-data-notifications'
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
             {
+              "channel": "planning-data-notifications",
               "text": "Security Scan: digital-land.info",
               "icon_emoji": ":lock:",
               "username": "SecurityScanner",
@@ -187,13 +187,13 @@ jobs:
     if: always() && contains(join(needs.*.result, ','), 'failure')
     steps:
       - name: send failure notification
-        uses: slackapi/slack-github-action@v1
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: slackapi/slack-github-action@v3
         with:
-          channel-id: 'planning-data-notifications'
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
             {
+              "channel": "planning-data-notifications",
               "text": "Security Scan: digital-land.info",
               "icon_emoji": ":alert:",
               "username": "SecurityScanner",
