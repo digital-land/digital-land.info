@@ -16,7 +16,7 @@ jobs:
     outputs:
       environments: ${{ steps.environments.outputs.result }}
     steps:
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v8
         id: environments
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -30,7 +30,7 @@ jobs:
   build-package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Prepare package directory
         working-directory: ./tests/smoke
         run: |
@@ -43,7 +43,7 @@ jobs:
           sudo -s sh -c 'zip -r ../smoke-test-package.zip .'
 
       - name: Upload smoke test package artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smoke-test-package
           path: ./tests/smoke/smoke-test-package.zip
@@ -67,13 +67,13 @@ jobs:
           sudo apt-get install -y rsync
 
       - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smoke-test-package
           path: ./artifacts
