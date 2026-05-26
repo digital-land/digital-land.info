@@ -1,0 +1,32 @@
+.local-plans-search {
+    margin-bottom: 35px;
+}
+
+.local-plans-search .govuk-form-group {
+    display: inline-block;
+    flex: 1;
+    vertical-align: top;
+    margin-bottom: 0;
+}
+
+.local-plans-search form {
+    display: block;
+}
+
+@media (min-width: 40.0625em) {
+    .local-plans-search form {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+}
+
+.local-plans-search__button {
+    display: inline-block;
+    margin-left: 0px;
+    margin-bottom: 0px;
+    position: relative;
+    top: -2px;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
