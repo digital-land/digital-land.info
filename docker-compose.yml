@@ -21,7 +21,7 @@ services:
       REDIS_SECURE: false
     healthcheck:
       test: curl -v -i -f http://localhost:8000
-      interval: 1s
+      interval: ${WEB_HEALTHCHECK_INTERVAL:-1s}
       timeout: 3s
       retries: 60
 

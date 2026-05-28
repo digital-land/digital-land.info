@@ -11,7 +11,16 @@ def main():
     base_url = os.environ.get("BASE_URL")
     browser = syn_webdriver.Chrome()
 
-    paths = ["/", "/about", "/dataset", "/entity", "/map", "/docs"]
+    paths = [
+        "/",
+        "/about",
+        "/dataset",
+        "/entity",
+        "/local-plans",
+        "/local-plans?dataset=local-plan",
+        "/map",
+        "/docs",
+    ]
     for path in paths:
         visit_and_screenshot(browser, base_url, path)
 

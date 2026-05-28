@@ -191,6 +191,22 @@ def test_dataset_json_endpoint_returns_as_expected(test_data, client):
         ), f"Dataset {ds['dataset']} not in fixture response"
 
 
+def test_local_plans_json_endpoint_returns_as_expected(test_data, client):
+    datasets = [
+        ds for ds in deepcopy(test_data["datasets"]) if ds["collection"] == "local-plan"
+    ]
+    response = client.get("/local-plans.json")
+    assert response.status_code == 200
+
+    data = response.json()
+    assert "datasets" in data
+    assert len(data["datasets"]) > 0
+
+    fixture_dataset_names = {ds["dataset"] for ds in datasets}
+    api_dataset_names = {ds["dataset"] for ds in data["datasets"]}
+    assert api_dataset_names.issubset(fixture_dataset_names)
+
+
 def test_dataset_json_endpoint_with_query_param_returns_as_expected(test_data, client):
     params = {
         "dataset": ["brownfield-site", "conservation-area"],
@@ -208,6 +224,31 @@ def test_dataset_json_endpoint_with_query_param_returns_as_expected(test_data, c
     for ds in data["datasets"]:
         assert "dataset" in ds
         assert "name" in ds
+
+
+def test_local_plans_json_endpoint_with_query_param_returns_as_expected(
+    test_data, client
+):
+    params = {
+        "dataset": ["local-plan", "local-plan-boundary"],
+        "field": ["dataset", "name"],
+        "include_typologies": "false",
+    }
+    response = client.get("/local-plans.json", params=params)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert "datasets" in data
+
+    returned_datasets = [ds["dataset"] for ds in data["datasets"]]
+    expected_datasets = ["local-plan", "local-plan-boundary"]
+    assert set(returned_datasets) == set(expected_datasets)
+
+    for ds in data["datasets"]:
+        assert "dataset" in ds
+        assert "name" in ds
+
+    assert not data.get("typologies")
 
 
 wkt_params = [
