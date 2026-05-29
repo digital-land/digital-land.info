@@ -1,22 +1,34 @@
-
+Publish your data
+--------------------
 
 You must publish your data:
 
 - on a webpage on your official planning authority's website - which usually ends in **gov.uk**
 - in a format that is clear and easy to understand
 
-You can publish your data using any of the following:
+Provide your data
+--------------------
 
-CSV
-GeoJSON
-GML
-GeoPackage
+After you publish, you should provide your data to the Planning Data Platform.
 
-You must include a statement to confirm that you provided the data under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
+You need to submit:
 
-Find out mopre about how to publish data on your website.
+- your full name
+- your work email address
+- the URL where anyone can download your data - called your **endpoint URL**
+- the URL for your **gov.uk** website where you can view or select a link to view the data - called your **source webpage URL**
 
-## Hosting your data
+Each URL must be:
+
+- accessible to the public
+- hosted on a server that does not block access due to set permissions
+
+We automatically collect the latest data from your endpoint URL every day, you do not need to provide anything again.
+
+Your local planning authority is the source of truth for the data.
+
+Hosting your data
+--------------------
 
 Endpoints are usually either a:
 

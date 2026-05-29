@@ -1,7 +1,23 @@
-Creating a national index of planning data means that developers, housing associations, policy colleagues, researchers and journalists can access the data they need simply and quickly.
+## Prepare your data
 
-It means less overhead for local planning authorities and organisations, reducing the time spent preparing for data requests and freedom of information requests.
+Your data does not need to be complete or perfect to start. You can start with what you have and improve it over time.
 
-We’re working with a number of local planning authorities (LPAs) and other organisations through the Open Digital Planning community to help them provide data to our Planning Data Platform.
+1. [Find your organisation](./Find your organisation).
+2. Select the dataset that is relevant to your plan. For example, 'local plan'.
 
-[Go to the check and provide your planning data service.](https://provide.planning.data.gov.uk)
+If we have data from alternative sources, you can download it from your dataset details page to help you get started.
+
+### Datasets
+
+Right now, the service supports:
+
+- [article 4 directions](./article-4-direction)
+- [brownfield land](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data)
+- [conservation areas](./conservation-area)
+- [developer contributions](https://www.gov.uk/guidance/publish-your-developer-contributions-data)
+- [infrastructure funding statements](https://digital-land.github.io/specification/specification/infrastructure-funding-statement/)
+- [listed buildings](./listed-building)
+- [plans including local plans, supplementary plans and minerals and waste plans](https://www.gov.uk/government/publications/publish-your-plan-data/publish-your-plan-data)
+- [tree preservation orders](./tree-preservation-order)
+
+We are currently testing and developing data standards for [design codes.](./design-code)
