@@ -1,7 +1,7 @@
 {%- do pageData.update({
-  'pageTitle': 'Publish data on your website'
+  'pageTitle': 'Provide your data '
 }) %}
-{% set templateName = 'dl-info/guidance/publish-data-on-your-website.html' %}
+{% set templateName = 'dl-info/guidance/provide-your-data.html' %}
 {% extends "layouts/layout--guidance.html" %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
 
@@ -14,7 +14,7 @@
 {% block content_primary %}
 
     {% set markdown_content %}
-    {%- include pageData.root_url + "publish-data-on-your-website.md" with context -%}
+    {%- include pageData.root_url + "provide-your-data.md" with context -%}
     {% endset %}
 
     {{ markdown_content | render_markdown(govAttributes=True) }}

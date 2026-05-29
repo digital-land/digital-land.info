@@ -10,3 +10,4 @@ You can check your data using any of the following:
 - GeoJSON
 - GML
 - GeoPackage
+- the URL where anyone can download your data - called your 'endpoint URL'
