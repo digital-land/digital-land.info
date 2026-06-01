@@ -112,6 +112,7 @@ def test_file_download_tracking_respects_cookie_consent(
             "kml",
             "gpkg",
             "shp",
+            "parquet",
         ]
 
 
@@ -188,7 +189,7 @@ def test_file_download_tracking_ignores_non_download_links(server_url, page: Pag
 
 
 @pytest.mark.parametrize(
-    "extension", ["geojson", "json", "xml", "gml", "kml", "gpkg", "shp"]
+    "extension", ["geojson", "json", "xml", "gml", "kml", "gpkg", "shp", "parquet"]
 )
 def test_file_download_tracking_captures_different_extensions(
     server_url, page: Page, extension

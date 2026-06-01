@@ -37,7 +37,7 @@ document.addEventListener('click', function (event) {
   const link = event.target.closest('a');
   if (!link || !link.href) return;
 
-  const fileExtensions = ['.geojson', '.json', '.xml', '.gml', '.kml', '.gpkg', '.shp'];
+  const fileExtensions = ['.geojson', '.json', '.xml', '.gml', '.kml', '.gpkg', '.shp', '.parquet'];
 
   let url;
   try {

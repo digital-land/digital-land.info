@@ -44,6 +44,14 @@ def test_download_data_for_dataset(server_url, page, app_test_data):
     assert "brownfield-site" in geojson_href
     assert ".geojson" in geojson_href
 
+    # Check that the "Parquet" download link is correct.
+    parquet_href = page.get_by_role(
+        "link", name="Parquet", exact=True
+    ).first.get_attribute("href")
+
+    assert "brownfield-site" in parquet_href
+    assert ".parquet" in parquet_href
+
 
 @pytest.mark.skip(reason="Temporarily disabled. Playwright Issues")
 def test_navigate_to_a_dataset_specification(server_url, page, app_test_data):
