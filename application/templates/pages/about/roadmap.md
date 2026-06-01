@@ -36,10 +36,10 @@ We are also developing Extract in partnership with the [Incubator for AI](https:
 
 ### Now
 
-- We are making it faster and more reliable to build and rebuild planning data. Our platform can now be refreshed in hours rather than days, giving users quicker access to up-to-date, authoritative information. This work has also allowed us to scale our infrastructure, increasing the number of [title boundaries](https://www.planning.data.gov.uk/dataset/title-boundary) available on the platform. 
+- We are making it faster and more reliable to build and rebuild planning data. Our platform can now be refreshed in hours rather than days, giving users quicker access to up-to-date, authoritative information. This work has also allowed us to scale our infrastructure, increasing the number of [title boundaries](https://www.planning.data.gov.uk/dataset/title-boundary) available on the platform.
 - We are improving [our service for data providers](https://provide.planning.data.gov.uk). The service is now more responsive, with faster loading times, clearer guidance and new features such as showing non-authoritative data from alternative public sources. All of these help LPAs understand, improve and maintain the quality of the data they’ve provided.
 - We are bringing data quality checks directly into the service. This allows LPAs to validate data earlier, submit smaller datasets more easily, and publish high-quality data sooner - increasing the amount of trusted, authoritative data available on the platform.
-- We are testing Extract with real planning documents and staff working at local planning authorities to understand where it helps most and where it needs improvement (also known as the [alpha phase](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works)). 
+- We are testing Extract with real planning documents and staff working at local planning authorities to understand where it helps most and where it needs improvement (also known as the [alpha phase](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works)).
 - We are improving the experience so it’s clearer, easier and faster to turn documents into trustworthy data, and ensuring that it outputs high-quality data reliably.
 
 ### Next
@@ -66,11 +66,10 @@ We are making planning and housing data easier to access, understand and reuse -
 
 - We are publishing live platform performance metrics, so users can clearly understand reliability and availability.
 - We are publishing dataset quality and coverage information, so users can understand what data we currently have.
-- We are improving map search by Local Planning Authority and Town, so users can find relevant data more easily.
+- We are improving map search by Town, so users can find relevant data more easily.
 
 ### Next
 
-- We plan to provide datasets in formats such as Parquet to support large‑scale analysis and reuse.
 - We intend to package datasets around common user needs, with clearer context and guidance, to make them easier to use and consume.
 
 ### Later
