@@ -20,7 +20,7 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-xl">Local plans</h1>
-      <p class="govuk-body-l">Planning Data has collected data on local plans across England. You can explore individual datasets or use the search box below to view by local planning authority or postcode.</p>
+      <p class="govuk-body-l">Planning Data has collected data on local plans across England.</p>
       <p class="govuk-body-l">These datasets describe different parts of local plan-making, including plan documents, boundaries and timelines. Together they form a structured set that can be reused and combined.</p>
     </div>
   </div>
@@ -28,10 +28,9 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h3 class="govuk-heading-m">National local plan data</h3>
-      <p class="govuk-body">The following dataset have been grouped as a collection.</p>
       <ul class="govuk-list">
         {% for dataset in datasets %}
-          <li class="dl-list-filter__item"><a class="govuk-link dl-list-filter__item-title" href="/dataset/{{ dataset.dataset }}">{{ dataset.name }}</a></li>
+          <li class="dl-list-filter__item"><a class="govuk-link dl-list-filter__item-title" href="/dataset/{{ dataset.dataset }}">{{ dataset.name | capitalize }}</a></li>
         {% endfor %}
       </ul>
     </div>
@@ -49,27 +48,6 @@
           </ul>
         </nav>
       </aside>
-    </div>
-    <div class="govuk-grid-column-full">
-      <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-      <div class="local-plans-search">
-        <form action="/entity/" method="get">
-          {% for dataset in datasets %}
-            <input type="hidden" name="dataset" value="{{ dataset.dataset }}">
-          {% endfor %}
-          <div class="govuk-form-group">
-            <h3 class="govuk-heading-m">Local plan data by location</h3>
-            <div id="search-hint" class="govuk-hint">
-              Search by postcode or Unique Property Reference Number (UPRN)
-            </div>
-            <input class="govuk-input" id="search" name="q" type="search" aria-describedby="search-hint">
-          </div>
-          <button type="submit" class="govuk-button local-plans-search__button" data-module="govuk-button">
-            Find
-          </button>
-        </form>
-      </div>
-      <p class="govuk-body">Guidance for <a class="govuk-link" href="https://www.gov.uk/housing-local-and-community/local-plans">creating or updating a local plan</a> is now available.</p>
     </div>
   </div>
   {% include "partials/feedback.html" %}
