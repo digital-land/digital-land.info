@@ -2,7 +2,7 @@ fastapi==0.75.2
 uvicorn
 gunicorn
 jinja2
-PyYAML>=6.0.1
+PyYAML
 python-dotenv
 requests
 Markdown
@@ -11,7 +11,7 @@ GeoAlchemy2
 psycopg2
 alembic
 fastapi-utils
-Shapely>=2.0.0
+Shapely
 sentry-sdk>=2.35.0
 jsonpickle
 uritemplate
