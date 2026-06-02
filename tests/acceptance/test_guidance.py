@@ -1,9 +1,13 @@
 def test_guidance_pages_load_ok(server_url, page):
     response = page.goto(server_url + "/guidance")
     assert response.ok
+    long_heading = (
+        "Your data does not need to be complete or perfect to start. "
+        "You start with what you have and improve it over time."
+    )
     heading = page.get_by_role(
         "heading",
-        name="About the check and provide your planning data service",
+        name=long_heading,
     ).last
     assert heading.is_visible()
 
