@@ -1,5 +1,5 @@
-[![Build and deploy](https://github.com/digital-land/digital-land.info/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/digital-land/digital-land.info/actions/)
-[![planning.data.gov.uk smoke test](https://github.com/digital-land/smoke-test/actions/workflows/smoke-test.yml/badge.svg)](https://github.com/digital-land/smoke-test/actions/)
+[![Publish](https://github.com/digital-land/digital-land.info/actions/workflows/publish.yml/badge.svg)](https://github.com/digital-land/digital-land.info/actions/workflows/publish.yml)
+[![Copilot review](https://github.com/digital-land/digital-land.info/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer/badge.svg)](https://github.com/digital-land/digital-land.info/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer)
 
 # planning.data.gov.uk web application
 

@@ -106,7 +106,7 @@
       });
 
       // Make the sub-menu visible when the user is on a child page
-      if (pathname.startsWith('/dataset') || pathname.startsWith('/organisation')) {
+      if (pathname.startsWith('/dataset') || pathname.startsWith('/organisation') || pathname.startsWith('/local-plans')) {
         toggle.setAttribute('aria-expanded', 'true');
         subnav.hidden = false;
         toggle.parentElement.classList.add("govuk-service-navigation__item--active")

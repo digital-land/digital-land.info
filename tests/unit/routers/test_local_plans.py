@@ -1,26 +1,10 @@
 import pytest
 
-from unittest.mock import MagicMock
+from application.core.utils import to_snake
+from application.routers.local_plans import list_local_plans
 from application.routers.entity import fetch_linked_local_plans
-from application.core.models import EntityModel
-
-
-@pytest.fixture
-def local_plan_model():
-    model = EntityModel(
-        entity=4220006,
-        entry_date="2022-03-23",
-        name="test-local-plan",
-        reference="1481207",
-        dataset="local-plan",
-        prefix="local-plan",
-        json={
-            "adopted-date": "2018-09-27",
-            "documentation-url": "https://www.scambs.gov.uk/planning/south-cambridgeshire-local-plan-2018",
-            "local-plan-boundary": "E07000012",
-        },
-    )
-    return model
+from application.core.models import DatasetModel, EntityModel
+from application.search.filters import DatasetQueryFilters
 
 
 @pytest.fixture
@@ -105,7 +89,7 @@ def test_fetch_linked_local_plans_json_returned(
     local_plan_document_model,
     local_plan_boundary_model,
 ):
-    mock_session = MagicMock()
+    mock_session = mocker.MagicMock()
     mocker.patch(
         "application.routers.entity.linked_datasets",
         {
@@ -128,7 +112,7 @@ def test_fetch_linked_local_plans_json_returned(
     e_dict_sorted["dataset"] = "local-plan"
     e_dict_sorted["reference"] = "1481207"
 
-    results, boundary = fetch_linked_local_plans(mock_session, e_dict_sorted)
+    results, _boundary = fetch_linked_local_plans(mock_session, e_dict_sorted)
 
     # Assertions
     assert isinstance(results, dict), f"{type(results)} is expected to be a Dict"
@@ -140,3 +124,74 @@ def test_fetch_linked_local_plans_json_returned(
     assert (
         len(results["local-plan-document"]) == 1
     ), "Expected 1 entity in 'local-plan-document'"
+
+
+@pytest.mark.parametrize(
+    "query_filters, expected_count",
+    [
+        (DatasetQueryFilters(), 2),
+        (DatasetQueryFilters(dataset=["local-plan-boundary"]), 1),
+        (
+            DatasetQueryFilters(
+                dataset=["local-plan-boundary"],
+                field=["dataset,name,plural,collection"],
+                exclude_field=["plural, collection"],
+            ),
+            1,
+        ),
+    ],
+)
+def test_list_local_plans(mocker, query_filters, expected_count):
+    datasets = [
+        DatasetModel(
+            collection="local-plan",
+            dataset="local-plan",
+            name="Local plan",
+            plural="Local plans",
+            typology="legal-instrument",
+        ),
+        DatasetModel(
+            collection="local-plan",
+            dataset="local-plan-boundary",
+            name="Local plan boundary",
+            plural="Local plan boundaries",
+            typology="geography",
+        ),
+    ]
+
+    mocker.patch(
+        "application.routers.local_plans.filter_datasets",
+        return_value=datasets,
+    )
+
+    mocker.patch(
+        "application.routers.local_plans.get_dataset_filter_fields",
+        side_effect=lambda ds, include_fields: {
+            key: value
+            for key, value in ds.dict(by_alias=True).items()
+            if key in include_fields
+        },
+    )
+
+    result = list_local_plans(
+        request=mocker.MagicMock(),
+        extension=mocker.MagicMock(value="json"),
+        query_filters=query_filters,
+        session=mocker.MagicMock(),
+    )
+
+    assert result["feedback_form_footer"] is True
+    assert len(result["datasets"]) == expected_count
+
+    if query_filters and query_filters.field:
+        assert "name" in result["datasets"][0]
+
+    if query_filters and query_filters.exclude_field:
+        excluded = {
+            to_snake(part.strip())
+            for item in query_filters.exclude_field
+            for part in item.split(",")
+            if part.strip()
+        }
+        for field in excluded:
+            assert field not in result["datasets"][0]

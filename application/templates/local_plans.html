@@ -1,0 +1,54 @@
+{% extends "layouts/layout.html" %}
+{% set templateName = "dl-info/local_plans.html" %}
+
+{% block head %}
+	{{ super() }}
+	<meta name="generated-date" content="{{ now }}" />
+	<link rel="stylesheet" href="/static/stylesheets/application.css">
+{% endblock head %}
+
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/'
+  })}}
+{% endblock %}
+
+{% block pageTitle %}Local plans | Planning Data{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-xl">Local plans</h1>
+      <p class="govuk-body-l">Planning Data has collected data on local plans across England.</p>
+      <p class="govuk-body-l">These datasets describe different parts of local plan-making, including plan documents, boundaries and timelines. Together they form a structured set that can be reused and combined.</p>
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h3 class="govuk-heading-m">National local plan data</h3>
+      <ul class="govuk-list">
+        {% for dataset in datasets %}
+          <li class="dl-list-filter__item"><a class="govuk-link dl-list-filter__item-title" href="/dataset/{{ dataset.dataset }}">{{ dataset.name | capitalize }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="govuk-grid-column-one-third">
+      <aside class="app-related-items" role="complementary">
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="view-the-data">
+          View the data
+        </h2>
+        <p class="govuk-hint govuk-!-font-size-14">You can explore this data</p>
+        <nav role="navigation" aria-labelledby="view-the-data">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li>
+              <a class="govuk-link" href="/entity?{{ view_as_list_query }}">As a list</a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+    </div>
+  </div>
+  {% include "partials/feedback.html" %}
+{% endblock %}
