@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 
 import random
 
+from application.core.constants import GOV_UK_LOCAL_PLANS_URL
 from application.core.filters import (
     generate_query_param_str,
     geometry_reference_count,
@@ -62,6 +63,8 @@ templates.env.globals["templateVar"] = {"email": "digitalland@communities.gov.uk
 templates.env.globals["serviceStatus"] = False
 templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
 templates.env.globals["smartLookId"] = settings.SMARTLOOK_ID
+templates.env.globals["govUkLocalPlansUrl"] = GOV_UK_LOCAL_PLANS_URL
+
 # Set a global `govukRebrand` variable to allow the
 # class `govuk-template--rebranded` being added to the base template
 # ensuring Govuk Rebrand is applied
