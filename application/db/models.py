@@ -293,12 +293,18 @@ class TaskOrm(Base):
     __tablename__ = "task"
 
     reference = Column(Text, primary_key=True)
-    dataset = Column(Text, nullable=True)
+    dataset = Column(Text, nullable=False)
     organisation = Column(Text, nullable=True)
     endpoint = Column(Text, nullable=True)
     resource = Column(Text, nullable=True)
-    details = Column(Text, nullable=True)
-    severity = Column(Text, nullable=True)
-    responsibility = Column(Text, nullable=True)
-    task_source = Column(Text, nullable=True)
+    details = Column(JSONB, nullable=True)
+    severity = Column(Text, nullable=False)
+    responsibility = Column(Text, nullable=False)
+    task_source = Column(Text, nullable=False)
     entry_date = Column(Date, nullable=True)
+    __table_args__ = (
+        Index("idx_task_dataset", "dataset"),
+        Index("idx_task_organisation", "organisation"),
+        Index("idx_task_severity", "severity"),
+        Index("idx_task_responsibility", "responsibility"),
+    )
