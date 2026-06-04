@@ -287,3 +287,18 @@ class LicenceOrm(Base):
     entry_date = Column(Date, nullable=True)
     start_date = Column(Date, nullable=True)
     end_date = Column(Date, nullable=True)
+
+
+class TaskOrm(Base):
+    __tablename__ = "task"
+
+    reference = Column(Text, primary_key=True)
+    dataset = Column(Text, nullable=True)
+    organisation = Column(Text, nullable=True)
+    endpoint = Column(Text, nullable=True)
+    resource = Column(Text, nullable=True)
+    details = Column(Text, nullable=True)
+    severity = Column(Text, nullable=True)
+    responsibility = Column(Text, nullable=True)
+    task_source = Column(Text, nullable=True)
+    entry_date = Column(Date, nullable=True)
