@@ -1,4 +1,4 @@
-Your data does not need to be complete or perfect to start. You start with what you have and improve it over time.
+Your data does not need to be complete or perfect to start. You can start with what you have and improve it over time.
 
 1. [Find your organisation](./Find your organisation).
 2. Select the dataset that is relevant to your plan. For example, 'local plan'.
