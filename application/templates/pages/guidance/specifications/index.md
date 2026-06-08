@@ -1,11 +1,6 @@
-Your data does not need to be complete or perfect to start. You can start with what you have and improve it over time.
+Your data does not need to be complete or perfect to start. Any data we have from you means we can start to index it and provide it on the platform. Start with what you have and improve it over time.
 
-1. [Find your organisation](./Find your organisation).
-2. Select the dataset that is relevant to your plan. For example, 'local plan'.
-
-If we have data from alternative sources, you can download it from your dataset details page to help you get started.
-
-## Datasets
+## Datasets the service supports
 
 Right now, the service supports:
 
@@ -18,5 +13,8 @@ Right now, the service supports:
 - [plans including local plans, supplementary plans and minerals and waste plans](https://www.gov.uk/government/publications/publish-your-plan-data/publish-your-plan-data)
 - [tree preservation orders](./tree-preservation-order)
 
+## Datasets we’re developing
 
-We're currently testing and developing data standards for [design codes](./design-code).
+We're currently testing and developing data standards for these planning considerations:
+
+- [design codes](./design-code)
