@@ -30,6 +30,10 @@ piptool-compile::
 	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
 	python -m piptools compile requirements/dev-requirements.in
 
+piptool-upgrade::
+	python -m piptools compile --upgrade --output-file=requirements/requirements.txt requirements/requirements.in
+	python -m piptools compile --upgrade requirements/dev-requirements.in
+
 piptool-install::
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt
 
