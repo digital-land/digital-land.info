@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Query
+
 from application.data_access.entity_queries import (
     _apply_limit_and_pagination_filters,
     _apply_location_filters,
@@ -13,10 +14,10 @@ def test__apply_limit_and_pagination_filters_with_no_filters_applied():
     assert result._limit_clause is None
 
 
-def test__apply_location_filters_for_frz_dataset(db_session):
+def test__apply_location_filters_for_frz_dataset(mocker):
     query = Query(EntityOrm)
     result = _apply_location_filters(
-        db_session,
+        mocker.MagicMock(),
         query,
         params={
             "longitude": "-0.2",
@@ -29,10 +30,10 @@ def test__apply_location_filters_for_frz_dataset(db_session):
     assert "flood-risk-zone" in sql_str.split("FROM entity_subdivided")[1]
 
 
-def test__apply_location_filters_for_simple_dataset(db_session):
+def test__apply_location_filters_for_simple_dataset(mocker):
     query = Query(EntityOrm)
     result = _apply_location_filters(
-        db_session,
+        mocker.MagicMock(),
         query,
         params={
             "longitude": "-0.3",
@@ -45,10 +46,10 @@ def test__apply_location_filters_for_simple_dataset(db_session):
     assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
 
 
-def test__apply_location_filters_for_both(db_session):
+def test__apply_location_filters_for_both(mocker):
     query = Query(EntityOrm)
     result = _apply_location_filters(
-        db_session,
+        mocker.MagicMock(),
         query,
         params={
             "longitude": "-0.2",
@@ -61,24 +62,24 @@ def test__apply_location_filters_for_both(db_session):
     assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
 
 
-def test__apply_location_filters_without_dataset(db_session):
+def test__apply_location_filters_without_dataset(mocker):
     query = Query(EntityOrm)
     params = {
         "latitude": "52.35",
         "longitude": "-0.3",
     }
 
-    result = _apply_location_filters(db_session, query, params)
+    result = _apply_location_filters(mocker.MagicMock(), query, params)
     sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
 
     assert "ST_Contains" in sql
 
 
-def test__apply_location_filters_geometry_within(db_session):
+def test__apply_location_filters_geometry_within(mocker):
     query = Query(EntityOrm)
     params = {"geometry": ["MULTIPOLYGON((-0.1 52.5, -0.5 52.3, 0.0 52.1, -0.1 52.5))"]}
 
-    result = _apply_location_filters(db_session, query, params)
+    result = _apply_location_filters(mocker.MagicMock(), query, params)
     sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
 
     assert "MULTIPOLYGON" in sql
