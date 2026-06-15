@@ -104,10 +104,12 @@ def test_get_entity_query_closes_session(mocker):
     mock_session.get.return_value = None
     mock_session.close = track_session_close
 
-    # Patch SessionLocal to return our tracked session
+    # Patch _get_session_local so that _get_session_local()() returns our tracked session.
+    # get_context_session() calls _get_session_local()() internally and then calls
+    # session.close() in its finally block, which is what this test verifies.
     mocker.patch(
-        "application.db.session.SessionLocal",
-        return_value=mock_session,
+        "application.db.session._get_session_local",
+        return_value=lambda: mock_session,
     )
 
     result = get_entity_query(12345)
@@ -141,9 +143,11 @@ def test_get_entity_query_no_pool_exhaustion(mocker):
         mock_session.close = track_close
         return mock_session
 
+    # Patch _get_session_local so _get_session_local()() calls mock_session_factory()
+    # each time, creating a distinct tracked session per call.
     mocker.patch(
-        "application.db.session.SessionLocal",
-        side_effect=mock_session_factory,
+        "application.db.session._get_session_local",
+        return_value=mock_session_factory,
     )
 
     # Call more times than pool_size (10) + overflow (20) = 30

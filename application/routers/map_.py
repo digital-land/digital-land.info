@@ -14,7 +14,6 @@ from application.db.session import get_session, get_redis, DbSession
 from application.data_access.find_an_area_helpers import find_an_area
 from application.data_access.os_api import is_valid_postcode
 
-
 router = APIRouter()
 logger = logging.getLogger(__name__)
 

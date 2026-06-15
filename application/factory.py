@@ -21,7 +21,7 @@ from starlette.responses import Response
 from http import HTTPStatus
 
 from application.db.session import get_session, init_redis
-from application.core.templates import templates
+from application.core.templates import templates, init_templates
 from application.db.models import EntityOrm
 from application.exceptions import DigitalLandValidationError
 from application.routers import (
@@ -41,7 +41,6 @@ from application.routers import (
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 # TODO: We should get the logging levels from environment variables so that
 # if we need to change them for testing reasons, or if we want to have
@@ -81,7 +80,9 @@ tags_metadata = [
 
 
 def create_app():
-    init_redis(get_settings())
+    settings = get_settings()
+    init_redis(settings)
+    init_templates(settings)
     app = FastAPI(
         title="planning.data.gov.uk API",
         description=description,
@@ -103,7 +104,7 @@ def create_app():
     add_base_routes(app)
     add_routers(app)
     add_static(app)
-    app = add_middleware(app)
+    app = add_middleware(app, settings)
     return app
 
 
@@ -321,7 +322,7 @@ def add_static(app):
     )
 
 
-def add_middleware(app):
+def add_middleware(app, settings):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -333,9 +334,9 @@ def add_middleware(app):
     @app.middleware("http")
     async def add_strict_transport_security_header(request: Request, call_next):
         response = await call_next(request)
-        response.headers[
-            "Strict-Transport-Security"
-        ] = f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        response.headers["Strict-Transport-Security"] = (
+            f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+        )
         return response
 
     @app.middleware("http")

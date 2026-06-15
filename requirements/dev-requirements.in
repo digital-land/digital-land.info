@@ -8,6 +8,7 @@ axe-playwright-python
 black>=22.3.0
 SQLAlchemy-Utils
 pytest-mock
+testcontainers[postgres]
 pytest-md-report
 pre-commit
 locust==2.34.0

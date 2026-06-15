@@ -3,6 +3,7 @@ A python module which holds tests that have to pass for the curie route of
 our api. essentially testing the contract with consumers
 of the api functionality. Does not focus on looking at html responses
 """
+
 import pytest
 
 from application.db.models import EntityOrm

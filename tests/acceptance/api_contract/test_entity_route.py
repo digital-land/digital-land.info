@@ -1,6 +1,7 @@
 """
 Module to test the routes that follow /entity. this includes both the get entity and the entity search
 """
+
 import pytest
 from application.db.models import EntityOrm
 

@@ -26,7 +26,6 @@ from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
 from application.db.session import get_session, get_redis, DbSession
 
-
 router = APIRouter()
 logger = logging.getLogger(__name__)
 

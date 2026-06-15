@@ -7,11 +7,10 @@ from application.settings import get_settings
 from application.core.models import FieldModel
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 
 def get_field_specifications(fields):
-    url = f"{settings.DATASETTE_URL}/digital-land.json"
+    url = f"{get_settings().DATASETTE_URL}/digital-land.json"
     sql = f"""
          SELECT
             f.field,

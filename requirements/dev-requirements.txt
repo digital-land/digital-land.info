@@ -42,6 +42,8 @@ distlib==0.4.3
     # via
     #   -c requirements/requirements.txt
     #   virtualenv
+docker==7.1.0
+    # via testcontainers
 filelock==3.29.3
     # via
     #   -c requirements/requirements.txt
@@ -165,6 +167,10 @@ python-discovery==1.4.2
     # via
     #   -c requirements/requirements.txt
     #   virtualenv
+python-dotenv==1.2.2
+    # via
+    #   -c requirements/requirements.txt
+    #   testcontainers
 python-slugify==8.0.4
     # via
     #   -c requirements/requirements.txt
@@ -182,6 +188,7 @@ pyzmq==27.1.0
 requests==2.34.2
     # via
     #   -c requirements/requirements.txt
+    #   docker
     #   locust
     #   pytest-base-url
 six==1.17.0
@@ -198,6 +205,8 @@ tcolorpy==0.1.7
     # via
     #   pytablewriter
     #   pytest-md-report
+testcontainers[postgres]==4.14.2
+    # via -r requirements/dev-requirements.in
 text-unidecode==1.3
     # via
     #   -c requirements/requirements.txt
@@ -212,11 +221,14 @@ typing-extensions==4.15.0
     # via
     #   -c requirements/requirements.txt
     #   pyee
+    #   testcontainers
 urllib3==1.26.20
     # via
     #   -c requirements/requirements.txt
+    #   docker
     #   geventhttpclient
     #   requests
+    #   testcontainers
 virtualenv==21.4.3
     # via
     #   -c requirements/requirements.txt
@@ -227,6 +239,8 @@ werkzeug==3.1.8
     #   flask-cors
     #   flask-login
     #   locust
+wrapt==2.2.1
+    # via testcontainers
 zope-event==6.2
     # via gevent
 zope-interface==8.5

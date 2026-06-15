@@ -15,7 +15,6 @@ from application.db.session import get_session
 from application.search.enum import SuffixDataset
 from application.search.filters import DatasetQueryFilters
 
-
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
