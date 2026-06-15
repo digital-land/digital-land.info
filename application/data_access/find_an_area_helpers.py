@@ -3,7 +3,6 @@ from typing import Optional
 
 from application.data_access.os_api import search
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -54,14 +53,16 @@ def find_an_area(search_query: str, search_type: Optional[str] = None):
                 "type": search_type,
                 "query": search_query,
                 "result": result,
-                "geometry": {
-                    "name": name,
-                    "type": "geometry",
-                    "data": geometry_data,
-                    "entity": result.get("entity"),
-                }
-                if result and geometry_data
-                else None,
+                "geometry": (
+                    {
+                        "name": name,
+                        "type": "geometry",
+                        "data": geometry_data,
+                        "entity": result.get("entity"),
+                    }
+                    if result and geometry_data
+                    else None
+                ),
             }
         else:
             # For postcode/UPRN results
@@ -79,20 +80,22 @@ def find_an_area(search_query: str, search_type: Optional[str] = None):
                 "type": search_type,
                 "query": search_query,
                 "result": result,
-                "geometry": {
-                    "name": name,
-                    "type": "point",
-                    "data": {
-                        "type": "Point",
-                        "coordinates": [result.get("LNG"), result.get("LAT")],
-                        "properties": {
-                            **result,
-                            "name": name,
+                "geometry": (
+                    {
+                        "name": name,
+                        "type": "point",
+                        "data": {
+                            "type": "Point",
+                            "coordinates": [result.get("LNG"), result.get("LAT")],
+                            "properties": {
+                                **result,
+                                "name": name,
+                            },
                         },
-                    },
-                }
-                if result
-                else None,
+                    }
+                    if result
+                    else None
+                ),
             }
     except Exception as e:
         logger.warning(f"Search failed for query '{search_query}': {str(e)}")

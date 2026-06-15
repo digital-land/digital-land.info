@@ -6,22 +6,18 @@ from application.data_access.datasette_query_helpers import get_datasette_http
 from application.settings import get_settings
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 
 def get_dataset_fields(dataset, entity=None):
-    url = f"{settings.DATASETTE_URL}/{dataset}.json"
+    url = f"{get_settings().DATASETTE_URL}/{dataset}.json"
     sql = """
          SELECT DISTINCT f.field
          FROM fact f
     """
     if entity is not None:
-        sql = (
-            sql
-            + f"""
+        sql = sql + f"""
             WHERE f.entity='{entity}';
         """
-        )
     else:
         sql = sql + ";"
 
@@ -47,7 +43,7 @@ def get_dataset_fields(dataset, entity=None):
 
 
 def get_fact_query(fact: str, dataset: str) -> Optional[FactModel]:
-    url = f"{settings.DATASETTE_URL}/{dataset}.json"
+    url = f"{get_settings().DATASETTE_URL}/{dataset}.json"
     sql = f"""SELECT
                 f.fact,
                 f.entity,
@@ -100,7 +96,7 @@ def get_search_facts_query(query_params: List) -> Optional[FactModel]:
     A function that can take a single entity and retrieve all facts related to it.
     """
     # now using the entity information retrieve the facts for the entity
-    url = f"{settings.DATASETTE_URL}/{query_params['dataset']}.json"
+    url = f"{get_settings().DATASETTE_URL}/{query_params['dataset']}.json"
     sql = f"""SELECT
                 f.fact,
                 f.entity,
@@ -119,19 +115,13 @@ def get_search_facts_query(query_params: List) -> Optional[FactModel]:
             AND f.entity = {query_params['entity']}"""
 
     if query_params["field"]:
-        sql = (
-            sql
-            + f"""
+        sql = sql + f"""
         AND f.field in ('{"','".join(query_params['field'])}')
         """
-        )
 
-    sql = (
-        sql
-        + """
+    sql = sql + """
         GROUP BY f.entity, f.fact, f.field,f.value;
     """
-    )
     params = {"sql": sql, "_shape": "array"}
 
     try:

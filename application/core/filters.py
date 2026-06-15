@@ -20,8 +20,6 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-settings = get_settings()
-
 
 def to_slug(string):
     return slugify(string)
@@ -170,9 +168,9 @@ def digital_land_to_json(dict):
     if is_truncated:
         # Replace geometry with a placeholder message if truncated
         if "geometry" in filtered_dict:
-            filtered_dict[
-                "geometry"
-            ] = "<b>Too large to display. Download JSON for full geometry.</b>"
+            filtered_dict["geometry"] = (
+                "<b>Too large to display. Download JSON for full geometry.</b>"
+            )
     # dict["geometry"] = dict["geometry"][:1000]
     return json.dumps(
         filtered_dict, default=str, indent=4, cls=NoneToEmptyStringEncoder
@@ -299,6 +297,7 @@ def commanum_filter(v):
 
 
 def get_os_oauth2_token():
+    settings = get_settings()
     if not settings.OS_CLIENT_KEY or not settings.OS_CLIENT_SECRET:
         logger.error("OS_CLIENT_KEY or OS_CLIENT_SECRET not set")
         return "null"

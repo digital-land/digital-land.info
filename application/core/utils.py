@@ -12,7 +12,6 @@ from functools import wraps
 from pydantic import BaseModel
 from starlette.responses import Response
 
-
 # Set up logging
 logger = logging.getLogger(__name__)
 

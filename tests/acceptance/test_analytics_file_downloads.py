@@ -32,13 +32,11 @@ def test_file_download_tracking_respects_cookie_consent(
     page.on("console", capture_gtag_calls)
 
     # Inject a mock gtag that logs to console (so we can capture it)
-    page.add_init_script(
-        """
+    page.add_init_script("""
         window.gtag = function(...args) {
             console.log('GTAG_CALLED:', JSON.stringify(args));
         };
-    """
-    )
+    """)
 
     # Go to a dataset page
     page.goto(f"{server_url}/dataset/ancient-woodland")
@@ -52,13 +50,11 @@ def test_file_download_tracking_respects_cookie_consent(
     if geojson_link.count() > 0:
         gtag_calls.clear()  # Clear any existing calls
         # Prevent actual navigation/download so the page stays intact
-        page.evaluate(
-            """
+        page.evaluate("""
             const link = document.querySelector('a[href*=".geojson"]');
             link.addEventListener('click', (e) => e.preventDefault());
             link.click();
-            """
-        )
+            """)
         page.wait_for_timeout(500)  # Give handler time to fire
 
         # Should NOT see any file_download events
@@ -80,13 +76,11 @@ def test_file_download_tracking_respects_cookie_consent(
     if download_link.count() > 0:
         gtag_calls.clear()
         # Prevent actual navigation/download so the page stays intact
-        page.evaluate(
-            """
+        page.evaluate("""
             const link = document.querySelector('a[href$=".geojson"]');
             link.addEventListener('click', (e) => e.preventDefault());
             link.click();
-            """
-        )
+            """)
         page.wait_for_timeout(500)
 
         # Should see exactly one file_download event
@@ -140,13 +134,11 @@ def test_file_download_tracking_ignores_non_download_links(server_url, page: Pag
 
     page.on("console", capture_gtag_calls)
 
-    page.add_init_script(
-        """
+    page.add_init_script("""
         window.gtag = function(...args) {
             console.log('GTAG_CALLED:', JSON.stringify(args));
         };
-    """
-    )
+    """)
 
     # Go to homepage
     page.goto(f"{server_url}/")
@@ -156,25 +148,21 @@ def test_file_download_tracking_ignores_non_download_links(server_url, page: Pag
     page.evaluate("window.cookiePrefs = { usage: true }")
 
     # Inject a test link that's NOT a download
-    page.evaluate(
-        """
+    page.evaluate("""
         const link = document.createElement('a');
         link.href = '/some-page';
         link.innerText = 'Regular Link';
         link.id = 'test-regular-link';
         document.body.appendChild(link);
-    """
-    )
+    """)
 
     # Click the injected regular link and prevent navigation
     gtag_calls.clear()
-    page.evaluate(
-        """
+    page.evaluate("""
         const link = document.getElementById('test-regular-link');
         link.addEventListener('click', (e) => e.preventDefault());
         link.click();
-    """
-    )
+    """)
     page.wait_for_timeout(500)
 
     # Should NOT see any file_download events
@@ -215,13 +203,11 @@ def test_file_download_tracking_captures_different_extensions(
 
     page.on("console", capture_gtag_calls)
 
-    page.add_init_script(
-        """
+    page.add_init_script("""
         window.gtag = function(...args) {
             console.log('GTAG_CALLED:', JSON.stringify(args));
         };
-    """
-    )
+    """)
 
     page.goto(f"{server_url}/")
     page.wait_for_load_state("networkidle")
@@ -230,25 +216,21 @@ def test_file_download_tracking_captures_different_extensions(
     page.evaluate("window.cookiePrefs = { usage: true }")
 
     # Inject a test link with the desired extension
-    page.evaluate(
-        f"""
+    page.evaluate(f"""
         const link = document.createElement('a');
         link.href = 'https://example.com/test.{extension}';
         link.innerText = 'Test {extension.upper()} Download';
         link.id = 'test-download-link';
         document.body.appendChild(link);
-    """
-    )
+    """)
 
     # Click the injected link
     gtag_calls.clear()
-    page.evaluate(
-        """
+    page.evaluate("""
         const link = document.getElementById('test-download-link');
         link.addEventListener('click', (e) => e.preventDefault());
         link.click();
-        """
-    )
+        """)
     page.wait_for_timeout(500)
 
     # Should see one file_download event

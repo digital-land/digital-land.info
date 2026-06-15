@@ -9,7 +9,6 @@ from application.core.utils import log_slow_execution
 from application.data_access.entity_queries import get_entity_map_lpa
 from application.db.session import get_context_session
 
-
 logger = logging.getLogger(__name__)
 
 

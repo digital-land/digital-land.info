@@ -2,7 +2,6 @@ import re
 import pytest
 from application.db.models import EntityOrm
 
-
 ENTITY_ROUTE = "/entity/"
 
 

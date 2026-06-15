@@ -6,7 +6,7 @@ import json
 from pydantic.json import pydantic_encoder
 from application.settings import get_settings, Settings
 from contextlib import contextmanager
-from functools import wraps
+from functools import wraps, lru_cache
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -36,13 +36,22 @@ def _create_engine():
     return engine
 
 
-# Create session factory
-engine = _create_engine()
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+@lru_cache(maxsize=1)
+def _get_session_local():
+    # Lazily initialised on first request rather than at import time.
+    # This avoids calling get_settings() before env vars are available (e.g.
+    # during testing), and prevents connection pool corruption when gunicorn
+    # forks worker processes — each worker creates its own pool after forking
+    # rather than inheriting shared connections from the master process.
+    #
+    # Use _get_session_local.cache_clear() to force re-initialisation
+    # (e.g. in tests that need a fresh engine).
+    engine = _create_engine()
+    return sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_session() -> Iterator[Session]:
-    db = SessionLocal()
+    db = _get_session_local()()
     try:
         yield db
     finally:
@@ -51,7 +60,7 @@ def get_session() -> Iterator[Session]:
 
 @contextmanager
 def get_context_session() -> Iterator[Session]:
-    session = SessionLocal()
+    session = _get_session_local()()
     try:
         yield session
     finally:
