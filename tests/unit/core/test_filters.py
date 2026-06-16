@@ -198,6 +198,8 @@ def test_make_param_str_filter_prevents_malformed_urls():
     expected_parts = ["dataset=planning", "entity=115%3B00041", "field=entry-date"]
     for part in expected_parts:
         assert part in result
+
+
 def test_is_past_date():
     """
     Tests `is_past_date()` only returns True when a date object passed

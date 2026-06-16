@@ -14,7 +14,7 @@ def test_map_page_loads_ok(server_url, page):
     )
     assert heading.is_visible()
 
-    banner = page.locator('#dl-data-coverage-banner')
+    banner = page.locator("#dl-data-coverage-banner")
     assert banner.is_visible()
 
     page.screenshot(path="playwright-report/test_map_page_loads_ok/map.png")

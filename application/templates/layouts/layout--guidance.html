@@ -10,7 +10,6 @@
 {% endblock %}
 
 {% block content %}
-
   {% if pageData.fullPageTitle %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
@@ -20,11 +19,12 @@
   {% endif %}
 
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-third" id="content_secondary">
+    <div class="govuk-grid-column-one-third sticky-nav" id="content_secondary">
       <a href="#content_primary" class="govuk-visually-hidden">Skip guidance navigation</a>
       {% block content_secondary %}
 
         {% set themes = [
+          'Guidance for how to check and provide your data',
           'Provide planning and housing data for England',
           'Prepare data to the specifications',
           'Other guidance'
@@ -40,16 +40,16 @@
           'themed': True,
           'links': [
             {
-              'text': 'Guidance for data providers',
+              'text': 'Guidance',
               'href': sectionPath,
               'theme': themes[0],
-              'current': true if pageData.name == 'home' else false,
+              'current': false,
             },
             {
               'text': 'Prepare your data',
               'theme': themes[0],
-              'href': sectionPath + 'specifications/',
-              'current': true if pageData.name == 'specifications' else false,
+              'href': sectionPath + '#prepare-your-data',
+              'current': false,
               'parent': true,
               'children': [
                 {
@@ -94,23 +94,47 @@
                 }
               ]
             },
-            {
-              'text': 'Publish data on your website',
+                        {
+              'text': 'Check your data',
               'theme': themes[0],
-              'href': sectionPath + 'publish-data-on-your-website',
-              'current': true if pageData.name == 'publish-data-on-your-website' else false,
+              'href': sectionPath + '#check-your-data',
+              'current': false,
+            },
+            {
+              'text': 'Publish data',
+              'theme': themes[0],
+              'href': sectionPath + '#publish-your-data',
+              'current':  false,
+            },
+             {
+              'text': 'Provide your data',
+              'theme': themes[0],
+              'href': sectionPath + '#provide-your-data',
+              'current':  false,
+            },
+             {
+              'text': 'View your data',
+              'theme': themes[0],
+              'href': sectionPath + '#view-your-data',
+              'current':  false,
+            },
+            {
+              'text': 'Update your data',
+              'theme': themes[0],
+              'href': sectionPath + '#update-your-data',
+              'current': false,
             },
             {
               'text': 'The Open Digital Planning community',
               'theme': themes[0],
-              'href': sectionPath + 'open-digital-planning-community',
-              'current': true if pageData.name == 'open-digital-planning-community' else false,
+              'href': sectionPath + '#the-open-digital-planning-community',
+              'current':  false,
             },
             {
               'text': 'Get help',
               'theme': themes[0],
-              'href': sectionPath + 'get-help',
-              'current': true if pageData.name == 'get-help' else false,
+              'href': sectionPath + '#get-help',
+              'current': false,
             },
           ]
         })
