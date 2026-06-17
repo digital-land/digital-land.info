@@ -395,7 +395,7 @@ def get_context_session_override():
     return session
 
 
-HOST = "0.0.0.0"
+HOST = "127.0.0.1"
 PORT = 9000
 
 
