@@ -438,6 +438,7 @@ def acceptance_db():
         with PostgresContainer("postgis/postgis:16-3.4", driver="psycopg2") as postgres:
             database_url = postgres.get_connection_url()
             os.environ["WRITE_DATABASE_URL"] = database_url
+            os.environ["READ_DATABASE_URL"] = database_url
             logger.info("PostGIS testcontainer ready at %s", database_url)
 
             config = Config("alembic.ini")

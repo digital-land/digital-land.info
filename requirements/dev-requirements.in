@@ -11,4 +11,4 @@ pytest-mock
 testcontainers[postgres]
 pytest-md-report
 pre-commit
-locust==2.34.0
+locust

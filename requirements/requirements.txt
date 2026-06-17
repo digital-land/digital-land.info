@@ -10,28 +10,20 @@ anyio==3.7.1
     # via starlette
 beautifulsoup4==4.15.0
     # via -r requirements/requirements.in
-certifi==2026.5.20
+certifi==2026.6.17
     # via
     #   requests
     #   sentry-sdk
-cfgv==3.5.0
-    # via pre-commit
 charset-normalizer==3.4.7
     # via requests
 click==8.4.1
     # via uvicorn
-distlib==0.4.3
-    # via virtualenv
 fastapi==0.75.2
     # via
     #   -r requirements/requirements.in
     #   fastapi-utils
 fastapi-utils==0.2.1
     # via -r requirements/requirements.in
-filelock==3.29.3
-    # via
-    #   python-discovery
-    #   virtualenv
 geoalchemy2==0.20.0
     # via -r requirements/requirements.in
 govuk-frontend-jinja==3.7.0
@@ -40,8 +32,6 @@ gunicorn==26.0.0
     # via -r requirements/requirements.in
 h11==0.16.0
     # via uvicorn
-identify==2.6.19
-    # via pre-commit
 idna==3.18
     # via
     #   anyio
@@ -60,41 +50,29 @@ markupsafe==3.0.3
     # via
     #   jinja2
     #   mako
-nodeenv==1.10.0
-    # via pre-commit
 numpy==2.4.6
     # via shapely
 packaging==26.2
     # via
     #   geoalchemy2
     #   gunicorn
-platformdirs==4.10.0
-    # via
-    #   python-discovery
-    #   virtualenv
-pre-commit==4.6.0
-    # via -r requirements/requirements.in
 psycopg2==2.9.12
     # via -r requirements/requirements.in
 pydantic==1.10.26
     # via
     #   fastapi
     #   fastapi-utils
-python-discovery==1.4.2
-    # via virtualenv
 python-dotenv==1.2.2
     # via -r requirements/requirements.in
 python-slugify==8.0.4
     # via -r requirements/requirements.in
 pyyaml==6.0.3
-    # via
-    #   -r requirements/requirements.in
-    #   pre-commit
+    # via -r requirements/requirements.in
 redis==8.0.0
     # via -r requirements/requirements.in
 requests==2.34.2
     # via -r requirements/requirements.in
-sentry-sdk==2.62.0
+sentry-sdk==2.63.0
     # via -r requirements/requirements.in
 shapely==2.1.2
     # via -r requirements/requirements.in
@@ -117,16 +95,14 @@ typing-extensions==4.15.0
     #   alembic
     #   beautifulsoup4
     #   pydantic
+    #   sqlalchemy
 uritemplate==4.2.0
     # via -r requirements/requirements.in
-urllib3==1.26.20
+urllib3==2.7.0
     # via
-    #   -r requirements/requirements.in
     #   requests
     #   sentry-sdk
 uvicorn==0.49.0
     # via -r requirements/requirements.in
 validators==0.35.0
     # via -r requirements/requirements.in
-virtualenv==21.4.3
-    # via pre-commit
