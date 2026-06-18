@@ -6,12 +6,11 @@ Your data does not need to be complete or perfect to start. You can start with w
 1. [Find your organisation](./Find your organisation).
 2. Select the dataset that is relevant to your plan. For example, 'local plan'.
 
-
 If we have data from alternative sources, you can download it from your dataset details page to help you get started.
 
 ### Datasets
 
-Right now, the service supports:
+The service currently supports:
 
 - [article 4 directions](./article-4-direction)
 - [brownfield land](https://www.gov.uk/government/publications/brownfield-land-registers-data-standard/publish-your-brownfield-land-data)
@@ -58,6 +57,8 @@ You must include a statement to confirm that you provided the data under the [Op
 
 ### Hosting your data
 
+An endpoint URL is where anyone can download your data.
+
 Endpoints are usually either a:
 
 - file hosted on your web server - like URLs that end in **.json** or **.csv**
@@ -103,7 +104,7 @@ Each documentation-URL must be unique. There are 2 ways that you can create a un
 
 1. **One page per record** <br>Give each record its own webpage, so that the documentation-url is the full page address. For example, [www.yourwebsite.gov.uk/planning/article-4-directions#smith-road](www.yourwebsite.gov.uk/planning/article-4-directions#smith-road).</br>
 
-2. **Multiple records** <br>List all records on a single page and add anchor link for each one. For example [www.yourwebsite.gov.uk/planning/article-4-directions#smith-road](www.yourwebsite.gov.uk/planning/article-4-directions#smith-road).</br>
+2. **Multiple records** <br>List all records on a single page and add anchor link for each one. For example, [www.yourwebsite.gov.uk/planning/article-4-directions#smith-road](www.yourwebsite.gov.uk/planning/article-4-directions#smith-road).</br>
 
 You need to check that your publishing system supports anchor links (also called fragment identifiers).
 
@@ -113,7 +114,7 @@ If a record is for a legal document, you need to add a `document-url` that links
 
 ### Examples
 
-[View example webpages showing how to publish planning data.](https://digital-land.github.io/documentation-url-examples/)
+[View example webpages that show how to publish planning data.](https://digital-land.github.io/documentation-url-examples/)
 
 ## Provide your data
 
@@ -129,7 +130,7 @@ You need to submit:
 Providing your data will help to:
 
 - maintain and improve your data quality
-- make land and housing data easier to find use and trust
+- make land and housing data easier to find, use and trust
 
 ## View your data
 
