@@ -26,6 +26,7 @@ export default class LayerControls {
     }
 
     onAdd(map) {
+      // Side panel
       const sidePanel = document.createElement('div');
       sidePanel.classList.add('dl-map__side-panel');
       sidePanel.setAttribute('tabindex', '-1');
@@ -34,15 +35,77 @@ export default class LayerControls {
       sidePanel.setAttribute('open', 'true');
       sidePanel.setAttribute('aria-modal', 'true');
 
+      // Settings panel
+      const settingsPanel = document.createElement('div');
+      settingsPanel.classList.add('dl-map__side-panel');
+      settingsPanel.classList.add('dl-map__side-panel--bottom');
+      settingsPanel.setAttribute('tabindex', '-1');
+      settingsPanel.setAttribute('role', 'dialog');
+      settingsPanel.setAttribute('aria-hidden', 'false');
+      settingsPanel.setAttribute('open', 'true');
+      settingsPanel.setAttribute('aria-modal', 'true');
+
+      // Side panel & settings panel headings
       const heading = document.createElement('div');
+      const settingsPanelHeading = document.createElement('div');
+
       heading.classList.add('dl-map__side-panel__heading');
+      settingsPanelHeading.classList.add('dl-map__side-panel__heading');
 
       const h3 = document.createElement('h3');
+      const settingsPanelh3 = document.createElement('h3');
+
       h3.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
       h3.textContent = 'Data layers';
+      settingsPanelh3.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
+      settingsPanelh3.textContent = 'Settings';
 
       heading.appendChild(h3);
+      settingsPanelHeading.appendChild(settingsPanelh3);
+
       sidePanel.appendChild(heading);
+      settingsPanel.appendChild(settingsPanelHeading);
+
+      // Settings panel content
+      const settingsPanelContent = document.createElement('div');
+      settingsPanelContent.classList.add('dl-map__side-panel__content');
+
+      const settingsList = document.createElement('ul');
+      settingsList.classList.add('govuk-list');
+      settingsList.setAttribute('role', 'group');
+
+      const settingsListItem = document.createElement('li');
+      settingsListItem.classList.add('dl-map__layer-item', 'govuk-!-margin-bottom-1');
+
+      const historicalCheckBoxDiv = document.createElement('div');
+      historicalCheckBoxDiv.classList.add('govuk-checkboxes__item');
+
+      this.$historicalDataCheckbox = document.createElement('input');
+      this.$historicalDataCheckbox.classList.add('govuk-checkboxes__input');
+      this.$historicalDataCheckbox.setAttribute('id', 'show-historical-data');
+      this.$historicalDataCheckbox.setAttribute('name', 'show-historical-data');
+      this.$historicalDataCheckbox.setAttribute('type', 'checkbox');
+      this.$historicalDataCheckbox.setAttribute('value', 'show-historical-data');
+      this.$historicalDataCheckbox.disabled = true;
+      this.$historicalDataCheckbox.addEventListener('change', this.toggleHistoricalData.bind(this));
+
+      const historicalCheckBoxLabel = document.createElement('label');
+      historicalCheckBoxLabel.classList.add('govuk-label', 'govuk-checkboxes__label');
+      historicalCheckBoxLabel.setAttribute('for', 'show-historical-data');
+      historicalCheckBoxLabel.innerHTML = `
+        <span class="dl-label__key">
+          <span class="dl-label__key__symbol" style="border-color: #AA2A16; background: #AA2A1680;"></span>
+          Show historical data
+        </span>
+      `;
+
+      historicalCheckBoxDiv.appendChild(this.$historicalDataCheckbox);
+      historicalCheckBoxDiv.appendChild(historicalCheckBoxLabel);
+      settingsListItem.appendChild(historicalCheckBoxDiv);
+
+      settingsList.appendChild(settingsListItem);
+      settingsPanelContent.appendChild(settingsList);
+      settingsPanel.appendChild(settingsPanelContent);
 
       const content = document.createElement('div');
       content.classList.add('dl-map__side-panel__content');
@@ -50,7 +113,7 @@ export default class LayerControls {
 
       const checkboxes = document.createElement('div');
       checkboxes.classList.add('govuk-checkboxes');
-      checkboxes.setAttribute('data-module', `layer-controls-${this.mapController.mapId}}`);
+      checkboxes.setAttribute('data-module', `layer-controls-${this.mapController.mapId}`);
 
       const filterGroup = document.createElement('div');
       filterGroup.classList.add('dl-filter-group__auto-filter');
@@ -74,11 +137,9 @@ export default class LayerControls {
 
       const list = document.createElement('ul');
       list.classList.add('govuk-list');
-      list.setAttribute('style', 'height: 400px;')
+      list.setAttribute('style', 'height: 272px;')
       list.setAttribute('data-module', 'layer-toggles');
       list.setAttribute('role', 'group');
-
-
 
       this.layerOptions = this.layers.map((layer) => {
         return new LayerOption(layer, this.availableLayers[layer.dataset], this);
@@ -119,6 +180,39 @@ export default class LayerControls {
 
       this._container.appendChild(sidePanel);
 
+      // Create and configure open/close buttons for the settings panel
+      const settingsCloseButton = document.createElement('button');
+      settingsCloseButton.classList.add('dl-map__close-btn');
+
+      const settingsCloseLabel = document.createElement('span');
+      settingsCloseLabel.textContent = 'Close settings panel';
+      settingsCloseLabel.classList.add('govuk-visually-hidden');
+      settingsCloseButton.appendChild(settingsCloseLabel);
+
+      const boundToggleSettingsPanel = this.toggleSettingsPanel.bind(this);
+      settingsCloseButton.addEventListener('click', boundToggleSettingsPanel);
+      settingsPanel.appendChild(settingsCloseButton);
+      this.$settingsPanel = settingsPanel;
+
+      const settingsOpenButton = document.createElement('button');
+      settingsOpenButton.classList.add('dl-map__settings-open-btn', 'dl-map__open-btn', 'js-hidden');
+
+      const settingsOpenLabel = document.createElement('span');
+      settingsOpenLabel.textContent = 'Open settings panel';
+      settingsOpenLabel.classList.add('govuk-visually-hidden');
+      settingsOpenButton.appendChild(settingsOpenLabel);
+
+      const boundOpenSettingsPanel = this.openSettingsPanel.bind(this);
+      settingsOpenButton.addEventListener('click', boundOpenSettingsPanel);
+      this.mapController.map.getContainer().appendChild(settingsOpenButton);
+      this.$settingsOpenBtn = settingsOpenButton;
+      this._container.appendChild(settingsPanel);
+
+      // Position settings panel based on side panel visibility once rendered
+      requestAnimationFrame(() => {
+        this.positionSettingsPanel();
+      });
+
       // initial set up of controls (default or urlParams)
       const urlParams = (new URL(document.location)).searchParams;
       if (!urlParams.has(this.layerURLParamName)) {
@@ -154,25 +248,70 @@ export default class LayerControls {
     }
 
     togglePanel(e) {
-      const action = e.target.dataset.action;
+      const action = e.currentTarget.dataset.action;
       const opening = (action === 'open');
       // set aria attributes
       this.$sidePanelContent.setAttribute('aria-hidden', !opening);
       this.$sidePanelContent.setAttribute('open', opening);
       if (opening) {
-        this._container.classList.remove('dl-map__side-panel--collapsed');
+        this.$sidePanel.classList.remove('dl-map__side-panel--collapsed');
         this.$openBtn.classList.add('js-hidden');
         this.$closeBtn.classList.remove('js-hidden');
         // focus on the panel when opening
-        this._container.focus();
+        this.$sidePanel.focus();
       } else {
-        this._container.classList.add('dl-map__side-panel--collapsed');
+        this.$sidePanel.classList.add('dl-map__side-panel--collapsed');
         this.$openBtn.classList.remove('js-hidden');
         this.$closeBtn.classList.add('js-hidden');
         // focus on open btn when closing panel
         this.$openBtn.focus();
       }
+
+      this.positionSettingsPanel();
     };
+
+    toggleSettingsPanel() {
+      this.$settingsPanel.classList.add('dl-map__side-panel--collapsed');
+      this.$settingsOpenBtn.classList.remove('js-hidden');
+      this.positionSettingsPanel();
+      this.$settingsOpenBtn.focus();
+    }
+
+    openSettingsPanel() {
+      this.$settingsPanel.classList.remove('dl-map__side-panel--collapsed');
+      this.$settingsOpenBtn.classList.add('js-hidden');
+      this.positionSettingsPanel();
+      this.$settingsPanel.focus();
+    }
+
+    positionSettingsPanel() {
+      const mapContainer = this.mapController.map.getContainer();
+      if (!mapContainer) {
+        return;
+      }
+
+      const mapTopGutter = 15;
+      const isCollapsed = this.$sidePanel.classList.contains('dl-map__side-panel--collapsed');
+
+      let topOffset;
+      let buttonTopOffset;
+
+      if (isCollapsed) {
+        const openBtnRect = this.$openBtn.getBoundingClientRect();
+        const containerRect = mapContainer.getBoundingClientRect();
+        topOffset = (openBtnRect.bottom - containerRect.top) + mapTopGutter;
+        buttonTopOffset = topOffset;
+      } else {
+        const sidePanelRect = this.$sidePanel.getBoundingClientRect();
+        const containerRect = mapContainer.getBoundingClientRect();
+        topOffset = (sidePanelRect.bottom - containerRect.top) + mapTopGutter;
+        buttonTopOffset = topOffset + 8;
+      }
+
+      this.$settingsPanel.style.top = topOffset + 'px';
+      this.$settingsPanel.style.bottom = 'auto';
+      this.$settingsOpenBtn.style.top = buttonTopOffset + 'px';
+    }
 
     // toggles visibility of elements/entities based on URL params
     toggleLayersBasedOnUrl() {
@@ -209,6 +348,39 @@ export default class LayerControls {
 
     enabledLayers() {
       return this.layerOptions.filter(option => option.isChecked())
+    };
+
+    // Checkbox handler for "Show historical data"
+    // Only gets invoked when at least one dataset checkbox is checked
+    // (the checkbox is disabled otherwise)
+    toggleHistoricalData(event) {
+      const showHistorical = event.target.checked;
+
+      this.enabledLayers().forEach(layerOption => {
+        layerOption.availableLayers.forEach(layerId => {
+          this.mapController.setLayerCurrentEntityFilter(layerId, showHistorical);
+        });
+      });
+    };
+
+    // Keeps the "Show historical data" checkbox disabled (and unchecked)
+    // while no dataset checkboxes are checked, since there's nothing for
+    // it to apply to in that state
+    updateHistoricalCheckboxState() {
+      if (!this.$historicalDataCheckbox) return;
+
+      const anyDatasetChecked = this.enabledLayers().length > 0;
+      this.$historicalDataCheckbox.disabled = !anyDatasetChecked;
+
+      // If no datasets are checked, reset the historical checkbox
+      if (!anyDatasetChecked && this.$historicalDataCheckbox.checked) {
+        this.$historicalDataCheckbox.checked = false;
+        this.layerOptions.forEach(layerOption => {
+          layerOption.availableLayers.forEach(layerId => {
+            this.mapController.setLayerCurrentEntityFilter(layerId, false);
+          });
+        });
+      }
     };
 
     filterCheckboxes(e) {
@@ -360,28 +532,38 @@ export class LayerOption {
   }
 
   enable() {
+    // Check the input, update UI classes, and set the map layer visibility to true
     const $chkbx = this.element.querySelector('input[type="checkbox"]');
     $chkbx.checked = true;
     this.element.dataset.layerControlActive = 'true';
     this.element.classList.remove(this.layerControlDeactivatedClass);
     this.setLayerVisibility(true);
+    this.layerControls.updateHistoricalCheckboxState();
   };
 
   disable() {
+    // Uncheck the input, update UI classes, and set the map layer visibility to false
     const $chkbx = this.element.querySelector('input[type="checkbox"]');
     $chkbx.checked = false;
     this.element.dataset.layerControlActive = 'false';
     this.element.classList.add(this.layerControlDeactivatedClass);
     this.setLayerVisibility(false);
+    this.layerControls.updateHistoricalCheckboxState();
   };
 
   isChecked(){
+    // Return the checked status of the layer's checkbox
     return this.element.querySelector('input[type="checkbox"]').checked
   }
 
   setLayerVisibility(visible) {
     const visibility = (visible) ? 'visible' : 'none';
-    this.availableLayers.forEach(layerId => this.layerControls.mapController.setLayerVisibility(layerId, visibility));
+    const showHistorical = !!(this.layerControls.$historicalDataCheckbox && this.layerControls.$historicalDataCheckbox.checked);
+
+    this.availableLayers.forEach(layerId => {
+      this.layerControls.mapController.setLayerVisibility(layerId, visibility);
+      this.layerControls.mapController.setLayerCurrentEntityFilter(layerId, visible && showHistorical);
+    });
   }
 
   setLayerCheckboxVisibility(display) {
@@ -390,6 +572,7 @@ export class LayerOption {
   }
 
   getDatasetName(){
+    // Return the dataset identifier for this layer
     return this.layer.dataset;
   }
 }

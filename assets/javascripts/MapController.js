@@ -6,6 +6,44 @@ import { capitalizeFirstLetter, preventScroll } from "./utils.js";
 import { getApiToken, getFreshApiToken } from "./osApiToken.js";
 import {defaultPaintOptions} from "./defaultPaintOptions.js";
 
+// Colour/opacity used to highlight entities whose end-date are in the past (< today),
+// matching the "Show historical data" checkbox swatch in the side panel.
+const HISTORICAL_ENTITY_COLOUR = '#AA2A16';
+const HISTORICAL_ENTITY_OPACITY = 0.5;
+
+// Builds a MapLibre paint expression that uses the historical highlight
+// colour for any feature with a past end-date, and the layer's normal
+// colour otherwise
+function withHistoricalColour(baseColour) {
+  const today = new Date().toISOString().slice(0, 10);
+  const endDateExpr = ['coalesce', ['get', 'end-date'], ''];
+  return [
+    'case',
+    ['all', ['!=', endDateExpr, ''], ['<', endDateExpr, today]],
+    HISTORICAL_ENTITY_COLOUR,
+    baseColour
+  ];
+}
+
+function withHistoricalOpacity(baseOpacity) {
+  const today = new Date().toISOString().slice(0, 10);
+  const endDateExpr = ['coalesce', ['get', 'end-date'], ''];
+  return [
+    'case',
+    ['all', ['!=', endDateExpr, ''], ['<', endDateExpr, today]],
+    HISTORICAL_ENTITY_OPACITY,
+    baseOpacity
+  ];
+}
+
+function isFeatureExpired(feature) {
+  const endDate = feature.properties && feature.properties['end-date'];
+  if (!endDate) return false;
+
+  const today = new Date().toISOString().slice(0, 10);
+  return endDate < today;
+}
+
 export default class MapController {
   constructor(params) {
     // set the params applying default values where none were provided
@@ -44,6 +82,7 @@ export default class MapController {
     this.useOAuth2 = params.useOAuth2 || false;
     this.layers = params.layers || [];
     this.featuresHoveringOver = 0;
+    this.baseLayerFilters = {};
   }
 
   getViewFromUrl() {
@@ -296,6 +335,7 @@ export default class MapController {
     additionalOptions={}
   }){
     const layerName = `${sourceName}-${layerType}`;
+    this.baseLayerFilters[layerName] = additionalOptions.filter || null;
     this.map.addLayer({
       id: layerName,
       type: layerType,
@@ -461,9 +501,9 @@ export default class MapController {
         sourceName: `${source.name}-source`,
         layerType: 'circle',
         paintOptions: {
-          'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-          'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
-          'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'circle-color': withHistoricalColour(source.styleProps.colour || defaultPaintOptions['fill-color']),
+          'circle-opacity': withHistoricalOpacity(source.styleProps.opacity || defaultPaintOptions['fill-opacity']),
+          'circle-stroke-color': withHistoricalColour(source.styleProps.colour || defaultPaintOptions['fill-color']),
           "circle-radius": defaultPaintOptions['circle-radius']
         },
         sourceLayer: `${source.name}`,
@@ -476,9 +516,12 @@ export default class MapController {
         sourceName: `${source.name}-source`,
         layerType: 'fill-extrusion',
         paintOptions: {
-          'fill-extrusion-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'fill-extrusion-color': withHistoricalColour(source.styleProps.colour || defaultPaintOptions['fill-color']),
           'fill-extrusion-height': 1,
           'fill-extrusion-base': 0,
+          // fill-extrusion-opacity is data-constant only in MapLibre's style
+          // spec; it cannot vary per-feature, so historical highlighting
+          // here is colour-only (via fill-extrusion-color above).
           'fill-extrusion-opacity': parseFloat(source.styleProps.opacity) || defaultPaintOptions['fill-opacity']
         },
         sourceLayer: `${source.name}`,
@@ -491,7 +534,7 @@ export default class MapController {
         sourceName: `${source.name}-source`,
         layerType: 'line',
         paintOptions: {
-          'line-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'line-color': withHistoricalColour(source.styleProps.colour || defaultPaintOptions['fill-color']),
           'line-width': source.styleProps.weight || defaultPaintOptions['weight']
         },
         sourceLayer: `${source.name}`,
@@ -502,9 +545,9 @@ export default class MapController {
         sourceName: `${source.name}-source`,
         layerType: 'circle',
         paintOptions: {
-          'circle-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
-          'circle-opacity': source.styleProps.opacity || defaultPaintOptions['fill-opacity'],
-          'circle-stroke-color': source.styleProps.colour || defaultPaintOptions['fill-color'],
+          'circle-color': withHistoricalColour(source.styleProps.colour || defaultPaintOptions['fill-color']),
+          'circle-opacity': withHistoricalOpacity(source.styleProps.opacity || defaultPaintOptions['fill-opacity']),
+          'circle-stroke-color': withHistoricalColour(source.styleProps.colour || defaultPaintOptions['fill-color']),
           "circle-radius": defaultPaintOptions['circle-radius']
         },
         sourceLayer: `${source.name}`,
@@ -562,6 +605,12 @@ export default class MapController {
     heading.classList.add('app-popup-heading');
     heading.textContent = `${features.length} ${featureOrFeatures} selected`;
     wrapper.appendChild(heading);
+
+    if (features.length === 1 && isFeatureExpired(features[0])) {
+      const outOfDateNotice = document.createElement('h3');
+      outOfDateNotice.textContent = 'This entity is out of date';
+      wrapper.appendChild(outOfDateNotice);
+    }
 
     if (features.length > this.popupMaxListLength) {
       const tooMany = document.createElement('p');
@@ -628,4 +677,30 @@ export default class MapController {
     );
   };
 
+  // showHistorical: true shows every entity including the ones where end-date is the past;
+  // false (default) hides entities whose end-date is in the past.
+  setLayerCurrentEntityFilter(layerName, showHistorical = false) {
+    const baseFilter = this.baseLayerFilters[layerName] || null;
+
+    if (showHistorical) {
+      this.map.setFilter(layerName, baseFilter);
+      return;
+    }
+
+    // Vector tile property names use hyphens. Coalesce to '' so a feature
+    // entirely missing the property doesn't throw a runtime type error.
+    const today = new Date().toISOString().slice(0, 10);
+    const endDateExpr = ["coalesce", ["get", "end-date"], ""];
+
+    // Keep records with no end date, or an end date that is today or in
+    // the future.
+    const notExpiredFilter = [
+      "any",
+      ["==", endDateExpr, ""],
+      [">=", endDateExpr, today]
+    ];
+
+    const filter = baseFilter ? ["all", baseFilter, notExpiredFilter] : notExpiredFilter;
+    this.map.setFilter(layerName, filter);
+  }
 }
