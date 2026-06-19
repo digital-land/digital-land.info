@@ -28,7 +28,6 @@ complex_datasets = ["flood-risk-zone"]
 def get_entity_query(
     id: int,
 ) -> Tuple[Optional[EntityModel], Optional[int], Optional[int]]:
-
     with get_context_session() as session:
         old_entity = (
             session.query(OldEntityOrm)
