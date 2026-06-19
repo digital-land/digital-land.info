@@ -28,7 +28,7 @@ Endpoints are usually either a:
   <summary class="govuk-details__summary">
     <span class="govuk-details__summary-text">
 Help with providing data using an ArcGIS data layer
-    </span>
+    </span>
   </summary>
   <div class="govuk-details__text">
     <p class="govuk-body">An ArcGIS data layer URL usually looks like this:</p>
@@ -61,7 +61,7 @@ Each documentation-URL must be unique. There are 2 ways that you can create a un
 
 
 
-1. **One page per record** <br>Give each record its own webpage, so that the documentation-url is the full page address. For example, [www.yourwebsite.gov.uk/planning/article-4-directions#smith-road](www.yourwebsite.gov.uk/planning/article-4-directions#smith-road).</br>
+1. **One page per record** <br>Give each record its own webpage, so that the documentation-url is the full page address. For example, [www.yourwebsite.gov.uk/planning/article-4-directions/smith-road](www.yourwebsite.gov.uk/planning/article-4-directions/smith-road).</br>
 
 2. **Multiple records** <br>List all records on a single page and add anchor link for each one. For example [www.yourwebsite.gov.uk/planning/article-4-directions#smith-road](www.yourwebsite.gov.uk/planning/article-4-directions#smith-road).</br>
 
