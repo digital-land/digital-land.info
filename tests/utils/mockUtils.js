@@ -69,6 +69,7 @@ const mapMock = {
 const mapControllerMock = {
     map: mapMock,
     setLayerVisibility: vi.fn(),
+    setLayerCurrentEntityFilter: vi.fn(),
 }
 
 const domElementMock = {

@@ -30,11 +30,14 @@ describe('Layer Controls', () => {
         layerControls.$closeBtn = domElementMock;
 
         vi.clearAllMocks();
+
+        layerControls.$sidePanel = domElementMock;
+        layerControls.positionSettingsPanel = vi.fn();
     });
 
     describe('togglePanel()', () => {
         test('togglePanel() correctly executes when opening',() => {
-            layerControls.togglePanel({ target: { dataset: { action: 'close' }}});
+            layerControls.togglePanel({ currentTarget: { dataset: { action: 'close' }}});
             expect(domElementMock.classList.add).toHaveBeenCalled();
             expect(domElementMock.classList.add).toHaveBeenCalled();
             expect(domElementMock.setAttribute).toHaveBeenCalled();
@@ -42,7 +45,7 @@ describe('Layer Controls', () => {
         })
 
         test('correctly executes when closing',() => {
-            layerControls.togglePanel({ target: { dataset: { action: 'close' }}});
+            layerControls.togglePanel({ currentTarget: { dataset: { action: 'close' }}});
             expect(domElementMock.classList.remove).toHaveBeenCalled();
             expect(domElementMock.classList.add).toHaveBeenCalled();
             expect(domElementMock.setAttribute).toHaveBeenCalled();
@@ -286,7 +289,7 @@ describe('Layer Controls', () => {
                 };
             })
 
-            const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], undefined);
+            const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], { updateHistoricalCheckboxState: vi.fn() });
 
             option.setLayerVisibility = vi.fn();
             option.enable();
@@ -309,7 +312,7 @@ describe('Layer Controls', () => {
                 };
             })
 
-            const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], undefined);
+            const option = new LayerOption('testLayer1', ['testLayer1-1', 'testLayer1-2'], { updateHistoricalCheckboxState: vi.fn() });
 
             option.setLayerVisibility = vi.fn();
             option.disable();
@@ -333,6 +336,7 @@ describe('Layer Controls', () => {
                 option.layerControls = {
                     mapController: {
                         setLayerVisibility: vi.fn(),
+                        setLayerCurrentEntityFilter: vi.fn(),
                     }
                 }
                 option.setLayerVisibility(true);
@@ -348,6 +352,7 @@ describe('Layer Controls', () => {
                 option.layerControls = {
                     mapController: {
                         setLayerVisibility: vi.fn(),
+                        setLayerCurrentEntityFilter: vi.fn(),
                     }
                 }
                 option.setLayerVisibility(false);
