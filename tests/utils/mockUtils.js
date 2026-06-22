@@ -93,6 +93,8 @@ const domElementMock = {
         layerControl: 'testLayer1',
     },
     appendChild: vi.fn(),
+    prepend: vi.fn(),
+    remove: vi.fn(),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     setAttribute: vi.fn(),
