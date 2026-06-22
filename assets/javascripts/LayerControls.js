@@ -67,8 +67,13 @@ export default class LayerControls {
       settingsPanel.appendChild(settingsPanelHeading);
 
       // Settings panel content
-      const settingsPanelContent = document.createElement('div');
-      settingsPanelContent.classList.add('dl-map__side-panel__content');
+      this.$settingsPanelContent = document.createElement('div');
+      this.$settingsPanelContent.classList.add('dl-map__side-panel__content');
+      this.$settingsPanelContent.style.cssText = 'margin-left: 8px; margin-top: 8px; margin-bottom: 8px;';
+
+      this.$settingsErrorMessage = document.createElement('p');
+      this.$settingsErrorMessage.classList.add('govuk-error-message');
+      this.$settingsErrorMessage.textContent = 'Select a data layer first';
 
       const settingsList = document.createElement('ul');
       settingsList.classList.add('govuk-list');
@@ -86,7 +91,6 @@ export default class LayerControls {
       this.$historicalDataCheckbox.setAttribute('name', 'show-historical-data');
       this.$historicalDataCheckbox.setAttribute('type', 'checkbox');
       this.$historicalDataCheckbox.setAttribute('value', 'show-historical-data');
-      this.$historicalDataCheckbox.disabled = true;
       this.$historicalDataCheckbox.addEventListener('change', this.toggleHistoricalData.bind(this));
 
       const historicalCheckBoxLabel = document.createElement('label');
@@ -104,8 +108,8 @@ export default class LayerControls {
       settingsListItem.appendChild(historicalCheckBoxDiv);
 
       settingsList.appendChild(settingsListItem);
-      settingsPanelContent.appendChild(settingsList);
-      settingsPanel.appendChild(settingsPanelContent);
+      this.$settingsPanelContent.appendChild(settingsList);
+      settingsPanel.appendChild(this.$settingsPanelContent);
 
       const content = document.createElement('div');
       content.classList.add('dl-map__side-panel__content');
@@ -137,7 +141,7 @@ export default class LayerControls {
 
       const list = document.createElement('ul');
       list.classList.add('govuk-list');
-      list.setAttribute('style', 'height: 272px;')
+      list.setAttribute('style', 'height: 220px;')
       list.setAttribute('data-module', 'layer-toggles');
       list.setAttribute('role', 'group');
 
@@ -351,11 +355,17 @@ export default class LayerControls {
     };
 
     // Checkbox handler for "Show historical data"
-    // Only gets invoked when at least one dataset checkbox is checked
-    // (the checkbox is disabled otherwise)
     toggleHistoricalData(event) {
-      const showHistorical = event.target.checked;
+      if (this.enabledLayers().length === 0) {
+        event.target.checked = false;
+        if (this.$settingsPanelContent) {
+          this.$settingsPanelContent.classList.add('govuk-form-group--error');
+          this.$settingsPanelContent.prepend(this.$settingsErrorMessage);
+        }
+        return;
+      }
 
+      const showHistorical = event.target.checked;
       this.enabledLayers().forEach(layerOption => {
         layerOption.availableLayers.forEach(layerId => {
           this.mapController.setLayerCurrentEntityFilter(layerId, showHistorical);
@@ -363,16 +373,19 @@ export default class LayerControls {
       });
     };
 
-    // Keeps the "Show historical data" checkbox disabled (and unchecked)
-    // while no dataset checkboxes are checked, since there's nothing for
-    // it to apply to in that state
+    // Resets the "Show historical data" checkbox when no dataset checkboxes
+    // are checked, and clears the error state when a dataset becomes checked.
     updateHistoricalCheckboxState() {
       if (!this.$historicalDataCheckbox) return;
 
       const anyDatasetChecked = this.enabledLayers().length > 0;
-      this.$historicalDataCheckbox.disabled = !anyDatasetChecked;
 
-      // If no datasets are checked, reset the historical checkbox
+      if (anyDatasetChecked && this.$settingsPanelContent) {
+        this.$settingsPanelContent.classList.remove('govuk-form-group--error');
+        this.$settingsErrorMessage?.remove();
+      }
+
+      // If no datasets are checked, uncheck and reset the historical filter
       if (!anyDatasetChecked && this.$historicalDataCheckbox.checked) {
         this.$historicalDataCheckbox.checked = false;
         this.layerOptions.forEach(layerOption => {
