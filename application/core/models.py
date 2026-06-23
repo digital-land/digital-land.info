@@ -161,6 +161,19 @@ def entity_factory(entity_orm: EntityOrm):
     return e
 
 
+class TaskModel(DigitalLandBaseModel):
+    reference: str
+    dataset: str
+    organisation: Optional[str] = None
+    endpoint: Optional[str] = None
+    resource: Optional[str] = None
+    details: Optional[dict] = None
+    severity: str
+    responsibility: str
+    task_source: str
+    entry_date: Optional[date] = None
+
+
 class FactModel(DigitalLandBaseModel):
     fact: str
     entity: int

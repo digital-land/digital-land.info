@@ -300,6 +300,21 @@ class QueryFilters:
 
 
 @dataclass
+class TaskQueryFilters:
+    dataset: Optional[List[str]] = Query(None, description="Filter tasks by dataset")
+    organisation: Optional[List[str]] = Query(
+        None, description="Filter tasks by organisation"
+    )
+    severity: Optional[List[str]] = Query(None, description="Filter tasks by severity")
+    responsibility: Optional[List[str]] = Query(
+        None, description="Filter tasks by responsibility"
+    )
+    task_source: Optional[List[str]] = Query(None, description="Filter tasks by source")
+    limit: int = Query(10, ge=1, le=500, description="Limit number of results")
+    offset: int = Query(0, ge=0, description="Paginate results from this offset")
+
+
+@dataclass
 class FactDatasetQueryFilters:
     dataset: str
 
