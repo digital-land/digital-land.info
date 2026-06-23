@@ -371,6 +371,13 @@ describe('Map Controller', () => {
                 maxMapZoom: maxMapZoom,
             }
 
+            // Mirror the historical-highlight expression helpers from MapController.js
+            const today = new Date().toISOString().slice(0, 10);
+            const endDateExpr = ['coalesce', ['get', 'end-date'], ''];
+            const historicalCondition = ['all', ['!=', endDateExpr, ''], ['<', endDateExpr, today]];
+            const withHistoricalColour = (colour) => ['case', historicalCondition, '#AA2A16', colour];
+            const withHistoricalOpacity = (opacity) => ['case', historicalCondition, 0.5, opacity];
+
             const mapController = new MapController(params)
             await waitForMapCreation(mapController)
             await mapController.map.events.load() // initiate the load event
@@ -389,9 +396,9 @@ describe('Map Controller', () => {
                 source: `${params.vectorTileSources[0].name}-source`,
                 'source-layer': `${params.vectorTileSources[0].name}`,
                 paint: {
-                    'circle-color': params.vectorTileSources[0].styleProps.colour,
-                    'circle-opacity': params.vectorTileSources[0].styleProps.opacity,
-                    'circle-stroke-color': params.vectorTileSources[0].styleProps.colour,
+                    'circle-color': withHistoricalColour(params.vectorTileSources[0].styleProps.colour),
+                    'circle-opacity': withHistoricalOpacity(params.vectorTileSources[0].styleProps.opacity),
+                    'circle-stroke-color': withHistoricalColour(params.vectorTileSources[0].styleProps.colour),
                     'circle-radius': [
                         "interpolate", ["linear"], ["zoom"],
                         6, 1,
@@ -427,6 +434,12 @@ describe('Map Controller', () => {
                 }
             }
 
+            // Mirror the historical-highlight expression helpers from MapController.js
+            const today = new Date().toISOString().slice(0, 10);
+            const endDateExpr = ['coalesce', ['get', 'end-date'], ''];
+            const historicalCondition = ['all', ['!=', endDateExpr, ''], ['<', endDateExpr, today]];
+            const withHistoricalColour = (colour) => ['case', historicalCondition, '#AA2A16', colour];
+
             const mapController = new MapController(params)
             await waitForMapCreation(mapController)
 
@@ -446,7 +459,7 @@ describe('Map Controller', () => {
                 source: `${params.vectorTileSources[0].name}-source`,
                 'source-layer': `${params.vectorTileSources[0].name}`,
                 paint: {
-                    'fill-extrusion-color': params.vectorTileSources[0].styleProps.colour,
+                    'fill-extrusion-color': withHistoricalColour(params.vectorTileSources[0].styleProps.colour),
                     'fill-extrusion-opacity': params.vectorTileSources[0].styleProps.opacity,
                     'fill-extrusion-height': 1,
                     'fill-extrusion-base': 0,
@@ -459,7 +472,7 @@ describe('Map Controller', () => {
                 source: `${params.vectorTileSources[0].name}-source`,
                 'source-layer': `${params.vectorTileSources[0].name}`,
                 paint: {
-                    'line-color': params.vectorTileSources[0].styleProps.colour,
+                    'line-color': withHistoricalColour(params.vectorTileSources[0].styleProps.colour),
                     'line-width': 1,
                 },
                 layout: {}

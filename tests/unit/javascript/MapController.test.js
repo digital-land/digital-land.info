@@ -81,6 +81,13 @@ describe('Map Controller - Unit', () => {
         mapController.minMapZoom = minMapZoom;
         mapController.maxMapZoom = maxMapZoom;
 
+        // Mirror the historical-highlight expression helpers from MapController.js
+        // so the expected values stay correct regardless of today's date.
+        const today = new Date().toISOString().slice(0, 10);
+        const endDateExpr = ['coalesce', ['get', 'end-date'], ''];
+        const historicalCondition = ['all', ['!=', endDateExpr, ''], ['<', endDateExpr, today]];
+        const withHistoricalColour = (colour) => ['case', historicalCondition, '#AA2A16', colour];
+        const withHistoricalOpacity = (opacity) => ['case', historicalCondition, 0.5, opacity];
 
         const layers1 = mapController.addVectorTileSource({
             name: 'testName',
@@ -124,9 +131,9 @@ describe('Map Controller - Unit', () => {
             sourceName: 'testName-source',
             layerType: 'circle',
             paintOptions: {
-                'circle-color': 'red',
-                'circle-opacity': 0.8,
-                'circle-stroke-color': 'red',
+                'circle-color': withHistoricalColour('red'),
+                'circle-opacity': withHistoricalOpacity(0.8),
+                'circle-stroke-color': withHistoricalColour('red'),
                 'circle-radius': [
                     "interpolate", ["linear"], ["zoom"],
                     6, 1,
@@ -140,9 +147,9 @@ describe('Map Controller - Unit', () => {
             sourceName: 'testName2-source',
             layerType: 'circle',
             paintOptions: {
-                'circle-color': 'blue',
-                'circle-opacity': 0.8,
-                'circle-stroke-color': 'blue',
+                'circle-color': withHistoricalColour('blue'),
+                'circle-opacity': withHistoricalOpacity(0.8),
+                'circle-stroke-color': withHistoricalColour('blue'),
                 'circle-radius': [
                     "interpolate", ["linear"], ["zoom"],
                     6, 1,
