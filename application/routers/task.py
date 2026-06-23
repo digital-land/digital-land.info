@@ -36,6 +36,7 @@ def list_tasks(
 router.add_api_route(
     ".{extension}",
     endpoint=list_tasks,
+    methods=["GET"],
     response_class=DigitalLandJSONResponse,
     tags=["List tasks"],
     summary="List tasks, optionally filtered by dataset, organisation, severity, responsibility or task-source.",
@@ -44,6 +45,7 @@ router.add_api_route(
 router.add_api_route(
     "/",
     endpoint=list_tasks,
+    methods=["GET"],
     response_class=DigitalLandJSONResponse,
     include_in_schema=False,
 )
