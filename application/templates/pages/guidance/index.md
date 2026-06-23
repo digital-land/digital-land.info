@@ -144,13 +144,3 @@ If you use the check and provide your data service, you only need to make change
 Planning.data.gov.uk will update automatically.
 
 If you create a new endpoint URL, you will need to provide your data again.
-
-## The Open Digital Planning community
-
-If you’re part of the Open Digital Planning community, we expect you to submit the datasets that the service currently supports. [Read more about what’s expected of you](https://opendigitalplanning.org/digital-planning-improvement).
-
-If you’re a local planning authority who is interested in becoming a member, you can [join the community](https://opendigitalplanning.org/join).
-
-## Get Help
-
-If you need any help at any stage of the process, let us know by emailing [digitalland@communities.gov.uk](mailto:digitalland@communities.gov.uk) and a member of our team will be in touch.
