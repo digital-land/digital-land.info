@@ -43,7 +43,7 @@ export default class LayerControls {
       settingsPanel.setAttribute('role', 'dialog');
       settingsPanel.setAttribute('aria-hidden', 'false');
       settingsPanel.setAttribute('open', 'true');
-      settingsPanel.setAttribute('aria-modal', 'true');
+      settingsPanel.setAttribute('aria-modal', 'false');
 
       // Side panel & settings panel headings
       const heading = document.createElement('div');
@@ -276,6 +276,8 @@ export default class LayerControls {
 
     toggleSettingsPanel() {
       this.$settingsPanel.classList.add('dl-map__side-panel--collapsed');
+      this.$settingsPanel.setAttribute('aria-hidden', 'true');
+      this.$settingsPanel.setAttribute('open', 'false');
       this.$settingsOpenBtn.classList.remove('js-hidden');
       this.positionSettingsPanel();
       this.$settingsOpenBtn.focus();
@@ -283,6 +285,8 @@ export default class LayerControls {
 
     openSettingsPanel() {
       this.$settingsPanel.classList.remove('dl-map__side-panel--collapsed');
+      this.$settingsPanel.setAttribute('aria-hidden', 'false');
+      this.$settingsPanel.setAttribute('open', 'true');
       this.$settingsOpenBtn.classList.add('js-hidden');
       this.positionSettingsPanel();
       this.$settingsPanel.focus();

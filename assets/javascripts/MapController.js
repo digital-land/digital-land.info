@@ -692,8 +692,8 @@ export default class MapController {
     const today = new Date().toISOString().slice(0, 10);
     const endDateExpr = ["coalesce", ["get", "end-date"], ""];
 
-    // Keep records with no end date, or an end date that is today or in
-    // the future.
+    // Keep records with no end date, or an end date that is either
+    // today or in the future.
     const notExpiredFilter = [
       "any",
       ["==", endDateExpr, ""],

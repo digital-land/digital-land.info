@@ -37,7 +37,7 @@ describe('Layer Controls', () => {
 
     describe('togglePanel()', () => {
         test('togglePanel() correctly executes when opening',() => {
-            layerControls.togglePanel({ currentTarget: { dataset: { action: 'close' }}});
+            layerControls.togglePanel({ currentTarget: { dataset: { action: 'open' }}});
             expect(domElementMock.classList.add).toHaveBeenCalled();
             expect(domElementMock.classList.add).toHaveBeenCalled();
             expect(domElementMock.setAttribute).toHaveBeenCalled();
