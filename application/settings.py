@@ -56,5 +56,7 @@ def get_settings() -> Settings:
         )
     else:
         settings = Settings()
-    logging.info(f"Settings: {settings}")
+    logging.info(
+        f"Settings loaded (environment={settings.ENVIRONMENT}, release={settings.RELEASE_TAG})"
+    )
     return settings
