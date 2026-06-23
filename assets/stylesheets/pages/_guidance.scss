@@ -1,0 +1,6 @@
+@include govuk-media-query($from: desktop) {
+     .sticky-nav {
+       position: sticky;
+       top: 0;
+     }
+   }
