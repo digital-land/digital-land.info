@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
     DATASETTE_URL: HttpUrl
-    DATASETTE_TILES_URL: Optional[HttpUrl]
+    DATASETTE_TILES_URL: Optional[HttpUrl] = None
     TILES_URL: Optional[HttpUrl] = None
     DATA_FILE_URL: HttpUrl
     GA_MEASUREMENT_ID: Optional[str] = None
