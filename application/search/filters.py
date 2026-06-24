@@ -1,8 +1,8 @@
 import datetime
 
-from typing import Optional, List
+from typing import Annotated, Optional, List
 from fastapi import Query, Header
-from pydantic import validator
+from pydantic import field_validator
 from pydantic.dataclasses import dataclass
 
 from application.exceptions import (
@@ -27,16 +27,17 @@ from shapely.geometry.base import BaseGeometry
 
 @dataclass
 class DatasetQueryFilters:
-    dataset: Optional[List[str]] = Query(
-        None, description="Search for datasets by dataset"
-    )
-    field: Optional[List[str]] = Query(
-        None, description="Fields to include in dataset JSON response"
-    )
-    exclude_field: Optional[List[str]] = Query(
-        None,
-        description="Fields to exclude from the dataset JSON response",
-    )
+    dataset: Annotated[
+        Optional[List[str]], Query(description="Search for datasets by dataset")
+    ] = None
+    field: Annotated[
+        Optional[List[str]],
+        Query(description="Fields to include in dataset JSON response"),
+    ] = None
+    exclude_field: Annotated[
+        Optional[List[str]],
+        Query(description="Fields to exclude from the dataset JSON response"),
+    ] = None
     include_typologies: bool = Query(
         True,
         description="Include typologies in dataset JSON response; set to false to remove",
@@ -46,40 +47,47 @@ class DatasetQueryFilters:
 @dataclass
 class QueryFilters:
     # base filters
-    theme: Optional[List[str]] = Query(None, include_in_schema=False)
-    typology: Optional[List[str]] = Query(
-        None,
-        description="Search for entities by typology",
-    )
-    dataset: Optional[List[str]] = Query(
-        None,
-        description="Search for entities by dataset",
-    )
+    theme: Annotated[Optional[List[str]], Query(include_in_schema=False)] = None
+    typology: Annotated[
+        Optional[List[str]],
+        Query(description="Search for entities by typology"),
+    ] = None
+    dataset: Annotated[
+        Optional[List[str]],
+        Query(description="Search for entities by dataset"),
+    ] = None
 
-    organisation: Optional[List[str]] = Query(None, include_in_schema=False)
+    organisation: Annotated[Optional[List[str]], Query(include_in_schema=False)] = None
 
-    organisation_entity: Optional[List[int]] = Query(
-        None, description="Search for entities managed by organisation", ge=1
-    )
-    entity: Optional[List[int]] = Query(
-        None, description="Search for entities by entity number", ge=1
-    )
-    curie: Optional[List[str]] = Query(None, description="Search for entities by CURIE")
-    prefix: Optional[List[str]] = Query(
-        None, description="Search for entities by prefix"
-    )
-    reference: Optional[List[str]] = Query(
-        None, description="Search for entities by reference"
-    )
+    organisation_entity: Annotated[
+        Optional[List[Annotated[int, Query(ge=1)]]],
+        Query(description="Search for entities managed by organisation"),
+    ] = None
+    entity: Annotated[
+        Optional[List[Annotated[int, Query(ge=1)]]],
+        Query(description="Search for entities by entity number"),
+    ] = None
+    curie: Annotated[
+        Optional[List[str]], Query(description="Search for entities by CURIE")
+    ] = None
+    prefix: Annotated[
+        Optional[List[str]],
+        Query(description="Search for entities by prefix"),
+    ] = None
+    reference: Annotated[
+        Optional[List[str]],
+        Query(description="Search for entities by reference"),
+    ] = None
 
     # TODO remove not implemented
     # related_entity: Optional[List[str]] = Query(
     #     None, description="filter by related entity"
     # )
 
-    period: Optional[List[PeriodOption]] = Query(
-        None, description="Results to include current, or all entries"
-    )
+    period: Annotated[
+        Optional[List[PeriodOption]],
+        Query(description="Results to include current, or all entries"),
+    ] = None
 
     # date filters all use our custom FormIn data type, this allows empty strings to be submitted as parameter values
     # this does not need to be used for required parameters or path parameters
@@ -171,35 +179,38 @@ class QueryFilters:
         Requires longitude to be provided.
         """,
     )
-    geometry: Optional[List[str]] = Query(
-        None,
-        description="""
+    geometry: Annotated[
+        Optional[List[str]],
+        Query(
+            description="""
         Search for entities with geometries interacting with one or more geometries provided in WKT format.
-        The type of geometric relation can be set using the geometry relation parameter.""",
-    )
-    geometry_entity: Optional[List[int]] = Query(
-        None,
-        description="""Search for entities with geometries interacting with one or more geometries
+        The type of geometric relation can be set using the geometry relation parameter."""
+        ),
+    ] = None
+    geometry_entity: Annotated[
+        Optional[List[Annotated[int, Query(ge=1)]]],
+        Query(
+            description="""Search for entities with geometries interacting with one or more geometries
         taken from each of the provided entities. The type of geometric relation can be set using the
-        geometry relation parameter.""",
-        ge=1,
-    )
-    geometry_reference: Optional[List[str]] = Query(
-        None,
-        description="""
+        geometry relation parameter."""
+        ),
+    ] = None
+    geometry_reference: Annotated[
+        Optional[List[str]],
+        Query(description="""
         Search entities with geometries interacting with the geometries of
         entities with the provided references. The type of geometric relation
         can be set using the geometry relation parameter.
-        """,
-    )
-    geometry_curie: Optional[List[str]] = Query(
-        None,
-        description="""
+        """),
+    ] = None
+    geometry_curie: Annotated[
+        Optional[List[str]],
+        Query(description="""
         Search for entities with geometries interacting with geometries
         entities matching provided curies. The type of geometric relation
         can be set using the geometry relation parameter.
-        """,
-    )
+        """),
+    ] = None
     geometry_relation: Optional[GeometryRelation] = Query(
         None, description="DE-9IM spatial relationship, default is 'within'"
     )
@@ -224,61 +235,44 @@ class QueryFilters:
         None, description="file format for the results", include_in_schema=False
     )
     # once field is updated we can validate this
-    field: Optional[List[str]] = Query(
-        None, description="fields to be included in response"
-    )
-    exclude_field: Optional[List[str]] = Query(
-        None,
-        description="field parameter will take over any fields specified in the exclude_field parameter",
-    )
+    field: Annotated[
+        Optional[List[str]], Query(description="fields to be included in response")
+    ] = None
+    exclude_field: Annotated[
+        Optional[List[str]],
+        Query(
+            description="field parameter will take over any fields specified in the exclude_field parameter"
+        ),
+    ] = None
 
-    quality: Optional[List[str]] = Query(
-        None,
-        description="Search for entities by quality",
-    )
+    quality: Annotated[
+        Optional[List[str]],
+        Query(description="Search for entities by quality"),
+    ] = None
 
     # validators
-    _validate_entry_date_year = validator("entry_date_year", allow_reuse=True)(
-        validate_year_integer
-    )
-    _validate_entry_date_month = validator("entry_date_month", allow_reuse=True)(
-        validate_month_integer
-    )
-    _validate_entry_date_day = validator("entry_date_day", allow_reuse=True)(
-        validate_day_integer
-    )
+    @field_validator("entry_date_year", "start_date_year", "end_date_year")
+    @classmethod
+    def _validate_years(cls, v):
+        return validate_year_integer(v)
 
-    _validate_start_date_year = validator("start_date_year", allow_reuse=True)(
-        validate_year_integer
-    )
-    _validate_start_date_month = validator("start_date_month", allow_reuse=True)(
-        validate_month_integer
-    )
-    _validate_start_date_day = validator("start_date_day", allow_reuse=True)(
-        validate_day_integer
-    )
+    @field_validator("entry_date_month", "start_date_month", "end_date_month")
+    @classmethod
+    def _validate_months(cls, v):
+        return validate_month_integer(v)
 
-    _validate_end_date_year = validator("end_date_year", allow_reuse=True)(
-        validate_year_integer
-    )
-    _validate_end_date_month = validator("end_date_month", allow_reuse=True)(
-        validate_month_integer
-    )
-    _validate_end_date_day = validator("end_date_day", allow_reuse=True)(
-        validate_day_integer
-    )
+    @field_validator("entry_date_day", "start_date_day", "end_date_day")
+    @classmethod
+    def _validate_days(cls, v):
+        return validate_day_integer(v)
 
-    _validate_curie = validator("curie", allow_reuse=True)(validate_curies)
+    @field_validator("curie", "geometry_curie", "organisation")
+    @classmethod
+    def _validate_curies(cls, v):
+        return validate_curies(v)
 
-    _validate_geometry_curie = validator("geometry_curie", allow_reuse=True)(
-        validate_curies
-    )
-
-    _validate_organisation_curie = validator("organisation", allow_reuse=True)(
-        validate_curies
-    )
-
-    @validator("geometry", pre=True)
+    @field_validator("geometry", mode="before")
+    @classmethod
     def validate_geometry(cls, geometry_values_list: Optional[list]):
         if not geometry_values_list:
             return geometry_values_list
@@ -324,7 +318,7 @@ class FactQueryFilters(FactDatasetQueryFilters):
     entity: int = Query(default=..., ge=1)
     # need to add validatiion onto the below however this should be done once the field table has been included into
     # the postgis database
-    field: Optional[List[str]] = Query(None)
+    field: Annotated[Optional[List[str]], Query()] = None
 
 
 @dataclass

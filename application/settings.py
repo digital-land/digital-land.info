@@ -3,7 +3,8 @@ from functools import lru_cache
 from typing import Optional
 
 from dotenv import load_dotenv
-from pydantic import BaseSettings, PostgresDsn, HttpUrl, root_validator
+from pydantic import HttpUrl, model_validator
+from pydantic_settings import BaseSettings
 
 import logging
 
@@ -11,8 +12,8 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    WRITE_DATABASE_URL: PostgresDsn
-    READ_DATABASE_URL: PostgresDsn
+    WRITE_DATABASE_URL: str
+    READ_DATABASE_URL: str
     SENTRY_DSN: Optional[str] = None
     SENTRY_TRACE_SAMPLE_RATE: Optional[float] = 0.01
     RELEASE_TAG: Optional[str] = None
@@ -31,7 +32,8 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_SECURE: bool = True
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def split_redis_host(cls, values):
         host = values.get("REDIS_HOST")
         if host and ":" in host:

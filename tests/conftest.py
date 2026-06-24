@@ -9,9 +9,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from alembic.config import Config
 from pydantic import PostgresDsn
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy.engine import make_url
 from testcontainers.postgres import PostgresContainer
 from multiprocessing.context import Process
 import uvicorn
@@ -73,20 +73,36 @@ def test_settings():
         container.stop()
 
 
+def _maintenance_engine(database_url: str):
+    """Return an AUTOCOMMIT engine connected to the postgres maintenance DB."""
+    url = make_url(database_url)
+    db_name = url.database
+    return (
+        create_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT"),
+        db_name,
+    )
+
+
 @pytest.fixture(scope="session")
 def create_db(test_settings) -> PostgresDsn:
     database_url = os.environ["WRITE_DATABASE_URL"]
+    engine, db_name = _maintenance_engine(database_url)
 
-    if database_exists(database_url):
-        drop_database(database_url)
-    create_database(database_url)
+    with engine.connect() as conn:
+        conn.execute(text(f'DROP DATABASE IF EXISTS "{db_name}" WITH (FORCE)'))
+        conn.execute(text(f'CREATE DATABASE "{db_name}"'))
+    engine.dispose()
 
     config = Config("alembic.ini")
     config.set_main_option("sqlalchemy.url", database_url)
     alembic.command.upgrade(config, "head")
 
     yield database_url
-    drop_database(database_url)
+
+    engine, db_name = _maintenance_engine(database_url)
+    with engine.connect() as conn:
+        conn.execute(text(f'DROP DATABASE IF EXISTS "{db_name}" WITH (FORCE)'))
+    engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -363,6 +379,9 @@ def app_test_data(app_db_session: Session):
             app_db_session.add(ds)
             dataset_models.append(ds)
 
+    app_db_session.commit()
+    logger.info("app_test_data: committed %d datasets", len(dataset_models))
+
     entities = []
     entity_models = []
     with open("tests/test_data/entities.csv") as f:
@@ -381,18 +400,37 @@ def app_test_data(app_db_session: Session):
             )
             app_db_session.add(lookup)
             entity_models.append(e)
-            app_db_session.commit()
             i += 1
+
+    app_db_session.commit()
+    entity_count = app_db_session.query(EntityOrm).count()
+    logger.info(
+        "app_test_data: committed %d entities (DB count: %d)",
+        len(entity_models),
+        entity_count,
+    )
 
     return {"datasets": datasets, "entities": entities}
 
 
 # in a perfect world this would be a fixture but there were issues with pickling
-# to run separate process
+# to run separate process — engine is module-level so it's shared across requests
+_server_engine = None
+
+
+def _get_server_engine():
+    global _server_engine
+    if _server_engine is None:
+        _server_engine = create_engine(os.environ["WRITE_DATABASE_URL"])
+    return _server_engine
+
+
 def get_context_session_override():
-    engine = create_engine(os.environ["WRITE_DATABASE_URL"])
-    session = sessionmaker(engine)()
-    return session
+    session = sessionmaker(_get_server_engine())()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 HOST = "127.0.0.1"
@@ -424,7 +462,7 @@ def mock_settings() -> Settings:
 
 
 @pytest.fixture(scope="session")
-def acceptance_db():
+def acceptance_db(create_db):
     write_database_url = os.environ.get("WRITE_DATABASE_URL")
 
     if write_database_url:

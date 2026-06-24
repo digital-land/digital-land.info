@@ -19,14 +19,18 @@ from application.search.filters import (
 )
 
 
+class EmptyModel(BaseModel):
+    pass
+
+
 def test_convert_model_to_dict_single_model():
-    model = BaseModel()
+    model = EmptyModel()
     result = _convert_model_to_dict(model)
     assert result == {}
 
 
 def test_convert_model_to_dict_list_of_model():
-    models = [BaseModel(), BaseModel(), BaseModel()]
+    models = [EmptyModel(), EmptyModel(), EmptyModel()]
     result = _convert_model_to_dict(models)
     assert result == [{}, {}, {}]
 

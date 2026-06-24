@@ -9,7 +9,7 @@ import logging
 import requests
 from datetime import date
 from functools import wraps
-from pydantic import BaseModel
+from pydantic import AnyUrl, BaseModel
 from starlette.responses import Response
 
 # Set up logging
@@ -21,10 +21,12 @@ def create_dict(keys_list, values_list):
     return dict(zip_iterator)
 
 
-# Custom JSON encoder that handles dates
+# Custom JSON encoder that handles dates and Pydantic URL types
 def date_encoder(obj):
     if isinstance(obj, date):
         return obj.isoformat()
+    if isinstance(obj, AnyUrl):
+        return str(obj)
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 

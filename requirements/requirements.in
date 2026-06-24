@@ -1,9 +1,10 @@
-fastapi==0.75.2
+fastapi
 uvicorn
 gunicorn
 jinja2
 PyYAML
 python-dotenv
+pydantic-settings
 requests
 Markdown
 sqlalchemy

@@ -16,7 +16,6 @@ from application.data_access.digital_land_queries import (
     get_dataset_coverage_status,
 )
 
-from pydantic import Required
 from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse, to_snake
@@ -107,20 +106,18 @@ def list_datasets(
                 (
                     {k: v for k, v in ds.items() if k not in exclude_fields}
                     if isinstance(ds, dict)
-                    else ds.dict(exclude=exclude_fields, by_alias=True)
+                    else ds.model_dump(exclude=exclude_fields, by_alias=True)
                 )
                 for ds in data["datasets"]
             ]
         return data
     else:
-        return templates.TemplateResponse(
-            "dataset_index.html", {"request": request, **data}
-        )
+        return templates.TemplateResponse(request, "dataset_index.html", {**data})
 
 
 def get_dataset(
     request: Request,
-    dataset: str = Path(default=Required, description="Specify which dataset"),
+    dataset: str = Path(description="Specify which dataset"),
     settings: Settings = Depends(get_settings),
     # limit: int = Path(default=50,description="Limit number of rows in the response"),
     extension: Optional[SuffixDataset] = None,
@@ -135,7 +132,7 @@ def get_dataset(
         entity_count = get_entity_count(session, dataset)
 
         if extension is not None and extension.value == "json":
-            _dataset.entity_count = entity_count
+            _dataset.entity_count = entity_count[1] if entity_count else 0
             return _dataset
 
         latest_resource = get_latest_resource(session, dataset)
@@ -148,16 +145,16 @@ def get_dataset(
             entity_query_params = {"dataset": [dataset]}
             categories = get_entity_search(session, entity_query_params)["entities"]
             categories = [
-                category.dict(by_alias=True, exclude={"geojson"})
+                category.model_dump(by_alias=True, exclude={"geojson"})
                 for category in categories
             ]
         else:
             categories = None
 
         return templates.TemplateResponse(
+            request,
             "dataset.html",
             {
-                "request": request,
                 "dataset": _dataset,
                 "entity_count": entity_count[1] if entity_count else 0,
                 "publishers": {
@@ -179,11 +176,9 @@ def get_dataset(
     except KeyError as e:
         logger.exception(e)
         return templates.TemplateResponse(
+            request,
             "dataset-backlog.html",
-            {
-                "request": request,
-                "name": dataset.replace("-", " ").capitalize(),
-            },
+            {"name": dataset.replace("-", " ").capitalize()},
         )
 
 

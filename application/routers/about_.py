@@ -91,9 +91,9 @@ async def catch_all(request: Request, url_path: str):
     # on the corresponding URL Path
     if os.path.exists(sys_path_to_file) and os.path.isfile(sys_path_to_file):
         return templates.TemplateResponse(
+            request,
             f"{url_path_to_file}{file_extension}",  # path to the template file we wish to render
             {
-                "request": request,
                 # a dictionary of useful data used by the tempaltes and layouts
                 "pageData": {
                     "root_url": root_url_path,
@@ -105,6 +105,4 @@ async def catch_all(request: Request, url_path: str):
             },
         )
     else:
-        return templates.TemplateResponse(
-            "404.html", {"request": request}, status_code=404
-        )
+        return templates.TemplateResponse(request, "404.html", status_code=404)
