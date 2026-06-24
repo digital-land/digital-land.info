@@ -6,10 +6,10 @@ from dataclasses import asdict
 from typing import Optional, List, Set, Dict, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Path, Query
-from pydantic import Required
-from pydantic.error_wrappers import ErrorWrapper
-from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import HTMLResponse, RedirectResponse
+from pydantic import ValidationError
+from pydantic_core import InitErrorDetails, PydanticCustomError
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -43,10 +43,6 @@ from application.core.utils import (
     entity_attribute_sort_key,
     map_entity_quality_to_description,
     make_links,
-)
-from application.exceptions import (
-    DatasetValueNotFound,
-    TypologyValueNotFound,
 )
 from application.db.session import get_session, get_redis, DbSession
 from application.db.models import EntityOrm
@@ -108,7 +104,7 @@ def _get_geojson(
             exclude = set(exclude) if exclude else set()
             # always remove the geospatial fields as we're only after non-gespatial prroperties
             exclude.update(["geojson", "geometry", "point"])
-            properties = entity.dict(exclude=exclude, by_alias=True)
+            properties = entity.model_dump(exclude=exclude, by_alias=True)
             geojson.properties = properties
             features.append(geojson)
     return {"type": "FeatureCollection", "features": features}
@@ -124,11 +120,11 @@ def _get_entity_json(
         if include is not None:
             # always return at least the entity (id)
             include.add("entity")
-            e = entity.dict(include=include, by_alias=True)
+            e = entity.model_dump(include=include, by_alias=True)
         else:
             exclude = set(exclude) if exclude else set()
             exclude.add("geojson")  # Always exclude 'geojson'
-            e = entity.dict(exclude=exclude, by_alias=True)
+            e = entity.model_dump(exclude=exclude, by_alias=True)
         entities.append(e)
     return entities
 
@@ -142,9 +138,7 @@ def handle_gone_entity(
             status_code=410,
         )
     return templates.TemplateResponse(
-        "entity-gone.html",
-        {"request": request, "entity": str(entity)},
-        status_code=410,
+        request, "entity-gone.html", {"entity": str(entity)}, status_code=410
     )
 
 
@@ -161,7 +155,9 @@ def handle_moved_entity(
 def prepare_geojson(e):
     geojson = e.geojson
     if geojson:
-        properties = e.dict(exclude={"geojson", "geometry", "point"}, by_alias=True)
+        properties = e.model_dump(
+            exclude={"geojson", "geometry", "point"}, by_alias=True
+        )
         geojson.properties = properties
     return geojson
 
@@ -170,7 +166,7 @@ def handle_entity_response(
     request: Request, e, extension: Optional[SuffixEntity], session: Session
 ):
     if extension is not None and extension.value == "json":
-        return e.dict(by_alias=True, exclude={"geojson"})
+        return e.model_dump(by_alias=True, exclude={"geojson"})
 
     geojson = None
 
@@ -183,7 +179,7 @@ def handle_entity_response(
                 status_code=406, detail="geojson for entity not available"
             )
 
-    e_dict = e.dict(by_alias=True, exclude={"geojson"})
+    e_dict = e.model_dump(by_alias=True, exclude={"geojson"})
     e_dict_sorted = {
         key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
     }
@@ -204,13 +200,13 @@ def handle_entity_response(
     # get field specifications and convert to dictionary to easily access
     # fields = get_field_specifications(e_dict_sorted.keys())
     # if fields:
-    #     fields = [field.dict(by_alias=True) for field in fields]
+    #     fields = [field.model_dump(by_alias=True) for field in fields]
     #     fields = {field["field"]: field for field in fields}
 
     # get dictionary of fields which have linked datasets
     dataset_fields = get_datasets(session, datasets=e_dict_sorted.keys())
     dataset_fields = [
-        dataset_field.dict(by_alias=True) for dataset_field in dataset_fields
+        dataset_field.model_dump(by_alias=True) for dataset_field in dataset_fields
     ]
     dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
     dataset = get_dataset_query(session, e.dataset)
@@ -244,6 +240,11 @@ def handle_entity_response(
         session, e_dict_sorted
     )
 
+    # TODO: mutating e_dict_sorted["organisation-entity"] with the curie here is
+    # misleading — the row dict no longer reflects the actual entity data, which
+    # makes debugging hard. organisation_curie should instead be passed to the
+    # template as a separate context variable, and the template should decide
+    # whether to display the curie or fall back to the raw entity number.
     organisation_entity = None
     if e.organisation_entity is not None:
         organisation_entity, _, _ = get_entity_query(e.organisation_entity)
@@ -252,11 +253,13 @@ def handle_entity_response(
                 f"{organisation_entity.prefix}:{organisation_entity.reference}"
             )
             e_dict_sorted["organisation-entity"] = organisation_curie
+        else:
+            e_dict_sorted["organisation-entity"] = str(e.organisation_entity)
 
     return templates.TemplateResponse(
+        request,
         "entity.html",
         {
-            "request": request,
             "row": e_dict_sorted,
             "json_row": e_dict,
             "local_plan_geojson": local_plan_boundary_geojson,
@@ -270,7 +273,7 @@ def handle_entity_response(
             "typology": e.typology,
             "entity_prefix": "",
             "geojson_features": e.geojson if e.geojson is not None else None,
-            "geojson": geojson.dict() if geojson else None,
+            "geojson": geojson.model_dump() if geojson else None,
             "fields": fields,
             "dataset_fields": dataset_fields,
             "dataset": dataset,
@@ -327,7 +330,7 @@ def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
 
 def get_entity(
     request: Request,
-    entity: int = Path(default=Required, description="Entity id"),
+    entity: int = Path(description="Entity id"),
     extension: Optional[SuffixEntity] = None,
     session: Session = Depends(get_session),
 ):
@@ -371,16 +374,23 @@ def validate_dataset(dataset: str, datasets: list):
     missing_datasets = set(dataset).difference(set(datasets))
     if missing_datasets:
         raise RequestValidationError(
-            errors=[
-                ErrorWrapper(
-                    DatasetValueNotFound(
-                        f"Requested datasets do not exist: {','.join(missing_datasets)}. "
-                        f"Valid dataset names: {','.join(datasets)}",
-                        dataset_names=datasets,
-                    ),
-                    loc=("dataset"),
-                )
-            ]
+            errors=ValidationError.from_exception_data(
+                "ValueError",
+                [
+                    InitErrorDetails(
+                        type=PydanticCustomError(
+                            "value_error",
+                            "Requested datasets do not exist: {missing}.",
+                            {
+                                "missing": ",".join(sorted(missing_datasets)),
+                                "dataset_names": sorted(datasets),
+                            },
+                        ),
+                        loc=("query", "dataset"),
+                        input=dataset,
+                    )
+                ],
+            ).errors()
         )
     return
 
@@ -391,16 +401,23 @@ def validate_typologies(typologies, typology_names):
     missing_typologies = set(typologies).difference(set(typology_names))
     if missing_typologies:
         raise RequestValidationError(
-            errors=[
-                ErrorWrapper(
-                    TypologyValueNotFound(
-                        f"Requested datasets do not exist: {','.join(missing_typologies)}. "
-                        f"Valid dataset names: {','.join(typology_names)}",
-                        dataset_names=typology_names,
-                    ),
-                    loc=("typology"),
-                )
-            ]
+            errors=ValidationError.from_exception_data(
+                "ValueError",
+                [
+                    InitErrorDetails(
+                        type=PydanticCustomError(
+                            "value_error",
+                            "Requested typologies do not exist: {missing}.",
+                            {
+                                "missing": ",".join(sorted(missing_typologies)),
+                                "typology_names": sorted(typology_names),
+                            },
+                        ),
+                        loc=("query", "typology"),
+                        input=typologies,
+                    )
+                ],
+            ).errors()
         )
     return
 
@@ -524,19 +541,19 @@ def search_entities(
 
     db_session = DbSession(session=session, redis=redis)
     typologies = get_typologies_with_entities(db_session)
-    typologies = [t.dict() for t in typologies]
+    typologies = [t.model_dump() for t in typologies]
     # dataset facet
     response = get_all_datasets(db_session)
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
-    datasets = [dataset.dict(include=set(columns)) for dataset in response]
+    datasets = [dataset.model_dump(include=set(columns)) for dataset in response]
 
     local_authorities = get_local_authorities(session, "local-authority")
-    local_authorities = [la.dict() for la in local_authorities]
+    local_authorities = [la.model_dump() for la in local_authorities]
 
     organisations = get_organisations(db_session)
     columns = ["entity", "organisation_entity", "name"]
     organisations_list = [
-        organisation.dict(include=set(columns)) for organisation in organisations
+        organisation.model_dump(include=set(columns)) for organisation in organisations
     ]
 
     if links.get("prev") is not None:
@@ -560,9 +577,9 @@ def search_entities(
             entity.dataset_name = ref_name
 
     return templates.TemplateResponse(
+        request,
         "search.html",
         {
-            "request": request,
             "count": data["count"],
             "limit": params["limit"],
             "data": data["entities"],

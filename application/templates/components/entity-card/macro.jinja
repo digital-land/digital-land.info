@@ -2,7 +2,7 @@
 
 {% macro entityCard(entity,entity_paint_options) %}
 
-    {%  set e = entity.dict(by_alias=True) %}
+    {%  set e = entity.model_dump(by_alias=True) %}
     {% set propertiesArr = [
             { "key": "Dataset", "value": e["dataset"] },
             { "key": "Reference", "value": e["reference"] },

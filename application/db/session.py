@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker, Session
 from typing import Iterator, Optional
 import logging
 import json
-from pydantic.json import pydantic_encoder
 from application.settings import get_settings, Settings
 from contextlib import contextmanager
 from functools import wraps, lru_cache
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 def _create_engine():
     settings = get_settings()
     engine = create_engine(
-        settings.READ_DATABASE_URL,
+        str(settings.READ_DATABASE_URL),
         pool_size=settings.DB_POOL_SIZE,
         max_overflow=settings.DB_POOL_MAX_OVERFLOW,
         pool_pre_ping=True,
@@ -166,7 +165,7 @@ def redis_cache(key, model_class, ttl_seconds=60 * 60 * 6):
                 logger.info(f"redis_cache(): session cache miss for key='{key}'")
                 try:
                     serialised = json.dumps(
-                        [obj.dict() for obj in val], default=pydantic_encoder
+                        [obj.model_dump(mode="json") for obj in val]
                     )
                     session.redis.setex(key, time=ttl_seconds, value=serialised)
                 except redis.exceptions.ConnectionError as redis_ex:

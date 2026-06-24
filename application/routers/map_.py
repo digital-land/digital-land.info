@@ -103,4 +103,4 @@ def get_map(
     if error:
         context["error"] = error
 
-    return templates.TemplateResponse("national-map.html", context)
+    return templates.TemplateResponse(context["request"], "national-map.html", context)

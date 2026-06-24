@@ -200,6 +200,7 @@ class TestGetMap:
             DbSession(session=mock_session, redis=mock_redis)
         )
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -248,6 +249,7 @@ class TestGetMap:
 
         # Assert
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -300,6 +302,7 @@ class TestGetMap:
 
         # Assert: wrong-length UPRN should trigger validation error
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -349,6 +352,7 @@ class TestGetMap:
 
         # Assert: empty LPA should use the LPA-specific error message from map_.py
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -407,6 +411,7 @@ class TestGetMap:
         assert mock_find_an_area.call_count == 1
         assert mock_find_an_area.call_args[0][0] == search_query
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -480,6 +485,7 @@ class TestGetMap:
         assert mock_find_an_area.call_count == 1
         assert mock_find_an_area.call_args[0][0] == search_query
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -583,6 +589,7 @@ class TestGetMap:
 
         # entity_paint_options should be taken from the matching dataset
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -638,6 +645,7 @@ class TestGetMap:
         # no search_result is passed to the template.
         mock_find_an_area.assert_not_called()
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -690,6 +698,7 @@ class TestGetMap:
         # Assert: validation should fail, so find_an_area is never called
         mock_find_an_area.assert_not_called()
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -745,6 +754,7 @@ class TestGetMap:
         assert mock_find_an_area.call_args[0][0] == "SW1A 1AA"
 
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,
@@ -802,6 +812,7 @@ class TestGetMap:
 
         # Assert
         mock_templates.TemplateResponse.assert_called_once_with(
+            mock_request,
             "national-map.html",
             {
                 "request": mock_request,

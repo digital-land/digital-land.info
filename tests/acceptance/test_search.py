@@ -222,7 +222,7 @@ def test_extension_query_parameter_ignored(
 
     response = client.get(
         f"/entity/?dataset=conservation-area&extension={extension_param}",
-        allow_redirects=False,
+        follow_redirects=False,
     )
 
     assert (

@@ -112,7 +112,7 @@ def add_base_routes(app):
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def home(request: Request):
         return templates.TemplateResponse(
-            "homepage.html", {"request": request, "opengraph_image": True}
+            request, "homepage.html", {"opengraph_image": True}
         )
 
     @app.get("/health", response_class=JSONResponse, include_in_schema=False)
@@ -167,50 +167,35 @@ def add_base_routes(app):
 
     @app.get("/cookies", response_class=HTMLResponse, include_in_schema=False)
     def cookies(request: Request):
-        return templates.TemplateResponse(
-            "pages/cookies.html",
-            {"request": request},
-        )
+        return templates.TemplateResponse(request, "pages/cookies.html")
 
     @app.get("/privacy-notice", response_class=HTMLResponse, include_in_schema=False)
     def privacy_notice(request: Request):
-        return templates.TemplateResponse(
-            "pages/privacy-notice.html",
-            {"request": request},
-        )
+        return templates.TemplateResponse(request, "pages/privacy-notice.html")
 
     @app.get(
         "/accessibility-statement", response_class=HTMLResponse, include_in_schema=False
     )
     def accessibility_statement(request: Request):
-        return templates.TemplateResponse(
-            "pages/accessibility-statement.html",
-            {"request": request},
-        )
+        return templates.TemplateResponse(request, "pages/accessibility-statement.html")
 
     @app.get(
         "/terms-and-conditions", response_class=HTMLResponse, include_in_schema=False
     )
     def terms_and_conditions(request: Request):
-        return templates.TemplateResponse(
-            "pages/terms-and-conditions.html",
-            {"request": request},
-        )
+        return templates.TemplateResponse(request, "pages/terms-and-conditions.html")
 
     @app.get("/service-status", response_class=HTMLResponse, include_in_schema=False)
     def service_status(request: Request):
-        return templates.TemplateResponse(
-            "pages/service-status.html",
-            {"request": request},
-        )
+        return templates.TemplateResponse(request, "pages/service-status.html")
 
     @app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
     def docs(request: Request):
         open_api_dict = app.openapi()
         return templates.TemplateResponse(
+            request,
             "pages/docs.html",
             {
-                "request": request,
                 "paths": open_api_dict["paths"],
                 "components": open_api_dict["components"],
                 "feedback_form_footer": True,
@@ -234,9 +219,7 @@ def add_base_routes(app):
     ):
         if exc.status_code == 404:
             return templates.TemplateResponse(
-                "404.html",
-                {"request": request},
-                status_code=exc.status_code,
+                request, "404.html", status_code=exc.status_code
             )
         else:
             # Just use FastAPI's built-in handler for other errors
@@ -248,10 +231,8 @@ def add_base_routes(app):
     @app.exception_handler(ValidationError)
     async def custom_validation_error_handler(request: Request, exc: ValidationError):
         if all(
-            [
-                isinstance(raw_error.exc, DigitalLandValidationError)
-                for raw_error in exc.raw_errors
-            ]
+            isinstance(e.get("ctx", {}).get("error"), DigitalLandValidationError)
+            for e in exc.errors()
         ):
             try:
                 extension_path_param = request.path_params["extension"]
@@ -264,9 +245,7 @@ def add_base_routes(app):
                 )
             else:
                 return templates.TemplateResponse(
-                    "404.html",
-                    {"request": request},
-                    status_code=status.HTTP_404_NOT_FOUND,
+                    request, "404.html", status_code=status.HTTP_404_NOT_FOUND
                 )
 
         else:
@@ -285,16 +264,12 @@ def add_base_routes(app):
                 content=jsonable_encoder({"detail": exc.errors()}),
             )
         else:
-            return templates.TemplateResponse(
-                "404.html", {"request": request}, status_code=404
-            )
+            return templates.TemplateResponse(request, "404.html", status_code=404)
 
     # catch all handler - for any unhandled exceptions return 500 template
     @app.exception_handler(Exception)
     async def custom_catch_all_exception_handler(request: Request, exc: Exception):
-        return templates.TemplateResponse(
-            "500.html", {"request": request}, status_code=500
-        )
+        return templates.TemplateResponse(request, "500.html", status_code=500)
 
 
 def add_routers(app):

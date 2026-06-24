@@ -45,11 +45,11 @@ def _convert_model_to_dict(models):
         return []
     if isinstance(models, list):
         if len(models) > 0:
-            return [m.dict(by_alias=True) for m in models]
+            return [m.model_dump(by_alias=True) for m in models]
         else:
             return models
     else:
-        return models.dict(by_alias=True)
+        return models.model_dump(by_alias=True)
 
 
 def validate_fact_path_params(request: Request) -> FactPathParams:
@@ -114,12 +114,12 @@ def get_fact(
 
     if fact is not None:
         if extension is not None and extension.value == "json":
-            return fact.dict(by_alias=True, exclude={"geojson"})
+            return fact.model_dump(by_alias=True, exclude={"geojson"})
 
         if extension is not None and extension.value == "geojson":
             if fact.geojson is not None:
                 geojson = fact.geojson
-                properties = fact.dict(
+                properties = fact.model_dump(
                     exclude={"geojson", "geometry", "point"}, by_alias=True
                 )
                 geojson.properties = properties
@@ -129,7 +129,7 @@ def get_fact(
                     status_code=406, detail="geojson for entity not available"
                 )
 
-        fact_dict = fact.dict(by_alias=True, exclude={"geojson"})
+        fact_dict = fact.model_dump(by_alias=True, exclude={"geojson"})
         fact_dict = _convert_resources_to_dict(fact_dict)
         dataset_obj = get_dataset_query(session, query_params["dataset"])
         if dataset_obj is None:
@@ -137,9 +137,9 @@ def get_fact(
         # Fallback to the dataset slug if metadata cannot be found
         dataset_name = dataset_obj.name if dataset_obj else query_params["dataset"]
         return templates.TemplateResponse(
+            request,
             "fact.html",
             {
-                "request": request,
                 "fact": fact_dict,
                 "pipeline_name": query_params["dataset"],
                 "dataset": {"name": dataset_name},
@@ -199,9 +199,9 @@ def search_facts(
                 entity_reference = None
 
         return templates.TemplateResponse(
+            request,
             "fact-search.html",
             {
-                "request": request,
                 "facts": facts_dicts,
                 "dataset_fields": dataset_fields_list,
                 "query_params": query_params,

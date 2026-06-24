@@ -227,7 +227,7 @@ def lookup_entity_link(
     found_entities = get_entity_search(session, search_params)
     if found_entities["count"] == 1:
         found_entity = found_entities["entities"][0]
-        return found_entity.dict(by_alias=True, exclude={"geojson"})
+        return found_entity.model_dump(by_alias=True, exclude={"geojson"})
     # elif found_entities["count"] > 1:
     # Log that multiple entities were found
     # set the entity to -1 so the page not found page is shown

@@ -6,7 +6,11 @@
 #
 alembic==1.18.4
     # via -r requirements/requirements.in
-anyio==3.7.1
+annotated-doc==0.0.4
+    # via fastapi
+annotated-types==0.7.0
+    # via pydantic
+anyio==4.14.0
     # via starlette
 beautifulsoup4==4.15.0
     # via -r requirements/requirements.in
@@ -18,11 +22,11 @@ charset-normalizer==3.4.7
     # via requests
 click==8.4.1
     # via uvicorn
-fastapi==0.75.2
+fastapi==0.137.1
     # via
     #   -r requirements/requirements.in
     #   fastapi-utils
-fastapi-utils==0.2.1
+fastapi-utils==0.8.0
     # via -r requirements/requirements.in
 geoalchemy2==0.20.0
     # via -r requirements/requirements.in
@@ -56,14 +60,23 @@ packaging==26.2
     # via
     #   geoalchemy2
     #   gunicorn
+psutil==5.9.8
+    # via fastapi-utils
 psycopg2==2.9.12
     # via -r requirements/requirements.in
-pydantic==1.10.26
+pydantic==2.13.4
     # via
     #   fastapi
     #   fastapi-utils
-python-dotenv==1.2.2
+    #   pydantic-settings
+pydantic-core==2.46.4
+    # via pydantic
+pydantic-settings==2.14.1
     # via -r requirements/requirements.in
+python-dotenv==1.2.2
+    # via
+    #   -r requirements/requirements.in
+    #   pydantic-settings
 python-slugify==8.0.4
     # via -r requirements/requirements.in
 pyyaml==6.0.3
@@ -76,17 +89,14 @@ sentry-sdk==2.63.0
     # via -r requirements/requirements.in
 shapely==2.1.2
     # via -r requirements/requirements.in
-sniffio==1.3.1
-    # via anyio
 soupsieve==2.8.4
     # via beautifulsoup4
-sqlalchemy==1.4.54
+sqlalchemy==2.0.51
     # via
     #   -r requirements/requirements.in
     #   alembic
-    #   fastapi-utils
     #   geoalchemy2
-starlette==0.17.1
+starlette==1.3.1
     # via fastapi
 text-unidecode==1.3
     # via python-slugify
@@ -94,8 +104,16 @@ typing-extensions==4.15.0
     # via
     #   alembic
     #   beautifulsoup4
+    #   fastapi
     #   pydantic
+    #   pydantic-core
     #   sqlalchemy
+    #   typing-inspection
+typing-inspection==0.4.2
+    # via
+    #   fastapi
+    #   pydantic
+    #   pydantic-settings
 uritemplate==4.2.0
     # via -r requirements/requirements.in
 urllib3==2.7.0
