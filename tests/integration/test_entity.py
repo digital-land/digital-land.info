@@ -1,6 +1,43 @@
+from bs4 import BeautifulSoup
+
 from application.routers.entity import fetch_linked_local_plans
 from application.core.models import EntityModel
 from application.db.models import EntityOrm
+
+
+def test_entity_page_shows_organisation_name_not_none(
+    client, db_session, test_data, exclude_middleware
+):
+    """
+    Regression test: entity page must not render "None" for the Organisation field.
+
+    Entity 101 (Dacorum Borough Council) in test data has organisation_entity=600001.
+    When entity 600001 is in the DB, the router resolves it and the template renders
+    its name via the get_entity_name filter. This test verifies the filter returns
+    the actual name rather than Python None (which Jinja2 would render as the string "None").
+    """
+    # Use a distinct reference so the org-entity curie differs from entity 101's
+    # own curie (local-authority:DAC), making the link href unambiguous on the page.
+    org_entity = EntityOrm(
+        entity=600001,
+        name="Dacorum Borough Council",
+        dataset="local-authority",
+        typology="organisation",
+        reference="E07000096",
+        prefix="local-authority",
+        entry_date="2022-01-01",
+    )
+    db_session.add(org_entity)
+    db_session.flush()
+
+    response = client.get("/entity/101", follow_redirects=True)
+
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    org_link = soup.find("a", href="/curie/local-authority:E07000096")
+    assert org_link is not None, "Organisation entity curie link not found in page"
+    assert org_link.get_text(strip=True) == "Dacorum Borough Council"
 
 
 def test_fetch_linked_local_plans(db_session):
