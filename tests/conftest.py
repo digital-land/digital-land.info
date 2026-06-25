@@ -50,6 +50,12 @@ def test_settings():
 
     load_dotenv(override=True)
 
+    # Provide test-safe defaults for required settings that tests don't actually
+    # invoke — prevents ValidationError when running without a .env file.
+    os.environ.setdefault("ENVIRONMENT", "test")
+    os.environ.setdefault("DATASETTE_URL", "https://datasette.digital-land.info/")
+    os.environ.setdefault("DATA_FILE_URL", "https://files.planning.data.gov.uk/")
+
     container = None
     if not os.environ.get("WRITE_DATABASE_URL") and not os.environ.get(
         "READ_DATABASE_URL"
