@@ -145,14 +145,9 @@ def debug(thing):
     return f"<script>console.log({dumpee});</script>"
 
 
-@pass_eval_context
-def get_entity_name_filter(eval_ctx, entity):
+def get_entity_name_filter(entity):
     if entity:
-        if eval_ctx.autoescape:
-            if entity.name:
-                return entity.name
-            else:
-                return entity.reference
+        return entity.name if entity.name else entity.reference
 
 
 def get_entity_name(entity):
