@@ -295,15 +295,21 @@ class QueryFilters:
 
 @dataclass
 class TaskQueryFilters:
-    dataset: Optional[List[str]] = Query(None, description="Filter tasks by dataset")
-    organisation: Optional[List[str]] = Query(
-        None, description="Filter tasks by organisation"
-    )
-    severity: Optional[List[str]] = Query(None, description="Filter tasks by severity")
-    responsibility: Optional[List[str]] = Query(
-        None, description="Filter tasks by responsibility"
-    )
-    task_source: Optional[List[str]] = Query(None, description="Filter tasks by source")
+    dataset: Annotated[
+        Optional[List[str]], Query(description="Filter tasks by dataset")
+    ] = None
+    organisation: Annotated[
+        Optional[List[str]], Query(description="Filter tasks by organisation")
+    ] = None
+    severity: Annotated[
+        Optional[List[str]], Query(description="Filter tasks by severity")
+    ] = None
+    responsibility: Annotated[
+        Optional[List[str]], Query(description="Filter tasks by responsibility")
+    ] = None
+    task_source: Annotated[
+        Optional[List[str]], Query(description="Filter tasks by source")
+    ] = None
     limit: int = Query(10, ge=1, le=500, description="Limit number of results")
     offset: int = Query(0, ge=0, description="Paginate results from this offset")
 
