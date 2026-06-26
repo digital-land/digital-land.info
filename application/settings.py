@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Optional
 
 from dotenv import load_dotenv
-from pydantic import HttpUrl, model_validator
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 import logging
@@ -18,10 +18,10 @@ class Settings(BaseSettings):
     SENTRY_TRACE_SAMPLE_RATE: Optional[float] = 0.01
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
-    DATASETTE_URL: HttpUrl
-    DATASETTE_TILES_URL: Optional[HttpUrl] = None
-    TILES_URL: Optional[HttpUrl] = None
-    DATA_FILE_URL: HttpUrl
+    DATASETTE_URL: str
+    DATASETTE_TILES_URL: Optional[str] = None
+    TILES_URL: Optional[str] = None
+    DATA_FILE_URL: str
     GA_MEASUREMENT_ID: Optional[str] = None
     SMARTLOOK_ID: Optional[str] = None
     OS_CLIENT_KEY: Optional[str] = None
