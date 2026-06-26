@@ -1,4 +1,5 @@
 import logging
+import sentry_sdk
 from urllib.parse import urlencode
 
 from dataclasses import asdict
@@ -333,12 +334,28 @@ def get_entity(
     e, old_entity_status, new_entity_id = get_entity_query(entity)
 
     if old_entity_status == 410:
+        sentry_sdk.metrics.count(
+            "entity.gone",
+            1,
+            attributes={
+                "dataset": getattr(e, "dataset", "unknown"),
+                "entity": str(entity),
+            },
+        )
         return handle_gone_entity(request, entity, extension)
     elif old_entity_status == 301:
+        sentry_sdk.metrics.count(
+            "entity.moved",
+            1,
+            attributes={"entity": str(entity), "new_entity": str(new_entity_id)},
+        )
         return handle_moved_entity(entity, new_entity_id, extension)
     elif e is not None:
         return handle_entity_response(request, e, extension, session)
     else:
+        sentry_sdk.metrics.count(
+            "entity.not_found", 1, attributes={"entity": str(entity)}
+        )
         raise HTTPException(status_code=404, detail="entity not found")
 
 
@@ -436,7 +453,35 @@ def search_entities(
     validate_typologies(query_params.get("typology", None), typology_names)
 
     # Run entity query
-    data = get_entity_search(session, query_params, extension)
+    try:
+        data = get_entity_search(session, query_params, extension)
+    except SQLAlchemyError as e:
+        extension_tag = extension.value if extension is not None else "html"
+        dataset_filters = query_params.get("dataset") or []
+        dataset_tag = ",".join(dataset_filters) if dataset_filters else "all"
+        error_tag = (
+            "ssl_syscall_eof"
+            if "SSL SYSCALL error: EOF detected" in str(e)
+            else "db_error"
+        )
+        sentry_sdk.metrics.count(
+            "entity.search.error",
+            1,
+            attributes={
+                "error": error_tag,
+                "extension": extension_tag,
+                "dataset": dataset_tag,
+            },
+        )
+
+        logger.exception(
+            "Error in get_entity_search",
+            extra={
+                "extension": extension_tag,
+                "dataset_filters": dataset_filters,
+            },
+        )
+        raise
 
     # the query does some normalisation to remove empty
     # params and they get returned from search
