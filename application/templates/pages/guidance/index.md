@@ -21,7 +21,7 @@ The service currently supports:
 - [plans including local plans, supplementary plans and minerals and waste plans](https://www.gov.uk/government/publications/publish-your-plan-data/publish-your-plan-data)
 - [tree preservation orders](./specifications/tree-preservation-order)
 
-We are currently testing and developing data standards for [design codes.](./design-code)
+We are currently testing and developing data standards for [design codes.](./specifications/design-code)
 
 ## Check your data
 
