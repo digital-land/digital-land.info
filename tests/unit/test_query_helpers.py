@@ -6,7 +6,6 @@ import pytest
 from application.db.models import EntityOrm
 from application.search.enum import DateOption
 
-
 date_to_filter_params = [
     (
         date(year=2022, month=1, day=1),

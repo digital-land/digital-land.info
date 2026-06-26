@@ -102,7 +102,7 @@ def test_old_entity_redirects_as_expected(test_data_old_entities, client):
     Test entity endpoint returns a 302 response code when old_entity requested
     """
     old_entity = test_data_old_entities["old_entities"][301][0]
-    response = client.get(f"/entity/{old_entity.old_entity_id}", allow_redirects=False)
+    response = client.get(f"/entity/{old_entity.old_entity_id}", follow_redirects=False)
     assert response.status_code == 301
     assert response.headers["location"] == f"/entity/{old_entity.new_entity_id}"
 
@@ -113,7 +113,7 @@ def test_old_entity_redirects_as_expected_with_suffix(test_data_old_entities, cl
     """
     old_entity = test_data_old_entities["old_entities"][301][0]
     response = client.get(
-        f"/entity/{old_entity.old_entity_id}.json", allow_redirects=False
+        f"/entity/{old_entity.old_entity_id}.json", follow_redirects=False
     )
     assert response.status_code == 301
     assert response.headers["location"] == f"/entity/{old_entity.new_entity_id}.json"
@@ -124,7 +124,7 @@ def test_old_entity_gone_shown(test_data_old_entities, client, exclude_middlewar
     Test entity endpoint returns entity gone content
     """
     old_entity = test_data_old_entities["old_entities"][410][0]
-    response = client.get(f"/entity/{old_entity.old_entity_id}", allow_redirects=False)
+    response = client.get(f"/entity/{old_entity.old_entity_id}", follow_redirects=False)
     assert response.status_code == 410
     assert (
         f"This entity (#{old_entity.old_entity_id}) has been removed." in response.text
@@ -140,7 +140,7 @@ def test_old_entity_gone_json_shown(test_data_old_entities, client, exclude_midd
     """
     old_entity = test_data_old_entities["old_entities"][410][0]
     response = client.get(
-        f"/entity/{old_entity.old_entity_id}.json", allow_redirects=False
+        f"/entity/{old_entity.old_entity_id}.json", follow_redirects=False
     )
     assert response.status_code == 410
     assert (
@@ -284,7 +284,7 @@ def test_api_handles_invalid_wkt(point, expected_status_code, client, test_data)
     assert response.status_code == expected_status_code
     data = response.json()
     if data.get("detail") is not None:
-        assert f"Invalid geometry {point}" == data["detail"][0]["msg"]
+        assert f"Invalid geometry {point}" in data["detail"][0]["msg"]
 
 
 @pytest.mark.parametrize(
@@ -299,7 +299,7 @@ def test_api_rejects_geojson_format_with_helpful_error(
 
     data = response.json()
     error_msg = data["detail"][0]["msg"]
-    assert error_msg == expected_message
+    assert expected_message in error_msg
 
 
 def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_data):
@@ -307,14 +307,14 @@ def test_search_by_entity_and_geometry_entity_require_numeric_id(client, test_da
     response = client.get("/entity.geojson", params=params)
     assert response.status_code == 422
     data = response.json()
-    assert "value is not a valid integer" == data["detail"][0]["msg"]
+    assert "Input should be a valid integer" in data["detail"][0]["msg"]
     assert "geometry_entity" == data["detail"][0]["loc"][1]
 
     params = {"entity": "not a number"}
     response = client.get("/entity.geojson", params=params)
     assert response.status_code == 422
     data = response.json()
-    assert "value is not a valid integer" == data["detail"][0]["msg"]
+    assert "Input should be a valid integer" in data["detail"][0]["msg"]
     assert "entity" == data["detail"][0]["loc"][1]
 
 
@@ -415,7 +415,7 @@ def test_search_entity_rejects_invalid_curie(curie, client):
     response = client.get("/entity.json", params=params)
     assert response.status_code == 422
     data = response.json()
-    assert "curie must be in form 'prefix:reference'" == data["detail"][0]["msg"]
+    assert "curie must be in form 'prefix:reference'" in data["detail"][0]["msg"]
     assert "curie" == data["detail"][0]["loc"][0]
 
 
@@ -425,19 +425,19 @@ def test_get_by_curie_redirects_to_entity(test_data, client, exclude_middleware)
     reference = greenspace["reference"]
     entity = greenspace["entity"]
 
-    response = client.get(f"/curie/{prefix}:{reference}", allow_redirects=False)
+    response = client.get(f"/curie/{prefix}:{reference}", follow_redirects=False)
     assert response.status_code == 303
     assert f"http://testserver/entity/{entity}" == response.headers["location"]
 
     response = client.get(
-        f"/prefix/{prefix}/reference/{reference}", allow_redirects=False
+        f"/prefix/{prefix}/reference/{reference}", follow_redirects=False
     )
     assert response.status_code == 303
     assert f"http://testserver/entity/{entity}" == response.headers["location"]
 
 
 def test_get_by_curie_404s_for_unknown_reference(test_data, client, exclude_middleware):
-    response = client.get("/curie/not:found", allow_redirects=False)
+    response = client.get("/curie/not:found", follow_redirects=False)
     assert response.status_code == 404
     expected_content = "Page not found"
     # Check if the expected content is present in the response body

@@ -6,9 +6,10 @@ playwright
 pytest-playwright
 axe-playwright-python
 black>=22.3.0
-pytest-pudb
 SQLAlchemy-Utils
+httpx2
 pytest-mock
+testcontainers[postgres]
 pytest-md-report
 pre-commit
-locust==2.34.0
+locust

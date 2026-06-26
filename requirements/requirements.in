@@ -1,9 +1,10 @@
-fastapi==0.75.2
+fastapi
 uvicorn
 gunicorn
 jinja2
 PyYAML
 python-dotenv
+pydantic-settings
 requests
 Markdown
 sqlalchemy
@@ -19,6 +20,4 @@ beautifulsoup4
 python-slugify
 govuk-frontend-jinja==3.7.0
 validators
-pre-commit
-urllib3<2
 redis

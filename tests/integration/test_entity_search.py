@@ -72,8 +72,8 @@ def test_search_entity_by_dataset_name_not_in_system_returns_error(
     detail = response.json()["detail"][0]
     expected_dataset_names = [d["dataset"] for d in test_data["datasets"]]
 
-    assert detail["loc"] == ["dataset"]
-    assert detail["type"] == "value_error.datasetvaluenotfound"
+    assert detail["loc"] == ["query", "dataset"]
+    assert detail["type"] == "value_error"
     assert set(detail["ctx"]["dataset_names"]) == set(expected_dataset_names)
     assert "Requested datasets do not exist: not-exists." in detail["msg"]
 
@@ -83,11 +83,12 @@ def test_search_entity_by_dataset_names_not_in_system_returns_only_missing(
 ):
     response = client.get("/entity.json?dataset=not-exists&dataset=greenspace")
     assert response.status_code == 422
+
     detail = response.json()["detail"][0]
     expected_dataset_names = [d["dataset"] for d in test_data["datasets"]]
 
-    assert detail["loc"] == ["dataset"]
-    assert detail["type"] == "value_error.datasetvaluenotfound"
+    assert detail["loc"] == ["query", "dataset"]
+    assert detail["type"] == "value_error"
     assert set(detail["ctx"]["dataset_names"]) == set(expected_dataset_names)
     assert "Requested datasets do not exist: not-exists." in detail["msg"]
 

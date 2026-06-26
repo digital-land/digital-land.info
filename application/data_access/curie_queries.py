@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 
 from application.db.models import LookupOrm, EntityOrm
 
-
 logger = logging.getLogger(__name__)
 
 

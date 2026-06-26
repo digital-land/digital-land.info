@@ -3,7 +3,7 @@ from typing import Optional, List, Dict, Any
 
 from geoalchemy2.shape import to_shape
 from geoalchemy2.elements import WKBElement, WKTElement
-from pydantic import BaseModel, Field, validator, Extra, create_model
+from pydantic import BaseModel, Field, field_validator, create_model
 
 from application.db.models import EntityOrm
 from application.core.utils import to_snake
@@ -16,7 +16,7 @@ def to_kebab(string: str) -> str:
 class GeoJSON(BaseModel):
     geometry: dict
     type: str = "Feature"
-    properties: dict = None
+    properties: Optional[dict] = None
 
 
 class GeoJSONFeatureCollection(BaseModel):
@@ -27,8 +27,8 @@ class GeoJSONFeatureCollection(BaseModel):
 class DigitalLandBaseModel(BaseModel):
     class Config:
         alias_generator = to_kebab
-        allow_population_by_field_name = True
-        orm_mode = True
+        populate_by_name = True
+        from_attributes = True
         arbitrary_types_allowed = True
 
 
@@ -39,7 +39,7 @@ class DigitalLandDateFieldsModel(DigitalLandBaseModel):
 
 
 # cannot currently accept raw strings for geometry and
-def _make_geometry(v, values) -> str:
+def _make_geometry(v) -> str:
     """
     A function to allow for conversaion from other
     spatial types into a WKT (i.e. a string) before
@@ -52,76 +52,75 @@ def _make_geometry(v, values) -> str:
         return v
 
 
-class EntityModel(DigitalLandDateFieldsModel, extra=Extra.allow):
-    entity: int = None
-    name: str = None
-    dataset: str = None
-    typology: str = None
-    reference: str = None
-    prefix: str = None
-    organisation_entity: str = None
-    geojson: GeoJSON = None
-    geometry: str = None
-    point: str = None
+class EntityModel(DigitalLandDateFieldsModel):
+    model_config = {"extra": "allow"}
+    entity: Optional[int] = None
+    name: Optional[str] = None
+    dataset: Optional[str] = None
+    typology: Optional[str] = None
+    reference: Optional[str] = None
+    prefix: Optional[str] = None
+    organisation_entity: Optional[int] = None
+    geojson: Optional[GeoJSON] = None
+    geometry: Optional[str] = None
+    point: Optional[str] = None
     quality: Optional[str] = None
 
-    _validate_geometry = validator("geometry", pre=True, always=True, allow_reuse=True)(
-        _make_geometry
-    )
-    _validate_point = validator("point", pre=True, always=True, allow_reuse=True)(
-        _make_geometry
-    )
+    @field_validator("geometry", "point", mode="before")
+    @classmethod
+    def _validate_geometry_fields(cls, v):
+        return _make_geometry(v)
 
 
 class DatasetModel(DigitalLandDateFieldsModel):
-    collection: str = None
-    dataset: str = None
-    description: str = None
-    name: str = None
-    plural: str = None
-    prefix: str = None
-    text: str = None
-    typology: str = None
-    wikidata: str = None
-    wikipedia: str = None
-    entities: Optional[List[EntityModel]]
-    themes: Optional[List[str]]
-    entity_count: int = None
-    paint_options: dict = Field(None)
-    attribution: str = None
-    attribution_text: str = None
-    licence: str = None
-    licence_text: str = None
-    consideration: str = None
-    github_discussion: int = None
-    entity_minimum: int = None
-    entity_maximum: int = None
-    phase: str = None
-    realm: str = None
-    replacement_dataset: str = None
-    version: str = None
+    collection: Optional[str] = None
+    dataset: Optional[str] = None
+    description: Optional[str] = None
+    name: Optional[str] = None
+    plural: Optional[str] = None
+    prefix: Optional[str] = None
+    text: Optional[str] = None
+    typology: Optional[str] = None
+    wikidata: Optional[str] = None
+    wikipedia: Optional[str] = None
+    entities: Optional[List[EntityModel]] = None
+    themes: Optional[List[str]] = None
+    entity_count: Optional[int] = None
+    paint_options: Optional[dict] = Field(None)
+    attribution: Optional[str] = None
+    attribution_text: Optional[str] = None
+    licence: Optional[str] = None
+    licence_text: Optional[str] = None
+    consideration: Optional[str] = None
+    github_discussion: Optional[int] = None
+    entity_minimum: Optional[int] = None
+    entity_maximum: Optional[int] = None
+    phase: Optional[str] = None
+    realm: Optional[str] = None
+    replacement_dataset: Optional[str] = None
+    version: Optional[str] = None
 
 
 class TypologyModel(DigitalLandDateFieldsModel):
-    typology: str = None
-    name: str = None
-    description: str = None
-    plural: str = None
-    text: str = None
-    wikidata: str = None
-    wikipedia: str = None
+    typology: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    plural: Optional[str] = None
+    text: Optional[str] = None
+    wikidata: Optional[str] = None
+    wikipedia: Optional[str] = None
 
 
 class OrganisationModel(DigitalLandDateFieldsModel):
-    organisation: str = None
-    name: str = None
-    combined_authority: str = None
-    entity: int = None
-    local_authority_type: str = None
-    official_name: str = None
-    region: str = None
-    statistical_geography: str = None
-    website: str = None
+    organisation: Optional[str] = None
+    name: Optional[str] = None
+    combined_authority: Optional[str] = None
+    entity: Optional[int] = None
+    local_authority_type: Optional[str] = None
+    official_name: Optional[str] = None
+    region: Optional[str] = None
+    statistical_geography: Optional[str] = None
+    website: Optional[str] = None
 
 
 class OrganisationsByTypeModel(BaseModel):
@@ -129,8 +128,8 @@ class OrganisationsByTypeModel(BaseModel):
 
 
 class DatasetCollectionModel(DigitalLandBaseModel):
-    dataset_collection: str = None
-    resource: str = None
+    dataset_collection: Optional[str] = None
+    resource: Optional[str] = None
     resource_end_date: Optional[date] = None
     resource_entry_date: Optional[date] = None
     last_updated: Optional[date] = None
@@ -144,7 +143,7 @@ class DatasetPublicationCountModel(DigitalLandBaseModel):
 
 
 def entity_factory(entity_orm: EntityOrm):
-    e = EntityModel.from_orm(entity_orm)
+    e = EntityModel.model_validate(entity_orm)
     if entity_orm.json is not None:
         # if values in json present then extend the pydantic model
         # TODO could add in additional validation using field informtion
@@ -156,7 +155,7 @@ def entity_factory(entity_orm: EntityOrm):
         )
 
         # use new model with the added json fields
-        e = ExtendedEntityModel(**e.dict(by_alias=False), **entity_orm.json)
+        e = ExtendedEntityModel(**e.model_dump(by_alias=False), **entity_orm.json)
 
     return e
 

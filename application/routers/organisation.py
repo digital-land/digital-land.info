@@ -49,14 +49,14 @@ def get_organisations(
     }
     organisations = session.query(OrganisationOrm).all()
     for o in organisations:
-        organisations_by_type[o.type()].append(OrganisationModel.from_orm(o))
+        organisations_by_type[o.type()].append(OrganisationModel.model_validate(o))
     if extension == SuffixOrganisation.json:
         return OrganisationsByTypeModel(organisations=organisations_by_type)
     else:
         return templates.TemplateResponse(
+            request,
             "organisation_index.html",
             {
-                "request": request,
                 "organisations": organisations_by_type,
                 "display_names": display_names,
                 "today": date.today(),

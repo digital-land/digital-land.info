@@ -19,6 +19,7 @@ server: export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 endif
 
 init::
+	python -m pip install --upgrade pip
 	python -m pip install pip-tools
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt --pip-args "--no-cache-dir"
 	python -m pre_commit install
@@ -29,6 +30,10 @@ init:: frontend-all
 piptool-compile::
 	python -m piptools compile --output-file=requirements/requirements.txt requirements/requirements.in
 	python -m piptools compile requirements/dev-requirements.in
+
+piptool-upgrade::
+	python -m piptools compile --upgrade --output-file=requirements/requirements.txt requirements/requirements.in
+	python -m piptools compile --upgrade requirements/dev-requirements.in
 
 piptool-install::
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt

@@ -8,7 +8,6 @@ from application.core.utils import (
     map_entity_quality_to_description,
 )
 
-
 quality_test_data = [
     (
         {"quality": "authoritative", "name": "Brownfield site"},

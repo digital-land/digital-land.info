@@ -42,7 +42,7 @@ def get_datasets(session: Session, datasets=None) -> List[DatasetModel]:
         "Query executed successfully",
         extra={"num_results": len(dataset_results)},
     )
-    return [DatasetModel.from_orm(ds) for ds in dataset_results]
+    return [DatasetModel.model_validate(ds) for ds in dataset_results]
 
 
 @redis_cache("datasets", model_class=DatasetModel)
@@ -53,12 +53,12 @@ def get_all_datasets(session: DbSession) -> List[DatasetModel]:
 def get_dataset_query(session: Session, dataset) -> DatasetModel:
     dataset = session.query(DatasetOrm).get(dataset)
     if dataset is not None:
-        return DatasetModel.from_orm(dataset)
+        return DatasetModel.model_validate(dataset)
     return None
 
 
 def get_dataset_filter_fields(dataset: DatasetModel, fields: List[str]):
-    return dataset.dict(include=set(fields))
+    return dataset.model_dump(include=set(fields))
 
 
 def get_datasets_with_data_by_typology(
@@ -71,7 +71,7 @@ def get_datasets_with_data_by_typology(
     query = query.group_by(DatasetOrm.dataset)
     query = query.having(func.count(EntityOrm.entity) > 0)
     datasets = query.all()
-    return [DatasetModel.from_orm(ds) for ds in datasets]
+    return [DatasetModel.model_validate(ds) for ds in datasets]
 
 
 @redis_cache("datasets-typology-geo", model_class=DatasetModel)
@@ -81,7 +81,7 @@ def get_datasets_with_data_by_geography(session: DbSession) -> List[DatasetModel
 
 def get_typologies(session: Session) -> List[TypologyModel]:
     typologies = session.query(TypologyOrm).order_by(TypologyOrm.typology).all()
-    return [TypologyModel.from_orm(t) for t in typologies]
+    return [TypologyModel.model_validate(t) for t in typologies]
 
 
 # returns all typologies with at least one dataset that falls under that typology
@@ -104,7 +104,7 @@ def get_typologies_with_entities(dbsession: DbSession) -> List[TypologyModel]:
         .order_by(TypologyOrm.typology)
         .all()
     )
-    return [TypologyModel.from_orm(t) for t in typologies]
+    return [TypologyModel.model_validate(t) for t in typologies]
 
 
 def get_typology_names(session: Session):
@@ -121,13 +121,13 @@ def get_local_authorities(
         .order_by(OrganisationOrm.organisation)
         .all()
     )
-    return [OrganisationModel.from_orm(o) for o in organisations]
+    return [OrganisationModel.model_validate(o) for o in organisations]
 
 
 def get_publisher_coverage(session: Session, dataset) -> DatasetPublicationCountModel:
     result = session.query(DatasetPublicationCountOrm).get(dataset)
     if result is not None:
-        return DatasetPublicationCountModel.from_orm(result)
+        return DatasetPublicationCountModel.model_validate(result)
     else:
         return DatasetPublicationCountModel(
             dataset_publication=dataset,
@@ -139,7 +139,7 @@ def get_publisher_coverage(session: Session, dataset) -> DatasetPublicationCount
 def get_latest_resource(session: Session, dataset) -> DatasetCollectionModel:
     result = session.query(DatasetCollectionOrm).get(dataset)
     if result is not None:
-        return DatasetCollectionModel.from_orm(result)
+        return DatasetCollectionModel.model_validate(result)
     else:
         return None
 
@@ -165,4 +165,4 @@ def filter_datasets(session: Session, **kwargs):
         if hasattr(DatasetOrm, key)
     ]
     dataset_results = session.query(DatasetOrm).filter(*filters).all()
-    return [DatasetModel.from_orm(ds) for ds in dataset_results]
+    return [DatasetModel.model_validate(ds) for ds in dataset_results]

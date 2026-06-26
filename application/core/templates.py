@@ -30,7 +30,7 @@ from application.core.filters import (
 )
 
 from application.core.utils import model_dumps
-from application.settings import get_settings
+from application.settings import Settings
 
 
 def random_int(n=1):
@@ -50,8 +50,6 @@ templates.env.loader = jinja2.ChoiceLoader(
     ]
 )
 
-settings = get_settings()
-
 # Used to customize jinja tojson filter
 templates.env.policies["json.dumps_function"] = model_dumps
 
@@ -61,9 +59,15 @@ templates.env.globals["includeAutocomplete"] = True
 templates.env.globals["random_int"] = random_int
 templates.env.globals["templateVar"] = {"email": "digitalland@communities.gov.uk"}
 templates.env.globals["serviceStatus"] = False
-templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
-templates.env.globals["smartLookId"] = settings.SMARTLOOK_ID
 templates.env.globals["govUkLocalPlansUrl"] = GOV_UK_LOCAL_PLANS_URL
+
+
+def init_templates(settings: Settings) -> None:
+    # Called from create_app() so settings are only read after the app starts,
+    # not at import time.
+    templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
+    templates.env.globals["smartLookId"] = settings.SMARTLOOK_ID
+
 
 # Set a global `govukRebrand` variable to allow the
 # class `govuk-template--rebranded` being added to the base template
