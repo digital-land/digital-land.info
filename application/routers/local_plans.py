@@ -15,7 +15,6 @@ from application.db.session import get_session
 from application.search.enum import SuffixDataset
 from application.search.filters import DatasetQueryFilters
 
-
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -58,7 +57,7 @@ def list_local_plans(
                 (
                     {k: v for k, v in ds.items() if k not in exclude_fields}
                     if isinstance(ds, dict)
-                    else ds.dict(exclude=exclude_fields, by_alias=True)
+                    else ds.model_dump(exclude=exclude_fields, by_alias=True)
                 )
                 for ds in data["datasets"]
             ]
@@ -70,9 +69,9 @@ def list_local_plans(
         view_as_list_query = "&".join(dataset_list_url)
 
         return templates.TemplateResponse(
+            request,
             "local_plans.html",
             {
-                "request": request,
                 "view_as_list_query": view_as_list_query,
                 **data,
             },

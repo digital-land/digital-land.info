@@ -267,9 +267,8 @@ class TestOSAPI:
         context_manager.__exit__.return_value = None
         mock_get_context_session.return_value = context_manager
 
-        # Mock EntityModel object with a dict() method
         mock_entity = MagicMock()
-        mock_entity.dict.return_value = {
+        mock_entity.model_dump.return_value = {
             "entity": 1,
             "name": "Manchester LPA",
             "dataset": "local-planning-authority",

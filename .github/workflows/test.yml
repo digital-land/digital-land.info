@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.9'
+          python-version: '3.13'
       - run: make init
       - run: make lint
 
@@ -48,7 +48,7 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.9'
+          python-version: '3.13'
 
       - run: make init
 

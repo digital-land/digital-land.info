@@ -1,5 +1,6 @@
 from typing import Generator, Dict, List, Union
 from contextlib import contextmanager
+import os
 
 import pytest
 import alembic
@@ -8,16 +9,19 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from alembic.config import Config
 from pydantic import PostgresDsn
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy.engine import make_url
+from testcontainers.postgres import PostgresContainer
 from multiprocessing.context import Process
 import uvicorn
 import time
 import csv
 import json
+import logging
 
-from application.app import create_app  # noqa: E402
+from application.factory import create_app
+
 
 from application.db.models import (
     Base,
@@ -37,39 +41,74 @@ from tests.utils.database import (
     reset_database,
 )
 
-DEFAULT_TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost/digital_land_test"
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
-def test_settings() -> Settings:
+def test_settings():
     from dotenv import load_dotenv
 
     load_dotenv(override=True)
+
+    # Provide test-safe defaults for required settings that tests don't actually
+    # invoke — prevents ValidationError when running without a .env file.
+    os.environ.setdefault("ENVIRONMENT", "test")
+    os.environ.setdefault("DATASETTE_URL", "https://datasette.digital-land.info/")
+    os.environ.setdefault("DATA_FILE_URL", "https://files.planning.data.gov.uk/")
+
+    container = None
+    if not os.environ.get("WRITE_DATABASE_URL") and not os.environ.get(
+        "READ_DATABASE_URL"
+    ):
+        logger.info(
+            "No WRITE_DATABASE_URL/READ_DATABASE_URL set — "
+            "starting PostGIS testcontainer (this may take a moment on first run)..."
+        )
+        container = PostgresContainer("postgis/postgis:16-3.4", driver="psycopg2")
+        container.start()
+        db_url = container.get_connection_url()
+        os.environ["WRITE_DATABASE_URL"] = db_url
+        os.environ["READ_DATABASE_URL"] = db_url
+        logger.info("PostGIS testcontainer ready at %s", db_url)
+
     get_settings.cache_clear()
+    yield Settings()
 
-    settings = Settings(
-        WRITE_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
-        READ_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
+    if container:
+        logger.info("Stopping PostGIS testcontainer...")
+        container.stop()
+
+
+def _maintenance_engine(database_url: str):
+    """Return an AUTOCOMMIT engine connected to the postgres maintenance DB."""
+    url = make_url(database_url)
+    db_name = url.database
+    return (
+        create_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT"),
+        db_name,
     )
-
-    return settings
 
 
 @pytest.fixture(scope="session")
 def create_db(test_settings) -> PostgresDsn:
-    # grab db url and create db
-    database_url = DEFAULT_TEST_DATABASE_URL
-    if database_exists(database_url):
-        drop_database(database_url)
-    create_database(database_url)
+    database_url = os.environ["WRITE_DATABASE_URL"]
+    engine, db_name = _maintenance_engine(database_url)
 
-    # apply migrations in new db, this assumes we will always want a properly set-up db
+    with engine.connect() as conn:
+        conn.execute(text(f'DROP DATABASE IF EXISTS "{db_name}" WITH (FORCE)'))
+        conn.execute(text(f'CREATE DATABASE "{db_name}"'))
+    engine.dispose()
+
     config = Config("alembic.ini")
     config.set_main_option("sqlalchemy.url", database_url)
     alembic.command.upgrade(config, "head")
 
     yield database_url
-    drop_database(database_url)
+
+    engine, db_name = _maintenance_engine(database_url)
+    with engine.connect() as conn:
+        conn.execute(text(f'DROP DATABASE IF EXISTS "{db_name}" WITH (FORCE)'))
+    engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -282,15 +321,13 @@ def add_base_entities_to_database_yield_reset():
 
 @pytest.fixture()
 def skip_if_not_supportsGL(page):
-    supportsGL = page.evaluate(
-        """
+    supportsGL = page.evaluate("""
         () => {
             const canvas = document.createElement("canvas");
             const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
             return gl instanceof WebGLRenderingContext;
         }
-    """
-    )
+    """)
     if not supportsGL:
         pytest.skip("Test requires WebGL support")
 
@@ -348,6 +385,9 @@ def app_test_data(app_db_session: Session):
             app_db_session.add(ds)
             dataset_models.append(ds)
 
+    app_db_session.commit()
+    logger.info("app_test_data: committed %d datasets", len(dataset_models))
+
     entities = []
     entity_models = []
     with open("tests/test_data/entities.csv") as f:
@@ -366,42 +406,57 @@ def app_test_data(app_db_session: Session):
             )
             app_db_session.add(lookup)
             entity_models.append(e)
-            app_db_session.commit()
             i += 1
+
+    app_db_session.commit()
+    entity_count = app_db_session.query(EntityOrm).count()
+    logger.info(
+        "app_test_data: committed %d entities (DB count: %d)",
+        len(entity_models),
+        entity_count,
+    )
 
     return {"datasets": datasets, "entities": entities}
 
 
 # in a perfect world this would be a fixture but there were issues with pickling
-# to run separate process
+# to run separate process — engine is module-level so it's shared across requests
+_server_engine = None
+
+
+def _get_server_engine():
+    global _server_engine
+    if _server_engine is None:
+        _server_engine = create_engine(os.environ["WRITE_DATABASE_URL"])
+    return _server_engine
+
+
 def get_context_session_override():
-    engine = create_engine(DEFAULT_TEST_DATABASE_URL)
-    session = sessionmaker(engine)()
-    return session
+    session = sessionmaker(_get_server_engine())()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
-appInstance = create_app()
-appInstance.dependency_overrides[get_session] = get_context_session_override
-
-# Disable Redis caching when running acceptance tests
-#
-# get_all_datasets() uses @redis_cache which caches results for up to 6 hours.
-#
-# Locally, Redis has stale cached data from previous runs, so the server
-# returns old/empty datasets instead of querying the fresh test data, but
-# on GitHub Actions, Redis caching is bypassed.
-#
-# This fix, adds `appInstance.dependency_overrides[get_redis] = lambda: None`
-# which disables Redis caching during acceptance tests. The redis_cache
-# decorator skips caching when Redis is None and queries the database
-# directly.
-appInstance.dependency_overrides[get_redis] = lambda: None
-HOST = "0.0.0.0"
+HOST = "127.0.0.1"
 PORT = 9000
 
 
 def run_server():
-    uvicorn.run(appInstance, host=HOST, port=PORT)
+    # Called in a subprocess by server_url fixture, after acceptance_db has set
+    # env vars. Create the app here (not at module level) so get_settings() is
+    # only called once the required env vars are available.
+    from application.db.session import _get_session_local
+
+    _get_session_local.cache_clear()
+    app = create_app()
+    app.dependency_overrides[get_session] = get_context_session_override
+    # Disable Redis caching when running acceptance tests. get_all_datasets()
+    # uses @redis_cache (6h TTL) which returns stale data locally. Setting
+    # get_redis to None causes redis_cache to skip the cache and query the DB.
+    app.dependency_overrides[get_redis] = lambda: None
+    uvicorn.run(app, host=HOST, port=PORT)
 
 
 def mock_settings() -> Settings:
@@ -409,15 +464,37 @@ def mock_settings() -> Settings:
 
     load_dotenv(override=True)
     get_settings.cache_clear()
-
-    return Settings(
-        WRITE_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
-        READ_DATABASE_URL=DEFAULT_TEST_DATABASE_URL,
-    )
+    return Settings()
 
 
 @pytest.fixture(scope="session")
-def server_url(create_db):
+def acceptance_db(create_db):
+    write_database_url = os.environ.get("WRITE_DATABASE_URL")
+
+    if write_database_url:
+        logger.info("Using existing WRITE_DATABASE_URL for acceptance tests")
+        yield write_database_url
+    else:
+        logger.info(
+            "No WRITE_DATABASE_URL set — "
+            "starting PostGIS testcontainer for acceptance tests (this may take a moment on first run)..."
+        )
+        with PostgresContainer("postgis/postgis:16-3.4", driver="psycopg2") as postgres:
+            database_url = postgres.get_connection_url()
+            os.environ["WRITE_DATABASE_URL"] = database_url
+            os.environ["READ_DATABASE_URL"] = database_url
+            logger.info("PostGIS testcontainer ready at %s", database_url)
+
+            config = Config("alembic.ini")
+            config.set_main_option("sqlalchemy.url", database_url)
+            alembic.command.upgrade(config, "head")
+            logger.info("Alembic migrations applied")
+
+            yield database_url
+
+
+@pytest.fixture(scope="session")
+def server_url(acceptance_db):
     """
     This creates and runs a version of the application locally. This is neccessary
     when we want to write tests that want to mimick a user utilising the website

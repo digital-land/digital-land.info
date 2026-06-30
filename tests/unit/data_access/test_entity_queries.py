@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Query
+
 from application.data_access.entity_queries import (
     _apply_limit_and_pagination_filters,
     _apply_location_filters,
@@ -13,10 +14,10 @@ def test__apply_limit_and_pagination_filters_with_no_filters_applied():
     assert result._limit_clause is None
 
 
-def test__apply_location_filters_for_frz_dataset(db_session):
+def test__apply_location_filters_for_frz_dataset(mocker):
     query = Query(EntityOrm)
     result = _apply_location_filters(
-        db_session,
+        mocker.MagicMock(),
         query,
         params={
             "longitude": "-0.2",
@@ -29,10 +30,10 @@ def test__apply_location_filters_for_frz_dataset(db_session):
     assert "flood-risk-zone" in sql_str.split("FROM entity_subdivided")[1]
 
 
-def test__apply_location_filters_for_simple_dataset(db_session):
+def test__apply_location_filters_for_simple_dataset(mocker):
     query = Query(EntityOrm)
     result = _apply_location_filters(
-        db_session,
+        mocker.MagicMock(),
         query,
         params={
             "longitude": "-0.3",
@@ -45,10 +46,10 @@ def test__apply_location_filters_for_simple_dataset(db_session):
     assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
 
 
-def test__apply_location_filters_for_both(db_session):
+def test__apply_location_filters_for_both(mocker):
     query = Query(EntityOrm)
     result = _apply_location_filters(
-        db_session,
+        mocker.MagicMock(),
         query,
         params={
             "longitude": "-0.2",
@@ -61,24 +62,24 @@ def test__apply_location_filters_for_both(db_session):
     assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
 
 
-def test__apply_location_filters_without_dataset(db_session):
+def test__apply_location_filters_without_dataset(mocker):
     query = Query(EntityOrm)
     params = {
         "latitude": "52.35",
         "longitude": "-0.3",
     }
 
-    result = _apply_location_filters(db_session, query, params)
+    result = _apply_location_filters(mocker.MagicMock(), query, params)
     sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
 
     assert "ST_Contains" in sql
 
 
-def test__apply_location_filters_geometry_within(db_session):
+def test__apply_location_filters_geometry_within(mocker):
     query = Query(EntityOrm)
     params = {"geometry": ["MULTIPOLYGON((-0.1 52.5, -0.5 52.3, 0.0 52.1, -0.1 52.5))"]}
 
-    result = _apply_location_filters(db_session, query, params)
+    result = _apply_location_filters(mocker.MagicMock(), query, params)
     sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
 
     assert "MULTIPOLYGON" in sql
@@ -103,10 +104,12 @@ def test_get_entity_query_closes_session(mocker):
     mock_session.get.return_value = None
     mock_session.close = track_session_close
 
-    # Patch SessionLocal to return our tracked session
+    # Patch _get_session_local so that _get_session_local()() returns our tracked session.
+    # get_context_session() calls _get_session_local()() internally and then calls
+    # session.close() in its finally block, which is what this test verifies.
     mocker.patch(
-        "application.db.session.SessionLocal",
-        return_value=mock_session,
+        "application.db.session._get_session_local",
+        return_value=lambda: mock_session,
     )
 
     result = get_entity_query(12345)
@@ -140,9 +143,11 @@ def test_get_entity_query_no_pool_exhaustion(mocker):
         mock_session.close = track_close
         return mock_session
 
+    # Patch _get_session_local so _get_session_local()() calls mock_session_factory()
+    # each time, creating a distinct tracked session per call.
     mocker.patch(
-        "application.db.session.SessionLocal",
-        side_effect=mock_session_factory,
+        "application.db.session._get_session_local",
+        return_value=mock_session_factory,
     )
 
     # Call more times than pool_size (10) + overflow (20) = 30

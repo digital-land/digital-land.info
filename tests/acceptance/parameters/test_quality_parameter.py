@@ -3,7 +3,6 @@
 import pytest
 from application.db.models import EntityOrm
 
-
 mock_entities = [
     {
         "entity": "106",

@@ -9,7 +9,6 @@ from application.core.utils import log_slow_execution
 from application.data_access.entity_queries import get_entity_map_lpa
 from application.db.session import get_context_session
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -84,7 +83,7 @@ def search_local_planning_authority(query: str) -> List[Dict]:
         )
         return []
 
-    return entity.dict() if entity else {}
+    return entity.model_dump() if entity else {}
 
 
 def search(query: str, search_type: str):

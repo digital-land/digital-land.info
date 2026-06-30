@@ -3,6 +3,7 @@ import pytest
 
 from application.db.models import EntityOrm
 from application.data_access.entity_queries import get_entity_search
+from sqlalchemy import text
 from sqlalchemy.orm import Query
 from application.data_access.entity_queries import _apply_location_filters
 
@@ -203,8 +204,7 @@ def test_get_entity_search_apply_location_filters_geometry(db_session):
 
 
 def test_get_entity_search_with_point_filter(db_session):
-    db_session.execute(
-        """
+    db_session.execute(text("""
         INSERT INTO entity (entity, dataset, reference, geometry)
         VALUES (
             2,
@@ -213,10 +213,8 @@ def test_get_entity_search_with_point_filter(db_session):
             ST_GeomFromText('MULTIPOLYGON(((-6.352507 49.893859, -6.352647 49.893866,
             -6.352645 49.893844, -6.352611 49.893845, -6.35261 49.893834, -6.352507 49.893859)))', 4326)
         )
-    """
-    )
-    db_session.execute(
-        """
+    """))
+    db_session.execute(text("""
         INSERT INTO entity_subdivided (entity, dataset, geometry_subdivided)
         VALUES (
             2,
@@ -224,8 +222,7 @@ def test_get_entity_search_with_point_filter(db_session):
             ST_GeomFromText('MULTIPOLYGON(((-6.352507 49.893859, -6.352647 49.893866,
             -6.352645 49.893844, -6.352611 49.893845, -6.35261 49.893834, -6.352507 49.893859)))', 4326)
         )
-    """
-    )
+    """))
     db_session.commit()
     params = {}
     params["longitude"] = -6.352593
