@@ -251,7 +251,8 @@ def handle_entity_response(
             organisation_curie = (
                 f"{organisation_entity.prefix}:{organisation_entity.reference}"
             )
-            e_dict_sorted["organisation-entity"] = organisation_curie
+            e_dict_sorted["organisation-entity"] = organisation_entity
+            e_dict_sorted["curie"] = organisation_curie
 
     return templates.TemplateResponse(
         "entity.html",
