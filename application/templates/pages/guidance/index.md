@@ -3,7 +3,7 @@
 
 Your data does not need to be complete or perfect to start. You can start with what you have and improve it over time.
 
-1. [Find your organisation](./Find your organisation).
+1. [Find your organisation](https://provide.planning.data.gov.uk/organisations).
 2. Select the dataset that is relevant to your plan. For example, 'local plan'.
 
 If we have data from alternative sources, you can download it from your dataset details page to help you get started.
