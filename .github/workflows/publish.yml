@@ -67,7 +67,7 @@ jobs:
 
       - run: docker pull $DOCKER_REPO:latest || echo "no current latest image"
 
-      - run: docker build -t $DOCKER_REPO:${{ steps.vars.outputs.sha_short }} .
+      - run: docker build --target production -t $DOCKER_REPO:${{ steps.vars.outputs.sha_short }} .
 
       - run: docker tag $DOCKER_REPO:${{ steps.vars.outputs.sha_short }} $DOCKER_REPO:latest
 
