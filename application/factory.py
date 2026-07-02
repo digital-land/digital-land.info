@@ -82,6 +82,7 @@ tags_metadata = [
 
 def create_app():
     init_redis(get_settings())
+    logger.info(f"Redis connection established (host={get_settings()})")
     app = FastAPI(
         title="planning.data.gov.uk API",
         description=description,
