@@ -12,9 +12,4 @@ pytest-mock
 testcontainers[postgres]
 pytest-md-report
 pre-commit
-<<<<<<< HEAD
-locust==2.34.0
-requests==2.32.5
-=======
 locust
->>>>>>> 61c5785 (fix accessibility tests and unpin urlib3 and locust)
