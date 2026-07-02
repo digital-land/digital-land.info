@@ -2,7 +2,7 @@
 pytest
 flake8
 pre-commit
-playwright==1.40.0
+playwright
 pytest-playwright
 axe-playwright-python
 black>=22.3.0
@@ -13,3 +13,4 @@ testcontainers[postgres]
 pytest-md-report
 pre-commit
 locust
+jsonschema

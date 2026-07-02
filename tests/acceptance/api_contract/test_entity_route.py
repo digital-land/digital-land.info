@@ -2,8 +2,24 @@
 Module to test the routes that follow /entity. this includes both the get entity and the entity search
 """
 
+import json
+import os
+
+import jsonschema
 import pytest
 from application.db.models import EntityOrm
+
+
+def load_schema(filename):
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "contracts", filename)
+    with open(path) as f:
+        return json.load(f)
+
+
+ENTITY_JSON_SCHEMA = load_schema("entity_json.schema.json")
+ENTITY_SEARCH_JSON_SCHEMA = load_schema("entity_search_json.schema.json")
+ENTITY_GEOJSON_SCHEMA = load_schema("entity_geojson.schema.json")
+ENTITY_SEARCH_GEOJSON_SCHEMA = load_schema("entity_search_geojson.schema.json")
 
 mock_entities = [
     {
@@ -113,3 +129,47 @@ def test_entity_fields_returned(client, db_session):
     assert (
         expected_fields == returned_fields
     ), f"Expected fields {expected_fields} but got {returned_fields}"
+
+
+# Schema Contract Testing
+# ----------------------
+
+
+def test_entity_json_contract(client, db_session):
+    for entity in mock_entities:
+        db_session.add(EntityOrm(**entity))
+    db_session.commit()
+
+    response = client.get("/entity/106.json")
+    assert response.status_code == 200
+    jsonschema.validate(response.json(), ENTITY_JSON_SCHEMA)
+
+
+def test_entity_search_json_contract(client, db_session):
+    for entity in mock_entities:
+        db_session.add(EntityOrm(**entity))
+    db_session.commit()
+
+    response = client.get("/entity.json")
+    assert response.status_code == 200
+    jsonschema.validate(response.json(), ENTITY_SEARCH_JSON_SCHEMA)
+
+
+def test_entity_geojson_contract(client, db_session):
+    for entity in mock_entities:
+        db_session.add(EntityOrm(**entity))
+    db_session.commit()
+
+    response = client.get("/entity/106.geojson")
+    assert response.status_code == 200
+    jsonschema.validate(response.json(), ENTITY_GEOJSON_SCHEMA)
+
+
+def test_entity_search_geojson_contract(client, db_session):
+    for entity in mock_entities:
+        db_session.add(EntityOrm(**entity))
+    db_session.commit()
+
+    response = client.get("/entity.geojson")
+    assert response.status_code == 200
+    jsonschema.validate(response.json(), ENTITY_SEARCH_GEOJSON_SCHEMA)
