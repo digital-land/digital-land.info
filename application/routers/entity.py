@@ -55,6 +55,7 @@ logger = logging.getLogger(__name__)
     "/dataset-name-search.json",
     response_class=DigitalLandJSONResponse,
     tags=["Entity"],
+    include_in_schema=False,
 )
 def dataset_name_search(
     _request: Request,

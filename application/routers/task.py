@@ -40,6 +40,7 @@ router.add_api_route(
     response_class=DigitalLandJSONResponse,
     tags=["List tasks"],
     summary="List tasks, optionally filtered by dataset, organisation, severity, responsibility or task-source.",
+    include_in_schema=False,
 )
 
 router.add_api_route(
