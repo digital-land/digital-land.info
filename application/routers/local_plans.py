@@ -84,6 +84,7 @@ router.add_api_route(
     response_class=DigitalLandJSONResponse,
     tags=["List local plans"],
     summary="This endpoint lists all datasets, returning the results in the file format specified.",
+    include_in_schema=False,
 )
 
 router.add_api_route(
