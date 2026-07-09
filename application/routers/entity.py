@@ -181,18 +181,28 @@ def handle_entity_response(
             )
 
     e_dict = e.model_dump(by_alias=True, exclude={"geojson"})
-    e_dict_sorted = {
-        key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
-    }
 
     # CURIE field composed by the prefix and reference fields
     prefix = e_dict.get("prefix")
     reference = e_dict.get("reference")
     curie = f"{prefix}:{reference}" if prefix and reference else None
+    organisation = None
+    organisation_curie = None
+    if e.organisation_entity is not None:
+        organisation, _, _ = get_entity_query(e.organisation_entity)
+        if organisation:
+            organisation_curie = f"{organisation.prefix}:{organisation.reference}"
+            e_dict["organisation-entity"] = str(organisation.organisation_entity)
+            e_dict["organisation-curie"] = organisation_curie
+        else:
+            e_dict["organisation-entity"] = str(e.organisation_entity)
 
+    e_dict_sorted = {
+        key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
+    }
     # Add CURIE field to dict and make it first
+    #  e_dict_sorted = {"curie": curie,"organisation-curie": curie, **e_dict_sorted}
     e_dict_sorted = {"curie": curie, **e_dict_sorted}
-
     # Map and re-format the quality value to include a description
     e_dict_sorted = map_entity_quality_to_description(e_dict_sorted)
 
@@ -246,16 +256,20 @@ def handle_entity_response(
     # makes debugging hard. organisation_curie should instead be passed to the
     # template as a separate context variable, and the template should decide
     # whether to display the curie or fall back to the raw entity number.
-    organisation_entity = None
-    if e.organisation_entity is not None:
-        organisation_entity, _, _ = get_entity_query(e.organisation_entity)
-        if organisation_entity:
-            organisation_curie = (
-                f"{organisation_entity.prefix}:{organisation_entity.reference}"
-            )
-            e_dict_sorted["organisation-entity"] = organisation_curie
-        else:
-            e_dict_sorted["organisation-entity"] = str(e.organisation_entity)
+
+    # organisation = None
+    # organisation_curie = None
+    # if e.organisation_entity is not None:
+    #     organisation, _, _ = get_entity_query(e.organisation_entity)
+    #     if organisation:
+    #         organisation_curie = (
+    #             f"{organisation.prefix}:{organisation.reference}"
+    #         )
+    #         e_dict_sorted["organisation-entity"] = str(organisation.organisation_entity)
+    #         e_dict_sorted["curie"] = organisation_curie
+    #         e_dict_sorted["organisation-curie"] = organisation_curie
+    #     else:
+    #         e_dict_sorted["organisation-entity"] = str(e.organisation_entity)
 
     return templates.TemplateResponse(
         request,
@@ -278,7 +292,8 @@ def handle_entity_response(
             "fields": fields,
             "dataset_fields": dataset_fields,
             "dataset": dataset,
-            "organisation_entity": organisation_entity,
+            "organisation_entity": organisation,
+            "organisation_curie": organisation_curie,
             "feedback_form_footer": True,
         },
     )

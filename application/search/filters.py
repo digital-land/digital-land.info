@@ -93,32 +93,26 @@ class QueryFilters:
 
     # date filters all use our custom FormIn data type, this allows empty strings to be submitted as parameter values
     # this does not need to be used for required parameters or path parameters
-    start_date: Annotated[
-        Optional[datetime.date], Query(include_in_schema=False)
-    ] = None
+    start_date: Annotated[Optional[datetime.date], Query(include_in_schema=False)] = (
+        None
+    )
     start_date_year: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by start date year before or after the given year. Depends on start_date_match
-        """
-        ),
+        """),
     ] = None
     start_date_month: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by start date month before or after the given year. Depends on start_date_match
-        """
-        ),
+        """),
     ] = None
     start_date_day: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by start date day before or after the given day. Depends on start_date_match
-        """
-        ),
+        """),
     ] = None
     start_date_match: Annotated[
         Optional[DateOption],
@@ -136,84 +130,66 @@ class QueryFilters:
     ] = None
     end_date_month: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by end date month before or after the given month.Depends on end_date_match
-        """
-        ),
+        """),
     ] = None
     end_date_day: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by end date day before or after the given day. Depends on end_date_match
-        """
-        ),
+        """),
     ] = None
     end_date_match: Annotated[
         Optional[DateOption],
-        Query(
-            description="""
+        Query(description="""
         Specify how to filter against the end_date_* values provided, either before, after or match
-        """
-        ),
+        """),
     ] = None
 
-    entry_date: Annotated[
-        Optional[datetime.date], Query(include_in_schema=False)
-    ] = None
+    entry_date: Annotated[Optional[datetime.date], Query(include_in_schema=False)] = (
+        None
+    )
     entry_date_year: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by entry date year before or after the given year. Depends on entry_date_match
-        """
-        ),
+        """),
     ] = None
     entry_date_month: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by entry date month before or after the given month. Depends on entry_date_match
-        """
-        ),
+        """),
     ] = None
 
     entry_date_day: Annotated[
         Optional[FormInt],
-        Query(
-            description="""
+        Query(description="""
         Search for entities by entry date day before or after the given day. Depends on entry_date_match
-        """
-        ),
+        """),
     ] = None
     entry_date_match: Annotated[
         Optional[DateOption],
-        Query(
-            description="""
+        Query(description="""
         Specify for entities how to filter against the entry_date_* values provided, either before, after or match
-        """
-        ),
+        """),
     ] = None
 
     # spatial filters
     longitude: Annotated[
         Optional[float],
-        Query(
-            description="""
+        Query(description="""
         Search for entity with geometries intersected by a point constructed with this longitude.
         Requires latitude to be provided.
-        """
-        ),
+        """),
     ] = None
     latitude: Annotated[
         Optional[float],
-        Query(
-            description="""
+        Query(description="""
         Search for entities with geometries intersected by a point constructed with this latitude.
         Requires longitude to be provided.
-        """
-        ),
+        """),
     ] = None
     geometry: Annotated[
         Optional[List[str]],
@@ -233,23 +209,19 @@ class QueryFilters:
     ] = None
     geometry_reference: Annotated[
         Optional[List[str]],
-        Query(
-            description="""
+        Query(description="""
         Search entities with geometries interacting with the geometries of
         entities with the provided references. The type of geometric relation
         can be set using the geometry relation parameter.
-        """
-        ),
+        """),
     ] = None
     geometry_curie: Annotated[
         Optional[List[str]],
-        Query(
-            description="""
+        Query(description="""
         Search for entities with geometries interacting with geometries
         entities matching provided curies. The type of geometric relation
         can be set using the geometry relation parameter.
-        """
-        ),
+        """),
     ] = None
     geometry_relation: Annotated[
         Optional[GeometryRelation],
@@ -257,11 +229,9 @@ class QueryFilters:
     ] = None
     q: Annotated[
         Optional[str],
-        Query(
-            description="""
+        Query(description="""
         Search by a postcode, or a Unique Property Reference Number (UPRN).
-        """
-        ),
+        """),
     ] = None
 
     # pagination filters

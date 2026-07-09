@@ -13,8 +13,8 @@
         {% endif %}
     {% else %}
     {# some catch-alls to use if field spec  isn't provided #}
-        {%- if field == "organisation-entity" %}
-            {{ field|replace("-entity", "")|capitalize }}
+        {%- if field == "organisation-curie" %}
+            {{ field|replace("-curie", "")|capitalize }}
         {%- elif field == "curie" %}
             {{ field|upper }}
         {%- elif field == "local-authority-district" %}

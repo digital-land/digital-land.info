@@ -188,12 +188,13 @@ ENTITY_ATTRIBUTE_ORDER = {
     "quality": 3,
     "dataset": 4,
     "organisation-entity": 5,
-    "start-date": 6,
-    "end-date": 7,
-    "entry-date": 8,
-    "typology": 9,
-    "geometry": 10,
-    "point": 11,
+    "organisation-curie": 6,
+    "start-date": 7,
+    "end-date": 8,
+    "entry-date": 9,
+    "typology": 10,
+    "geometry": 11,
+    "point": 12,
 }
 
 
