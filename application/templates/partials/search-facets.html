@@ -86,11 +86,11 @@
     <div class="govuk-form-group">
         {% set search_query = query.params.get("q", "") %}
         <div class="dl-filter-group">
-            <h2 class="dl-filter-group__heading govuk-heading-s">
+            <h3 class="dl-filter-group__heading govuk-heading-s">
                 <label class="govuk-label govuk-label--s" for="find-an-area">
                     Postcode or Unique Property Reference Number (UPRN)
                 </label>
-            </h2>
+            </h3>
             <div class="app-filter-group__body">
                 <input class="govuk-input dl-filter-group__auto-filter__input" id="find-an-area" name="q" type="text"
                        spellcheck="false"
@@ -117,7 +117,7 @@
       {% endset %}
       {% call dlFilterGroup({
           "title": "Organisation",
-          "is_open": True if query.params.get('organisation_entity') else False,
+              "is_open": True if query.params.get('organisation_entity') else False,
           "selected": query.params.get('organisation_entity')|length if query.params.get('organisation_entity') else 0
         }) %}
         {{ dlFilterCheckboxes({
@@ -158,15 +158,13 @@
 
   <!-- filter by entry date -->
   <div class="dl-filter-group govuk-!-margin-bottom-6">
-    <h2 class="dl-filter-group__heading govuk-heading-s">Entry date</h2>
+    <h3 class="dl-filter-group__heading govuk-heading-s">Entry date</h3>
     <div class="app-filter-group__body">
 
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset" role="group" aria-describedby="entry-date-hint">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-            <h1 class="govuk-fieldset__heading govuk-visually-hidden">
-              Which date are you interested in?
-            </h1>
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s govuk-visually-hidden">
+            Which date are you interested in?
           </legend>
           <div id="entry-date-hint" class="govuk-hint">
             For example, 27 3 2021
@@ -202,10 +200,8 @@
 
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-            <h1 class="govuk-fieldset__heading govuk-visually-hidden">
-              Do you want to see entries since the date or after the date?
-            </h1>
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s govuk-visually-hidden">
+            Do you want to see entries since the date or after the date?
           </legend>
           <div class="govuk-radios">
             <div class="govuk-radios__item">
