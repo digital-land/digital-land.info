@@ -1,6 +1,7 @@
 FROM python:3.13-slim AS production
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
     gcc \
     libpq-dev \
     python3-dev \
