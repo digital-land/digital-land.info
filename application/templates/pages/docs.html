@@ -23,6 +23,11 @@
   {% elif "allOf" in params.parameter['schema'].keys()%}
     {% set _parameterComponentName = params.parameter['schema']["allOf"][0]["$ref"]|extract_component_key %}
     {% set _schema = params.components['schemas'][_parameterComponentName] %}
+  {% elif "anyOf" in params.parameter['schema'].keys() and params.parameter['schema']["anyOf"] | selectattr("$ref", "defined") | list | length > 0 %}
+    {% set _parameterComponentName = (params.parameter['schema']["anyOf"] | selectattr("$ref", "defined") | first)["$ref"]|extract_component_key %}
+    {% set _schema = params.components['schemas'][_parameterComponentName] %}
+  {% elif "anyOf" in params.parameter['schema'].keys() %}
+    {% set _schema = params.parameter["schema"]["anyOf"][0] %}
   {% else %}
     {% set _schema = params.parameter['schema'] %}
   {% endif %}
@@ -36,6 +41,10 @@
 {% macro _parameterDescription(params={}) %}
   {% if "$ref" in params.parameter['schema'].keys() %}
     {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
+    {% set _schema = params.components['schemas'][_parameterComponentName] %}
+    Must be one of: {{ _schema["enum"][:-1] | join(", ") }} or {{ _schema["enum"] | last }}
+  {% elif "anyOf" in params.parameter['schema'].keys() and params.parameter['schema']["anyOf"] | selectattr("$ref", "defined") | list | length > 0 %}
+    {% set _parameterComponentName = (params.parameter['schema']["anyOf"] | selectattr("$ref", "defined") | first)["$ref"]|extract_component_key %}
     {% set _schema = params.components['schemas'][_parameterComponentName] %}
     Must be one of: {{ _schema["enum"][:-1] | join(", ") }} or {{ _schema["enum"] | last }}
   {%  else %}

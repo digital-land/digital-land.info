@@ -38,10 +38,12 @@ class DatasetQueryFilters:
         Optional[List[str]],
         Query(description="Fields to exclude from the dataset JSON response"),
     ] = None
-    include_typologies: bool = Query(
-        True,
-        description="Include typologies in dataset JSON response; set to false to remove",
-    )
+    include_typologies: Annotated[
+        bool,
+        Query(
+            description="Include typologies in dataset JSON response; set to false to remove"
+        ),
+    ] = True
 
 
 @dataclass
@@ -91,94 +93,128 @@ class QueryFilters:
 
     # date filters all use our custom FormIn data type, this allows empty strings to be submitted as parameter values
     # this does not need to be used for required parameters or path parameters
-    start_date: Optional[datetime.date] = Query(None, include_in_schema=False)
-    start_date_year: Optional[FormInt] = Query(
-        None,
-        description="""
+    start_date: Annotated[
+        Optional[datetime.date], Query(include_in_schema=False)
+    ] = None
+    start_date_year: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
         Search for entities by start date year before or after the given year. Depends on start_date_match
-        """,
-    )
-    start_date_month: Optional[FormInt] = Query(
-        None,
-        description="""
+        """
+        ),
+    ] = None
+    start_date_month: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
         Search for entities by start date month before or after the given year. Depends on start_date_match
-        """,
-    )
-    start_date_day: Optional[FormInt] = Query(
-        None,
-        description="""
+        """
+        ),
+    ] = None
+    start_date_day: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
         Search for entities by start date day before or after the given day. Depends on start_date_match
-        """,
-    )
-    start_date_match: Optional[DateOption] = Query(
-        None,
-        description="Specify how to filter against the start_date_* values provided, either before, after or match",
-    )
+        """
+        ),
+    ] = None
+    start_date_match: Annotated[
+        Optional[DateOption],
+        Query(
+            description="Specify how to filter against the start_date_* values provided, either before, after or match"
+        ),
+    ] = None
 
-    end_date: Optional[datetime.date] = Query(None, include_in_schema=False)
-    end_date_year: Optional[FormInt] = Query(
-        None,
-        description="""Search by end date year before or after the given year. Depends on end_date_match""",
-    )
-    end_date_month: Optional[FormInt] = Query(
-        None,
-        description="""
+    end_date: Annotated[Optional[datetime.date], Query(include_in_schema=False)] = None
+    end_date_year: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""Search by end date year before or after the given year. Depends on end_date_match"""
+        ),
+    ] = None
+    end_date_month: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
         Search for entities by end date month before or after the given month.Depends on end_date_match
-        """,
-    )
-    end_date_day: Optional[FormInt] = Query(
-        None,
-        description="""
+        """
+        ),
+    ] = None
+    end_date_day: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
         Search for entities by end date day before or after the given day. Depends on end_date_match
-        """,
-    )
-    end_date_match: Optional[DateOption] = Query(
-        None,
-        description="""Specify how to filter against the end_date_* values provided, either before, after or match""",
-    )
+        """
+        ),
+    ] = None
+    end_date_match: Annotated[
+        Optional[DateOption],
+        Query(
+            description="""
+        Specify how to filter against the end_date_* values provided, either before, after or match
+        """
+        ),
+    ] = None
 
-    entry_date: Optional[datetime.date] = Query(None, include_in_schema=False)
-    entry_date_year: Optional[FormInt] = Query(
-        None,
-        description="""
+    entry_date: Annotated[
+        Optional[datetime.date], Query(include_in_schema=False)
+    ] = None
+    entry_date_year: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
         Search for entities by entry date year before or after the given year. Depends on entry_date_match
-        """,
-    )
-    entry_date_month: Optional[FormInt] = Query(
-        None,
-        description="""
-        Search for entities for entities by entry date month before or after the given month.Depends on entry_date_match
-        """,
-    )
+        """
+        ),
+    ] = None
+    entry_date_month: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
+        Search for entities by entry date month before or after the given month. Depends on entry_date_match
+        """
+        ),
+    ] = None
 
-    entry_date_day: Optional[FormInt] = Query(
-        None,
-        description="""
+    entry_date_day: Annotated[
+        Optional[FormInt],
+        Query(
+            description="""
         Search for entities by entry date day before or after the given day. Depends on entry_date_match
-        """,
-    )
-    entry_date_match: Optional[DateOption] = Query(
-        None,
-        description="""
+        """
+        ),
+    ] = None
+    entry_date_match: Annotated[
+        Optional[DateOption],
+        Query(
+            description="""
         Specify for entities how to filter against the entry_date_* values provided, either before, after or match
-        """,
-    )
+        """
+        ),
+    ] = None
 
     # spatial filters
-    longitude: Optional[float] = Query(
-        None,
-        description="""
+    longitude: Annotated[
+        Optional[float],
+        Query(
+            description="""
         Search for entity with geometries intersected by a point constructed with this longitude.
         Requires latitude to be provided.
-        """,
-    )
-    latitude: Optional[float] = Query(
-        None,
-        description="""
+        """
+        ),
+    ] = None
+    latitude: Annotated[
+        Optional[float],
+        Query(
+            description="""
         Search for entities with geometries intersected by a point constructed with this latitude.
         Requires longitude to be provided.
-        """,
-    )
+        """
+        ),
+    ] = None
     geometry: Annotated[
         Optional[List[str]],
         Query(
@@ -197,43 +233,57 @@ class QueryFilters:
     ] = None
     geometry_reference: Annotated[
         Optional[List[str]],
-        Query(description="""
+        Query(
+            description="""
         Search entities with geometries interacting with the geometries of
         entities with the provided references. The type of geometric relation
         can be set using the geometry relation parameter.
-        """),
+        """
+        ),
     ] = None
     geometry_curie: Annotated[
         Optional[List[str]],
-        Query(description="""
+        Query(
+            description="""
         Search for entities with geometries interacting with geometries
         entities matching provided curies. The type of geometric relation
         can be set using the geometry relation parameter.
-        """),
+        """
+        ),
     ] = None
-    geometry_relation: Optional[GeometryRelation] = Query(
-        None, description="DE-9IM spatial relationship, default is 'within'"
-    )
-    q: Optional[str] = Query(
-        None,
-        description="""
+    geometry_relation: Annotated[
+        Optional[GeometryRelation],
+        Query(description="DE-9IM spatial relationship, default is 'within'"),
+    ] = None
+    q: Annotated[
+        Optional[str],
+        Query(
+            description="""
         Search by a postcode, or a Unique Property Reference Number (UPRN).
-        """,
-    )
+        """
+        ),
+    ] = None
 
     # pagination filters
-    limit: Optional[int] = Query(
-        10, description="limit for the number of results", ge=1, le=500
-    )
-    offset: Optional[int] = Query(None, description="paginate results from this entity")
+    limit: Annotated[
+        Optional[int],
+        Query(description="limit for the number of results", ge=1, le=500),
+    ] = 10
+    offset: Annotated[
+        Optional[int], Query(description="paginate results from this entity")
+    ] = None
 
     # response format filters
-    accept: Optional[str] = Header(
-        None, description="accepted content-type for results", include_in_schema=False
-    )
-    suffix: Optional[SuffixEntity] = Query(
-        None, description="file format for the results", include_in_schema=False
-    )
+    accept: Annotated[
+        Optional[str],
+        Header(
+            description="accepted content-type for results", include_in_schema=False
+        ),
+    ] = None
+    suffix: Annotated[
+        Optional[SuffixEntity],
+        Query(description="file format for the results", include_in_schema=False),
+    ] = None
     # once field is updated we can validate this
     field: Annotated[
         Optional[List[str]], Query(description="fields to be included in response")

@@ -1,11 +1,43 @@
-from pydantic.error_wrappers import ValidationError
+from fastapi import FastAPI
+from pydantic import ValidationError
 
+from application.routers import dataset, entity
 from application.search.filters import (
     FactPathParams,
     FactQueryFilters,
     FactDatasetQueryFilters,
     QueryFilters,
 )
+
+PARAMS_NOT_REQUIRING_DESCRIPTIONS = {"extension"}
+
+
+def _schema_parameter_descriptions():
+    app = FastAPI()
+    app.include_router(entity.router, prefix="/entity")
+    app.include_router(dataset.router, prefix="/dataset")
+    schema = app.openapi()
+    descriptions = {}
+    for methods in schema["paths"].values():
+        for op in methods.values():
+            for param in op.get("parameters", []):
+                descriptions.setdefault(param["name"], []).append(
+                    param.get("description")
+                )
+    return descriptions
+
+
+def test_documented_parameters_have_descriptions():
+    descriptions = _schema_parameter_descriptions()
+    missing = [
+        name
+        for name, occurrences in descriptions.items()
+        if name not in PARAMS_NOT_REQUIRING_DESCRIPTIONS and not all(occurrences)
+    ]
+    assert (
+        not missing
+    ), f"Parameters missing a description in the OpenAPI schema: {missing}"
+
 
 # removed as typologies checking is not in the main function
 # TODO use integration/acceptance test to do this
