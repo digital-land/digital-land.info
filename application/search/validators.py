@@ -53,7 +53,7 @@ def validate_curies(curies: Optional[List[str]]):
         else:
             prefix, reference = parts
             prefix_match = re.match(r"(?i)^[a-zA-Z_\d]+[a-zA-Z_\-\d]+$", prefix)
-            reference_match = re.match(r"^\S+.*\S$", reference)
+            reference_match = re.match(r"^\S(.*\S)?$", reference)
             if prefix_match is None or reference_match is None:
                 raise DigitalLandValidationError(
                     "curie must be in form 'prefix:reference'"
