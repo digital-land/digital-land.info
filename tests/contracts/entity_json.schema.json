@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Single Entity JSON (/entity/{entity}.json)",
+  "type": "object",
+  "required": ["entity", "dataset"],
+  "properties": {
+    "entity":              { "type": "integer" },
+    "name":                { "type": "string" },
+    "dataset":             { "type": "string" },
+    "typology":            { "type": "string" },
+    "reference":           { "type": "string" },
+    "prefix":              { "type": "string" },
+    "organisation-entity": { "type": ["integer", "string"] },
+    "entry-date":          { "type": "string" },
+    "start-date":          { "type": "string" },
+    "end-date":            { "type": "string" },
+    "geometry":            { "type": "string" },
+    "point":               { "type": "string" },
+    "quality":             { "type": "string" }
+  },
+  "additionalProperties": { "type": "string" }
+}

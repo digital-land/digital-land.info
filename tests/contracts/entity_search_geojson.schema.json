@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Entity Search GeoJSON (/entity.geojson)",
+  "type": "object",
+  "required": ["type", "features"],
+  "properties": {
+    "type": { "type": "string", "const": "FeatureCollection" },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "geometry", "properties"],
+        "properties": {
+          "type": { "type": "string", "const": "Feature" },
+          "geometry": {
+            "type": "object",
+            "required": ["type", "coordinates"],
+            "properties": {
+              "type":        { "type": "string" },
+              "coordinates": { "type": "array" }
+            }
+          },
+          "properties": {
+            "type": "object",
+            "required": ["entity", "dataset"],
+            "properties": {
+              "entity":              { "type": "integer" },
+              "name":                { "type": "string" },
+              "dataset":             { "type": "string" },
+              "typology":            { "type": "string" },
+              "reference":           { "type": "string" },
+              "prefix":              { "type": "string" },
+              "organisation-entity": { "type": ["integer", "string"] },
+              "entry-date":          { "type": "string" },
+              "start-date":          { "type": "string" },
+              "end-date":            { "type": "string" },
+              "quality":             { "type": "string" }
+            },
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "first": { "type": "string" },
+        "last":  { "type": "string" },
+        "next":  { "type": "string" },
+        "prev":  { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

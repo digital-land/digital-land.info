@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Entity Search JSON (/entity.json)",
+  "type": "object",
+  "required": ["entities", "count"],
+  "properties": {
+    "count": { "type": "integer" },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity", "dataset"],
+        "properties": {
+          "entity":              { "type": "integer" },
+          "name":                { "type": "string" },
+          "dataset":             { "type": "string" },
+          "typology":            { "type": "string" },
+          "reference":           { "type": "string" },
+          "prefix":              { "type": "string" },
+          "organisation-entity": { "type": ["integer", "string"] },
+          "entry-date":          { "type": "string" },
+          "start-date":          { "type": "string" },
+          "end-date":            { "type": "string" },
+          "geometry":            { "type": "string" },
+          "point":               { "type": "string" },
+          "quality":             { "type": "string" }
+        },
+        "additionalProperties": { "type": "string" }
+      }
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "first": { "type": "string" },
+        "last":  { "type": "string" },
+        "next":  { "type": "string" },
+        "prev":  { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
