@@ -17,6 +17,15 @@
 
 .app-applied-filter__name {
   display: inline-block;
+  margin: 0;
+  font-size: inherit;
+}
+
+.app-applied-filter__list {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .app-applied-filter__item {

@@ -1060,7 +1060,7 @@ def test_search_entities_area_chip_remove_link_clears_area_params(
     rendered = result.template.render(result.context)
     soup = BeautifulSoup(rendered, "html.parser")
     area_label = soup.find(
-        "span",
+        "h3",
         string=lambda text: text is not None and "Postcode:" in text,
     )
     assert area_label is not None

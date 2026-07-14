@@ -47,7 +47,7 @@
         <div class="app-results-summary">
           <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
           {% macro removeFilterButton(params) %}
-          <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" arial-label="Remove filter for {{ params.filter.name }}">
+          <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" aria-label="Remove filter for {{ params.filter.name }}">
             <span class="app-facet-tag__icon" aria-hidden="true">
               <svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -69,9 +69,10 @@
           <div class="app-applied-filters">
             {% if query.params and query.params.get('typology') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Typology:</span>
+              <h3 class="app-applied-filter__name">Typology:</h3>
+              <ul class="app-applied-filter__list">
               {% for filter in query.params.get('typology') %}
-              <span class="app-applied-filter__item">
+              <li class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
                     "name": "typology",
@@ -79,15 +80,17 @@
                   },
                   "url": "?" + filter|make_param_str('typology', url_query_params.list)
                 }) }}
-              </span>
+              </li>
               {% endfor %}
+              </ul>
             </div>
             {% endif %}
             {% if query.params and query.params.get('dataset') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Dataset:</span>
+              <h3 class="app-applied-filter__name">Dataset:</h3>
+              <ul class="app-applied-filter__list">
               {% for filter in query.params.get('dataset') %}
-              <span class="app-applied-filter__item">
+              <li class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
                     "name": "dataset",
@@ -95,16 +98,18 @@
                   },
                   "url": "?" + filter|make_param_str("dataset", url_query_params.list)
                 }) }}
-              </span>
+              </li>
               {% endfor %}
+              </ul>
             </div>
             {% endif %}
             {% if query.params and query.params.get('geometry_curie') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Local Authority District:</span>
+              <h3 class="app-applied-filter__name">Local Authority District:</h3>
+              <ul class="app-applied-filter__list">
               {% if query.params.get('geometry_curie')|is_list %}
                 {% for filter in query.params.get('geometry_curie') %}
-                <span class="app-applied-filter__item">
+                <li class="app-applied-filter__item">
                   {{ removeFilterButton({
                     "filter": {
                       "name": "geometry_curie",
@@ -112,10 +117,10 @@
                     },
                     "url": "?" + filter|make_param_str('geometry_curie', url_query_params.list)
                   }) }}
-                </span>
+                </li>
                 {% endfor %}
               {% else %}
-              <span class="app-applied-filter__item">
+              <li class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
                     "name": "geometry_curie",
@@ -123,14 +128,15 @@
                   },
                   "url": "?" + query.params.get('geometry_curie')|make_param_str('geometry_curie', url_query_params.list)
                 }) }}
-              </span>
+              </li>
               {% endif %}
+              </ul>
             </div>
             {% endif %}
 
             {% if query.params and query.params.get('q') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">
+              <h3 class="app-applied-filter__name">
                 {% if find_an_area_result and find_an_area_result.get('type') == 'uprn' %}
                   UPRN:
                 {% elif query.params.get('q') %}
@@ -138,8 +144,9 @@
                 {% else %}
                   Area:
                 {% endif %}
-              </span>
-              <span class="app-applied-filter__item">
+              </h3>
+              <ul class="app-applied-filter__list">
+              <li class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
                     "name": "area",
@@ -147,16 +154,18 @@
                   },
                   "url": "?" + query.params|make_url_param_str(exclude_params=['q', 'latitude', 'longitude'])
                 }) }}
-              </span>
+              </li>
+              </ul>
             </div>
             {% endif %}
 
             {% if query.params and query.params.get('organisation_entity') %}
               <div class="app-applied-filter__group">
-                <span class="app-applied-filter__name govuk-!-font-weight-bold">Organisation:</span>
+                <h3 class="app-applied-filter__name">Organisation:</h3>
+                <ul class="app-applied-filter__list">
                   {% for filter in query.params.get('organisation_entity') %}
                     {% set str_org_entity = filter | string %}
-                    <span class="app-applied-filter__item">
+                    <li class="app-applied-filter__item">
                       {{ removeFilterButton({
                       "filter": {
                       "name": "organisation_entity",
@@ -164,16 +173,18 @@
                       },
                       "url": "?" + str_org_entity|make_param_str('organisation_entity', url_query_params.list)
                       }) }}
-                    </span>
+                    </li>
                   {% endfor %}
+                </ul>
               </div>
             {% endif %}
 
             {% if query.params and query.params.get('period') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Period:</span>
+              <h3 class="app-applied-filter__name">Period:</h3>
+              <ul class="app-applied-filter__list">
               {% for filter in query.params.get('period') %}
-                <span class="app-applied-filter__item">
+                <li class="app-applied-filter__item">
                   {{ removeFilterButton({
                     "filter": {
                       "name": "period",
@@ -181,15 +192,17 @@
                     },
                     "url": "?" + filter|make_param_str("period", url_query_params.list)
                   }) }}
-                </span>
+                </li>
               {% endfor %}
+              </ul>
             </div>
             {% endif %}
 
             {% if query.params and query.params.get('entry_date_match') %}
             <div class="app-applied-filter__group">
-              <span class="app-applied-filter__name govuk-!-font-weight-bold">Entries:</span>
-              <span class="app-applied-filter__item">
+              <h3 class="app-applied-filter__name">Entries:</h3>
+              <ul class="app-applied-filter__list">
+              <li class="app-applied-filter__item">
                 {{ removeFilterButton({
                   "filter": {
                     "name": "entries",
@@ -197,7 +210,8 @@
                   },
                   "url": "#"
                 }) }}
-              </span>
+              </li>
+              </ul>
             </div>
             {% endif %}
           </div>
