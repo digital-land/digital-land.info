@@ -52,16 +52,16 @@ export default class LayerControls {
       heading.classList.add('dl-map__side-panel__heading');
       settingsPanelHeading.classList.add('dl-map__side-panel__heading');
 
-      const h3 = document.createElement('h3');
-      const settingsPanelh3 = document.createElement('h3');
+      const primaryPanelHeadingElement = document.createElement('h2');
+      const settingsPanelHeadingElement = document.createElement('h2');
 
-      h3.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
-      h3.textContent = 'Data layers';
-      settingsPanelh3.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
-      settingsPanelh3.textContent = 'Settings';
+      primaryPanelHeadingElement.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
+      primaryPanelHeadingElement.textContent = 'Data layers';
+      settingsPanelHeadingElement.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
+      settingsPanelHeadingElement.textContent = 'Settings';
 
-      heading.appendChild(h3);
-      settingsPanelHeading.appendChild(settingsPanelh3);
+      heading.appendChild(primaryPanelHeadingElement);
+      settingsPanelHeading.appendChild(settingsPanelHeadingElement);
 
       sidePanel.appendChild(heading);
       settingsPanel.appendChild(settingsPanelHeading);
