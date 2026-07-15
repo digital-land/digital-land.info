@@ -104,6 +104,7 @@ def test_validate_year_integer_valid_value_provided():
 
 
 valid_curies = [
+    "prefix:1",
     "prefix:reference",
     "prefix:reference#and-something",
     "PREFIX:REFERENCE",
