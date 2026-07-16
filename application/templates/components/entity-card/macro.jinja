@@ -10,15 +10,8 @@
     %}
 
     <li class="app-results-list__item">
-        <article class="app-card app-card--result">
+        <section class="app-card app-card--result">
         <div class="app-card__header">
-            <div class="app-card__header__primary">
-            <h3 class="app-card__title">
-                {% if e["name"] is not none %}
-                    {{ e["name"] }}
-                {% endif %}
-            </h3>
-            </div>
             <div class="app-card__header__secondary">
             <label id="typologyLabel" class="govuk-visually-hidden">Typology type</label>
             <p class="govuk-body govuk-hint govuk-!-margin-0" aria-labelledby="typologyLabel" title="Typology type">{{ e["typology"] | capitalize }}</p>
@@ -27,6 +20,13 @@
                 <dd class="app-card__datalist__value"><a href="{{ e['entity'] }}/" class="govuk-link">{{ e["reference"] }}</a></dd>
                 </div>
             </dl>
+            </div>
+            <div class="app-card__header__primary">
+            <h3 class="app-card__title">
+                {% if e["name"] is not none %}
+                    {{ e["name"] }}
+                {% endif %}
+            </h3>
             </div>
         </div>
 
@@ -84,7 +84,7 @@
             </div>
             </div>
         </div>
-        </article>
+        </section>
         <!-- /.app-card -->
     </li>
 {% endmacro %}
