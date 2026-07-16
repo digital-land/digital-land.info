@@ -7,7 +7,7 @@
 .app-card__header {
 	display: flex;
 	justify-content: space-between;
-	flex-direction: column-reverse;
+	flex-direction: column;
 
 	&__primary{
 		@include govuk-responsive-padding(5);
