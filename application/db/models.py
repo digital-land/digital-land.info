@@ -1,7 +1,18 @@
 import json
 from datetime import datetime
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Date, BIGINT, Text, Index, Integer, cast, func
+from sqlalchemy import (
+    Column,
+    Date,
+    BIGINT,
+    Boolean,
+    Float,
+    Text,
+    Index,
+    Integer,
+    cast,
+    func,
+)
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -308,3 +319,42 @@ class TaskOrm(Base):
         Index("idx_task_severity", "severity"),
         Index("idx_task_responsibility", "responsibility"),
     )
+
+
+class ProvisionQualityOrm(Base):
+    __tablename__ = "provision_quality"
+
+    dataset = Column(Text, primary_key=True)
+    organisation = Column(Text, primary_key=True)
+    organisation_name = Column(Text, nullable=True)
+    has_active_endpoint = Column(Boolean, nullable=False)
+    has_active_resource = Column(Boolean, nullable=False)
+    owns_entities = Column(Boolean, nullable=False)
+    is_designated_provider = Column(Boolean, nullable=False)
+    quality = Column(Text, nullable=True)
+    entity_count = Column(BIGINT, nullable=False)
+    quality_score = Column(Float, nullable=True)
+    __table_args__ = (Index("idx_provision_quality_organisation", "organisation"),)
+
+
+class DatasetQualityOrm(Base):
+    __tablename__ = "dataset_quality"
+
+    dataset = Column(Text, primary_key=True)
+    authoritative_organisations = Column(Integer, nullable=False)
+    some_organisations = Column(Integer, nullable=False)
+    total_organisations = Column(Integer, nullable=False)
+    total_entities = Column(BIGINT, nullable=False)
+    quality_score = Column(Float, nullable=True)
+
+
+class OrganisationQualityOrm(Base):
+    __tablename__ = "organisation_quality"
+
+    organisation = Column(Text, primary_key=True)
+    organisation_name = Column(Text, nullable=True)
+    authoritative_datasets = Column(Integer, nullable=False)
+    some_datasets = Column(Integer, nullable=False)
+    total_datasets = Column(Integer, nullable=False)
+    total_entities_owned = Column(BIGINT, nullable=False)
+    quality_score = Column(Float, nullable=True)
