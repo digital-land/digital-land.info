@@ -152,9 +152,9 @@ email digitalland@communities.gov.uk to request that we remove it from the Plann
 
 ## Meeting accessibility requirements
 
-When you publish your data, you should publish you:
+When you publish your data, you should publish your:
 
-- planning data in an open format(for example, as a CSV or GeoJSON)
+- planning data in an open format (for example, as a CSV or GeoJSON)
 - associated planning documents as a PDF
 
-Publishing data in [open formats](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/plan-manage-content/plan-new-govuk-content/#open-formats) and as [pages on you website](https://www.gov.uk/government/publications/open-standards-for-government/viewing-government-documents) helps to meet [accessibility requirements](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps). It makes sure that users do not have to just use PDFs.
+Publishing data in [open formats](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/plan-manage-content/plan-new-govuk-content/#open-formats) and as [pages on your website](https://www.gov.uk/government/publications/open-standards-for-government/viewing-government-documents) helps to meet [accessibility requirements](https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps). It makes sure that users do not have to just use PDFs.
