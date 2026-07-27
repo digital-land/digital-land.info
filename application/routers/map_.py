@@ -18,6 +18,34 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+def _geometry_bounds(geometry):
+    """Compute a [west, south, east, north] bbox for an arbitrary GeoJSON
+    geometry, without pulling in a geometry library for this one spike."""
+
+    lons = []
+    lats = []
+
+    def walk(coords):
+        if not coords:
+            return
+        if isinstance(coords[0], (int, float)):
+            lons.append(coords[0])
+            lats.append(coords[1])
+        else:
+            for c in coords:
+                walk(c)
+
+    try:
+        walk(geometry.get("coordinates"))
+    except Exception:
+        return None
+
+    if not lons or not lats:
+        return None
+
+    return [min(lons), min(lats), max(lons), max(lats)]
+
+
 @router.get("/", response_class=HTMLResponse)
 def get_map(
     request: Request,
@@ -88,6 +116,10 @@ def get_map(
                     if matching_datasets:
                         entity_paint_options = matching_datasets[0].paint_options
 
+    search_result_bounds = None
+    if search_result and search_result.get("geometry", {}).get("data"):
+        search_result_bounds = _geometry_bounds(search_result["geometry"]["data"])
+
     # Build template context and only include `error` when present so
     # unit tests that don't expect the key remain stable.
     context = {
@@ -96,6 +128,7 @@ def get_map(
         "settings": settings,
         "search_query": search_query,
         "search_result": search_result,
+        "search_result_bounds": search_result_bounds,
         "entity_paint_options": entity_paint_options,
         "feedback_form_footer": True,
     }

@@ -1,0 +1,61 @@
+{% extends "layouts/layout--full-width.html" %}
+{% set templateName = "dl-info/defra-map-prototype.html" %}
+
+{% set containerClasses = 'dl-container--full-width' %}
+{% set fullWidthHeader = true %}
+
+{% block pageTitle %}Defra interactive-map prototype | Planning Data{% endblock %}
+
+{%- block mapAssets %}
+  <link href="/static/javascripts/defra-map-prototype.bundle.css" rel="stylesheet" />
+  {{ super() }}
+{% endblock -%}
+
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/map'
+  })}}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Defra interactive-map prototype</h1>
+      <p class="govuk-body-l">Spike comparing <code>@defra/interactive-map</code> against the current MapLibre-based map. Same OS basemap, same dataset tile sources as <a href="/map" class="govuk-link">/map</a>.</p>
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <div id="map"></div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block bodyEnd %}
+{{ super() }}
+  <script>
+    window.__DEFRA_MAP_PROTOTYPE_CONFIG__ = {
+      zoom: 6,
+      center: [-1.47, 52.9],
+      containerHeight: '700px',
+      osStyleUrl: '/static/javascripts/OS_VTS_3857_3D.json',
+      datasets: {{ layers | tojson }}.map(function (d) {
+        var paintOptions = d.paint_options || {};
+        var tileUrl = {{ (settings.TILES_URL or '') | tojson }}
+          ? {{ (settings.TILES_URL or '') | tojson }} + '/' + d.dataset + '/{z}/{x}/{y}.pbf'
+          : {{ (settings.DATASETTE_TILES_URL or '') | tojson }} + '/-/tiles/' + d.dataset + '/{z}/{x}/{y}.vector.pbf';
+        return {
+          dataset: d.dataset,
+          name: d.name,
+          tileUrl: tileUrl,
+          type: paintOptions.type,
+          colour: paintOptions.colour,
+          opacity: paintOptions.opacity
+        };
+      })
+    };
+  </script>
+  <script type="module" src="/static/javascripts/defra-map-prototype.bundle.js"></script>
+{% endblock %}

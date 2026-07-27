@@ -1,7 +1,6 @@
 {% extends "layouts/layout--full-width.html" %}
 {% set templateName = "dl-info/national-map.html" %}
 
-{%- from "components/map/macro.jinja" import map %}
 {%- from "components/map-find-an-area-form/macro.jinja" import dlFindAnAreaForm %}
 
 {% set containerClasses = 'dl-container--full-width' %}
@@ -10,17 +9,8 @@
 {% set includesMap = true %}
 {% block pageTitle %}Map of planning data for England | Planning Data{% endblock %}
 
-{% set notePanel %}
-  <p>
-    Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.
-    The basemap includes Ordnance Survey data. For further information, please refer to the <a href="https://labs.os.uk/licensing/public-viewing-terms.pdf" class="govuk-link" target="_blank">OS Public Viewing Terms</a>.
-  </p>
-{% endset %}
-
 {%- block mapAssets %}
-  <script src='/static/javascripts/maplibre-gl.js'></script>
-  <link href='/static/stylesheets/maplibre-gl.css' rel='stylesheet' />
-  <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
+  <link href="/static/javascripts/defra-map-prototype.bundle.css" rel="stylesheet" />
   {{ super() }}
 {% endblock -%}
 
@@ -48,35 +38,15 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      {% if search_result and search_result.geometry %}
-      {{
-        map({
-          'height': 700,
-          'layers': layers,
-          'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
-          'TILES_URL': settings.TILES_URL,
-          'notePanel': notePanel,
-          'enableZoomControls': true,
-          'enableLayerControls': true,
-          'enableZoomCounter': true,
-          'geojsons': [search_result.geometry],
-          'paint_options': entity_paint_options,
-        })
-      }}
-      {% else %}
-      {{
-        map({
-          'height': 700,
-          'layers': layers,
-          'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
-          'TILES_URL': settings.TILES_URL,
-          'notePanel': notePanel,
-          'enableZoomControls': true,
-          'enableLayerControls': true,
-          'enableZoomCounter': true,
-        })
-      }}
-      {% endif %}
+      <div class="dl-map__wrapper" style="min-height: 700px;">
+        <div id="map"></div>
+      </div>
+      <div class="app-c-sources-panel govuk-!-margin-bottom-4">
+        <p>
+          Find, understand and download the <a href="/dataset" class="govuk-link">datasets used to create this map</a>.
+          The basemap includes Ordnance Survey data. For further information, please refer to the <a href="https://labs.os.uk/licensing/public-viewing-terms.pdf" class="govuk-link" target="_blank">OS Public Viewing Terms</a>.
+        </p>
+      </div>
 
       <p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">This prototype map is automatically created using data from planning.data.gov.uk. Find out more <a href="/about">about the Planning Data Platform</a></p>
 
@@ -94,6 +64,35 @@
     document.addEventListener('DOMContentLoaded', function () {
       new FindAnAreaForm(searchResult)
     })
+
+    window.__DEFRA_MAP_PROTOTYPE_CONFIG__ = {
+      zoom: 6,
+      center: [-1.47, 52.9],
+      bounds: {{ search_result_bounds | tojson }},
+      containerHeight: '700px',
+      osStyleUrl: '/static/javascripts/OS_VTS_3857_3D.json',
+      searchResult: {% if search_result and search_result.geometry %}{
+        name: {{ search_result.geometry.name | tojson }},
+        type: {{ search_result.geometry.type | tojson }},
+        geometry: {{ search_result.geometry.data | tojson }},
+        colour: {{ (entity_paint_options.colour if entity_paint_options else None) | tojson }}
+      }{% else %}null{% endif %},
+      datasets: {{ layers | tojson }}.map(function (d) {
+        var paintOptions = d.paint_options || {};
+        var tileUrl = {{ (settings.TILES_URL or '') | tojson }}
+          ? {{ (settings.TILES_URL or '') | tojson }} + '/' + d.dataset + '/{z}/{x}/{y}.pbf'
+          : {{ (settings.DATASETTE_TILES_URL or '') | tojson }} + '/-/tiles/' + d.dataset + '/{z}/{x}/{y}.vector.pbf';
+        return {
+          dataset: d.dataset,
+          name: d.name,
+          tileUrl: tileUrl,
+          type: paintOptions.type,
+          colour: paintOptions.colour,
+          opacity: paintOptions.opacity
+        };
+      })
+    };
   </script>
+  <script type="module" src="/static/javascripts/defra-map-prototype.bundle.js"></script>
 
 {% endblock %}
