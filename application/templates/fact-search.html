@@ -154,9 +154,9 @@
                       <ul class="app-list app-list--files">
                         <li class="app-list__item">
                           {% if query_params_str == "" %}
-                          <a href="/fact.json" class="govuk-link">JSON</a>
+                          <a href="/fact.json" class="govuk-link"><span class="govuk-visually-hidden">Download these search results as </span>JSON</a>
                           {% else %}
-                          <a href="/fact.json?{{ query_params_str }}" class="govuk-link">JSON</a>
+                          <a href="/fact.json?{{ query_params_str }}" class="govuk-link"><span class="govuk-visually-hidden">Download these search results as </span>JSON</a>
                           {% endif %}
                         </li>
                       </ul>

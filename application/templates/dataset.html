@@ -225,17 +225,17 @@
         <nav role="navigation" aria-labelledby="download-the-data">
           <ul class="govuk-list govuk-!-font-size-16">
             <li>
-              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset["dataset"] }}.csv">CSV</a>
+              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset["dataset"] }}.csv"><span class="govuk-visually-hidden">Download this data as </span>CSV</a>
             </li>
             <li>
-              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset['dataset'] }}.json">JSON</a>
+              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset['dataset'] }}.json"><span class="govuk-visually-hidden">Download this data as </span>JSON</a>
             </li>
             {% if dataset['typology'] == 'geography' %}
             <li>
-              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset['dataset'] }}.geojson">GeoJSON</a>
+              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset['dataset'] }}.geojson"><span class="govuk-visually-hidden">Download this data as </span>GeoJSON</a>
             </li>
             <li>
-              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset['dataset'] }}.parquet">Parquet</a>
+              <a class="govuk-link" href="{{ data_file_url }}/dataset/{{ dataset['dataset'] }}.parquet"><span class="govuk-visually-hidden">Download this data as </span>Parquet</a>
             </li>
             {% endif %}
           </ul>

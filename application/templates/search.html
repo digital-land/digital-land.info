@@ -277,17 +277,17 @@
                   <ul class="app-list app-list--files">
                     <li class="app-list__item">
                       {% if url_query_params.str == "" %}
-                      <a href="/entity.json" class="govuk-link">JSON</a>
+                      <a href="/entity.json" class="govuk-link"><span class="govuk-visually-hidden">Download these search results as </span>JSON</a>
                       {% else %}
-                      <a href="/entity.json?{{ url_query_params.str }}" class="govuk-link">JSON</a>
+                      <a href="/entity.json?{{ url_query_params.str }}" class="govuk-link"><span class="govuk-visually-hidden">Download these search results as </span>JSON</a>
                       {% endif %}
                     </li>
                     {% if has_geographies %}
                       <li class="app-list__item">
                         {% if url_query_params.str == "" %}
-                        <a href="/entity.geojson" class="govuk-link">GeoJSON</a>
+                        <a href="/entity.geojson" class="govuk-link"><span class="govuk-visually-hidden">Download these search results as </span>GeoJSON</a>
                         {% else %}
-                        <a href="/entity.geojson?{{ url_query_params.str }}" class="govuk-link">GeoJSON</a>
+                        <a href="/entity.geojson?{{ url_query_params.str }}" class="govuk-link"><span class="govuk-visually-hidden">Download these search results as </span>GeoJSON</a>
                         {% endif %}
                       </li>
                     {% endif %}
