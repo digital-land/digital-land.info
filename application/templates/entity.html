@@ -2,6 +2,7 @@
 {% set templateName = "dl-info/entity.html" %}
 
 {%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
+{%- from "govuk_frontend_jinja/components/table/macro.html" import govukTable %}
 {%- from "components/map/macro.jinja" import map %}
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 {%- from "components/entity-value/macro.jinja" import entityValue %}
@@ -76,57 +77,67 @@
     </div>
 
     <div class="govuk-grid-column-three-quarters">
-      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0' }) %}
-        <table class="govuk-table">
-          <thead class="govuk-table__head">
-            <tr class="govuk-table_row">
-              <th scope="col" class="govuk-table__header">Field</th>
-              <th scope="col" class="govuk-table__header">Value</th>
-              <th scope="col" class="govuk-table__header"><span class='govuk-visually-hidden'>Fact links</span></th>
-            </tr>
-          </thead>
-          <tbody class="govuk-table__body">
-            {% for field in row.keys() %}
-              {% if field is not in ['entity','organisation-entity'] %}
-              {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
-              <tr class="govuk-table__row">
-                <th scope="row" class="app-table__header app-table__header--row">
-                  {{ entityField(field, fields, dataset_fields) }}
-                </th>
-                <td class="govuk-table__cell app-table__cell">
-                  {% if field == 'geometry' %}
-                    <code class ="app-code-block" id="geometry-content">
-                      {% if row[field] is not none %}
-                        {{ row[field][:100000] }}{% if row[field]|length > 100000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
-                      {% endif %}
-                      </code>
-                    <code class ="app-code-block" id="geometry-full-content" style="display: none;">
-                      {{ row[field] }}
-                    </code>
-                  {% else %}
-                    {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0', 'titleText': 'About this entity' }) %}
+        {% set rows = [] %}
+        {% for field in row.keys() %}
+          {% if field is not in ['entity','organisation-entity'] %}
+          {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
+            {% set valueHtml %}
+              {% if field == 'geometry' %}
+                <code class ="app-code-block" id="geometry-content">
+                  {% if row[field] is not none %}
+                    {{ row[field][:100000] }}{% if row[field]|length > 100000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
                   {% endif %}
-                </td>
-                {% if field not in ['curie', 'dataset', 'organisation-curie', 'typology', 'quality'] %}
-                  <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
-                    <a href="/fact?{{ {'dataset': row['dataset'], 'entity': row['entity'], 'field': field}|make_url_param_str }}" class="govuk-link">Facts</a>
-                  </td>
-                    {% else %}
-                      <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"><span class='govuk-visually-hidden'>no fact link</span></td>
-                    {% endif %}
-                  </tr>
-                {%- endif %}
+                  </code>
+                <code class ="app-code-block" id="geometry-full-content" style="display: none;">
+                  {{ row[field] }}
+                </code>
+              {% else %}
+                {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
               {% endif %}
-            {% endfor %}
-          </tbody>
-          <script>
-            function expandGeometry() {
-              document.getElementById('geometry-content').style.display = 'none';
-              document.getElementById('geometry-full-content').style.display = 'block';
-            }
-          </script>
+            {% endset %}
+            {% set factsHtml %}
+              {% if field not in ['curie', 'dataset', 'organisation-curie', 'typology', 'quality'] %}
+                <a href="/fact?{{ {'dataset': row['dataset'], 'entity': row['entity'], 'field': field}|make_url_param_str }}" class="govuk-link">Facts</a>
+              {% else %}
+                <span class='govuk-visually-hidden'>no fact link</span>
+              {% endif %}
+            {% endset %}
+            {% do rows.append([
+              {
+                'html': entityField(field, fields, dataset_fields)
+              },
+              {
+                'html': valueHtml,
+                'classes': 'app-table__cell'
+              },
+              {
+                'html': factsHtml,
+                'classes': 'govuk-!-font-size-14 govuk-!-text-align-right'
+              }
+            ]) %}
+          {%- endif %}
+          {% endif %}
+        {% endfor %}
 
-        </table>
+        {{
+          govukTable({
+            'firstCellIsHeader': true,
+            'head': [
+              {'html': '', 'classes': 'app-table__header--visually-hidden'},
+              {'html': '', 'classes': 'app-table__header--visually-hidden'},
+              {'html': "<span class='govuk-visually-hidden'>Fact links</span>", 'classes': 'app-table__header--visually-hidden'}
+            ],
+            'rows': rows
+          })
+        }}
+
+        <script>
+          function expandGeometry() {
+            document.getElementById('geometry-content').style.display = 'none';
+            document.getElementById('geometry-full-content').style.display = 'block';
+          }
+        </script>
       {% endcall %}
 
       {% set data_to_send = {
