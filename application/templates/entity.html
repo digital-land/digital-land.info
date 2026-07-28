@@ -77,6 +77,26 @@
     </div>
 
     <div class="govuk-grid-column-three-quarters">
+      {% block recordGeometry -%}
+        {%- if includesMap %}
+          {% call appSummaryCard({
+            'classes': 'govuk-!-margin-bottom-6',
+            'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
+          })%}
+
+            {{
+              map({
+                "mapId": "map",
+                'height': 320,
+                'enableZoomControls': true,
+                'geojsons': [geojson_data|get_entity_geometry],
+                'paint_options': dataset.paint_options,
+              })
+            }}
+              {% endcall %}
+        {%- endif %}
+      {%- endblock recordGeometry %}
+
       {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0', 'titleText': 'About this entity' }) %}
         {% set rows = [] %}
         {% for field in row.keys() %}
@@ -321,49 +341,6 @@
       {% endcall %}
     </div>
     {% endif %}
-    <div class="govuk-grid-column-full govuk-!-margin-top-6"></div>
-
-    <div class="govuk-grid-column-full">
-    {% block recordGeometry -%}
-      {%- if includesMap %}
-        {% call appSummaryCard({
-          'classes': 'govuk-!-margin-bottom-0',
-          'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
-          'actions': {
-            'items': [
-              {
-                'text': 'Download geojson',
-                'href': (
-                '/entity/' +
-                (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"]) | string +
-                '.geojson'
-              ),
-                'attributes': [
-                  {
-                    'key': 'download',
-                    'value': (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"])
-                      | string + '.geojson'
-                  }
-                ]
-              }
-            ],
-          }
-        })%}
-
-        {{
-          map({
-            "mapId": "map",
-            'height': 460,
-            'enableZoomControls': true,
-            'geojsons': [geojson_data|get_entity_geometry],
-            'paint_options': dataset.paint_options,
-          })
-        }}
-          {% endcall %}
-      {%- endif %}
-    {%- endblock recordGeometry %}
-    </div>
-
     {%- if history_enabled %}
       <div id="history">
         {#{%- block entryHistory %}#}
