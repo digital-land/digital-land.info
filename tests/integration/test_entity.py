@@ -40,6 +40,92 @@ def test_entity_page_shows_organisation_name_not_none(
     assert org_link.get_text(strip=True) == "Dacorum Borough Council"
 
 
+def test_entity_page_side_nav_for_geography_entity(
+    client, db_session, test_data, exclude_middleware
+):
+    """
+    Assert that the side navigation renders all sections and links for a
+    geography entity.
+
+    Entity 1 (dataset "greenspace", typology "geography") has both geometry
+    and a point in the test data, and the "greenspace" dataset has a
+    "consideration" set - so all four side-nav sections should render.
+    """
+    response = client.get("/entity/1", follow_redirects=True)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    json_link = soup.find("a", href="/entity/1.json")
+    assert json_link is not None, "JSON download link not found"
+    assert json_link.get("download") == "1.json"
+
+    geojson_link = soup.find("a", href="/entity/1.geojson")
+    assert geojson_link is not None, "GeoJSON download link not found"
+    assert geojson_link.get("download") == "1.geojson"
+
+    map_link = soup.find(
+        "a",
+        href=lambda h: h
+        and h.startswith("/map?dataset=greenspace#")
+        and h.endswith(",15z"),
+    )
+    assert map_link is not None, "On a map link not found or malformed"
+
+    definition_link = soup.find(
+        "a", href="https://digital-land.github.io/specification/dataset/greenspace"
+    )
+    assert definition_link is not None, "Dataset definition link not found"
+
+    design_link = soup.find(
+        "a",
+        href="https://design.planning.data.gov.uk/planning-consideration/greenspace",
+    )
+    assert design_link is not None, "Designing the data link not found"
+
+
+def test_entity_page_side_nav_for_non_geography_entity(
+    client, db_session, test_data, exclude_middleware
+):
+    """
+    Assert that the side navigation omits the map and GeoJSON links for an
+    entity with no geometry, and separately omits "Designing the data" for
+    a dataset with no consideration set.
+
+    Entity 101 (dataset "local-authority", typology "organisation") has no
+    geometry/point, so the map link and GeoJSON download should be absent.
+    Separately - and unrelated to geometry or typology - the
+    "local-authority" dataset has no "consideration" set, so "Designing
+    the data" should also be absent. JSON download and "Dataset
+    definition" should still be present either way.
+    """
+    response = client.get("/entity/101", follow_redirects=True)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    json_link = soup.find("a", href="/entity/101.json")
+    assert json_link is not None, "JSON download link not found"
+
+    geojson_link = soup.find("a", href="/entity/101.geojson")
+    assert geojson_link is None, "GeoJSON download link should not be shown"
+
+    map_link = soup.find(
+        "a", href=lambda h: h and h.startswith("/map?dataset=local-authority#")
+    )
+    assert map_link is None, "On a map link should not be shown"
+
+    definition_link = soup.find(
+        "a",
+        href="https://digital-land.github.io/specification/dataset/local-authority",
+    )
+    assert definition_link is not None, "Dataset definition link not found"
+
+    assert (
+        soup.find(id="data-design") is None
+    ), "Designing the data section should be absent"
+
+
 def test_fetch_linked_local_plans(db_session):
     lp_entity = {
         "entity": 4220006,

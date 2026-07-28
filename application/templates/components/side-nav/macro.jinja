@@ -1,0 +1,30 @@
+{% macro appSideNav(params={}) %}
+  <aside class="app-related-items" role="complementary" aria-label="Explore and download this data">
+    {% for section in params.get('sections', []) %}
+      {% if not loop.first %}
+        <hr class="govuk-section-break govuk-section-break--m">
+      {% endif %}
+      <h2 class="govuk-heading-s govuk-!-margin-bottom-0" id="{{ section.id }}">
+        {{ section.heading }}
+      </h2>
+      {% if section.hint %}
+        <p class="govuk-hint govuk-!-font-size-14">{{ section.hint }}</p>
+      {% endif %}
+      <nav role="navigation" aria-labelledby="{{ section.id }}">
+        <ul class="govuk-list govuk-!-font-size-16">
+          {% for link in section.links %}
+            <li>
+              <a class="govuk-link" href="{{ link.href }}"
+                {%- for attribute in link.get('attributes', []) %} {{ attribute.key }}="{{ attribute.value }}"{% endfor %}>
+                {%- if link.visuallyHiddenPrefix -%}
+                  <span class="govuk-visually-hidden">{{ link.visuallyHiddenPrefix }}</span>
+                {%- endif -%}
+                {{ link.text }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    {% endfor %}
+  </aside>
+{% endmacro %}

@@ -8,6 +8,7 @@
 {%- from "components/entity-value/macro.jinja" import entityValue %}
 {%- from "components/entity-field/macro.jinja" import entityField %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
+{%- from "components/side-nav/macro.jinja" import appSideNav %}
 
 {% set is_truncated = false %}
 {% if row['geometry'] %}
@@ -76,7 +77,7 @@
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
     </div>
 
-    <div class="govuk-grid-column-three-quarters">
+    <div class="govuk-grid-column-two-thirds">
       {% block recordGeometry -%}
         {%- if includesMap %}
           {% call appSummaryCard({
@@ -230,8 +231,60 @@
 
     </div>
 
+    <div class="govuk-grid-column-one-third">
+      {% set sideNavSections = [] %}
+      {% if dataset and entity_lat is not none and entity_lng is not none %}
+        {% do sideNavSections.append({
+          "id": "view-the-data",
+          "heading": "View the data",
+          "hint": "You can explore this data",
+          "links": [
+            {"text": "On a map", "href": "/map?dataset=" ~ dataset.dataset ~ "#" ~ entity_lat ~ "," ~ entity_lng ~ ",15z"}
+          ]
+        }) %}
+      {% endif %}
+      {% do sideNavSections.append({
+        "id": "download-the-data",
+        "heading": "Download the data",
+        "hint": "You can take a copy of this data as",
+        "links": (
+          [
+            {"text": "JSON", "href": "/entity/" ~ row["entity"] ~ ".json", "visuallyHiddenPrefix": "Download this data as ",
+              "attributes": [{"key": "download", "value": row["entity"] ~ ".json"}]}
+          ]
+          + (
+            [
+              {"text": "GeoJSON", "href": "/entity/" ~ row["entity"] ~ ".geojson", "visuallyHiddenPrefix": "Download this data as ",
+                "attributes": [{"key": "download", "value": row["entity"] ~ ".geojson"}]}
+            ] if geometry_exists else []
+          )
+        )
+      }) %}
+      {% if dataset %}
+        {% do sideNavSections.append({
+          "id": "specification",
+          "heading": "Dataset definition",
+          "hint": "You can view the definition of this dataset including the list of fields",
+          "links": [
+            {"text": "Dataset definition for " ~ dataset.name ~ " dataset", "href": "https://digital-land.github.io/specification/dataset/" ~ dataset.dataset}
+          ]
+        }) %}
+      {% endif %}
+      {% if dataset.consideration %}
+        {% do sideNavSections.append({
+          "id": "data-design",
+          "heading": "Designing the data",
+          "hint": "You can see details about how this dataset has been designed for planning.data.gov.uk",
+          "links": [
+            {"text": dataset.consideration ~ " planning consideration", "href": "https://design.planning.data.gov.uk/planning-consideration/" ~ dataset.consideration}
+          ]
+        }) %}
+      {% endif %}
+      {{ appSideNav({ "sections": sideNavSections }) }}
+    </div>
+
     {% if local_plans['local-plan'] %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
       'titleText': 'Related Local Plans'
@@ -261,7 +314,7 @@
       {% endcall %}
     </div>
     {% elif entity.dataset == "local-plan-boundary" %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
       'titleText': 'Related Local Plans'
@@ -280,7 +333,7 @@
     {% endif %}
 
     {% if local_plans['local-plan-timetable'] %}
-      <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
         {% call appSummaryCard({
             'classes': 'govuk-!-margin-bottom-0',
             'titleText': 'Related Local Plan Timetable'
@@ -309,7 +362,7 @@
   {% endif %}
 
     {% if local_plans['local-plan-document'] %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
       'titleText': 'Related Local Plan Document'

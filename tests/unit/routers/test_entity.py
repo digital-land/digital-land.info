@@ -9,6 +9,7 @@ from application.routers.entity import (
     _get_entity_json,
     _get_geojson,
     get_entity,
+    get_entity_lat_lng,
     search_entities,
 )
 
@@ -82,6 +83,27 @@ def multiple_entity_models():
     )
 
     return [model_1, model_2]
+
+
+def test_get_entity_lat_lng_parses_wkt():
+    entity = MagicMock()
+    entity.point = "POINT (-1.456 52.123)"
+    lat, lng = get_entity_lat_lng(entity)
+    assert lat == pytest.approx(52.123)
+    assert lng == pytest.approx(-1.456)
+
+
+def test_get_entity_lat_lng_returns_none_when_point_missing():
+    entity = MagicMock()
+    entity.point = None
+    assert get_entity_lat_lng(entity) == (None, None)
+
+
+def test_get_entity_lat_lng_returns_none_on_unparseable_wkt():
+    entity = MagicMock()
+    entity.entity = 123
+    entity.point = "not a valid wkt string"
+    assert get_entity_lat_lng(entity) == (None, None)
 
 
 def test__get_geojson_multiple_entity_models_provided(multiple_entity_models):
