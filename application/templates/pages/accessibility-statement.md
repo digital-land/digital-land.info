@@ -11,7 +11,7 @@ We are always working to improve our website and want as many people as possible
 - navigate most of the website using a keyboard or speech recognition software
 - listen to most of the website using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
 
-We've also made the website text as simple as possible to understand. [ AbilityNet](https://mcmw.abilitynet.org.uk/) has advice on making your device easier to use if you have a disability.
+We've also made the website text as simple as possible to understand. [AbilityNet](https://mcmw.abilitynet.org.uk/) has advice on making your device easier to use if you have a disability.
 
 ## How accessible this website is
 
@@ -64,47 +64,47 @@ The content listed below is non-accessible for the following reasons.
 
 ## Non-compliance with the accessibility regulations 
 
-#### Information, structure and relationships (WCAG 1.3.1) 
+### Information, structure and relationships (WCAG 1.3.1) 
 
 Some pages contain headings, tables, filters and other content relationships that are not correctly communicated to assistive technologies. This can make pages harder to understand and navigate using a screen reader. The interactive map also does not currently provide a fully accessible alternative to the information it displays. 
 
-#### Focus order (WCAG 2.4.3)
+### Focus order (WCAG 2.4.3)
 
 Some content is presented in an order that does not match the visual layout of the page, which can make navigation confusing for screen reader users. 
 
-#### Link purpose (WCAG 2.4.4)
+### Link purpose (WCAG 2.4.4)
 
 Some links are not sufficiently descriptive and their purpose may not be clear when accessed using assistive technologies.
 
-#### Labels and instructions (WCAG 3.3.2) 
+### Labels and instructions (WCAG 3.3.2) 
 
 Some form controls do not have visible or sufficiently descriptive labels, making them difficult to use with screen readers and voice recognition software.
 
-#### Label in name (WCAG 2.5.3) 
+### Label in name (WCAG 2.5.3) 
 
 Some visible labels do not match their accessible names, which can affect users of voice recognition software.
 
-#### Name, role and value (WCAG 4.1.2)
+### Name, role and value (WCAG 4.1.2)
 
 Some user interface components do not correctly expose accessibility information to assistive technologies. 
 
-#### Use of colour (WCAG 1.4.1)
+### Use of colour (WCAG 1.4.1)
 
 Parts of the interactive map rely on colour alone to communicate information. Users who cannot distinguish colours may have difficulty understanding map content.
 
-#### Contrast (minimum) (WCAG 1.4.3) 
+### Contrast (minimum) (WCAG 1.4.3) 
 
 Some text does not meet the minimum colour contrast requirements required by WCAG 2.2 AA.
 
-#### Non-text contrast (WCAG 1.4.11) 
+### Non-text contrast (WCAG 1.4.11) 
 
 Some graphical elements, focus indicators and map features do not have sufficient contrast against adjacent colours. 
 
-#### Status messages (WCAG 4.1.3) 
+### Status messages (WCAG 4.1.3) 
 
 Some changes to content are not announced to assistive technologies. This can make it difficult for screen reader users to understand when content has been updated.
 
-#### Reflow (WCAG 1.4.10)
+### Reflow (WCAG 1.4.10)
 
 Some content within the map interface does not display correctly at 400% zoom and may overlap or become difficult to use. 
 
