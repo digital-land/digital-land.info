@@ -19,8 +19,8 @@ server: export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 endif
 
 init::
-	python -m pip install --upgrade pip
-	python -m pip install pip-tools
+	# Pinned pip version because stdlib_pkgs no longer works since the update to 26.2, breaking the pipeline
+	python -m pip install --upgrade "pip==26.1.2" "pip-tools==7.6.0"
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt --pip-args "--no-cache-dir"
 	python -m pre_commit install
 	npm install
