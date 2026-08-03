@@ -133,7 +133,10 @@ def get_fact(
         fact_dict = _convert_resources_to_dict(fact_dict)
         dataset_obj = get_dataset_query(session, query_params["dataset"])
         if dataset_obj is None:
-            logger.error(f"Dataset metadata not found for {query_params['dataset']}")
+            logger.warning(
+                "Dataset metadata not found for %s; using dataset slug as fallback",
+                query_params["dataset"],
+            )
         # Fallback to the dataset slug if metadata cannot be found
         dataset_name = dataset_obj.name if dataset_obj else query_params["dataset"]
         return templates.TemplateResponse(
