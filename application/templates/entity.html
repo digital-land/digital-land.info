@@ -2,11 +2,13 @@
 {% set templateName = "dl-info/entity.html" %}
 
 {%- from "govuk_frontend_jinja/components/tabs/macro.html" import govukTabs %}
+{%- from "govuk_frontend_jinja/components/table/macro.html" import govukTable %}
 {%- from "components/map/macro.jinja" import map %}
 {%- from "components/summary-card/macro.jinja" import appSummaryCard %}
 {%- from "components/entity-value/macro.jinja" import entityValue %}
 {%- from "components/entity-field/macro.jinja" import entityField %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
+{%- from "components/side-nav/macro.jinja" import appSideNav %}
 
 {% set is_truncated = false %}
 {% if row['geometry'] %}
@@ -75,58 +77,88 @@
       <h1 class="govuk-heading-xl">{{ row_name }}</h1>
     </div>
 
-    <div class="govuk-grid-column-three-quarters">
-      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0' }) %}
-        <table class="govuk-table">
-          <thead class="govuk-table__head">
-            <tr class="govuk-table_row">
-              <th scope="col" class="govuk-table__header">Field</th>
-              <th scope="col" class="govuk-table__header">Value</th>
-              <th scope="col" class="govuk-table__header"><span class='govuk-visually-hidden'>Fact links</span></th>
-            </tr>
-          </thead>
-          <tbody class="govuk-table__body">
-            {% for field in row.keys() %}
-              {% if field is not in ['entity','organisation-entity'] %}
-              {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
-              <tr class="govuk-table__row">
-                <th scope="row" class="app-table__header app-table__header--row">
-                  {{ entityField(field, fields, dataset_fields) }}
-                </th>
-                <td class="govuk-table__cell app-table__cell">
-                  {% if field == 'geometry' %}
-                    <code class ="app-code-block" id="geometry-content">
-                      {% if row[field] is not none %}
-                        {{ row[field][:100000] }}{% if row[field]|length > 100000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
-                      {% endif %}
-                      </code>
-                    <code class ="app-code-block" id="geometry-full-content" style="display: none;">
-                      {{ row[field] }}
-                    </code>
-                  {% else %}
-                    {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
-                  {% endif %}
-                </td>
-                {% if field not in ['curie', 'dataset', 'organisation-curie', 'typology', 'quality'] %}
-                  <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right">
-                    <a href="/fact?{{ {'dataset': row['dataset'], 'entity': row['entity'], 'field': field}|make_url_param_str }}" class="govuk-link">Facts</a>
-                  </td>
-                    {% else %}
-                      <td class="govuk-table__cell govuk-!-font-size-14 govuk-!-text-align-right"><span class='govuk-visually-hidden'>no fact link</span></td>
-                    {% endif %}
-                  </tr>
-                {%- endif %}
-              {% endif %}
-            {% endfor %}
-          </tbody>
-          <script>
-            function expandGeometry() {
-              document.getElementById('geometry-content').style.display = 'none';
-              document.getElementById('geometry-full-content').style.display = 'block';
-            }
-          </script>
+    <div class="govuk-grid-column-two-thirds">
+      {% block recordGeometry -%}
+        {%- if includesMap %}
+          {% call appSummaryCard({
+            'classes': 'govuk-!-margin-bottom-6',
+            'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
+          })%}
 
-        </table>
+            {{
+              map({
+                "mapId": "map",
+                'height': 320,
+                'enableZoomControls': true,
+                'geojsons': [geojson_data|get_entity_geometry],
+                'paint_options': dataset.paint_options,
+              })
+            }}
+              {% endcall %}
+        {%- endif %}
+      {%- endblock recordGeometry %}
+
+      {% call appSummaryCard({ 'classes': 'govuk-!-margin-bottom-0', 'titleText': 'About this entity' }) %}
+        {% set rows = [] %}
+        {% for field in row.keys() %}
+          {% if field is not in ['entity','organisation-entity'] %}
+          {%- if field not in ["geometry","point","organisation-entity","json"] or row[field] is not none  %}
+            {% set valueHtml %}
+              {% if field == 'geometry' %}
+                <code class ="app-code-block" id="geometry-content">
+                  {% if row[field] is not none %}
+                    {{ row[field][:100000] }}{% if row[field]|length > 100000 %}... <a href="javascript:void(0);" onclick="expandGeometry()">Load More</a>{% endif %}
+                  {% endif %}
+                  </code>
+                <code class ="app-code-block" id="geometry-full-content" style="display: none;">
+                  {{ row[field] }}
+                </code>
+              {% else %}
+                {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
+              {% endif %}
+            {% endset %}
+            {% set factsHtml %}
+              {% if field not in ['curie', 'dataset', 'organisation-curie', 'typology', 'quality'] %}
+                <a href="/fact?{{ {'dataset': row['dataset'], 'entity': row['entity'], 'field': field}|make_url_param_str }}" class="govuk-link">Facts</a>
+              {% else %}
+                <span class='govuk-visually-hidden'>no fact link</span>
+              {% endif %}
+            {% endset %}
+            {% do rows.append([
+              {
+                'html': entityField(field, fields, dataset_fields)
+              },
+              {
+                'html': valueHtml,
+                'classes': 'app-table__cell'
+              },
+              {
+                'html': factsHtml,
+                'classes': 'govuk-!-font-size-14 govuk-!-text-align-right'
+              }
+            ]) %}
+          {%- endif %}
+          {% endif %}
+        {% endfor %}
+
+        {{
+          govukTable({
+            'firstCellIsHeader': true,
+            'head': [
+              {'html': '', 'classes': 'app-table__header--visually-hidden'},
+              {'html': '', 'classes': 'app-table__header--visually-hidden'},
+              {'html': "<span class='govuk-visually-hidden'>Fact links</span>", 'classes': 'app-table__header--visually-hidden'}
+            ],
+            'rows': rows
+          })
+        }}
+
+        <script>
+          function expandGeometry() {
+            document.getElementById('geometry-content').style.display = 'none';
+            document.getElementById('geometry-full-content').style.display = 'block';
+          }
+        </script>
       {% endcall %}
 
       {% set data_to_send = {
@@ -199,8 +231,60 @@
 
     </div>
 
+    <div class="govuk-grid-column-one-third">
+      {% set sideNavSections = [] %}
+      {% if dataset and entity_lat is not none and entity_lng is not none %}
+        {% do sideNavSections.append({
+          "id": "view-the-data",
+          "heading": "View the data",
+          "hint": "You can explore this data",
+          "links": [
+            {"text": "On a map", "href": "/map?dataset=" ~ dataset.dataset ~ "#" ~ entity_lat ~ "," ~ entity_lng ~ ",15z"}
+          ]
+        }) %}
+      {% endif %}
+      {% do sideNavSections.append({
+        "id": "download-the-data",
+        "heading": "Download the data",
+        "hint": "You can take a copy of this data as",
+        "links": (
+          [
+            {"text": "JSON", "href": "/entity/" ~ row["entity"] ~ ".json", "visuallyHiddenPrefix": "Download this data as ",
+              "attributes": [{"key": "download", "value": row["entity"] ~ ".json"}]}
+          ]
+          + (
+            [
+              {"text": "GeoJSON", "href": "/entity/" ~ row["entity"] ~ ".geojson", "visuallyHiddenPrefix": "Download this data as ",
+                "attributes": [{"key": "download", "value": row["entity"] ~ ".geojson"}]}
+            ] if geometry_exists else []
+          )
+        )
+      }) %}
+      {% if dataset %}
+        {% do sideNavSections.append({
+          "id": "specification",
+          "heading": "Dataset definition",
+          "hint": "You can view the definition of this dataset including the list of fields",
+          "links": [
+            {"text": "Dataset definition for " ~ dataset.name ~ " dataset", "href": "https://digital-land.github.io/specification/dataset/" ~ dataset.dataset}
+          ]
+        }) %}
+      {% endif %}
+      {% if dataset.consideration %}
+        {% do sideNavSections.append({
+          "id": "data-design",
+          "heading": "Designing the data",
+          "hint": "You can see details about how this dataset has been designed for planning.data.gov.uk",
+          "links": [
+            {"text": dataset.consideration ~ " planning consideration", "href": "https://design.planning.data.gov.uk/planning-consideration/" ~ dataset.consideration}
+          ]
+        }) %}
+      {% endif %}
+      {{ appSideNav({ "sections": sideNavSections }) }}
+    </div>
+
     {% if local_plans['local-plan'] %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
       'titleText': 'Related Local Plans'
@@ -230,7 +314,7 @@
       {% endcall %}
     </div>
     {% elif entity.dataset == "local-plan-boundary" %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
       'titleText': 'Related Local Plans'
@@ -249,7 +333,7 @@
     {% endif %}
 
     {% if local_plans['local-plan-timetable'] %}
-      <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+      <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
         {% call appSummaryCard({
             'classes': 'govuk-!-margin-bottom-0',
             'titleText': 'Related Local Plan Timetable'
@@ -278,7 +362,7 @@
   {% endif %}
 
     {% if local_plans['local-plan-document'] %}
-    <div class="govuk-grid-column-three-quarters govuk-!-margin-top-6 govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
       'titleText': 'Related Local Plan Document'
@@ -310,49 +394,6 @@
       {% endcall %}
     </div>
     {% endif %}
-    <div class="govuk-grid-column-full govuk-!-margin-top-6"></div>
-
-    <div class="govuk-grid-column-full">
-    {% block recordGeometry -%}
-      {%- if includesMap %}
-        {% call appSummaryCard({
-          'classes': 'govuk-!-margin-bottom-0',
-          'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
-          'actions': {
-            'items': [
-              {
-                'text': 'Download geojson',
-                'href': (
-                '/entity/' +
-                (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"]) | string +
-                '.geojson'
-              ),
-                'attributes': [
-                  {
-                    'key': 'download',
-                    'value': (geojson_data["entity"] if pipeline_name == 'local-plan' else row["entity"])
-                      | string + '.geojson'
-                  }
-                ]
-              }
-            ],
-          }
-        })%}
-
-        {{
-          map({
-            "mapId": "map",
-            'height': 460,
-            'enableZoomControls': true,
-            'geojsons': [geojson_data|get_entity_geometry],
-            'paint_options': dataset.paint_options,
-          })
-        }}
-          {% endcall %}
-      {%- endif %}
-    {%- endblock recordGeometry %}
-    </div>
-
     {%- if history_enabled %}
       <div id="history">
         {#{%- block entryHistory %}#}

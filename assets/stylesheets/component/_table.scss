@@ -2,6 +2,11 @@
   &__header {
     text-align: left;
     padding-right: 1em;
+
+    &--visually-hidden {
+      padding: 0;
+      border: 0;
+    }
   }
   &__header--row {
     font-weight: normal;

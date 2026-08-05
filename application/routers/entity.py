@@ -3,7 +3,9 @@ import sentry_sdk
 from urllib.parse import urlencode
 
 from dataclasses import asdict
-from typing import Optional, List, Set, Dict, Union
+from typing import Optional, List, Set, Dict, Union, Tuple
+
+from shapely import wkt as shapely_wkt
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Path, Query
 from fastapi.exceptions import RequestValidationError
@@ -163,6 +165,18 @@ def prepare_geojson(e):
     return geojson
 
 
+def get_entity_lat_lng(e) -> Tuple[Optional[float], Optional[float]]:
+    """Return (lat, lng) decimal degrees for an entity's representative point, or (None, None)."""
+    if not e.point:
+        return None, None
+    try:
+        geom = shapely_wkt.loads(e.point)
+        return geom.y, geom.x  # WKT is "X Y" = lng lat
+    except Exception:
+        logger.exception("Failed to parse entity point WKT", extra={"entity": e.entity})
+        return None, None
+
+
 def handle_entity_response(
     request: Request, e, extension: Optional[SuffixEntity], session: Session
 ):
@@ -201,7 +215,6 @@ def handle_entity_response(
         key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
     }
     # Add CURIE field to dict and make it first
-    
     e_dict_sorted = {"curie": curie, **e_dict_sorted}
     # Map and re-format the quality value to include a description
     e_dict_sorted = map_entity_quality_to_description(e_dict_sorted)
@@ -216,6 +229,7 @@ def handle_entity_response(
     ]
     dataset_fields = [dataset_field["dataset"] for dataset_field in dataset_fields]
     dataset = get_dataset_query(session, e.dataset)
+    entity_lat, entity_lng = get_entity_lat_lng(e)
     entityLinkFields = [
         "article-4-direction",
         "permitted-development-rights",
@@ -270,6 +284,8 @@ def handle_entity_response(
             "organisation_entity": organisation,
             "organisation_curie": organisation_curie,
             "feedback_form_footer": True,
+            "entity_lat": entity_lat,
+            "entity_lng": entity_lng,
         },
     )
 
