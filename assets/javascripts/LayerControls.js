@@ -125,7 +125,7 @@ export default class LayerControls {
       const filterLabel = document.createElement('label');
       filterLabel.setAttribute('for', 'input-71108');
       filterLabel.classList.add('govuk-label', 'govuk-visually-hidden');
-      filterLabel.textContent = 'Filter Show only';
+      filterLabel.textContent = 'Search data layers';
 
       this.$textbox = document.createElement('input');
       this.$textbox.setAttribute('id', 'input-71108');
