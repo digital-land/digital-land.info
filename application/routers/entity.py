@@ -31,7 +31,6 @@ from application.data_access.entity_queries import (
     get_linked_entities,
     fetchEntityFromReference,
 )
-from application.data_access.dataset_queries import get_dataset_names
 from application.data_access.find_an_area_helpers import find_an_area
 
 from application.search.enum import SuffixEntity
@@ -201,7 +200,6 @@ def handle_entity_response(
         key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
     }
     # Add CURIE field to dict and make it first
-    
     e_dict_sorted = {"curie": curie, **e_dict_sorted}
     # Map and re-format the quality value to include a description
     e_dict_sorted = map_entity_quality_to_description(e_dict_sorted)
@@ -353,39 +351,6 @@ def get_entity(
         raise HTTPException(status_code=404, detail="entity not found")
 
 
-def validate_dataset(dataset: str, datasets: list):
-    """
-    Given a dataset and a set of datasets will check if dataset is a valid one
-    if not it will raise the appropriate error. Query not included to reduce
-    number of queries on the server.
-    """
-    if not dataset:
-        return dataset
-
-    missing_datasets = set(dataset).difference(set(datasets))
-    if missing_datasets:
-        raise RequestValidationError(
-            errors=ValidationError.from_exception_data(
-                "ValueError",
-                [
-                    InitErrorDetails(
-                        type=PydanticCustomError(
-                            "value_error",
-                            "Requested datasets do not exist: {missing}.",
-                            {
-                                "missing": ",".join(sorted(missing_datasets)),
-                                "dataset_names": sorted(datasets),
-                            },
-                        ),
-                        loc=("query", "dataset"),
-                        input=dataset,
-                    )
-                ],
-            ).errors()
-        )
-    return
-
-
 def validate_typologies(typologies, typology_names):
     if not typologies:
         return typologies
@@ -434,7 +399,6 @@ def search_entities(
     query_params = asdict(query_filters)
     # TODO minimse queries by using normal queries below rather than returning the names
     # queries required for additional validations
-    dataset_names = get_dataset_names(session)
     typology_names = get_typology_names(session)
 
     # Find an area - Postcode / UPRN search
@@ -457,7 +421,6 @@ def search_entities(
         )
 
     # additional validations
-    validate_dataset(query_params.get("dataset", None), dataset_names)
     validate_typologies(query_params.get("typology", None), typology_names)
 
     # Run entity query
