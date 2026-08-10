@@ -154,28 +154,25 @@ def test_get_fact_fact_returned_for_html(
         assert False, "template unable to render, missing variable(s) from context"
 
 
-def test_get_fact_falls_back_to_dataset_slug_when_metadata_missing(
+def test_get_fact_falls_throws_404_for_missing_dataset_metadata(
     mocker, single_fact_model, query_params, path_params
 ):
     mocker.patch(
         "application.routers.fact.get_fact_query", return_value=single_fact_model
     )
     mocker.patch("application.routers.fact.get_dataset_query", return_value=None)
-    warning_mock = mocker.patch("application.routers.fact.logger.warning")
     request = MagicMock()
-
-    result = get_fact(
-        request=request,
-        path_params=path_params,
-        query_filters=query_params,
-        extension=None,
-        session=MagicMock(),
-    )
-
-    assert result.status_code == 200
-    assert result.context["pipeline_name"] == "ancient-woodland"
-    assert result.context["dataset"]["name"] == "ancient-woodland"
-    warning_mock.assert_called_once()
+    try:
+        get_fact(
+            request=request,
+            path_params=path_params,
+            query_filters=query_params,
+            extension=None,
+            session=MagicMock(),
+        )
+        assert False, "Expected HTTPException to be raised"
+    except HTTPException:
+        assert True
 
 
 def test_get_fact_fact_returned_for_json(
