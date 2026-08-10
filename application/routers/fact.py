@@ -70,36 +70,45 @@ def validate_fact_path_params(request: Request) -> FactPathParams:
     )
 
 
-def validate_fact_dataset_query_filters(request: Request) -> FactDatasetQueryFilters:
+def validate_fact_dataset_query_filters(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> FactDatasetQueryFilters:
     dataset = request.query_params.get("dataset")
-    if dataset:
-        return FactDatasetQueryFilters(dataset=dataset)
-    raise RequestValidationError(
-        errors=[
-            {
-                "loc": ["query", "dataset"],
-                "msg": "Missing required 'dataset' query parameter.",
-                "type": "value_error",
-            }
-        ]
-    )
+    if not dataset:
+        raise RequestValidationError(
+            errors=[
+                {
+                    "loc": ["query", "dataset"],
+                    "msg": "Missing required 'dataset' query parameter.",
+                    "type": "value_error",
+                }
+            ]
+        )
+    # datasette still holds sqlite for retired datasets, postgres is the source of truth
+    validate_dataset([dataset], get_dataset_names(session))
+    return FactDatasetQueryFilters(dataset=dataset)
 
 
-def validate_fact_query_filters(request: Request) -> FactQueryFilters:
+def validate_fact_query_filters(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> FactQueryFilters:
     dataset = request.query_params.get("dataset")
     entity = request.query_params.get("entity")
-    if dataset and entity and entity.isdigit() and int(entity) >= 1:
-        field = request.query_params.getlist("field") or None
-        return FactQueryFilters(dataset=dataset, entity=int(entity), field=field)
-    raise RequestValidationError(
-        errors=[
-            {
-                "loc": ["query"],
-                "msg": "Invalid or missing query parameters.",
-                "type": "value_error",
-            }
-        ]
-    )
+    if not (dataset and entity and entity.isdigit() and int(entity) >= 1):
+        raise RequestValidationError(
+            errors=[
+                {
+                    "loc": ["query"],
+                    "msg": "Invalid or missing query parameters.",
+                    "type": "value_error",
+                }
+            ]
+        )
+    validate_dataset([dataset], get_dataset_names(session))
+    field = request.query_params.getlist("field") or None
+    return FactQueryFilters(dataset=dataset, entity=int(entity), field=field)
 
 
 def get_fact(
@@ -260,44 +269,3 @@ router.add_api_route(
     response_class=HTMLResponse,
     include_in_schema=False,
 )
-
-
-def validate_fact_dataset_query_filters(
-    request: Request,
-    session: Session = Depends(get_session),
-) -> FactDatasetQueryFilters:
-    dataset = request.query_params.get("dataset")
-    if not dataset:
-        raise RequestValidationError(
-            errors=[
-                {
-                    "loc": ["query", "dataset"],
-                    "msg": "Missing required 'dataset' query parameter.",
-                    "type": "value_error",
-                }
-            ]
-        )
-    # datasette still holds sqlite for retired datasets, postgres is the source of truth
-    validate_dataset([dataset], get_dataset_names(session))
-    return FactDatasetQueryFilters(dataset=dataset)
-
-
-def validate_fact_query_filters(
-    request: Request,
-    session: Session = Depends(get_session),
-) -> FactQueryFilters:
-    dataset = request.query_params.get("dataset")
-    entity = request.query_params.get("entity")
-    if not (dataset and entity and entity.isdigit() and int(entity) >= 1):
-        raise RequestValidationError(
-            errors=[
-                {
-                    "loc": ["query"],
-                    "msg": "Invalid or missing query parameters.",
-                    "type": "value_error",
-                }
-            ]
-        )
-    validate_dataset([dataset], get_dataset_names(session))
-    field = request.query_params.getlist("field") or None
-    return FactQueryFilters(dataset=dataset, entity=int(entity), field=field)
