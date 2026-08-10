@@ -19,7 +19,7 @@
 // Style for menu "Data" button to match the other
 // menu `li > a` items
 .govuk-service-navigation__item--toggle {
-  #dl-subnav-toggle {
+  .dl-subnav-toggle {
     // Reset button styles
     background: none;
     border: none;
@@ -58,6 +58,52 @@
     // Arrow points down when expanded
     &[aria-expanded="true"] .dl-subnav-toggle__icon {
       transform: rotate(0deg);
+    }
+  }
+}
+
+.dl-subnav {
+  @include govuk-media-query($until: tablet) {
+    padding: govuk-spacing(3) 0 0 govuk-spacing(4);
+  }
+
+  @include govuk-media-query($from: tablet) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 5;
+    min-width: 200px;
+    background-color: govuk-tint($govuk-brand-colour, 95%);
+    border: 1px solid $govuk-border-colour;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
+    padding: govuk-spacing(3);
+
+    .govuk-service-navigation__list {
+      display: block;
+      margin: 0;
+    }
+
+    .govuk-service-navigation__item {
+      position: relative;
+      display: block;
+      margin: 0;
+      padding: govuk-spacing(2) 0;
+      border: 0;
+
+      &:not(:last-child) {
+        margin-right: 0;
+        border-bottom: 1px solid $govuk-border-colour;
+      }
+
+      &--active::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -(govuk-spacing(3));
+        width: govuk-spacing(1);
+        background-color: govuk-shade($govuk-link-colour, 10%);
+      }
     }
   }
 }

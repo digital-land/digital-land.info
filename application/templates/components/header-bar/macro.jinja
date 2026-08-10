@@ -2,12 +2,6 @@
 
 {% macro dlHeaderBar(params={}) %}
 {% set _navitems = params.get('items', []) %}
-{% set _subnav = [] %}
-{% for item in _navitems %}
-  {% if item.children %}
-    {% set _ = _subnav.extend(item.children) %}
-  {% endif %}
-{% endfor %}
 <header class="govuk-header dl-header{{ ' ' + params.classes if params.classes }}" role="banner" data-module="govuk-header">
   <div class="govuk-header__container {{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container' }}">
     <div class="govuk-header__logo">
@@ -40,7 +34,8 @@
           {% for item in _navitems %}
           <li class="govuk-service-navigation__item{% if item.children %} govuk-service-navigation__item--toggle{% endif %}" data-nav-href="{{ item.href }}">
             {% if item.children %}
-            <button type="button" class="govuk-service-navigation__link" id="dl-subnav-toggle" aria-expanded="false" aria-controls="dl-subnav">
+            {% set subnav_id = 'dl-subnav-' ~ (item.text | slugify) %}
+            <button type="button" class="govuk-service-navigation__link dl-subnav-toggle" aria-expanded="false" aria-controls="{{ subnav_id }}">
               {{ item.text }}
               <span class="dl-subnav-toggle__icon">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -48,6 +43,17 @@
                 </svg>
               </span>
             </button>
+            <div class="dl-subnav" id="{{ subnav_id }}">
+              <nav aria-label="Data sub-menu">
+                <ul class="govuk-service-navigation__list">
+                  {% for child in item.children %}
+                  <li class="govuk-service-navigation__item" data-subnav-href="{{ child.href }}">
+                    <a class="govuk-service-navigation__link" href="{{ child.href }}">{{ child.text }}</a>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </nav>
+            </div>
             {% else %}
             <a class="govuk-service-navigation__link" href="{{ item.href }}">{{ item.text }}</a>
             {% endif %}
@@ -58,19 +64,6 @@
       {% endif %}
     </div>
   </div>
-  {% if _subnav | length > 0 %}
-  <div class="{{ 'dl-container--full-width' if params.fullWidth else 'govuk-width-container'}}" id="dl-subnav">
-    <nav aria-label="Data sub-menu" class="govuk-service-navigation__wrapper">
-      <ul class="govuk-service-navigation__list" id="sub-navigation-list">
-        {% for child in _subnav %}
-        <li class="govuk-service-navigation__item" data-subnav-href="{{ child.href }}">
-          <a class="govuk-service-navigation__link" href="{{ child.href }}">{{ child.text }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </nav>
-  </div>
-  {% endif %}
 </section>
 <script>
   (function() {
@@ -88,29 +81,24 @@
       }
     });
 
-    var toggle = document.getElementById('dl-subnav-toggle');
-    var subnav = document.getElementById('dl-subnav');
+    var toggles = document.querySelectorAll('.dl-subnav-toggle');
+    toggles.forEach(function(toggle) {
+      var subnav = document.getElementById(toggle.getAttribute('aria-controls'));
+      if (!subnav) {
+        return;
+      }
 
-    if (toggle && subnav) {
       subnav.hidden = true;
 
-      // Set the selected sub-menu to `--active`
       var subnavItems = subnav.querySelectorAll('.govuk-service-navigation__item');
       subnavItems.forEach(function(item) {
         var href = item.getAttribute('data-subnav-href');
 
         if (href && pathname.startsWith(href)) {
           item.classList.add('govuk-service-navigation__item--active');
+          toggle.parentElement.classList.add('govuk-service-navigation__item--active');
         }
-
       });
-
-      // Make the sub-menu visible when the user is on a child page
-      if (pathname.startsWith('/dataset') || pathname.startsWith('/organisation') || pathname.startsWith('/local-plans')) {
-        toggle.setAttribute('aria-expanded', 'true');
-        subnav.hidden = false;
-        toggle.parentElement.classList.add("govuk-service-navigation__item--active")
-      }
 
       toggle.addEventListener('click', function() {
         var expanded = toggle.getAttribute('aria-expanded') === 'true';
@@ -122,7 +110,7 @@
           toggle.blur();
         }
       });
-    }
+    });
 
   })();
 </script>
