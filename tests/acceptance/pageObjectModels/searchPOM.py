@@ -58,7 +58,7 @@ class SearchPOM:
 
     def search_button_click(self):
         with self.page.expect_navigation() as navigation_info:
-            self.page.get_by_role("button", name="Search").click()
+            self.page.get_by_role("button", name="Apply filters").click()
         assert navigation_info.value.ok
 
     def clear_filter(self, filter):
