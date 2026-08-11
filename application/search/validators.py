@@ -3,6 +3,9 @@ from typing import Optional, List
 
 from application.data_access.dataset_queries import get_dataset_names
 from application.exceptions import DatasetValueNotFound, DigitalLandValidationError
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
+from pydantic_core import InitErrorDetails, PydanticCustomError
 
 
 def validate_dataset_name(dataset):
@@ -60,3 +63,36 @@ def validate_curies(curies: Optional[List[str]]):
                 )
             # TODO - references a bit too lax, should they be more restricted?
     return curies
+
+
+def validate_dataset(dataset: Optional[List[str]], datasets: list):
+    """
+    Given a dataset and a set of datasets will check if dataset is a valid one
+    if not it will raise the appropriate error. Query not included to reduce
+    number of queries on the server.
+    """
+    if not dataset:
+        return dataset
+
+    missing_datasets = set(dataset).difference(set(datasets))
+    if missing_datasets:
+        raise RequestValidationError(
+            errors=ValidationError.from_exception_data(
+                "ValueError",
+                [
+                    InitErrorDetails(
+                        type=PydanticCustomError(
+                            "value_error",
+                            "Requested datasets do not exist: {missing}.",
+                            {
+                                "missing": ",".join(sorted(missing_datasets)),
+                                "dataset_names": sorted(datasets),
+                            },
+                        ),
+                        loc=("query", "dataset"),
+                        input=dataset,
+                    )
+                ],
+            ).errors()
+        )
+    return
