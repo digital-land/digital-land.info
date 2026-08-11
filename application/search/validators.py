@@ -65,7 +65,7 @@ def validate_curies(curies: Optional[List[str]]):
     return curies
 
 
-def validate_dataset(dataset: str, datasets: list):
+def validate_dataset(dataset: Optional[List[str]], datasets: list):
     """
     Given a dataset and a set of datasets will check if dataset is a valid one
     if not it will raise the appropriate error. Query not included to reduce

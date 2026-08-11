@@ -1,11 +1,16 @@
 import logging
 
-from fastapi.exceptions import HTTPException
+from fastapi.exceptions import HTTPException, RequestValidationError
 
 from unittest.mock import MagicMock
 from pydantic import BaseModel
 import pytest
-from application.routers.fact import _convert_model_to_dict, get_fact, search_facts
+from application.routers.fact import (
+    _convert_model_to_dict,
+    get_fact,
+    search_facts,
+    validate_fact_dataset_query_filters,
+)
 from application.core.models import (
     DatasetFieldModel,
     EntityModel,
@@ -17,6 +22,7 @@ from application.search.filters import (
     FactQueryFilters,
     FactPathParams,
 )
+from starlette.datastructures import QueryParams
 
 
 class EmptyModel(BaseModel):
@@ -152,27 +158,6 @@ def test_get_fact_fact_returned_for_html(
     except Exception:
         logging.warning(f"context: {result.context}")
         assert False, "template unable to render, missing variable(s) from context"
-
-
-def test_get_fact_falls_throws_404_for_missing_dataset_metadata(
-    mocker, single_fact_model, query_params, path_params
-):
-    mocker.patch(
-        "application.routers.fact.get_fact_query", return_value=single_fact_model
-    )
-    mocker.patch("application.routers.fact.get_dataset_query", return_value=None)
-    request = MagicMock()
-    try:
-        get_fact(
-            request=request,
-            path_params=path_params,
-            query_filters=query_params,
-            extension=None,
-            session=MagicMock(),
-        )
-        assert False, "Expected HTTPException to be raised"
-    except HTTPException:
-        assert True
 
 
 def test_get_fact_fact_returned_for_json(
@@ -388,3 +373,22 @@ def test_search_facts_multiple_facts_returned_json(
     # check get_entity_query isn;t being called
     get_entity_query_mock.assert_not_called()
     assert isinstance(result, list), f"{type(result)} is expected to be a python list"
+
+
+def test_validate_fact_dataset_query_filters_rejects_a_retired_dataset(mocker):
+    mocker.patch(
+        "application.routers.fact.get_dataset_names",
+        return_value=["design-code-characteristic"],
+    )
+    request = MagicMock()
+    request.query_params = QueryParams(dataset="design-code-category")
+
+    with pytest.raises(RequestValidationError) as exc_info:
+        validate_fact_dataset_query_filters(
+            request=request,
+            session=MagicMock(),
+        )
+
+    assert "Requested datasets do not exist: design-code-category." in str(
+        exc_info.value
+    )

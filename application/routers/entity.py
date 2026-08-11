@@ -46,6 +46,7 @@ from application.core.utils import (
 )
 from application.db.session import get_session, get_redis, DbSession
 from application.db.models import EntityOrm
+from application.search.validators import validate_dataset
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -350,39 +351,6 @@ def get_entity(
             "entity.not_found", 1, attributes={"entity": str(entity)}
         )
         raise HTTPException(status_code=404, detail="entity not found")
-
-
-def validate_dataset(dataset: str, datasets: list):
-    """
-    Given a dataset and a set of datasets will check if dataset is a valid one
-    if not it will raise the appropriate error. Query not included to reduce
-    number of queries on the server.
-    """
-    if not dataset:
-        return dataset
-
-    missing_datasets = set(dataset).difference(set(datasets))
-    if missing_datasets:
-        raise RequestValidationError(
-            errors=ValidationError.from_exception_data(
-                "ValueError",
-                [
-                    InitErrorDetails(
-                        type=PydanticCustomError(
-                            "value_error",
-                            "Requested datasets do not exist: {missing}.",
-                            {
-                                "missing": ",".join(sorted(missing_datasets)),
-                                "dataset_names": sorted(datasets),
-                            },
-                        ),
-                        loc=("query", "dataset"),
-                        input=dataset,
-                    )
-                ],
-            ).errors()
-        )
-    return
 
 
 def validate_typologies(typologies, typology_names):
