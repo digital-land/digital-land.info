@@ -13,8 +13,7 @@
         <section class="app-card app-card--result">
         <div class="app-card__header">
             <div class="app-card__header__secondary">
-            <label id="typologyLabel" class="govuk-visually-hidden">Typology type</label>
-            <p class="govuk-body govuk-hint govuk-!-margin-0" aria-labelledby="typologyLabel" title="Typology type">{{ e["typology"] | capitalize }}</p>
+            <p class="govuk-body govuk-hint govuk-!-margin-0"><span class="govuk-visually-hidden">Typology type: </span>{{ e["typology"] | capitalize }}</p>
             <a href="/entity/{{ e['entity'] }}" class="govuk-link app-card__reference">{{ e["reference"] }}</a>
             </div>
             <div class="app-card__header__primary">
