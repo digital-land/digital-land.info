@@ -46,7 +46,8 @@
     }) %}
     {{ dlFilterCheckboxes({
       "uniqueID": random_int(5),
-      "checkboxesHTML": checkboxesHTML
+      "checkboxesHTML": checkboxesHTML,
+      "filterLabel": "Search datasets"
     }) }}
     {% endcall %}
   </div>
@@ -76,7 +77,8 @@
     }) %}
     {{ dlFilterCheckboxes({
       "uniqueID": random_int(5),
-      "checkboxesHTML": checkboxesHTML
+      "checkboxesHTML": checkboxesHTML,
+      "filterLabel": "Search locations"
     }) }}
     {% endcall %}
   </div>
@@ -122,7 +124,8 @@
         }) %}
         {{ dlFilterCheckboxes({
           "uniqueID": random_int(5),
-          "checkboxesHTML": checkboxesHTML
+          "checkboxesHTML": checkboxesHTML,
+          "filterLabel": "Search organisations"
         }) }}
       {% endcall %}
     </div>
@@ -151,7 +154,8 @@
     }) %}
       {{ dlFilterCheckboxes({
         "uniqueID": random_int(5),
-        "checkboxesHTML": checkboxesHTML
+        "checkboxesHTML": checkboxesHTML,
+        "filterLabel": "Search periods"
       }) }}
     {% endcall %}
   </div>
