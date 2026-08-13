@@ -6,17 +6,23 @@ class SuffixLinkableFiles(str, Enum):
 
 
 class SuffixEntity(str, Enum):
+    """Must be one of: json or geojson"""
+
     json = "json"
     html = "html"
     geojson = "geojson"
 
 
 class SuffixDataset(str, Enum):
+    """Must be json"""
+
     json = "json"
     html = "html"
 
 
 class SuffixOrganisation(str, Enum):
+    """Must be json"""
+
     json = "json"
     html = "html"
 
