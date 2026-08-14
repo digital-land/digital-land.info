@@ -164,9 +164,17 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
     include_fields = params.get("field", [])
     exclude_fields = params.get("exclude_field", [])
     # disable field filters if geojson as we already need to get them all
-    if (not include_fields and not exclude_fields) or (
-        extension and extension == SuffixEntity.geojson
-    ):
+    if extension and extension == SuffixEntity.geojson:
+        return query
+
+    if not include_fields and not exclude_fields:
+        if extension and extension == SuffixEntity.json:
+            # Selecting EntityOrm itself also selects the _geometry_geojson and
+            # _point_geojson column properties, so every geometry crosses the
+            # wire twice - once as EWKB and again as GeoJSON text. The json
+            # response always drops geojson, so select the table columns only.
+            return query.with_entities(*EntityOrm.__table__.columns)
+        # HTML responses render the geojson, so leave the query alone.
         return query
 
     # if requested specific fields only request those from db:
@@ -281,31 +289,84 @@ def _apply_date_filters(query, params):
     return query
 
 
+ALL_SIMPLE_DATASETS = None
+
+
+def _split_requested_datasets(params):
+    """
+    Work out which datasets each branch of the spatial subqueries has to look at.
+
+    The outer query already filters on the requested dataset(s), but unless the
+    same restriction is pushed into the spatial subqueries they match geometries
+    across every dataset and the outer query then discards nearly all of them.
+
+    Returns (subdivided_datasets, simple_datasets). An empty list means that
+    branch cannot contribute any rows and can be skipped entirely.
+    simple_datasets is ALL_SIMPLE_DATASETS when no dataset filter was requested.
+    """
+    requested = params.get("dataset") or []
+    if not requested:
+        return complex_datasets, ALL_SIMPLE_DATASETS
+    return (
+        [dataset for dataset in requested if dataset in complex_datasets],
+        [dataset for dataset in requested if dataset not in complex_datasets],
+    )
+
+
+def _searches_simple_datasets(simple_datasets):
+    return simple_datasets is ALL_SIMPLE_DATASETS or bool(simple_datasets)
+
+
+def _entity_dataset_filter(simple_datasets):
+    if simple_datasets is ALL_SIMPLE_DATASETS:
+        return EntityOrm.dataset.notin_(complex_datasets)
+    return EntityOrm.dataset.in_(simple_datasets)
+
+
+def _union_of(branches):
+    """UNION ALL the branches, avoiding a pointless wrapper for a single one."""
+    if len(branches) == 1:
+        return branches[0]
+    return union_all(*branches)
+
+
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
+    subdivided_datasets, simple_datasets = _split_requested_datasets(params)
+
     if point is not None:
+        branches = []
+
         # Pre-filter EntitySubdividedOrm table
-        subdivided_ids_query = select(entity_subdivided_alias.entity).where(
-            entity_subdivided_alias.dataset.in_(complex_datasets),
-            entity_subdivided_alias.geometry_subdivided.isnot(None),
-            func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
-            func.ST_Contains(
-                entity_subdivided_alias.geometry_subdivided,
-                func.ST_GeomFromText(point, 4326),
-            ),
-        )
+        if subdivided_datasets:
+            branches.append(
+                select(entity_subdivided_alias.entity).where(
+                    entity_subdivided_alias.dataset.in_(subdivided_datasets),
+                    entity_subdivided_alias.geometry_subdivided.isnot(None),
+                    func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
+                    func.ST_Contains(
+                        entity_subdivided_alias.geometry_subdivided,
+                        func.ST_GeomFromText(point, 4326),
+                    ),
+                )
+            )
 
         #  Pre-filter EntityOrm table
-        entity_ids_query = select(EntityOrm.entity).where(
-            EntityOrm.dataset.notin_(complex_datasets),
-            EntityOrm.geometry.isnot(None),
-            func.ST_IsValid(EntityOrm.geometry),
-            func.ST_Contains(EntityOrm.geometry, func.ST_GeomFromText(point, 4326)),
-        )
+        if _searches_simple_datasets(simple_datasets):
+            branches.append(
+                select(EntityOrm.entity).where(
+                    _entity_dataset_filter(simple_datasets),
+                    EntityOrm.geometry.isnot(None),
+                    func.ST_IsValid(EntityOrm.geometry),
+                    func.ST_Contains(
+                        EntityOrm.geometry, func.ST_GeomFromText(point, 4326)
+                    ),
+                )
+            )
 
         # Combine using union_all
-        union_ids = union_all(subdivided_ids_query, entity_ids_query).subquery()
+        union_ids = _union_of(branches).subquery()
 
         # Step 2: Get full EntityOrm rows matching those IDs
         query = query.filter(EntityOrm.entity.in_(select(union_ids.c.entity)))
@@ -317,38 +378,45 @@ def _apply_location_filters(session, query, params):
     entity_matches = []
     for geometry in params.get("geometry", []):
         geom = func.ST_GeomFromText(geometry, 4326)
+        branches = []
 
         # Entities from entity_subdivided (for complex datasets)
-        subdivided_query = select(entity_subdivided_alias.entity).where(
-            entity_subdivided_alias.dataset.in_(complex_datasets),
-            entity_subdivided_alias.geometry_subdivided.isnot(None),
-            func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
-            spatial_function(entity_subdivided_alias.geometry_subdivided, geom),
-        )
+        if subdivided_datasets:
+            branches.append(
+                select(entity_subdivided_alias.entity).where(
+                    entity_subdivided_alias.dataset.in_(subdivided_datasets),
+                    entity_subdivided_alias.geometry_subdivided.isnot(None),
+                    func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
+                    spatial_function(entity_subdivided_alias.geometry_subdivided, geom),
+                )
+            )
 
         # Entities from EntityOrm (for all other datasets)
-        entity_query = select(EntityOrm.entity).where(
-            EntityOrm.dataset.notin_(complex_datasets),
-            or_(
-                and_(
-                    EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
-                    spatial_function(EntityOrm.geometry, geom),
-                ),
-                and_(
-                    EntityOrm.point.is_not(None),
-                    func.ST_IsValid(EntityOrm.point),
-                    spatial_function(EntityOrm.point, geom),
-                ),
-            ),
-        )
+        if _searches_simple_datasets(simple_datasets):
+            branches.append(
+                select(EntityOrm.entity).where(
+                    _entity_dataset_filter(simple_datasets),
+                    or_(
+                        and_(
+                            EntityOrm.geometry.is_not(None),
+                            func.ST_IsValid(EntityOrm.geometry),
+                            spatial_function(EntityOrm.geometry, geom),
+                        ),
+                        and_(
+                            EntityOrm.point.is_not(None),
+                            func.ST_IsValid(EntityOrm.point),
+                            spatial_function(EntityOrm.point, geom),
+                        ),
+                    ),
+                )
+            )
 
         # Combine results with UNION ALL
-        entity_matches.append(subdivided_query.union_all(entity_query))
+        entity_matches.append(_union_of(branches))
 
     # Combine all geometries' matching entities via UNION ALL
     if entity_matches:
-        unioned_entities_subq = union_all(*entity_matches).subquery()
+        unioned_entities_subq = _union_of(entity_matches).subquery()
         query = query.filter(
             EntityOrm.entity.in_(select(unioned_entities_subq.c.entity))
         )
