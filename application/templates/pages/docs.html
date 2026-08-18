@@ -38,15 +38,25 @@
   {% endif %}
 {% endmacro %}
 
+{% macro _enumDescription(schema={}) %}
+  {% if schema.description %}
+    {{ schema.description }}
+  {% elif schema["enum"] | length > 1 %}
+    Must be one of: {{ schema["enum"][:-1] | join(", ") }} or {{ schema["enum"] | last }}
+  {% else %}
+    Must be {{ schema["enum"] | first }}
+  {% endif %}
+{% endmacro %}
+
 {% macro _parameterDescription(params={}) %}
   {% if "$ref" in params.parameter['schema'].keys() %}
     {% set _parameterComponentName = params.parameter['schema']["$ref"]|extract_component_key %}
     {% set _schema = params.components['schemas'][_parameterComponentName] %}
-    Must be one of: {{ _schema["enum"][:-1] | join(", ") }} or {{ _schema["enum"] | last }}
+    {{ _enumDescription(_schema) }}
   {% elif "anyOf" in params.parameter['schema'].keys() and params.parameter['schema']["anyOf"] | selectattr("$ref", "defined") | list | length > 0 %}
     {% set _parameterComponentName = (params.parameter['schema']["anyOf"] | selectattr("$ref", "defined") | first)["$ref"]|extract_component_key %}
     {% set _schema = params.components['schemas'][_parameterComponentName] %}
-    Must be one of: {{ _schema["enum"][:-1] | join(", ") }} or {{ _schema["enum"] | last }}
+    {{ _enumDescription(_schema) }}
   {%  else %}
     {{ params.parameter["description"] }}
   {%  endif %}
