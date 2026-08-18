@@ -169,10 +169,7 @@ def _apply_field_filters(query, params, extension: Optional[SuffixEntity] = None
 
     if not include_fields and not exclude_fields:
         if extension and extension == SuffixEntity.json:
-            # Selecting EntityOrm itself also selects the _geometry_geojson and
-            # _point_geojson column properties, so every geometry crosses the
-            # wire twice - once as EWKB and again as GeoJSON text. The json
-            # response always drops geojson, so select the table columns only.
+            # json response always drops geojson, so select the table columns only.
             return query.with_entities(*EntityOrm.__table__.columns)
         # HTML responses render the geojson, so leave the query alone.
         return query
@@ -289,42 +286,30 @@ def _apply_date_filters(query, params):
     return query
 
 
-ALL_SIMPLE_DATASETS = None
-
-
-def _split_requested_datasets(params):
+def _dataset_filters(params, subdivided_alias):
     """
-    Work out which datasets each branch of the spatial subqueries has to look at.
+    Build the dataset restriction for each branch of the spatial subqueries.
 
-    The outer query already filters on the requested dataset(s), but unless the
-    same restriction is pushed into the spatial subqueries they match geometries
-    across every dataset and the outer query then discards nearly all of them.
-
-    Returns (subdivided_datasets, simple_datasets). An empty list means that
-    branch cannot contribute any rows and can be skipped entirely.
-    simple_datasets is ALL_SIMPLE_DATASETS when no dataset filter was requested.
+    Returns (subdivided_filter, entity_filter). Either may be None, meaning that
+    branch cannot contribute any rows and should be skipped entirely.
     """
     requested = params.get("dataset") or []
     if not requested:
-        return complex_datasets, ALL_SIMPLE_DATASETS
+        # No dataset filter, so both branches keep their original scope.
+        return (
+            subdivided_alias.dataset.in_(complex_datasets),
+            EntityOrm.dataset.notin_(complex_datasets),
+        )
+
+    complex_requested = [d for d in requested if d in complex_datasets]
+    simple_requested = [d for d in requested if d not in complex_datasets]
     return (
-        [dataset for dataset in requested if dataset in complex_datasets],
-        [dataset for dataset in requested if dataset not in complex_datasets],
+        subdivided_alias.dataset.in_(complex_requested) if complex_requested else None,
+        EntityOrm.dataset.in_(simple_requested) if simple_requested else None,
     )
 
 
-def _searches_simple_datasets(simple_datasets):
-    return simple_datasets is ALL_SIMPLE_DATASETS or bool(simple_datasets)
-
-
-def _entity_dataset_filter(simple_datasets):
-    if simple_datasets is ALL_SIMPLE_DATASETS:
-        return EntityOrm.dataset.notin_(complex_datasets)
-    return EntityOrm.dataset.in_(simple_datasets)
-
-
 def _union_of(branches):
-    """UNION ALL the branches, avoiding a pointless wrapper for a single one."""
     if len(branches) == 1:
         return branches[0]
     return union_all(*branches)
@@ -333,16 +318,16 @@ def _union_of(branches):
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
-    subdivided_datasets, simple_datasets = _split_requested_datasets(params)
+    subdivided_filter, entity_filter = _dataset_filters(params, entity_subdivided_alias)
 
     if point is not None:
         branches = []
 
         # Pre-filter EntitySubdividedOrm table
-        if subdivided_datasets:
+        if subdivided_filter is not None:
             branches.append(
                 select(entity_subdivided_alias.entity).where(
-                    entity_subdivided_alias.dataset.in_(subdivided_datasets),
+                    subdivided_filter,
                     entity_subdivided_alias.geometry_subdivided.isnot(None),
                     func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
                     func.ST_Contains(
@@ -353,10 +338,10 @@ def _apply_location_filters(session, query, params):
             )
 
         #  Pre-filter EntityOrm table
-        if _searches_simple_datasets(simple_datasets):
+        if entity_filter is not None:
             branches.append(
                 select(EntityOrm.entity).where(
-                    _entity_dataset_filter(simple_datasets),
+                    entity_filter,
                     EntityOrm.geometry.isnot(None),
                     func.ST_IsValid(EntityOrm.geometry),
                     func.ST_Contains(
@@ -381,10 +366,10 @@ def _apply_location_filters(session, query, params):
         branches = []
 
         # Entities from entity_subdivided (for complex datasets)
-        if subdivided_datasets:
+        if subdivided_filter is not None:
             branches.append(
                 select(entity_subdivided_alias.entity).where(
-                    entity_subdivided_alias.dataset.in_(subdivided_datasets),
+                    subdivided_filter,
                     entity_subdivided_alias.geometry_subdivided.isnot(None),
                     func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
                     spatial_function(entity_subdivided_alias.geometry_subdivided, geom),
@@ -392,10 +377,10 @@ def _apply_location_filters(session, query, params):
             )
 
         # Entities from EntityOrm (for all other datasets)
-        if _searches_simple_datasets(simple_datasets):
+        if entity_filter is not None:
             branches.append(
                 select(EntityOrm.entity).where(
-                    _entity_dataset_filter(simple_datasets),
+                    entity_filter,
                     or_(
                         and_(
                             EntityOrm.geometry.is_not(None),
