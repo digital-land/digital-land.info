@@ -27,7 +27,7 @@ def test_blank_search(server_url, page):
     page.click("text=Search")
 
     with page.expect_response("**/entity/**") as response:
-        page.click("button:has-text(' Search ')")
+        page.click("button:has-text('Apply filters')")
 
     assert response.value.ok
 
@@ -247,7 +247,7 @@ def test_search_second_submit_replaces_area_query_without_duplicate_q(server_url
     area_input.fill("SW1P 4DF")
 
     with page.expect_navigation() as navigation_info:
-        search_form.get_by_role("button", name="Search").click()
+        search_form.get_by_role("button", name="Apply filters").click()
     assert navigation_info.value.ok
 
     query_params = parse_qs(urlsplit(page.url).query)

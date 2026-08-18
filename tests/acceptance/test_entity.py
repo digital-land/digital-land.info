@@ -108,7 +108,7 @@ def test_find_an_entity_via_the_search_page(
     # filter down to just get geographies
     page.get_by_role("heading", name="Typology").click()
     page.get_by_label("geography").check()
-    page.get_by_role("button", name="Search").click()
+    page.get_by_role("button", name="Apply filters").click()
 
     # check that only two results are returned
     assert page.get_by_role("heading", name="A space").count() == 1
@@ -117,7 +117,7 @@ def test_find_an_entity_via_the_search_page(
 
     # filter down to just get A space
     page.get_by_label("Greenspace").check()
-    page.get_by_role("button", name="Search").click()
+    page.get_by_role("button", name="Apply filters").click()
 
     # check that only A space is returned
     assert page.get_by_role("heading", name="A space").count() == 1

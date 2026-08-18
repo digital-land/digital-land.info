@@ -36,7 +36,7 @@
 
   <div class="govuk-button-group">
     {{ govukButton({
-      "text": "Search"
+      "text": "Apply filters"
     }) }}
     <a href="{{ fact_search_form_url }}?{{ {'dataset': query_params['dataset'], 'entity': query_params['entity']}|make_url_param_str }}" class="govuk-link">Clear</a>
   </div>
