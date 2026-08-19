@@ -29,4 +29,6 @@ def load_data(name, delimiter="|"):
 datasets = load_data("datasets")
 entities = load_data("entities")
 organisations = load_data("organisations")
+provision_quality = load_data("provision_quality")
+dataset_publication = load_data("dataset_publication")
 invalid_geometry = load_data("invalid_geometry", delimiter=",")
