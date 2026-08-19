@@ -25,17 +25,17 @@ def test_acceptance(
     page.goto(server_url)
 
     # Assert Data -> Datasets page loads
-    page.locator("#dl-subnav-toggle").click()
-    page.locator("#dl-subnav").wait_for(state="visible")
-    page.locator("#dl-subnav >> text=Datasets").click()
+    page.locator(".dl-subnav-toggle").click()
+    page.locator(".dl-subnav").wait_for(state="visible")
+    page.locator(".dl-subnav >> text=Datasets").click()
     assert page.url == f"{server_url}/dataset/"
     assert page.text_content("h1") == "Datasets"
     page.goto(server_url)
 
     # Assert Data -> Organisations page loads
-    page.locator("#dl-subnav-toggle").click()
-    page.locator("#dl-subnav").wait_for(state="visible")
-    page.locator("#dl-subnav >> text=Organisations").click()
+    page.locator(".dl-subnav-toggle").click()
+    page.locator(".dl-subnav").wait_for(state="visible")
+    page.locator(".dl-subnav >> text=Organisations").click()
     assert page.url == f"{server_url}/organisation/"
     assert page.text_content("h1") == "Organisations"
     page.goto(server_url)
