@@ -42,8 +42,9 @@ def test__apply_location_filters_for_simple_dataset(mocker):
         },
     )
     sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-    assert "entity_subdivided" in sql_str
-    assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
+    # no complex dataset was asked for, so entity_subdivided cannot contribute
+    # any rows and should not be scanned at all
+    assert "entity_subdivided" not in sql_str
 
 
 def test__apply_location_filters_for_both(mocker):
@@ -58,8 +59,37 @@ def test__apply_location_filters_for_both(mocker):
         },
     )
     sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-    assert "flood-risk-zone" in sql_str.split("FROM entity_subdivided")[1]
-    assert "conservation-area" not in sql_str.split("FROM entity_subdivided")[1]
+    subdivided_branch, entity_branch = sql_str.split("UNION ALL")
+
+    # the complex dataset is looked up in entity_subdivided...
+    assert "FROM entity_subdivided" in subdivided_branch
+    assert "flood-risk-zone" in subdivided_branch
+    assert "conservation-area" not in subdivided_branch
+
+    # ...and the simple one in entity, each filtered to only its own datasets
+    assert "FROM entity_subdivided" not in entity_branch
+    assert "conservation-area" in entity_branch
+    assert "flood-risk-zone" not in entity_branch
+
+
+def test__apply_location_filters_pushes_dataset_into_entity_branch(mocker):
+    """
+    The requested dataset must be applied inside the spatial subquery, not only
+    by the outer query, otherwise every dataset's geometries are searched.
+    """
+    query = Query(EntityOrm)
+    result = _apply_location_filters(
+        mocker.MagicMock(),
+        query,
+        params={
+            "geometry": ["MULTIPOLYGON((-0.1 52.5, -0.5 52.3, 0.0 52.1, -0.1 52.5))"],
+            "dataset": ["conservation-area"],
+        },
+    )
+    sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
+    spatial_subquery = sql_str.split("WHERE entity.entity IN")[1]
+    assert "conservation-area" in spatial_subquery
+    assert "NOT IN" not in spatial_subquery
 
 
 def test__apply_location_filters_without_dataset(mocker):
