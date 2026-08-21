@@ -29,6 +29,7 @@ from application.routers import (
     dataset,
     curie,
     organisation,
+    data_provider,
     fact,
     local_plans,
     task,
@@ -278,6 +279,7 @@ def add_routers(app):
     app.include_router(curie.router, prefix="/curie")
     app.include_router(curie.router, prefix="/prefix")
     app.include_router(organisation.router, prefix="/organisation")
+    app.include_router(data_provider.router, prefix="/data-provider")
     app.include_router(fact.router, prefix="/fact")
     app.include_router(local_plans.router, prefix="/local-plans")
     app.include_router(task.router, prefix="/task")

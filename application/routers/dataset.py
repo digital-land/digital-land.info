@@ -16,6 +16,7 @@ from application.data_access.digital_land_queries import (
     get_latest_resource,
     get_publisher_coverage,
     get_dataset_coverage_status,
+    get_providers_for_dataset,
 )
 
 from application.data_access.entity_queries import get_entity_count, get_entity_search
@@ -141,6 +142,10 @@ def get_dataset(
         publisher_coverage = get_publisher_coverage(session, dataset)
         dataset_coverage_status = get_dataset_coverage_status(dataset)
 
+        providers = get_providers_for_dataset(session, dataset)
+        authoritative_providers = [p for p in providers if p.quality == "authoritative"]
+        alternative_providers = [p for p in providers if p.quality != "authoritative"]
+
         # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories
         if _dataset.typology == "category":
@@ -190,6 +195,8 @@ def get_dataset(
                     "expected": publisher_coverage.expected_publisher_count,
                     "current": publisher_coverage.publisher_count,
                 },
+                "authoritative_providers": authoritative_providers,
+                "alternative_providers": alternative_providers,
                 "latest_resource": latest_resource,
                 "last_collection_attempt": (
                     latest_resource.last_collection_attempt if latest_resource else None

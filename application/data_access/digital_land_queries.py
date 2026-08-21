@@ -10,6 +10,7 @@ from application.core.models import (
     OrganisationModel,
     DatasetCollectionModel,
     DatasetPublicationCountModel,
+    ProviderModel,
 )
 from application.db.session import redis_cache, DbSession
 from application.core.utils import log_slow_execution
@@ -20,6 +21,7 @@ from application.db.models import (
     TypologyOrm,
     DatasetCollectionOrm,
     DatasetPublicationCountOrm,
+    ProvisionQualityOrm,
 )
 
 logger = logging.getLogger(__name__)
@@ -134,6 +136,50 @@ def get_publisher_coverage(session: Session, dataset) -> DatasetPublicationCount
             expected_publisher_count=0,
             publisher_count=0,
         )
+
+
+def get_providers_for_dataset(session: Session, dataset) -> List[ProviderModel]:
+    """
+    A provider is defined as an organisation with an active endpoint
+    that does not have and enddate (i.e. is still in use) for this
+    dataset (has_active_endpoint=True).
+    """
+    resolved_name = func.coalesce(
+        ProvisionQualityOrm.organisation_name, OrganisationOrm.name
+    )
+    is_active_provider = ProvisionQualityOrm.has_active_endpoint.is_(True)
+
+    results = (
+        session.query(ProvisionQualityOrm, OrganisationOrm.entity, resolved_name)
+        .outerjoin(
+            OrganisationOrm,
+            OrganisationOrm.organisation == ProvisionQualityOrm.organisation,
+        )
+        .filter(ProvisionQualityOrm.dataset == dataset)
+        .filter(is_active_provider)
+        .order_by(resolved_name)
+        .all()
+    )
+    providers = []
+    for provision_quality, entity, organisation_name in results:
+        if not organisation_name:
+            continue
+        providers.append(
+            ProviderModel(
+                dataset=provision_quality.dataset,
+                organisation=provision_quality.organisation,
+                organisation_name=organisation_name,
+                entity=entity,
+                is_designated_provider=provision_quality.is_designated_provider,
+                has_active_endpoint=provision_quality.has_active_endpoint,
+                has_active_resource=provision_quality.has_active_resource,
+                owns_entities=provision_quality.owns_entities,
+                quality=provision_quality.quality,
+                entity_count=provision_quality.entity_count,
+                quality_score=provision_quality.quality_score,
+            )
+        )
+    return providers
 
 
 def get_latest_resource(session: Session, dataset) -> DatasetCollectionModel:
