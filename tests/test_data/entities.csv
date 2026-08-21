@@ -24,3 +24,10 @@ entity|name|entry_date|start_date|end_date|dataset|json|organisation_entity|pref
 501910|Natural England|2024-07-10|2006-10-01||government-organisation||501910|government-organisation|PB202|organisation|||some
 5100001||2026-03-30|2017-07-20||plan-timetable||68|plan-timetable|burnley-borough-council-local-plan-2012-submit-plan-for-examination|timetable|||some
 5100002||2024-12-10|2017-04-01||plan-timetable||68|plan-timetable|burnley-borough-council-local-plan-2012-reg-19-public-consultation-start|timetable|||some
+600010|Old Oak and Park Royal Development Corporation|2025-02-19|2015-04-01||development-corporation||600010|development-corporation|Q20648596|organisation|||
+600011|Birmingham Heartlands Development Corporation|2025-02-19|1992-01-01||development-corporation||600011|development-corporation|Q4916714|organisation|||
+600012|London Legacy Development Corporation|2025-02-19|2012-03-09||development-corporation||600012|development-corporation|Q6670544|organisation|||
+600013|London Thames Gateway Development Corporation|2025-02-19|2004-06-26||development-corporation||600013|development-corporation|Q6670837|organisation|||
+600014|South Tees Development Corporation|2025-02-19|2017-08-01||development-corporation||600014|development-corporation|Q72456968|organisation|||
+600015|Ebbsfleet Development Corporation|2025-02-19|2015-04-20||development-corporation||600015|development-corporation|Q72463795|organisation|||
+600016|Office for National Statistics|2024-07-10|1996-04-01||government-organisation||600016|government-organisation|D303|organisation|||
