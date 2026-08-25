@@ -1,6 +1,19 @@
-from application.db.models import EntityOrm, DatasetOrm, TypologyOrm, OrganisationOrm
+from application.db.models import (
+    EntityOrm,
+    DatasetOrm,
+    TypologyOrm,
+    OrganisationOrm,
+    ProvisionQualityOrm,
+    DatasetPublicationCountOrm,
+)
 from application.db.session import get_session
-from tests.test_data import datasets, entities, organisations
+from tests.test_data import (
+    datasets,
+    entities,
+    organisations,
+    provision_quality,
+    dataset_publication,
+)
 
 
 def add_entity_to_database(entity: EntityOrm):
@@ -31,6 +44,41 @@ def add_base_organisations_to_database():
     session = next(get_session())
     for organisation in organisations:
         session.add(OrganisationOrm(**organisation))
+    session.commit()
+
+
+def add_base_provision_quality_to_database():
+    session = next(get_session())
+    for row in provision_quality:
+        session.add(
+            ProvisionQualityOrm(
+                dataset=row["dataset"],
+                organisation=row["organisation"],
+                organisation_name=row.get("organisation_name"),
+                has_active_endpoint=row["has_active_endpoint"] == "true",
+                has_active_resource=row["has_active_resource"] == "true",
+                owns_entities=row["owns_entities"] == "true",
+                is_designated_provider=row["is_designated_provider"] == "true",
+                quality=row.get("quality"),
+                entity_count=int(row["entity_count"]),
+                quality_score=(
+                    float(row["quality_score"]) if row.get("quality_score") else None
+                ),
+            )
+        )
+    session.commit()
+
+
+def add_base_dataset_publication_to_database():
+    session = next(get_session())
+    for row in dataset_publication:
+        session.add(
+            DatasetPublicationCountOrm(
+                dataset_publication=row["dataset_publication"],
+                expected_publisher_count=int(row["expected_publisher_count"]),
+                publisher_count=int(row["publisher_count"]),
+            )
+        )
     session.commit()
 
 
@@ -83,6 +131,8 @@ def reset_database():
     session.query(DatasetOrm).delete()
     session.query(TypologyOrm).delete()
     session.query(OrganisationOrm).delete()
+    session.query(ProvisionQualityOrm).delete()
+    session.query(DatasetPublicationCountOrm).delete()
     session.commit()
 
 

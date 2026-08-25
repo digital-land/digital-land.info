@@ -1,0 +1,25 @@
+dataset|organisation|organisation_name|has_active_endpoint|has_active_resource|owns_entities|is_designated_provider|quality|entity_count|quality_score
+greenspace|development-corporation:Q6670544|London Legacy Development Corporation|true|true|true|true|authoritative|142|
+greenspace|development-corporation:Q72463795|Ebbsfleet Development Corporation|true|true|true|false|some|18|
+greenspace|development-corporation:Q4916714|Birmingham Heartlands Development Corporation|true|true|true|true|authoritative|58|
+forest|development-corporation:Q72456968|South Tees Development Corporation|true|true|true|true|authoritative|76|
+brownfield-site|development-corporation:Q20648596|Old Oak and Park Royal Development Corporation|true|true|true|true|authoritative|34|
+brownfield-site|development-corporation:Q4916714|Birmingham Heartlands Development Corporation|true|true|true|true|authoritative|61|
+historical-monument|development-corporation:Q6670837|London Thames Gateway Development Corporation|true|true|true|true|authoritative|9|
+tree|development-corporation:Q72463795|Ebbsfleet Development Corporation|true|true|true|true|authoritative|210|
+tree|development-corporation:Q6670544|London Legacy Development Corporation|false|false|true|true|some|45|
+conservation-area|development-corporation:Q4916714|Birmingham Heartlands Development Corporation|true|true|true|true|authoritative|5|
+agricultural-land-classification|government-organisation:PB202|Natural England|true|true|true|true|authoritative|585|
+air-quality-management-area|government-organisation:PB202|Natural England|true|true|true|true|authoritative|22|
+area-of-outstanding-natural-beauty|government-organisation:PB202|Natural England|true|true|true|true|authoritative|34|
+area-of-outstanding-natural-beauty|government-organisation:D303|Office for National Statistics|true|true|false|false||0|
+planning-application|development-corporation:Q72456968|South Tees Development Corporation|true|true|true|true|authoritative|3|
+local-planning-authority|government-organisation:D303|Office for National Statistics|true|true|true|true|authoritative|317|
+local-authority|government-organisation:D303|Office for National Statistics|true|true|true|true|authoritative|317|
+article-4-direction-area|development-corporation:Q20648596|Old Oak and Park Royal Development Corporation|true|true|true|true|authoritative|2|
+article-4-direction-area|development-corporation:Q6670544|London Legacy Development Corporation|true|false|true|true|some|1|
+government-organisation|government-organisation:D303|Office for National Statistics|true|true|true|true|authoritative|1120|
+local-plan|development-corporation:Q6670837|London Thames Gateway Development Corporation|true|true|true|true|authoritative|1|
+local-planning-group|government-organisation:D303|Office for National Statistics|true|true|true|true|authoritative|38|
+local-plan-boundary|development-corporation:Q6670837|London Thames Gateway Development Corporation|true|true|true|true|authoritative|1|
+plan-timetable|development-corporation:Q72463795|Ebbsfleet Development Corporation|false|false|true|true|some|2|
