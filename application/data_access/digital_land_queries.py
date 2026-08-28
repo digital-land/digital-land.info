@@ -9,7 +9,6 @@ from application.core.models import (
     TypologyModel,
     OrganisationModel,
     DatasetCollectionModel,
-    DatasetPublicationCountModel,
     ProviderModel,
 )
 from application.db.session import redis_cache, DbSession
@@ -20,7 +19,6 @@ from application.db.models import (
     OrganisationOrm,
     TypologyOrm,
     DatasetCollectionOrm,
-    DatasetPublicationCountOrm,
     ProvisionQualityOrm,
 )
 
@@ -124,18 +122,6 @@ def get_local_authorities(
         .all()
     )
     return [OrganisationModel.model_validate(o) for o in organisations]
-
-
-def get_publisher_coverage(session: Session, dataset) -> DatasetPublicationCountModel:
-    result = session.query(DatasetPublicationCountOrm).get(dataset)
-    if result is not None:
-        return DatasetPublicationCountModel.model_validate(result)
-    else:
-        return DatasetPublicationCountModel(
-            dataset_publication=dataset,
-            expected_publisher_count=0,
-            publisher_count=0,
-        )
 
 
 def get_providers_for_dataset(session: Session, dataset) -> List[ProviderModel]:

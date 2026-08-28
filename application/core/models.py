@@ -136,12 +136,6 @@ class DatasetCollectionModel(DigitalLandBaseModel):
     last_collection_attempt: Optional[date] = None
 
 
-class DatasetPublicationCountModel(DigitalLandBaseModel):
-    dataset_publication: str
-    expected_publisher_count: int
-    publisher_count: int
-
-
 class ProviderModel(DigitalLandBaseModel):
     dataset: str
     organisation: str
