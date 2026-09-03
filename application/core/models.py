@@ -136,10 +136,18 @@ class DatasetCollectionModel(DigitalLandBaseModel):
     last_collection_attempt: Optional[date] = None
 
 
-class DatasetPublicationCountModel(DigitalLandBaseModel):
-    dataset_publication: str
-    expected_publisher_count: int
-    publisher_count: int
+class ProviderModel(DigitalLandBaseModel):
+    dataset: str
+    organisation: str
+    organisation_name: Optional[str] = None
+    entity: Optional[int] = None
+    is_designated_provider: bool
+    has_active_endpoint: bool
+    has_active_resource: bool
+    owns_entities: bool
+    quality: Optional[str] = None
+    entity_count: int
+    quality_score: Optional[float] = None
 
 
 def entity_factory(entity_orm: EntityOrm):

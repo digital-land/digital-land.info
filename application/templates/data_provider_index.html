@@ -1,0 +1,92 @@
+{% extends "layouts/layout.html" %}
+{% set templateName = "dl-info/data_provider_index.html" %}
+
+{% block head %}
+	{{ super() }}
+	<meta name="generated-date" content="{{ now }}" />
+	<link rel="stylesheet" href="/static/stylesheets/application.css">
+{% endblock head %}
+
+{%- from "components/back-button/macro.jinja" import dlBackButton %}
+{% block breadcrumbs%}
+  {{ dlBackButton({
+    "parentHref": '/dataset/' + dataset["dataset"]
+  })}}
+{% endblock %}
+
+{% block pageTitle %}Data providers | {{ dataset["name"] }} | Planning Data{% endblock %}
+
+{%
+  set provider_groups = [
+    {
+      "id": "authoritative-sources",
+      "label": "Authoritative sources",
+      "providers": authoritative_providers,
+    },
+    {
+      "id": "alternative-sources",
+      "label": "Alternative sources",
+      "providers": alternative_providers,
+    },
+  ]
+%}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <span class="govuk-caption-xl">{{ dataset["name"] }}</span>
+      <h1 class="govuk-heading-xl">Data providers</h1>
+      <p class="govuk-body">These sources provide the data used in the {{ dataset["name"] }} dataset.</p>
+    </div>
+  </div>
+
+  <form class="dl-filter-organisations-list__form filter-organisations-list__form--active govuk-!-margin-bottom-9" data-module="dl-list-filter-form">
+
+    <!-- Text filter -->
+    <label class="dl-list-filter__label govuk-label govuk-!-font-weight-bold" for="filter-providers-list">Find a data provider</label>
+    <input class="dl-list-filter__input govuk-input govuk-!-margin-bottom-3" type="text" id="filter-providers-list">
+
+  </form>
+
+  {% for group in provider_groups if group.providers|length > 0 %}
+
+  <div class="govuk-grid-row dl-list-filter__count">
+    <div class="govuk-grid-column-one-third">
+      <h2 class="govuk-heading-m" id="{{ group.id }}">{{ group.label }}</h2>
+      <div class="dl-list-filter__count__wrapper">
+        <p class="govuk-visually-hidden">There {{"is" if group.providers|length == 1 else "are"}}
+          <span class="js-accessible-list-filter__count">{{ group.providers|length }}</span>
+          {{ group.label|lower }}
+        </p>
+        <span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-filter__count" aria-hidden="true">{{ group.providers|length }}</span>
+      </div>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+
+      <ol class="dl-list-filter__list" data-filter="list">
+        {% for provider in group.providers %}
+          <li class="dl-list-filter__item" data-filter="item">
+            {% if provider.entity %}
+              <a href="/entity/{{ provider.entity }}" class="govuk-link dl-list-filter__item-title">{{ provider.organisation_name or provider.organisation }}</a>
+            {% else %}
+              <span class="dl-list-filter__item-title">{{ provider.organisation_name or provider.organisation }}</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if authoritative_providers|length == 0 and alternative_providers|length == 0 %}
+    <p class="govuk-body">There are no known data providers for {{ dataset["name"] }}.</p>
+  {% endif %}
+
+  <div class="dl-list-filter__no-filter-match js-hidden">
+		<p class="govuk-body">No data provider for {{ dataset["name"] }} matches <span class="js-search-term-display"></span>.</p>
+	</div>
+
+  {% include "partials/feedback.html" without context %}
+{% endblock %}

@@ -70,6 +70,23 @@
         'titleText': 'About this dataset'
       }) %}
 
+      {% set all_providers = authoritative_providers + alternative_providers %}
+      {% set total_provider_count = all_providers|length %}
+      {% if total_provider_count > 5 %}
+        {% set data_providers_html = '<a class="govuk-link" href="/data-provider/' + dataset["dataset"] + '">' + total_provider_count|commanum + ' data provider' + ('s' if total_provider_count != 1 else '') + '</a>' %}
+      {% else %}
+        {% set provider_links = [] %}
+        {% for provider in all_providers %}
+          {% if provider.entity %}
+            {% set link_html %}<div class="govuk-!-margin-bottom-1"><a class="govuk-link" href="/entity/{{ provider.entity }}">{{ provider.organisation_name or provider.organisation }}</a></div>{% endset %}
+          {% else %}
+            {% set link_html %}<div class="govuk-!-margin-bottom-1">{{ provider.organisation_name or provider.organisation }}</div>{% endset %}
+          {% endif %}
+          {{ provider_links.append(link_html) or '' }}
+        {% endfor %}
+        {% set data_providers_html = provider_links|join if provider_links else 'None' %}
+      {% endif %}
+
       {%
         set rows = [
           [
@@ -88,7 +105,7 @@
               'html': 'Data providers',
             },
             {
-              'html': publishers['current']|commanum,
+              'html': data_providers_html,
             },
           ],
           [
