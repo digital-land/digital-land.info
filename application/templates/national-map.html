@@ -111,6 +111,7 @@
     import FindAnAreaForm from "{{ staticPath | default('/static') }}/javascripts/FindAnAreaForm.js";
     import MapControlsPanelToggle from "{{ staticPath | default('/static') }}/javascripts/MapControlsPanelToggle.js";
     import AdvancedSettingsSync from "{{ staticPath | default('/static') }}/javascripts/AdvancedSettingsSync.js";
+    import AdaptiveLayerListHeight from "{{ staticPath | default('/static') }}/javascripts/AdaptiveLayerListHeight.js";
 
     const searchResult = {{ search_result | tojson }};
 
@@ -118,6 +119,7 @@
       new FindAnAreaForm(searchResult)
       new MapControlsPanelToggle()
       new AdvancedSettingsSync()
+      new AdaptiveLayerListHeight()
     })
   </script>
 

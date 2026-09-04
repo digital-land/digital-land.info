@@ -12,6 +12,7 @@ export default class MapControlsPanelToggle {
     if (!this.panel || !this.content || !this.button) return;
 
     this.labelText = this.button.querySelector('.dl-map-controls-panel__toggle-text');
+    this.applyFiltersButton = document.getElementById('dl-map-apply-filters-button');
 
     // The panel should stretch/cap to the map *and its footer* combined
     // (see _controls-panel.scss's --dl-map-height), not just the map's
@@ -28,6 +29,16 @@ export default class MapControlsPanelToggle {
     this.sourcesPanel = this.container ? this.container.querySelector('.app-c-sources-panel') : null;
 
     this.button.addEventListener('click', this.toggle.bind(this));
+
+    // Mobile-only "Apply filters" button (hidden entirely on desktop via
+    // CSS) - everything in the panel already applies live as it's
+    // changed, so this doesn't apply anything itself, it just closes the
+    // overlay once the user's happy with their selection. Always a plain
+    // collapse, never a toggle - it only makes sense while the panel is
+    // already open (it isn't visible otherwise).
+    if (this.applyFiltersButton) {
+      this.applyFiltersButton.addEventListener('click', () => this.setCollapsed(true));
+    }
 
     this.syncContainerHeight = this.syncContainerHeight.bind(this);
     window.addEventListener('resize', this.debounce(this.syncContainerHeight, 150));

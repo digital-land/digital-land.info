@@ -44,7 +44,12 @@
 {% set settingsContent %}
   <div class="govuk-form-group" id="dl-map-settings-content">
     <ul class="govuk-list govuk-checkboxes govuk-checkboxes--small">
-      <li class="dl-map__layer-item govuk-!-margin-bottom-1">
+      {#- No govuk-!-margin-bottom-1 here (unlike the dataset checkbox
+          items) - that utility exists to space multiple list items apart,
+          but this list only ever has this one item, so it just added an
+          extra 5px below the checkbox with nothing matching it above,
+          biasing the row toward the top of its section. #}
+      <li class="dl-map__layer-item">
         <div class="govuk-checkboxes__item">
           <input class="govuk-checkboxes__input" id="show-historical-data" name="show-historical-data" type="checkbox" value="show-historical-data">
           <label class="govuk-label govuk-checkboxes__label" for="show-historical-data">
@@ -95,6 +100,17 @@
     <div class="dl-map-controls-panel__note" id="dl-data-coverage-banner">
       <p class="govuk-body">The data may be incomplete and not yet cover all of England. We're working to improve its availability and quality.</p>
     </div>
+
+    {#- Mobile only (hidden via CSS on desktop, same convention as the
+        "Advanced settings" heading in _controls-panel.scss) - everything
+        here already applies live as each checkbox/radio changes, so this
+        doesn't "apply" anything itself, it just closes the overlay once
+        the user's happy with their selection (wired in
+        MapControlsPanelToggle.js, the same class that owns every other
+        way of collapsing the panel). #}
+    <button type="button" class="govuk-button dl-map-controls-panel__apply-filters" id="dl-map-apply-filters-button" data-module="govuk-button">
+      Apply filters
+    </button>
   </div>
 </div>
 {% endmacro %}
