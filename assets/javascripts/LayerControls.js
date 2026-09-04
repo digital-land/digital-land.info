@@ -40,6 +40,24 @@ export default class LayerControls {
         this.$textbox.addEventListener('input', this.filterCheckboxes.bind(this));
       }
 
+      this.$keyPanel = document.getElementById('dl-map-key-panel');
+      this.$keyPanelToggle = document.getElementById('dl-map-key-panel-toggle');
+      this.$keyPanelClose = document.getElementById('dl-map-key-panel-close');
+
+      // The toggle always flips whatever the current state is (click while
+      // collapsed -> expand, click while expanded -> collapse); the close
+      // button only ever collapses. Either way, the next checkbox change
+      // re-syncs to "expanded if anything's selected, collapsed if not" via
+      // updateKeyPanel() - a manual open/close doesn't stick past that.
+      if (this.$keyPanelToggle) {
+        this.$keyPanelToggle.addEventListener('click', () => {
+          this.setKeyPanelExpanded(!!(this.$keyPanel && this.$keyPanel.classList.contains('dl-map-key-panel--collapsed')));
+        });
+      }
+      if (this.$keyPanelClose) {
+        this.$keyPanelClose.addEventListener('click', () => this.setKeyPanelExpanded(false));
+      }
+
       this.layerOptions = this.layers.map((layer) => {
         return new LayerOption(layer, this.availableLayers[layer.dataset], this);
       });
@@ -105,6 +123,36 @@ export default class LayerControls {
       disabledLayers.forEach(layer => layer.disable());
 
       this.reorderLayerList();
+      this.updateKeyPanel();
+    }
+
+    // Shows/hides each pre-rendered key row (components/map-key-panel/
+    // macro.jinja renders one per layer, all hidden except any that are
+    // checked at initial page load) to match which layers are currently
+    // selected, and syncs the panel's expanded/collapsed state to whether
+    // there's anything to show.
+    updateKeyPanel() {
+      if (!this.$keyPanel) return;
+
+      let anyChecked = false;
+      this.layerOptions.forEach(option => {
+        const checked = option.isChecked();
+        if (checked) anyChecked = true;
+
+        const row = this.$keyPanel.querySelector('[data-layer-key="' + option.getDatasetName() + '"]');
+        if (row) row.style.display = checked ? 'flex' : 'none';
+      });
+
+      this.setKeyPanelExpanded(anyChecked);
+    }
+
+    setKeyPanelExpanded(expanded) {
+      if (!this.$keyPanel) return;
+
+      this.$keyPanel.classList.toggle('dl-map-key-panel--collapsed', !expanded);
+      if (this.$keyPanelToggle) {
+        this.$keyPanelToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      }
     }
 
     // Design wants checked layers "sticky" at the top of the list, above

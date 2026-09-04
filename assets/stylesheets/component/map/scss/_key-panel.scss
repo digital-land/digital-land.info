@@ -1,0 +1,120 @@
+// The colour key for "Select a data layer" - a small overlay in the
+// bottom-right corner of the map (nested inside .dl-map__wrapper by
+// components/map/macro.jinja, so it's anchored to the map's own box
+// rather than the taller .dl-map-with-controls construct the left-hand
+// controls panel can grow past).
+.dl-map-key-panel {
+  box-sizing: border-box;
+  position: absolute;
+  // Clears maplibre's own attribution control, which sits in the same
+  // corner - not just eyeballed, checked against its rendered height.
+  bottom: 40px;
+  right: govuk-spacing(2);
+  z-index: 1000;
+  width: 260px;
+  max-width: calc(100% - #{govuk-spacing(4)});
+  background: govuk-colour("white");
+  box-shadow: 0 2px 6px rgba(govuk-colour("black"), 0.3);
+}
+
+.dl-map-key-panel__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: govuk-spacing(2) govuk-spacing(3);
+
+  // Content-width, not edge-to-edge - same principle as the dividers in
+  // the main controls panel (_controls-panel.scss): an inset pseudo-
+  // element rather than a real border, which would otherwise span the
+  // header's full box width regardless of its own padding.
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: govuk-spacing(3);
+    right: govuk-spacing(3);
+    border-top: 1px solid $govuk-border-colour;
+  }
+}
+
+// The whole header row's clickable area for expanded <-> collapsed is
+// just this button (icon + "Key") - not the close button next to it,
+// which is a separate control so its own click doesn't also trigger
+// this one (a <button> can't validly nest another <button>, so these
+// are siblings rather than one wrapping the other).
+.dl-map-key-panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: govuk-spacing(1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $govuk-link-colour;
+  font-weight: normal;
+  @include govuk-font-size($size: 19);
+  cursor: pointer;
+}
+
+.dl-map-key-panel__close {
+  display: flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dl-map-key-panel__list {
+  margin: 0;
+  padding: 0 govuk-spacing(3) govuk-spacing(3);
+}
+
+.dl-map-key-panel__item {
+  display: flex;
+  align-items: flex-start;
+  gap: govuk-spacing(2);
+  margin-top: govuk-spacing(3);
+}
+
+// A fresh, purpose-built positioning parent for the shared swatch/pin
+// markup (layerKeySymbol, components/map/macro.jinja) - that markup's own
+// .dl-label__key__symbol is position:absolute, sized and offset for the
+// "Select a data layer" checkbox row it was designed for originally, so
+// it's overridden back to filling this flex item cleanly instead of
+// reusing that row's specific offsets.
+.dl-map-key-panel__symbol {
+  position: relative;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+
+  .dl-label__key__symbol {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+  }
+}
+
+.dl-map-key-panel__name {
+  @include govuk-font-size($size: 16);
+}
+
+// Collapsed to just the header - the design's "inactive/empty" state,
+// driven by LayerControls.js (dl-map-key-panel--collapsed toggled
+// automatically based on whether any layer is selected, or directly via
+// the close button/header click - see updateKeyPanel()/
+// setKeyPanelExpanded() there).
+.dl-map-key-panel--collapsed {
+  .dl-map-key-panel__close,
+  .dl-map-key-panel__list {
+    display: none;
+  }
+
+  .dl-map-key-panel__header::after {
+    content: none;
+  }
+}
