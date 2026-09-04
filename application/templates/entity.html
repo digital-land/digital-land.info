@@ -67,8 +67,8 @@
 
     {% if row['end-date'] and row['end-date'] | is_past_date %}
       <div class="govuk-inset-text">
-        <p class="govuk-body govuk-!-font-weight-bold">This entity is out of date</p>
-        <p>You should only use this entity if you need to check data from the past.</p>
+        <p class="govuk-body govuk-!-font-weight-bold">This is a historic entity</p>
+        <p>This entity has an end date and is no longer current. It remains available for reference and analysis.</p>
       </div>
     {% endif %}
 

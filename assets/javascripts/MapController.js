@@ -608,7 +608,7 @@ export default class MapController {
 
     if (features.length === 1 && isFeatureExpired(features[0])) {
       const outOfDateNotice = document.createElement('h3');
-      outOfDateNotice.textContent = 'This entity is out of date';
+      outOfDateNotice.textContent = 'This is a historic entity';
       wrapper.appendChild(outOfDateNotice);
     }
 
