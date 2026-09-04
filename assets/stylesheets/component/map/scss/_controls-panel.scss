@@ -95,7 +95,8 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   // the map() macro's own 'height' param, so the two can't drift apart.
   height: var(--dl-map-height);
   position: relative;
-  border: 1px solid $govuk-border-colour;
+  border-top: 1px solid $govuk-border-colour;
+  border-bottom: 1px solid $govuk-border-colour;
 
   // The map keeps its own border for other pages that reuse the map()
   // macro without this wrapper - suppress the double border here, since
@@ -233,6 +234,17 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   }
 }
 
+// Mobile-only "Apply filters" button - everything in this panel already
+// applies live as it's changed, so this doesn't actually apply anything;
+// it just closes the overlay once the user's happy with their selection
+// (wired in MapControlsPanelToggle.js, which already owns every other way
+// of collapsing the panel). Hidden here, shown in the mobile block below -
+// same "desktop doesn't get this at all" approach as the collapse toggle
+// tab's own two very different shapes either side of the breakpoint.
+.dl-map-controls-panel__apply-filters {
+  display: none;
+}
+
 // Collapse/expand tab, similar to Google Maps - sits on the panel/map
 // boundary at all times, whether the panel is open or collapsed. Flush
 // against that boundary (not centred on it, which straddled it half-and-
@@ -360,8 +372,36 @@ $dl-mobile-map-peek: 150px;
   // instead (above) - forcing content to 100% of that would make it
   // always exactly as tall as the cap even when the open sections don't
   // need that much room, leaving an empty gap at the bottom.
+  //
+  // The panel itself spans the full viewport width here (above), but
+  // .dl-map-controls-panel__content keeps its own 330px max-width (set
+  // unconditionally, further up) unchanged - deliberately, its inputs/
+  // checkboxes are sized to read well at that width, not stretched wider.
+  // On a narrow phone that cap barely matters (the panel's own width is
+  // close to it anyway), but on a larger phone/small tablet the panel can
+  // be considerably wider than 330px, and without this the content would
+  // otherwise sit stranded against the left edge with a lopsided block of
+  // empty panel background to its right. Centring it keeps the panel's
+  // own full-width "drawer" identity (and the scroll-friendly height
+  // budget that comes with it) while the content itself stays tidy.
   .dl-map-controls-panel__content {
     height: auto;
+    margin: 0 auto;
+  }
+
+  // Shown here only - desktop never gets this at all (everything already
+  // applies live there, with the full map always visible alongside the
+  // panel, so there's nothing for a "close once you're done" button to
+  // usefully do). Stays inside .dl-map-controls-panel__content, at the
+  // same width as the rest of the panel's content (including the other
+  // buttons above, in "Find an area") rather than breaking out to the
+  // panel's own wider, full-viewport width - consistent with round
+  // forty's fix rather than reintroducing the same lopsided-width look
+  // for just this one element.
+  .dl-map-controls-panel__apply-filters {
+    display: block;
+    width: 100%;
+    margin-top: govuk-spacing(3);
   }
 
   // Sits on the panel/map boundary just like the desktop tab, just
@@ -489,6 +529,18 @@ $dl-mobile-map-peek: 150px;
   // own row.
   .govuk-accordion__section-header {
     padding: govuk-spacing(2) govuk-spacing(3) govuk-spacing(1);
+  }
+
+  // That 10px/5px split only reads well when the section is open - the
+  // content below contributes its own top padding too, so the heading
+  // still looks reasonably centred overall. Collapsed, there's nothing
+  // below but the divider, so the same split leaves noticeably less
+  // room under the text than above it - biased toward the bottom of the
+  // row rather than centred in it. Matching the bottom back up to the
+  // top only for collapsed sections fixes that without touching the
+  // open state, which already looks right.
+  .govuk-accordion__section:not(.govuk-accordion__section--expanded) .govuk-accordion__section-header {
+    padding-bottom: govuk-spacing(2);
   }
 
   .govuk-accordion__section-heading {
@@ -658,6 +710,23 @@ $dl-mobile-map-peek: 150px;
   // checkbox were biased towards the top of the section rather than
   // vertically centred within it.
   .govuk-checkboxes {
+    margin-bottom: 0;
+  }
+
+  // Even with the above zeroed, "Show historical data" still sat 5px
+  // higher than centred between the section's two dividers - traced (by
+  // measuring, not assuming - the govuk-!-margin-bottom-1 utility this
+  // list item used to carry turned out to be a red herring, since
+  // removing it alone made no difference) to a separate, project-wide
+  // .govuk-list > li rule that spaces multiple list items apart. It
+  // still matches here because the checkbox <ul> also carries the
+  // govuk-list class (for the bullet-removal/reset it provides), even
+  // though this particular list only ever has the one item, so that
+  // spacing was pure unmatched space below with nothing above it.
+  // Scoped to #dl-map-settings-content specifically, not the dataset
+  // list further up, which does want that spacing between its (often
+  // multiple) items.
+  #dl-map-settings-content .govuk-list > li {
     margin-bottom: 0;
   }
 
