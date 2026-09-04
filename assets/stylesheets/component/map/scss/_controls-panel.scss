@@ -1,30 +1,93 @@
+// A native scrollbar reads as heavy - a thin, subdued one is less
+// intrusive without losing the scroll affordance. Firefox uses the
+// standard properties; Chromium/Safari need the vendor pseudo-elements
+// for the same effect. Shared by the panel's own scroll (when its
+// accordion content is taller than the map) and the dataset checkbox
+// list's scroll further down.
+@mixin dl-thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: govuk-colour("mid-grey") transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: govuk-colour("mid-grey");
+    border-radius: 3px;
+  }
+}
+
+// Breaks the map+panel construct out of the page's normal 960px content
+// column, up to a wider cap - experimental, requested to see whether a
+// wider map is achievable without disturbing the rest of the page (see
+// national-map.html's own comment for why this isn't just switching to
+// the full-width layout template).
+//
+// .dl-map-breakout escapes its own (narrow) containing block using the
+// standard "full-bleed" trick: width: 100vw is the element's true
+// rendered width regardless of how narrow its parent is, and
+// margin-left: calc(50% - 50vw) shifts it left by exactly the distance
+// from its parent's left edge to the viewport's left edge - the maths
+// works out the same regardless of viewport size, so this doesn't need
+// a breakpoint-specific value anywhere.
+//
+// .dl-map-breakout__inner then re-centres actual content within that
+// full-viewport-width strip, capped at 1950px - reusing govuk-frontend's
+// own govuk-width-container mixin (rather than hand-rolling padding)
+// so the map's left/right edges land at exactly the same gutter GOV.UK
+// itself uses at every breakpoint, just against a wider cap.
+.dl-map-breakout {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.dl-map-breakout__inner {
+  @include govuk-width-container($width: 1950px);
+}
+
 // The combined "Find an area" / "Select a data layer" overlay, rendered
 // server-side (components/map-controls-panel/macro.jinja) as a GOV.UK
 // Accordion (with some restyling - see below) and sitting flush against
 // the top/left of the map.
 //
-// .dl-map-with-controls stacks the panel and .dl-map__wrapper in the same
-// CSS Grid cell rather than positioning the panel absolutely. The map uses
-// `align-self: start` and the panel keeps the grid default (`stretch`), so:
-//  - the map always renders at its own natural height (from the `height`
-//    param passed to the map() macro), never stretching to match the panel
-//  - the panel is free to grow taller than the map when its accordion
-//    sections are open - the grid row (and .dl-map-with-controls itself)
-//    grows to fit it, pushing whatever comes after this wrapper in the
-//    page further down, exactly as if the panel were extra page content
-//  - when the panel's content is shorter than the map, the panel's own
-//    box still stretches down to the map's height (border/background
-//    included), rather than stopping short partway down the map
+// Earlier versions of this let the panel grow taller than the map when
+// its accordion sections were open, pushing page content below it
+// further down - a deliberate choice at the time, but the current
+// designs don't call for it, and it had a real side effect: the collapse
+// toggle (position: absolute, centred with top: 50% on .dl-map-with-
+// controls) was centring on whatever *that construct's* height happened
+// to be, not the map's own height - drifting out of vertical alignment
+// with the visible map any time the panel's content made the construct
+// taller than the map. Pinning the panel to the map's own height (via
+// absolute positioning, top/bottom: 0, rather than being a CSS Grid item
+// that could grow the row) fixes both at once: .dl-map-with-controls now
+// only ever sizes to the map, and the toggle's 50% is always 50% of the
+// map's actual visible height.
 .dl-map-with-controls {
-  display: grid;
-  grid-template-columns: 1fr;
-  border: 1px solid $govuk-border-colour;
+  // Needs a genuinely explicit height (not one derived from .dl-map__
+  // wrapper's own content, even though that resolves to the same
+  // number) - the controls panel's absolute top: 0; bottom: 0; stretch
+  // (below) can only reliably resolve against a containing block with a
+  // definite height. An auto-height block container doesn't count as
+  // definite for that purpose even once fully resolved, which is a real
+  // circularity in the CSS spec, not just a theoretical one - confirmed
+  // by measuring the panel actually falling back to its own (taller)
+  // content height instead of stretching, without this. --dl-map-height
+  // is set inline by national-map.html from the same value passed to
+  // the map() macro's own 'height' param, so the two can't drift apart.
+  height: var(--dl-map-height);
   position: relative;
+  border: 1px solid $govuk-border-colour;
 
   // The map keeps its own border for other pages that reuse the map()
   // macro without this wrapper - suppress the double border here, since
-  // .dl-map-with-controls now draws the outer border for the taller,
-  // combined construct instead.
+  // .dl-map-with-controls now draws the outer border for the combined
+  // construct instead.
   > .dl-map__wrapper {
     border: 0;
   }
@@ -44,21 +107,13 @@
   }
 }
 
-.dl-map-with-controls > .dl-map__wrapper,
-.dl-map-controls-panel {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.dl-map-with-controls > .dl-map__wrapper {
-  align-self: start;
-}
-
 .dl-map-controls-panel {
   box-sizing: border-box;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
   z-index: 1001;
-  justify-self: start;
   width: 330px;
   max-width: 100%;
   background: govuk-colour("white");
@@ -72,9 +127,60 @@
   }
 }
 
+// The map's "Find, understand and download..." note (app-c-sources-panel,
+// a shared class also used standalone on entity.html - scoped here so
+// that usage is untouched) sits directly below the map+panel construct,
+// in normal document flow. When the panel is open, the design wants this
+// note to only occupy the width beside the panel, not the full width
+// underneath both - achieved with the same margin-left as the panel's
+// own width, which also shrinks the note's own available content width
+// to match automatically, no separate width calculation needed. Toggles
+// off a general sibling selector keyed on the panel's own --collapsed
+// class (both are plain siblings inside .dl-map-with-controls), and
+// transitions in step with the panel's own width animation so the two
+// visually move together.
+.dl-map-with-controls {
+  .app-c-sources-panel {
+    // White here specifically, not the shared class's own default grey
+    // (still used as-is on entity.html) - reads as part of the same
+    // white map/panel construct rather than a distinct grey block.
+    background-color: govuk-colour("white");
+    margin-left: 330px;
+    transition: margin-left 0.2s ease;
+  }
+
+  .dl-map-controls-panel--collapsed ~ .app-c-sources-panel {
+    margin-left: 0;
+  }
+}
+
+// MapLibre's own scale control (bottom-left) is nested inside
+// .dl-map__wrapper - a sibling of the panel, not the panel itself - so
+// reaching it needs a sibling combinator (panel -> wrapper) chained with
+// a descendant combinator (wrapper -> the control), rather than the
+// simpler direct-sibling selector the footer above uses. Moves it out
+// from under the panel when open, back to the map's own bottom-left
+// corner when collapsed - same idea as the footer, so it's always
+// visible rather than covered.
+.dl-map-with-controls .maplibregl-ctrl-bottom-left {
+  left: 330px;
+  transition: left 0.2s ease;
+}
+
+.dl-map-controls-panel--collapsed ~ .dl-map__wrapper .maplibregl-ctrl-bottom-left {
+  left: 0;
+}
+
+// Fills the panel's own fixed-to-the-map height (see .dl-map-controls-
+// panel above) and scrolls internally once its accordion content is
+// taller than that - rather than growing .dl-map-with-controls itself,
+// which is exactly the behaviour just removed above.
 .dl-map-controls-panel__content {
   max-width: 330px;
-  overflow: hidden;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  @include dl-thin-scrollbar;
 }
 
 // The data-coverage notice - always visible, not an accordion section, so
@@ -184,26 +290,7 @@
   // horizontal scrollbar. Clipping it here is cheap insurance against
   // that regardless of the exact cause.
   overflow-x: hidden;
-
-  // A native scrollbar in a 330px-wide panel reads as heavy - a thin,
-  // subdued one is less intrusive without losing the scroll affordance.
-  // Firefox uses the standard properties; Chromium/Safari need the
-  // vendor pseudo-elements for the same effect.
-  scrollbar-width: thin;
-  scrollbar-color: govuk-colour("mid-grey") transparent;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: govuk-colour("mid-grey");
-    border-radius: 3px;
-  }
+  @include dl-thin-scrollbar;
 }
 
 // --- Accordion restyle -----------------------------------------------

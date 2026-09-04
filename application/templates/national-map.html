@@ -36,9 +36,32 @@
     </div>
   </div>
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <div class="dl-map-with-controls">
+  {% set mapHeight = 700 %}
+  {#- Breaks just the map+panel construct out of the page's normal 960px
+      content column, up to a wider cap - everything else on the page
+      (nav, header, breadcrumbs, this page's own heading above, footer)
+      stays exactly as it is. Deliberately not layouts/layout--full-
+      width.html (dl-container--full-width), which widens
+      govuk-width-container globally - that container also wraps the
+      page's own header/nav, and switching to it previously moved the
+      main navigation, flagged early on as a real problem. See
+      _controls-panel.scss for the breakout mechanics. #}
+  <div class="dl-map-breakout">
+    <div class="dl-map-breakout__inner">
+      {#- --dl-map-height feeds .dl-map-with-controls's own height (see
+          _controls-panel.scss) - it needs an explicit height, not one
+          derived from its content, for the controls panel's absolute
+          top:0/bottom:0 stretch to reliably resolve against it rather
+          than falling back to the panel's own (taller) content height.
+          This is only the initial/fallback value (map height alone, so
+          it stays in sync with the map()'s own 'height' param below
+          rather than two separate hardcoded numbers drifting apart) -
+          MapControlsPanelToggle.js immediately corrects it, and keeps
+          it in sync afterwards, to the map *and its footer* combined,
+          since the footer's own height is dynamic (depends on how its
+          text wraps) in a way a server-rendered value alone can't
+          capture. #}
+      <div class="dl-map-with-controls" style="--dl-map-height: {{ mapHeight }}px;">
         {{ dlMapControlsPanel({
           "layers": layers,
           "search_result": search_result,
@@ -48,7 +71,7 @@
         {% if search_result and search_result.geometry %}
         {{
           map({
-            'height': 700,
+            'height': mapHeight,
             'layers': layers,
             'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
             'TILES_URL': settings.TILES_URL,
@@ -64,7 +87,7 @@
         {% else %}
         {{
           map({
-            'height': 700,
+            'height': mapHeight,
             'layers': layers,
             'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
             'TILES_URL': settings.TILES_URL,
@@ -77,7 +100,6 @@
         }}
         {% endif %}
       </div>
-
     </div>
   </div>
 
@@ -88,12 +110,14 @@
   <script type="module">
     import FindAnAreaForm from "{{ staticPath | default('/static') }}/javascripts/FindAnAreaForm.js";
     import MapControlsPanelToggle from "{{ staticPath | default('/static') }}/javascripts/MapControlsPanelToggle.js";
+    import AdvancedSettingsSync from "{{ staticPath | default('/static') }}/javascripts/AdvancedSettingsSync.js";
 
     const searchResult = {{ search_result | tojson }};
 
     document.addEventListener('DOMContentLoaded', function () {
       new FindAnAreaForm(searchResult)
       new MapControlsPanelToggle()
+      new AdvancedSettingsSync()
     })
   </script>
 
