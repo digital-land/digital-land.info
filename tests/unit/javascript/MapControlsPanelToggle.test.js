@@ -44,6 +44,7 @@ describe('MapControlsPanelToggle', () => {
         const content = makeElement()
         const labelText = { textContent: '' }
         const button = { ...makeElement(), querySelector: vi.fn(() => labelText) }
+        const applyFiltersButton = { addEventListener: vi.fn() }
 
         const mapWrapper = { ...makeElement(), getBoundingClientRect: vi.fn(() => ({ top: 100, bottom: 800, height: 700 })) }
         const sourcesPanel = { ...makeElement(), getBoundingClientRect: vi.fn(() => ({ top: 800, bottom: 872 })) }
@@ -61,10 +62,11 @@ describe('MapControlsPanelToggle', () => {
                 'dl-map-controls-panel': panel,
                 'dl-map-controls-panel-content': content,
                 'dl-map-controls-panel-toggle': button,
+                'dl-map-apply-filters-button': applyFiltersButton,
             })[id]),
         })
 
-        return { panel, content, button, labelText, mapWrapper, sourcesPanel, container }
+        return { panel, content, button, labelText, mapWrapper, sourcesPanel, container, applyFiltersButton }
     }
 
     test('collapsing hides the content, updates aria-expanded, and swaps the label', () => {
@@ -89,6 +91,28 @@ describe('MapControlsPanelToggle', () => {
         expect(button.setAttribute).toHaveBeenCalledWith('aria-expanded', 'true')
         expect(content.removeAttribute).toHaveBeenCalledWith('hidden')
         expect(labelText.textContent).toEqual('Hide map controls')
+    })
+
+    describe('"Apply filters" button (mobile only - hidden entirely on desktop via CSS)', () => {
+        test('clicking it collapses the panel, same as the toggle tab', () => {
+            const { panel, content, applyFiltersButton } = setUp()
+
+            new MapControlsPanelToggle()
+            const clickHandler = applyFiltersButton.addEventListener.mock.calls.find(call => call[0] === 'click')[1]
+
+            clickHandler()
+
+            expect(panel.classList.toggle).toHaveBeenCalledWith('dl-map-controls-panel--collapsed', true)
+            expect(content.setAttribute).toHaveBeenCalledWith('hidden', '')
+        })
+
+        test('does not throw if the button is not present', () => {
+            setUp()
+            const withoutApplyButton = document.getElementById.getMockImplementation()
+            document.getElementById = vi.fn((id) => (id === 'dl-map-apply-filters-button' ? undefined : withoutApplyButton(id)))
+
+            expect(() => new MapControlsPanelToggle()).not.toThrow()
+        })
     })
 
     describe('syncContainerHeight()', () => {
