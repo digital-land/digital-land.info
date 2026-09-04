@@ -113,6 +113,10 @@ export default class MapController {
       minZoom: 6,
       maxZoom: 18,
       style: this.customStyleJson,
+      // Removes MapLibre's own default attribution control (the "i" toggle
+      // and its "MapLibre" link) entirely - our own CopyrightControl below
+      // already shows the OS copyright line we actually need, without it.
+      attributionControl: false,
       maxBounds: [
         [ -15, 49 ],
         [ 13, 57 ]

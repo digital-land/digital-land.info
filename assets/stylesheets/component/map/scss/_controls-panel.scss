@@ -120,13 +120,23 @@
   box-shadow: 2px 2px 4px rgba(govuk-colour("black"), 0.25);
   cursor: pointer;
 
+  // Neither icon state had any actual vertical-centering mechanism before
+  // this - both relied on default block flow, which just places the
+  // ::before at the top of the button's content box regardless of its
+  // own height. That was never truly centred for either icon, but only
+  // became visible once the two icons' differing heights (8px arrow vs
+  // 16px hamburger, see below) landed at visibly different offsets from
+  // centre. Flexbox centres either icon, at any size, identically in
+  // both states.
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   &::before {
     content: "";
-    display: block;
     box-sizing: border-box;
     width: 8px;
     height: 8px;
-    margin: 0 auto;
     border-left: 2px solid $govuk-text-colour;
     border-bottom: 2px solid $govuk-text-colour;
     transform: rotate(45deg);
