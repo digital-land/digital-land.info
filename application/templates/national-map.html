@@ -1,11 +1,8 @@
-{% extends "layouts/layout--full-width.html" %}
+{% extends "layouts/layout.html" %}
 {% set templateName = "dl-info/national-map.html" %}
 
 {%- from "components/map/macro.jinja" import map %}
-{%- from "components/map-find-an-area-form/macro.jinja" import dlFindAnAreaForm %}
-
-{% set containerClasses = 'dl-container--full-width' %}
-{% set fullWidthHeader = true %}
+{%- from "components/map-controls-panel/macro.jinja" import dlMapControlsPanel %}
 
 {% set includesMap = true %}
 {% block pageTitle %}Map of planning data for England | Planning Data{% endblock %}
@@ -33,52 +30,53 @@
 
 {% block content %}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Map of planning data for England</h1>
       <p id="aria-label-national-map" class="govuk-body-l">See the data we've collected and collated on a map.</p>
-      {% include 'partials/data-coverage-banner.html' %}
-
-      {{ dlFindAnAreaForm({
-        "search_result": search_result,
-        "search_query": search_query,
-        "error": error,
-      }) }}
     </div>
   </div>
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      {% if search_result and search_result.geometry %}
-      {{
-        map({
-          'height': 700,
-          'layers': layers,
-          'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
-          'TILES_URL': settings.TILES_URL,
-          'notePanel': notePanel,
-          'enableZoomControls': true,
-          'enableLayerControls': true,
-          'enableZoomCounter': true,
-          'geojsons': [search_result.geometry],
-          'paint_options': entity_paint_options,
-        })
-      }}
-      {% else %}
-      {{
-        map({
-          'height': 700,
-          'layers': layers,
-          'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
-          'TILES_URL': settings.TILES_URL,
-          'notePanel': notePanel,
-          'enableZoomControls': true,
-          'enableLayerControls': true,
-          'enableZoomCounter': true,
-        })
-      }}
-      {% endif %}
-
-      <p class="govuk-body govuk-!-margin-bottom-0 govuk-!-width-two-thirds">This prototype map is automatically created using data from planning.data.gov.uk. Find out more <a href="/about">about the Planning Data Platform</a></p>
+      <div class="dl-map-with-controls">
+        {{ dlMapControlsPanel({
+          "layers": layers,
+          "search_result": search_result,
+          "search_query": search_query,
+          "error": error,
+        }) }}
+        {% if search_result and search_result.geometry %}
+        {{
+          map({
+            'height': 700,
+            'layers': layers,
+            'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
+            'TILES_URL': settings.TILES_URL,
+            'notePanel': notePanel,
+            'enableZoomControls': true,
+            'enableLayerControls': true,
+            'enableZoomCounter': true,
+            'geojsons': [search_result.geometry],
+            'paint_options': entity_paint_options,
+            'fullscreenContainerSelector': '.dl-map-with-controls',
+          })
+        }}
+        {% else %}
+        {{
+          map({
+            'height': 700,
+            'layers': layers,
+            'DATASETTE_TILES_URL': settings.DATASETTE_TILES_URL,
+            'TILES_URL': settings.TILES_URL,
+            'notePanel': notePanel,
+            'enableZoomControls': true,
+            'enableLayerControls': true,
+            'enableZoomCounter': true,
+            'fullscreenContainerSelector': '.dl-map-with-controls',
+          })
+        }}
+        {% endif %}
+      </div>
 
     </div>
   </div>
@@ -87,12 +85,15 @@
 
 {% block bodyEnd %}
 {{ super() }}
-  <script src="/static/javascripts/FindAnAreaForm.js"></script>
-  <script>
+  <script type="module">
+    import FindAnAreaForm from "{{ staticPath | default('/static') }}/javascripts/FindAnAreaForm.js";
+    import MapControlsPanelToggle from "{{ staticPath | default('/static') }}/javascripts/MapControlsPanelToggle.js";
+
     const searchResult = {{ search_result | tojson }};
 
     document.addEventListener('DOMContentLoaded', function () {
       new FindAnAreaForm(searchResult)
+      new MapControlsPanelToggle()
     })
   </script>
 

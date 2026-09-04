@@ -1,114 +1,108 @@
 {% macro dlFindAnAreaForm(params) %}
+{% from "govuk_frontend_jinja/components/radios/macro.html" import govukRadios %}
 
 {% set search_query = params.get("search_query", "") %}
 {% set search_result = params.get("search_result", {}) %}
-{% set url_query_params = params.get("url_query_params", []) %}
 {% set error = params.get("error", []) %}
 
-{# Determine currently selected option value from url_query_params list #}
-{% set selected_sort = "" %}
-{% for p_name, p_val in url_query_params %}
-  {% if p_name == 'type' %}
-    {% set selected_sort = p_val %}
-  {% endif %}
-{% endfor %}
+{# No radio is selected by default - the user picks a method before its
+   input/button appear. If there's an existing search result, pre-select
+   whichever method it's for - unless that search actually succeeded
+   (search_result.result is populated), in which case the method's own
+   job is done ("Showing results for..." below already shows what was
+   found) and the radio is left deselected, collapsing its input/button
+   away. On a failed/no-match search there's nothing to show instead, so
+   the method stays selected with its input visible for the user to
+   correct. FindAnAreaForm.js separately corrects the selection from the
+   URL's `type` param on load (covering the validation error case, where
+   there's a submitted type but no search_result yet), and applies this
+   same successful-result exception. #}
+{% set selected_method = search_result.type if search_result and search_result.get("type") and not search_result.get("result") else "" %}
 
-<form class="dl-find-an-area-form" method="get" id="dl-find-an-area-form">
-  <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
-    <h2 class="govuk-label-wrapper">
-      <label class="govuk-label govuk-label--l" for="find-an-area">
-        Find an area
-      </label>
-    </h2>
+{% set postcodeConditional %}
+  <div class="govuk-form-group">
+    <label class="govuk-label govuk-visually-hidden" for="postcode-input">Postcode</label>
+    <input id="postcode-input" class="govuk-input govuk-input--width-20{% if error %} govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" value="{{ search_query or '' }}">
+  </div>
+  <button type="submit" id="find-an-area-submit-postcode" class="govuk-button" data-module="govuk-button">
+    Find postcode
+  </button>
+{% endset %}
 
-    <div id="find-an-area-hint" class="govuk-hint">
-        Search by a postcode, Unique Property Reference Number (UPRN), or a Local Planning Authority
-    </div>
+{% set uprnConditional %}
+  <div class="govuk-form-group">
+    <label class="govuk-label govuk-visually-hidden" for="uprn-search-input">UPRN</label>
+    <input id="uprn-search-input" class="govuk-input govuk-input--width-20{% if error %} govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" value="{{ search_query or '' }}">
+  </div>
+  <button type="submit" id="find-an-area-submit-uprn" class="govuk-button" data-module="govuk-button">
+    Find UPRN
+  </button>
+{% endset %}
 
-    {% if error %}
-      <p id="find-an-area-error" class="govuk-error-message">
-        <span>{{ error }}</span>
-      </p>
-    {% endif %}
-
-    {# Search controls row: select + inputs placed inline; visibility toggled with JS via .js-hidden #}
-    <div class="dl-find-an-area-controls">
-      <label class="govuk-label govuk-label--s govuk-visually-hidden" for="select-method">Search method</label>
-
-      {# Use name="type" so native (non-JS) form submissions send the expected query param #}
-      <select class="govuk-select" id="select-method" name="type">
-        <option value="postcode" {{ 'selected' if selected_sort == 'postcode' else '' }}>Postcode</option>
-        <option value="uprn" {{ 'selected' if selected_sort == 'uprn' else '' }}>UPRN</option>
-        <option value="lpa" {{ 'selected' if selected_sort == 'lpa' else '' }}>Local Planning Authority</option>
-      </select>
-
-      {# Non LPA search input: visible when type == 'postcode' or type == 'uprn' #}
-      <div id="postcode-container">
-        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="postcode-input">Postcode</label>
-        <input id="postcode-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" aria-describedby="find-an-area-hint" value="{{ search_query or '' }}">
-
-        {# Include any additional hidden fields for URL query parameters, without "q" #}
-        {% for param_name, param_value in url_query_params %}
-          {% if param_name != "q" %}
-          <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
-          {% endif %}
-        {% endfor %}
-      </div>
-
-      {# UPRN search input: visible when type == 'uprn' #}
-      <div id="uprn-container" class="js-hidden">
-        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="uprn-search-input">UPRN</label>
-        <input id="uprn-search-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" name="q" type="text" spellcheck="false" aria-describedby="find-an-area-hint" value="{{ search_query or '' }}">
-
-        {# Include any additional hidden fields for URL query parameters, without "q" #}
-        {% for param_name, param_value in url_query_params %}
-          {% if param_name != "q" %}
-          <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
-          {% endif %}
-        {% endfor %}
-      </div>
-
-      {# LPA type-search input: visible when type == 'lpa'. Uses same name 'q' so form submission works. #}
-      <div id="lpa-container" class="js-hidden">
-        <label class="govuk-label govuk-label--s govuk-visually-hidden" for="lpa-autocomplete-input">Local planning authority</label>
-        <input id="lpa-autocomplete-input" class="govuk-input govuk-input--width-20 {% if error %}govuk-input--error{% endif %}" type="text" name="q" aria-describedby="find-an-area-hint" autocomplete="off" value="{{ search_query or '' }}">
-
-        {# Include any additional hidden fields for URL query parameters, without "q" #}
-        {% for param_name, param_value in url_query_params %}
-          {% if param_name != "q" %}
-            <input type="hidden" name="{{ param_name }}" value="{{ param_value }}">
-          {% endif %}
-        {% endfor %}
-      </div>
-      <div id="lpa-suggestions">
-        <ul id="lpa-autocomplete-suggestions" role="listbox" aria-label="Local planning authority suggestions"></ul>
-      </div>
+{% set lpaConditional %}
+  <div class="govuk-form-group">
+    <label class="govuk-label govuk-visually-hidden" for="lpa-autocomplete-input">Local planning authority</label>
+    <input id="lpa-autocomplete-input" class="govuk-input govuk-input--width-20{% if error %} govuk-input--error{% endif %}" type="text" name="q" autocomplete="off" value="{{ search_query or '' }}">
+    <div id="lpa-suggestions" class="js-hidden">
+      <ul id="lpa-autocomplete-suggestions" role="listbox" aria-label="Local planning authority suggestions"></ul>
     </div>
   </div>
-
-  {# Button #}
-  <button type="submit" id="find-an-area-submit" class="govuk-button govuk-button--start" data-module="govuk-button">
-    Find
-    <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
-      <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
-    </svg>
+  <button type="submit" id="find-an-area-submit-lpa" class="govuk-button" data-module="govuk-button">
+    Find local planning authority
   </button>
+{% endset %}
+
+<form class="dl-find-an-area-form" method="get" id="dl-find-an-area-form">
+  {{ govukRadios({
+    "idPrefix": "search-method",
+    "name": "type",
+    "classes": "govuk-radios--small",
+    "fieldset": {
+      "legend": {
+        "text": "Find an area",
+        "classes": "govuk-visually-hidden"
+      }
+    },
+    "errorMessage": {"text": error} if error else None,
+    "items": [
+      {
+        "value": "postcode",
+        "text": "Postcode",
+        "id": "search-method-postcode",
+        "checked": selected_method == "postcode",
+        "conditional": {"html": postcodeConditional}
+      },
+      {
+        "value": "uprn",
+        "text": "UPRN",
+        "id": "search-method-uprn",
+        "checked": selected_method == "uprn",
+        "conditional": {"html": uprnConditional}
+      },
+      {
+        "value": "lpa",
+        "text": "Local Planning Authority",
+        "id": "search-method-lpa",
+        "checked": selected_method == "lpa",
+        "conditional": {"html": lpaConditional}
+      }
+    ]
+  }) }}
 </form>
 
 {# Search results #}
 {% if search_result %}
-  <div class="govuk-!-margin-top-6 govuk-!-margin-bottom-6">
-    <h2 class="govuk-heading-m">Search results</h2>
+  <div class="govuk-!-margin-top-3 govuk-!-margin-bottom-3">
     {% if search_result.get("type") == "postcode" and search_result.get("result") %}
-      <p class="govuk-body">
+      <p class="govuk-body govuk-!-font-weight-bold">
         Showing results for postcode: {{ search_result.get("result", {}).get("POSTCODE", "") }}
       </p>
     {% elif search_result.get("type") == "uprn" and search_result.get("result") %}
-      <p class="govuk-body">
+      <p class="govuk-body govuk-!-font-weight-bold">
         Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", "") }}
       </p>
     {% elif search_result.get("type") == "lpa" and search_result.get("result") %}
-      <p class="govuk-body">
+      <p class="govuk-body govuk-!-font-weight-bold">
         Showing results for local planning authority: {{ search_result.get("result", {}).get("name", "") }}
       </p>
     {% else %}
