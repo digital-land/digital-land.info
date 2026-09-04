@@ -47,6 +47,21 @@ describe('Layer Controls', () => {
             // writing the default-checked state to the URL
             expect(layerControls.updateUrl).toHaveBeenCalled();
         })
+
+        test('wires up the key panel toggle/close buttons',() => {
+            layerControls.layers = [];
+            layerControls.availableLayers = {};
+            layerControls.updateUrl = vi.fn();
+            layerControls.toggleLayersBasedOnUrl = vi.fn();
+
+            layerControls.attach();
+
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-key-panel');
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-key-panel-toggle');
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-key-panel-close');
+            expect(layerControls.$keyPanelToggle.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+            expect(layerControls.$keyPanelClose.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+        })
     })
 
     test('toggleLayersBasedOnUrl() correctly executes',() => {
@@ -102,6 +117,7 @@ describe('Layer Controls', () => {
 
         layerControls.layerOptions = [l1,l2,l3];
         layerControls.reorderLayerList = vi.fn();
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.showEntitiesForLayers([l1, l2]);
 
@@ -109,6 +125,7 @@ describe('Layer Controls', () => {
         expect(l2.enable).toHaveBeenCalledTimes(1);
         expect(l3.disable).toHaveBeenCalledTimes(1);
         expect(layerControls.reorderLayerList).toHaveBeenCalledTimes(1);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalledTimes(1);
     })
 
     describe('reorderLayerList()', () => {
@@ -141,6 +158,70 @@ describe('Layer Controls', () => {
             layerControls.layerOptions = [{ isChecked: () => true, element: {} }];
 
             expect(() => layerControls.reorderLayerList()).not.toThrow();
+        })
+    })
+
+    describe('updateKeyPanel()', () => {
+        test('shows only checked layers\' key rows and expands the panel',() => {
+            const row1 = { style: {} };
+            const row2 = { style: {} };
+            const querySelector = vi.fn((selector) => {
+                if (selector === '[data-layer-key="l1"]') return row1;
+                if (selector === '[data-layer-key="l2"]') return row2;
+                return null;
+            });
+
+            layerControls.$keyPanel = { querySelector, classList: { toggle: vi.fn() } };
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.layerOptions = [
+                { getDatasetName: () => 'l1', isChecked: () => true },
+                { getDatasetName: () => 'l2', isChecked: () => false },
+            ];
+
+            layerControls.updateKeyPanel();
+
+            expect(row1.style.display).toBe('flex');
+            expect(row2.style.display).toBe('none');
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'true');
+        })
+
+        test('collapses the panel when nothing is checked',() => {
+            layerControls.$keyPanel = { querySelector: vi.fn(() => null), classList: { toggle: vi.fn() } };
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.layerOptions = [{ getDatasetName: () => 'l1', isChecked: () => false }];
+
+            layerControls.updateKeyPanel();
+
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', true);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'false');
+        })
+
+        test('does nothing when the key panel element is not present',() => {
+            layerControls.$keyPanel = null;
+            layerControls.layerOptions = [{ getDatasetName: () => 'l1', isChecked: () => true }];
+
+            expect(() => layerControls.updateKeyPanel()).not.toThrow();
+        })
+    })
+
+    describe('setKeyPanelExpanded()', () => {
+        test('toggles the collapsed class and aria-expanded together',() => {
+            layerControls.$keyPanel = { classList: { toggle: vi.fn() } };
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+
+            layerControls.setKeyPanelExpanded(true);
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'true');
+
+            layerControls.setKeyPanelExpanded(false);
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', true);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'false');
+        })
+
+        test('does nothing when the key panel element is not present',() => {
+            layerControls.$keyPanel = null;
+            expect(() => layerControls.setKeyPanelExpanded(true)).not.toThrow();
         })
     })
 

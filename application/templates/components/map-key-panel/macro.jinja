@@ -1,0 +1,44 @@
+{#- The colour key for "Select a data layer" - lives in its own small
+    overlay in the bottom-right corner of the map (called from
+    components/map/macro.jinja, nested inside .dl-map__wrapper so it's
+    positioned relative to the map's own box rather than the taller
+    .dl-map-with-controls construct the left-hand controls panel can grow
+    past), rather than inline in the checkbox list, to save space there.
+
+    Server-rendered with a row for every layer (so LayerControls.js only
+    ever needs to show/hide existing rows via data-layer-key, never build
+    them), but only rows for currently-selected layers are ever visible -
+    LayerControls.js's updateKeyPanel() keeps that, and the panel's own
+    expanded/collapsed state, in sync with the checkbox list. #}
+{% macro dlMapKeyPanel(params) %}
+{% from "components/map/macro.jinja" import layerKeySymbol %}
+{% set layers = params.get("layers", []) %}
+{% set any_checked = layers | selectattr("checked") | list | length > 0 %}
+
+<div class="dl-map-key-panel{{ '' if any_checked else ' dl-map-key-panel--collapsed' }}" id="dl-map-key-panel">
+  <div class="dl-map-key-panel__header">
+    <button type="button" class="dl-map-key-panel__toggle" id="dl-map-key-panel-toggle" aria-expanded="{{ 'true' if any_checked else 'false' }}" aria-controls="dl-map-key-panel-list">
+      <svg class="dl-map-key-panel__icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <line x1="2" y1="3" x2="14" y2="3" stroke="#1d70b8" stroke-width="2" stroke-linecap="round"/>
+        <line x1="2" y1="8" x2="14" y2="8" stroke="#1d70b8" stroke-width="2" stroke-linecap="round"/>
+        <line x1="2" y1="13" x2="14" y2="13" stroke="#1d70b8" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="dl-map-key-panel__title">Key</span>
+    </button>
+    <button type="button" class="dl-map-key-panel__close" id="dl-map-key-panel-close" aria-label="Hide key">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <line x1="3" y1="3" x2="13" y2="13" stroke="#0b0c0c" stroke-width="2" stroke-linecap="round"/>
+        <line x1="13" y1="3" x2="3" y2="13" stroke="#0b0c0c" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <ul class="govuk-list dl-map-key-panel__list" id="dl-map-key-panel-list">
+    {% for layer in layers %}
+      <li class="dl-map-key-panel__item" data-layer-key="{{ layer.dataset }}" style="display: {{ 'flex' if layer.checked else 'none' }};">
+        <span class="dl-map-key-panel__symbol">{{ layerKeySymbol(layer) }}</span>
+        <span class="dl-map-key-panel__name">{{ layer.name }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endmacro %}
