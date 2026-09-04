@@ -35,6 +35,23 @@ export default class MapControlsPanelToggle {
     // soon as CSS has applied - no need to wait for the map's own async
     // load event, which only affects tile rendering, not layout.
     this.syncContainerHeight();
+
+    // On mobile, the panel slides down from the top instead of in from
+    // the left (see _controls-panel.scss), content-hugging up to its own
+    // max-height cap rather than being fixed to the map's height - so
+    // its bottom edge (where the collapse tab sits) moves not only when
+    // the whole panel is toggled, but whenever an individual accordion
+    // section inside it opens or closes too. A ResizeObserver catches
+    // every one of those cases generically, rather than having to hook
+    // each possible cause individually. Harmless on desktop - nothing
+    // there reads --dl-panel-height, since that toggle is positioned by
+    // width, not height.
+    if (this.container && typeof ResizeObserver !== 'undefined') {
+      this.panelResizeObserver = new ResizeObserver(() => {
+        this.container.style.setProperty('--dl-panel-height', this.panel.getBoundingClientRect().height + 'px');
+      });
+      this.panelResizeObserver.observe(this.panel);
+    }
   }
 
   toggle() {
@@ -76,14 +93,26 @@ export default class MapControlsPanelToggle {
   syncContainerHeight() {
     if (!this.container || !this.mapWrapper) return;
 
-    const wrapperTop = this.mapWrapper.getBoundingClientRect().top;
+    const wrapperRect = this.mapWrapper.getBoundingClientRect();
     const footerBottom = this.sourcesPanel
       ? this.sourcesPanel.getBoundingClientRect().bottom
-      : this.mapWrapper.getBoundingClientRect().bottom;
+      : wrapperRect.bottom;
 
-    const height = footerBottom - wrapperTop;
+    const height = footerBottom - wrapperRect.top;
     if (height > 0) {
       this.container.style.setProperty('--dl-map-height', height + 'px');
+    }
+
+    // The map canvas's own height specifically, not map+footer combined -
+    // used by the mobile panel's max-height cap (_controls-panel.scss),
+    // which needs to leave part of the *map* visible below it. The
+    // footer's own height is highly variable on narrow viewports (its
+    // text can wrap across several more lines there than on desktop), so
+    // --dl-map-height alone would make that cap leave room for whatever
+    // mix of map-and-footer-overflow happened to be tallest that time,
+    // not reliably "some of the map".
+    if (wrapperRect.height > 0) {
+      this.container.style.setProperty('--dl-wrapper-height', wrapperRect.height + 'px');
     }
   }
 
