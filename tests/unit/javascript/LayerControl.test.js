@@ -203,6 +203,37 @@ describe('Layer Controls', () => {
 
             expect(() => layerControls.updateKeyPanel()).not.toThrow();
         })
+
+        test('shows the "Show historical data" row when it is checked, even with no layers selected',() => {
+            const historicalRow = { style: {} };
+            layerControls.$keyPanel = {
+                querySelector: vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null)),
+                classList: { toggle: vi.fn() },
+            };
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.$historicalDataCheckbox = { checked: true };
+            layerControls.layerOptions = [];
+
+            layerControls.updateKeyPanel();
+
+            expect(historicalRow.style.display).toBe('flex');
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
+        })
+
+        test('hides the "Show historical data" row when it is unchecked',() => {
+            const historicalRow = { style: {} };
+            layerControls.$keyPanel = {
+                querySelector: vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null)),
+                classList: { toggle: vi.fn() },
+            };
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.$historicalDataCheckbox = { checked: false };
+            layerControls.layerOptions = [];
+
+            layerControls.updateKeyPanel();
+
+            expect(historicalRow.style.display).toBe('none');
+        })
     })
 
     describe('setKeyPanelExpanded()', () => {
@@ -347,12 +378,14 @@ describe('Layer Controls', () => {
         layerControls.$settingsPanelContent = domElementMock;
         layerControls.$settingsErrorMessage = mockErrorMessage;
         layerControls.enabledLayers = vi.fn().mockReturnValue([]);
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.toggleHistoricalData({ target: mockCheckbox });
 
         expect(mockCheckbox.checked).toBe(false);
         expect(domElementMock.classList.add).toHaveBeenCalledWith('govuk-form-group--error');
         expect(domElementMock.prepend).toHaveBeenCalledWith(mockErrorMessage);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     test('correctly removes error message when a data layer is checked', () => {
@@ -375,11 +408,13 @@ describe('Layer Controls', () => {
         layerControls.$settingsErrorMessage = {};
         layerControls.enabledLayers = vi.fn().mockReturnValue([mockLayerOption]);
         layerControls.mapController = { setLayerCurrentEntityFilter: vi.fn() };
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.toggleHistoricalData({ target: { checked: true } });
 
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-fill', true);
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-line', true);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     test('removes historical data layers from the map upon un-checking the "Show historical data" checkboxc', () => {
@@ -388,10 +423,12 @@ describe('Layer Controls', () => {
         layerControls.$settingsErrorMessage = {};
         layerControls.enabledLayers = vi.fn().mockReturnValue([mockLayerOption]);
         layerControls.mapController = { setLayerCurrentEntityFilter: vi.fn() };
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.toggleHistoricalData({ target: { checked: false } });
 
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-fill', false);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     test('resets "Show historical data" checkbox when no data layers are checked', () => {
@@ -402,11 +439,13 @@ describe('Layer Controls', () => {
         layerControls.enabledLayers = vi.fn().mockReturnValue([]);
         layerControls.layerOptions = [{ availableLayers: ['layer1-fill'] }];
         layerControls.mapController = { setLayerCurrentEntityFilter: vi.fn() };
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.updateHistoricalCheckboxState();
 
         expect(mockCheckbox.checked).toBe(false);
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-fill', false);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     describe('layer option', () => {

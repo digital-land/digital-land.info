@@ -33,6 +33,19 @@
     </button>
   </div>
   <ul class="govuk-list dl-map-key-panel__list" id="dl-map-key-panel-list">
+    {#- Always first, regardless of dataset order - it's a display
+        setting rather than a regular data layer, not one of the
+        selectable items in "Select a data layer" at all, so it doesn't
+        belong mixed in among them. Never checked at initial page load
+        (there's no URL-persisted state for it, unlike datasets), so
+        always starts hidden - LayerControls.js's updateKeyPanel() keeps
+        it in sync with the checkbox from then on. #}
+    <li class="dl-map-key-panel__item" data-layer-key="show-historical-data" style="display: none;">
+      <span class="dl-map-key-panel__symbol">
+        <span class="dl-label__key__symbol" style="border-color: #AA2A16; background: #AA2A1680;"></span>
+      </span>
+      <span class="dl-map-key-panel__name">Show historical data</span>
+    </li>
     {% for layer in layers %}
       <li class="dl-map-key-panel__item" data-layer-key="{{ layer.dataset }}" style="display: {{ 'flex' if layer.checked else 'none' }};">
         <span class="dl-map-key-panel__symbol">{{ layerKeySymbol(layer) }}</span>

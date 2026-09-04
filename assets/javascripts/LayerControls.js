@@ -127,10 +127,14 @@ export default class LayerControls {
     }
 
     // Shows/hides each pre-rendered key row (components/map-key-panel/
-    // macro.jinja renders one per layer, all hidden except any that are
-    // checked at initial page load) to match which layers are currently
-    // selected, and syncs the panel's expanded/collapsed state to whether
-    // there's anything to show.
+    // macro.jinja renders one per layer, plus one for "Show historical
+    // data", all hidden except any that are checked at initial page
+    // load) to match which layers/settings are currently selected, and
+    // syncs the panel's expanded/collapsed state to whether there's
+    // anything to show. Called after every dataset checkbox change
+    // (via showEntitiesForLayers) and every "Show historical data"
+    // change (toggleHistoricalData/updateHistoricalCheckboxState), so
+    // it's the single place both keep the key panel in sync from.
     updateKeyPanel() {
       if (!this.$keyPanel) return;
 
@@ -142,6 +146,14 @@ export default class LayerControls {
         const row = this.$keyPanel.querySelector('[data-layer-key="' + option.getDatasetName() + '"]');
         if (row) row.style.display = checked ? 'flex' : 'none';
       });
+
+      // Not a regular data layer (no LayerOption of its own), so handled
+      // separately - always the first row in the markup already (see the
+      // macro), so it doesn't need any reordering to stay at the top.
+      const historicalChecked = !!(this.$historicalDataCheckbox && this.$historicalDataCheckbox.checked);
+      if (historicalChecked) anyChecked = true;
+      const historicalRow = this.$keyPanel.querySelector('[data-layer-key="show-historical-data"]');
+      if (historicalRow) historicalRow.style.display = historicalChecked ? 'flex' : 'none';
 
       this.setKeyPanelExpanded(anyChecked);
     }
@@ -197,6 +209,7 @@ export default class LayerControls {
           this.$settingsPanelContent.classList.add('govuk-form-group--error');
           this.$settingsPanelContent.prepend(this.$settingsErrorMessage);
         }
+        this.updateKeyPanel();
         return;
       }
 
@@ -206,6 +219,7 @@ export default class LayerControls {
           this.mapController.setLayerCurrentEntityFilter(layerId, showHistorical);
         });
       });
+      this.updateKeyPanel();
     };
 
     // Resets the "Show historical data" checkbox when no dataset checkboxes
@@ -228,6 +242,7 @@ export default class LayerControls {
             this.mapController.setLayerCurrentEntityFilter(layerId, false);
           });
         });
+        this.updateKeyPanel();
       }
     };
 
