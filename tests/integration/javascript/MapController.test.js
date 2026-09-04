@@ -75,9 +75,9 @@ describe('Map Controller', () => {
             expect(mapController.map.addImage).toHaveBeenCalledWith('custom-marker', 'the Image', {sdf: true});
 
             expect(mapController.map.addControl).toHaveBeenCalledTimes(4);
-            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'top-left');
-            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-left');
-            expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-left');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'bottom-left');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-right');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-right');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new CopyrightControl, 'bottom-right');
         })
 
@@ -119,10 +119,10 @@ describe('Map Controller', () => {
             expect(mapController.map.addImage).toHaveBeenCalledWith('custom-marker-256', 'the Image', {sdf: true});
 
             expect(mapController.map.addControl).toHaveBeenCalledTimes(5);
-            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'top-left');
-            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-left');
-            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.FullscreenControl, 'bottom-left');
-            expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-left');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.ScaleControl, 'bottom-left');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.NavigationControl, 'top-right');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.FullscreenControl, 'top-right');
+            expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-right');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new CopyrightControl, 'bottom-right');
         })
 
