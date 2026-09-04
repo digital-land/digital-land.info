@@ -1,7 +1,14 @@
 {%- macro map(params) %}
+{% from "components/map-key-panel/macro.jinja" import dlMapKeyPanel %}
 
     {#- Set the default params #}
     {%- do params.update({'layers': params.layers|default([])}) -%}
+
+    {#- Captured now, rather than read as params.layers further down -
+        the <script> block below pops 'layers' out of params entirely
+        before this macro finishes, so anything needing the layer list
+        has to have its own reference to it before that happens. #}
+    {%- set layers = params.layers %}
 
     {#- REQUIRES: global random_int function #}
 
@@ -31,6 +38,16 @@
                 </div>
             </div>
         {% endif -%}
+
+        {#- Nested inside .dl-map__wrapper (not a sibling elsewhere on the
+            page) so it's positioned relative to the map's own box - see
+            the component's own doc comment for why that matters. Gated on
+            enableLayerControls so pages reusing this macro without layer
+            controls (fact.html, entity.html, entity-card) don't get an
+            empty key overlay. #}
+        {% if params.enableLayerControls %}
+          {{ dlMapKeyPanel({"layers": layers}) }}
+        {% endif %}
     </div>
     {% if params.notePanel is defined %}
       <div class="app-c-sources-panel govuk-!-margin-bottom-4">
@@ -98,47 +115,57 @@
 {% endmacro %}
 
 
+{#- The colour/pin symbol for a layer - shared by the "Select a data layer"
+    checkbox list previously, now used only by map-key-panel/macro.jinja's
+    Key overlay, which is where the colour key lives instead. Kept here
+    rather than moved into that component's own file, since it's about
+    a *layer*'s own visual representation (paint_options), the same
+    concern layerControlItem below already lives next to. #}
+{% macro layerKeySymbol(layer) %}
+    {%- if layer.paint_options.type and layer.paint_options.type == 'point' -%}
+        <svg class="dl-label__key__symbol--pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" viewBox="0 0 90 90">
+
+          <defs>
+          </defs>
+          <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" >
+            <path
+              d="M 45 0 C 27.677 0 13.584 14.093 13.584 31.416 c 0 4.818 1.063 9.442 3.175 13.773 c 2.905 5.831 11.409 20.208 20.412 35.428 l 4.385 7.417 C 42.275 89.252 43.585 90 45 90 s 2.725 -0.748 3.444 -1.966 l 4.382 -7.413 c 8.942 -15.116 17.392 -29.4 20.353 -35.309 c 0.027 -0.051 0.055 -0.103 0.08 -0.155 c 2.095 -4.303 3.157 -8.926 3.157 -13.741 C 76.416 14.093 62.323 0 45 0 z M 45 42.81 c -6.892 0 -12.5 -5.607 -12.5 -12.5 c 0 -6.893 5.608 -12.5 12.5 -12.5 c 6.892 0 12.5 5.608 12.5 12.5 C 57.5 37.202 51.892 42.81 45 42.81 z"
+              style="
+                stroke: none;
+                stroke-width: 1;
+                stroke-dasharray: none;
+                stroke-linecap: butt;
+                stroke-linejoin: miter;
+                stroke-miterlimit: 10;
+                fill: {{layer.paint_options.colour|default('#003078')}};
+                fill-rule: nonzero;
+                opacity: 1;"
+                transform=" matrix(1 0 0 1 0 0) "
+                stroke-linecap="round"
+              />
+          </g>
+        </svg>
+    {%- else -%}
+      <span
+        class="dl-label__key__symbol"
+        style="
+          border-color: {{layer.paint_options.colour|default('#003078')}};
+          background: rgba({{layer.paint_options.colour|default('#003078')|hex_to_rgb}},{{ layer.paint_options.opacity|default('0.5') }});"
+        >
+      </span>
+    {%- endif -%}
+{% endmacro %}
+
+{#- No colour/pin symbol here any more - that moved to the Key overlay
+    (map-key-panel/macro.jinja), shown there only for selected layers, to
+    save space in this list. Just the checkbox and the layer's name. #}
 {% macro layerControlItem(layer) %}
     <li class="dl-map__layer-item govuk-!-margin-bottom-1" data-layer-control="{{ layer.dataset }}"
     {% if layer.paint_options.type %}data-layer-type={{layer.paint_options.type}}{% endif %} data-style-options="{% if layer.paint_options %}{{ layer.paint_options.colour }},{{ layer.paint_options.opacity }}{% endif %}">
     <div class="govuk-checkboxes__item">
         <input class="govuk-checkboxes__input" id="{{ layer.dataset }}" name="{{ layer.dataset }}" type="checkbox" value="{{ layer.dataset }}" {{ "checked='checked'" if layer.checked }}>
         <label class="govuk-label govuk-checkboxes__label" for="{{ layer.dataset }}">
-        <span class="dl-label__key">
-            {%- if layer.paint_options.type and layer.paint_options.type == 'point' -%}
-                <svg class="dl-label__key__symbol--pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" viewBox="0 0 90 90">
-
-                  <defs>
-                  </defs>
-                  <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" >
-                    <path
-                      d="M 45 0 C 27.677 0 13.584 14.093 13.584 31.416 c 0 4.818 1.063 9.442 3.175 13.773 c 2.905 5.831 11.409 20.208 20.412 35.428 l 4.385 7.417 C 42.275 89.252 43.585 90 45 90 s 2.725 -0.748 3.444 -1.966 l 4.382 -7.413 c 8.942 -15.116 17.392 -29.4 20.353 -35.309 c 0.027 -0.051 0.055 -0.103 0.08 -0.155 c 2.095 -4.303 3.157 -8.926 3.157 -13.741 C 76.416 14.093 62.323 0 45 0 z M 45 42.81 c -6.892 0 -12.5 -5.607 -12.5 -12.5 c 0 -6.893 5.608 -12.5 12.5 -12.5 c 6.892 0 12.5 5.608 12.5 12.5 C 57.5 37.202 51.892 42.81 45 42.81 z"
-                      style="
-                        stroke: none;
-                        stroke-width: 1;
-                        stroke-dasharray: none;
-                        stroke-linecap: butt;
-                        stroke-linejoin: miter;
-                        stroke-miterlimit: 10;
-                        fill: {{layer.paint_options.colour|default('#003078')}};
-                        fill-rule: nonzero;
-                        opacity: 1;"
-                        transform=" matrix(1 0 0 1 0 0) "
-                        stroke-linecap="round"
-                      />
-                  </g>
-                </svg>
-            {%- else -%}
-              <span
-                class="dl-label__key__symbol"
-                style="
-                  border-color: {{layer.paint_options.colour|default('#003078')}};
-                  background: rgba({{layer.paint_options.colour|default('#003078')|hex_to_rgb}},{{ layer.paint_options.opacity|default('0.5') }});"
-                >
-              </span>
-            {%- endif -%}
             {{ layer.name }}
-        </span>
         </label>
     </div>
     </li>
