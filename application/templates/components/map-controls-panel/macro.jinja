@@ -36,7 +36,11 @@
     (_controls-panel.scss) and forced permanently expanded, so it reads as
     if it's folded into the bottom of "Select a data layer" - a single
     settings checkbox didn't seem to warrant its own visible heading on a
-    panel that already has room to show it inline. #}
+    panel that already has room to show it inline.
+
+    No colour swatch here any more - like the dataset checkboxes, that
+    moved to the Key overlay (map-key-panel/macro.jinja), shown there
+    only when checked. Just the checkbox and its label. #}
 {% set settingsContent %}
   <div class="govuk-form-group" id="dl-map-settings-content">
     <ul class="govuk-list govuk-checkboxes govuk-checkboxes--small">
@@ -44,10 +48,7 @@
         <div class="govuk-checkboxes__item">
           <input class="govuk-checkboxes__input" id="show-historical-data" name="show-historical-data" type="checkbox" value="show-historical-data">
           <label class="govuk-label govuk-checkboxes__label" for="show-historical-data">
-            <span class="dl-label__key">
-              <span class="dl-label__key__symbol" style="border-color: #AA2A16; background: #AA2A1680;"></span>
-              Show historical data
-            </span>
+            Show historical data
           </label>
         </div>
       </li>
