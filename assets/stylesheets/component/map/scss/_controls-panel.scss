@@ -4,6 +4,19 @@
 // for the same effect. Shared by the panel's own scroll (when its
 // accordion content is taller than the map) and the dataset checkbox
 // list's scroll further down.
+// GOV.UK builds its own chevron from a circular border plus a small arrow
+// made of two adjacent borders on a rotated square - an inherently
+// asymmetric shape (only 2 of its 4 sides are "ink"), which doesn't
+// survive rotation cleanly (turning it 180deg doesn't look like the
+// mirror image you'd expect - see the accordion chevron rules further
+// down for the full story). A small symmetric SVG sidesteps this
+// entirely: centred with `background-position: center`, which is exact
+// under any rotation, so every state that uses this renders pixel-
+// identical regardless of which way it's turned. Shared at file scope
+// (not declared inside a single selector block) since both the
+// accordion section chevrons and the mobile panel-toggle tab need it.
+$chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='4,10 8,6 12,10' fill='none' stroke='%230b0c0c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
 @mixin dl-thin-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: govuk-colour("mid-grey") transparent;
@@ -139,36 +152,56 @@
 // class (both are plain siblings inside .dl-map-with-controls), and
 // transitions in step with the panel's own width animation so the two
 // visually move together.
-.dl-map-with-controls {
-  .app-c-sources-panel {
-    // White here specifically, not the shared class's own default grey
-    // (still used as-is on entity.html) - reads as part of the same
-    // white map/panel construct rather than a distinct grey block.
-    background-color: govuk-colour("white");
-    margin-left: 330px;
-    transition: margin-left 0.2s ease;
+//
+// Both this and the scale-control rule just below are desktop-specific -
+// they exist to keep the footer/scale-control clear of the panel when it
+// sits *beside* the map, taking up a permanent 330px-wide strip. On
+// mobile the panel sits *above* the map instead (see the mobile block
+// further down) and never occupies horizontal space at all, so without
+// this being scoped to desktop, a stray margin-left/left: 330px would
+// squeeze the footer/scale control into a sliver of the (already full-
+// width, narrow) mobile viewport for no reason - confirmed live, this
+// was exactly what happened before this query was added.
+@include govuk-media-query($from: tablet) {
+  .dl-map-with-controls {
+    .app-c-sources-panel {
+      // White here specifically, not the shared class's own default
+      // grey (still used as-is on entity.html) - reads as part of the
+      // same white map/panel construct rather than a distinct grey
+      // block.
+      background-color: govuk-colour("white");
+      margin-left: 330px;
+      transition: margin-left 0.2s ease;
+    }
+
+    .dl-map-controls-panel--collapsed ~ .app-c-sources-panel {
+      margin-left: 0;
+    }
   }
 
-  .dl-map-controls-panel--collapsed ~ .app-c-sources-panel {
-    margin-left: 0;
+  // MapLibre's own scale control (bottom-left) is nested inside
+  // .dl-map__wrapper - a sibling of the panel, not the panel itself - so
+  // reaching it needs a sibling combinator (panel -> wrapper) chained
+  // with a descendant combinator (wrapper -> the control), rather than
+  // the simpler direct-sibling selector the footer above uses. Moves it
+  // out from under the panel when open, back to the map's own bottom-
+  // left corner when collapsed - same idea as the footer, so it's
+  // always visible rather than covered.
+  .dl-map-with-controls .maplibregl-ctrl-bottom-left {
+    left: 330px;
+    transition: left 0.2s ease;
+  }
+
+  .dl-map-controls-panel--collapsed ~ .dl-map__wrapper .maplibregl-ctrl-bottom-left {
+    left: 0;
   }
 }
 
-// MapLibre's own scale control (bottom-left) is nested inside
-// .dl-map__wrapper - a sibling of the panel, not the panel itself - so
-// reaching it needs a sibling combinator (panel -> wrapper) chained with
-// a descendant combinator (wrapper -> the control), rather than the
-// simpler direct-sibling selector the footer above uses. Moves it out
-// from under the panel when open, back to the map's own bottom-left
-// corner when collapsed - same idea as the footer, so it's always
-// visible rather than covered.
-.dl-map-with-controls .maplibregl-ctrl-bottom-left {
-  left: 330px;
-  transition: left 0.2s ease;
-}
-
-.dl-map-controls-panel--collapsed ~ .dl-map__wrapper .maplibregl-ctrl-bottom-left {
-  left: 0;
+// On mobile the footer keeps its shared-class white override (still
+// wanted there, same reasoning as above), just without the desktop-only
+// horizontal inset.
+.dl-map-with-controls .app-c-sources-panel {
+  background-color: govuk-colour("white");
 }
 
 // Fills the panel's own fixed-to-the-map height (see .dl-map-controls-
@@ -274,6 +307,103 @@
       background-repeat: no-repeat;
       background-position: center;
       background-size: 14px 14px;
+    }
+  }
+}
+
+// --- Mobile: panel slides down from the top, not in from the left -----
+// Below tablet width, the panel becomes a horizontal strip spanning the
+// full width instead, sliding vertically rather than horizontally, and
+// stops short of the map's full height so some of the map always stays
+// visible below it - a max-height cap with internal scroll, the same
+// principle as the desktop panel's own height cap (round 27), just
+// measured from the opposite edge. This block is placed after the
+// desktop rules above deliberately - it overrides several of them at
+// equal selector specificity, so (being inside a media query that's
+// true on mobile, but appearing later in the file) it needs source
+// order on its side to win, not just the media query itself.
+$dl-mobile-map-peek: 150px;
+
+@include govuk-media-query($until: tablet) {
+  .dl-map-controls-panel {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    // Capped against the map canvas's own height specifically
+    // (--dl-wrapper-height, kept in sync by MapControlsPanelToggle.js) -
+    // not the container's own "100%", which is the map *and* footer
+    // combined and on narrow viewports can be much taller than the map
+    // alone (the footer's text wraps across more lines there). Using
+    // that would leave room for whatever mix of map-and-footer-overflow
+    // happened to be tallest, not reliably "some of the map".
+    max-height: calc(var(--dl-wrapper-height, 700px) - #{$dl-mobile-map-peek});
+    border-right: 0;
+    border-bottom: 1px solid $govuk-border-colour;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: max-height 0.2s ease;
+    @include dl-thin-scrollbar;
+
+    &--collapsed {
+      max-height: 0;
+      border-bottom: 0;
+    }
+  }
+
+  // The desktop rule below (`height: 100%`) assumes the panel's own
+  // height is fixed to the map's, so the content fills it exactly. On
+  // mobile the panel is content-hugging up to its own max-height cap
+  // instead (above) - forcing content to 100% of that would make it
+  // always exactly as tall as the cap even when the open sections don't
+  // need that much room, leaving an empty gap at the bottom.
+  .dl-map-controls-panel__content {
+    height: auto;
+  }
+
+  // Sits on the panel/map boundary just like the desktop tab, just
+  // horizontal instead of vertical - centred left-to-right, tracking
+  // the panel's own current bottom edge via --dl-panel-height (kept in
+  // sync by a ResizeObserver in MapControlsPanelToggle.js, since that
+  // edge moves not only when the whole panel is toggled, but whenever
+  // an individual accordion section inside it opens or closes too).
+  .dl-map-controls-panel__toggle {
+    top: var(--dl-panel-height, 0px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 24px;
+    border-radius: 0 0 4px 4px;
+    transition: top 0.2s ease;
+
+    // A plain chevron rotating between "up" (expanded - tap to collapse
+    // upward) and "down" (collapsed - tap to expand downward) reads more
+    // naturally here than the desktop hamburger, which specifically
+    // stood in for "open a menu" rather than "expand this section" -
+    // reusing the same symmetric SVG the accordion sections already use
+    // for exactly that reason (safe to rotate, unlike a border-corner
+    // shape).
+    &::before {
+      width: 16px;
+      height: 16px;
+      border: 0;
+      transform: none;
+      background-image: $chevron-icon;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 12px 12px;
+    }
+
+    &--collapsed {
+      top: 0;
+      left: 50%;
+
+      &::before {
+        transform: rotate(180deg);
+      }
     }
   }
 }
@@ -466,8 +596,7 @@
   // A small symmetric SVG icon sidesteps this entirely: it's centred with
   // `background-position: center`, which is exact and stays exact under
   // any rotation, so "up" and "down" render in precisely the same spot.
-  $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='4,10 8,6 12,10' fill='none' stroke='%230b0c0c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-
+  // ($chevron-icon itself is declared at file scope, above.)
   .govuk-accordion-nav__chevron {
     width: 16px;
     height: 16px;
