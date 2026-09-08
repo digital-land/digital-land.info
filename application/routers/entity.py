@@ -481,16 +481,12 @@ def search_entities(
             )
             raise
 
-        # These helpers return materialized response models, not ORM objects.
-        # Only HTML needs the filter metadata; cache misses share this session.
         if extension is None or extension.value not in ("json", "geojson"):
             db_session = DbSession(session=session, redis=redis)
             typologies = get_typologies_with_entities(db_session)
             response = get_all_datasets(db_session)
             local_authorities = get_local_authorities(session, "local-authority")
             organisations = get_organisations(db_session)
-
-    # Release the connection before formatting JSON/GeoJSON or rendering HTML.
 
     # the query does some normalisation to remove empty
     # params and they get returned from search
