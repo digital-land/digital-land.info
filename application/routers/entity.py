@@ -46,7 +46,12 @@ from application.core.utils import (
     map_entity_quality_to_description,
     make_links,
 )
-from application.db.session import get_session, get_redis, DbSession
+from application.db.session import (
+    get_session,
+    get_context_session,
+    get_redis,
+    DbSession,
+)
 from application.db.models import EntityOrm
 from application.search.validators import validate_dataset
 
@@ -402,9 +407,13 @@ def search_entities(
     search_query: str = Query("", alias="q"),
     query_filters: QueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
-    session: Session = Depends(get_session),
     redis: redis.Redis = Depends(get_redis),
 ):
+    """Search entities, releasing the database session before response formatting.
+
+    Resolve external area searches first, then materialize results and any HTML
+    filter metadata within the session block. Cache misses share that session.
+    """
     # Determine if the URL path includes an extension
     if "." in request.url.path:  # check if extension if in path parameter
         extension = extension
@@ -416,12 +425,8 @@ def search_entities(
 
     # get query_filters as a dict
     query_params = asdict(query_filters)
-    # TODO minimse queries by using normal queries below rather than returning the names
-    # queries required for additional validations
-    dataset_names = get_dataset_names(session)
-    typology_names = get_typology_names(session)
-
     # Find an area - Postcode / UPRN search
+    # Complete external I/O before any query checks out a database connection.
     search_query = search_query.strip()
     search_result = find_an_area(search_query) if search_query else None
     find_an_area_latitude = None
@@ -440,40 +445,52 @@ def search_entities(
             }
         )
 
-    # additional validations
-    validate_typologies(query_params.get("typology", None), typology_names)
-    validate_dataset(query_params.get("dataset", None), dataset_names)
+    with get_context_session() as session:
+        dataset_names = get_dataset_names(session)
+        typology_names = get_typology_names(session)
+        validate_typologies(query_params.get("typology", None), typology_names)
+        validate_dataset(query_params.get("dataset", None), dataset_names)
 
-    # Run entity query
-    try:
-        data = get_entity_search(session, query_params, extension)
-    except SQLAlchemyError as e:
-        extension_tag = extension.value if extension is not None else "html"
-        dataset_filters = query_params.get("dataset") or []
-        dataset_tag = ",".join(dataset_filters) if dataset_filters else "all"
-        error_tag = (
-            "ssl_syscall_eof"
-            if "SSL SYSCALL error: EOF detected" in str(e)
-            else "db_error"
-        )
-        sentry_sdk.metrics.count(
-            "entity.search.error",
-            1,
-            attributes={
-                "error": error_tag,
-                "extension": extension_tag,
-                "dataset": dataset_tag,
-            },
-        )
+        try:
+            data = get_entity_search(session, query_params, extension)
+        except SQLAlchemyError as e:
+            extension_tag = extension.value if extension is not None else "html"
+            dataset_filters = query_params.get("dataset") or []
+            dataset_tag = ",".join(dataset_filters) if dataset_filters else "all"
+            error_tag = (
+                "ssl_syscall_eof"
+                if "SSL SYSCALL error: EOF detected" in str(e)
+                else "db_error"
+            )
+            sentry_sdk.metrics.count(
+                "entity.search.error",
+                1,
+                attributes={
+                    "error": error_tag,
+                    "extension": extension_tag,
+                    "dataset": dataset_tag,
+                },
+            )
 
-        logger.exception(
-            "Error in get_entity_search",
-            extra={
-                "extension": extension_tag,
-                "dataset_filters": dataset_filters,
-            },
-        )
-        raise
+            logger.exception(
+                "Error in get_entity_search",
+                extra={
+                    "extension": extension_tag,
+                    "dataset_filters": dataset_filters,
+                },
+            )
+            raise
+
+        # These helpers return materialized response models, not ORM objects.
+        # Only HTML needs the filter metadata; cache misses share this session.
+        if extension is None or extension.value not in ("json", "geojson"):
+            db_session = DbSession(session=session, redis=redis)
+            typologies = get_typologies_with_entities(db_session)
+            response = get_all_datasets(db_session)
+            local_authorities = get_local_authorities(session, "local-authority")
+            organisations = get_organisations(db_session)
+
+    # Release the connection before formatting JSON/GeoJSON or rendering HTML.
 
     # the query does some normalisation to remove empty
     # params and they get returned from search
@@ -514,18 +531,13 @@ def search_entities(
         geojson["links"] = links
         return geojson
 
-    db_session = DbSession(session=session, redis=redis)
-    typologies = get_typologies_with_entities(db_session)
     typologies = [t.model_dump() for t in typologies]
     # dataset facet
-    response = get_all_datasets(db_session)
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.model_dump(include=set(columns)) for dataset in response]
 
-    local_authorities = get_local_authorities(session, "local-authority")
     local_authorities = [la.model_dump() for la in local_authorities]
 
-    organisations = get_organisations(db_session)
     columns = ["entity", "organisation_entity", "name"]
     organisations_list = [
         organisation.model_dump(include=set(columns)) for organisation in organisations
