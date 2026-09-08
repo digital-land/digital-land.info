@@ -57,10 +57,7 @@
     <div class="govuk-grid-column-one-third">
       <h2 class="govuk-heading-m" id="{{org_type}}">{%  if display_names.get(org_type) %}{{ display_names[org_type] }}{% else %}{{ org_type | replace("-", " ") | capitalize }}{% endif %}</h2>
       <div class="dl-list-filter__count__wrapper">
-        <p class="govuk-visually-hidden">There {{"is" if organisations[org_type]|length == 1 else "are"}}
-          <span class="js-accessible-list-filter__count">{{ organisations[org_type]|length }}</span>
-          {{org_type}}
-        </p>
+        <p class="govuk-visually-hidden js-accessible-list-filter__status" role="status" data-category="{{ org_type }}">There {{ organisations[org_type]|length | pluralize("is", "are") }} {{ organisations[org_type]|length }} {{ organisations[org_type]|length | pluralize("result") }} in {{org_type}}</p>
         <span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-filter__count" aria-hidden="true">{{ organisations[org_type]|length }}</span>
       </div>
     </div>
@@ -84,7 +81,7 @@
   </div>
   {% endfor %}
 
-  <div class="dl-list-filter__no-filter-match js-hidden">
+  <div class="dl-list-filter__no-filter-match js-hidden" role="status" aria-atomic="true">
 		<p class="govuk-body">No dataset matches <span class="js-search-term-display"></span>.</p>
 		<p class="govuk-body">
 			Check <a href="https://design.planning.data.gov.uk/what-we-are-working-on">our current priorities</a> to see if

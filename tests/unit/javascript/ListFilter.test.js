@@ -230,7 +230,6 @@ describe('ListFilter', () => {
         let lists;
         let countWrapper;
         let listCount;
-        let accessibleListCount;
         let noMatches;
         let listFilterMock;
 
@@ -241,7 +240,7 @@ describe('ListFilter', () => {
                 <div class="list-section">
                   <div class="count-wrapper">
                     <span class="js-list-filter__count"></span>
-                    <span class="js-accessible-list-filter__count"></span>
+                    <p class="js-accessible-list-filter__status" data-category="Category"></p>
                   </div>
                   <div data-filter="list">
                     <div data-filter="item"></div>
@@ -251,7 +250,7 @@ describe('ListFilter', () => {
                 <div class="list-section">
                   <div class="count-wrapper">
                     <span class="js-list-filter__count"></span>
-                    <span class="js-accessible-list-filter__count"></span>
+                    <p class="js-accessible-list-filter__status" data-category="Category"></p>
                   </div>
                   <div data-filter="list">
                     <div data-filter="item"></div>
@@ -265,7 +264,6 @@ describe('ListFilter', () => {
           lists = dom.window.document.querySelectorAll('[data-filter="list"]');
           countWrapper = dom.window.document.querySelector('.count-wrapper');
           listCount = dom.window.document.querySelector('.js-list-filter__count');
-          accessibleListCount = dom.window.document.querySelector('.js-accessible-list-filter__count');
           noMatches = dom.window.document.querySelector('.dl-list-filter__no-filter-match');
 
             listFilterMock = {
@@ -282,7 +280,9 @@ describe('ListFilter', () => {
           expect(lists[0].closest('.list-section').classList.contains('js-hidden')).toBe(false);
           expect(lists[1].closest('.list-section').classList.contains('js-hidden')).toBe(false);
           expect(listCount.textContent).toBe('1');
-          expect(accessibleListCount.textContent).toBe('1');
+          expect(countWrapper.querySelector('.js-accessible-list-filter__status').textContent).toBe(
+            'There is 1 result in Category'
+          );
         });
 
         it('should show the "no matches" message if there are no matches', () => {
@@ -292,6 +292,23 @@ describe('ListFilter', () => {
           lists[1].querySelectorAll('[data-filter="item"]')[1].classList.add('js-hidden');
           listFilterMock.updateListCounts(lists);
           expect(noMatches.classList.contains('js-hidden')).toBe(false);
+        });
+
+        it('should announce singular wording for a single match and plural wording for multiple matches', () => {
+          lists[0].querySelectorAll('[data-filter="item"]')[0].classList.add('js-hidden');
+          listFilterMock.updateListCounts(lists);
+
+          const statuses = dom.window.document.querySelectorAll('.js-accessible-list-filter__status');
+
+          // Written as one plain sentence, not separate nested spans:
+          // VoiceOver reads a status region's own text and its child
+          // elements as two separate groups rather than in source order.
+
+          // list[0] has 1 matching item remaining
+          expect(statuses[0].textContent).toBe('There is 1 result in Category');
+
+          // list[1] has 2 matching items remaining
+          expect(statuses[1].textContent).toBe('There are 2 results in Category');
         });
     });
 
