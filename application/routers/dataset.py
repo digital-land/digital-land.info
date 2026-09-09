@@ -23,7 +23,12 @@ from application.core.templates import templates
 from application.core.utils import DigitalLandJSONResponse, to_snake
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
-from application.db.session import get_session, get_redis, DbSession
+from application.db.session import (
+    get_session,
+    get_context_session,
+    get_redis,
+    DbSession,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -60,15 +65,19 @@ def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
     query_filters: DatasetQueryFilters = Depends(),
-    session: Session = Depends(get_session),
     redis: Redis = Depends(get_redis),
 ):
-    datasets = get_all_datasets(DbSession(session=session, redis=redis))
+    # Get all datasets and entity counts, then close the session to avoid holding
+    # connections open while formatting the response.
+    with get_context_session() as session:
+        datasets = get_all_datasets(DbSession(session=session, redis=redis))
+        entity_counts_response = get_entity_count(
+            session, datasets=query_filters.dataset
+        )
 
     if query_filters.dataset:
         datasets = [ds for ds in datasets if ds.dataset in query_filters.dataset]
 
-    entity_counts_response = get_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available
     for dataset in datasets:
@@ -131,10 +140,11 @@ def get_dataset(
         if _dataset is None:
             raise HTTPException(status_code=404, detail="dataset not found")
 
-        entity_count = get_entity_count(session, dataset)
+        entity_counts = get_entity_count(session, datasets=[dataset])
+        entity_count = entity_counts[0][1] if entity_counts else 0
 
         if extension is not None and extension.value == "json":
-            _dataset.entity_count = entity_count[1] if entity_count else 0
+            _dataset.entity_count = entity_count
             return _dataset
 
         latest_resource = get_latest_resource(session, dataset)
@@ -188,7 +198,7 @@ def get_dataset(
             "dataset.html",
             {
                 "dataset": _dataset,
-                "entity_count": entity_count[1] if entity_count else 0,
+                "entity_count": entity_count,
                 "authoritative_providers": authoritative_providers,
                 "alternative_providers": alternative_providers,
                 "latest_resource": latest_resource,

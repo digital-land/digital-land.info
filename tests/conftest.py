@@ -275,6 +275,9 @@ def client(app: FastAPI, db_session: Session) -> TestClient:
     ), patch(
         "application.routers.entity.get_context_session",
         mock_get_context_session,
+    ), patch(
+        "application.routers.dataset.get_context_session",
+        mock_get_context_session,
     ):
         yield TestClient(app)
 
