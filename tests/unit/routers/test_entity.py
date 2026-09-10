@@ -25,9 +25,125 @@ from application.core.models import (
     TypologyModel,
 )
 from application.search.filters import QueryFilters
-
-
 from fastapi.responses import RedirectResponse
+from application.search.enum import SuffixEntity
+from sqlalchemy.exc import SQLAlchemyError
+
+
+@pytest.fixture(autouse=True)
+def search_session(mocker):
+    session = MagicMock()
+    mocker.patch(
+        "application.db.session._get_session_local", return_value=lambda: session
+    )
+    return session
+
+
+@pytest.mark.parametrize(
+    "extension, formatter_name",
+    [
+        (None, "templates.TemplateResponse"),
+        (SuffixEntity.json, "_get_entity_json"),
+        (SuffixEntity.geojson, "_get_geojson"),
+    ],
+)
+def test_search_releases_session_before_response_work(
+    mocker, search_session, extension, formatter_name
+):
+    area_lookup = mocker.patch(
+        "application.routers.entity.find_an_area", return_value=None
+    )
+
+    def dataset_names(db):
+        area_lookup.assert_called_once_with("SW1A 1AA")
+        assert db is search_session
+        db.close.assert_not_called()
+        return []
+
+    mocker.patch(
+        "application.routers.entity.get_dataset_names", side_effect=dataset_names
+    )
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+
+    def search(db, params, requested_extension):
+        assert db is search_session
+        db.close.assert_not_called()
+        return {"params": normalised_params(params), "count": 0, "entities": []}
+
+    mocker.patch("application.routers.entity.get_entity_search", side_effect=search)
+    redis = MagicMock()
+
+    def metadata(db):
+        assert db.session is search_session
+        assert db.redis is redis
+        search_session.close.assert_not_called()
+        return []
+
+    metadata_mocks = [
+        mocker.patch(f"application.routers.entity.{name}", side_effect=metadata)
+        for name in (
+            "get_all_datasets",
+            "get_typologies_with_entities",
+            "get_organisations",
+        )
+    ]
+    authorities = mocker.patch(
+        "application.routers.entity.get_local_authorities", return_value=[]
+    )
+
+    def after_close(*args, **kwargs):
+        search_session.close.assert_called_once()
+        return {}
+
+    formatter = mocker.patch(
+        f"application.routers.entity.{formatter_name}",
+        side_effect=after_close,
+    )
+    search_entities(
+        request=_make_search_request(""),
+        search_query="SW1A 1AA",
+        query_filters=QueryFilters(),
+        extension=extension,
+        redis=redis,
+    )
+    formatter.assert_called_once()
+    search_session.close.assert_called_once()
+    search_session.commit.assert_not_called()
+    for function in [*metadata_mocks, authorities]:
+        assert function.call_count == (1 if extension is None else 0)
+
+
+@pytest.mark.parametrize(
+    "failing_function, error_type",
+    [
+        ("validate_dataset", ValueError),
+        ("get_entity_search", SQLAlchemyError),
+        ("get_typologies_with_entities", ValueError),
+    ],
+)
+def test_search_closes_session_on_failure(
+    mocker, search_session, failing_function, error_type
+):
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={"params": {"limit": 10}, "count": 0, "entities": []},
+    )
+    mocker.patch(
+        f"application.routers.entity.{failing_function}",
+        side_effect=error_type("failed"),
+    )
+    with pytest.raises(error_type):
+        search_entities(
+            request=_make_search_request(""),
+            search_query="",
+            query_filters=QueryFilters(),
+            extension=None,
+            redis=None,
+        )
+    search_session.close.assert_called_once()
+    search_session.commit.assert_not_called()
 
 
 @pytest.fixture
@@ -944,16 +1060,11 @@ def test_search_entities_with_query_extension(
         "application.routers.entity.get_typology_names",
         return_value=["typology1"],
     )
-    mock_get_session = mocker.patch(
-        "application.routers.entity.get_session", return_value=MagicMock()
-    )
-
     result = search_entities(
         request=request,
         search_query="",
         query_filters=QueryFilters(),
         extension=extension,
-        session=mock_get_session.return_value,
         redis=None,
     )
     try:

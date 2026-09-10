@@ -48,16 +48,16 @@ def get_entity_query(
             return entity_factory(entity), None, None
 
 
-def get_entity_count(session: Session, dataset: Optional[str] = None):
-    sql = select(EntityOrm.dataset, func.count(EntityOrm.entity))
+def get_entity_count(
+    session: Session,
+    datasets: Optional[List[str]] = None,
+):
+    sql = select(EntityOrm.dataset, func.count())
     sql = sql.group_by(EntityOrm.dataset)
-    if dataset is not None:
-        sql = sql.filter(EntityOrm.dataset == dataset)
+    if datasets is not None:
+        sql = sql.filter(EntityOrm.dataset.in_(datasets))
     result = session.execute(sql)
-    if dataset is not None:
-        return result.fetchone()
-    else:
-        return result.fetchall()
+    return result.fetchall()
 
 
 def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:

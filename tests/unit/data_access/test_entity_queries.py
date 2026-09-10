@@ -1,11 +1,38 @@
 from sqlalchemy.orm import Query
+import pytest
 
 from application.data_access.entity_queries import (
     _apply_limit_and_pagination_filters,
     _apply_location_filters,
     get_entity_query,
+    get_entity_count,
 )
 from application.db.models import EntityOrm
+
+
+@pytest.mark.parametrize(
+    "filters, expected_where",
+    [
+        ({}, None),
+        ({"datasets": ["brownfield-land"]}, "entity.dataset IN ('brownfield-land')"),
+        (
+            {"datasets": ["brownfield-land", "article-4-direction"]},
+            "entity.dataset IN ('brownfield-land', 'article-4-direction')",
+        ),
+    ],
+)
+def test_get_entity_count_filters(mocker, filters, expected_where):
+    session = mocker.MagicMock()
+    result = get_entity_count(session, **filters)
+    statement = session.execute.call_args.args[0]
+    sql = str(statement.compile(compile_kwargs={"literal_binds": True}))
+
+    if expected_where:
+        assert f"WHERE {expected_where}" in sql
+    else:
+        assert "WHERE" not in sql
+    assert "GROUP BY entity.dataset" in sql
+    assert result is session.execute.return_value.fetchall.return_value
 
 
 def test__apply_limit_and_pagination_filters_with_no_filters_applied():
