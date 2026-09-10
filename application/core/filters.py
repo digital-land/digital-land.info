@@ -280,6 +280,22 @@ def get_entity_paint_options(entity, datasets):
         return entity_datasets[0]["paint_options"]
 
 
+def pluralize(count, singular, plural=None):
+    """
+    Args:
+        count (int)
+        singular (str): singular word "result", "is", etc...
+        plural (str): plural word "results", "are", etc...
+
+    Returns:
+        str: Returns singular or plural word depending on count,
+        if plural word not provided, it appends "s" to singular word
+    """
+    if plural is None:
+        plural = singular + "s"
+    return singular if count == 1 else plural
+
+
 def commanum_filter(v):
     """
     Makes large numbers readable by adding commas
