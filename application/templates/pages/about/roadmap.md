@@ -50,8 +50,8 @@ Alongside this, we are ensuring that our data collection pipeline remains perfor
 
 ### Later
 
-- We will explore alternative ways of storing reporting data to reduce to cost of running the platform.
-- We will make data quality scores available to data providers, helping them understand where their data can be improve and making authoritative planning data easier to trust.
+- We will explore alternative ways of storing reporting data to reduce the cost of running the platform.
+- We will make data quality scores available to data providers, helping them understand where their data can be improved and making authoritative planning data easier to trust.
 - We will give data providers more ways to securely manage their own data and notify them when its quality changes.
 
 ## Consuming data
