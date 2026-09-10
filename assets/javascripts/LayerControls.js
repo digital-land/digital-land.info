@@ -130,11 +130,12 @@ export default class LayerControls {
     // macro.jinja renders one per layer, plus one for "Show historical
     // data", all hidden except any that are checked at initial page
     // load) to match which layers/settings are currently selected, and
-    // syncs the panel's expanded/collapsed state to whether there's
-    // anything to show. Called after every dataset checkbox change
-    // (via showEntitiesForLayers) and every "Show historical data"
-    // change (toggleHistoricalData/updateHistoricalCheckboxState), so
-    // it's the single place both keep the key panel in sync from.
+    // syncs the panel's own visibility and expanded/collapsed state to
+    // whether there's anything to show. Called after every dataset
+    // checkbox change (via showEntitiesForLayers) and every "Show
+    // historical data" change (toggleHistoricalData/
+    // updateHistoricalCheckboxState), so it's the single place both keep
+    // the key panel in sync from.
     updateKeyPanel() {
       if (!this.$keyPanel) return;
 
@@ -154,6 +155,17 @@ export default class LayerControls {
       if (historicalChecked) anyChecked = true;
       const historicalRow = this.$keyPanel.querySelector('[data-layer-key="show-historical-data"]');
       if (historicalRow) historicalRow.style.display = historicalChecked ? 'flex' : 'none';
+
+      // Hidden entirely (not just collapsed to its own "Key" pill) when
+      // nothing's selected - there's nothing to show a key for, so
+      // there's no pill to show either. This also means the toggle/close
+      // buttons become unreachable for free once hidden, no extra guard
+      // needed on their own click handlers.
+      if (anyChecked) {
+        this.$keyPanel.removeAttribute('hidden');
+      } else {
+        this.$keyPanel.setAttribute('hidden', '');
+      }
 
       this.setKeyPanelExpanded(anyChecked);
     }
