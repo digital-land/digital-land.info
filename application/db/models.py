@@ -313,6 +313,7 @@ class TaskOrm(Base):
     responsibility = Column(Text, nullable=False)
     task_source = Column(Text, nullable=False)
     entry_date = Column(Date, nullable=True)
+    quality_dimension = Column(Text, nullable=True)
     __table_args__ = (
         Index("idx_task_dataset", "dataset"),
         Index("idx_task_organisation", "organisation"),
