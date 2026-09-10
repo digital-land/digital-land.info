@@ -52,7 +52,11 @@
   background: transparent;
   color: $govuk-link-colour;
   font-weight: normal;
-  @include govuk-font-size($size: 19);
+  // Matches the main controls panel's accordion section titles
+  // (.govuk-accordion__section-button in _controls-panel.scss) - both
+  // read as the same kind of heading/toggle affordance, just in two
+  // different overlays, so they should look like one system.
+  @include govuk-font-size($size: 16);
   cursor: pointer;
 }
 
