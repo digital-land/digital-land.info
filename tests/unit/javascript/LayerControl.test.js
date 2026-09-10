@@ -162,7 +162,14 @@ describe('Layer Controls', () => {
     })
 
     describe('updateKeyPanel()', () => {
-        test('shows only checked layers\' key rows and expands the panel',() => {
+        const makeKeyPanel = (querySelector) => ({
+            querySelector,
+            classList: { toggle: vi.fn() },
+            setAttribute: vi.fn(),
+            removeAttribute: vi.fn(),
+        })
+
+        test('shows only checked layers\' key rows, reveals the panel, and expands it',() => {
             const row1 = { style: {} };
             const row2 = { style: {} };
             const querySelector = vi.fn((selector) => {
@@ -171,7 +178,7 @@ describe('Layer Controls', () => {
                 return null;
             });
 
-            layerControls.$keyPanel = { querySelector, classList: { toggle: vi.fn() } };
+            layerControls.$keyPanel = makeKeyPanel(querySelector);
             layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
             layerControls.layerOptions = [
                 { getDatasetName: () => 'l1', isChecked: () => true },
@@ -182,17 +189,21 @@ describe('Layer Controls', () => {
 
             expect(row1.style.display).toBe('flex');
             expect(row2.style.display).toBe('none');
+            expect(layerControls.$keyPanel.removeAttribute).toHaveBeenCalledWith('hidden');
+            expect(layerControls.$keyPanel.setAttribute).not.toHaveBeenCalledWith('hidden', '');
             expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
             expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'true');
         })
 
-        test('collapses the panel when nothing is checked',() => {
-            layerControls.$keyPanel = { querySelector: vi.fn(() => null), classList: { toggle: vi.fn() } };
+        test('hides the panel entirely (not just collapsed to its "Key" pill) when nothing is checked',() => {
+            layerControls.$keyPanel = makeKeyPanel(vi.fn(() => null));
             layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
             layerControls.layerOptions = [{ getDatasetName: () => 'l1', isChecked: () => false }];
 
             layerControls.updateKeyPanel();
 
+            expect(layerControls.$keyPanel.setAttribute).toHaveBeenCalledWith('hidden', '');
+            expect(layerControls.$keyPanel.removeAttribute).not.toHaveBeenCalledWith('hidden');
             expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', true);
             expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'false');
         })
@@ -206,10 +217,9 @@ describe('Layer Controls', () => {
 
         test('shows the "Show historical data" row when it is checked, even with no layers selected',() => {
             const historicalRow = { style: {} };
-            layerControls.$keyPanel = {
-                querySelector: vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null)),
-                classList: { toggle: vi.fn() },
-            };
+            layerControls.$keyPanel = makeKeyPanel(
+                vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null))
+            );
             layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
             layerControls.$historicalDataCheckbox = { checked: true };
             layerControls.layerOptions = [];
@@ -217,15 +227,15 @@ describe('Layer Controls', () => {
             layerControls.updateKeyPanel();
 
             expect(historicalRow.style.display).toBe('flex');
+            expect(layerControls.$keyPanel.removeAttribute).toHaveBeenCalledWith('hidden');
             expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
         })
 
         test('hides the "Show historical data" row when it is unchecked',() => {
             const historicalRow = { style: {} };
-            layerControls.$keyPanel = {
-                querySelector: vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null)),
-                classList: { toggle: vi.fn() },
-            };
+            layerControls.$keyPanel = makeKeyPanel(
+                vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null))
+            );
             layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
             layerControls.$historicalDataCheckbox = { checked: false };
             layerControls.layerOptions = [];
@@ -233,6 +243,7 @@ describe('Layer Controls', () => {
             layerControls.updateKeyPanel();
 
             expect(historicalRow.style.display).toBe('none');
+            expect(layerControls.$keyPanel.setAttribute).toHaveBeenCalledWith('hidden', '');
         })
     })
 
