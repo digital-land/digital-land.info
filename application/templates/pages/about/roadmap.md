@@ -2,7 +2,7 @@ This roadmap shows our current plans for making it easier to find, use and trust
 
 We work in 3-month cycles and we aim to update this roadmap every 3 months. Our plans can change based on what we learn from speaking to our users, testing iterations, and how we can better deliver on our mission.
 
-Last updated 3 March 2026. Next update due June 2026.
+Last updated September 2026. Next update due January 20276.
 
 ## Designing data
 
@@ -30,33 +30,29 @@ We regularly ask our community to help us decide the things we need to work on a
 
 ## Collecting and managing data
 
-We are supporting local planning authorities across England to help them provide planning and housing data through our platform. Through the [Open Digital Planning community](https://opendigitalplanning.org/community-members), we’re supporting over 200 Local Planning Authorities (LPAs) to publish data, improve its quality and adopt digital planning products such as [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital). Alongside this, we are ensuring that our data collection pipeline remains performant as we grow the amount of data that we collect, standardise and index each night.
+We are supporting local planning authorities across England to help them provide planning and housing data through our platform. Through the [Open Digital Planning community](https://opendigitalplanning.org/community-members), we’re supporting over 200 Local Planning Authorities (LPAs) to publish data, improve its quality and adopt digital planning products such as [PlanX](https://opendigitalplanning.org/services) and [BoPS](https://bops.digital). 
 
-We are also developing Extract in partnership with the [Incubator for AI](https://ai.gov.uk/) ([Department for Science, Innovation and Technology](https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology)) - an AI tool that [unlocks historical planning data from documents](https://mhclgdigital.blog.gov.uk/2025/06/12/extract-using-ai-to-unlock-historic-planning-data/), reducing the effort for LPAs to provide standardised data and increasing the amount of trusted data on the platform.
+Alongside this, we are ensuring that our data collection pipeline remains performant as we grow the amount of data that we collect, standardise and index each night.
 
 ### Now
 
-- We are making it faster and more reliable to build and rebuild planning data. Our platform can now be refreshed in hours rather than days, giving users quicker access to up-to-date, authoritative information. This work has also allowed us to scale our infrastructure, increasing the number of [title boundaries](https://www.planning.data.gov.uk/dataset/title-boundary) available on the platform.
-- We are improving [our service for data providers](https://provide.planning.data.gov.uk). The service is now more responsive, with faster loading times, clearer guidance and new features such as showing non-authoritative data from alternative public sources. All of these help LPAs understand, improve and maintain the quality of the data they’ve provided.
-- We are bringing data quality checks directly into the service. This allows LPAs to validate data earlier, submit smaller datasets more easily, and publish high-quality data sooner - increasing the amount of trusted, authoritative data available on the platform.
-- We are testing Extract with real planning documents and staff working at local planning authorities to understand where it helps most and where it needs improvement (also known as the [alpha phase](https://www.gov.uk/service-manual/agile-delivery/how-the-alpha-phase-works)).
-- We are improving the experience so it’s clearer, easier and faster to turn documents into trustworthy data, and ensuring that it outputs high-quality data reliably.
+- We are making it faster and more reliable to build and rebuild planning data. Our platform can now be refreshed in hours rather than days, giving users quicker access to up-to-date, authoritative information. This work has also allowed us to scale our infrastructure to handle datasets containing millions of records, such as [title boundaries](https://www.planning.data.gov.uk/dataset/title-boundary).
+- We are improving [our service for data providers](https://provide.planning.data.gov.uk) by speaking with users to understand their needs and prioritise future improvements.
+- We are increasing the number of automated data quality checks we perform. Where we identify data quality concerns manually, we are turning these into repeatable checks that help us monitor and improve quality over time.
+- We are developing an internal service to manage common data management tasks, including adding new data sources, configuring datasets and validating changes made by data providers.
 
 ### Next
 
-- We will increase the number of datasets available through the Provide service, including developer contributions and local plans.
-- We will create an internal tool to get new data onto the platform faster, reducing the time between data being provided to us and users being able to access it.
-- We will continue to scale our platform’s ability to transform large datasets, including index polygons and UPRNs.
-- We will revisit how we play back data quality checks to LPAs, focusing on which tasks will have the greatest impact on their quality score.
-- Invite 30-50 local planning authorities to use Extract during the [beta phase](https://www.gov.uk/service-manual/agile-delivery/how-the-beta-phase-works), ensuring that it works reliably and can be scaled to meet the demands of all local planning authorities in England.
-- We will conduct an accessibility audit and ensure Extract is accessible to Web Content Accessibility Guidelines 2.2.
-- We will continue to iterate and improve Extract based on feedback from local planning authorities using it day-to-day.
+- We will increase the number of datasets available through the Check & Provide service and redesign the service so it remains easy to use as the number of datasets grows.
+- We will introduce authentication for actions that change data in the Check & Provide service, giving data providers secure access to more ways to manage their data.
+- We will use our new processes for transforming large datasets to update Flood Risk Zone and Agricultural Land Classification data to new probability models, and identify other datasets that could benefit from the same approach.
+- We will test how we present data quality scores to LPAs, focusing on the checks that have the greatest impact on quality and ensuring our approach works across the different dimensions of data quality before releasing it more widely.
 
 ### Later
 
-- We will explore alternative options for warehousing reporting data to make it cheaper to run the platform.
-- We will implement more complex data quality checks so that the data is easier to trust.
-- Make Extract available for all local planning authorities in England.
+- We will explore alternative ways of storing reporting data to reduce to cost of running the platform.
+- We will make data quality scores available to data providers, helping them understand where their data can be improve and making authoritative planning data easier to trust.
+- We will give data providers more ways to securely manage their own data and notify them when its quality changes.
 
 ## Consuming data
 
