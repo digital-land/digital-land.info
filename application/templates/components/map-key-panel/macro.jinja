@@ -8,14 +8,20 @@
     Server-rendered with a row for every layer (so LayerControls.js only
     ever needs to show/hide existing rows via data-layer-key, never build
     them), but only rows for currently-selected layers are ever visible -
-    LayerControls.js's updateKeyPanel() keeps that, and the panel's own
-    expanded/collapsed state, in sync with the checkbox list. #}
+    LayerControls.js's updateKeyPanel() keeps that in sync with the
+    checkbox list. Hidden entirely (the `hidden` attribute, not just
+    collapsed to its own "Key" pill) whenever nothing's selected - there's
+    nothing to show a key for, so there's no pill to show either. Once
+    something is selected the panel appears already expanded; from there
+    the user can manually collapse it to just the pill (setKeyPanelExpanded())
+    without hiding it outright, though that manual state doesn't persist
+    past the next checkbox change - see updateKeyPanel(). #}
 {% macro dlMapKeyPanel(params) %}
 {% from "components/map/macro.jinja" import layerKeySymbol %}
 {% set layers = params.get("layers", []) %}
 {% set any_checked = layers | selectattr("checked") | list | length > 0 %}
 
-<div class="dl-map-key-panel{{ '' if any_checked else ' dl-map-key-panel--collapsed' }}" id="dl-map-key-panel">
+<div class="dl-map-key-panel{{ '' if any_checked else ' dl-map-key-panel--collapsed' }}" id="dl-map-key-panel" {{ 'hidden' if not any_checked }}>
   <div class="dl-map-key-panel__header">
     <button type="button" class="dl-map-key-panel__toggle" id="dl-map-key-panel-toggle" aria-expanded="{{ 'true' if any_checked else 'false' }}" aria-controls="dl-map-key-panel-list">
       <svg class="dl-map-key-panel__icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
