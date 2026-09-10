@@ -1,0 +1,116 @@
+{% macro dlMapControlsPanel(params) %}
+{% from "govuk_frontend_jinja/components/accordion/macro.html" import govukAccordion %}
+{% from "components/map-find-an-area-form/macro.jinja" import dlFindAnAreaForm %}
+{% from "components/map/macro.jinja" import layerControlItem %}
+
+{% set layers = params.get("layers", []) %}
+{% set search_result = params.get("search_result") %}
+{% set search_query = params.get("search_query", "") %}
+{% set error = params.get("error") %}
+
+{% set findAnAreaContent %}
+  {{ dlFindAnAreaForm({
+    "search_result": search_result,
+    "search_query": search_query,
+    "error": error
+  }) }}
+{% endset %}
+
+{% set dataLayersContent %}
+  <div class="dl-filter-group__auto-filter">
+    <label for="layer-filter-input" class="govuk-label govuk-visually-hidden">Search data layers</label>
+    <input id="layer-filter-input" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-controls="layer-toggles-list">
+  </div>
+  <div class="govuk-checkboxes govuk-checkboxes--small" data-module="layer-controls">
+    <ul class="govuk-list dl-map__layer-list" data-module="layer-toggles" id="layer-toggles-list">
+      {% for layer in layers %}
+        {{ layerControlItem(layer) }}
+      {% endfor %}
+    </ul>
+  </div>
+{% endset %}
+
+{#- Its own accordion section - independently collapsible on mobile, where
+    the design shows it as a distinct "Advanced settings" heading. On
+    desktop, this section's own heading/toggle is hidden via CSS
+    (_controls-panel.scss) and forced permanently expanded, so it reads as
+    if it's folded into the bottom of "Select a data layer" - a single
+    settings checkbox didn't seem to warrant its own visible heading on a
+    panel that already has room to show it inline.
+
+    No colour swatch here any more - like the dataset checkboxes, that
+    moved to the Key overlay (map-key-panel/macro.jinja), shown there
+    only when checked. Just the checkbox and its label. #}
+{% set settingsContent %}
+  <div class="govuk-form-group" id="dl-map-settings-content">
+    <ul class="govuk-list govuk-checkboxes govuk-checkboxes--small">
+      {#- No govuk-!-margin-bottom-1 here (unlike the dataset checkbox
+          items) - that utility exists to space multiple list items apart,
+          but this list only ever has this one item, so it just added an
+          extra 5px below the checkbox with nothing matching it above,
+          biasing the row toward the top of its section. #}
+      <li class="dl-map__layer-item">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="show-historical-data" name="show-historical-data" type="checkbox" value="show-historical-data">
+          <label class="govuk-label govuk-checkboxes__label" for="show-historical-data">
+            Show historical data
+          </label>
+        </div>
+      </li>
+    </ul>
+  </div>
+{% endset %}
+
+{#- The toggle is a sibling of (not nested inside) .dl-map-controls-panel,
+    positioned relative to .dl-map-with-controls instead. That way it stays
+    vertically centred on the map's own height even once the panel itself
+    has collapsed away to nothing. #}
+<button type="button" class="dl-map-controls-panel__toggle" id="dl-map-controls-panel-toggle" aria-expanded="true" aria-controls="dl-map-controls-panel-content">
+  <span class="govuk-visually-hidden dl-map-controls-panel__toggle-text">Hide map controls</span>
+</button>
+<div class="dl-map-controls-panel" id="dl-map-controls-panel">
+  <div class="dl-map-controls-panel__content" id="dl-map-controls-panel-content">
+    {{ govukAccordion({
+      "id": "dl-map-controls-accordion",
+      "items": [
+        {
+          "heading": {"text": "Find an area"},
+          "content": {"html": findAnAreaContent},
+          "expanded": true
+        },
+        {
+          "heading": {"text": "Select a data layer"},
+          "content": {"html": dataLayersContent},
+          "expanded": true
+        },
+        {
+          "heading": {"text": "Advanced settings"},
+          "content": {"html": settingsContent},
+          "expanded": true
+        }
+      ]
+    }) }}
+
+    {#- Not an accordion section - always visible regardless of which
+        sections above are expanded/collapsed, so it's a plain sibling of
+        the accordion rather than another item within it. Reuses the id
+        from the shared data-coverage-banner partial (previously shown
+        above the map on this page) since it's the same notice, just
+        relocated and restyled in plain body text to fit the panel. #}
+    <div class="dl-map-controls-panel__note" id="dl-data-coverage-banner">
+      <p class="govuk-body">The data may be incomplete and not yet cover all of England. We're working to improve its availability and quality.</p>
+    </div>
+
+    {#- Mobile only (hidden via CSS on desktop, same convention as the
+        "Advanced settings" heading in _controls-panel.scss) - everything
+        here already applies live as each checkbox/radio changes, so this
+        doesn't "apply" anything itself, it just closes the overlay once
+        the user's happy with their selection (wired in
+        MapControlsPanelToggle.js, the same class that owns every other
+        way of collapsing the panel). #}
+    <button type="button" class="govuk-button dl-map-controls-panel__apply-filters" id="dl-map-apply-filters-button" data-module="govuk-button">
+      Apply filters
+    </button>
+  </div>
+</div>
+{% endmacro %}
