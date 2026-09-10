@@ -2,7 +2,7 @@ This roadmap shows our current plans for making it easier to find, use and trust
 
 We work in 3-month cycles and we aim to update this roadmap every 3 months. Our plans can change based on what we learn from speaking to our users, testing iterations, and how we can better deliver on our mission.
 
-Last updated September 2026. Next update due January 20276.
+Last updated September 2026. Next update due January 2027.
 
 ## Designing data
 
