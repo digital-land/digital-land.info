@@ -1,5 +1,6 @@
 from typing import Generator, Dict, List, Union
 from contextlib import contextmanager
+from pathlib import Path
 import os
 
 import pytest
@@ -43,12 +44,14 @@ from tests.utils.database import (
 
 logger = logging.getLogger(__name__)
 
+ENV_TEST_PATH = Path(__file__).resolve().parent.parent / ".env.test"
+
 
 @pytest.fixture(scope="session")
 def test_settings():
     from dotenv import load_dotenv
 
-    load_dotenv(override=True)
+    load_dotenv(dotenv_path=ENV_TEST_PATH, override=True)
 
     # Provide test-safe defaults for required settings that tests don't actually
     # invoke — prevents ValidationError when running without a .env file.
@@ -93,6 +96,14 @@ def _maintenance_engine(database_url: str):
 def create_db(test_settings) -> PostgresDsn:
     database_url = os.environ["WRITE_DATABASE_URL"]
     engine, db_name = _maintenance_engine(database_url)
+
+    if not db_name or "test" not in db_name.lower():
+        engine.dispose()
+        raise RuntimeError(
+            f'Refusing to drop database "{db_name}": name must contain "test". '
+            "Ensure you have a .env.test file containing a database name "
+            'with "test" in it.'
+        )
 
     with engine.connect() as conn:
         conn.execute(text(f'DROP DATABASE IF EXISTS "{db_name}" WITH (FORCE)'))
@@ -462,7 +473,7 @@ def run_server():
 def mock_settings() -> Settings:
     from dotenv import load_dotenv
 
-    load_dotenv(override=True)
+    load_dotenv(dotenv_path=ENV_TEST_PATH, override=True)
     get_settings.cache_clear()
     return Settings()
 
