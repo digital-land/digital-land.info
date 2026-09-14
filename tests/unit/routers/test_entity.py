@@ -30,13 +30,51 @@ from application.search.enum import SuffixEntity
 from sqlalchemy.exc import SQLAlchemyError
 
 
-@pytest.fixture(autouse=True)
-def search_session(mocker):
-    session = MagicMock()
+@pytest.fixture
+def search_session():
+    return MagicMock()
+
+
+def test_search_dependency_cleanup_after_early_close(mocker, search_session):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from application.db.session import get_session, get_redis
+
+    def session_dependency():
+        try:
+            yield search_session
+        finally:
+            search_session.close()
+
+    app = FastAPI()
+    app.add_api_route("/entity.{extension}", search_entities)
+    app.dependency_overrides[get_session] = session_dependency
+    app.dependency_overrides[get_redis] = lambda: None
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
     mocker.patch(
-        "application.db.session._get_session_local", return_value=lambda: session
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": {"limit": 10},
+            "count": 0,
+            "entities": [],
+        },
     )
-    return session
+    mocker.patch("application.routers.entity.make_links", return_value={})
+
+    def format_results(*args, **kwargs):
+        search_session.close.assert_called_once()
+        return []
+
+    mocker.patch(
+        "application.routers.entity._get_entity_json", side_effect=format_results
+    )
+    with TestClient(app) as client:
+        response = client.get("/entity.json")
+    assert response.status_code == 200
+    assert response.json()["entities"] == []
+    assert search_session.close.call_count == 2
+    search_session.commit.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -100,6 +138,7 @@ def test_search_releases_session_before_response_work(
         side_effect=after_close,
     )
     search_entities(
+        session=search_session,
         request=_make_search_request(""),
         search_query="SW1A 1AA",
         query_filters=QueryFilters(),
@@ -136,6 +175,7 @@ def test_search_closes_session_on_failure(
     )
     with pytest.raises(error_type):
         search_entities(
+            session=search_session,
             request=_make_search_request(""),
             search_query="",
             query_filters=QueryFilters(),
@@ -821,6 +861,7 @@ def test_search_entities_no_entities_returned_no_query_params_html(
 
     request = MagicMock()
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="",
         query_filters=QueryFilters(),
@@ -856,6 +897,7 @@ def test_search_entities_no_entities_returned_no_query_params_json(mocker):
     extension = MagicMock()
     extension.value = "json"
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="",
         query_filters=QueryFilters(),
@@ -886,6 +928,7 @@ def test_search_entities_no_entities_returned_no_query_params_geojson(mocker):
     extension = MagicMock()
     extension.value = "geojson"
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="",
         query_filters=QueryFilters(),
@@ -945,6 +988,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
 
     request = MagicMock()
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="",
         query_filters=QueryFilters(),
@@ -985,6 +1029,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_json(
     extension = MagicMock()
     extension.value = "json"
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="",
         query_filters=QueryFilters(),
@@ -1021,6 +1066,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
     extension = MagicMock()
     extension.value = "geojson"
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="",
         query_filters=QueryFilters(),
@@ -1061,6 +1107,7 @@ def test_search_entities_with_query_extension(
         return_value=["typology1"],
     )
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="",
         query_filters=QueryFilters(),
@@ -1104,6 +1151,7 @@ def test_search_entities_area_chip_label_postcode(
 
     request = _make_search_request("q=SW1A+1AA&dataset=conservation-area")
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="SW1A 1AA",
         query_filters=query_filters,
@@ -1141,6 +1189,7 @@ def test_search_entities_area_chip_label_uprn(
 
     request = _make_search_request("q=100023336956&dataset=conservation-area")
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="100023336956",
         query_filters=query_filters,
@@ -1185,6 +1234,7 @@ def test_search_entities_area_chip_remove_link_clears_area_params(
         "q=SW1A+1AA&dataset=conservation-area&latitude=51.501&longitude=-0.141"
     )
     result = search_entities(
+        session=MagicMock(),
         request=request,
         search_query="SW1A 1AA",
         query_filters=query_filters,

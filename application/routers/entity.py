@@ -1,4 +1,5 @@
 import logging
+from contextlib import closing
 import sentry_sdk
 from urllib.parse import urlencode
 
@@ -48,7 +49,6 @@ from application.core.utils import (
 )
 from application.db.session import (
     get_session,
-    get_context_session,
     get_redis,
     DbSession,
 )
@@ -407,6 +407,7 @@ def search_entities(
     search_query: str = Query("", alias="q"),
     query_filters: QueryFilters = Depends(),
     extension: Optional[SuffixEntity] = None,
+    session: Session = Depends(get_session, scope="function"),
     redis: redis.Redis = Depends(get_redis),
 ):
     """Search entities, releasing the database session before response formatting.
@@ -445,7 +446,7 @@ def search_entities(
             }
         )
 
-    with get_context_session() as session:
+    with closing(session):
         dataset_names = get_dataset_names(session)
         typology_names = get_typology_names(session)
         validate_typologies(query_params.get("typology", None), typology_names)
