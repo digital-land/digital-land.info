@@ -9,6 +9,7 @@ def add_provision_quality(
     organisation,
     organisation_name,
     is_designated_provider,
+    quality=None,
 ):
     db_session.add(
         ProvisionQualityOrm(
@@ -19,7 +20,7 @@ def add_provision_quality(
             has_active_resource=True,
             owns_entities=True,
             is_designated_provider=is_designated_provider,
-            quality="authoritative" if is_designated_provider else "some",
+            quality=quality or ("authoritative" if is_designated_provider else "some"),
             entity_count=10,
             quality_score=None,
         )
@@ -82,6 +83,53 @@ def test_provider_page_groups_providers_by_authoritative_and_alternative(
     # Confirm each provider only appears in its own section
     assert authoritative_section.find("a", href="/entity/600002") is None
     assert alternative_section.find("a", href="/entity/600001") is None
+
+
+def test_usable_and_trustworthy_count_as_authoritative_sources(
+    client, db_session, test_data, exclude_middleware
+):
+    """`authoritative` is priority 4 in specification/quality.csv and means the
+    authoritative band with outstanding errors. `usable` (5) and `trustworthy` (6)
+    are the same band with fewer problems, so they are authoritative sources too —
+    an exact match on "authoritative" would list the cleanest providers as
+    alternatives. `verifiable` (3) is the top of the NON-authoritative band and
+    must stay on the alternative side."""
+    for organisation, name, entity, quality in [
+        ("local-authority:USE", "Usable Council", 600011, "usable"),
+        ("local-authority:TRU", "Trustworthy Council", 600012, "trustworthy"),
+        ("local-authority:VER", "Verifiable Council", 600013, "verifiable"),
+    ]:
+        db_session.add(
+            OrganisationOrm(organisation=organisation, name=name, entity=entity)
+        )
+        add_provision_quality(
+            db_session,
+            "greenspace",
+            organisation,
+            name,
+            is_designated_provider=True,
+            quality=quality,
+        )
+    db_session.flush()
+
+    response = client.get("/data-provider/greenspace")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.text, "html.parser")
+    authoritative_section = soup.find(id="authoritative-sources").find_parent(
+        class_="dl-list-filter__count"
+    )
+    alternative_section = soup.find(id="alternative-sources").find_parent(
+        class_="dl-list-filter__count"
+    )
+
+    assert authoritative_section.find("a", href="/entity/600011") is not None
+    assert authoritative_section.find("a", href="/entity/600012") is not None
+    assert alternative_section.find("a", href="/entity/600013") is not None
+
+    # and not in the other section
+    assert alternative_section.find("a", href="/entity/600011") is None
+    assert authoritative_section.find("a", href="/entity/600013") is None
 
 
 def test_provider_page_returns_404_for_unknown_dataset(

@@ -20,6 +20,7 @@ from application.data_access.digital_land_queries import (
 
 from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
+from application.core.models import AUTHORITATIVE_QUALITIES
 from application.core.utils import DigitalLandJSONResponse, to_snake
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
@@ -141,8 +142,12 @@ def get_dataset(
         dataset_coverage_status = get_dataset_coverage_status(dataset)
 
         providers = get_providers_for_dataset(session, dataset)
-        authoritative_providers = [p for p in providers if p.quality == "authoritative"]
-        alternative_providers = [p for p in providers if p.quality != "authoritative"]
+        authoritative_providers = [
+            p for p in providers if p.quality in AUTHORITATIVE_QUALITIES
+        ]
+        alternative_providers = [
+            p for p in providers if p.quality not in AUTHORITATIVE_QUALITIES
+        ]
 
         # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories
