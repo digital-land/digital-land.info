@@ -1,10 +1,11 @@
 from unittest.mock import patch
+from types import SimpleNamespace
 
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import QueuePool
 
-from application.db.pool_metrics import instrument_pool
+from application.db.pool_metrics import _checkout_caller, instrument_pool
 from application.db.session import _create_engine
 
 
@@ -62,3 +63,55 @@ def test_telemetry_failure_does_not_break_queries_or_cleanup(measured_pool):
             assert connection.execute(text("SELECT 1")).scalar() == 1
             raise ValueError("Application error")
     assert engine.pool.checkedout() == 0
+
+
+def test_caller_detection():
+    frame = None
+    for module, function in [
+        ("application.routers.entity", "search_entities"),
+        ("application.data_access.entity_queries", "get_entity_search"),
+        ("sqlalchemy.pool.base", "checkout"),
+        ("application.db.pool_metrics", "checkout"),
+    ]:
+        frame = SimpleNamespace(
+            f_globals={"__name__": module},
+            f_code=SimpleNamespace(co_name=function),
+            f_back=frame,
+        )
+    with patch("application.db.pool_metrics.sys._getframe", return_value=frame):
+        assert _checkout_caller() == {
+            "operation": "application.routers.entity.search_entities",
+            "checkout_function": (
+                "application.data_access.entity_queries.get_entity_search"
+            ),
+        }
+
+
+def test_caller_detection_unavailable():
+    with patch("application.db.pool_metrics.sys._getframe", side_effect=ValueError):
+        assert _checkout_caller() == {
+            "operation": "unknown",
+            "checkout_function": "unknown",
+        }
+
+
+@pytest.mark.parametrize("invalidate", [False, True])
+def test_checkout_caller_survives_until_return_and_is_refreshed(
+    measured_pool, invalidate
+):
+    engine, metrics = measured_pool
+    callers = [{"operation": "first"}, {"operation": "second"}]
+    with (
+        patch("application.db.pool_metrics._checkout_caller", side_effect=callers),
+        patch("application.db.pool_metrics.logger.info") as log,
+    ):
+        for expected in callers:
+            with engine.connect() as connection:
+                if invalidate:
+                    connection.invalidate()
+            assert (
+                metrics.distribution.call_args.kwargs["attributes"]["operation"]
+                == expected["operation"]
+            )
+            assert log.call_args.kwargs["extra"]["operation"] == expected["operation"]
+    assert "operation" not in metrics.gauge.call_args.kwargs["attributes"]
