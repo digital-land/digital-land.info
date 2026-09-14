@@ -460,6 +460,24 @@ $dl-mobile-map-peek: 150px;
   // horizontal scrollbar. Clipping it here is cheap insurance against
   // that regardless of the exact cause.
   overflow-x: hidden;
+  // A deliberate, always-on buffer between the checkbox and the list's
+  // true right edge - not there to look nice, it's what stops the
+  // checkbox colliding with the scrollbar under macOS's (and iOS/iPadOS's)
+  // *overlay* scrollbars, its system-wide default: unlike a classic
+  // scrollbar, an overlay one reserves no layout space at all and floats
+  // over the content instead, right where the checkbox would otherwise
+  // sit flush against the edge. There's no CSS that can force macOS to
+  // reserve space here - scrollbar-gutter, the property that would
+  // normally do this, is explicitly a no-op under overlay scrollbars
+  // (confirmed against MDN's own scrollbar-gutter docs) - the only
+  // property-level way to get reserved-space scrollbars back is the
+  // user's own System Settings > Appearance > "Show scroll bars" >
+  // "Always", which this can't and shouldn't depend on. Padding our own
+  // permanent gap here instead works regardless of that setting, and
+  // regardless of browser - on a system that *does* reserve real gutter
+  // space, this just adds a few extra (harmless) px of breathing room
+  // beyond it.
+  padding-right: govuk-spacing(2);
   @include dl-thin-scrollbar;
 }
 
