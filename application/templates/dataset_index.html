@@ -49,10 +49,7 @@
 		{% set plural = typology | replace("-"," ")| title %}
 			<h2 class="govuk-heading-m" id="{{typology}}">{{plural}}</h2>
 			<div class="dl-list-filter__count__wrapper">
-				<p class="govuk-visually-hidden">There {{"is" if typologies[typology]['dataset']|length == 1 else "are"}}
-					<span class="js-accessible-list-filter__count">{{ typologies[typology]['dataset']|length }}</span>
-					{{plural}}
-				</p>
+				<p class="govuk-visually-hidden js-accessible-list-filter__status" role="status" data-category="{{ plural }}">There {{ typologies[typology]['dataset']|length | pluralize("is", "are") }} {{ typologies[typology]['dataset']|length }} {{ typologies[typology]['dataset']|length | pluralize("result") }} in {{plural}}</p>
 				<span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-filter__count" aria-hidden="true">{{ typologies[typology]['dataset']|length }}</span>
 			</div>
 		</div>
@@ -75,7 +72,7 @@
 	{% endif %}
 	{% endfor %}
 
-	<div class="dl-list-filter__no-filter-match js-hidden">
+	<div class="dl-list-filter__no-filter-match js-hidden" role="status" aria-atomic="true">
 		<p class="govuk-body">No dataset matches <span class="js-search-term-display"></span>.</p>
 		<p class="govuk-body">
 			Check <a href="https://design.planning.data.gov.uk/what-we-are-working-on">our current priorities</a> to see if
