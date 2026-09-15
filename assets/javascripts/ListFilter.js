@@ -105,13 +105,22 @@ export class ListFilter{
           let listSection = list.closest(list_section_selector);
           let countWrapper = listSection.querySelector(count_wrapper_selector);
           let listCount = countWrapper.querySelector('.js-list-filter__count');
-          let accessibleListCount = countWrapper.querySelector('.js-accessible-list-filter__count');
+          let accessibleStatus = countWrapper.querySelector('.js-accessible-list-filter__status');
 
           // show/hide sections with matching items
           if (matchingCount > 0) {
             listSection.classList.remove('js-hidden');
             listCount.textContent = matchingCount;
-            accessibleListCount.textContent = matchingCount;
+            if (accessibleStatus) {
+              const verb = matchingCount === 1 ? 'is' : 'are';
+              const noun = matchingCount === 1 ? 'result' : 'results';
+              const category = accessibleStatus.dataset.category;
+              const newStatusMessage = `There ${verb} ${matchingCount} ${noun} in ${category}`;
+              const statusMessageHasChanged = accessibleStatus.textContent !== newStatusMessage;
+              if (statusMessageHasChanged) {
+                accessibleStatus.textContent = newStatusMessage;
+              }
+            }
           } else {
             listSection.classList.add('js-hidden');
           }

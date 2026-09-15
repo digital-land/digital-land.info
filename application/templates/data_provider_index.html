@@ -55,10 +55,7 @@
     <div class="govuk-grid-column-one-third">
       <h2 class="govuk-heading-m" id="{{ group.id }}">{{ group.label }}</h2>
       <div class="dl-list-filter__count__wrapper">
-        <p class="govuk-visually-hidden">There {{"is" if group.providers|length == 1 else "are"}}
-          <span class="js-accessible-list-filter__count">{{ group.providers|length }}</span>
-          {{ group.label|lower }}
-        </p>
+        <p class="govuk-visually-hidden js-accessible-list-filter__status" role="status" data-category="{{ group.label|lower }}">There {{ group.providers|length | pluralize("is", "are") }} {{ group.providers|length }} {{ group.providers|length | pluralize("result") }} in {{ group.label|lower }}</p>
         <span class="govuk-body govuk-!-font-weight-bold govuk-!-font-size-80 js-list-filter__count" aria-hidden="true">{{ group.providers|length }}</span>
       </div>
     </div>
@@ -84,7 +81,7 @@
     <p class="govuk-body">There are no known data providers for {{ dataset["name"] }}.</p>
   {% endif %}
 
-  <div class="dl-list-filter__no-filter-match js-hidden">
+  <div class="dl-list-filter__no-filter-match js-hidden" role="status" aria-atomic="true">
 		<p class="govuk-body">No data provider for {{ dataset["name"] }} matches <span class="js-search-term-display"></span>.</p>
 	</div>
 
