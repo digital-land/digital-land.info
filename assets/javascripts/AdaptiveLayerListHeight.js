@@ -48,6 +48,13 @@ export default class AdaptiveLayerListHeight {
     });
 
     if (this.filterInput) this.filterInput.addEventListener('input', this.update);
+    // Checking/unchecking a dataset shows or hides the "Clear all filters"
+    // link above the list (see components/map-controls-panel/macro.jinja),
+    // which changes how much of the panel "everything else" needs - a
+    // change event on the list catches that generically (delegated, so it
+    // doesn't need to know anything about LayerControls.js's own checkbox
+    // wiring) rather than only reacting to the causes already covered above.
+    this.layerList.addEventListener('change', this.update);
     window.addEventListener('resize', this.debounce(this.update, 150));
     this.desktopQuery.addEventListener('change', this.update);
 
