@@ -9,6 +9,7 @@ def add_provision_quality(
     organisation,
     organisation_name,
     is_designated_provider,
+    quality=None,
 ):
     db_session.add(
         ProvisionQualityOrm(
@@ -19,14 +20,14 @@ def add_provision_quality(
             has_active_resource=True,
             owns_entities=True,
             is_designated_provider=is_designated_provider,
-            quality="authoritative" if is_designated_provider else "some",
+            quality=quality,
             entity_count=10,
             quality_score=None,
         )
     )
 
 
-def add_provider(db_session, suffix, entity, is_designated_provider):
+def add_provider(db_session, suffix, entity, is_designated_provider, quality=None):
     name = f"Council {suffix}"
     db_session.add(
         OrganisationOrm(
@@ -39,6 +40,7 @@ def add_provider(db_session, suffix, entity, is_designated_provider):
         f"local-authority:{suffix}",
         name,
         is_designated_provider=is_designated_provider,
+        quality=quality,
     )
     return name
 
@@ -104,3 +106,37 @@ def test_dataset_page_shows_none_when_no_providers_at_all(
     row_heading = soup.find(string="Data providers")
     row_value_cell = row_heading.find_parent("tr").find_all("td")[0]
     assert row_value_cell.get_text(strip=True) == "None"
+
+
+def test_dataset_page_counts_every_provider_whatever_its_quality(
+    client, db_session, test_data, exclude_middleware
+):
+    """The dataset page renders authoritative_providers + alternative_providers
+    combined, so the two comprehensions must stay exact complements — every
+    provider counted once, none dropped and none duplicated. Spans the quality
+    ladder so that editing one comprehension and not the other shows up here as a
+    wrong count rather than silently losing providers.
+
+    The partition itself is not asserted here on purpose: dataset.html only ever
+    uses the concatenation, so which side a provider falls on is unobservable on
+    this page. That is covered in test_data_provider.py, where it is visible.
+    """
+    for i, quality in enumerate(
+        ["trustworthy", "usable", "authoritative", "verifiable", "some", "none"]
+    ):
+        add_provider(
+            db_session,
+            f"Q{i}",
+            600060 + i,
+            is_designated_provider=True,
+            quality=quality,
+        )
+    db_session.flush()
+
+    response = client.get("/dataset/greenspace")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.text, "html.parser")
+    provider_link = soup.find("a", href="/data-provider/greenspace")
+    assert provider_link is not None
+    assert provider_link.get_text(strip=True) == "6 data providers"

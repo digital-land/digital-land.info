@@ -150,6 +150,14 @@ class ProviderModel(DigitalLandBaseModel):
     quality_score: Optional[float] = None
 
 
+# specification/quality.csv: the authoritative band is priority 4 and above.
+# `authoritative` (4) is the authoritative band *with* outstanding errors, while
+# `usable` (5) and `trustworthy` (6) are the same band with fewer — so all three
+# are authoritative sources. Matching "authoritative" alone would list the
+# cleanest providers as alternative sources.
+AUTHORITATIVE_QUALITIES = ("authoritative", "usable", "trustworthy")
+
+
 def entity_factory(entity_orm: EntityOrm):
     e = EntityModel.model_validate(entity_orm)
     if entity_orm.json is not None:
