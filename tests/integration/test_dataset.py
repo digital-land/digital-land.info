@@ -20,7 +20,7 @@ def add_provision_quality(
             has_active_resource=True,
             owns_entities=True,
             is_designated_provider=is_designated_provider,
-            quality=quality or ("authoritative" if is_designated_provider else "some"),
+            quality=quality,
             entity_count=10,
             quality_score=None,
         )
