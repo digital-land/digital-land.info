@@ -7,6 +7,7 @@
 {% set search_result = params.get("search_result") %}
 {% set search_query = params.get("search_query", "") %}
 {% set error = params.get("error") %}
+{% set any_layer_checked = layers | selectattr("checked") | list | length > 0 %}
 
 {% set findAnAreaContent %}
   {{ dlFindAnAreaForm({
@@ -21,6 +22,20 @@
     <label for="layer-filter-input" class="govuk-label govuk-visually-hidden">Search data layers</label>
     <input id="layer-filter-input" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-controls="layer-toggles-list">
   </div>
+  {#- Visible only once something's checked - a real <button> (not an <a
+      href="#">, which would be a fake-link anti-pattern for something
+      that performs an action rather than navigating), styled to read as
+      a link via its own CSS rather than the govuk-link class - that
+      class's colour comes from :link/:visited, pseudo-classes that only
+      ever match real anchors, never a button, so it wouldn't actually
+      apply here (same reasoning as the accordion's own section headings
+      and the Key panel's toggle, both real buttons styled the same way).
+      LayerControls.js's updateClearFiltersLink() keeps the hidden
+      attribute in sync as checkboxes change; this is just the correct
+      state for first paint. #}
+  <p class="dl-map__clear-filters" id="dl-map-clear-filters-wrapper" {{ 'hidden' if not any_layer_checked }}>
+    <button type="button" class="dl-map__clear-filters-button" id="dl-map-clear-filters-button">Clear all filters</button>
+  </p>
   <div class="govuk-checkboxes govuk-checkboxes--small" data-module="layer-controls">
     <ul class="govuk-list dl-map__layer-list" data-module="layer-toggles" id="layer-toggles-list">
       {% for layer in layers %}

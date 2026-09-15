@@ -23,6 +23,7 @@ const setUp = ({ desktop = true } = {}) => {
         style: { height: '' },
         scrollHeight: 500,
         offsetHeight: 220,
+        addEventListener: vi.fn(),
     }
     // Measured as an actual rendered span (panelContent's top to the note
     // panel's bottom) rather than summed from individual elements'
@@ -150,7 +151,7 @@ describe('AdaptiveLayerListHeight', () => {
     })
 
     test('falls back to the accordion\'s own bottom edge if the note panel is missing', () => {
-        const layerList = { style: { height: '' }, scrollHeight: 500, offsetHeight: 220 }
+        const layerList = { style: { height: '' }, scrollHeight: 500, offsetHeight: 220, addEventListener: vi.fn() }
         const panelContent = { clientHeight: 700, getBoundingClientRect: () => ({ top: 100 }) }
         const accordion = { children: [], getBoundingClientRect: () => ({ bottom: 580 }) }
         const elements = {
@@ -201,6 +202,18 @@ describe('AdaptiveLayerListHeight', () => {
         handler()
 
         expect(layerList.style.height).toEqual('450px')
+    })
+
+    test('recomputes on a checkbox change (e.g. "Clear all filters" appearing/disappearing changes how much room is left)', () => {
+        const { layerList, notePanel } = setUp()
+
+        new AdaptiveLayerListHeight()
+        notePanel._bottom = 100 + 330
+
+        const handler = layerList.addEventListener.mock.calls.find(call => call[0] === 'change')[1]
+        handler()
+
+        expect(layerList.style.height).toEqual('500px')
     })
 
     test('falls back to the plain CSS-declared height on mobile', () => {

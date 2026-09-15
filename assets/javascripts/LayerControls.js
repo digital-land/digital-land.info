@@ -44,6 +44,12 @@ export default class LayerControls {
       this.$keyPanelToggle = document.getElementById('dl-map-key-panel-toggle');
       this.$keyPanelClose = document.getElementById('dl-map-key-panel-close');
 
+      this.$clearFiltersWrapper = document.getElementById('dl-map-clear-filters-wrapper');
+      this.$clearFiltersButton = document.getElementById('dl-map-clear-filters-button');
+      if (this.$clearFiltersButton) {
+        this.$clearFiltersButton.addEventListener('click', this.clearAllFilters.bind(this));
+      }
+
       // The toggle always flips whatever the current state is (click while
       // collapsed -> expand, click while expanded -> collapse); the close
       // button only ever collapses. Either way, the next checkbox change
@@ -122,8 +128,8 @@ export default class LayerControls {
       enabledLayers.forEach(layer => layer.enable());
       disabledLayers.forEach(layer => layer.disable());
 
-      this.reorderLayerList();
       this.updateKeyPanel();
+      this.updateClearFiltersLink();
     }
 
     // Shows/hides each pre-rendered key row (components/map-key-panel/
@@ -179,34 +185,43 @@ export default class LayerControls {
       }
     }
 
-    // Design wants checked layers "sticky" at the top of the list, above
-    // any unchecked ones - selected first, then everything else, each
-    // group keeping the same relative order it always had (this.layerOptions
-    // is built once from the server-rendered order in attach() and never
-    // itself reshuffled, so re-partitioning it here on every change is
-    // enough to keep that order stable rather than drifting on repeated
-    // toggles).
-    //
-    // This runs after every checkbox change and URL-driven update (both
-    // funnel through showEntitiesForLayers above), so the list re-sorts
-    // itself immediately regardless of whether the change came from a
-    // click or a page-load/back-button URL restore.
-    reorderLayerList() {
-      if (!this.$layerList) return;
+    // Shows/hides the "Clear all filters" link (rendered above the
+    // checkbox list, components/map-controls-panel/macro.jinja) - visible
+    // whenever one or more dataset layers are checked, hidden otherwise.
+    // Doesn't need to consider "Show historical data" separately, unlike
+    // updateKeyPanel()'s own anyChecked - that checkbox can only ever be
+    // checked once at least one dataset already is (toggleHistoricalData()
+    // forces it back off otherwise), so it's never the sole reason to show
+    // this link.
+    updateClearFiltersLink() {
+      if (!this.$clearFiltersWrapper) return;
 
-      const checked = [];
-      const unchecked = [];
+      if (this.enabledLayers().length > 0) {
+        this.$clearFiltersWrapper.removeAttribute('hidden');
+      } else {
+        this.$clearFiltersWrapper.setAttribute('hidden', '');
+      }
+    }
+
+    // Unchecks every dataset checkbox in one go, then feeds that through
+    // the same updateUrl() -> toggleLayersBasedOnUrl() -> showEntitiesForLayers()
+    // pipeline a normal checkbox click already goes through - so disabling
+    // each layer, resetting "Show historical data", clearing the URL's
+    // dataset params, and re-syncing the Key panel/this link all happen
+    // via the one existing path rather than being reimplemented here.
+    clearAllFilters(e) {
+      if (e) e.preventDefault();
+
       this.layerOptions.forEach(option => {
-        (option.isChecked() ? checked : unchecked).push(option);
+        const $chkbx = option.element.querySelector('input[type="checkbox"]');
+        if ($chkbx) $chkbx.checked = false;
       });
+      this.updateUrl();
 
-      // Appending an already-attached element moves it rather than
-      // duplicating it, so this reorders in place without touching
-      // display/visibility (relevant while the filter box has some items
-      // hidden) or any listeners already bound to these elements.
-      checked.concat(unchecked).forEach(option => {
-        this.$layerList.appendChild(option.element);
-      });
+      // The button that was just clicked is about to hide itself (nothing's
+      // checked any more) - move focus off it first rather than leaving it
+      // stranded on a now-hidden element.
+      if (this.$textbox) this.$textbox.focus();
     }
 
     enabledLayers() {

@@ -448,6 +448,33 @@ $dl-mobile-map-peek: 150px;
   }
 }
 
+// Sits between the dataset search box and the checkbox list - visible
+// only once something's checked (LayerControls.js's updateClearFiltersLink()),
+// so deselecting several checked layers at once doesn't mean hunting each
+// one down individually.
+.dl-map__clear-filters {
+  margin: 0 0 govuk-spacing(2);
+}
+
+.dl-map__clear-filters-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: $govuk-link-colour;
+  text-decoration: underline;
+
+  &:hover {
+    color: $govuk-link-hover-colour;
+  }
+
+  &:focus {
+    @include govuk-focused-text;
+  }
+
+  @include govuk-font-size($size: 16);
+}
+
 // The dataset checkbox list scrolls once it grows past a handful of
 // items, rather than growing the panel indefinitely.
 .dl-map__layer-list {
