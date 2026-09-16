@@ -1,0 +1,115 @@
+{#- Two independent floating overlay cards on top of the map ("Find an
+    area", "Select data layers") - the version-B design, as opposed to
+    version A's single shared accordion panel. Each follows the same
+    visual/interaction language as the Key overlay (map-key-panel/
+    macro.jinja): icon + title button that toggles expand/collapse, a
+    separate "✕" close button, collapses to just its header. Unlike the
+    Key panel, neither of these is ever hidden outright - closing one
+    just collapses it to its header pill, which stays visible so the
+    user can reopen it. #}
+{% macro dlMapControlsPanel(params) %}
+{% from "components/map-find-an-area-form/macro.jinja" import dlFindAnAreaForm %}
+{% from "components/map/macro.jinja" import layerControlItem %}
+
+{% set layers = params.get("layers", []) %}
+{% set search_result = params.get("search_result") %}
+{% set search_query = params.get("search_query", "") %}
+{% set error = params.get("error") %}
+{% set any_layer_checked = layers | selectattr("checked") | list | length > 0 %}
+
+{#- Collapsed on first paint whenever there's already a successful
+    result to show (the page-level "Search results" summary above the
+    map takes over instead) - avoids a flash of open-then-collapsed.
+    FindAnAreaForm.js keeps this in sync after any later search. #}
+{% set find_an_area_expanded = not (search_result and search_result.get("result")) %}
+
+<div class="dl-map-overlay-stack">
+  <div class="dl-map-overlay-card{{ '' if find_an_area_expanded else ' dl-map-overlay-card--collapsed' }}" id="dl-find-an-area-card">
+    <div class="dl-map-overlay-card__header">
+      <button type="button" class="dl-map-overlay-card__toggle" id="dl-find-an-area-card-toggle" aria-expanded="{{ 'true' if find_an_area_expanded else 'false' }}" aria-controls="dl-find-an-area-card-content">
+        <svg class="dl-map-overlay-card__icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="#1d70b8" stroke-width="2"/>
+          <line x1="10" y1="10" x2="14.5" y2="14.5" stroke="#1d70b8" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="dl-map-overlay-card__title">Find an area</span>
+      </button>
+      <button type="button" class="dl-map-overlay-card__close" id="dl-find-an-area-card-close" aria-label="Hide find an area">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <line x1="3" y1="3" x2="13" y2="13" stroke="#0b0c0c" stroke-width="2" stroke-linecap="round"/>
+          <line x1="13" y1="3" x2="3" y2="13" stroke="#0b0c0c" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dl-map-overlay-card__content" id="dl-find-an-area-card-content">
+      {{ dlFindAnAreaForm({
+        "search_result": search_result,
+        "search_query": search_query,
+        "error": error
+      }) }}
+    </div>
+  </div>
+
+  <div class="dl-map-overlay-card" id="dl-select-data-layers-card">
+    <div class="dl-map-overlay-card__header">
+      <button type="button" class="dl-map-overlay-card__toggle" id="dl-select-data-layers-card-toggle" aria-expanded="true" aria-controls="dl-select-data-layers-card-content">
+        <svg class="dl-map-overlay-card__icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <polygon points="8,1.5 14.5,5 8,8.5 1.5,5" fill="none" stroke="#1d70b8" stroke-width="1.4" stroke-linejoin="round"/>
+          <polyline points="1.5,8 8,11.5 14.5,8" fill="none" stroke="#1d70b8" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+          <polyline points="1.5,11 8,14.5 14.5,11" fill="none" stroke="#1d70b8" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <span class="dl-map-overlay-card__title">Select data layers</span>
+      </button>
+      <button type="button" class="dl-map-overlay-card__close" id="dl-select-data-layers-card-close" aria-label="Hide select data layers">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <line x1="3" y1="3" x2="13" y2="13" stroke="#0b0c0c" stroke-width="2" stroke-linecap="round"/>
+          <line x1="13" y1="3" x2="3" y2="13" stroke="#0b0c0c" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dl-map-overlay-card__content" id="dl-select-data-layers-card-content">
+      {#- Visible only once something's checked - a real <button> (not an
+          <a href="#">, which would be a fake-link anti-pattern for
+          something that performs an action rather than navigating),
+          styled to read as a link via its own CSS rather than the
+          govuk-link class - that class's colour comes from :link/
+          :visited, pseudo-classes that only ever match real anchors,
+          never a button. LayerControls.js's updateClearFiltersLink()
+          keeps the hidden attribute in sync as checkboxes change; this
+          is just the correct state for first paint. Placed above the
+          filter input per design - deliberately not below it. #}
+      <p class="dl-map__clear-filters" id="dl-map-clear-filters-wrapper" {{ 'hidden' if not any_layer_checked }}>
+        <button type="button" class="dl-map__clear-filters-button" id="dl-map-clear-filters-button">Clear all filters</button>
+      </p>
+      <div class="dl-filter-group__auto-filter">
+        <label for="layer-filter-input" class="govuk-label govuk-visually-hidden">Search data layers</label>
+        <input id="layer-filter-input" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-controls="layer-toggles-list">
+      </div>
+      <div class="govuk-checkboxes govuk-checkboxes--small" data-module="layer-controls">
+        <ul class="govuk-list dl-map__layer-list" data-module="layer-toggles" id="layer-toggles-list">
+          {% for layer in layers %}
+            {{ layerControlItem(layer) }}
+          {% endfor %}
+        </ul>
+      </div>
+      {#- Folded directly into the bottom of this same card - single
+          card, no separate "Advanced settings" section (that split only
+          existed in version A for mobile-accordion reasons that don't
+          apply to this independent-card design). No colour swatch here
+          either - like the dataset checkboxes, that's shown in the Key
+          overlay instead, only when checked. #}
+      <div class="govuk-form-group" id="dl-map-settings-content">
+        <ul class="govuk-list govuk-checkboxes govuk-checkboxes--small">
+          <li class="dl-map__layer-item">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="show-historical-data" name="show-historical-data" type="checkbox" value="show-historical-data">
+              <label class="govuk-label govuk-checkboxes__label" for="show-historical-data">
+                Show historical data
+              </label>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}

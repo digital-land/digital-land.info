@@ -60,6 +60,11 @@ export default class MapController {
     params = params || {};
     this.mapId = params.mapId || 'mapid';
     this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
+    // Element the FullscreenControl should fullscreen. Defaults to just the
+    // map's own div; pages that render extra UI alongside the map (e.g. the
+    // overlay cards on national-map.html) can pass a wider container
+    // selector so that UI stays visible in fullscreen too.
+    this.fullscreenContainerSelector = params.fullscreenContainerSelector || null;
     this.vectorTileSources = params.vectorTileSources || [];
     this.datasetVectorUrl = params.datasetVectorUrl || null;
     this.datasets = params.datasets || null;
@@ -108,6 +113,12 @@ export default class MapController {
       minZoom: 6,
       maxZoom: 18,
       style: this.customStyleJson,
+      // MapLibre's own default attribution control (the "i" toggle +
+      // "MapLibre" link) isn't wanted - our own CopyrightControl (the
+      // "Basemap contains OS data..." text, added separately below)
+      // covers attribution instead, and becomes the sole occupant of
+      // the bottom-right corner once this is turned off.
+      attributionControl: false,
       maxBounds: [
         [ -15, 49 ],
         [ 13, 57 ]
@@ -165,7 +176,6 @@ export default class MapController {
 
     this.addControls()
     this.addClickHandlers();
-    this.overwriteWheelEventsForControls();
     this._setupComplete = true;
 
     const handleMapMove = () => {
@@ -281,28 +291,34 @@ export default class MapController {
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
 
+    // Moved from top-left to top-right - the "Find an area"/"Select
+    // data layers" floating cards (rendered server-side, see
+    // components/map-controls-panel/macro.jinja) occupy the map's
+    // top-left corner instead.
     if(this.FullscreenControl.enabled){
+      const fullscreenContainer = this.fullscreenContainerSelector
+        ? document.querySelector(this.fullscreenContainerSelector)
+        : document.getElementById(this.mapId);
       this.map.addControl(new maplibregl.FullscreenControl({
-        container: document.getElementById(this.mapId)
-      }), 'top-left');
+        container: fullscreenContainer
+      }), 'top-right');
     }
-    this.map.addControl(new TiltControl(), 'top-left');
+    this.map.addControl(new TiltControl(), 'top-right');
     this.map.addControl(new maplibregl.NavigationControl({
       container: document.getElementById(this.mapId)
-    }), 'top-left');
+    }), 'top-right');
 
     this.map.addControl(new CopyrightControl(), 'bottom-right');
 
     if(this.LayerControlOptions.enabled){
+      // The layer/settings controls (and the Key overlay) are rendered
+      // server-side as part of the page (see components/map-controls-
+      // panel/macro.jinja and components/map-key-panel/macro.jinja)
+      // rather than built here, so LayerControls attaches behaviour to
+      // existing DOM instead of being added as a maplibre control.
       this.layerControlsComponent = new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions);
-      this.map.addControl(this.layerControlsComponent, 'top-right');
+      this.layerControlsComponent.attach();
     }
-  }
-
-  overwriteWheelEventsForControls() {
-    const mapEl = document.getElementById(this.mapId)
-    const mapControlsArray = mapEl.querySelectorAll('.maplibregl-control-container')
-    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content']), {passive: false}));
   }
 
   addClickHandlers() {
