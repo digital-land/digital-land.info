@@ -3,6 +3,12 @@
 // than only collapsing individual accordion sections. Independent of
 // LayerControls.js/the accordion itself - this only ever hides/shows the
 // panel's content wrapper, it doesn't know or care what's inside it.
+//
+// Desktop only in practice - the toggle button is hidden entirely on
+// mobile now (_controls-panel.scss), where the panel is plain page
+// content rather than an overlay with anything to collapse. This class
+// still runs there (the button/panel elements still exist in the DOM),
+// it just never does anything, since a hidden button can't be clicked.
 export default class MapControlsPanelToggle {
   constructor() {
     this.panel = document.getElementById('dl-map-controls-panel');
@@ -12,7 +18,6 @@ export default class MapControlsPanelToggle {
     if (!this.panel || !this.content || !this.button) return;
 
     this.labelText = this.button.querySelector('.dl-map-controls-panel__toggle-text');
-    this.applyFiltersButton = document.getElementById('dl-map-apply-filters-button');
 
     // The panel should stretch/cap to the map *and its footer* combined
     // (see _controls-panel.scss's --dl-map-height), not just the map's
@@ -30,39 +35,12 @@ export default class MapControlsPanelToggle {
 
     this.button.addEventListener('click', this.toggle.bind(this));
 
-    // Mobile-only "Apply filters" button (hidden entirely on desktop via
-    // CSS) - everything in the panel already applies live as it's
-    // changed, so this doesn't apply anything itself, it just closes the
-    // overlay once the user's happy with their selection. Always a plain
-    // collapse, never a toggle - it only makes sense while the panel is
-    // already open (it isn't visible otherwise).
-    if (this.applyFiltersButton) {
-      this.applyFiltersButton.addEventListener('click', () => this.setCollapsed(true));
-    }
-
     this.syncContainerHeight = this.syncContainerHeight.bind(this);
     window.addEventListener('resize', this.debounce(this.syncContainerHeight, 150));
     // Both the map wrapper's and footer's heights are already stable as
     // soon as CSS has applied - no need to wait for the map's own async
     // load event, which only affects tile rendering, not layout.
     this.syncContainerHeight();
-
-    // On mobile, the panel slides down from the top instead of in from
-    // the left (see _controls-panel.scss), content-hugging up to its own
-    // max-height cap rather than being fixed to the map's height - so
-    // its bottom edge (where the collapse tab sits) moves not only when
-    // the whole panel is toggled, but whenever an individual accordion
-    // section inside it opens or closes too. A ResizeObserver catches
-    // every one of those cases generically, rather than having to hook
-    // each possible cause individually. Harmless on desktop - nothing
-    // there reads --dl-panel-height, since that toggle is positioned by
-    // width, not height.
-    if (this.container && typeof ResizeObserver !== 'undefined') {
-      this.panelResizeObserver = new ResizeObserver(() => {
-        this.container.style.setProperty('--dl-panel-height', this.panel.getBoundingClientRect().height + 'px');
-      });
-      this.panelResizeObserver.observe(this.panel);
-    }
   }
 
   toggle() {
@@ -112,18 +90,6 @@ export default class MapControlsPanelToggle {
     const height = footerBottom - wrapperRect.top;
     if (height > 0) {
       this.container.style.setProperty('--dl-map-height', height + 'px');
-    }
-
-    // The map canvas's own height specifically, not map+footer combined -
-    // used by the mobile panel's max-height cap (_controls-panel.scss),
-    // which needs to leave part of the *map* visible below it. The
-    // footer's own height is highly variable on narrow viewports (its
-    // text can wrap across several more lines there than on desktop), so
-    // --dl-map-height alone would make that cap leave room for whatever
-    // mix of map-and-footer-overflow happened to be tallest that time,
-    // not reliably "some of the map".
-    if (wrapperRect.height > 0) {
-      this.container.style.setProperty('--dl-wrapper-height', wrapperRect.height + 'px');
     }
   }
 

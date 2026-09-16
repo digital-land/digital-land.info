@@ -28,12 +28,7 @@ const makeSection = (button) => {
     }
 }
 
-const makeMediaQuery = (matches) => ({
-    matches,
-    addEventListener: vi.fn(),
-})
-
-const setUp = ({ dataLayerExpanded = true, settingsExpanded = true, desktop = true } = {}) => {
+const setUp = ({ dataLayerExpanded = true, settingsExpanded = true } = {}) => {
     const findAnAreaButton = makeButton(true)
     const dataLayerButton = makeButton(dataLayerExpanded)
     const settingsButton = makeButton(settingsExpanded)
@@ -43,16 +38,12 @@ const setUp = ({ dataLayerExpanded = true, settingsExpanded = true, desktop = tr
     const settingsSection = makeSection(settingsButton)
 
     const accordion = { children: [findAnAreaSection, dataLayerSection, settingsSection] }
-    const mediaQuery = makeMediaQuery(desktop)
 
     vi.stubGlobal('document', {
         getElementById: vi.fn((id) => (id === 'dl-map-controls-accordion' ? accordion : null)),
     })
-    vi.stubGlobal('window', {
-        matchMedia: vi.fn(() => mediaQuery),
-    })
 
-    return { dataLayerButton, settingsButton, dataLayerHeader: dataLayerSection.header, mediaQuery }
+    return { dataLayerButton, settingsButton, dataLayerHeader: dataLayerSection.header }
 }
 
 describe('AdvancedSettingsSync', () => {
@@ -116,24 +107,4 @@ describe('AdvancedSettingsSync', () => {
         expect(settingsButton._expanded).toBe(true)
     })
 
-    test('leaves mobile (below the breakpoint) fully independent', () => {
-        const { settingsButton } = setUp({ dataLayerExpanded: false, settingsExpanded: true, desktop: false })
-
-        new AdvancedSettingsSync()
-
-        expect(settingsButton.click).not.toHaveBeenCalled()
-    })
-
-    test('re-syncs when the viewport crosses the desktop breakpoint', () => {
-        const { settingsButton, mediaQuery } = setUp({ dataLayerExpanded: false, settingsExpanded: true, desktop: false })
-
-        new AdvancedSettingsSync()
-        expect(settingsButton.click).not.toHaveBeenCalled()
-
-        mediaQuery.matches = true
-        const changeHandler = mediaQuery.addEventListener.mock.calls.find(call => call[0] === 'change')[1]
-        changeHandler()
-
-        expect(settingsButton.click).toHaveBeenCalledTimes(1)
-    })
 })

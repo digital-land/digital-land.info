@@ -1,14 +1,11 @@
 // "Advanced settings" (just "Show historical data" today) is a separate
 // accordion section from "Select a data layer" - deliberately kept that
-// way (not merged into one section) since mobile shows it as its own,
-// independently collapsible section with a visible heading of its own
-// (see _controls-panel.scss). On desktop, though, its heading/toggle is
-// hidden and it's always expanded, with no way to close it on its own -
-// which reads oddly once the user closes "Select a data layer" itself,
-// since a setting for data layers stays visibly open with nothing
-// selected. This keeps the two sections separate in markup (so mobile
-// is untouched) but makes "Advanced settings" follow "Select a data
-// layer"'s own open/closed state on desktop specifically.
+// way in the markup, but its heading/toggle is hidden on every
+// breakpoint (_controls-panel.scss) and it's always expanded, with no
+// way to close it on its own - which reads oddly once the user closes
+// "Select a data layer" itself, since a setting for data layers stays
+// visibly open with nothing selected. This makes "Advanced settings"
+// follow "Select a data layer"'s own open/closed state instead.
 export default class AdvancedSettingsSync {
   constructor() {
     const accordion = document.getElementById('dl-map-controls-accordion');
@@ -33,17 +30,8 @@ export default class AdvancedSettingsSync {
 
     if (!this.dataLayerButton || !this.settingsButton || !dataLayerHeader) return;
 
-    // Only on desktop/tablet+ - "Advanced settings" has its own visible,
-    // independently-clickable heading on mobile, where the two should
-    // stay fully independent instead.
-    this.desktopQuery = window.matchMedia('(min-width: 40.0625em)');
-
     this.sync = this.sync.bind(this);
     dataLayerHeader.addEventListener('click', this.sync);
-    // Re-evaluate if the viewport crosses the breakpoint too (e.g.
-    // rotating a tablet) - snaps "Advanced settings" to "Select a data
-    // layer"'s current state the moment desktop behaviour applies.
-    this.desktopQuery.addEventListener('change', this.sync);
 
     // Also covers page load itself - govuk-frontend's Accordion persists
     // each section's expanded state independently across page loads
@@ -53,8 +41,6 @@ export default class AdvancedSettingsSync {
   }
 
   sync() {
-    if (!this.desktopQuery.matches) return;
-
     const dataLayerExpanded = this.dataLayerButton.getAttribute('aria-expanded') === 'true';
     const settingsExpanded = this.settingsButton.getAttribute('aria-expanded') === 'true';
 
