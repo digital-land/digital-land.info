@@ -163,13 +163,13 @@ Example: `MULTIPOLYGON (((1.188829 51.23478,1.188376 51.234909,1.188381 51.23491
 
 If you’re providing geometry in a GeoJSON, GML or Geopackage, use the associated geometry format.
 
-### uprn
+### uprns
 
 If the geometry is the boundary of a building, you can provide the Unique Property Reference Number (UPRN). Find the UPRN on GeoPlace.
 
 If you provide the UPRN, you must also provide the address text.
 
-### address-text
+### address-texts
 
 If the geometry is the boundary of a building, you can provide the address of the article 4 direction, written as text.
 
