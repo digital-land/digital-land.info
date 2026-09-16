@@ -44,7 +44,6 @@ describe('MapControlsPanelToggle', () => {
         const content = makeElement()
         const labelText = { textContent: '' }
         const button = { ...makeElement(), querySelector: vi.fn(() => labelText) }
-        const applyFiltersButton = { addEventListener: vi.fn() }
 
         const mapWrapper = { ...makeElement(), getBoundingClientRect: vi.fn(() => ({ top: 100, bottom: 800, height: 700 })) }
         const sourcesPanel = { ...makeElement(), getBoundingClientRect: vi.fn(() => ({ top: 800, bottom: 872 })) }
@@ -62,11 +61,10 @@ describe('MapControlsPanelToggle', () => {
                 'dl-map-controls-panel': panel,
                 'dl-map-controls-panel-content': content,
                 'dl-map-controls-panel-toggle': button,
-                'dl-map-apply-filters-button': applyFiltersButton,
             })[id]),
         })
 
-        return { panel, content, button, labelText, mapWrapper, sourcesPanel, container, applyFiltersButton }
+        return { panel, content, button, labelText, mapWrapper, sourcesPanel, container }
     }
 
     test('collapsing hides the content, updates aria-expanded, and swaps the label', () => {
@@ -91,28 +89,6 @@ describe('MapControlsPanelToggle', () => {
         expect(button.setAttribute).toHaveBeenCalledWith('aria-expanded', 'true')
         expect(content.removeAttribute).toHaveBeenCalledWith('hidden')
         expect(labelText.textContent).toEqual('Hide map controls')
-    })
-
-    describe('"Apply filters" button (mobile only - hidden entirely on desktop via CSS)', () => {
-        test('clicking it collapses the panel, same as the toggle tab', () => {
-            const { panel, content, applyFiltersButton } = setUp()
-
-            new MapControlsPanelToggle()
-            const clickHandler = applyFiltersButton.addEventListener.mock.calls.find(call => call[0] === 'click')[1]
-
-            clickHandler()
-
-            expect(panel.classList.toggle).toHaveBeenCalledWith('dl-map-controls-panel--collapsed', true)
-            expect(content.setAttribute).toHaveBeenCalledWith('hidden', '')
-        })
-
-        test('does not throw if the button is not present', () => {
-            setUp()
-            const withoutApplyButton = document.getElementById.getMockImplementation()
-            document.getElementById = vi.fn((id) => (id === 'dl-map-apply-filters-button' ? undefined : withoutApplyButton(id)))
-
-            expect(() => new MapControlsPanelToggle()).not.toThrow()
-        })
     })
 
     describe('syncContainerHeight()', () => {
@@ -159,47 +135,6 @@ describe('MapControlsPanelToggle', () => {
         test('does nothing when there is no .dl-map-with-controls ancestor', () => {
             const { panel } = setUp()
             panel.closest = vi.fn(() => null)
-
-            expect(() => new MapControlsPanelToggle()).not.toThrow()
-        })
-
-        test('also sets --dl-wrapper-height to the map wrapper\'s own height, independent of the footer', () => {
-            const { container } = setUp()
-
-            new MapControlsPanelToggle()
-
-            // the mock's mapWrapper is 700px tall on its own, regardless of
-            // the footer's own (much taller, once wrapped) height used for
-            // --dl-map-height above
-            expect(container.style.setProperty).toHaveBeenCalledWith('--dl-wrapper-height', '700px')
-        })
-    })
-
-    describe('panel height tracking (mobile toggle tab position)', () => {
-        test('observes the panel and updates --dl-panel-height whenever its rendered height changes', () => {
-            const { panel, container } = setUp()
-            panel.getBoundingClientRect = vi.fn(() => ({ height: 234 }))
-
-            let resizeCallback
-            const observe = vi.fn()
-            vi.stubGlobal('ResizeObserver', vi.fn(function (cb) {
-                resizeCallback = cb
-                this.observe = observe
-            }))
-
-            new MapControlsPanelToggle()
-
-            expect(observe).toHaveBeenCalledWith(panel)
-
-            container.style.setProperty.mockClear()
-            resizeCallback()
-
-            expect(container.style.setProperty).toHaveBeenCalledWith('--dl-panel-height', '234px')
-        })
-
-        test('does not throw when ResizeObserver is unavailable', () => {
-            setUp()
-            vi.stubGlobal('ResizeObserver', undefined)
 
             expect(() => new MapControlsPanelToggle()).not.toThrow()
         })

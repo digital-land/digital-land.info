@@ -122,3 +122,46 @@
     content: none;
   }
 }
+
+// Mobile only: top-left instead of bottom-right - now that the controls
+// panel above the map is plain page content rather than a floating
+// overlay (see _controls-panel.scss's own mobile block), the Key panel
+// reads better sitting in the corner closest to it than the map's
+// opposite corner. Top-left is also clear of MapLibre's own native
+// controls (zoom/tilt/fullscreen), which sit top-right on this page.
+@include govuk-media-query($until: tablet) {
+  .dl-map-key-panel {
+    top: govuk-spacing(2);
+    left: govuk-spacing(2);
+    right: auto;
+    bottom: auto;
+  }
+
+  // Collapses to a plain icon-only square here, not the wider "Key"-
+  // labelled pill desktop keeps - a phone screen has less spare width to
+  // dedicate to a label, and a small square reads more like the other
+  // native map controls it now sits alongside than a floating card.
+  // Expanding still shows the full title + list at the base rule's own
+  // width (260px, capped to whatever's available) - only the collapsed
+  // state is affected here. No explicit width is set on the collapsed
+  // box itself - an absolutely positioned element with no declared width
+  // shrink-wraps to its content by default, so it naturally hugs just
+  // the icon once the label is hidden and padding is equalised below.
+  .dl-map-key-panel--collapsed {
+    width: auto;
+    max-width: none;
+
+    .dl-map-key-panel__header {
+      // Equal on all sides (the base rule's own govuk-spacing(2)
+      // govuk-spacing(3) is deliberately asymmetric, sized to balance
+      // against the "Key" text and close button neither of which are
+      // present here) - what actually makes the shrink-wrapped box a
+      // clean square around the icon, not just an arbitrary rectangle.
+      padding: govuk-spacing(2);
+    }
+
+    .dl-map-key-panel__title {
+      display: none;
+    }
+  }
+}

@@ -6,10 +6,19 @@
 // swatch doesn't look oversized next to the (now small) checkbox itself.
 $govuk-checkboxes-size: 24px;
 
+// Checkbox on the left, label text to its right - GOV.UK's own default
+// govuk-checkboxes--small layout. Previously mirrored to the right so
+// the checkbox would sit next to this row's own colour swatch - but the
+// swatch moved out to the Key overlay (map-key-panel/macro.jinja) a
+// while ago, so that reason no longer applies. Horizontal position
+// (left/right) and the box itself (:before) are GOV.UK's own defaults,
+// deliberately not redeclared here at all - only the tick (:after) still
+// needs a custom rule, since it's deliberately larger than GOV.UK's own
+// default tick (see below for why, and for two rounds' worth of wrong
+// assumptions about the box's own vertical position that this comment
+// used to also cover).
 .dl-map__layer-item {
   .govuk-checkboxes__item {
-    padding-right: 18px;
-    padding-left: 0;
     cursor: pointer;
 
     &:hover {
@@ -19,34 +28,40 @@ $govuk-checkboxes-size: 24px;
     }
   }
 
-  .govuk-checkboxes__input {
-    right: -10px;
-    left: unset;
-    position: absolute;
-  }
-
+  // Two earlier rounds got this wrong by assuming .govuk-checkboxes__item's
+  // own rendered height tracks the *label's* height (padding + text line-
+  // height, ~34px desktop / ~30px mobile) and custom-centred :before
+  // against that - first at a single fixed top value, then at a
+  // breakpoint-specific pair once the mobile/desktop line-height
+  // difference surfaced as a real, measured 2px discrepancy. Both were
+  // still wrong: .govuk-checkboxes__input is 44x44 (width/height GOV.UK's
+  // own small-checkbox variant never resizes down, despite hiding it via
+  // opacity: 0 rather than removing it from layout) and is a flex sibling
+  // of the label inside .govuk-checkboxes__item (display: flex) - so the
+  // item's true rendered height is pinned to that fixed 44px, not the
+  // label's own (variable, breakpoint-dependent) text height at all.
+  // GOV.UK's own small-checkbox :before already accounts for exactly
+  // this - top: 10px centres a 24px box within the real 44px item
+  // ((44-24)/2 = 10) - correctly and identically at every breakpoint,
+  // since it's derived from the input's fixed size rather than the
+  // label's variable one. Nothing to override for :before at all now -
+  // removed outright rather than redeclaring GOV.UK's own value, so
+  // there's no risk of a future line-height change quietly reintroducing
+  // this same wrong assumption a third time.
   .govuk-checkboxes__label {
-    padding-left: 0;
-
-    // top: 5px vertically centres the 24px checkbox within the item's
-    // current ~34px height (measured directly, not assumed - this was
-    // 8px, a leftover from before the compact-typography pass shrank the
-    // row, which visibly biased the checkbox towards the top of its row).
-    &:before {
-      top: 5px;
-      right: 0;
-      left: unset;
-      width: 24px;
-      height: 24px;
-    }
-
-    // Kept 6px below the checkbox's own top (was 14 - 8 = 6, same as
-    // here: 11 - 5 = 6) so the tick's position *within* the checkbox is
-    // unchanged - only the checkbox's position within the row moved.
+    // Sized larger than GOV.UK's own default tick (12x6.5) for better
+    // visibility against a 24px box. left: 4px centres a 16px-wide tick
+    // within the 24px box ((24-16)/2 = 4) - GOV.UK's own left: 6px is
+    // only correct for its own narrower 12px tick, and widening the tick
+    // without adjusting this was a separate, earlier bug (ticks sitting
+    // right of centre). top: 16px keeps the tick 6px below the checkbox's
+    // own top (now GOV.UK's un-overridden 10px above), the same
+    // relationship this tick has kept across every earlier round that
+    // touched it, just recalculated against the box's now-correct
+    // position rather than the wrong one.
     &:after {
-      top: 11px;
-      right: 4px;
-      left: unset;
+      top: 16px;
+      left: 4px;
       width: 16px;
       height: 9px;
       border-width: 0 0 4px 4px;

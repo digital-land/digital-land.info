@@ -17,6 +17,15 @@
 // accordion section chevrons and the mobile panel-toggle tab need it.
 $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='4,10 8,6 12,10' fill='none' stroke='%230b0c0c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
+// The desktop panel's own width - shared by the panel itself, its
+// content's own matching cap, and everything else on desktop that has
+// to move/resize in step with it (the footer's inset, the scale
+// control's inset, the collapse toggle's position). One variable rather
+// than the literal repeated five times, so widening it can't miss one of
+// those and leave something misaligned. 330px -> 355px: widened to help
+// longer dataset names fit on a single line without wrapping.
+$dl-map-controls-panel-width: 355px;
+
 @mixin dl-thin-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: govuk-colour("mid-grey") transparent;
@@ -128,7 +137,7 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   left: 0;
   bottom: 0;
   z-index: 1001;
-  width: 330px;
+  width: $dl-map-controls-panel-width;
   max-width: 100%;
   background: govuk-colour("white");
   border-right: 1px solid $govuk-border-colour;
@@ -156,13 +165,14 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 //
 // Both this and the scale-control rule just below are desktop-specific -
 // they exist to keep the footer/scale-control clear of the panel when it
-// sits *beside* the map, taking up a permanent 330px-wide strip. On
-// mobile the panel sits *above* the map instead (see the mobile block
-// further down) and never occupies horizontal space at all, so without
-// this being scoped to desktop, a stray margin-left/left: 330px would
-// squeeze the footer/scale control into a sliver of the (already full-
-// width, narrow) mobile viewport for no reason - confirmed live, this
-// was exactly what happened before this query was added.
+// sits *beside* the map, taking up a permanent $dl-map-controls-panel-width-
+// wide strip. On mobile the panel sits *above* the map instead (see the
+// mobile block further down) and never occupies horizontal space at all,
+// so without this being scoped to desktop, a stray margin-left/left
+// matching the panel's width would squeeze the footer/scale control into
+// a sliver of the (already full-width, narrow) mobile viewport for no
+// reason - confirmed live, this was exactly what happened before this
+// query was added.
 @include govuk-media-query($from: tablet) {
   .dl-map-with-controls {
     .app-c-sources-panel {
@@ -171,7 +181,7 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
       // same white map/panel construct rather than a distinct grey
       // block.
       background-color: govuk-colour("white");
-      margin-left: 330px;
+      margin-left: $dl-map-controls-panel-width;
       transition: margin-left 0.2s ease;
     }
 
@@ -189,7 +199,7 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   // left corner when collapsed - same idea as the footer, so it's
   // always visible rather than covered.
   .dl-map-with-controls .maplibregl-ctrl-bottom-left {
-    left: 330px;
+    left: $dl-map-controls-panel-width;
     transition: left 0.2s ease;
   }
 
@@ -210,7 +220,7 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 // taller than that - rather than growing .dl-map-with-controls itself,
 // which is exactly the behaviour just removed above.
 .dl-map-controls-panel__content {
-  max-width: 330px;
+  max-width: $dl-map-controls-panel-width;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -234,17 +244,6 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   }
 }
 
-// Mobile-only "Apply filters" button - everything in this panel already
-// applies live as it's changed, so this doesn't actually apply anything;
-// it just closes the overlay once the user's happy with their selection
-// (wired in MapControlsPanelToggle.js, which already owns every other way
-// of collapsing the panel). Hidden here, shown in the mobile block below -
-// same "desktop doesn't get this at all" approach as the collapse toggle
-// tab's own two very different shapes either side of the breakpoint.
-.dl-map-controls-panel__apply-filters {
-  display: none;
-}
-
 // Collapse/expand tab, similar to Google Maps - sits on the panel/map
 // boundary at all times, whether the panel is open or collapsed. Flush
 // against that boundary (not centred on it, which straddled it half-and-
@@ -257,7 +256,7 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   box-sizing: border-box;
   position: absolute;
   top: 50%;
-  left: 330px;
+  left: $dl-map-controls-panel-width;
   transform: translateY(-50%);
   z-index: 1002;
   width: 24px;
@@ -323,129 +322,79 @@ $chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   }
 }
 
-// --- Mobile: panel slides down from the top, not in from the left -----
-// Below tablet width, the panel becomes a horizontal strip spanning the
-// full width instead, sliding vertically rather than horizontally, and
-// stops short of the map's full height so some of the map always stays
-// visible below it - a max-height cap with internal scroll, the same
-// principle as the desktop panel's own height cap (round 27), just
-// measured from the opposite edge. This block is placed after the
-// desktop rules above deliberately - it overrides several of them at
-// equal selector specificity, so (being inside a media query that's
-// true on mobile, but appearing later in the file) it needs source
-// order on its side to win, not just the media query itself.
-$dl-mobile-map-peek: 150px;
-
+// --- Mobile: plain page content, not an overlay at all -----------------
+// Below tablet width, this stops being an overlay entirely - the panel
+// sits in normal document flow above the map (it already precedes the
+// map in source order - components/map-controls-panel/macro.jinja is
+// called before map() in national-map.html - so removing the desktop
+// absolute-positioning is enough on its own to fall back into flow, no
+// template/DOM changes needed), full length with no height cap or
+// internal scroll of its own. The user scrolls the page itself; the map
+// is simply whatever comes next once they scroll past the panel's
+// content. The accordion sections underneath are untouched - they still
+// individually expand/collapse exactly as they do on desktop, this only
+// changes what happens to the *panel as a whole*.
+//
+// This block is placed after the desktop rules above deliberately - it
+// overrides several of them at equal selector specificity, so (being
+// inside a media query that's true on mobile, but appearing later in
+// the file) it needs source order on its side to win, not just the
+// media query itself.
 @include govuk-media-query($until: tablet) {
+  // .dl-map-with-controls needs a genuinely explicit height on desktop
+  // (see its own rule above) purely so the panel's absolute top: 0;
+  // bottom: 0; stretch has something definite to resolve against. Once
+  // the panel is normal flow content instead, that's no longer true -
+  // forcing this back to auto lets the container grow to fit the full-
+  // length panel *and* the map stacked beneath it, rather than clipping
+  // the panel's now-uncapped content at the map's own height.
+  .dl-map-with-controls {
+    height: auto;
+  }
+
   .dl-map-controls-panel {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: auto;
+    position: static;
     width: auto;
     max-width: 100%;
-    height: auto;
-    // Capped against the map canvas's own height specifically
-    // (--dl-wrapper-height, kept in sync by MapControlsPanelToggle.js) -
-    // not the container's own "100%", which is the map *and* footer
-    // combined and on narrow viewports can be much taller than the map
-    // alone (the footer's text wraps across more lines there). Using
-    // that would leave room for whatever mix of map-and-footer-overflow
-    // happened to be tallest, not reliably "some of the map".
-    max-height: calc(var(--dl-wrapper-height, 700px) - #{$dl-mobile-map-peek});
     border-right: 0;
-    border-bottom: 1px solid $govuk-border-colour;
-    overflow-x: hidden;
-    overflow-y: auto;
-    transition: max-height 0.2s ease;
-    @include dl-thin-scrollbar;
 
+    // Resets the desktop collapsed state's width: 0 - there's no toggle
+    // to reach it from on mobile (hidden below), but a session that
+    // collapsed the panel at desktop width and then resized/rotated down
+    // to mobile shouldn't leave the panel stuck invisible with no way to
+    // bring it back.
     &--collapsed {
-      max-height: 0;
-      border-bottom: 0;
+      width: auto;
+      min-width: 0;
+      border-right: 0;
     }
   }
 
-  // The desktop rule below (`height: 100%`) assumes the panel's own
-  // height is fixed to the map's, so the content fills it exactly. On
-  // mobile the panel is content-hugging up to its own max-height cap
-  // instead (above) - forcing content to 100% of that would make it
-  // always exactly as tall as the cap even when the open sections don't
-  // need that much room, leaving an empty gap at the bottom.
-  //
-  // The panel itself spans the full viewport width here (above), but
-  // .dl-map-controls-panel__content keeps its own 330px max-width (set
-  // unconditionally, further up) unchanged - deliberately, its inputs/
-  // checkboxes are sized to read well at that width, not stretched wider.
-  // On a narrow phone that cap barely matters (the panel's own width is
-  // close to it anyway), but on a larger phone/small tablet the panel can
-  // be considerably wider than 330px, and without this the content would
-  // otherwise sit stranded against the left edge with a lopsided block of
-  // empty panel background to its right. Centring it keeps the panel's
-  // own full-width "drawer" identity (and the scroll-friendly height
-  // budget that comes with it) while the content itself stays tidy.
+  // No more content-width cap/centring (see the desktop rule above, for
+  // a narrow sidebar reading as a floating card) - this now reads as
+  // ordinary page content, so it takes the full width everything else
+  // on the page already does, same as the "Map of planning data for
+  // England" heading above it.
   .dl-map-controls-panel__content {
+    max-width: none;
     height: auto;
-    margin: 0 auto;
+    margin: 0;
   }
 
-  // Shown here only - desktop never gets this at all (everything already
-  // applies live there, with the full map always visible alongside the
-  // panel, so there's nothing for a "close once you're done" button to
-  // usefully do). Stays inside .dl-map-controls-panel__content, at the
-  // same width as the rest of the panel's content (including the other
-  // buttons above, in "Find an area") rather than breaking out to the
-  // panel's own wider, full-viewport width - consistent with round
-  // forty's fix rather than reintroducing the same lopsided-width look
-  // for just this one element.
-  .dl-map-controls-panel__apply-filters {
-    display: block;
-    width: 100%;
-    margin-top: govuk-spacing(3);
-  }
-
-  // Sits on the panel/map boundary just like the desktop tab, just
-  // horizontal instead of vertical - centred left-to-right, tracking
-  // the panel's own current bottom edge via --dl-panel-height (kept in
-  // sync by a ResizeObserver in MapControlsPanelToggle.js, since that
-  // edge moves not only when the whole panel is toggled, but whenever
-  // an individual accordion section inside it opens or closes too).
+  // Nothing to collapse any more - the map is reached by scrolling, not
+  // by hiding an overlay. The click handler in MapControlsPanelToggle.js
+  // still runs (harmlessly) - this alone is enough to make it
+  // unreachable, since a hidden element can't receive the click.
   .dl-map-controls-panel__toggle {
-    top: var(--dl-panel-height, 0px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 48px;
-    height: 24px;
-    border-radius: 0 0 4px 4px;
-    transition: top 0.2s ease;
-
-    // A plain chevron rotating between "up" (expanded - tap to collapse
-    // upward) and "down" (collapsed - tap to expand downward) reads more
-    // naturally here than the desktop hamburger, which specifically
-    // stood in for "open a menu" rather than "expand this section" -
-    // reusing the same symmetric SVG the accordion sections already use
-    // for exactly that reason (safe to rotate, unlike a border-corner
-    // shape).
-    &::before {
-      width: 16px;
-      height: 16px;
-      border: 0;
-      transform: none;
-      background-image: $chevron-icon;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 12px 12px;
-    }
-
-    &--collapsed {
-      top: 0;
-      left: 50%;
-
-      &::before {
-        transform: rotate(180deg);
-      }
-    }
+    display: none;
   }
+
+  // .dl-map__layer-list's own mobile override lives further down,
+  // immediately after its base rule (not here) - it's declared later in
+  // this file than this block, so a copy here would lose to it on equal
+  // specificity regardless of the media query (a later, unconditional
+  // rule still wins the cascade over an earlier, conditional one, once
+  // both apply at the same viewport) - already caught live once.
 }
 
 // Sits between the dataset search box and the checkbox list - visible
@@ -506,6 +455,25 @@ $dl-mobile-map-peek: 150px;
   // beyond it.
   padding-right: govuk-spacing(2);
   @include dl-thin-scrollbar;
+}
+
+// No internal scroll on mobile any more - every dataset shows in full,
+// the page scrolls instead of a fixed-height box inside it (see the
+// mobile block above for the rest of this same change - this one rule
+// has to live here instead, after the base rule above rather than
+// inside that block, to actually win the cascade: both this and the
+// base rule apply at mobile widths, and a later, unconditional rule
+// beats an earlier, media-query-gated one at equal specificity - the
+// media query being true doesn't grant it any extra priority. The
+// scrollbar-collision buffer (padding-right, above) existed only
+// because of that internal scrollbar, and serves no purpose without
+// one.
+@include govuk-media-query($until: tablet) {
+  .dl-map__layer-list {
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0;
+  }
 }
 
 // --- Accordion restyle -----------------------------------------------
@@ -776,13 +744,14 @@ $dl-mobile-map-peek: 150px;
   }
 
   // "Advanced settings" (just "Show historical data" today) is its own
-  // real accordion section in the markup - on mobile that's a fully
-  // independent, collapsible section like the other two (see the mobile
-  // design). On wider screens there's enough room to show it without
-  // needing its own heading, so above the mobile breakpoint its
-  // heading/toggle is hidden and it's forced permanently open instead -
-  // reading as if it were folded into the bottom of "Select a data
-  // layer", which is how it looked before this became a real section.
+  // real accordion section in the markup, on both breakpoints now - it's
+  // forced permanently open with its heading/toggle hidden, reading as
+  // if it were folded into the bottom of "Select a data layer" rather
+  // than a section of its own. This used to only apply above the mobile
+  // breakpoint (mobile briefly had it as a genuinely independent,
+  // separately-collapsible section, matching an earlier version of the
+  // mobile design) - now matches desktop's own format everywhere,
+  // per a later design revision that dropped that distinction.
   // `expanded: true` in the macro's item config is what keeps it open
   // with no visible way to collapse it once the toggle is hidden here.
   //
@@ -790,10 +759,8 @@ $dl-mobile-map-peek: 150px;
   // border rules above already draw a line above it and after it with no
   // extra work - the same mechanism used between "Find an area" and
   // "Select a data layer".
-  @include govuk-media-query($from: tablet) {
-    .govuk-accordion__section:last-child .govuk-accordion__section-header {
-      display: none;
-    }
+  .govuk-accordion__section:last-child .govuk-accordion__section-header {
+    display: none;
   }
 }
 
