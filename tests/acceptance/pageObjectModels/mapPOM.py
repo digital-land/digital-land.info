@@ -71,11 +71,9 @@ class MapPOM:
 
     def wait_for_layer_controls_to_load(self, attempts=10, check_interval=500):
         for i in range(attempts):
-            isHidden = (
-                self.page.get_by_test_id("map")
-                .locator("button.dl-map__close-btn")
-                .is_hidden()
-            )
+            isHidden = self.page.locator(
+                "#dl-select-data-layers-card-close"
+            ).is_hidden()
             if isHidden is False:
                 return True
             self.page.wait_for_timeout(check_interval)
