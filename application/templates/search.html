@@ -267,7 +267,7 @@
           {# Anything within this div becomes 'sticky' to the bottom upon scroll #}
           <div class="app-results-footer app-results-footer--sticky">
 
-            {% set download_label = "Download these results" %}
+            {% set download_label = "Download this page of results" %}
             {% set query_suffix = ("?" + url_query_params.str) if url_query_params.str else "" %}
             <div class="app-results-actions">
               <h3 class="app-results-actions__title govuk-heading-s">{{ download_label }}</h3>
