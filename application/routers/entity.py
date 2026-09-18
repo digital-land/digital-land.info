@@ -178,22 +178,20 @@ def get_entity_lat_lng(e) -> Tuple[Optional[float], Optional[float]]:
         return None, None
 
 
-def handle_entity_response(
-    request: Request, e, extension: Optional[SuffixEntity], session: Session
-):
-    if extension is not None and extension.value == "json":
-        return e.model_dump(by_alias=True, exclude={"geojson"})
+def entity_json_response(e):
+    return e.model_dump(by_alias=True, exclude={"geojson"})
 
+
+def entity_geojson_response(e):
+    geojson = prepare_geojson(e)
+    if geojson:
+        return geojson
+    else:
+        raise HTTPException(status_code=406, detail="geojson for entity not available")
+
+
+def entity_html_response(request: Request, e, session: Session):
     geojson = None
-
-    if extension is not None and extension.value == "geojson":
-        geojson = prepare_geojson(e)
-        if geojson:
-            return geojson
-        else:
-            raise HTTPException(
-                status_code=406, detail="geojson for entity not available"
-            )
 
     e_dict = e.model_dump(by_alias=True, exclude={"geojson"})
 
@@ -289,6 +287,18 @@ def handle_entity_response(
             "entity_lng": entity_lng,
         },
     )
+
+
+def handle_entity_response(
+    request: Request, e, extension: Optional[SuffixEntity], session: Session
+):
+    if extension == SuffixEntity.json:
+        return entity_json_response(e)
+
+    if extension == SuffixEntity.geojson:
+        return entity_geojson_response(e)
+
+    return entity_html_response(request, e, session)
 
 
 linked_datasets = {
@@ -484,7 +494,7 @@ def search_entities(
     query = request.url.query
     links = make_links(scheme, netloc, path, query, data)
 
-    if extension is not None and extension.value == "json":
+    if extension == SuffixEntity.json:
         if params.get("field") is not None:
             include = set([to_snake(field) for field in params.get("field")])
             entities = _get_entity_json(data["entities"], include=include)
@@ -500,7 +510,7 @@ def search_entities(
             entities = _get_entity_json(data["entities"])
         return {"entities": entities, "links": links, "count": data["count"]}
 
-    if extension is not None and extension.value == "geojson":
+    if extension == SuffixEntity.geojson:
         if params.get("exclude_field") is not None:
             exclude_fields = set(
                 [
