@@ -194,10 +194,11 @@ def entity_html_response(request: Request, e, session: Session):
     geojson = None
 
     e_dict = e.model_dump(by_alias=True, exclude={"geojson"})
+    template_row = dict(e_dict)
 
     # CURIE field composed by the prefix and reference fields
-    prefix = e_dict.get("prefix")
-    reference = e_dict.get("reference")
+    prefix = template_row.get("prefix")
+    reference = template_row.get("reference")
     curie = f"{prefix}:{reference}" if prefix and reference else None
     organisation = None
     organisation_curie = None
@@ -205,13 +206,14 @@ def entity_html_response(request: Request, e, session: Session):
         organisation, _, _ = get_entity_query(e.organisation_entity)
         if organisation:
             organisation_curie = f"{organisation.prefix}:{organisation.reference}"
-            e_dict["organisation-entity"] = str(organisation.organisation_entity)
-            e_dict["organisation-curie"] = organisation_curie
+            template_row["organisation-entity"] = str(organisation.organisation_entity)
+            template_row["organisation-curie"] = organisation_curie
         else:
-            e_dict["organisation-entity"] = str(e.organisation_entity)
+            template_row["organisation-entity"] = str(e.organisation_entity)
 
     e_dict_sorted = {
-        key: e_dict[key] for key in sorted(e_dict.keys(), key=entity_attribute_sort_key)
+        key: template_row[key]
+        for key in sorted(template_row.keys(), key=entity_attribute_sort_key)
     }
     # Add CURIE field to dict and make it first
     e_dict_sorted = {"curie": curie, **e_dict_sorted}

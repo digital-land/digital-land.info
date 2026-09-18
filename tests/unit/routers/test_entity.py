@@ -527,6 +527,62 @@ def test_get_entity_entity_returned_geojson(
     assert isinstance(result, GeoJSON), f"{type(result)} is expected to be a GeoJSON"
 
 
+@pytest.fixture
+def entity_with_organisation_model():
+    model = EntityModel(
+        entity=11000000,
+        entry_date="2022-03-23",
+        name="Abbotswood Shaw",
+        reference="1481207",
+        dataset="ancient-woodland",
+        prefix="ancient-woodland",
+        organisation_entity=600001,
+    )
+    return model
+
+
+@pytest.fixture
+def organisation_entity_model():
+    model = EntityModel(
+        entity=600001,
+        entry_date="2022-03-23",
+        name="Some Council",
+        reference="SOME",
+        dataset="organisation",
+        prefix="local-authority-eng",
+    )
+    return model
+
+
+def test_curie_displays_on_page_for_internal_navigation_but_not_in_json(
+    mocker,
+    entity_with_organisation_model,
+    organisation_entity_model,
+    multiple_dataset_models,
+    ancient_woodland_dataset,
+):
+    mocker.patch(
+        "application.routers.entity.get_entity_query",
+        side_effect=[
+            (entity_with_organisation_model, None, None),
+            (organisation_entity_model, None, None),
+        ],
+    )
+    mocker.patch(
+        "application.routers.entity.get_datasets", return_value=multiple_dataset_models
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=ancient_woodland_dataset,
+    )
+
+    request = MagicMock()
+    result = get_entity(request=request, entity="11000000", extension=None)
+
+    assert "organisation-curie" in result.context["row"]
+    assert "organisation-curie" not in result.context["json_row"]
+
+
 # @pytest.fixture
 # def query_params():
 #     QueryFilters(
