@@ -244,7 +244,11 @@
   background: transparent;
   color: $govuk-link-colour;
   font-weight: normal;
-  @include govuk-font-size($size: 16);
+  // govuk-font(), not govuk-font-size() - same reasoning as
+  // .dl-map-key-panel__toggle/.dl-map__clear-filters-button: this is a
+  // real <button>, which needs font-family set explicitly since it
+  // doesn't inherit it the way ordinary text elements do.
+  @include govuk-font($size: 16);
   cursor: pointer;
 }
 
@@ -298,7 +302,13 @@
     @include govuk-focused-text;
   }
 
-  @include govuk-font-size($size: 16);
+  // govuk-font(), not govuk-font-size() - this is a real <button>, and
+  // only govuk-font() actually sets font-family (GDS Transport).
+  // govuk-font-size() alone leaves it unset, which is invisible on
+  // ordinary text (inherited from the body regardless) but not on a
+  // button, which doesn't inherit font-family by default - it was
+  // silently falling back to the platform's UI font (Arial-ish).
+  @include govuk-font($size: 16);
 }
 
 // The dataset checkbox list scrolls once it grows past a handful of
