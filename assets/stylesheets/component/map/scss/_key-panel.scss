@@ -56,7 +56,15 @@
   // (.govuk-accordion__section-button in _controls-panel.scss) - both
   // read as the same kind of heading/toggle affordance, just in two
   // different overlays, so they should look like one system.
-  @include govuk-font-size($size: 16);
+  //
+  // govuk-font() specifically, not govuk-font-size() - the latter only
+  // sets font-size/line-height, never font-family. That distinction is
+  // invisible on ordinary text (p/span/label inherit GDS Transport from
+  // the body via govuk-frontend's own global reset regardless), but
+  // this is a real <button> - browsers don't inherit font-family into
+  // form controls by default, so without the family explicitly set
+  // here it silently fell back to the platform's UI font (Arial-ish).
+  @include govuk-font($size: 16);
   cursor: pointer;
 }
 
