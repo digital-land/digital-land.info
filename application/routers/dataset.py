@@ -132,10 +132,11 @@ def get_dataset(
         if _dataset is None:
             raise HTTPException(status_code=404, detail="dataset not found")
 
-        entity_count = get_entity_count(session, dataset)
+        entity_counts = get_entity_count(session, datasets=[dataset])
+        entity_count = entity_counts[0][1] if entity_counts else 0
 
         if extension is not None and extension.value == "json":
-            _dataset.entity_count = entity_count[1] if entity_count else 0
+            _dataset.entity_count = entity_count
             return _dataset
 
         latest_resource = get_latest_resource(session, dataset)
@@ -193,7 +194,7 @@ def get_dataset(
             "dataset.html",
             {
                 "dataset": _dataset,
-                "entity_count": entity_count[1] if entity_count else 0,
+                "entity_count": entity_count,
                 "authoritative_providers": authoritative_providers,
                 "alternative_providers": alternative_providers,
                 "latest_resource": latest_resource,
