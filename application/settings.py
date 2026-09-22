@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     OS_CLIENT_SECRET: Optional[str] = None
     DB_POOL_SIZE: Optional[int] = 5
     DB_POOL_MAX_OVERFLOW: Optional[int] = 10
+    DB_STATEMENT_TIMEOUT_MS: Optional[int] = 120000
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_SECURE: bool = True
