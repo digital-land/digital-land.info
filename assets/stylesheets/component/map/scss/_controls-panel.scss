@@ -1,0 +1,352 @@
+// A native scrollbar reads as heavy - a thin, subdued one is less
+// intrusive without losing the scroll affordance. Firefox uses the
+// standard properties; Chromium/Safari need the vendor pseudo-elements
+// for the same effect. Shared by the dataset checkbox list's own scroll
+// further down.
+@mixin dl-thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: govuk-colour("mid-grey") transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: govuk-colour("mid-grey");
+    border-radius: 3px;
+  }
+}
+
+// Breaks the map+cards construct out of the page's normal 960px content
+// column, up to a wider cap, without disturbing the rest of the page
+// (nav/header, which the full-width layout template would also widen).
+//
+// .dl-map-breakout escapes its own (narrow) containing block using the
+// standard "full-bleed" trick: width: 100vw is the element's true
+// rendered width regardless of how narrow its parent is, and
+// margin-left: calc(50% - 50vw) shifts it left by exactly the distance
+// from its parent's left edge to the viewport's left edge - the maths
+// works out the same regardless of viewport size, so this doesn't need
+// a breakpoint-specific value anywhere.
+//
+// .dl-map-breakout__inner then re-centres actual content within that
+// full-viewport-width strip, capped at 1950px - reusing govuk-frontend's
+// own govuk-width-container mixin (rather than hand-rolling padding) so
+// the map's left/right edges land at exactly the same gutter GOV.UK
+// itself uses at every breakpoint, just against a wider cap.
+.dl-map-breakout {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.dl-map-breakout__inner {
+  @include govuk-width-container($width: 1950px);
+}
+
+// The map, with the "Find an area"/"Select data layers" cards and the
+// Key overlay floating on top of it (rather than beside it - unlike a
+// reserved side column, nothing here needs to shrink the map's own
+// width).
+.dl-map-with-controls {
+  // Needs a genuinely explicit height (not one derived from
+  // .dl-map__wrapper's own content, even though that resolves to the
+  // same number) so the map's footer note reads as sitting inside the
+  // same bordered box, with this construct's own bottom edge landing
+  // level with the footer's. --dl-map-height is set inline by
+  // national-map.html from the same value passed to the map() macro's
+  // own 'height' param, then kept in sync (map + footer combined) by
+  // MapHeightSync.js.
+  height: var(--dl-map-height);
+  position: relative;
+  border-top: 1px solid $govuk-border-colour;
+  border-bottom: 1px solid $govuk-border-colour;
+
+  // The map keeps its own border for other pages that reuse the map()
+  // macro without this wrapper - suppress the double border here, since
+  // .dl-map-with-controls now draws the outer border for the combined
+  // construct instead.
+  > .dl-map__wrapper {
+    border: 0;
+  }
+
+  // Fill the screen when this whole construct (map + cards) is made
+  // fullscreen via the map's fullscreen control - see
+  // MapController.js's `fullscreenContainerSelector`.
+  &:fullscreen,
+  &:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    border: 0;
+
+    > .dl-map__wrapper {
+      height: 100%;
+    }
+  }
+
+  // White here, not the shared class's own default grey (still used
+  // as-is on entity.html) - reads as part of the same white map
+  // construct rather than a distinct grey block.
+  .app-c-sources-panel {
+    background-color: govuk-colour("white");
+  }
+}
+
+// Both floating cards, stacked in a plain flex column with a gap - when
+// "Find an area" collapses to its header-only height, "Select data
+// layers" naturally shifts up in normal flow, so the two never need any
+// JS position-syncing between them.
+.dl-map-overlay-stack {
+  position: absolute;
+  top: govuk-spacing(3);
+  left: govuk-spacing(3);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  gap: govuk-spacing(3);
+  width: 290px;
+  // On narrow viewports, shrink to leave room for the native zoom/
+  // fullscreen/3D controls docked top-right (MapController.js moved
+  // them there so the overlay cards could have the top-left corner) -
+  // each maplibregl-ctrl-group is ~29px wide with a 10px margin off the
+  // map's edge, so reserving 50px on top of this stack's own left
+  // inset comfortably clears that whole stack rather than overlapping
+  // it. On desktop the fixed 290px width above already applies long
+  // before this ever becomes the binding constraint.
+  max-width: calc(100% - #{govuk-spacing(3)} - 50px);
+}
+
+// Same visual/interaction language as the Key overlay
+// (map-key-panel/macro.jinja, _key-panel.scss) - independently written
+// rather than sharing code with it, since that file is left exactly as
+// version A shipped it.
+.dl-map-overlay-card {
+  box-sizing: border-box;
+  background: govuk-colour("white");
+  box-shadow: 0 2px 6px rgba(govuk-colour("black"), 0.3);
+
+  .govuk-label,
+  .govuk-radios__label,
+  .govuk-checkboxes__label,
+  .govuk-input,
+  .govuk-body {
+    @include govuk-font-size($size: 16);
+  }
+
+  // GOV.UK's own base radios/checkboxes rules give every label a full
+  // govuk-spacing(3) (15px) of padding on BOTH sides - sized for a
+  // full-width page column, not a narrow card. The govuk-radios--small/
+  // govuk-checkboxes--small modifiers we use only override the LEFT
+  // side of this (tightening it to 1px, to clear the smaller visual
+  // circle/box), leaving 15px on the right - on a narrow card this
+  // reads as a large dead gap before the text is allowed to wrap,
+  // forcing it onto more lines than the available width actually
+  // requires. Mirrored to match the small variant's own left value.
+  //
+  // Deliberately NOT touching max-width here, tempting as it looks -
+  // that property is what stops the label wrapping onto a whole new
+  // flex line *below* the circle in the first place (.govuk-radios__
+  // item/.govuk-checkboxes__item are flex containers with flex-wrap;
+  // the label's max-width is calculated to guarantee it always fits
+  // beside the circle on the same line). It already reserves the
+  // input's own real touch-target width (44px, kept large even in
+  // --small for accessibility) rather than the smaller *visible*
+  // circle, so it's already correctly sized for this layout - removing
+  // it (tried first) broke exactly that, stacking the label under the
+  // circle instead of wrapping normally within its own box.
+  .govuk-radios__label,
+  .govuk-checkboxes__label {
+    padding-right: 1px;
+  }
+
+  .govuk-button {
+    @include govuk-font-size($size: 16);
+    padding: govuk-spacing(1) govuk-spacing(2);
+    margin-bottom: 0;
+  }
+
+  // GOV.UK's .govuk-form-group normally gets its own bottom margin, but
+  // govuk-frontend explicitly zeroes it when it's the last form-group
+  // nested inside another one (govuk-radios wraps each conditional's
+  // fieldset in its own outer form-group) - which is exactly our case,
+  // so the postcode/UPRN/LPA inputs had no gap before their button.
+  .govuk-radios__conditional .govuk-button {
+    margin-top: govuk-spacing(2);
+  }
+
+  // GOV.UK's own responsive margin below a conditional-reveal block
+  // (the search method's own input+button) reads as an oversized gap
+  // before the next radio item in this narrow card.
+  .govuk-radios__conditional {
+    margin-bottom: govuk-spacing(2);
+  }
+
+  // .govuk-form-group (the radios fieldset's own outer wrapper, and the
+  // historical-data checkbox's wrapper) carries a large responsive
+  // bottom margin of its own that reads as dead space at the bottom of
+  // the card's content.
+  .govuk-form-group {
+    margin-bottom: 0;
+  }
+
+  // .govuk-checkboxes (the checkbox list/group itself, not its outer
+  // .govuk-form-group above) has its own separate default bottom
+  // margin, left unzeroed this would sit as empty space below "Show
+  // historical data".
+  .govuk-checkboxes {
+    margin-bottom: 0;
+  }
+
+  // A separate, project-wide .govuk-list > li rule spaces multiple list
+  // items apart - still matches "Show historical data"'s <ul> (it
+  // carries govuk-list for the bullet-removal reset), even though that
+  // list only ever has the one item, so it's pure unmatched space below
+  // with nothing above it. Scoped to #dl-map-settings-content
+  // specifically, not the dataset list above it, which does want that
+  // spacing between its (often multiple) items.
+  #dl-map-settings-content .govuk-list > li {
+    margin-bottom: 0;
+  }
+}
+
+.dl-map-overlay-card__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: govuk-spacing(2) govuk-spacing(3);
+
+  // Content-width, not edge-to-edge.
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: govuk-spacing(3);
+    right: govuk-spacing(3);
+    border-top: 1px solid $govuk-border-colour;
+  }
+}
+
+// The whole header row's clickable area for expanded <-> collapsed is
+// just this button (icon + title) - not the close button next to it,
+// which is a separate control so its own click doesn't also trigger
+// this one (a <button> can't validly nest another <button>, so these
+// are siblings rather than one wrapping the other).
+.dl-map-overlay-card__toggle {
+  display: flex;
+  align-items: center;
+  gap: govuk-spacing(1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $govuk-link-colour;
+  font-weight: normal;
+  // govuk-font(), not govuk-font-size() - same reasoning as
+  // .dl-map-key-panel__toggle/.dl-map__clear-filters-button: this is a
+  // real <button>, which needs font-family set explicitly since it
+  // doesn't inherit it the way ordinary text elements do.
+  @include govuk-font($size: 16);
+  cursor: pointer;
+}
+
+.dl-map-overlay-card__close {
+  display: flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dl-map-overlay-card__content {
+  padding: govuk-spacing(3);
+}
+
+// Collapsed to just the header - the design's "closed" state, toggled
+// via the header button/close button (FindAnAreaForm.js/LayerControls.js
+// - setCardExpanded()/setDataLayersCardExpanded()).
+.dl-map-overlay-card--collapsed {
+  .dl-map-overlay-card__close,
+  .dl-map-overlay-card__content {
+    display: none;
+  }
+
+  .dl-map-overlay-card__header::after {
+    content: none;
+  }
+}
+
+// Sits between the dataset search box and the checkbox list - visible
+// only once something's checked (LayerControls.js's
+// updateClearFiltersLink()), so deselecting several checked layers at
+// once doesn't mean hunting each one down individually.
+.dl-map__clear-filters {
+  margin: 0 0 govuk-spacing(2);
+}
+
+.dl-map__clear-filters-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: $govuk-link-colour;
+  text-decoration: underline;
+
+  &:hover {
+    color: $govuk-link-hover-colour;
+  }
+
+  &:focus {
+    @include govuk-focused-text;
+  }
+
+  // govuk-font(), not govuk-font-size() - this is a real <button>, and
+  // only govuk-font() actually sets font-family (GDS Transport).
+  // govuk-font-size() alone leaves it unset, which is invisible on
+  // ordinary text (inherited from the body regardless) but not on a
+  // button, which doesn't inherit font-family by default - it was
+  // silently falling back to the platform's UI font (Arial-ish).
+  @include govuk-font($size: 16);
+}
+
+// The dataset checkbox list scrolls once it grows past a handful of
+// items, rather than growing the card indefinitely.
+.dl-map__layer-list {
+  height: 220px;
+  overflow-y: auto;
+  // Setting overflow-y alone still makes the browser clip the X axis too
+  // (the CSS spec computes a non-visible overflow-x to auto whenever
+  // overflow-y isn't visible), which was clipping the left edge of the
+  // checkbox/radio hover halo (box-shadow bleeds ~10px outside its own
+  // box) - the right edge already had padding-right as a buffer (also
+  // doubling as a guard against macOS/iOS's *overlay* scrollbars, which
+  // reserve no layout space of their own), the left never did.
+  //
+  // Plain padding-left would fix the clipping but shift the checkboxes
+  // themselves 10px right, out of alignment with the filter input above
+  // and the radios in the "Find an area" card. Pairing it with an equal
+  // negative margin keeps the checkbox's own rendered position exactly
+  // where it was - the margin moves this element's box (and so its
+  // overflow-clipped painting region) left by 10px, and the matching
+  // padding then pushes its *content* back right by the same 10px,
+  // netting zero visual shift while leaving 10px of genuine clipping
+  // headroom on both sides for the halo to bleed into. Applied
+  // symmetrically (both sides, not just left) since an auto-width block
+  // needs matching margin/padding on both edges to keep its overall
+  // width - and so its right edge - unchanged too.
+  margin: 0 -#{govuk-spacing(2)};
+  padding: 0 govuk-spacing(2);
+  @include dl-thin-scrollbar;
+}
+
+// A line above "Show historical data", separating it from the
+// scrollable dataset list above - a plain border rather than another
+// inset pseudo-element, since this element already sits inside the
+// card's own padded content area.
+#dl-map-settings-content {
+  border-top: 1px solid $govuk-border-colour;
+  padding-top: govuk-spacing(2);
+  margin-top: govuk-spacing(2);
+}

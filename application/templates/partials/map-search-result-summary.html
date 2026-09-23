@@ -1,0 +1,22 @@
+{#- Shown above the map (national-map.html) once a search has actually
+    succeeded (search_result.result populated) - the "Find an area" card
+    collapses itself once this appears, since its job is done. An
+    unsuccessful/no-match search is shown inline in the card instead (see
+    map-find-an-area-form/macro.jinja) and this partial renders nothing
+    for that case. #}
+{% if search_result and search_result.get("result") %}
+  <h2 class="govuk-heading-m govuk-!-margin-bottom-1">Search results</h2>
+  {% if search_result.get("type") == "postcode" %}
+    <p class="govuk-body">
+      Showing results for postcode: {{ search_result.get("result", {}).get("POSTCODE", "") }}
+    </p>
+  {% elif search_result.get("type") == "uprn" %}
+    <p class="govuk-body">
+      Showing results for UPRN: {{ search_result.get("result", {}).get("UPRN", "") }}
+    </p>
+  {% elif search_result.get("type") == "lpa" %}
+    <p class="govuk-body">
+      Showing results for local planning authority: {{ search_result.get("result", {}).get("name", "") }}
+    </p>
+  {% endif %}
+{% endif %}
