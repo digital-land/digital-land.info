@@ -152,3 +152,131 @@ def test_list_datasets(
         }
         for field in excluded:
             assert field not in result["datasets"][0]
+
+
+@pytest.mark.parametrize(
+    "excluded",
+    [
+        ["entity-count"],
+        ["entity_count"],
+        ["name, entity-count"],
+        ["name", " entity-count "],
+    ],
+)
+def test_get_dataset_skips_excluded_entity_count(
+    mocker, multiple_dataset_models, excluded
+):
+    dataset = multiple_dataset_models[0]
+    dataset.entity_count = 99
+    mocker.patch("application.routers.dataset.get_dataset_query", return_value=dataset)
+    count = mocker.patch("application.routers.dataset.get_entity_count")
+    result = get_dataset(
+        request=MagicMock(),
+        dataset=dataset.dataset,
+        settings=MagicMock(),
+        extension=MagicMock(value="json"),
+        session=MagicMock(),
+        exclude_field=excluded,
+    )
+    count.assert_not_called()
+    assert result["dataset"] == dataset.dataset
+    assert "entity-count" not in result
+    assert "entity_count" not in result
+    assert dataset.entity_count == 99
+    if "name" in ",".join(excluded):
+        assert "name" not in result
+
+
+def test_get_dataset_other_exclusions_keep_count(mocker, multiple_dataset_models):
+    mocker.patch(
+        "application.routers.dataset.get_dataset_query",
+        return_value=multiple_dataset_models[0],
+    )
+    count = mocker.patch(
+        "application.routers.dataset.get_entity_count",
+        return_value=[("ancient-woodland", 10)],
+    )
+    session = MagicMock()
+    result = get_dataset(
+        request=MagicMock(),
+        dataset="ancient-woodland",
+        settings=MagicMock(),
+        extension=MagicMock(value="json"),
+        session=session,
+        exclude_field=["name"],
+    )
+    count.assert_called_once_with(session, datasets=["ancient-woodland"])
+    assert "name" not in result
+    assert result["entity-count"] == 10
+
+
+def test_get_dataset_html_keeps_count(mocker, multiple_dataset_models):
+    mocker.patch(
+        "application.routers.dataset.get_dataset_query",
+        return_value=multiple_dataset_models[0],
+    )
+    count = mocker.patch(
+        "application.routers.dataset.get_entity_count", return_value=[]
+    )
+    mocker.patch("application.routers.dataset.get_latest_resource", return_value=None)
+    mocker.patch(
+        "application.routers.dataset.get_dataset_coverage_status", return_value=None
+    )
+    mocker.patch(
+        "application.routers.dataset.get_providers_for_dataset", return_value=[]
+    )
+    render = mocker.patch("application.routers.dataset.templates.TemplateResponse")
+    session = MagicMock()
+    get_dataset(
+        request=MagicMock(),
+        dataset="ancient-woodland",
+        settings=MagicMock(),
+        session=session,
+        exclude_field=["entity-count"],
+    )
+    count.assert_called_once_with(session, datasets=["ancient-woodland"])
+    assert render.call_args.args[2]["entity_count"] == 0
+
+
+def test_get_dataset_exclusion_preserves_not_found(mocker):
+    from fastapi import HTTPException
+
+    mocker.patch("application.routers.dataset.get_dataset_query", return_value=None)
+    count = mocker.patch("application.routers.dataset.get_entity_count")
+    with pytest.raises(HTTPException) as error:
+        get_dataset(
+            request=MagicMock(),
+            dataset="missing",
+            settings=MagicMock(),
+            extension=MagicMock(value="json"),
+            session=MagicMock(),
+            exclude_field=["entity-count"],
+        )
+    assert error.value.status_code == 404
+    count.assert_not_called()
+
+
+def test_get_dataset_json_exclude_field_query_parameter(
+    mocker, multiple_dataset_models
+):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from application.routers.dataset import router, get_session, get_settings
+
+    app = FastAPI()
+    app.include_router(router, prefix="/dataset")
+    app.dependency_overrides[get_session] = lambda: MagicMock()
+    app.dependency_overrides[get_settings] = lambda: MagicMock()
+    mocker.patch(
+        "application.routers.dataset.get_dataset_query",
+        return_value=multiple_dataset_models[0],
+    )
+    count = mocker.patch("application.routers.dataset.get_entity_count")
+    response = TestClient(app).get(
+        "/dataset/ancient-woodland.json?exclude_field=entity-count&exclude_field=name"
+    )
+    assert response.status_code == 200
+    assert response.json()["dataset"] == "ancient-woodland"
+    assert "entity-count" not in response.json()
+    assert "name" not in response.json()
+    count.assert_not_called()
