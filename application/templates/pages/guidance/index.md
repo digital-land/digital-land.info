@@ -53,7 +53,7 @@ You can publish your data using any of the following:
 
 You must include a statement to confirm that you provided the data under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
-[Find out more about how to publish data on your website.](https://digital-land.github.io/documentation-url-examples/)
+[Find out more about how to publish data on your website.](./publish-data-on-your-website/examples/)
 
 ### Hosting your data
 
@@ -114,7 +114,7 @@ If a record is for a legal document, you need to add a `document-url` that links
 
 ### Examples
 
-[View example webpages that show how to publish planning data.](https://digital-land.github.io/documentation-url-examples/)
+[View example webpages that show how to publish planning data.](./publish-data-on-your-website/examples/)
 
 ## Provide your data
 

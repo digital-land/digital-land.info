@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#f3f2f1; color:#0b0c0c">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Thornwick Business Park — West Brackenfield District Council</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f3f2f1; color: #0b0c0c; -webkit-text-size-adjust: 100%; }
+  body { font-family: "GDS Transport", Arial, sans-serif; font-size: 16px; background: #f3f2f1; color: #0b0c0c; }
+  a { color: #1d70b8; }
+  .skip-link { position: absolute; top: -40px; left: 0; background: #fd0; padding: 8px 12px; font-weight: 700; font-size: 14px; z-index: 100; text-decoration: none; color: #0b0c0c; }
+  .skip-link:focus { top: 0; }
+  .site-header { background: #004b87; color: #fff; }
+  .header-top { display: flex; align-items: center; padding: 0 20px; max-width: 1200px; margin: 0 auto; height: 68px; }
+  .council-logo { display: flex; align-items: center; color: #fff; text-decoration: none; }
+  .main-nav { background: #003770; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; flex-wrap: wrap; }
+  .nav-inner a { color: #fff; text-decoration: none; padding: 12px 14px; font-size: 14px; display: block; border-bottom: 3px solid transparent; }
+  .nav-inner a:hover { background: rgba(255,255,255,0.1); }
+  .nav-inner a.active { border-bottom-color: #fd0; font-weight: 700; }
+  .breadcrumb { background: #fff; border-bottom: 1px solid #b1b4b6; padding: 10px 20px; font-size: 14px; }
+  .breadcrumb-inner { max-width: 1200px; margin: 0 auto; }
+  .breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; }
+  .breadcrumb li { color: #505a5f; }
+  .breadcrumb li + li::before { content: " › "; color: #505a5f; padding: 0 6px; }
+  .breadcrumb a { color: #1d70b8; }
+  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 30px 20px 60px; display: grid; grid-template-columns: 1fr 260px; gap: 48px; align-items: start; }
+  .main-content { min-width: 0; }
+  .back-link { font-size: 14px; display: inline-block; margin-bottom: 20px; }
+  .back-link::before { content: "← "; }
+  .demo-tag { display: inline-block; background: #f47738; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+  .page-title { font-size: 32px; font-weight: 700; line-height: 1.1; margin-bottom: 6px; }
+  .page-meta { font-size: 14px; color: #505a5f; margin-bottom: 24px; }
+  p { line-height: 1.6; margin-bottom: 14px; }
+  h2 { font-size: 22px; font-weight: 700; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #b1b4b6; color: #0b0c0c; }
+  h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; color: #0b0c0c; }
+  .status-tag { display: inline-block; background: #00703c; color: #fff; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .detail-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .detail-table th { text-align: left; padding: 10px 12px; background: #f3f2f1; border-bottom: 1px solid #b1b4b6; font-weight: 700; font-size: 14px; width: 35%; vertical-align: top; }
+  .detail-table td { padding: 10px 12px; border-bottom: 1px solid #e8e8e8; font-size: 15px; vertical-align: top; }
+  .restrictions-list { padding-left: 20px; margin: 8px 0 16px; }
+  .restrictions-list li { margin-bottom: 6px; font-size: 15px; line-height: 1.5; }
+  .inset { background: #e8f0f8; border-left: 4px solid #1d70b8; padding: 14px 16px; margin-bottom: 20px; font-size: 15px; line-height: 1.5; border-radius: 0 2px 2px 0; }
+  .map-placeholder { background: #e0e8d8; border: 1px solid #b1b4b6; height: 240px; display: flex; align-items: center; justify-content: center; border-radius: 2px; margin-bottom: 20px; }
+  .map-placeholder span { color: #505a5f; font-size: 14px; }
+  .doc-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .doc-link { background: #f3f2f1; border: 1px solid #b1b4b6; padding: 8px 14px; font-size: 14px; color: #1d70b8; border-radius: 2px; text-decoration: none; }
+  .doc-link:hover { background: #e8e8e8; }
+  .prev-next { display: flex; justify-content: space-between; border-top: 1px solid #b1b4b6; margin-top: 36px; padding-top: 16px; gap: 16px; }
+  .prev-next a { font-size: 14px; color: #1d70b8; max-width: 48%; }
+  .prev-next .next { text-align: right; }
+  .prev-next .label { display: block; font-size: 11px; color: #505a5f; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+  .sidebar { min-width: 0; }
+  .sidebar-card { background: #fff; border: 1px solid #b1b4b6; padding: 16px; margin-bottom: 20px; border-radius: 2px; }
+  .sidebar-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; border-top: none; }
+  .sidebar-card ul { list-style: none; padding: 0; }
+  .sidebar-card li { border-bottom: 1px solid #f3f2f1; padding: 6px 0; font-size: 14px; }
+  .sidebar-card li:last-child { border-bottom: none; }
+  .sidebar-card p { font-size: 14px; color: #505a5f; line-height: 1.5; }
+  .contact-label { font-weight: 700; font-size: 11px; color: #505a5f; text-transform: uppercase; letter-spacing: 0.6px; display: block; margin-top: 8px; }
+  .sidebar-card address { font-style: normal; font-size: 13px; color: #505a5f; line-height: 1.7; }
+  .site-footer { background: #0b0c0c; color: #fff; padding: 30px 20px; margin-top: 40px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; gap: 30px; flex-wrap: wrap; }
+  .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 5px; }
+  .footer-col a { color: #d2d2d2; font-size: 13px; text-decoration: none; }
+  .footer-bottom { text-align: center; font-size: 12px; color: #6f777b; border-top: 1px solid #333; padding-top: 16px; max-width: 1200px; margin: 20px auto 0; }
+  .footer-bottom a { color: #9a9a9a; }
+  @media (max-width: 768px) { .page-wrap { grid-template-columns: 1fr; } .sidebar { display: none; } }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="site-header" role="banner">
+  <div class="header-top">
+    <a href="index.html" class="council-logo" aria-label="West Brackenfield District Council home">
+      <svg width="300" height="64" viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="#1e4d3a"/>
+  <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="none" stroke="#c9a95c" stroke-width="2.5"/>
+  <path d="M48 24 L112 24 L112 62 Q112 100 80 118 Q48 100 48 62 Z" fill="none" stroke="#c9a95c" stroke-width="1" opacity="0.5"/>
+  <line x1="80" y1="38" x2="80" y2="106" stroke="#c9a95c" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M80 98 C66 93 62 85 68 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M80 98 C94 93 98 85 92 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M80 88 C67 83 63 75 69 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M80 88 C93 83 97 75 91 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M80 78 C68 73 65 66 70 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M80 78 C92 73 95 66 90 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M80 68 C69 63 67 57 72 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M80 68 C91 63 93 57 88 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M80 58 C73 54 71 49 75 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M80 58 C87 54 89 49 85 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M80 38 Q78 32 80 29 Q83 27 83 31" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <text x="148" y="58" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="bold" fill="#ffffff" letter-spacing="2">WEST BRACKENFIELD</text>
+  <text x="148" y="86" font-family="Georgia, 'Times New Roman', serif" font-size="17" fill="#ffffff" letter-spacing="3">DISTRICT COUNCIL</text>
+  <line x1="148" y1="93" x2="510" y2="93" stroke="#c9a95c" stroke-width="1"/>
+  <text x="148" y="112" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="rgba(255,255,255,0.7)" font-style="italic" letter-spacing="1">Growing together</text>
+</svg>
+    </a>
+  </div>
+  <nav class="main-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#">Home</a><a href="#">Residents</a><a href="#">Business</a>
+      <a href="#" class="active">Planning</a><a href="#">Environment</a><a href="#">Council</a><a href="#">Contact</a>
+    </div>
+  </nav>
+</header>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="breadcrumb-inner">
+    <ol><li><a href="#">Home</a></li>
+      <li><a href="#">Planning</a></li>
+      <li><a href="#">Planning policy</a></li>
+      <li><a href="one-per-page.html">Article 4 Directions</a></li>
+      <li aria-current="page">Thornwick Business Park</li></ol>
+  </div>
+</nav>
+<div class="page-wrap" id="main-content">
+  <main class="main-content">
+    <a href="one-per-page.html" class="back-link">Back to Article 4 Directions</a>
+
+    <h1 class="page-title">Thornwick Business Park</h1>
+    <p class="page-meta">Article 4 Direction &nbsp;·&nbsp; Last updated: 18 March 2026 &nbsp;·&nbsp; <span class="status-tag">Active</span></p>
+
+    <p>Covers the Thornwick Business Park employment area in the south of the district. This direction was made to protect the district's employment land supply from conversion to residential and other non-employment uses.</p>
+
+    <div class="inset">
+      If you are unsure whether this direction applies to your property or proposed works, contact the planning team before beginning any alterations.
+    </div>
+
+    <h2>Direction details</h2>
+    <table class="detail-table" aria-label="Article 4 Direction details">
+      <tbody>
+        <tr><th scope="row">Reference</th><td>WBDC-A4D-005</td></tr>
+        <tr><th scope="row">Area name</th><td>Thornwick Business Park</td></tr>
+        <tr><th scope="row">Date confirmed</th><td>17 September 2020</td></tr>
+        <tr><th scope="row">Date in effect</th><td>17 October 2020</td></tr>
+        <tr><th scope="row">Status</th><td><span class="status-tag">Active</span></td></tr>
+        <tr><th scope="row">Legislation</th><td>Town and Country Planning Act 1990, Article 4 of the Town and Country Planning (General Permitted Development) (England) Order 2015</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Permitted development rights removed</h2>
+    <p>Within the Thornwick Business Park Article 4 Direction area, planning permission is required for the following works that would otherwise be permitted development:</p>
+    <ul class="restrictions-list">
+        <li>Change of use from Class E(g) (offices, research and development, light industrial) to residential (Class C3)</li>
+        <li>Change of use to Class F (local community and learning uses)</li>
+    </ul>
+
+    <h2>Area map</h2>
+    <div class="map-placeholder" role="img" aria-label="Map showing the Thornwick Business Park Article 4 Direction boundary">
+      <span>🗺 Interactive map — Thornwick Business Park Article 4 Direction boundary</span>
+    </div>
+    <p style="font-size:13px; color:#505a5f">The boundary shown above is the definitive boundary for the purposes of this direction. If you are unsure whether your property falls within the area, contact the planning team.</p>
+
+    <h2>Documents</h2>
+    <div class="doc-links">
+      <a href="#" class="doc-link">📄 Article 4 Direction notice (PDF)</a>
+      <a href="#" class="doc-link">🗺 Direction boundary map (PDF)</a>
+      <a href="#" class="doc-link">📋 Statement of reasons</a>
+    </div>
+
+    <h2>Data</h2>
+    <p>This data is published in accordance with the Article 4 Direction data specification published by MHCLG and is available under the Open Government Licence.</p>
+    <div class="doc-links">
+      <a href="#" class="doc-link">⬇ Article 4 Direction areas (CSV)</a>
+      <a href="#" class="doc-link">⬇ Article 4 Direction documents (CSV)</a>
+      <a href="https://www.planning.data.gov.uk/dataset/article-4-direction" target="_blank" rel="noopener" class="doc-link">🔗 View on planning.data.gov.uk ↗</a>
+    </div>
+    <p style="font-size:13px; color:#505a5f; margin-top:12px">Data published under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government Licence v3.0</a>.</p>
+
+    <nav class="prev-next" aria-label="Previous and next directions">
+      <div class="prev"><span class="label">Previous</span><a href="a4d-004-holt-green.html">← Holt Green</a></div>
+      <div class="next"><span class="label">Next</span><a href="a4d-006-millgate-riverside.html">Millgate Riverside →</a></div>
+    </nav>
+  </main>
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h3>All directions</h3>
+      <ul>
+        <li><a href="a4d-001-brackenfield-old-town.html">Brackenfield Old Town</a></li>
+        <li><a href="a4d-002-fenwick-road.html">Fenwick Road</a></li>
+        <li><a href="a4d-003-stonemoor-lane.html">Stonemoor Lane</a></li>
+        <li><a href="a4d-004-holt-green.html">Holt Green</a></li>
+        <li><a href="a4d-005-thornwick-business-park.html">Thornwick Business Park</a></li>
+        <li><a href="a4d-006-millgate-riverside.html">Millgate Riverside</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-card">
+      <h3>Related pages</h3>
+      <ul>
+        <li><a href="#">Apply for planning permission</a></li>
+        <li><a href="#">Conservation areas</a></li>
+        <li><a href="#">Permitted development rights</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-card">
+      <h3>Contact planning policy</h3>
+      <address>
+        <span class="contact-label">Email</span>
+        <a href="mailto:planningpolicy@westbrackenfield.gov.uk" style="color:#1d70b8; font-size:13px">planningpolicy@westbrackenfield.gov.uk</a>
+        <span class="contact-label">Telephone</span>
+        01234 567890
+      </address>
+    </div>
+  </aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col"><h4>Council services</h4><ul><li><a href="#">Planning</a></li><li><a href="#">Housing</a></li></ul></div>
+    <div class="footer-col"><h4>About the council</h4><ul><li><a href="#">Accessibility</a></li><li><a href="#">Privacy notice</a></li></ul></div>
+    <div class="footer-col"><h4>Open data</h4><ul><li><a href="https://www.planning.data.gov.uk" target="_blank" rel="noopener">planning.data.gov.uk</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">&copy; West Brackenfield District Council 2026 &nbsp;&middot;&nbsp;<a href="#">Accessibility</a> &nbsp;&middot;&nbsp;<a href="#">Cookies</a></div>
+</footer>
+</body>
+</html>

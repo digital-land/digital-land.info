@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#f3f2f1; color:#0b0c0c">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Find an Article 4 Direction — West Brackenfield District Council</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f3f2f1; color: #0b0c0c; -webkit-text-size-adjust: 100%; }
+  body { font-family: "GDS Transport", Arial, sans-serif; font-size: 16px; background: #f3f2f1; color: #0b0c0c; }
+  a { color: #1d70b8; }
+  .skip-link { position: absolute; top: -40px; left: 0; background: #fd0; padding: 8px 12px; font-weight: 700; font-size: 14px; z-index: 100; text-decoration: none; color: #0b0c0c; }
+  .skip-link:focus { top: 0; }
+  .site-header { background: #004b87; color: #fff; }
+  .header-top { display: flex; align-items: center; padding: 0 20px; max-width: 1200px; margin: 0 auto; height: 68px; }
+  .council-logo { display: flex; align-items: center; color: #fff; text-decoration: none; }
+  .main-nav { background: #003770; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; flex-wrap: wrap; }
+  .nav-inner a { color: #fff; text-decoration: none; padding: 12px 14px; font-size: 14px; display: block; border-bottom: 3px solid transparent; }
+  .nav-inner a:hover { background: rgba(255,255,255,0.1); }
+  .nav-inner a.active { border-bottom-color: #fd0; font-weight: 700; }
+  .breadcrumb { background: #fff; border-bottom: 1px solid #b1b4b6; padding: 10px 20px; font-size: 14px; }
+  .breadcrumb-inner { max-width: 1200px; margin: 0 auto; }
+  .breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; }
+  .breadcrumb li { color: #505a5f; }
+  .breadcrumb li + li::before { content: " › "; color: #505a5f; padding: 0 6px; }
+  .breadcrumb a { color: #1d70b8; }
+
+  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 30px 20px 60px; }
+  .back-link { font-size: 14px; display: inline-block; margin-bottom: 16px; }
+  .back-link::before { content: "← "; }
+  .demo-tag { display: inline-block; background: #f47738; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+  .page-title { font-size: 32px; font-weight: 700; line-height: 1.1; margin-bottom: 6px; }
+  .page-meta { font-size: 14px; color: #505a5f; margin-bottom: 12px; }
+  p { line-height: 1.6; margin-bottom: 14px; }
+
+  /* Search bar */
+  .search-bar { background: #004b87; padding: 20px; margin: 24px 0; border-radius: 2px; }
+  .search-bar label { color: #fff; font-size: 15px; font-weight: 700; display: block; margin-bottom: 8px; }
+  .search-bar-inner { display: flex; gap: 10px; max-width: 600px; }
+  .search-bar input[type="search"] { flex: 1; padding: 10px 12px; font-size: 16px; border: 2px solid #fff; border-radius: 2px; font-family: inherit; }
+  .search-bar input[type="search"]:focus { outline: 3px solid #fd0; outline-offset: 0; }
+  .search-bar button { background: #fd0; color: #0b0c0c; border: none; padding: 10px 20px; font-size: 16px; font-weight: 700; cursor: pointer; border-radius: 2px; white-space: nowrap; }
+  .search-bar button:hover { background: #e6c900; }
+
+  /* Finder layout */
+  .finder-layout { display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: start; }
+
+  /* Filters panel */
+  .filters-panel { background: #fff; border: 1px solid #b1b4b6; padding: 18px; border-radius: 2px; }
+  .filters-panel h2 { font-size: 17px; font-weight: 700; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e8e8e8; }
+  .filter-group { margin-bottom: 18px; }
+  .filter-group h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #0b0c0c; }
+  .filter-group label { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; margin-bottom: 6px; cursor: pointer; line-height: 1.4; }
+  .filter-group input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; accent-color: #1d70b8; margin-top: 1px; }
+  .filter-count { color: #505a5f; font-size: 13px; margin-left: auto; padding-left: 6px; }
+  .clear-filters-link { display: block; font-size: 13px; color: #1d70b8; margin-top: 8px; }
+
+  /* Results area */
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #b1b4b6; padding-bottom: 12px; }
+  .results-count { font-size: 15px; }
+  .sort-control { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .sort-control label { white-space: nowrap; }
+  .sort-control select { padding: 5px 8px; font-size: 14px; border: 1px solid #b1b4b6; border-radius: 2px; font-family: inherit; background: #fff; }
+
+  /* Active filter chips */
+  .active-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .active-filters-label { font-size: 13px; color: #505a5f; font-weight: 700; }
+  .filter-chip { background: #e8f0f8; border: 1px solid #1d70b8; color: #003078; font-size: 13px; padding: 3px 10px; border-radius: 10px; display: flex; align-items: center; gap: 5px; text-decoration: none; }
+  .filter-chip:hover { background: #d0e4f5; color: #003078; }
+  .filter-chip .remove { font-weight: 700; font-size: 14px; line-height: 1; }
+
+  /* Result cards */
+  .result-card { background: #fff; border: 1px solid #b1b4b6; border-left: 5px solid #1d70b8; padding: 16px 18px; margin-bottom: 10px; border-radius: 2px; }
+  .result-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 12px; }
+  .result-card-title { font-size: 17px; font-weight: 700; }
+  .result-card-title a { color: #1d70b8; text-decoration: none; }
+  .result-card-title a:hover { text-decoration: underline; }
+  .status-tag { display: inline-block; background: #00703c; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; flex-shrink: 0; }
+  .result-meta { font-size: 13px; color: #505a5f; display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+  .result-description { font-size: 14px; color: #505a5f; line-height: 1.5; }
+  .tag-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tag { background: #e8f0f8; color: #003078; font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+
+  .no-results { background: #fff; border: 1px solid #b1b4b6; padding: 24px; border-radius: 2px; }
+  .no-results p { color: #505a5f; margin-bottom: 8px; }
+
+  /* Pagination */
+  .pagination { display: flex; align-items: center; gap: 4px; margin-top: 24px; flex-wrap: wrap; }
+  .pagination a, .pagination span { display: inline-block; padding: 8px 14px; font-size: 14px; border: 1px solid #b1b4b6; background: #fff; color: #1d70b8; text-decoration: none; border-radius: 2px; }
+  .pagination a:hover { background: #e8f0f8; }
+  .pagination .current { background: #1d70b8; color: #fff; border-color: #1d70b8; font-weight: 700; }
+  .pagination .ellipsis { border: none; color: #505a5f; padding: 8px 4px; }
+  .pagination-info { font-size: 14px; color: #505a5f; margin-left: 8px; }
+
+  /* Demo note */
+  .demo-note { background: #fff7d6; border-left: 4px solid #fd0; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; line-height: 1.5; border-radius: 0 2px 2px 0; }
+
+  /* Data footer */
+  .data-footer { border-top: 1px solid #b1b4b6; margin-top: 32px; padding-top: 20px; }
+  .data-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .data-link { background: #f3f2f1; border: 1px solid #b1b4b6; padding: 8px 14px; font-size: 14px; color: #1d70b8; border-radius: 2px; text-decoration: none; }
+  .data-link:hover { background: #e8e8e8; }
+
+  .site-footer { background: #0b0c0c; color: #fff; padding: 30px 20px; margin-top: 40px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; gap: 30px; flex-wrap: wrap; }
+  .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 5px; }
+  .footer-col a { color: #d2d2d2; font-size: 13px; text-decoration: none; }
+  .footer-bottom { text-align: center; font-size: 12px; color: #6f777b; border-top: 1px solid #333; padding-top: 16px; max-width: 1200px; margin: 20px auto 0; }
+  @media (max-width: 768px) { .finder-layout { grid-template-columns: 1fr; } .filters-panel { display: none; } }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="site-header" role="banner">
+  <div class="header-top">
+    <a href="index.html" class="council-logo" aria-label="West Brackenfield District Council home">
+      <svg width="300" height="64" viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="#1e4d3a"/>
+        <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="none" stroke="#c9a95c" stroke-width="2.5"/>
+        <path d="M48 24 L112 24 L112 62 Q112 100 80 118 Q48 100 48 62 Z" fill="none" stroke="#c9a95c" stroke-width="1" opacity="0.5"/>
+        <line x1="80" y1="38" x2="80" y2="106" stroke="#c9a95c" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M80 98 C66 93 62 85 68 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M80 98 C94 93 98 85 92 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M80 88 C67 83 63 75 69 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M80 88 C93 83 97 75 91 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M80 78 C68 73 65 66 70 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M80 78 C92 73 95 66 90 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M80 68 C69 63 67 57 72 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M80 68 C91 63 93 57 88 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M80 58 C73 54 71 49 75 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <path d="M80 58 C87 54 89 49 85 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <path d="M80 38 Q78 32 80 29 Q83 27 83 31" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <text x="148" y="58" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="bold" fill="#ffffff" letter-spacing="2">WEST BRACKENFIELD</text>
+        <text x="148" y="86" font-family="Georgia, 'Times New Roman', serif" font-size="17" fill="#ffffff" letter-spacing="3">DISTRICT COUNCIL</text>
+        <line x1="148" y1="93" x2="510" y2="93" stroke="#c9a95c" stroke-width="1"/>
+        <text x="148" y="112" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="rgba(255,255,255,0.7)" font-style="italic" letter-spacing="1">Growing together</text>
+      </svg>
+    </a>
+  </div>
+  <nav class="main-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#">Home</a><a href="#">Residents</a><a href="#">Business</a>
+      <a href="#" class="active">Planning</a><a href="#">Environment</a><a href="#">Council</a><a href="#">Contact</a>
+    </div>
+  </nav>
+</header>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="breadcrumb-inner">
+    <ol>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Planning</a></li>
+      <li><a href="#">Planning policy</a></li>
+      <li aria-current="page">Find an Article 4 Direction</li>
+    </ol>
+  </div>
+</nav>
+
+<div class="page-wrap" id="main-content">
+
+  <a href="index.html" class="back-link">Back to planning data examples</a>
+  <span class="demo-tag">Using a finder — example</span>
+  <h1 class="page-title">Find an Article 4 Direction</h1>
+  <p class="page-meta">Last updated: 18 March 2026</p>
+  <p>Search and filter to find Article 4 Directions in West Brackenfield District. An Article 4 Direction removes certain permitted development rights, meaning planning permission must be applied for before carrying out the affected works.</p>
+
+  <div class="demo-note">
+    <strong>About this example:</strong> Filters and pagination are reflected in the page URL as query parameters (for example, <code>finder.html?q=conservation&amp;type=external-alterations&amp;page=2</code>). This means filtered views and individual pages of results can be bookmarked and shared. In a real implementation a server would use these parameters to query a database and return the appropriate records.
+  </div>
+
+  <form id="search-form" method="get" action="finder.html">
+    <div class="search-bar">
+      <label for="main-search">Search by name or area</label>
+      <div class="search-bar-inner">
+        <input type="search" id="main-search" name="q" placeholder="e.g. Fenwick Road or conservation area" autocomplete="off">
+        <button type="submit">Search</button>
+      </div>
+    </div>
+
+    <div class="finder-layout">
+
+      <aside aria-label="Filter results">
+        <div class="filters-panel">
+          <h2>Filter</h2>
+
+          <div class="filter-group">
+            <h3>Restriction type</h3>
+            <label><input type="checkbox" name="type" value="change-of-use"> Change of use <span class="filter-count">(4)</span></label>
+            <label><input type="checkbox" name="type" value="external-alterations"> External alterations <span class="filter-count">(2)</span></label>
+            <label><input type="checkbox" name="type" value="extensions"> Extensions and outbuildings <span class="filter-count">(1)</span></label>
+            <label><input type="checkbox" name="type" value="demolition"> Demolition <span class="filter-count">(1)</span></label>
+            <label><input type="checkbox" name="type" value="hmo"> HMO conversion <span class="filter-count">(1)</span></label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Status</h3>
+            <label><input type="checkbox" name="status" value="active"> Active <span class="filter-count">(6)</span></label>
+            <label><input type="checkbox" name="status" value="revoked"> Revoked <span class="filter-count">(0)</span></label>
+          </div>
+
+          <div class="filter-group">
+            <h3>Confirmed</h3>
+            <label><input type="checkbox" name="era" value="post2020"> 2020 or later <span class="filter-count">(4)</span></label>
+            <label><input type="checkbox" name="era" value="pre2020"> Before 2020 <span class="filter-count">(2)</span></label>
+          </div>
+
+          <button type="submit" style="display:none" aria-hidden="true">Apply filters</button>
+          <a href="finder.html" class="clear-filters-link" id="clear-filters-link" style="display:none">Clear all filters</a>
+        </div>
+      </aside>
+
+      <div>
+        <div id="active-filters-row"></div>
+
+        <div class="results-header">
+          <p class="results-count" id="results-count"></p>
+          <div class="sort-control">
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select" name="sort" onchange="this.form.submit()">
+              <option value="name">Name (A to Z)</option>
+              <option value="date-new">Date confirmed (newest first)</option>
+              <option value="date-old">Date confirmed (oldest first)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="results-list"></div>
+        <div id="pagination-row"></div>
+
+        <div class="data-footer">
+          <p style="font-weight:700; font-size:15px">Data and other resources</p>
+          <p style="font-size:14px; color:#505a5f; margin-top:4px">Published in accordance with the Article 4 Direction data specification published by MHCLG.</p>
+          <div class="data-links">
+            <a href="#" class="data-link">Download Article 4 Direction areas (CSV)</a>
+            <a href="#" class="data-link">Download Article 4 Direction documents (CSV)</a>
+            <a href="https://www.planning.data.gov.uk/dataset/article-4-direction" target="_blank" rel="noopener" class="data-link">View on planning.data.gov.uk</a>
+          </div>
+          <p style="font-size:13px; color:#505a5f; margin-top:12px">Data published under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government Licence v3.0</a>.</p>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col"><h4>Council services</h4><ul><li><a href="#">Planning</a></li><li><a href="#">Housing</a></li></ul></div>
+    <div class="footer-col"><h4>About the council</h4><ul><li><a href="#">Accessibility</a></li><li><a href="#">Privacy</a></li></ul></div>
+    <div class="footer-col"><h4>Open data</h4><ul><li><a href="https://www.planning.data.gov.uk" target="_blank" rel="noopener">planning.data.gov.uk</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">&copy; West Brackenfield District Council 2026 &nbsp;&middot;&nbsp;<a href="#">Accessibility</a> &nbsp;&middot;&nbsp;<a href="#">Cookies</a></div>
+</footer>
+
+<script>
+var PAGE_SIZE = 4;
+
+var ALL_DATA = [
+  { ref:"WBDC-A4D-001", name:"Brackenfield Old Town", confirmed:"2019-03-14", confirmedDisplay:"14 March 2019", status:"active", types:["change-of-use","external-alterations"], era:"pre2020", tags:["Conservation area","Town centre","Change of use"], description:"Covers the historic core of West Brackenfield town centre. Removes rights for change of use from Class E to residential, and external alterations within the conservation area.", url:"a4d-001-brackenfield-old-town.html" },
+  { ref:"WBDC-A4D-002", name:"Fenwick Road", confirmed:"2021-07-22", confirmedDisplay:"22 July 2021", status:"active", types:["change-of-use","hmo"], era:"post2020", tags:["HMOs","Residential","Change of use"], description:"Residential area in the north of the district. Removes rights for conversion to Houses in Multiple Occupation (HMOs) and sub-division of dwellings.", url:"a4d-002-fenwick-road.html" },
+  { ref:"WBDC-A4D-003", name:"Stonemoor Lane", confirmed:"2018-11-05", confirmedDisplay:"5 November 2018", status:"active", types:["extensions"], era:"pre2020", tags:["Extensions","Outbuildings","Residential"], description:"Suburban residential area in the east of the district. Removes rights for single-storey rear extensions over 3m, side extensions, and outbuildings over 2.5m in height.", url:"a4d-003-stonemoor-lane.html" },
+  { ref:"WBDC-A4D-004", name:"Holt Green", confirmed:"2023-02-09", confirmedDisplay:"9 February 2023", status:"active", types:["external-alterations"], era:"post2020", tags:["Conservation area","External alterations"], description:"Recently designated conservation area on the western edge of West Brackenfield. Removes rights for external alterations, roof changes, and satellite dishes on front elevations.", url:"a4d-004-holt-green.html" },
+  { ref:"WBDC-A4D-005", name:"Thornwick Business Park", confirmed:"2020-09-17", confirmedDisplay:"17 September 2020", status:"active", types:["change-of-use"], era:"post2020", tags:["Employment","Business park","Change of use"], description:"Employment area in the south of the district. Removes rights for change of use from Class E(g) offices and light industrial to residential.", url:"a4d-005-thornwick-business-park.html" },
+  { ref:"WBDC-A4D-006", name:"Millgate Riverside", confirmed:"2022-05-30", confirmedDisplay:"30 May 2022", status:"active", types:["change-of-use","demolition"], era:"post2020", tags:["Regeneration","Flood zone","Demolition"], description:"Regeneration area in Flood Zone 2. Removes rights for demolition of buildings over 50m2, change of use of ground floor premises, and hard surfacing of front gardens.", url:"a4d-006-millgate-riverside.html" }
+];
+
+// Read current params from URL
+function getParams() {
+  var p = new URLSearchParams(window.location.search);
+  return {
+    q: p.get('q') || '',
+    types: p.getAll('type'),
+    statuses: p.getAll('status'),
+    eras: p.getAll('era'),
+    sort: p.get('sort') || 'name',
+    page: parseInt(p.get('page') || '1', 10)
+  };
+}
+
+// Build a URL preserving current params but overriding specified ones
+function buildUrl(overrides) {
+  var params = getParams();
+  var merged = Object.assign({}, params, overrides);
+  var p = new URLSearchParams();
+  if (merged.q) p.set('q', merged.q);
+  (merged.types || []).forEach(function(t) { p.append('type', t); });
+  (merged.statuses || []).forEach(function(s) { p.append('status', s); });
+  (merged.eras || []).forEach(function(e) { p.append('era', e); });
+  if (merged.sort && merged.sort !== 'name') p.set('sort', merged.sort);
+  if (merged.page && merged.page > 1) p.set('page', merged.page);
+  var qs = p.toString();
+  return 'finder.html' + (qs ? '?' + qs : '');
+}
+
+// Populate form from URL params
+function populateForm(params) {
+  document.getElementById('main-search').value = params.q;
+  document.querySelectorAll('input[name="type"]').forEach(function(cb) {
+    cb.checked = params.types.includes(cb.value);
+  });
+  document.querySelectorAll('input[name="status"]').forEach(function(cb) {
+    cb.checked = params.statuses.includes(cb.value);
+  });
+  document.querySelectorAll('input[name="era"]').forEach(function(cb) {
+    cb.checked = params.eras.includes(cb.value);
+  });
+  document.getElementById('sort-select').value = params.sort;
+}
+
+// Filter and sort data
+function getFiltered(params) {
+  var filtered = ALL_DATA.filter(function(d) {
+    var matchQ = !params.q || d.name.toLowerCase().includes(params.q.toLowerCase()) || d.ref.toLowerCase().includes(params.q.toLowerCase()) || d.description.toLowerCase().includes(params.q.toLowerCase()) || d.tags.some(function(t) { return t.toLowerCase().includes(params.q.toLowerCase()); });
+    var matchType = params.types.length === 0 || params.types.some(function(t) { return d.types.includes(t); });
+    var matchStatus = params.statuses.length === 0 || params.statuses.includes(d.status);
+    var matchEra = params.eras.length === 0 || params.eras.includes(d.era);
+    return matchQ && matchType && matchStatus && matchEra;
+  });
+
+  filtered.sort(function(a, b) {
+    if (params.sort === 'date-new') return b.confirmed.localeCompare(a.confirmed);
+    if (params.sort === 'date-old') return a.confirmed.localeCompare(b.confirmed);
+    return a.name.localeCompare(b.name);
+  });
+
+  return filtered;
+}
+
+// Render active filter chips
+function renderChips(params) {
+  var chips = [];
+  var typeLabels = { 'change-of-use':'Change of use', 'external-alterations':'External alterations', 'extensions':'Extensions and outbuildings', 'demolition':'Demolition', 'hmo':'HMO conversion' };
+  var eraLabels = { 'post2020':'2020 or later', 'pre2020':'Before 2020' };
+
+  if (params.q) {
+    chips.push({ label: '"' + params.q + '"', url: buildUrl({ q: '', page: 1 }) });
+  }
+  params.types.forEach(function(t) {
+    chips.push({ label: typeLabels[t] || t, url: buildUrl({ types: params.types.filter(function(x) { return x !== t; }), page: 1 }) });
+  });
+  params.statuses.forEach(function(s) {
+    chips.push({ label: s.charAt(0).toUpperCase() + s.slice(1), url: buildUrl({ statuses: params.statuses.filter(function(x) { return x !== s; }), page: 1 }) });
+  });
+  params.eras.forEach(function(e) {
+    chips.push({ label: eraLabels[e] || e, url: buildUrl({ eras: params.eras.filter(function(x) { return x !== e; }), page: 1 }) });
+  });
+
+  var row = document.getElementById('active-filters-row');
+  if (chips.length === 0) { row.innerHTML = ''; return; }
+
+  row.innerHTML = '<div class="active-filters"><span class="active-filters-label">Filters:</span>' +
+    chips.map(function(c) {
+      return '<a href="' + c.url + '" class="filter-chip">' + c.label + ' <span class="remove" aria-hidden="true">x</span></a>';
+    }).join('') +
+    '<a href="finder.html" class="filter-chip" style="background:#fff0e0; border-color:#f47738; color:#7a3000">Clear all</a>' +
+  '</div>';
+}
+
+// Render results
+function renderResults(filtered, params) {
+  var total = filtered.length;
+  var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  var page = Math.min(params.page, totalPages);
+  var start = (page - 1) * PAGE_SIZE;
+  var pageRecords = filtered.slice(start, start + PAGE_SIZE);
+
+  // Count
+  var countEl = document.getElementById('results-count');
+  if (total === 0) {
+    countEl.innerHTML = 'No results found';
+  } else {
+    var showing = total > PAGE_SIZE ? 'Showing ' + (start + 1) + ' to ' + Math.min(start + PAGE_SIZE, total) + ' of <strong>' + total + '</strong>' : '<strong>' + total + '</strong>';
+    countEl.innerHTML = showing + ' Article 4 Direction' + (total !== 1 ? 's' : '');
+  }
+
+  // Cards
+  var list = document.getElementById('results-list');
+  if (pageRecords.length === 0) {
+    list.innerHTML = '<div class="no-results"><p>No Article 4 Directions match your search or filters.</p><p><a href="finder.html">Clear all filters</a></p></div>';
+  } else {
+    list.innerHTML = pageRecords.map(function(d) {
+      return '<div class="result-card">' +
+        '<div class="result-card-header">' +
+          '<div class="result-card-title"><a href="' + d.url + '">' + d.name + '</a></div>' +
+          '<span class="status-tag">Active</span>' +
+        '</div>' +
+        '<div class="result-meta"><span><strong>Ref:</strong> ' + d.ref + '</span><span><strong>Confirmed:</strong> ' + d.confirmedDisplay + '</span></div>' +
+        '<p class="result-description">' + d.description + '</p>' +
+        '<div class="tag-list">' + d.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Pagination
+  var pagRow = document.getElementById('pagination-row');
+  if (totalPages <= 1) { pagRow.innerHTML = ''; return; }
+
+  var html = '<nav class="pagination" aria-label="Pagination">';
+  if (page > 1) html += '<a href="' + buildUrl({ page: page - 1 }) + '" aria-label="Previous page">Previous</a>';
+
+  for (var i = 1; i <= totalPages; i++) {
+    if (i === page) {
+      html += '<span class="current" aria-current="page" aria-label="Page ' + i + '">' + i + '</span>';
+    } else if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+      html += '<a href="' + buildUrl({ page: i }) + '" aria-label="Page ' + i + '">' + i + '</a>';
+    } else if (i === page - 2 || i === page + 2) {
+      html += '<span class="ellipsis">...</span>';
+    }
+  }
+
+  if (page < totalPages) html += '<a href="' + buildUrl({ page: page + 1 }) + '" aria-label="Next page">Next</a>';
+  html += '<span class="pagination-info">Page ' + page + ' of ' + totalPages + '</span>';
+  html += '</nav>';
+  pagRow.innerHTML = html;
+}
+
+// Show/hide clear filters link
+function updateClearLink(params) {
+  var hasFilters = params.q || params.types.length || params.statuses.length || params.eras.length;
+  document.getElementById('clear-filters-link').style.display = hasFilters ? 'block' : 'none';
+}
+
+// Wire up checkboxes and search to submit form (which updates URL)
+// For checkboxes, reset page to 1
+document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+  cb.addEventListener('change', function() {
+    // Set a hidden page=1 before submitting by removing any existing page param
+    var form = document.getElementById('search-form');
+    var existing = form.querySelector('input[name="page"]');
+    if (existing) existing.remove();
+    form.submit();
+  });
+});
+
+// On page load: read params, populate form, render
+var params = getParams();
+populateForm(params);
+var filtered = getFiltered(params);
+renderChips(params);
+renderResults(filtered, params);
+updateClearLink(params);
+</script>
+</body>
+</html>

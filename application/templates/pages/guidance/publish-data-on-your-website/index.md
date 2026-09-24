@@ -72,4 +72,4 @@ You need to check that your publishing system supports anchor links (also called
 If a record is for a legal document, you need to add a `document-url` that links straight to the file. For example, a direction notice or order.
 
 ### Examples
-[View example webpages showing how to publish planning data.](./publish-data-on-your-website/examples/index.html)
+[View example webpages showing how to publish planning data.](https://digital-land.info/publish-data-on-your-website/examples/)

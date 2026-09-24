@@ -1,0 +1,42 @@
+<svg width="520" height="140" viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Shield: proper heraldic shape, pointed base -->
+  <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="#1e4d3a"/>
+  <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="none" stroke="#c9a95c" stroke-width="2.5"/>
+  <!-- Inner shield border -->
+  <path d="M48 24 L112 24 L112 62 Q112 100 80 118 Q48 100 48 62 Z" fill="none" stroke="#c9a95c" stroke-width="1" opacity="0.5"/>
+
+  <!-- Fern: central stem -->
+  <line x1="80" y1="38" x2="80" y2="106" stroke="#c9a95c" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Fern fronds — alternating left/right, 5 pairs, tapering upward -->
+  <!-- Pair 1 (bottom) -->
+  <path d="M80 98 C66 93 62 85 68 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M80 98 C94 93 98 85 92 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <!-- Pair 2 -->
+  <path d="M80 88 C67 83 63 75 69 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M80 88 C93 83 97 75 91 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Pair 3 -->
+  <path d="M80 78 C68 73 65 66 70 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M80 78 C92 73 95 66 90 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <!-- Pair 4 -->
+  <path d="M80 68 C69 63 67 57 72 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M80 68 C91 63 93 57 88 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <!-- Pair 5 (top, small) -->
+  <path d="M80 58 C73 54 71 49 75 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M80 58 C87 54 89 49 85 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Curled tip -->
+  <path d="M80 38 Q78 32 80 29 Q83 27 83 31" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+  <!-- Council name -->
+  <text x="148" y="58" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="bold" fill="#1e4d3a" letter-spacing="2">WEST BRACKENFIELD</text>
+  <text x="148" y="86" font-family="Georgia, 'Times New Roman', serif" font-size="17" fill="#1e4d3a" letter-spacing="3">DISTRICT COUNCIL</text>
+
+  <!-- Thin rule between name lines -->
+  <line x1="148" y1="93" x2="510" y2="93" stroke="#c9a95c" stroke-width="1"/>
+
+  <!-- Motto -->
+  <text x="148" y="112" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#666" font-style="italic" letter-spacing="1">Growing together</text>
+
+</svg>

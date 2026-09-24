@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="en" class="govuk-template">
+<head>
+  <meta charset="utf-8">
+  <title>Publishing planning data on your website | Planning Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0c0c">
+  <meta name="color-scheme" content="light">
+
+  <link rel="stylesheet" href="https://www.planning.data.gov.uk/static/stylesheets/application.css">
+</head>
+<body class="govuk-template__body">
+<script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
+
+<a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
+
+<header class="govuk-header app-header" role="banner" data-module="govuk-header">
+  <div class="govuk-header__container govuk-width-container app-header__container">
+    <div class="govuk-header__logo app-header__logo">
+      <a href="https://www.planning.data.gov.uk" class="govuk-header__link govuk-header__link--homepage">
+        <span class="app-header__logotype">Planning Data</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="govuk-width-container">
+
+  <nav aria-label="Breadcrumb" class="govuk-breadcrumbs govuk-!-margin-top-3">
+    <ol class="govuk-breadcrumbs__list">
+      <li class="govuk-breadcrumbs__list-item">
+        <a class="govuk-breadcrumbs__link" href="https://www.planning.data.gov.uk">Planning Data</a>
+      </li>
+      <li class="govuk-breadcrumbs__list-item" aria-current="page">Publishing planning data on your website</li>
+    </ol>
+  </nav>
+
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-xl">Publishing planning data on your website2</h1>
+
+    <p class="govuk-body-l">These pages show four example patterns for how a local planning authority can publish planning data on their website.</p>
+
+    <p class="govuk-body">The Ministry of Housing, Communities and Local Government (MHCLG) publishes <a class="govuk-link" href="https://digital-land.github.io/specification/">data specifications</a> that set out the fields and formats local planning authorities should use when publishing planning datasets. These patterns show how that data can then be presented to the public.</p>
+
+    <p class="govuk-body">The first three patterns are illustrated using Article 4 Directions as the example dataset. The fourth shows how a more complex group of related datasets can be presented together, using Local Plans as the example. All patterns can be applied to other planning datasets your authority publishes.</p>
+
+    <div class="govuk-inset-text">
+      These are example pages for demonstration purposes. West Brackenfield District Council is a fictional authority used to illustrate the patterns.
+    </div>
+
+    <h2 class="govuk-heading-l govuk-!-margin-top-8">URLs and how they are used</h2>
+
+    <p class="govuk-body">When you publish planning data, you need to provide URLs in your dataset that point back to your website. There are four types of URL involved.</p>
+
+    <style>
+      .url-diagram { border: 1px solid #b1b4b6; background: #fff; padding: 0; margin: 20px 0 30px; font-family: "GDS Transport", Arial, sans-serif; }
+      .url-diagram-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+      .url-diagram-main { padding: 24px; border-right: 1px solid #b1b4b6; }
+      .url-diagram-detail { padding: 24px; }
+      .url-diagram-main-top { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #b1b4b6; }
+      .url-diagram-detail-top { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #b1b4b6; }
+      .url-diagram-page { background: #f3f2f1; border: 1px solid #b1b4b6; padding: 16px; font-size: 14px; }
+      .url-diagram-page-title { font-weight: 700; font-size: 16px; margin-bottom: 10px; color: #0b0c0c; }
+      .url-diagram-page-body { background: #0b0c0c; height: 8px; border-radius: 1px; margin-bottom: 6px; }
+      .url-diagram-page-body.short { width: 70%; }
+      .url-diagram-page-body.med { width: 85%; }
+      .url-diagram-page-link { color: #1d70b8; text-decoration: underline; font-size: 13px; margin: 8px 0 4px; display: block; }
+      .url-diagram-page-link-body { background: #0b0c0c; height: 7px; border-radius: 1px; margin-bottom: 5px; }
+      .url-tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 2px; color: #fff; margin-bottom: 6px; }
+      .url-tag--webpage { background: #4c2c92; }
+      .url-tag--documentation { background: #007a7a; }
+      .url-tag--document { background: #1d70b8; }
+      .url-tag--endpoint { background: #505a5f; }
+      .url-diagram-label { font-size: 13px; color: #505a5f; line-height: 1.4; margin-top: 4px; }
+      .url-diagram-label code { font-size: 12px; background: #f3f2f1; padding: 1px 4px; border-radius: 2px; color: #0b0c0c; word-break: break-all; }
+      .url-diagram-footer { padding: 16px 24px; background: #f3f2f1; border-top: 1px solid #b1b4b6; font-size: 13px; color: #505a5f; }
+      .url-diagram-footer code { font-size: 12px; background: #fff; padding: 1px 5px; border-radius: 2px; border: 1px solid #b1b4b6; color: #0b0c0c; word-break: break-all; }
+      @media (max-width: 640px) {
+        .url-diagram-row { grid-template-columns: 1fr; }
+        .url-diagram-main { border-right: none; border-bottom: 1px solid #b1b4b6; }
+        .url-diagram-main-top { border-bottom: 1px solid #b1b4b6; }
+        .url-diagram-detail-top { border-bottom: 1px solid #b1b4b6; }
+      }
+
+      .url-pattern-box { background: #f3f2f1; border-left: 4px solid #505a5f; padding: 12px 16px; margin: 12px 0 0; font-size: 14px; }
+      .url-pattern-box dt { font-weight: 700; font-size: 13px; color: #505a5f; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; margin-top: 10px; }
+      .url-pattern-box dt:first-child { margin-top: 0; }
+      .url-pattern-box dd { margin: 0 0 2px; }
+      .url-pattern-box code { font-size: 13px; background: #fff; padding: 2px 6px; border-radius: 2px; border: 1px solid #b1b4b6; color: #0b0c0c; word-break: break-all; display: inline-block; }
+    </style>
+
+    <!-- Diagram -->
+    <div class="url-diagram" role="img" aria-label="Diagram showing the three types of URL: webpage URL, documentation-url, and document-url">
+      <div class="url-diagram-row">
+
+        <div class="url-diagram-main">
+          <div class="url-diagram-main-top">
+            <span class="url-tag url-tag--webpage">Webpage URL</span>
+            <div class="url-diagram-label" style="margin-bottom:12px">The URL of the page on your website that contains information about this dataset — for example, your Article 4 Directions page.</div>
+            <div class="url-diagram-page">
+              <div class="url-diagram-page-title">Article 4 Directions</div>
+              <div class="url-diagram-page-body med"></div>
+              <div class="url-diagram-page-body short"></div>
+              <div class="url-diagram-page-body med"></div>
+              <span class="url-diagram-page-link">Direction 1 name</span>
+              <div class="url-diagram-page-link-body med"></div>
+              <div class="url-diagram-page-link-body short"></div>
+              <span class="url-diagram-page-link">Direction 2 name</span>
+              <div class="url-diagram-page-link-body"></div>
+              <div class="url-diagram-page-link-body short"></div>
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid #b1b4b6">
+                <div style="font-weight:700; font-size:13px; margin-bottom:6px; color:#0b0c0c">Data</div>
+                <span class="url-diagram-page-link">Direction areas (CSV)</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span class="url-tag url-tag--endpoint">Endpoint URL</span>
+            <div class="url-diagram-label">The URL of the CSV or GeoJSON file itself — the direct download link for the data.</div>
+          </div>
+        </div>
+
+        <div class="url-diagram-detail">
+          <div class="url-diagram-detail-top">
+            <span class="url-tag url-tag--documentation">documentation-url</span>
+            <div class="url-diagram-label" style="margin-bottom:12px">The URL of the page (or anchor on a page) that introduces a specific record. Goes into your CSV in the <code>documentation-url</code> field. Each record must have a unique URL.</div>
+            <div class="url-diagram-page">
+              <div class="url-diagram-page-title">Direction 1 name</div>
+              <div class="url-diagram-page-body med"></div>
+              <div class="url-diagram-page-body short"></div>
+              <div class="url-diagram-page-body med"></div>
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid #b1b4b6">
+                <span class="url-diagram-page-link">Direction 1 document (PDF, 1.9MB)</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span class="url-tag url-tag--document">document-url</span>
+            <div class="url-diagram-label">The URL of the legal document itself (the PDF). Goes in the <code>document-url</code> field in your CSV.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="url-diagram-footer">
+        <strong>From the <a href="https://www.planning.data.gov.uk/guidance/specifications/article-4-direction#article-4-direction-dataset" style="color:#1d70b8">Article 4 Direction data specification</a>:</strong> each record must have a unique <code>documentation-url</code>. You can use a separate page per record, or list several on one page with anchor links — for example <code>yourwebsite.gov.uk/article-4-directions#WBDC-A4D-001</code>.
+      </div>
+    </div>
+
+    <h2 class="govuk-heading-l govuk-!-margin-top-8">The four patterns</h2>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="all-on-one-page">All on one page</a>
+    </h3>
+    <p class="govuk-body">All records are shown on a single page. Each record has its own section with an anchor link in a table of contents at the top.</p>
+    <p class="govuk-body"><strong>Best when</strong> you have a small number of records (fewer than 10) and users are likely to want to browse all of them at once.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions</code></dd>
+      <dt>documentation-url (per record)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions<strong>#WBDC-A4D-001</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions<strong>#WBDC-A4D-002</strong></code></dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="one-per-page">One per page</a>
+    </h3>
+    <p class="govuk-body">An index page lists all records with links to individual pages, one for each record containing the full detail.</p>
+    <p class="govuk-body"><strong>Best when</strong> each record has significant detail, or users are likely to search for a specific record by name or location.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL (index)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions</code></dd>
+      <dt>documentation-url (per record)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-001</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-002</strong></code></dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="finder">Using a finder2</a>
+    </h3>
+    <p class="govuk-body">A filterable, searchable table allows users to find records by area, type, or date. This example also shows pagination for larger datasets.</p>
+    <p class="govuk-body"><strong>Best when</strong> you have a large number of records, or users need to filter by location, type, or date to find what they need.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL (finder)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions</code></dd>
+      <dt>documentation-url (per record)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-001</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-002</strong></code></dd>
+      <dt>Note</dt>
+      <dd>The finder itself is used to browse; each individual record still needs its own page or anchor URL for the <code>documentation-url</code> field.</dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="west-brackenfield-local-plans">Complex datasets</a>
+    </h3>
+    <p class="govuk-body">A richer page showing how multiple related datasets can be presented together, with tabbed navigation, a timetable visualisation, and open data downloads. Uses Local Plans (plan and plan-timetable datasets) as the example.</p>
+    <p class="govuk-body"><strong>Best when</strong> a topic spans several related datasets that users need to understand together, and where the relationships between the data matter as much as the individual records.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/local-plans</code></dd>
+      <dt>documentation-url (per plan)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/local-plans<strong>#WBDC-LP2042</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/local-plans<strong>#WBDC-LP2036</strong></code></dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h2 class="govuk-heading-l govuk-!-margin-top-8">About the examples</h2>
+
+    <p class="govuk-body">The first three patterns use Article 4 Direction data for the fictional West Brackenfield District Council, following the <a class="govuk-link" href="https://digital-land.github.io/specification/specification/article-4-direction/">Article 4 Direction data specification</a> published by MHCLG. Article 4 Directions make a good illustration because they vary in complexity, have clear geographic boundaries, and are a dataset many LPAs already publish in some form.</p>
+
+    <p class="govuk-body">The complex datasets example uses Local Plans data for the same fictional authority, covering the <a class="govuk-link" href="https://digital-land.github.io/specification/specification/plan/">plan and plan-timetable specifications</a>. This shows how a topic that spans multiple related datasets can be presented in a coherent, useful way for the public.</p>
+
+    <table class="govuk-table">
+      <caption class="govuk-table__caption govuk-table__caption--s">Article 4 Directions used in the first three examples</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="col">Reference</th>
+          <th class="govuk-table__header" scope="col">Name</th>
+          <th class="govuk-table__header" scope="col">Confirmed</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-001</code></td>
+          <td class="govuk-table__cell">Brackenfield Old Town</td>
+          <td class="govuk-table__cell">14 March 2019</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-002</code></td>
+          <td class="govuk-table__cell">Fenwick Road</td>
+          <td class="govuk-table__cell">22 July 2021</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-003</code></td>
+          <td class="govuk-table__cell">Stonemoor Lane</td>
+          <td class="govuk-table__cell">5 November 2018</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-004</code></td>
+          <td class="govuk-table__cell">Holt Green</td>
+          <td class="govuk-table__cell">9 February 2023</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-005</code></td>
+          <td class="govuk-table__cell">Thornwick Business Park</td>
+          <td class="govuk-table__cell">17 September 2020</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-006</code></td>
+          <td class="govuk-table__cell">Millgate Riverside</td>
+          <td class="govuk-table__cell">30 May 2022</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="govuk-table">
+      <caption class="govuk-table__caption govuk-table__caption--s">Local Plans data used in the complex datasets example</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="col">Dataset</th>
+          <th class="govuk-table__header" scope="col">Description</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>plan</code></td>
+          <td class="govuk-table__cell">Adopted, emerging, and superseded development plan documents for West Brackenfield</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>plan-timetable</code></td>
+          <td class="govuk-table__cell">Key stages for the preparation of each development plan document, including confirmed and planned dates</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+  </main>
+</div>
+
+<footer class="govuk-footer">
+  <div class="govuk-width-container">
+    <div class="govuk-footer__meta">
+      <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+        <div class="govuk-footer__meta-custom">
+          The <a class="govuk-footer__link" href="https://github.com/digital-land/documentation-url-examples/">software</a> and <a class="govuk-footer__link" href="https://github.com/digital-land/documentation-url-examples/">data</a> used to build these pages is <a class="govuk-footer__link" href="https://github.com/digital-land/documentation-url-examples/blob/master/LICENSE">open source</a>.
+        </div>
+        <span class="govuk-footer__licence-description">
+          These are example pages for demonstration purposes only. They are not official guidance.
+        </span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://www.planning.data.gov.uk/static/javascripts/govuk/govuk-frontend.js"></script>
+
+<script>window.GOVUKFrontend.initAll();</script>
+
+</body>
+</html>
