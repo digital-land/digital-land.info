@@ -1,0 +1,800 @@
+// A native scrollbar reads as heavy - a thin, subdued one is less
+// intrusive without losing the scroll affordance. Firefox uses the
+// standard properties; Chromium/Safari need the vendor pseudo-elements
+// for the same effect. Shared by the panel's own scroll (when its
+// accordion content is taller than the map) and the dataset checkbox
+// list's scroll further down.
+// GOV.UK builds its own chevron from a circular border plus a small arrow
+// made of two adjacent borders on a rotated square - an inherently
+// asymmetric shape (only 2 of its 4 sides are "ink"), which doesn't
+// survive rotation cleanly (turning it 180deg doesn't look like the
+// mirror image you'd expect - see the accordion chevron rules further
+// down for the full story). A small symmetric SVG sidesteps this
+// entirely: centred with `background-position: center`, which is exact
+// under any rotation, so every state that uses this renders pixel-
+// identical regardless of which way it's turned. Shared at file scope
+// (not declared inside a single selector block) since both the
+// accordion section chevrons and the mobile panel-toggle tab need it.
+$chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='4,10 8,6 12,10' fill='none' stroke='%230b0c0c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+// The desktop panel's own width - shared by the panel itself, its
+// content's own matching cap, and everything else on desktop that has
+// to move/resize in step with it (the footer's inset, the scale
+// control's inset, the collapse toggle's position). One variable rather
+// than the literal repeated five times, so widening it can't miss one of
+// those and leave something misaligned. 330px -> 355px: widened to help
+// longer dataset names fit on a single line without wrapping.
+$dl-map-controls-panel-width: 355px;
+
+@mixin dl-thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: govuk-colour("mid-grey") transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: govuk-colour("mid-grey");
+    border-radius: 3px;
+  }
+}
+
+// Breaks the map+panel construct out of the page's normal 960px content
+// column, up to a wider cap - experimental, requested to see whether a
+// wider map is achievable without disturbing the rest of the page (see
+// national-map.html's own comment for why this isn't just switching to
+// the full-width layout template).
+//
+// .dl-map-breakout escapes its own (narrow) containing block using the
+// standard "full-bleed" trick: width: 100vw is the element's true
+// rendered width regardless of how narrow its parent is, and
+// margin-left: calc(50% - 50vw) shifts it left by exactly the distance
+// from its parent's left edge to the viewport's left edge - the maths
+// works out the same regardless of viewport size, so this doesn't need
+// a breakpoint-specific value anywhere.
+//
+// .dl-map-breakout__inner then re-centres actual content within that
+// full-viewport-width strip, capped at 1950px - reusing govuk-frontend's
+// own govuk-width-container mixin (rather than hand-rolling padding)
+// so the map's left/right edges land at exactly the same gutter GOV.UK
+// itself uses at every breakpoint, just against a wider cap.
+.dl-map-breakout {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.dl-map-breakout__inner {
+  @include govuk-width-container($width: 1950px);
+}
+
+// The combined "Find an area" / "Select a data layer" overlay, rendered
+// server-side (components/map-controls-panel/macro.jinja) as a GOV.UK
+// Accordion (with some restyling - see below) and sitting flush against
+// the top/left of the map.
+//
+// Earlier versions of this let the panel grow taller than the map when
+// its accordion sections were open, pushing page content below it
+// further down - a deliberate choice at the time, but the current
+// designs don't call for it, and it had a real side effect: the collapse
+// toggle (position: absolute, centred with top: 50% on .dl-map-with-
+// controls) was centring on whatever *that construct's* height happened
+// to be, not the map's own height - drifting out of vertical alignment
+// with the visible map any time the panel's content made the construct
+// taller than the map. Pinning the panel to the map's own height (via
+// absolute positioning, top/bottom: 0, rather than being a CSS Grid item
+// that could grow the row) fixes both at once: .dl-map-with-controls now
+// only ever sizes to the map, and the toggle's 50% is always 50% of the
+// map's actual visible height.
+.dl-map-with-controls {
+  // Needs a genuinely explicit height (not one derived from .dl-map__
+  // wrapper's own content, even though that resolves to the same
+  // number) - the controls panel's absolute top: 0; bottom: 0; stretch
+  // (below) can only reliably resolve against a containing block with a
+  // definite height. An auto-height block container doesn't count as
+  // definite for that purpose even once fully resolved, which is a real
+  // circularity in the CSS spec, not just a theoretical one - confirmed
+  // by measuring the panel actually falling back to its own (taller)
+  // content height instead of stretching, without this. --dl-map-height
+  // is set inline by national-map.html from the same value passed to
+  // the map() macro's own 'height' param, so the two can't drift apart.
+  height: var(--dl-map-height);
+  position: relative;
+  border-top: 1px solid $govuk-border-colour;
+  border-bottom: 1px solid $govuk-border-colour;
+
+  // The map keeps its own border for other pages that reuse the map()
+  // macro without this wrapper - suppress the double border here, since
+  // .dl-map-with-controls now draws the outer border for the combined
+  // construct instead.
+  > .dl-map__wrapper {
+    border: 0;
+  }
+
+  // Fill the screen when this whole construct (map + panel) is made
+  // fullscreen via the map's fullscreen control - see
+  // MapController.js's `fullscreenContainerSelector`.
+  &:fullscreen,
+  &:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    border: 0;
+
+    > .dl-map__wrapper {
+      height: 100%;
+    }
+  }
+}
+
+.dl-map-controls-panel {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1001;
+  width: $dl-map-controls-panel-width;
+  max-width: 100%;
+  background: govuk-colour("white");
+  border-right: 1px solid $govuk-border-colour;
+  transition: width 0.2s ease;
+
+  &--collapsed {
+    width: 0;
+    min-width: 0;
+    border-right: 0;
+  }
+}
+
+// The map's "Find, understand and download..." note (app-c-sources-panel,
+// a shared class also used standalone on entity.html - scoped here so
+// that usage is untouched) sits directly below the map+panel construct,
+// in normal document flow. When the panel is open, the design wants this
+// note to only occupy the width beside the panel, not the full width
+// underneath both - achieved with the same margin-left as the panel's
+// own width, which also shrinks the note's own available content width
+// to match automatically, no separate width calculation needed. Toggles
+// off a general sibling selector keyed on the panel's own --collapsed
+// class (both are plain siblings inside .dl-map-with-controls), and
+// transitions in step with the panel's own width animation so the two
+// visually move together.
+//
+// Both this and the scale-control rule just below are desktop-specific -
+// they exist to keep the footer/scale-control clear of the panel when it
+// sits *beside* the map, taking up a permanent $dl-map-controls-panel-width-
+// wide strip. On mobile the panel sits *above* the map instead (see the
+// mobile block further down) and never occupies horizontal space at all,
+// so without this being scoped to desktop, a stray margin-left/left
+// matching the panel's width would squeeze the footer/scale control into
+// a sliver of the (already full-width, narrow) mobile viewport for no
+// reason - confirmed live, this was exactly what happened before this
+// query was added.
+@include govuk-media-query($from: tablet) {
+  .dl-map-with-controls {
+    .app-c-sources-panel {
+      // White here specifically, not the shared class's own default
+      // grey (still used as-is on entity.html) - reads as part of the
+      // same white map/panel construct rather than a distinct grey
+      // block.
+      background-color: govuk-colour("white");
+      margin-left: $dl-map-controls-panel-width;
+      transition: margin-left 0.2s ease;
+    }
+
+    .dl-map-controls-panel--collapsed ~ .app-c-sources-panel {
+      margin-left: 0;
+    }
+  }
+
+  // MapLibre's own scale control (bottom-left) is nested inside
+  // .dl-map__wrapper - a sibling of the panel, not the panel itself - so
+  // reaching it needs a sibling combinator (panel -> wrapper) chained
+  // with a descendant combinator (wrapper -> the control), rather than
+  // the simpler direct-sibling selector the footer above uses. Moves it
+  // out from under the panel when open, back to the map's own bottom-
+  // left corner when collapsed - same idea as the footer, so it's
+  // always visible rather than covered.
+  .dl-map-with-controls .maplibregl-ctrl-bottom-left {
+    left: $dl-map-controls-panel-width;
+    transition: left 0.2s ease;
+  }
+
+  .dl-map-controls-panel--collapsed ~ .dl-map__wrapper .maplibregl-ctrl-bottom-left {
+    left: 0;
+  }
+}
+
+// On mobile the footer keeps its shared-class white override (still
+// wanted there, same reasoning as above), just without the desktop-only
+// horizontal inset.
+.dl-map-with-controls .app-c-sources-panel {
+  background-color: govuk-colour("white");
+}
+
+// Fills the panel's own fixed-to-the-map height (see .dl-map-controls-
+// panel above) and scrolls internally once its accordion content is
+// taller than that - rather than growing .dl-map-with-controls itself,
+// which is exactly the behaviour just removed above.
+.dl-map-controls-panel__content {
+  max-width: $dl-map-controls-panel-width;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  @include dl-thin-scrollbar;
+}
+
+// The data-coverage notice - always visible, not an accordion section, so
+// it isn't affected by which sections above are open or closed. Sits right
+// after the accordion, so the existing closing divider drawn after the
+// accordion's last section (see the accordion restyle block below) already
+// lands exactly between "Advanced settings" and this notice - no extra
+// divider needed here.
+.dl-map-controls-panel__note {
+  padding: govuk-spacing(2) govuk-spacing(3);
+
+  // Font-size comes from the panel-wide .govuk-body rule further down -
+  // only the margin needs overriding here, since this is the last thing
+  // in the panel.
+  .govuk-body {
+    margin-bottom: 0;
+  }
+}
+
+// Collapse/expand tab, similar to Google Maps - sits on the panel/map
+// boundary at all times, whether the panel is open or collapsed. Flush
+// against that boundary (not centred on it, which straddled it half-and-
+// half into the panel and half into the map) - its left edge sits exactly
+// on the panel's outer edge when open, or the map's own left edge once
+// collapsed, and the whole button reads as protruding into the map from
+// there in both states (hence the border-radius only rounding the right
+// side below).
+.dl-map-controls-panel__toggle {
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: $dl-map-controls-panel-width;
+  transform: translateY(-50%);
+  z-index: 1002;
+  width: 24px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid $govuk-border-colour;
+  border-radius: 0 4px 4px 0;
+  background: govuk-colour("white");
+  // Bottom/right only, not all round - reads as sitting slightly proud of
+  // the map surface rather than a flat cutout.
+  box-shadow: 2px 2px 4px rgba(govuk-colour("black"), 0.25);
+  cursor: pointer;
+
+  // Neither icon state had any actual vertical-centering mechanism before
+  // this - both relied on default block flow, which just places the
+  // ::before at the top of the button's content box regardless of its
+  // own height. That was never truly centred for either icon, but only
+  // became visible once the two icons' differing heights (8px arrow vs
+  // 16px hamburger, see below) landed at visibly different offsets from
+  // centre. Flexbox centres either icon, at any size, identically in
+  // both states.
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: "";
+    box-sizing: border-box;
+    width: 8px;
+    height: 8px;
+    border-left: 2px solid $govuk-text-colour;
+    border-bottom: 2px solid $govuk-text-colour;
+    transform: rotate(45deg);
+  }
+
+  &:hover {
+    background: govuk-colour("light-grey");
+  }
+
+  // Set directly by MapControlsPanelToggle.js, rather than derived from
+  // the panel's own (sibling, not ancestor) collapsed state - the panel
+  // collapses to zero height as well as width, so it can't be used to
+  // position this tab, which needs to stay centred on the map's height.
+  &--collapsed {
+    left: 0;
+
+    // A hamburger/menu icon rather than the arrow rotated to point the
+    // other way - it's a different icon, not the same shape flipped, so
+    // this replaces ::before's border-corner arrow outright rather than
+    // rotating it (which is also why this is a background-image SVG, not
+    // another border-corner shape - see the accordion chevron's own SVG
+    // for why that construction doesn't survive rotation/reuse cleanly).
+    &::before {
+      width: 16px;
+      height: 16px;
+      border: 0;
+      transform: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cline x1='2' y1='3' x2='14' y2='3' stroke='%230b0c0c' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='2' y1='8' x2='14' y2='8' stroke='%230b0c0c' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='2' y1='13' x2='14' y2='13' stroke='%230b0c0c' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 14px 14px;
+    }
+  }
+}
+
+// --- Mobile: plain page content, not an overlay at all -----------------
+// Below tablet width, this stops being an overlay entirely - the panel
+// sits in normal document flow above the map (it already precedes the
+// map in source order - components/map-controls-panel/macro.jinja is
+// called before map() in national-map.html - so removing the desktop
+// absolute-positioning is enough on its own to fall back into flow, no
+// template/DOM changes needed), full length with no height cap or
+// internal scroll of its own. The user scrolls the page itself; the map
+// is simply whatever comes next once they scroll past the panel's
+// content. The accordion sections underneath are untouched - they still
+// individually expand/collapse exactly as they do on desktop, this only
+// changes what happens to the *panel as a whole*.
+//
+// This block is placed after the desktop rules above deliberately - it
+// overrides several of them at equal selector specificity, so (being
+// inside a media query that's true on mobile, but appearing later in
+// the file) it needs source order on its side to win, not just the
+// media query itself.
+@include govuk-media-query($until: tablet) {
+  // .dl-map-with-controls needs a genuinely explicit height on desktop
+  // (see its own rule above) purely so the panel's absolute top: 0;
+  // bottom: 0; stretch has something definite to resolve against. Once
+  // the panel is normal flow content instead, that's no longer true -
+  // forcing this back to auto lets the container grow to fit the full-
+  // length panel *and* the map stacked beneath it, rather than clipping
+  // the panel's now-uncapped content at the map's own height.
+  .dl-map-with-controls {
+    height: auto;
+  }
+
+  .dl-map-controls-panel {
+    position: static;
+    width: auto;
+    max-width: 100%;
+    border-right: 0;
+
+    // Resets the desktop collapsed state's width: 0 - there's no toggle
+    // to reach it from on mobile (hidden below), but a session that
+    // collapsed the panel at desktop width and then resized/rotated down
+    // to mobile shouldn't leave the panel stuck invisible with no way to
+    // bring it back.
+    &--collapsed {
+      width: auto;
+      min-width: 0;
+      border-right: 0;
+    }
+  }
+
+  // No more content-width cap/centring (see the desktop rule above, for
+  // a narrow sidebar reading as a floating card) - this now reads as
+  // ordinary page content, so it takes the full width everything else
+  // on the page already does, same as the "Map of planning data for
+  // England" heading above it.
+  .dl-map-controls-panel__content {
+    max-width: none;
+    height: auto;
+    margin: 0;
+  }
+
+  // Nothing to collapse any more - the map is reached by scrolling, not
+  // by hiding an overlay. The click handler in MapControlsPanelToggle.js
+  // still runs (harmlessly) - this alone is enough to make it
+  // unreachable, since a hidden element can't receive the click.
+  .dl-map-controls-panel__toggle {
+    display: none;
+  }
+
+  // .dl-map__layer-list's own mobile override lives further down,
+  // immediately after its base rule (not here) - it's declared later in
+  // this file than this block, so a copy here would lose to it on equal
+  // specificity regardless of the media query (a later, unconditional
+  // rule still wins the cascade over an earlier, conditional one, once
+  // both apply at the same viewport) - already caught live once.
+}
+
+// Sits between the dataset search box and the checkbox list - visible
+// only once something's checked (LayerControls.js's updateClearFiltersLink()),
+// so deselecting several checked layers at once doesn't mean hunting each
+// one down individually.
+.dl-map__clear-filters {
+  margin: 0 0 govuk-spacing(2);
+}
+
+.dl-map__clear-filters-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: $govuk-link-colour;
+  text-decoration: underline;
+
+  &:hover {
+    color: $govuk-link-hover-colour;
+  }
+
+  &:focus {
+    @include govuk-focused-text;
+  }
+
+  @include govuk-font-size($size: 16);
+}
+
+// The dataset checkbox list scrolls once it grows past a handful of
+// items, rather than growing the panel indefinitely.
+.dl-map__layer-list {
+  height: 220px;
+  overflow-y: auto;
+  // The checkbox markup positions its input slightly outside the item's
+  // own box (see _layer-controls.scss) to line the visible tick up with
+  // the swatch - harmless normally, but inside a scroll container that
+  // bleed can register as horizontal overflow and add an unwanted
+  // horizontal scrollbar. Clipping it here is cheap insurance against
+  // that regardless of the exact cause.
+  overflow-x: hidden;
+  // A deliberate, always-on buffer between the checkbox and the list's
+  // true right edge - not there to look nice, it's what stops the
+  // checkbox colliding with the scrollbar under macOS's (and iOS/iPadOS's)
+  // *overlay* scrollbars, its system-wide default: unlike a classic
+  // scrollbar, an overlay one reserves no layout space at all and floats
+  // over the content instead, right where the checkbox would otherwise
+  // sit flush against the edge. There's no CSS that can force macOS to
+  // reserve space here - scrollbar-gutter, the property that would
+  // normally do this, is explicitly a no-op under overlay scrollbars
+  // (confirmed against MDN's own scrollbar-gutter docs) - the only
+  // property-level way to get reserved-space scrollbars back is the
+  // user's own System Settings > Appearance > "Show scroll bars" >
+  // "Always", which this can't and shouldn't depend on. Padding our own
+  // permanent gap here instead works regardless of that setting, and
+  // regardless of browser - on a system that *does* reserve real gutter
+  // space, this just adds a few extra (harmless) px of breathing room
+  // beyond it.
+  padding-right: govuk-spacing(2);
+  @include dl-thin-scrollbar;
+}
+
+// No internal scroll on mobile any more - every dataset shows in full,
+// the page scrolls instead of a fixed-height box inside it (see the
+// mobile block above for the rest of this same change - this one rule
+// has to live here instead, after the base rule above rather than
+// inside that block, to actually win the cascade: both this and the
+// base rule apply at mobile widths, and a later, unconditional rule
+// beats an earlier, media-query-gated one at equal specificity - the
+// media query being true doesn't grant it any extra priority. The
+// scrollbar-collision buffer (padding-right, above) existed only
+// because of that internal scrollbar, and serves no purpose without
+// one.
+@include govuk-media-query($until: tablet) {
+  .dl-map__layer-list {
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
+
+// --- Accordion restyle -----------------------------------------------
+// The design uses plain, named section headings rather than GOV.UK's
+// default "Show/Hide [all sections]" text links. The underlying <button>
+// per section, its keyboard behaviour, and its aria-expanded/aria-label
+// state (set by govuk-frontend's own Accordion JS) are all unaffected by
+// this - only the visible "Show"/"Hide" wording is hidden. The chevron
+// icon is kept and moved next to the heading, so there's still a
+// non-text visual cue that each heading toggles a section.
+.dl-map-controls-panel {
+  .govuk-accordion__controls {
+    display: none;
+  }
+
+  // govuk-frontend's own edge-to-edge closing border under the whole
+  // accordion - replaced below with an inset one to match the
+  // between-section dividers.
+  .govuk-accordion {
+    border-bottom: 0;
+  }
+
+  // Dividers between sections, and after the last one, drawn as inset
+  // pseudo-elements rather than a real border on the section itself:
+  // a section's own border-top/bottom would have to span its full box
+  // width, but the design wants the line to stop at the same horizontal
+  // inset as the heading/content text, not run edge to edge.
+  //
+  // Positioned absolutely (not part of layout), so they don't add any
+  // spacing of their own - vertical rhythm is controlled entirely by the
+  // padding/margin rules below, keeping the line vertically centred
+  // between one section's content and the next section's heading rather
+  // than sitting closer to one side.
+  //
+  // govuk-frontend inserts its "Show all sections" control (hidden above,
+  // but still present in the DOM) as the literal first child of the
+  // accordion, ahead of every section - so `:first-child` never matches
+  // the first section. The adjacent-sibling combinator sidesteps that for
+  // the between-section divider: it only matches a section that directly
+  // follows *another section*, i.e. "every section but the first",
+  // regardless of whatever non-section sibling(s) precede it.
+  .govuk-accordion__section {
+    position: relative;
+  }
+
+  .govuk-accordion__section + .govuk-accordion__section::before,
+  .govuk-accordion__section:last-child::after {
+    content: "";
+    position: absolute;
+    left: govuk-spacing(3);
+    right: govuk-spacing(3);
+    border-top: 1px solid $govuk-border-colour;
+  }
+
+  .govuk-accordion__section + .govuk-accordion__section::before {
+    top: 0;
+  }
+
+  .govuk-accordion__section:last-child::after {
+    bottom: 0;
+  }
+
+  // Top padding slightly more generous than the sides/bottom - at
+  // govuk-spacing(1) all round, the heading text read as sitting flush
+  // against the divider/panel-top above it rather than framed within its
+  // own row.
+  .govuk-accordion__section-header {
+    padding: govuk-spacing(2) govuk-spacing(3) govuk-spacing(1);
+  }
+
+  // That 10px/5px split only reads well when the section is open - the
+  // content below contributes its own top padding too, so the heading
+  // still looks reasonably centred overall. Collapsed, there's nothing
+  // below but the divider, so the same split leaves noticeably less
+  // room under the text than above it - biased toward the bottom of the
+  // row rather than centred in it. Matching the bottom back up to the
+  // top only for collapsed sections fixes that without touching the
+  // open state, which already looks right.
+  .govuk-accordion__section:not(.govuk-accordion__section--expanded) .govuk-accordion__section-header {
+    padding-bottom: govuk-spacing(2);
+  }
+
+  .govuk-accordion__section-heading {
+    padding: 0;
+  }
+
+  .govuk-accordion__section-button {
+    padding: 0;
+    border: 0;
+
+    // Lay the chevron and heading text out side by side, vertically
+    // centred on each other - avoids the two being aligned by unrelated
+    // mechanisms (one in normal flow, one absolutely positioned) and
+    // drifting apart at different font sizes.
+    display: flex;
+    align-items: center;
+    gap: govuk-spacing(1);
+
+    // Keep the <h2> for a real heading in the accessibility tree, but
+    // style it like GOV.UK's own "Show"/"Hide" toggle link rather than a
+    // heading - link-blue, regular weight, body-text size.
+    @include govuk-font-size($size: 16);
+    font-weight: normal;
+    color: $govuk-link-colour;
+  }
+
+  .govuk-accordion__section--expanded .govuk-accordion__section-button {
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  // Both the heading text and the toggle (chevron) are flex items of the
+  // button (see above), and govuk-frontend gives both a default
+  // margin-bottom: 13px. `align-items: center` centres each flex item's
+  // full margin box, not just its content - so leaving that margin on
+  // only one of the two (having zeroed it on the toggle below) is enough
+  // on its own to offset them vertically even once both are otherwise
+  // the same height.
+  .govuk-accordion__section-heading-text,
+  .govuk-accordion__section-summary {
+    margin-bottom: 0;
+  }
+
+  // The chevron renders after the heading text in the markup (it's part
+  // of the "Show"/"Hide" block) - move it before, to sit on the left.
+  //
+  // govuk-frontend also gives this its own explicit govuk-font-size(19)
+  // (its default "Show"/"Hide" link is a different, larger size to the
+  // heading text next to it) - this was the actual root cause of the
+  // alignment issue, not the flex/centring rules below: as long as this
+  // sits at a different font-size/line-height to
+  // .govuk-accordion__section-heading-text, no amount of `align-items:
+  // center` makes their focus-state boxes the same height, so their
+  // underlines can never line up. Matching the font-size here first is
+  // what makes the rest of this actually work.
+  .govuk-accordion__section-toggle {
+    @include govuk-font-size($size: 16);
+    order: -1;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  // On focus, GOV.UK applies its "focused text" treatment (yellow
+  // background + box-shadow underline) independently to the heading text
+  // and to the toggle (chevron) - two separate elements. Now that both
+  // share the same font-size/line-height above, giving both an identical
+  // explicit height/line-height (border-box, so padding/border can't
+  // throw it off) keeps their boxes - and so their focus underlines -
+  // pixel-aligned. An inline-flex box with just `height` was a close
+  // approximation but left the two off by a rounding pixel or two - this
+  // is deterministic instead of approximate.
+  .govuk-accordion__section-heading-text-focus,
+  .govuk-accordion__section-toggle-focus {
+    display: inline-block;
+    box-sizing: border-box;
+    height: 20px;
+    line-height: 20px;
+    vertical-align: middle;
+  }
+
+  // govuk-frontend adds an extra padding-bottom specifically on
+  // :focus (2-3px, responsive) to stop its default circular chevron
+  // overlapping the focus underline - with our plain chevron that
+  // padding just knocks it out of alignment with the heading text
+  // again on focus specifically. Needs matching specificity to the
+  // :focus-scoped rule it's overriding, not just the general one above.
+  .govuk-accordion__section-button:focus .govuk-accordion__section-toggle-focus {
+    padding-bottom: 0;
+  }
+
+  .govuk-accordion__section-toggle-text {
+    display: none;
+  }
+
+  // GOV.UK builds its chevron from a circular border plus a small arrow
+  // made of two adjacent borders on a rotated square - an inherently
+  // asymmetric shape (only 2 of its 4 sides are "ink"), positioned with
+  // fixed offsets calibrated to sit inside that circle. Every attempt to
+  // recentre that offset for a plain, circle-free chevron kept leaving a
+  // small residual drift between the "up" (expanded) and "down"
+  // (collapsed, rotated 180deg) states, because rotating an asymmetric
+  // shape 180deg around its own centre doesn't look the same as not
+  // rotating it.
+  //
+  // A small symmetric SVG icon sidesteps this entirely: it's centred with
+  // `background-position: center`, which is exact and stays exact under
+  // any rotation, so "up" and "down" render in precisely the same spot.
+  // ($chevron-icon itself is declared at file scope, above.)
+  .govuk-accordion-nav__chevron {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    background-image: $chevron-icon;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 12px 12px;
+
+    // The old border-based arrow no longer exists - nothing to draw here.
+    &::after {
+      content: none;
+    }
+  }
+
+  // GOV.UK's hover/focus rules fill this with a solid colour (originally
+  // to stand out against the circle we've removed), using the
+  // `background` shorthand - which implicitly resets background-image to
+  // none. That shorthand rule has the same specificity as (and comes
+  // after) our base chevron rule above, so it wins for the
+  // background-image property specifically on hover/focus unless
+  // re-declared here at matching specificity - overriding only
+  // background-color wasn't enough, since these two rules were never
+  // competing on that property in the first place.
+  .govuk-accordion__section-button:hover .govuk-accordion-nav__chevron,
+  .govuk-accordion__section-button:focus .govuk-accordion-nav__chevron {
+    background-color: transparent;
+    background-image: $chevron-icon;
+  }
+
+  .govuk-accordion__section-content {
+    padding: govuk-spacing(1) govuk-spacing(3);
+  }
+
+  // GOV.UK gives a visible conditional-reveal block (here: the selected
+  // search method's input+button) a generous responsive bottom margin,
+  // which reads as a large gap before the next radio item.
+  .govuk-radios__conditional {
+    margin-bottom: govuk-spacing(2);
+  }
+
+  // .govuk-form-group (the radios fieldset's own outer wrapper, and the
+  // historical-data checkbox's wrapper) carries a large responsive
+  // bottom margin of its own - left in, it sits *after* the section's
+  // own bottom padding, pushing the section-end divider down towards the
+  // next section's heading instead of it landing evenly between the two.
+  .govuk-form-group {
+    margin-bottom: 0;
+  }
+
+  // .govuk-checkboxes (the checkbox list/group itself, not its outer
+  // .govuk-form-group above - a separate element with its own default
+  // responsive bottom margin) left unzeroed 20px of empty space below
+  // "Show historical data" inside its section - the checkbox row itself
+  // was correctly positioned, but that trailing gap made the whole
+  // section noticeably taller than its content, reading as if the
+  // checkbox were biased towards the top of the section rather than
+  // vertically centred within it.
+  .govuk-checkboxes {
+    margin-bottom: 0;
+  }
+
+  // Even with the above zeroed, "Show historical data" still sat 5px
+  // higher than centred between the section's two dividers - traced (by
+  // measuring, not assuming - the govuk-!-margin-bottom-1 utility this
+  // list item used to carry turned out to be a red herring, since
+  // removing it alone made no difference) to a separate, project-wide
+  // .govuk-list > li rule that spaces multiple list items apart. It
+  // still matches here because the checkbox <ul> also carries the
+  // govuk-list class (for the bullet-removal/reset it provides), even
+  // though this particular list only ever has the one item, so that
+  // spacing was pure unmatched space below with nothing above it.
+  // Scoped to #dl-map-settings-content specifically, not the dataset
+  // list further up, which does want that spacing between its (often
+  // multiple) items.
+  #dl-map-settings-content .govuk-list > li {
+    margin-bottom: 0;
+  }
+
+  // "Advanced settings" (just "Show historical data" today) is its own
+  // real accordion section in the markup, on both breakpoints now - it's
+  // forced permanently open with its heading/toggle hidden, reading as
+  // if it were folded into the bottom of "Select a data layer" rather
+  // than a section of its own. This used to only apply above the mobile
+  // breakpoint (mobile briefly had it as a genuinely independent,
+  // separately-collapsible section, matching an earlier version of the
+  // mobile design) - now matches desktop's own format everywhere,
+  // per a later design revision that dropped that distinction.
+  // `expanded: true` in the macro's item config is what keeps it open
+  // with no visible way to collapse it once the toggle is hidden here.
+  //
+  // This is the last section, so the existing :last-child divider/closing
+  // border rules above already draw a line above it and after it with no
+  // extra work - the same mechanism used between "Find an area" and
+  // "Select a data layer".
+  .govuk-accordion__section:last-child .govuk-accordion__section-header {
+    display: none;
+  }
+}
+
+// --- Compact typography ------------------------------------------------
+// The panel is a narrow sidebar, not a page column, so GOV.UK's default
+// body text size (19px) and control sizing reads oversized here. Rather
+// than inventing arbitrary smaller sizes, this drops one step down GOV.UK's
+// own type scale (to 16px, still comfortably within normal body-text
+// range) and uses GOV.UK's own official small-radios/small-checkboxes
+// modifiers - those keep the *visible* control at the WCAG 2.2 AA minimum
+// target size (24x24px) while the actual clickable/tappable area stays at
+// GOV.UK's full touch-target size, shifted into the margin. Nothing here
+// goes below a size GOV.UK's own design system ships and tests.
+.dl-map-controls-panel {
+  .govuk-label,
+  .govuk-radios__label,
+  .govuk-checkboxes__label,
+  .govuk-input,
+  .govuk-body {
+    @include govuk-font-size($size: 16);
+  }
+
+  .govuk-button {
+    @include govuk-font-size($size: 16);
+    padding: govuk-spacing(1) govuk-spacing(2);
+    margin-bottom: 0;
+  }
+
+  // GOV.UK's .govuk-form-group normally gets its own bottom margin, but
+  // govuk-frontend explicitly zeroes it when it's the last form-group
+  // nested inside another one (govuk-radios wraps each conditional's
+  // fieldset in its own outer form-group) - which is exactly our case,
+  // so the postcode/UPRN/LPA inputs had no gap before their button.
+  .govuk-radios__conditional .govuk-button {
+    margin-top: govuk-spacing(2);
+  }
+}
