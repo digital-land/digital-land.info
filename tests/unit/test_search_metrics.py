@@ -64,3 +64,22 @@ def test_failed_search_records_duration_and_reraises_original_error():
     assert raised.value is error
     assert metric.call_args.args == ("entity.search.duration", 60000)
     assert metric.call_args.kwargs["attributes"]["outcome"] == "error"
+
+
+@pytest.mark.parametrize("search_fails", [False, True])
+def test_metric_failure_does_not_change_search_outcome(search_fails):
+    error = RuntimeError("query timeout")
+    result = {"count": 0, "entities": []}
+    search = measure_entity_search(
+        Mock(return_value=result, side_effect=error if search_fails else None)
+    )
+    with patch(
+        "application.core.search_metrics.sentry_sdk.metrics.distribution",
+        side_effect=RuntimeError("metric failure"),
+    ):
+        if search_fails:
+            with pytest.raises(RuntimeError) as raised:
+                search(None, {})
+            assert raised.value is error
+        else:
+            assert search(None, {}) is result

@@ -1,9 +1,12 @@
 import hashlib
 import json
+import logging
 from functools import wraps
 from time import perf_counter
 
 import sentry_sdk
+
+logger = logging.getLogger(__name__)
 
 
 def measure_entity_search(function):
@@ -47,11 +50,16 @@ def measure_entity_search(function):
             outcome = "success"
             return result
         finally:
-            sentry_sdk.metrics.distribution(
-                "entity.search.duration",
-                (perf_counter() - started) * 1000,
-                unit="millisecond",
-                attributes={**attributes, "outcome": outcome},
-            )
+            duration_ms = (perf_counter() - started) * 1000
+            try:
+                sentry_sdk.metrics.distribution(
+                    "entity.search.duration",
+                    duration_ms,
+                    unit="millisecond",
+                    attributes={**attributes, "outcome": outcome},
+                )
+            except Exception:
+                # Observability must not replace a response or a query error.
+                logger.warning("Failed to record entity search duration", exc_info=True)
 
     return measured
