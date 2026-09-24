@@ -1,0 +1,7 @@
+// Custom: govuk-frontend 5.11.2's .govuk-tag--green fails WCAG AAA contrast.
+// These are the colours govuk-frontend v6 ships for the same tag, applied
+// here ahead of the full package upgrade.
+.govuk-tag--green {
+  color: #083d29;
+  background-color: #cfe4dc;
+}
