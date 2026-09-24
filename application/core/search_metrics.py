@@ -24,6 +24,8 @@ def measure_entity_search(function):
             "prefix",
             "reference",
             "organisation_entity",
+            "curie",
+            "organisation",
             "geometry_curie",
             "geometry_entity",
             "geometry_reference",

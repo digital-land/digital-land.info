@@ -31,15 +31,31 @@ def test_search_duration_preserves_result_and_parameters():
     )
 
 
-def test_search_group_is_stable_but_distinguishes_different_requests():
+@pytest.mark.parametrize("filter_key", ["geometry_curie", "curie", "organisation"])
+def test_search_group_is_stable_but_distinguishes_different_requests(filter_key):
     search = measure_entity_search(Mock(return_value={}))
     with patch(
         "application.core.search_metrics.sentry_sdk.metrics.distribution"
     ) as metric:
-        search(None, {"geometry_curie": ["b", "a"], "limit": 100})
-        search(None, {"limit": 100, "geometry_curie": ["a", "b"], "dataset": None})
-        search(None, {"geometry_curie": ["a", "b"], "limit": 10})
-        search(None, {"geometry_curie": ["a", "b"], "limit": 100}, SuffixEntity.json)
+        search(
+            None, {filter_key: ["local-authority:B", "local-authority:A"], "limit": 100}
+        )
+        search(
+            None,
+            {
+                "limit": 100,
+                filter_key: ["local-authority:A", "local-authority:B"],
+                "dataset": None,
+            },
+        )
+        search(
+            None, {filter_key: ["local-authority:A", "local-authority:B"], "limit": 10}
+        )
+        search(
+            None,
+            {filter_key: ["local-authority:A", "local-authority:B"], "limit": 100},
+            SuffixEntity.json,
+        )
 
     groups = [
         call.kwargs["attributes"]["search.group"] for call in metric.call_args_list
