@@ -5,6 +5,7 @@ from sqlalchemy import select, func, or_, and_, tuple_, union_all
 from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
+from application.core.search_metrics import measure_entity_search
 from application.core.utils import log_slow_execution
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
@@ -101,6 +102,7 @@ def get_entity_search_OLD_VERSION(
 
 
 @log_slow_execution(threshold_seconds=1)
+@measure_entity_search
 def get_entity_search(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
