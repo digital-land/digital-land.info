@@ -24,7 +24,12 @@ from application.core.models import AUTHORITATIVE_QUALITIES
 from application.core.utils import DigitalLandJSONResponse, to_snake
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
-from application.db.session import get_session, get_redis, DbSession
+from application.db.session import (
+    get_session,
+    get_context_session,
+    get_redis,
+    DbSession,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -61,15 +66,19 @@ def list_datasets(
     request: Request,
     extension: Optional[SuffixDataset] = None,
     query_filters: DatasetQueryFilters = Depends(),
-    session: Session = Depends(get_session),
     redis: Redis = Depends(get_redis),
 ):
-    datasets = get_all_datasets(DbSession(session=session, redis=redis))
+    # Get all datasets and entity counts, then close the session to avoid holding
+    # connections open while formatting the response.
+    with get_context_session() as session:
+        datasets = get_all_datasets(DbSession(session=session, redis=redis))
+        entity_counts_response = get_entity_count(
+            session, datasets=query_filters.dataset
+        )
 
     if query_filters.dataset:
         datasets = [ds for ds in datasets if ds.dataset in query_filters.dataset]
 
-    entity_counts_response = get_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available
     for dataset in datasets:

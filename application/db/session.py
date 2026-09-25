@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from functools import wraps, lru_cache
 from datetime import datetime
 from dataclasses import dataclass
+from application.db.pool_metrics import instrument_pool
 
 import redis
 
@@ -30,6 +31,7 @@ def _create_engine():
             "application_name": f"digital-land.info-{settings.ENVIRONMENT}",
         },
     )
+    instrument_pool(engine)
 
     logger.info(
         f"Engine created with pool_size={engine.pool.size()}, "

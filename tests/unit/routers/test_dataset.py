@@ -129,7 +129,6 @@ def test_list_datasets(
         request=MagicMock(),
         extension=MagicMock(value="json"),
         query_filters=query_filters,
-        session=mock_session,
         redis=None,
     )
     assert len(result["datasets"]) == expected_count
