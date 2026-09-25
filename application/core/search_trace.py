@@ -22,6 +22,35 @@ def search_variant():
     return (_context.get() or {}).get("search_variant", "optimized")
 
 
+def record_search_results(data):
+    context = _context.get()
+    if context is not None:
+        context.update(total_matches=data["count"], returned_rows=len(data["entities"]))
+
+
+def _record_response(result):
+    from fastapi.encoders import jsonable_encoder
+    from application.core.utils import DigitalLandJSONResponse
+
+    context = _context.get()
+    if isinstance(result, dict):
+        # Use the same encoder as the route; measure uncompressed UTF-8 bytes.
+        body = DigitalLandJSONResponse(jsonable_encoder(result)).body
+        payload = json.loads(body)
+        records = payload.get("entities", payload.get("features"))
+        if records is not None:
+            canonical = json.dumps(
+                records, sort_keys=True, ensure_ascii=False, separators=(",", ":")
+            ).encode("utf-8")
+            context.update(
+                results_bytes=len(canonical),
+                results_sha256=hashlib.sha256(canonical).hexdigest(),
+            )
+    else:
+        body = result.body
+    context["response_body_bytes"] = len(body)
+
+
 @contextmanager
 def search_stage(stage):
     context = _context.get() or {}
@@ -40,6 +69,9 @@ def search_stage(stage):
         finally:
             duration = (perf_counter() - started) * 1000
             span.set_data("outcome", outcome)
+            for key, value in context.items():
+                if key != "verbose":
+                    span.set_data(key, value)
             if verbose:
                 logger.info(
                     "entity.search.stage.end",
@@ -70,7 +102,14 @@ def traced_search_request(function):
         token = _context.set(context)
         try:
             with search_stage("request.total"):
-                return function(request, *args, **kwargs)
+                result = function(request, *args, **kwargs)
+                try:
+                    with search_stage("response.measure"):
+                        _record_response(result)
+                except Exception:
+                    # Diagnostics must not turn a successful response into an error.
+                    logger.warning("Unable to measure search response", exc_info=True)
+                return result
         finally:
             _context.reset(token)
 

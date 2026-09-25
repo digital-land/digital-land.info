@@ -59,3 +59,21 @@ The existing `entity.search.duration` metric now also carries `search.variant`;
 compare the same `search.group` and release for each variant.
 
 Remove the temporary comparison route and verbose diagnostics when the investigation is complete.
+
+## Comparing results
+
+The `response.measure` and `request.total` end logs/spans include:
+
+- `total_matches`: database count before pagination.
+- `returned_rows`: number of entities in the returned page.
+- `response_body_bytes`: uncompressed UTF-8 response body size, including links.
+- `results_bytes`: canonical JSON byte size of the entities/features only.
+- `results_sha256`: hash of those records, including values and array order.
+
+Compare counts and `results_sha256` for identical requests against the same data.
+The hash ignores object-key order and pagination links, since the two endpoint
+paths differ. Size/count equality alone does not prove records match. JSON and
+GeoJSON include the results hash; HTML has counts and rendered body size only.
+No entity contents are logged. `response.measure` includes an additional JSON
+encoding pass and hashing; it is diagnostic overhead included in `request.total`.
+The body size is before any proxy compression and excludes HTTP headers.

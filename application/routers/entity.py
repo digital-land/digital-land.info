@@ -52,6 +52,7 @@ from application.search.validators import validate_dataset
 
 from application.core.search_trace import (
     search_stage,
+    record_search_results,
     traced_search_request,
 )
 from application.data_access.entity_search_baseline import (
@@ -508,6 +509,7 @@ def search_entities(
         )
         raise
 
+    record_search_results(data)
     with search_stage("response.format"):
         # the query does some normalisation to remove empty
         # params and they get returned from search

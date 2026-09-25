@@ -74,3 +74,60 @@ def test_connection_failure_records_stage_and_preserves_error(
         ("request.total", "error"),
     ]
     assert search_trace._context.get() is None
+
+
+def test_response_sizes_and_hash_ignore_links_but_detect_record_changes(
+    comparison_client, mocker, caplog
+):
+    from application.core.models import EntityModel
+
+    client, session, optimized, baseline = comparison_client
+    original = EntityModel(entity=1, name="Café")
+    for search in (optimized, baseline):
+        search.return_value = {
+            "params": {"limit": 10},
+            "count": 25,
+            "entities": [original],
+        }
+    mocker.patch.object(
+        entity,
+        "make_links",
+        side_effect=lambda scheme, netloc, path, query, data: {"self": path},
+    )
+    responses = [client.get(path) for path in ("/entity.json", "/entity2.json")]
+    totals = [
+        r
+        for r in caplog.records
+        if r.message == "entity.search.stage.end" and r.stage == "request.total"
+    ]
+    assert all(r.total_matches == 25 and r.returned_rows == 1 for r in totals)
+    assert [r.response_body_bytes for r in totals] == [
+        len(r.content) for r in responses
+    ]
+    assert totals[0].results_bytes == totals[1].results_bytes
+    assert totals[0].results_sha256 == totals[1].results_sha256
+    assert responses[0].json()["links"] != responses[1].json()["links"]
+    baseline.return_value = {
+        "params": {"limit": 10},
+        "count": 25,
+        "entities": [EntityModel(entity=2, name="Café")],
+    }
+    client.get("/entity2.json")
+    latest = [
+        r
+        for r in caplog.records
+        if r.message == "entity.search.stage.end" and r.stage == "request.total"
+    ][-1]
+    assert latest.returned_rows == totals[0].returned_rows
+    assert latest.results_bytes == totals[0].results_bytes
+    assert latest.results_sha256 != totals[0].results_sha256
+
+
+def test_measurement_failure_preserves_response(comparison_client, mocker):
+    client, session, optimized, baseline = comparison_client
+    mocker.patch.object(
+        search_trace, "_record_response", side_effect=RuntimeError("measurement failed")
+    )
+    response = client.get("/entity2.json")
+    assert response.status_code == 200
+    assert response.json()["count"] == 0
