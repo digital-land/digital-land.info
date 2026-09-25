@@ -1,7 +1,7 @@
 import logging
 
 from typing import Optional, List, Tuple
-from sqlalchemy import select, func, or_, and_, tuple_, union_all
+from sqlalchemy import select, func, or_, and_, tuple_, union_all, true
 from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
@@ -116,6 +116,8 @@ def get_entity_search(
     basequery = _apply_period_option_filter(basequery, params)
 
     count_subquery = _entity_count_subquery(session, basequery, params)
+    if params.get("geometry_curie"):
+        return _search_with_shared_matches(session, count_subquery, params, extension)
 
     # Database 1st call
     count = session.query(func.count()).select_from(count_subquery).scalar()
@@ -127,6 +129,44 @@ def get_entity_search(
     # Database 2nd call
     entities = [entity_factory(entity_orm) for entity_orm in query.all()]
     return {"params": params, "count": count, "entities": entities}
+
+
+def _search_with_shared_matches(session, count_subquery, params, extension):
+    # Materialise IDs once for both the total and page, not full geometry rows.
+    matches = (
+        select(list(count_subquery.c)[0].label("entity"))
+        .cte("search_matches")
+        .prefix_with("MATERIALIZED", dialect="postgresql")
+    )
+    total = select(func.count().label("total")).select_from(matches).subquery()
+    page = (
+        select(matches.c.entity)
+        .order_by(matches.c.entity)
+        .limit(params.get("limit"))
+        .offset(params.get("offset"))
+        .cte("search_page")
+    )
+
+    # Start from the total so an empty page still returns its count.
+    query = (
+        session.query(EntityOrm)
+        .select_from(total)
+        .outerjoin(page, true())
+        .outerjoin(EntityOrm, EntityOrm.entity == page.c.entity)
+        .order_by(page.c.entity)
+    )
+    query = _apply_field_filters(query, params, extension)
+    orm_result = query.is_single_entity
+    rows = query.add_columns(
+        total.c.total.label("_search_count"),
+        page.c.entity.label("_matched_entity"),
+    ).all()
+    entities = [
+        entity_factory(row[0] if orm_result else row)
+        for row in rows
+        if row._matched_entity is not None
+    ]
+    return {"params": params, "count": rows[0]._search_count, "entities": entities}
 
 
 def _entity_count_subquery(session, basequery, params):
@@ -465,7 +505,7 @@ def _apply_location_filters(session, query, params):
         intersecting_entities_query = (
             session.query(EntityOrm.geometry)
             .filter(EntityOrm.entity.in_(intersecting_entities))
-            .group_by(EntityOrm.entity)
+            .group_by(EntityOrm.entity, EntityOrm.geometry)
             .subquery()
         )
 
