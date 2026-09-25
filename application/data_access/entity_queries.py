@@ -1,11 +1,12 @@
 import logging
 
 from typing import Optional, List, Tuple
-from sqlalchemy import select, func, or_, and_, tuple_, union_all
+from sqlalchemy import select, func, or_, and_, tuple_, union_all, true
 from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
 from application.core.search_metrics import measure_entity_search
+from application.core.search_trace import search_stage
 from application.core.utils import log_slow_execution
 from application.data_access.entity_query_helpers import (
     get_date_field_to_filter,
@@ -106,32 +107,96 @@ def get_entity_search_OLD_VERSION(
 def get_entity_search(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
-    params = normalised_params(parameters)
+    with search_stage("query.build"):
+        params = normalised_params(parameters)
 
-    # Build filtered query once
-    basequery = session.query(EntityOrm)
-    basequery = _apply_base_filters(basequery, params)
-    basequery = _apply_date_filters(basequery, params)
-    basequery = _apply_location_filters(session, basequery, params)
-    basequery = _apply_period_option_filter(basequery, params)
+        # Build filtered query once
+        basequery = session.query(EntityOrm)
+        basequery = _apply_base_filters(basequery, params)
+        basequery = _apply_date_filters(basequery, params)
+        basequery = _apply_location_filters(session, basequery, params)
+        basequery = _apply_period_option_filter(basequery, params)
 
-    # Create a `subquery()` that selects only the "entity" column from the
-    # existing query (basequery)
-    #
-    # `with_entities()` modifies the SELECT clause fo the query to return
-    # only the "entity" column from the "EntityOrm" model
-    count_subquery = basequery.with_entities(EntityOrm.entity).subquery()
+    with search_stage("count_query.build"):
+        count_subquery = _entity_count_subquery(session, basequery, params)
+    if params.get("geometry_curie"):
+        return _search_with_shared_matches(session, count_subquery, params, extension)
 
     # Database 1st call
-    count = session.query(func.count()).select_from(count_subquery).scalar()
+    with search_stage("count.execute_fetch"):
+        count = session.query(func.count()).select_from(count_subquery).scalar()
 
-    # Pagination and field filters
-    query = _apply_limit_and_pagination_filters(basequery, params)
-    query = _apply_field_filters(query, params, extension)
+    with search_stage("page_query.build"):
+        query = _apply_limit_and_pagination_filters(basequery, params)
+        query = _apply_field_filters(query, params, extension)
 
     # Database 2nd call
-    entities = [entity_factory(entity_orm) for entity_orm in query.all()]
+    with search_stage("page.execute_fetch"):
+        rows = query.all()
+    with search_stage("models.convert"):
+        entities = [entity_factory(entity_orm) for entity_orm in rows]
     return {"params": params, "count": count, "entities": entities}
+
+
+def _search_with_shared_matches(session, count_subquery, params, extension):
+    with search_stage("shared_query.build"):
+        # Materialise IDs once for both the total and page, not full geometry rows.
+        matches = (
+            select(list(count_subquery.c)[0].label("entity"))
+            .cte("search_matches")
+            .prefix_with("MATERIALIZED", dialect="postgresql")
+        )
+        total = select(func.count().label("total")).select_from(matches).subquery()
+        page = (
+            select(matches.c.entity)
+            .order_by(matches.c.entity)
+            .limit(params.get("limit"))
+            .offset(params.get("offset"))
+            .cte("search_page")
+        )
+
+        # Start from the total so an empty page still returns its count.
+        query = (
+            session.query(EntityOrm)
+            .select_from(total)
+            .outerjoin(page, true())
+            .outerjoin(EntityOrm, EntityOrm.entity == page.c.entity)
+            .order_by(page.c.entity)
+        )
+        query = _apply_field_filters(query, params, extension)
+        orm_result = query.is_single_entity
+
+    with search_stage("shared_query.execute_fetch"):
+        rows = query.add_columns(
+            total.c.total.label("_search_count"),
+            page.c.entity.label("_matched_entity"),
+        ).all()
+    with search_stage("models.convert"):
+        entities = [
+            entity_factory(row[0] if orm_result else row)
+            for row in rows
+            if row._matched_entity is not None
+        ]
+
+    return {"params": params, "count": rows[0]._search_count, "entities": entities}
+
+
+def _entity_count_subquery(session, basequery, params):
+    # Other location filters may restrict rows or introduce multiplicity. Keep
+    # the complete query for those combinations.
+    other_location_filters = get_point(params) is not None or any(
+        params.get(key) for key in ("geometry", "geometry_entity", "geometry_reference")
+    )
+    if not params.get("geometry_curie") or other_location_filters:
+        return basequery.with_entities(EntityOrm.entity).subquery()
+
+    # Both spatial branches already include base, date and period filters.
+    # Count their matches directly without looking up the entity rows again.
+    matches = _curie_matches(session, params)
+    query = session.query(matches.c.matched_entity)
+    if len(params["geometry_curie"]) > 1:
+        query = query.group_by(matches.c.matched_entity)
+    return query.subquery()
 
 
 def get_entity_map_lpa(session: Session, parameters: dict):
@@ -317,6 +382,45 @@ def _union_of(branches):
     return union_all(*branches)
 
 
+def _curie_matches(session, params):
+    curies = params["geometry_curie"]
+    spatial_function = get_spatial_function_for_relation(
+        params.get("geometry_relation", GeometryRelation.within)
+    )
+    split_curies = [tuple(curie.split(":")) for curie in curies]
+    boundaries = (
+        select(EntityOrm.entity.label("boundary_entity"), EntityOrm.geometry)
+        .where(
+            tuple_(EntityOrm.prefix, EntityOrm.reference).in_(split_curies),
+            EntityOrm.geometry.is_not(None),
+            func.ST_IsValid(EntityOrm.geometry),
+        )
+        .cte("curie_boundaries")
+        .prefix_with("MATERIALIZED", dialect="postgresql")
+    )
+    branches = []
+    for column in (EntityOrm.geometry, EntityOrm.point):
+        conditions = [
+            column.is_not(None),
+            spatial_function(column, boundaries.c.geometry),
+        ]
+        if column is EntityOrm.geometry:
+            conditions.append(func.ST_IsValid(column))
+        branch = session.query(
+            EntityOrm.entity.label("matched_entity"), boundaries.c.boundary_entity
+        ).join(boundaries, and_(*conditions))
+        # Push cheap filters into both spatial scans, not just the outer query.
+        branch = _apply_base_filters(branch, params)
+        branch = _apply_date_filters(branch, params)
+        branch = _apply_period_option_filter(branch, params)
+        branches.append(branch)
+
+    # Deduplicate geometry/point matches for each entity-boundary pair.
+    # Keeping boundary identity preserves the existing single-CURIE count
+    # when one CURIE resolves to multiple boundary entities.
+    return branches[0].union(branches[1]).subquery()
+
+
 def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
@@ -413,7 +517,7 @@ def _apply_location_filters(session, query, params):
         intersecting_entities_query = (
             session.query(EntityOrm.geometry)
             .filter(EntityOrm.entity.in_(intersecting_entities))
-            .group_by(EntityOrm.entity)
+            .group_by(EntityOrm.entity, EntityOrm.geometry)
             .subquery()
         )
 
@@ -466,29 +570,8 @@ def _apply_location_filters(session, query, params):
 
     curies = params.get("geometry_curie", [])
     if curies:
-        split_curies = [tuple(curie.split(":")) for curie in curies]
-        curie_query = (
-            session.query(EntityOrm.geometry)
-            .filter(tuple_(EntityOrm.prefix, EntityOrm.reference).in_(split_curies))
-            .group_by(EntityOrm)
-            .subquery()
-        )
-        query = query.join(
-            curie_query,
-            or_(
-                and_(
-                    EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
-                    func.ST_IsValid(curie_query.c.geometry),
-                    spatial_function(EntityOrm.geometry, curie_query.c.geometry),
-                ),
-                and_(
-                    EntityOrm.point.is_not(None),
-                    func.ST_IsValid(curie_query.c.geometry),
-                    spatial_function(EntityOrm.point, curie_query.c.geometry),
-                ),
-            ),
-        )
+        matches = _curie_matches(session, params)
+        query = query.join(matches, EntityOrm.entity == matches.c.matched_entity)
 
     # final step to add a group by if more than one condition is being met.
     if len(intersecting_entities) > 1 or len(references) > 0 or len(curies) > 1:

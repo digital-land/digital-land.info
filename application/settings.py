@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     WRITE_DATABASE_URL: str
     READ_DATABASE_URL: str
     SENTRY_DSN: Optional[str] = None
-    SENTRY_TRACE_SAMPLE_RATE: Optional[float] = 0.01
+    SENTRY_TRACE_SAMPLE_RATE: Optional[float] = 1.0
     RELEASE_TAG: Optional[str] = None
     ENVIRONMENT: str
     DATASETTE_URL: str
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     OS_CLIENT_SECRET: Optional[str] = None
     DB_POOL_SIZE: Optional[int] = 5
     DB_POOL_MAX_OVERFLOW: Optional[int] = 10
-    DB_STATEMENT_TIMEOUT_MS: Optional[int] = 600000
+    DB_STATEMENT_TIMEOUT_MS: Optional[int] = 1800000
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_SECURE: bool = True

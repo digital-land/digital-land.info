@@ -6,6 +6,8 @@ from time import perf_counter
 
 import sentry_sdk
 
+from application.core.search_trace import search_variant
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +43,7 @@ def measure_entity_search(function):
             default=str,
         )
         attributes = {
+            "search.variant": search_variant(),
             "search.group": hashlib.sha256(canonical.encode()).hexdigest(),
             "search.geometry_curie": ",".join(params.get("geometry_curie", [])),
             "extension": extension.value if extension is not None else "html",

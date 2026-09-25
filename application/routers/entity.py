@@ -50,7 +50,17 @@ from application.db.session import get_session, get_redis, DbSession
 from application.db.models import EntityOrm
 from application.search.validators import validate_dataset
 
+from application.core.search_trace import (
+    search_stage,
+    record_search_results,
+    traced_search_request,
+)
+from application.data_access.entity_search_baseline import (
+    get_entity_search as get_entity_search_baseline,
+)
+
 router = APIRouter()
+comparison_router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
@@ -409,6 +419,7 @@ def validate_typologies(typologies, typology_names):
     return
 
 
+@traced_search_request
 def search_entities(
     request: Request,
     search_query: str = Query("", alias="q"),
@@ -430,12 +441,17 @@ def search_entities(
     query_params = asdict(query_filters)
     # TODO minimse queries by using normal queries below rather than returning the names
     # queries required for additional validations
-    dataset_names = get_dataset_names(session)
-    typology_names = get_typology_names(session)
+    with search_stage("db.acquire_connection"):
+        session.connection()
+    with search_stage("metadata.datasets"):
+        dataset_names = get_dataset_names(session)
+    with search_stage("metadata.typologies"):
+        typology_names = get_typology_names(session)
 
     # Find an area - Postcode / UPRN search
     search_query = search_query.strip()
-    search_result = find_an_area(search_query) if search_query else None
+    with search_stage("area.lookup"):
+        search_result = find_an_area(search_query) if search_query else None
     find_an_area_latitude = None
     find_an_area_longitude = None
 
@@ -453,12 +469,18 @@ def search_entities(
         )
 
     # additional validations
-    validate_typologies(query_params.get("typology", None), typology_names)
-    validate_dataset(query_params.get("dataset", None), dataset_names)
+    with search_stage("filters.validate"):
+        validate_typologies(query_params.get("typology", None), typology_names)
+        validate_dataset(query_params.get("dataset", None), dataset_names)
 
     # Run entity query
     try:
-        data = get_entity_search(session, query_params, extension)
+        search = (
+            get_entity_search_baseline
+            if getattr(request.state, "search_variant", None) == "main"
+            else get_entity_search
+        )
+        data = search(session, query_params, extension)
     except SQLAlchemyError as e:
         extension_tag = extension.value if extension is not None else "html"
         dataset_filters = query_params.get("dataset") or []
@@ -487,109 +509,129 @@ def search_entities(
         )
         raise
 
-    # the query does some normalisation to remove empty
-    # params and they get returned from search
-    params = data["params"]
-    scheme = request.url.scheme
-    netloc = request.url.netloc
-    path = request.url.path
-    query = request.url.query
-    links = make_links(scheme, netloc, path, query, data)
+    record_search_results(data)
+    with search_stage("response.format"):
+        # the query does some normalisation to remove empty
+        # params and they get returned from search
+        params = data["params"]
+        scheme = request.url.scheme
+        netloc = request.url.netloc
+        path = request.url.path
+        query = request.url.query
+        links = make_links(scheme, netloc, path, query, data)
 
-    if extension == SuffixEntity.json:
-        if params.get("field") is not None:
-            include = set([to_snake(field) for field in params.get("field")])
-            entities = _get_entity_json(data["entities"], include=include)
-        elif params.get("exclude_field") is not None:
-            exclude_fields = set(
-                [
-                    to_snake(field.strip())
-                    for field in ",".join(params.get("exclude_field")).split(",")
-                ]
-            )
-            entities = _get_entity_json(data["entities"], exclude=exclude_fields)
+        if extension == SuffixEntity.json:
+            if params.get("field") is not None:
+                include = set([to_snake(field) for field in params.get("field")])
+                entities = _get_entity_json(data["entities"], include=include)
+            elif params.get("exclude_field") is not None:
+                exclude_fields = set(
+                    [
+                        to_snake(field.strip())
+                        for field in ",".join(params.get("exclude_field")).split(",")
+                    ]
+                )
+                entities = _get_entity_json(data["entities"], exclude=exclude_fields)
+            else:
+                entities = _get_entity_json(data["entities"])
+            return {"entities": entities, "links": links, "count": data["count"]}
+
+        if extension == SuffixEntity.geojson:
+            if params.get("exclude_field") is not None:
+                exclude_fields = set(
+                    [
+                        to_snake(field.strip())
+                        for field in ",".join(params.get("exclude_field")).split(",")
+                    ]
+                )
+                geojson = _get_geojson(data["entities"], exclude=exclude_fields)
+            else:
+                geojson = _get_geojson(data["entities"])
+            geojson["links"] = links
+            return geojson
+
+        db_session = DbSession(session=session, redis=redis)
+        typologies = get_typologies_with_entities(db_session)
+        typologies = [t.model_dump() for t in typologies]
+        # dataset facet
+        response = get_all_datasets(db_session)
+        columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
+        datasets = [dataset.model_dump(include=set(columns)) for dataset in response]
+
+        local_authorities = get_local_authorities(session, "local-authority")
+        local_authorities = [la.model_dump() for la in local_authorities]
+
+        organisations = get_organisations(db_session)
+        columns = ["entity", "organisation_entity", "name"]
+        organisations_list = [
+            organisation.model_dump(include=set(columns))
+            for organisation in organisations
+        ]
+
+        if links.get("prev") is not None:
+            prev_url = links["prev"]
         else:
-            entities = _get_entity_json(data["entities"])
-        return {"entities": entities, "links": links, "count": data["count"]}
+            prev_url = None
 
-    if extension == SuffixEntity.geojson:
-        if params.get("exclude_field") is not None:
-            exclude_fields = set(
-                [
-                    to_snake(field.strip())
-                    for field in ",".join(params.get("exclude_field")).split(",")
-                ]
-            )
-            geojson = _get_geojson(data["entities"], exclude=exclude_fields)
+        if links.get("next") is not None:
+            next_url = links["next"]
         else:
-            geojson = _get_geojson(data["entities"])
-        geojson["links"] = links
-        return geojson
+            next_url = None
+        # default is HTML
+        has_geographies = any((e.typology == "geography" for e in data["entities"]))
+        # add dataset name
+        dataset_name_lookup = {d["dataset"]: d["name"] for d in datasets}
+        for entity in data["entities"]:
+            ref_name = entity.dataset
+            if ref_name and ref_name in dataset_name_lookup:
+                entity.dataset_name = dataset_name_lookup[ref_name]
+            else:
+                entity.dataset_name = ref_name
 
-    db_session = DbSession(session=session, redis=redis)
-    typologies = get_typologies_with_entities(db_session)
-    typologies = [t.model_dump() for t in typologies]
-    # dataset facet
-    response = get_all_datasets(db_session)
-    columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
-    datasets = [dataset.model_dump(include=set(columns)) for dataset in response]
-
-    local_authorities = get_local_authorities(session, "local-authority")
-    local_authorities = [la.model_dump() for la in local_authorities]
-
-    organisations = get_organisations(db_session)
-    columns = ["entity", "organisation_entity", "name"]
-    organisations_list = [
-        organisation.model_dump(include=set(columns)) for organisation in organisations
-    ]
-
-    if links.get("prev") is not None:
-        prev_url = links["prev"]
-    else:
-        prev_url = None
-
-    if links.get("next") is not None:
-        next_url = links["next"]
-    else:
-        next_url = None
-    # default is HTML
-    has_geographies = any((e.typology == "geography" for e in data["entities"]))
-    # add dataset name
-    dataset_name_lookup = {d["dataset"]: d["name"] for d in datasets}
-    for entity in data["entities"]:
-        ref_name = entity.dataset
-        if ref_name and ref_name in dataset_name_lookup:
-            entity.dataset_name = dataset_name_lookup[ref_name]
-        else:
-            entity.dataset_name = ref_name
-
-    return templates.TemplateResponse(
-        request,
-        "search.html",
-        {
-            "count": data["count"],
-            "limit": params["limit"],
-            "data": data["entities"],
-            "datasets": datasets,
-            "local_authorities": local_authorities,
-            "typologies": typologies,
-            "organisations": organisations_list,
-            "query": {"params": params},
-            "active_filters": [
-                filter_name
-                for filter_name, values in params.items()
-                if filter_name != "limit" and values is not None
-            ],
-            "url_query_params": {
-                "str": urlencode(request.query_params._list),
-                "list": request.query_params._list,
+        return templates.TemplateResponse(
+            request,
+            "search.html",
+            {
+                "count": data["count"],
+                "limit": params["limit"],
+                "data": data["entities"],
+                "datasets": datasets,
+                "local_authorities": local_authorities,
+                "typologies": typologies,
+                "organisations": organisations_list,
+                "query": {"params": params},
+                "active_filters": [
+                    filter_name
+                    for filter_name, values in params.items()
+                    if filter_name != "limit" and values is not None
+                ],
+                "url_query_params": {
+                    "str": urlencode(request.query_params._list),
+                    "list": request.query_params._list,
+                },
+                "next_url": next_url,
+                "prev_url": prev_url,
+                "has_geographies": has_geographies,
+                "find_an_area_result": search_result,
+                "feedback_form_footer": True,
             },
-            "next_url": next_url,
-            "prev_url": prev_url,
-            "has_geographies": has_geographies,
-            "find_an_area_result": search_result,
-            "feedback_form_footer": True,
-        },
+        )
+
+
+@comparison_router.get(
+    ".{extension}", response_class=DigitalLandJSONResponse, include_in_schema=False
+)
+def search_entities_2(
+    request: Request,
+    extension: SuffixEntity,
+    search_query: str = Query("", alias="q"),
+    query_filters: QueryFilters = Depends(),
+    session: Session = Depends(get_session),
+    redis: redis.Redis = Depends(get_redis),
+):
+    request.state.search_variant = "main"
+    return search_entities(
+        request, search_query, query_filters, extension, session, redis
     )
 
 

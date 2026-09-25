@@ -275,6 +275,7 @@ def add_base_routes(app):
 
 def add_routers(app):
     app.include_router(entity.router, prefix="/entity")
+    app.include_router(entity.comparison_router, prefix="/entity2")
     app.include_router(dataset.router, prefix="/dataset")
     app.include_router(curie.router, prefix="/curie")
     app.include_router(curie.router, prefix="/prefix")
