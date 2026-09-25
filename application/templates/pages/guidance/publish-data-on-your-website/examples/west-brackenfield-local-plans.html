@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#f3f2f1; color:#0b0c0c">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Local Plans — West Brackenfield District Council</title>
+
+
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f3f2f1; color: #0b0c0c; -webkit-text-size-adjust: 100%; }
+  body { font-family: "GDS Transport", Arial, sans-serif; font-size: 16px; background: #f3f2f1; color: #0b0c0c; supported-color-schemes: light; }
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #f3f2f1 !important; color: #0b0c0c !important; }
+    .page-wrap, .main-content, .breadcrumb, .main-nav, .site-header, .site-footer { filter: none !important; }
+  }
+
+  /* Skip link */
+  .skip-link { position: absolute; top: -40px; left: 0; background: #fd0; padding: 8px 12px; font-weight: 700; font-size: 14px; z-index: 100; text-decoration: none; color: #0b0c0c; }
+  .skip-link:focus { top: 0; }
+
+  /* Header */
+  .site-header { background: #004b87; color: #fff; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; max-width: 1200px; margin: 0 auto; height: 60px; gap: 16px; }
+  .council-logo { display: flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; flex-shrink: 0; }
+  .logo-mark { flex-shrink: 0; display: flex; align-items: center; }
+  .council-name { display: none; }
+  .header-search { display: flex; align-items: center; gap: 6px; }
+  .header-search input { padding: 6px 10px; font-size: 14px; border: none; border-radius: 2px; width: 180px; }
+  .header-search button { background: #fd0; color: #0b0c0c; border: none; padding: 6px 12px; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 2px; }
+
+  /* Nav */
+  .main-nav { background: #003770; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; flex-wrap: wrap; }
+  .nav-inner a { color: #fff; text-decoration: none; padding: 12px 14px; font-size: 14px; display: block; border-bottom: 3px solid transparent; }
+  .nav-inner a:hover { background: rgba(255,255,255,0.1); }
+  .nav-inner a.active { border-bottom-color: #fd0; font-weight: 700; }
+
+  /* Breadcrumb */
+  .breadcrumb { background: #fff; border-bottom: 1px solid #b1b4b6; padding: 10px 20px; font-size: 14px; }
+  .breadcrumb-inner { max-width: 1200px; margin: 0 auto; }
+  .breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; }
+  .breadcrumb li { color: #505a5f; }
+  .breadcrumb li + li::before { content: " › "; color: #505a5f; padding: 0 6px; }
+  .breadcrumb a { color: #1d70b8; }
+
+
+  .banner-btn { padding: 7px 14px; font-size: 13px; font-weight: 700; border-radius: 2px; text-decoration: none; cursor: pointer; border: none; display: inline-block; }
+  .banner-btn-primary { background: #1d70b8; color: #fff; }
+  .banner-btn-primary:hover { background: #003078; }
+  .banner-btn-secondary { background: #fff; color: #1d70b8; border: 1px solid #1d70b8; }
+  .banner-btn-secondary:hover { background: #e8f0f8; }
+
+  /* Layout */
+  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 30px 20px 60px; display: grid; grid-template-columns: 1fr 280px; gap: 40px; align-items: start; }
+  .main-content { min-width: 0; }
+
+  /* Page title */
+  .page-title { font-size: 32px; font-weight: 700; line-height: 1.1; margin-bottom: 6px; color: #0b0c0c; }
+  .demo-tag { display: inline-block; background: #f47738; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+  .back-link { font-size: 14px; display: inline-block; margin-bottom: 16px; color: #1d70b8; }
+  .back-link::before { content: "← "; }
+  .page-intro { font-size: 18px; color: #505a5f; margin-bottom: 28px; line-height: 1.5; }
+
+  /* Headings */
+  h2.section-heading { font-size: 22px; font-weight: 700; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #1d70b8; color: #0b0c0c; }
+  h3.sub-heading { font-size: 18px; font-weight: 700; margin: 20px 0 8px; color: #0b0c0c; }
+
+  /* Status tags */
+  .status-tag { display: inline-block; padding: 3px 10px; border-radius: 2px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-tag.adopted { background: #00703c; color: #fff; }
+  .status-tag.reg19 { background: #912b88; color: #fff; }
+  .status-tag.examination { background: #1d70b8; color: #fff; }
+  .status-tag.planned { background: #f47738; color: #fff; }
+  .status-tag.superseded { background: #6f777b; color: #fff; }
+  .status-tag.published { background: #00703c; color: #fff; }
+
+  /* Plan cards */
+  .plan-card { background: #fff; border: 1px solid #b1b4b6; border-left: 5px solid #1d70b8; padding: 20px 20px 16px; margin-bottom: 16px; border-radius: 2px; }
+  .plan-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 12px; }
+  .plan-card-title { font-size: 18px; font-weight: 700; color: #1d70b8; }
+  .plan-card-meta { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: #505a5f; margin-bottom: 10px; }
+  .plan-card-meta span strong { color: #0b0c0c; }
+  .plan-doc-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  .doc-link { background: #f3f2f1; border: 1px solid #b1b4b6; padding: 5px 12px; font-size: 13px; color: #1d70b8; cursor: pointer; border-radius: 2px; text-decoration: none; }
+  .doc-link:hover { background: #e8e8e8; }
+
+  /* Notice box */
+  .notice-box { border-left: 4px solid #fd0; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; line-height: 1.5; border-radius: 0 2px 2px 0; background: #fff7d6; }
+  .notice-box.grey { background: #f3f2f1; border-left-color: #b1b4b6; }
+
+  /* Timetable tab */
+  .timetable-intro { background: #e8f0f8; border-left: 4px solid #1d70b8; padding: 14px 16px; margin-bottom: 20px; font-size: 15px; line-height: 1.5; border-radius: 0 2px 2px 0; }
+  .timetable-intro a { color: #1d70b8; }
+
+  .download-bar { background: #f3f2f1; border: 1px solid #b1b4b6; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-radius: 2px; gap: 12px; flex-wrap: wrap; }
+  .download-bar-text { font-size: 14px; color: #505a5f; }
+  .download-bar-text strong { color: #0b0c0c; display: block; margin-bottom: 2px; }
+  .dl-btn { background: #00703c; color: #fff; border: none; padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 2px; white-space: nowrap; text-decoration: none; display: inline-block; }
+  .dl-btn:hover { background: #005a30; }
+  .dl-btn.blue { background: #1d70b8; }
+  .dl-btn.blue:hover { background: #003078; }
+
+  .provenance-row { font-size: 13px; color: #505a5f; background: #f3f2f1; border: 1px solid #b1b4b6; padding: 10px 14px; border-radius: 2px; display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+  .provenance-row span strong { color: #0b0c0c; }
+
+  /* Timeline */
+  .timeline-visual { display: flex; align-items: flex-start; overflow-x: auto; padding: 16px 4px 20px; margin-bottom: 12px; }
+  .tl-stage { flex: 1; min-width: 88px; text-align: center; position: relative; }
+  .tl-stage + .tl-stage::before { content: ''; position: absolute; top: 14px; left: -50%; width: 100%; height: 2px; background: #b1b4b6; z-index: 0; }
+  .tl-stage.done + .tl-stage::before { background: #00703c; }
+  .tl-dot { width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 6px; position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+  .tl-dot.done { background: #00703c; }
+  .tl-dot.current { background: #912b88; box-shadow: 0 0 0 4px #e8cce6; }
+  .tl-dot.future { background: #b1b4b6; color: #fff; }
+  .tl-label { font-size: 11px; color: #505a5f; line-height: 1.3; font-weight: 600; }
+  .tl-date { font-size: 10px; color: #6f777b; margin-top: 3px; }
+
+  /* Table */
+  .timetable-table-wrap { overflow-x: auto; margin-bottom: 24px; }
+  table.timetable { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 680px; }
+  table.timetable thead th { background: #004b87; color: #fff; padding: 10px 12px; text-align: left; font-weight: 700; font-size: 13px; white-space: nowrap; }
+  table.timetable tbody tr { border-bottom: 1px solid #e8e8e8; }
+  table.timetable tbody tr:nth-child(even) { background: #f8f8f8; }
+  table.timetable tbody tr:hover { background: #e8f0f8; }
+  table.timetable td { padding: 10px 12px; vertical-align: top; line-height: 1.4; }
+  table.timetable tbody tr.current-row { background: #f5edf5 !important; }
+  table.timetable tbody tr.current-row:hover { background: #ecd9ec !important; }
+  table.timetable tbody tr.section-break { border-top: 2px solid #b1b4b6; }
+  .ref-cell { font-family: monospace; font-size: 12px; color: #505a5f; white-space: nowrap; }
+  .stage-name { font-weight: 600; color: #0b0c0c; }
+  .date-cell { white-space: nowrap; }
+  .date-past { color: #00703c; }
+  .date-current { color: #912b88; font-weight: 700; }
+  .date-future { color: #505a5f; }
+  .date-tbd { color: #6f777b; font-style: italic; }
+  .milestone-badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 6px; background: #912b88; color: #fff; vertical-align: middle; white-space: nowrap; }
+  .notes-cell { color: #505a5f; font-size: 13px; max-width: 200px; }
+  .small-tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+  .small-tag.complete { background: #00703c; color: #fff; }
+  .small-tag.reg19 { background: #912b88; color: #fff; }
+  .small-tag.planned { background: #f47738; color: #fff; }
+  .small-tag.superseded { background: #6f777b; color: #fff; }
+
+  /* Tabs */
+  .tab-bar { display: flex; border-bottom: 2px solid #1d70b8; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn { padding: 10px 18px; font-size: 15px; font-weight: 600; border: none; background: transparent; cursor: pointer; color: #505a5f; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab-btn.active { color: #1d70b8; border-bottom-color: #1d70b8; background: #e8f0f8; }
+  .tab-btn:hover:not(.active) { background: #f3f2f1; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Sidebar */
+  .sidebar { min-width: 0; }
+  .sidebar-card { background: #fff; border: 1px solid #b1b4b6; padding: 16px; margin-bottom: 20px; border-radius: 2px; }
+  .sidebar-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e8e8e8; }
+  .sidebar-card ul { list-style: none; padding: 0; }
+  .sidebar-card li { border-bottom: 1px solid #f3f2f1; padding: 6px 0; font-size: 14px; }
+  .sidebar-card li:last-child { border-bottom: none; }
+  .sidebar-card li a { color: #1d70b8; }
+  .sidebar-card p { font-size: 14px; line-height: 1.5; color: #505a5f; margin-bottom: 8px; }
+  .sidebar-card address { font-style: normal; font-size: 13px; color: #505a5f; line-height: 1.7; }
+  .contact-label { font-weight: 700; font-size: 11px; color: #505a5f; text-transform: uppercase; letter-spacing: 0.6px; display: block; margin-top: 10px; margin-bottom: 1px; }
+  .ogl-badge { background: #e8f5ef; border: 1px solid #8fc9ae; padding: 8px 10px; border-radius: 2px; font-size: 13px; color: #005a30; display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+
+  /* Footer */
+  .site-footer { background: #0b0c0c; color: #fff; padding: 30px 20px; margin-top: 40px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; gap: 30px; flex-wrap: wrap; }
+  .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 5px; }
+  .footer-col a { color: #d2d2d2; font-size: 13px; text-decoration: none; }
+  .footer-col a:hover { text-decoration: underline; }
+  .footer-bottom { text-align: center; font-size: 12px; color: #6f777b; border-top: 1px solid #333; padding-top: 16px; max-width: 1200px; margin: 20px auto 0; }
+  .footer-bottom a { color: #9a9a9a; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .page-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .header-search { display: none; }
+    .council-name { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+
+
+<!-- Header -->
+<header class="site-header" role="banner">
+  <div class="header-top">
+    <a href="#" class="council-logo" aria-label="West Brackenfield District Council home">
+      <div class="logo-mark" aria-hidden="true">
+        <svg width="340" height="72" viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg">
+          <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="#1e4d3a"/>
+          <path d="M42 18 L118 18 L118 62 Q118 105 80 125 Q42 105 42 62 Z" fill="none" stroke="#c9a95c" stroke-width="2.5"/>
+          <path d="M48 24 L112 24 L112 62 Q112 100 80 118 Q48 100 48 62 Z" fill="none" stroke="#c9a95c" stroke-width="1" opacity="0.5"/>
+          <line x1="80" y1="38" x2="80" y2="106" stroke="#c9a95c" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M80 98 C66 93 62 85 68 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M80 98 C94 93 98 85 92 82" stroke="#c9a95c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M80 88 C67 83 63 75 69 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M80 88 C93 83 97 75 91 73" stroke="#c9a95c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M80 78 C68 73 65 66 70 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <path d="M80 78 C92 73 95 66 90 64" stroke="#c9a95c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <path d="M80 68 C69 63 67 57 72 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <path d="M80 68 C91 63 93 57 88 56" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <path d="M80 58 C73 54 71 49 75 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <path d="M80 58 C87 54 89 49 85 48" stroke="#c9a95c" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <path d="M80 38 Q78 32 80 29 Q83 27 83 31" stroke="#c9a95c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <text x="148" y="58" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="bold" fill="#ffffff" letter-spacing="2">WEST BRACKENFIELD</text>
+          <text x="148" y="86" font-family="Georgia, 'Times New Roman', serif" font-size="17" fill="#ffffff" letter-spacing="3">DISTRICT COUNCIL</text>
+          <line x1="148" y1="93" x2="510" y2="93" stroke="#c9a95c" stroke-width="1"/>
+          <text x="148" y="112" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="rgba(255,255,255,0.7)" font-style="italic" letter-spacing="1">Growing together</text>
+        </svg>
+      </div>
+    </a>
+    <div class="header-search" role="search">
+      <label for="site-search" class="skip-link" style="position:static; top:auto; clip:auto">Search</label>
+      <input type="search" id="site-search" placeholder="Search this site…">
+      <button>Search</button>
+    </div>
+  </div>
+  <nav class="main-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#">Home</a>
+      <a href="#">Residents</a>
+      <a href="#">Business</a>
+      <a href="#" class="active" aria-current="page">Planning</a>
+      <a href="#">Environment</a>
+      <a href="#">Council</a>
+      <a href="#">Contact</a>
+    </div>
+  </nav>
+</header>
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="breadcrumb-inner">
+    <ol>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Planning</a></li>
+      <li><a href="#">Planning policy</a></li>
+      <li aria-current="page">Local Plans</li>
+    </ol>
+  </div>
+</nav>
+
+<!-- Main page -->
+<div class="page-wrap">
+  <main class="main-content" id="main-content">
+
+    <a href="index.html" class="back-link">Back to planning data examples</a>
+    <span class="demo-tag">Complex datasets — example</span>
+
+    <h1 class="page-title">Local Plans</h1>
+    <p class="page-intro">This page provides access to West Brackenfield District Council's current and emerging local plans, along with the Local Plan Timetable and open data downloads.</p>
+
+    <div class="tab-bar" role="tablist" aria-label="Local Plans sections">
+      <button class="tab-btn active" role="tab" id="tab-plans-btn" aria-selected="true" aria-controls="tab-plans" onclick="showTab('plans', this)">Plans &amp; documents</button>
+      <button class="tab-btn" role="tab" id="tab-timetable-btn" aria-selected="false" aria-controls="tab-timetable" onclick="showTab('timetable', this)">Local Plan Timetable</button>
+      <button class="tab-btn" role="tab" id="tab-opendata-btn" aria-selected="false" aria-controls="tab-opendata" onclick="showTab('opendata', this)">Open data</button>
+    </div>
+
+    <!-- ====================================================
+         TAB 1: Plans & documents
+         ==================================================== -->
+    <div class="tab-panel active" id="tab-plans" role="tabpanel" aria-labelledby="tab-plans-btn">
+
+      <h2 class="section-heading">Local Plans</h2>
+
+      <!-- Emerging plan -->
+      <div class="plan-card" style="border-left-color: #912b88">
+        <div class="plan-card-header">
+          <div class="plan-card-title">West Brackenfield Local Plan 2026–2042 (emerging)</div>
+          <span class="status-tag reg19">Reg 19 published</span>
+        </div>
+        <div class="plan-card-meta">
+          <span><strong>Reference:</strong> WBDC-LP2042</span>
+          <span><strong>Reg 19 published:</strong> 10 November 2025</span>
+          <span><strong>Consultation closed:</strong> 9 January 2026</span>
+          <span><strong>Period:</strong> 2026–2042</span>
+        </div>
+        <div class="notice-box">
+          <strong>Consultation closed — submission to the Planning Inspectorate expected April 2026.</strong> Representations received during the Regulation 19 consultation are being collated prior to submission. The emerging plan is a material consideration in planning decisions.
+        </div>
+        <p style="font-size:14px; color:#505a5f; margin-bottom:14px; line-height:1.5">The new Local Plan sets out a spatial strategy for the district to 2042, including updated housing and employment land requirements in line with national planning policy. It will replace the adopted 2017 plan on adoption.</p>
+        <div class="plan-doc-links">
+          <a href="#" class="doc-link">📄 Publication plan (PDF, 14.1MB)</a>
+          <a href="#" class="doc-link">📊 Sustainability Appraisal</a>
+          <a href="#" class="doc-link">📋 Regulation 19 representations summary</a>
+          <a href="#" class="doc-link">🗺 Proposed Policies Map</a>
+          <a href="#" class="doc-link">📁 Supporting evidence base</a>
+        </div>
+      </div>
+
+      <!-- Adopted plan -->
+      <div class="plan-card">
+        <div class="plan-card-header">
+          <div class="plan-card-title">West Brackenfield Local Plan 2014–2036</div>
+          <span class="status-tag adopted">Adopted</span>
+        </div>
+        <div class="plan-card-meta">
+          <span><strong>Reference:</strong> WBDC-LP2036</span>
+          <span><strong>Adopted:</strong> 22 June 2017</span>
+          <span><strong>Period:</strong> 2014–2036</span>
+          <span><strong>Area:</strong> West Brackenfield District</span>
+        </div>
+        <div class="notice-box grey">
+          <strong>Note:</strong> A new Local Plan is at Regulation 19 stage and will replace this plan on adoption. In the meantime this plan remains the primary development plan for the district, though some policies may carry limited weight given its age.
+        </div>
+        <p style="font-size:14px; color:#505a5f; margin-bottom:14px; line-height:1.5">The adopted Local Plan sets out the spatial strategy and land use policies for West Brackenfield. Adopted in June 2017 following independent examination, the plan allocates sites for housing, employment, retail, and community uses across the district.</p>
+        <div class="plan-doc-links">
+          <a href="#" class="doc-link">📄 Written Statement (PDF, 6.8MB)</a>
+          <a href="#" class="doc-link">🗺 Policies Map</a>
+          <a href="#" class="doc-link">📊 Inspector's Report</a>
+          <a href="#" class="doc-link">📋 Adoption Statement</a>
+        </div>
+      </div>
+
+      <!-- Superseded plan -->
+      <div class="plan-card" style="border-left-color: #6f777b">
+        <div class="plan-card-header">
+          <div class="plan-card-title">West Brackenfield Local Plan 1998–2016 (superseded)</div>
+          <span class="status-tag superseded">Superseded</span>
+        </div>
+        <div class="plan-card-meta">
+          <span><strong>Adopted:</strong> 2003</span>
+          <span><strong>Superseded:</strong> June 2017</span>
+        </div>
+        <p style="font-size:14px; color:#505a5f; margin-bottom:14px; line-height:1.5">Fully superseded on adoption of the 2014–2036 plan. Retained here for reference only; carries no planning weight.</p>
+        <div class="plan-doc-links">
+          <a href="#" class="doc-link">📄 Archived plan (PDF)</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ====================================================
+         TAB 2: Local Plan Timetable
+         ==================================================== -->
+    <div class="tab-panel" id="tab-timetable" role="tabpanel" aria-labelledby="tab-timetable-btn">
+
+      <div class="timetable-intro">
+        <strong>Local Development Scheme (LDS)</strong> — This timetable sets out the key stages for preparation of West Brackenfield's local plan documents. It is a statutory requirement under section 15 of the Planning and Compulsory Purchase Act 2004. Data is published in accordance with the <a href="https://digital-land.github.io/specification/specification/plan/" target="_blank" rel="noopener">plan data specification</a> published by the Ministry of Housing, Communities and Local Government.
+      </div>
+
+      <div class="download-bar">
+        <div class="download-bar-text">
+          <strong>Local Plan Timetable — open data (CSV)</strong>
+          Last updated: 10 January 2026 &middot; 13 records &middot; plan-timetable dataset
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <a href="#" class="dl-btn" id="timetable-csv-btn">⬇ Download CSV</a>
+          <a href="https://www.planning.data.gov.uk/dataset/plan-timetable" target="_blank" rel="noopener" class="dl-btn blue">View on planning.data.gov.uk ↗</a>
+        </div>
+      </div>
+
+      <div class="provenance-row" aria-label="Dataset provenance">
+        <span><strong>Dataset:</strong> plan-timetable</span>
+        <span><strong>Organisation:</strong> west-brackenfield-district-council</span>
+        <span><strong>Licence:</strong> OGL v3</span>
+        <span><strong>First published:</strong> 2022-09-01</span>
+        <span><strong>Updated:</strong> 2026-01-10</span>
+      </div>
+
+      <!-- Timeline -->
+      <h3 class="sub-heading">Progress: West Brackenfield Local Plan 2026–2042</h3>
+
+      <div class="timeline-visual" role="img" aria-label="Plan stage progress: Evidence base complete, Issues and Options complete, Preferred Options complete, Regulation 19 Publication complete (current), Submission planned, Examination planned, Adoption planned">
+        <div class="tl-stage done">
+          <div class="tl-dot done" aria-hidden="true">✓</div>
+          <div class="tl-label">Evidence<br>base</div>
+          <div class="tl-date">2022–2023</div>
+        </div>
+        <div class="tl-stage done">
+          <div class="tl-dot done" aria-hidden="true">✓</div>
+          <div class="tl-label">Issues &amp;<br>Options</div>
+          <div class="tl-date">Sep 2023</div>
+        </div>
+        <div class="tl-stage done">
+          <div class="tl-dot done" aria-hidden="true">✓</div>
+          <div class="tl-label">Preferred<br>Options</div>
+          <div class="tl-date">May 2024</div>
+        </div>
+        <div class="tl-stage done">
+          <div class="tl-dot current" aria-hidden="true">✓</div>
+          <div class="tl-label">Publication<br>(Reg 19)</div>
+          <div class="tl-date">Nov 2025</div>
+        </div>
+        <div class="tl-stage">
+          <div class="tl-dot future" aria-hidden="true">5</div>
+          <div class="tl-label">Submission<br>to PINS</div>
+          <div class="tl-date">Apr 2026</div>
+        </div>
+        <div class="tl-stage">
+          <div class="tl-dot future" aria-hidden="true">6</div>
+          <div class="tl-label">Examination</div>
+          <div class="tl-date">Autumn 2026</div>
+        </div>
+        <div class="tl-stage">
+          <div class="tl-dot future" aria-hidden="true">7</div>
+          <div class="tl-label">Adoption</div>
+          <div class="tl-date">2027</div>
+        </div>
+      </div>
+
+      <!-- Full table -->
+      <h3 class="sub-heading">Full timetable data</h3>
+
+      <div class="timetable-table-wrap">
+        <table class="timetable" aria-label="Local plan timetable — all records">
+          <thead>
+            <tr>
+              <th scope="col">Reference</th>
+              <th scope="col">Plan</th>
+              <th scope="col">Stage</th>
+              <th scope="col">Status</th>
+              <th scope="col">Start date</th>
+              <th scope="col">End date</th>
+              <th scope="col">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T01</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Evidence base preparation</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2022-04-01</td>
+              <td class="date-cell date-past">2023-06-30</td>
+              <td class="notes-cell">SHMA, ELNA, transport modelling, Green Belt review</td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T02</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Issues and Options consultation (Reg 18)</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2023-09-04</td>
+              <td class="date-cell date-past">2023-10-16</td>
+              <td class="notes-cell">2,341 representations received</td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T03</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Preferred Options consultation (Reg 18)</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2024-05-07</td>
+              <td class="date-cell date-past">2024-06-18</td>
+              <td class="notes-cell">3,018 representations received</td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T04</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Pre-submission Sustainability Appraisal</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2025-04-01</td>
+              <td class="date-cell date-past">2025-09-30</td>
+              <td class="notes-cell">SA/SEA including Habitats Regulations Assessment</td>
+            </tr>
+            <tr class="current-row">
+              <td class="ref-cell">WBDC-LP2042-T05</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Publication (Reg 19) <span class="milestone-badge">Current stage</span></td>
+              <td><span class="small-tag reg19">Reg 19</span></td>
+              <td class="date-cell date-current">2025-11-10</td>
+              <td class="date-cell date-current">2026-01-09</td>
+              <td class="notes-cell">Soundness representations only; collation in progress</td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T06</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Submission to Planning Inspectorate</td>
+              <td><span class="small-tag planned">Planned</span></td>
+              <td class="date-cell date-future">2026-04-01</td>
+              <td class="date-cell date-future">2026-04-01</td>
+              <td class="notes-cell">Subject to member approval</td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T07</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Independent examination</td>
+              <td><span class="small-tag planned">Planned</span></td>
+              <td class="date-cell date-future">2026-10-01</td>
+              <td class="date-cell date-tbd">TBC</td>
+              <td class="notes-cell">Inspector appointment by PINS</td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T08</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Main modifications consultation</td>
+              <td><span class="small-tag planned">Planned</span></td>
+              <td class="date-cell date-future">2027-03-01</td>
+              <td class="date-cell date-future">2027-04-12</td>
+              <td class="notes-cell">Subject to Inspector's findings</td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2042-T09</td>
+              <td class="stage-name">Local Plan 2026–2042</td>
+              <td>Adoption</td>
+              <td><span class="small-tag planned">Planned</span></td>
+              <td class="date-cell date-future">2027-09-01</td>
+              <td class="date-cell date-future">2027-09-01</td>
+              <td class="notes-cell">Full Council resolution required</td>
+            </tr>
+
+            <tr class="section-break">
+              <td class="ref-cell">WBDC-LP2036-T01</td>
+              <td class="stage-name">Local Plan 2014–2036 <span style="color:#6f777b; font-size:12px; font-weight:400">(adopted)</span></td>
+              <td>Publication (Reg 19)</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2016-09-05</td>
+              <td class="date-cell date-past">2016-10-17</td>
+              <td class="notes-cell"></td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2036-T02</td>
+              <td class="stage-name">Local Plan 2014–2036 <span style="color:#6f777b; font-size:12px; font-weight:400">(adopted)</span></td>
+              <td>Submission to Planning Inspectorate</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2016-12-14</td>
+              <td class="date-cell date-past">2016-12-14</td>
+              <td class="notes-cell"></td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2036-T03</td>
+              <td class="stage-name">Local Plan 2014–2036 <span style="color:#6f777b; font-size:12px; font-weight:400">(adopted)</span></td>
+              <td>Independent examination</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2017-02-06</td>
+              <td class="date-cell date-past">2017-04-28</td>
+              <td class="notes-cell"></td>
+            </tr>
+            <tr>
+              <td class="ref-cell">WBDC-LP2036-T04</td>
+              <td class="stage-name">Local Plan 2014–2036 <span style="color:#6f777b; font-size:12px; font-weight:400">(adopted)</span></td>
+              <td>Adoption</td>
+              <td><span class="small-tag complete">Complete</span></td>
+              <td class="date-cell date-past">2017-06-22</td>
+              <td class="date-cell date-past">2017-06-22</td>
+              <td class="notes-cell">Adopted by Full Council</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="font-size:13px; color:#505a5f">Data published under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" style="color:#1d70b8">Open Government Licence v3.0</a>. Field names follow the <code style="font-size:12px; background:#f3f2f1; padding:1px 5px; border-radius:2px">plan-timetable</code> dataset specification published by the Ministry of Housing, Communities and Local Government.</p>
+
+    </div>
+
+    <!-- ====================================================
+         TAB 3: Open data
+         ==================================================== -->
+    <div class="tab-panel" id="tab-opendata" role="tabpanel" aria-labelledby="tab-opendata-btn">
+
+      <h2 class="section-heading">Open data</h2>
+      <p style="font-size:15px; margin-bottom:20px; line-height:1.6">West Brackenfield District Council publishes planning policy data in open, machine-readable formats in accordance with the <a href="#" style="color:#1d70b8">Levelling-up and Regeneration Act 2023</a> and data standards published by the Ministry of Housing, Communities and Local Government.</p>
+
+      <div class="plan-card" style="border-left-color: #00703c">
+        <div class="plan-card-header">
+          <div class="plan-card-title" style="color:#00703c; font-family:monospace; font-size:16px">plan-timetable</div>
+          <span class="status-tag published">Published</span>
+        </div>
+        <div class="plan-card-meta">
+          <span><strong>Format:</strong> CSV</span>
+          <span><strong>Licence:</strong> OGL v3</span>
+          <span><strong>Records:</strong> 13</span>
+          <span><strong>Updated:</strong> 10 January 2026</span>
+        </div>
+        <p style="font-size:14px; color:#505a5f; margin-bottom:12px; line-height:1.5">Timetable stages for West Brackenfield's local plans, published in accordance with the MHCLG plan data specification. Collected automatically by planning.data.gov.uk.</p>
+        <div class="plan-doc-links">
+          <a href="#" class="doc-link" id="opendata-csv-btn">⬇ plan-timetable.csv</a>
+          <a href="https://www.planning.data.gov.uk/dataset/plan-timetable" target="_blank" rel="noopener" class="doc-link">🔗 View on planning.data.gov.uk ↗</a>
+        </div>
+      </div>
+
+      <div class="plan-card" style="border-left-color: #00703c">
+        <div class="plan-card-header">
+          <div class="plan-card-title" style="color:#00703c; font-family:monospace; font-size:16px">plan</div>
+          <span class="status-tag published">Published</span>
+        </div>
+        <div class="plan-card-meta">
+          <span><strong>Format:</strong> CSV</span>
+          <span><strong>Licence:</strong> OGL v3</span>
+          <span><strong>Records:</strong> 3</span>
+          <span><strong>Updated:</strong> 10 November 2025</span>
+        </div>
+        <p style="font-size:14px; color:#505a5f; margin-bottom:12px; line-height:1.5">Headline information about West Brackenfield's local plans including the adopted 2017 plan, the emerging 2026–2042 plan, and the superseded 2003 plan.</p>
+        <div class="plan-doc-links">
+          <a href="#" class="doc-link">⬇ plan.csv</a>
+          <a href="https://www.planning.data.gov.uk/dataset/plan" target="_blank" rel="noopener" class="doc-link">🔗 View on planning.data.gov.uk ↗</a>
+        </div>
+      </div>
+
+      <h3 class="sub-heading" style="margin-top:28px">CSV field reference — plan-timetable</h3>
+      <div class="timetable-table-wrap">
+        <table class="timetable" style="min-width:480px" aria-label="Field reference for plan-timetable CSV">
+          <thead>
+            <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-family:monospace;font-size:12px">reference</td><td>string</td><td>Unique identifier for this timetable stage record</td></tr>
+            <tr><td style="font-family:monospace;font-size:12px">plan</td><td>reference</td><td>Reference to the parent plan record</td></tr>
+            <tr><td style="font-family:monospace;font-size:12px">plan-event</td><td>reference</td><td>Stage type from the plan-event curated list</td></tr>
+            <tr><td style="font-family:monospace;font-size:12px">event-date</td><td>date (YYYY-MM-DD)</td><td>Actual or planned date for this stage</td></tr>
+            <tr><td style="font-family:monospace;font-size:12px">notes</td><td>string</td><td>Optional free-text notes</td></tr>
+            <tr><td style="font-family:monospace;font-size:12px">entry-date</td><td>date (YYYY-MM-DD)</td><td>Date this record was first published</td></tr>
+            <tr><td style="font-family:monospace;font-size:12px">start-date</td><td>date (YYYY-MM-DD)</td><td>Date from which this record is valid</td></tr>
+            <tr><td style="font-family:monospace;font-size:12px">end-date</td><td>date (YYYY-MM-DD)</td><td>Date this record was superseded (blank if current)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" aria-label="Related links and contact">
+    <div class="sidebar-card">
+      <h3>On this page</h3>
+      <ul>
+        <li><a href="#" onclick="showTab('plans', document.getElementById('tab-plans-btn')); return false">Plans &amp; documents</a></li>
+        <li><a href="#" onclick="showTab('timetable', document.getElementById('tab-timetable-btn')); return false">Local Plan Timetable</a></li>
+        <li><a href="#" onclick="showTab('opendata', document.getElementById('tab-opendata-btn')); return false">Open data</a></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Reg 19 representations</h3>
+      <p>The Regulation 19 consultation closed 9 January 2026. Representations are being collated ahead of submission to the Planning Inspectorate.</p>
+      <p>If you submitted a representation and have not received an acknowledgement, please contact the planning policy team.</p>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Related pages</h3>
+      <ul>
+        <li><a href="#">Planning applications</a></li>
+        <li><a href="#">Neighbourhood plans</a></li>
+        <li><a href="#">Infrastructure Funding Statement</a></li>
+        <li><a href="#">Brownfield Land Register</a></li>
+        <li><a href="#">Community Infrastructure Levy</a></li>
+        <li><a href="#">Design guidance</a></li>
+        <li><a href="#">Conservation areas</a></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Contact planning policy</h3>
+      <address>
+        <span class="contact-label">Team</span>
+        Planning Policy &amp; Strategy
+        <span class="contact-label">Address</span>
+        West Brackenfield District Council<br>
+        Brackenfield House, Market Street<br>
+        West Brackenfield WB1 2PP
+        <span class="contact-label">Email</span>
+        <a href="mailto:planningpolicy@westbrackenfield.gov.uk" style="color:#1d70b8">planningpolicy@<br>westbrackenfield.gov.uk</a>
+        <span class="contact-label">Telephone</span>
+        01234 567890
+      </address>
+      <div class="ogl-badge">
+        <span aria-hidden="true" style="font-size:16px">🔓</span>
+        <span>Data published under Open Government Licence v3</span>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>External links</h3>
+      <ul>
+        <li><a href="https://www.gov.uk/government/organisations/planning-inspectorate" target="_blank" rel="noopener">Planning Inspectorate ↗</a></li>
+        <li><a href="https://www.planning.data.gov.uk" target="_blank" rel="noopener">planning.data.gov.uk ↗</a></li>
+        <li><a href="https://www.gov.uk/guidance/plan-making" target="_blank" rel="noopener">MHCLG: Plan-making guidance ↗</a></li>
+        <li><a href="https://www.gov.uk/government/collections/revised-national-planning-policy-framework" target="_blank" rel="noopener">National Planning Policy Framework ↗</a></li>
+      </ul>
+    </div>
+  </aside>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <h4>Council services</h4>
+      <ul>
+        <li><a href="#">Planning</a></li>
+        <li><a href="#">Housing</a></li>
+        <li><a href="#">Council Tax</a></li>
+        <li><a href="#">Bins &amp; recycling</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>About the council</h4>
+      <ul>
+        <li><a href="#">Councillors</a></li>
+        <li><a href="#">Meetings &amp; decisions</a></li>
+        <li><a href="#">Accessibility statement</a></li>
+        <li><a href="#">Privacy notice</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Open data</h4>
+      <ul>
+        <li><a href="https://www.planning.data.gov.uk" target="_blank" rel="noopener">planning.data.gov.uk</a></li>
+        <li><a href="#">Published datasets</a></li>
+        <li><a href="#">Open Government Licence</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; West Brackenfield District Council 2026 &nbsp;&middot;&nbsp;
+    <a href="#">Accessibility</a> &nbsp;&middot;&nbsp;
+    <a href="#">Cookies</a> &nbsp;&middot;&nbsp;
+    <a href="#">Privacy</a>
+  </div>
+</footer>
+
+<script>
+  /* ---- Tab switching ---- */
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+  }
+
+
+</script>
+
+</body>
+</html>
