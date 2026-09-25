@@ -5,6 +5,7 @@ from starlette.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
 from application.core.templates import templates
+from application.core.models import AUTHORITATIVE_QUALITIES
 from application.data_access.digital_land_queries import (
     get_dataset_query,
     get_providers_for_dataset,
@@ -28,8 +29,12 @@ def get_providers(
         )
 
     providers = get_providers_for_dataset(session, dataset)
-    authoritative_providers = [p for p in providers if p.quality == "authoritative"]
-    alternative_providers = [p for p in providers if p.quality != "authoritative"]
+    authoritative_providers = [
+        p for p in providers if p.quality in AUTHORITATIVE_QUALITIES
+    ]
+    alternative_providers = [
+        p for p in providers if p.quality not in AUTHORITATIVE_QUALITIES
+    ]
 
     return templates.TemplateResponse(
         request,

@@ -1,9 +1,9 @@
 import logging
 import sentry_sdk
-from typing import Optional
+from typing import Annotated, List, Optional
 
 from application.search.filters import DatasetQueryFilters
-from fastapi import APIRouter, Request, HTTPException, Path, Depends
+from fastapi import APIRouter, Request, HTTPException, Path, Depends, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -20,6 +20,7 @@ from application.data_access.digital_land_queries import (
 
 from application.data_access.entity_queries import get_entity_count, get_entity_search
 from application.core.templates import templates
+from application.core.models import AUTHORITATIVE_QUALITIES
 from application.core.utils import DigitalLandJSONResponse, to_snake
 from application.search.enum import SuffixDataset
 from application.settings import get_settings, Settings
@@ -133,6 +134,10 @@ def get_dataset(
     # limit: int = Path(default=50,description="Limit number of rows in the response"),
     extension: Optional[SuffixDataset] = None,
     session: Session = Depends(get_session),
+    exclude_field: Annotated[
+        Optional[List[str]],
+        Query(description="Fields to exclude from dataset JSON response"),
+    ] = None,
 ):
     data_file_url = settings.DATA_FILE_URL
     try:
@@ -140,19 +145,34 @@ def get_dataset(
         if _dataset is None:
             raise HTTPException(status_code=404, detail="dataset not found")
 
+        is_json = extension is not None and extension.value == "json"
+        exclude_fields = {
+            to_snake(part.strip())
+            for part in ",".join(exclude_field or []).split(",")
+            if part.strip()
+        }
+        if is_json and "entity_count" in exclude_fields:
+            return _dataset.model_dump(exclude=exclude_fields, by_alias=True)
+
         entity_counts = get_entity_count(session, datasets=[dataset])
         entity_count = entity_counts[0][1] if entity_counts else 0
 
-        if extension is not None and extension.value == "json":
+        if is_json:
             _dataset.entity_count = entity_count
+            if exclude_fields:
+                return _dataset.model_dump(exclude=exclude_fields, by_alias=True)
             return _dataset
 
         latest_resource = get_latest_resource(session, dataset)
         dataset_coverage_status = get_dataset_coverage_status(dataset)
 
         providers = get_providers_for_dataset(session, dataset)
-        authoritative_providers = [p for p in providers if p.quality == "authoritative"]
-        alternative_providers = [p for p in providers if p.quality != "authoritative"]
+        authoritative_providers = [
+            p for p in providers if p.quality in AUTHORITATIVE_QUALITIES
+        ]
+        alternative_providers = [
+            p for p in providers if p.quality not in AUTHORITATIVE_QUALITIES
+        ]
 
         # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories

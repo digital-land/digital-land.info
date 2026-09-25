@@ -26,12 +26,17 @@ def _create_engine():
         pool_size=settings.DB_POOL_SIZE,
         max_overflow=settings.DB_POOL_MAX_OVERFLOW,
         pool_pre_ping=True,
+        connect_args={
+            "options": f"-c statement_timeout={settings.DB_STATEMENT_TIMEOUT_MS}",
+            "application_name": f"digital-land.info-{settings.ENVIRONMENT}",
+        },
     )
     instrument_pool(engine)
 
     logger.info(
         f"Engine created with pool_size={engine.pool.size()}, "
         f"max_overflow={engine.pool._max_overflow} "
+        f"statement_timeout={settings.DB_STATEMENT_TIMEOUT_MS}ms "
     )
 
     return engine

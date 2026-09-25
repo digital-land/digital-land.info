@@ -335,6 +335,7 @@ class ProvisionQualityOrm(Base):
     quality = Column(Text, nullable=True)
     entity_count = Column(BIGINT, nullable=False)
     quality_score = Column(Float, nullable=True)
+    start_date = Column(Date, nullable=True)
     __table_args__ = (Index("idx_provision_quality_organisation", "organisation"),)
 
 
