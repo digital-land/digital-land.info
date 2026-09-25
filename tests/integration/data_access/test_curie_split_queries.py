@@ -140,3 +140,28 @@ def test_shared_matches_fields_and_single_statement(
     assert result["count"] == 3
     assert [e.entity for e in result["entities"]] == ([1, 2] if offset == 0 else [])
     assert all(e.geometry is None and e.point is None for e in result["entities"])
+
+
+def test_main_comparison_preserves_baseline_behaviour(
+    db_session, curie_entities, request
+):
+    from sqlalchemy.exc import ProgrammingError
+    from application.data_access.entity_search_baseline import (
+        get_entity_search as baseline,
+    )
+
+    params = {
+        "dataset": ["target"],
+        "geometry_curie": ["area:A", "area:B"],
+        "period": ["current"],
+        "limit": 2,
+    }
+    if request.node.callspec.params["curie_entities"] == "view":
+        # This route must preserve main's query, including the known failure.
+        with pytest.raises(ProgrammingError) as error, db_session.begin_nested():
+            baseline(db_session, params, SuffixEntity.json)
+        assert error.value.orig.pgcode == "42803"
+    else:
+        result = baseline(db_session, params, SuffixEntity.json)
+        assert result["count"] == 3
+        assert [e.entity for e in result["entities"]] == [1, 2]
