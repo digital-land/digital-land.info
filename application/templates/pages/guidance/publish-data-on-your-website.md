@@ -15,7 +15,7 @@ You can publish your data using any of the following:
 
 You must include a statement to confirm that you provided the data under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
-[Find out more about how to publish data on your website.](./publish-data-on-your-website/examples/index.html)
+[Find out more about how to publish data on your website.](./publish-data-on-your-website/examples/index.html/index)
 Hosting your data
 ------------------
 

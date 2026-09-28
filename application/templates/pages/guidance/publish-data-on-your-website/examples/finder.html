@@ -161,7 +161,7 @@
 
 <div class="page-wrap" id="main-content">
 
-  <a href="index.html" class="back-link">Back to planning data examples</a>
+  <a href="index" class="back-link">Back to planning data examples</a>
   <span class="demo-tag">Using a finder — example</span>
   <h1 class="page-title">Find an Article 4 Direction</h1>
   <p class="page-meta">Last updated: 18 March 2026</p>
@@ -171,7 +171,7 @@
     <strong>About this example:</strong> Filters and pagination are reflected in the page URL as query parameters (for example, <code>finder.html?q=conservation&amp;type=external-alterations&amp;page=2</code>). This means filtered views and individual pages of results can be bookmarked and shared. In a real implementation a server would use these parameters to query a database and return the appropriate records.
   </div>
 
-  <form id="search-form" method="get" action="finder.html">
+  <form id="search-form" method="get" action="finder">
     <div class="search-bar">
       <label for="main-search">Search by name or area</label>
       <div class="search-bar-inner">
@@ -208,7 +208,7 @@
           </div>
 
           <button type="submit" style="display:none" aria-hidden="true">Apply filters</button>
-          <a href="finder.html" class="clear-filters-link" id="clear-filters-link" style="display:none">Clear all filters</a>
+          <a href="finder" class="clear-filters-link" id="clear-filters-link" style="display:none">Clear all filters</a>
         </div>
       </aside>
 
@@ -264,7 +264,7 @@ var ALL_DATA = [
   { ref:"WBDC-A4D-003", name:"Stonemoor Lane", confirmed:"2018-11-05", confirmedDisplay:"5 November 2018", status:"active", types:["extensions"], era:"pre2020", tags:["Extensions","Outbuildings","Residential"], description:"Suburban residential area in the east of the district. Removes rights for single-storey rear extensions over 3m, side extensions, and outbuildings over 2.5m in height.", url:"a4d-003-stonemoor-lane" },
   { ref:"WBDC-A4D-004", name:"Holt Green", confirmed:"2023-02-09", confirmedDisplay:"9 February 2023", status:"active", types:["external-alterations"], era:"post2020", tags:["Conservation area","External alterations"], description:"Recently designated conservation area on the western edge of West Brackenfield. Removes rights for external alterations, roof changes, and satellite dishes on front elevations.", url:"a4d-004-holt-green" },
   { ref:"WBDC-A4D-005", name:"Thornwick Business Park", confirmed:"2020-09-17", confirmedDisplay:"17 September 2020", status:"active", types:["change-of-use"], era:"post2020", tags:["Employment","Business park","Change of use"], description:"Employment area in the south of the district. Removes rights for change of use from Class E(g) offices and light industrial to residential.", url:"a4d-005-thornwick-business-park" },
-  { ref:"WBDC-A4D-006", name:"Millgate Riverside", confirmed:"2022-05-30", confirmedDisplay:"30 May 2022", status:"active", types:["change-of-use","demolition"], era:"post2020", tags:["Regeneration","Flood zone","Demolition"], description:"Regeneration area in Flood Zone 2. Removes rights for demolition of buildings over 50m2, change of use of ground floor premises, and hard surfacing of front gardens.", url:"a4d-006-millgate-riverside" }
+  { ref:"WBDC-A4D-006", name:"Millgate Riverside", confirmed:"2022-05-30", confirmedDisplay:"30 May 2022", status:"active", types:["change-of-use","demolition"], era:"post2020", tags:["Regeneration","Flood zone","Demolition"], description:"Regeneration area in Flood Zone 2. Removes rights for demolition of buildings over 50m2, change of use of ground floor premises, and hard surfacing of front gardens.", url:"a4d-006-millgate-riverside.h" }
 ];
 
 // Read current params from URL
@@ -292,7 +292,7 @@ function buildUrl(overrides) {
   if (merged.sort && merged.sort !== 'name') p.set('sort', merged.sort);
   if (merged.page && merged.page > 1) p.set('page', merged.page);
   var qs = p.toString();
-  return 'finder.html' + (qs ? '?' + qs : '');
+  return 'finder' + (qs ? '?' + qs : '');
 }
 
 // Populate form from URL params
@@ -355,7 +355,7 @@ function renderChips(params) {
     chips.map(function(c) {
       return '<a href="' + c.url + '" class="filter-chip">' + c.label + ' <span class="remove" aria-hidden="true">x</span></a>';
     }).join('') +
-    '<a href="finder.html" class="filter-chip" style="background:#fff0e0; border-color:#f47738; color:#7a3000">Clear all</a>' +
+    '<a href="finder" class="filter-chip" style="background:#fff0e0; border-color:#f47738; color:#7a3000">Clear all</a>' +
   '</div>';
 }
 
@@ -379,7 +379,7 @@ function renderResults(filtered, params) {
   // Cards
   var list = document.getElementById('results-list');
   if (pageRecords.length === 0) {
-    list.innerHTML = '<div class="no-results"><p>No Article 4 Directions match your search or filters.</p><p><a href="finder.html">Clear all filters</a></p></div>';
+    list.innerHTML = '<div class="no-results"><p>No Article 4 Directions match your search or filters.</p><p><a href="finder">Clear all filters</a></p></div>';
   } else {
     list.innerHTML = pageRecords.map(function(d) {
       return '<div class="result-card">' +
