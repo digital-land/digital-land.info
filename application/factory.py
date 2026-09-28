@@ -209,7 +209,14 @@ def add_base_routes(app):
         if env == "development":
             content = "User-agent: *\nDisallow: /"
         else:
-            content = "User-agent: *\nDisallow: /fact/"
+            content = (
+                "User-agent: GPTBot\n"
+                "Disallow: /entity/?\n"
+                "Disallow: /fact/\n"
+                "\n"
+                "User-agent: *\n"
+                "Disallow: /fact/"
+            )
         return PlainTextResponse(
             content, headers={"Cache-Control": "public, max-age=3600"}
         )
