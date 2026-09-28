@@ -11,6 +11,7 @@ def test_search_duration_preserves_result_and_parameters():
     params = {"geometry_curie": ["statistical-geography:B", "statistical-geography:A"]}
     session = object()
     with (
+        patch("application.core.search_metrics.sentry_sdk.start_span") as start_span,
         patch("application.core.search_metrics.perf_counter", side_effect=[10, 12.5]),
         patch(
             "application.core.search_metrics.sentry_sdk.metrics.distribution"
@@ -19,6 +20,10 @@ def test_search_duration_preserves_result_and_parameters():
         result = measure_entity_search(search)(session, params, SuffixEntity.json)
 
     assert result is search.return_value
+    start_span.assert_called_once_with(op="entity.search", name="entity.search")
+    span = start_span.return_value.__enter__.return_value
+    span.set_data.assert_any_call("total_matches", 2)
+    span.set_data.assert_any_call("returned_rows", 0)
     search.assert_called_once_with(session, params, SuffixEntity.json)
     assert params["geometry_curie"][0] == "statistical-geography:B"
     assert metric.call_args.args == ("entity.search.duration", 2500)

@@ -758,7 +758,6 @@ def test_search_entities_no_entities_returned_no_query_params_html(
         search_query="",
         query_filters=QueryFilters(),
         extension=None,
-        session=MagicMock(),
     )
     try:
         result.template.render(result.context)
@@ -793,7 +792,6 @@ def test_search_entities_no_entities_returned_no_query_params_json(mocker):
         search_query="",
         query_filters=QueryFilters(),
         extension=extension,
-        session=MagicMock(),
     )
     assert isinstance(
         result, dict
@@ -823,7 +821,6 @@ def test_search_entities_no_entities_returned_no_query_params_geojson(mocker):
         search_query="",
         query_filters=QueryFilters(),
         extension=extension,
-        session=MagicMock(),
     )
     assert isinstance(
         result, dict
@@ -883,7 +880,6 @@ def test_search_entities_multiple_entities_returned_no_query_params_html(
         search_query="",
         query_filters=QueryFilters(),
         extension=None,
-        session=MagicMock(),
     )
     try:
         result.template.render(result.context)
@@ -923,7 +919,6 @@ def test_search_entities_multiple_entities_returned_no_query_params_json(
         search_query="",
         query_filters=QueryFilters(),
         extension=extension,
-        session=MagicMock(),
     )
     assert isinstance(
         result, dict
@@ -959,7 +954,6 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
         search_query="",
         query_filters=QueryFilters(),
         extension=extension,
-        session=MagicMock(),
     )
     assert isinstance(
         result, dict
@@ -1046,7 +1040,6 @@ def test_search_entities_area_chip_label_postcode(
         search_query="SW1A 1AA",
         query_filters=query_filters,
         extension=None,
-        session=MagicMock(),
     )
     rendered = result.template.render(result.context)
 
@@ -1084,7 +1077,6 @@ def test_search_entities_area_chip_label_uprn(
         search_query="100023336956",
         query_filters=query_filters,
         extension=None,
-        session=MagicMock(),
     )
     rendered = result.template.render(result.context)
 
@@ -1129,7 +1121,6 @@ def test_search_entities_area_chip_remove_link_clears_area_params(
         search_query="SW1A 1AA",
         query_filters=query_filters,
         extension=None,
-        session=MagicMock(),
     )
     rendered = result.template.render(result.context)
     soup = BeautifulSoup(rendered, "html.parser")

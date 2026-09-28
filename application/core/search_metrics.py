@@ -6,8 +6,6 @@ from time import perf_counter
 
 import sentry_sdk
 
-from application.core.search_trace import search_variant
-
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +41,6 @@ def measure_entity_search(function):
             default=str,
         )
         attributes = {
-            "search.variant": search_variant(),
             "search.group": hashlib.sha256(canonical.encode()).hexdigest(),
             "search.geometry_curie": ",".join(params.get("geometry_curie", [])),
             "extension": extension.value if extension is not None else "html",
@@ -51,7 +48,15 @@ def measure_entity_search(function):
         started = perf_counter()
         outcome = "error"
         try:
-            result = function(session, parameters, extension)
+            with sentry_sdk.start_span(
+                op="entity.search", name="entity.search"
+            ) as span:
+                for key, value in attributes.items():
+                    span.set_data(key, value)
+                result = function(session, parameters, extension)
+                if "count" in result and "entities" in result:
+                    span.set_data("total_matches", result["count"])
+                    span.set_data("returned_rows", len(result["entities"]))
             outcome = "success"
             return result
         finally:
