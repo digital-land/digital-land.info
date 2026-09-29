@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png">
   <link rel="manifest" href="/assets/rebrand/images/manifest.json">
   <link rel="stylesheet" href="/static/stylesheets/application.css">
-  <style> .govuk-header__logotype { background-color:#1d70b8; color: #ffffff; } </style> -->
+  <style> .govuk-header__logotype { background-color:#1d70b8; color: #ffffff; } </style>
 </head>
 <body class="govuk-template__body">
 <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
@@ -175,7 +175,7 @@
         }
       });
 
-      toggle.addEventListener('click', function() {
+      toggle.addEventListener('click', function(event) {
         var expanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', !expanded);
         subnav.hidden = expanded;
@@ -190,7 +190,7 @@
   })();
 </script>
 
-<div role="region" aria-label="Phase banner"></div>
+<div role="region" aria-label="Phase banner">
 
     <div class="govuk-phase-banner govuk-width-container">
       <p class="govuk-phase-banner__content">
