@@ -3478,7 +3478,7 @@
         },
         "maptiler_attribution": {
             "type": "vector",
-            "attribution": "<a href=\"https://www.maptiler.com/copyright/\" target=\"_blank\">&copy; MapTiler</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
+            "attribution": "<a href=\"https://www.maptiler.com/copyright/\" target=\"_blank\" rel=\"noopener noreferrer\">&copy; MapTiler<span class=\"govuk-visually-hidden\"> (opens in new tab)</span></a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener noreferrer\">&copy; OpenStreetMap contributors<span class=\"govuk-visually-hidden\"> (opens in new tab)</span></a>"
         }
     },
     "version": 8,
