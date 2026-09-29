@@ -48,15 +48,7 @@ def measure_entity_search(function):
         started = perf_counter()
         outcome = "error"
         try:
-            with sentry_sdk.start_span(
-                op="entity.search", name="entity.search"
-            ) as span:
-                for key, value in attributes.items():
-                    span.set_data(key, value)
-                result = function(session, parameters, extension)
-                if "count" in result and "entities" in result:
-                    span.set_data("total_matches", result["count"])
-                    span.set_data("returned_rows", len(result["entities"]))
+            result = function(session, parameters, extension)
             outcome = "success"
             return result
         finally:
