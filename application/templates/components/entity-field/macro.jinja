@@ -1,7 +1,7 @@
-{% macro entityField(field,field_spec,dataset_fields) %}
+{% macro entityField(field,field_spec,dataset_fields,linkify=true) %}
     {% if field_spec and field_spec[field] %}
         {% if field_spec[field]['typology'] == 'category' %}
-            {% if dataset_fields and field in dataset_fields %}
+            {% if dataset_fields and field in dataset_fields and linkify %}
                 <a class="govuk-link" href="/dataset/{{field}}">
                     {{ field_spec[field]['name'] }}
                 </a>
