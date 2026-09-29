@@ -24,3 +24,21 @@ def test__session_cache():
 
     assert cached_fn("B") == 2
     assert len(cache) == 1
+
+
+def test__create_engine_applies_statement_timeout(mocker):
+    settings = mocker.Mock(
+        READ_DATABASE_URL="postgresql://u:p@localhost/db",
+        DB_POOL_SIZE=5,
+        DB_POOL_MAX_OVERFLOW=10,
+        DB_STATEMENT_TIMEOUT_MS=120000,
+        ENVIRONMENT="test",
+    )
+    mocker.patch.object(session, "get_settings", return_value=settings)
+    create_engine = mocker.patch.object(session, "create_engine")
+
+    session._create_engine()
+
+    connect_args = create_engine.call_args.kwargs["connect_args"]
+    assert connect_args["options"] == "-c statement_timeout=120000"
+    assert connect_args["application_name"] == "digital-land.info-test"

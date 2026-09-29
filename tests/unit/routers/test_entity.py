@@ -24,6 +24,7 @@ from application.core.models import (
     OrganisationModel,
     TypologyModel,
 )
+from application.search.enum import SuffixEntity
 from application.search.filters import QueryFilters
 
 
@@ -227,8 +228,7 @@ def test_get_entity_no_entity_returned_json(mocker):
         "application.routers.entity.get_entity_query", return_value=(None, None, None)
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "json"
+    extension = SuffixEntity.json
     try:
         get_entity(
             request=request,
@@ -245,8 +245,7 @@ def test_get_entity_no_entity_returned_geojson(mocker):
         "application.routers.entity.get_entity_query", return_value=(None, None, None)
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "geojson"
+    extension = SuffixEntity.geojson
     try:
         get_entity(
             request=request,
@@ -280,8 +279,7 @@ def test_get_entity_old_entity_gone_returned_json(mocker):
         "application.routers.entity.get_entity_query", return_value=(None, 410, None)
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "json"
+    extension = SuffixEntity.json
     try:
         get_entity(request=request, entity="11000000", extension=extension)
         assert False, "Expected HTTPException to be raised"
@@ -294,8 +292,7 @@ def test_get_entity_old_entity_gone_returned_geojson(mocker):
         "application.routers.entity.get_entity_query", return_value=(None, 410, None)
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "geojson"
+    extension = SuffixEntity.geojson
     try:
         get_entity(request=request, entity="11000000", extension=extension)
         assert False, "Expected HTTPException to be raised"
@@ -319,8 +316,7 @@ def test_get_entity_old_entity_redirect_returned_json(mocker):
         "application.routers.entity.get_entity_query", return_value=(None, 301, 1100000)
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "json"
+    extension = SuffixEntity.json
     result = get_entity(request=request, entity="11000000", extension=extension)
     assert isinstance(
         result, RedirectResponse
@@ -332,8 +328,7 @@ def test_get_entity_old_entity_redirect_returned_geojson(mocker):
         "application.routers.entity.get_entity_query", return_value=(None, 301, 1100000)
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "geojson"
+    extension = SuffixEntity.geojson
     result = get_entity(request=request, entity="11000000", extension=extension)
     assert isinstance(
         result, RedirectResponse
@@ -503,8 +498,7 @@ def test_get_entity_entity_returned_json(
         return_value=ancient_woodland_dataset,
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "json"
+    extension = SuffixEntity.json
     result = get_entity(request=request, entity="11000000", extension=extension)
 
     assert isinstance(
@@ -528,10 +522,65 @@ def test_get_entity_entity_returned_geojson(
         return_value=ancient_woodland_dataset,
     )
     request = MagicMock()
-    extension = MagicMock()
-    extension.value = "geojson"
+    extension = SuffixEntity.geojson
     result = get_entity(request=request, entity="11000000", extension=extension)
     assert isinstance(result, GeoJSON), f"{type(result)} is expected to be a GeoJSON"
+
+
+@pytest.fixture
+def entity_with_organisation_model():
+    model = EntityModel(
+        entity=11000000,
+        entry_date="2022-03-23",
+        name="Abbotswood Shaw",
+        reference="1481207",
+        dataset="ancient-woodland",
+        prefix="ancient-woodland",
+        organisation_entity=600001,
+    )
+    return model
+
+
+@pytest.fixture
+def organisation_entity_model():
+    model = EntityModel(
+        entity=600001,
+        entry_date="2022-03-23",
+        name="Some Council",
+        reference="SOME",
+        dataset="organisation",
+        prefix="local-authority-eng",
+    )
+    return model
+
+
+def test_curie_displays_on_page_for_internal_navigation_but_not_in_json(
+    mocker,
+    entity_with_organisation_model,
+    organisation_entity_model,
+    multiple_dataset_models,
+    ancient_woodland_dataset,
+):
+    mocker.patch(
+        "application.routers.entity.get_entity_query",
+        side_effect=[
+            (entity_with_organisation_model, None, None),
+            (organisation_entity_model, None, None),
+        ],
+    )
+    mocker.patch(
+        "application.routers.entity.get_datasets", return_value=multiple_dataset_models
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=ancient_woodland_dataset,
+    )
+
+    request = MagicMock()
+    result = get_entity(request=request, entity="11000000", extension=None)
+
+    assert "organisation-curie" in result.context["row"]
+    assert "organisation-curie" not in result.context["json_row"]
 
 
 # @pytest.fixture
@@ -737,8 +786,7 @@ def test_search_entities_no_entities_returned_no_query_params_json(mocker):
 
     request = MagicMock()
     request.query_params.get.return_value = None
-    extension = MagicMock()
-    extension.value = "json"
+    extension = SuffixEntity.json
     result = search_entities(
         request=request,
         search_query="",
@@ -767,8 +815,7 @@ def test_search_entities_no_entities_returned_no_query_params_geojson(mocker):
     )
     request = MagicMock()
     request.query_params.get.return_value = None
-    extension = MagicMock()
-    extension.value = "geojson"
+    extension = SuffixEntity.geojson
     result = search_entities(
         request=request,
         search_query="",
@@ -866,8 +913,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_json(
     )
     request = MagicMock()
     request.query_params.get.return_value = None
-    extension = MagicMock()
-    extension.value = "json"
+    extension = SuffixEntity.json
     result = search_entities(
         request=request,
         search_query="",
@@ -902,8 +948,7 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
     )
     request = MagicMock()
     request.query_params.get.return_value = None
-    extension = MagicMock()
-    extension.value = "geojson"
+    extension = SuffixEntity.geojson
     result = search_entities(
         request=request,
         search_query="",
@@ -918,14 +963,12 @@ def test_search_entities_multiple_entities_returned_no_query_params_geojson(
     assert "features" in result, "expected features attribute"
 
 
-@pytest.mark.parametrize("extension_value", [("json"), ("geojson"), (None)])
+@pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson, None])
 def test_search_entities_with_query_extension(
-    mocker, extension_value, multiple_entity_models
+    mocker, extension, multiple_entity_models
 ):
     request = MagicMock()
-    request.query_params.get.return_value = extension_value
-    extension = MagicMock()
-    extension.value = extension_value
+    request.query_params.get.return_value = extension.value if extension else None
 
     normalised_query_params = normalised_params(asdict(QueryFilters()))
     mocker.patch(
