@@ -3,9 +3,38 @@ from application.core.utils import to_snake
 from application.search.filters import DatasetQueryFilters
 import pytest
 
-from application.routers.dataset import get_datasets_by_typology, list_datasets
+from application.routers.dataset import (
+    get_dataset,
+    get_datasets_by_typology,
+    list_datasets,
+)
 
 from application.core.models import DatasetModel
+
+
+@pytest.mark.parametrize(
+    "counts, expected", [([("ancient-woodland", 10)], 10), ([], 0)]
+)
+def test_get_dataset_count(mocker, multiple_dataset_models, counts, expected):
+    session = MagicMock()
+    mocker.patch(
+        "application.routers.dataset.get_dataset_query",
+        return_value=multiple_dataset_models[0],
+    )
+    count_query = mocker.patch(
+        "application.routers.dataset.get_entity_count", return_value=counts
+    )
+
+    result = get_dataset(
+        request=MagicMock(),
+        dataset="ancient-woodland",
+        settings=MagicMock(),
+        extension=MagicMock(value="json"),
+        session=session,
+    )
+
+    count_query.assert_called_once_with(session, datasets=["ancient-woodland"])
+    assert result.entity_count == expected
 
 
 @pytest.fixture
@@ -82,7 +111,7 @@ def test_list_datasets(
         "application.routers.dataset.get_all_datasets",
         return_value=multiple_dataset_models,
     )
-    mocker.patch(
+    mock_entity_count = mocker.patch(
         "application.routers.dataset.get_entity_count",
         return_value=[(ds.dataset, 10) for ds in multiple_dataset_models],
     )
@@ -95,7 +124,6 @@ def test_list_datasets(
     )
 
     mock_session = MagicMock()
-    mocker.patch("application.routers.dataset.get_session", return_value=mock_session)
 
     result = list_datasets(
         request=MagicMock(),
@@ -105,6 +133,7 @@ def test_list_datasets(
         redis=None,
     )
     assert len(result["datasets"]) == expected_count
+    mock_entity_count.assert_called_once_with(mock_session)
 
     if query_filters and query_filters.field:
         assert "name" in result["datasets"][0]
