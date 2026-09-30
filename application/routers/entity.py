@@ -282,6 +282,7 @@ def entity_html_response(request: Request, e, session: Session):
             "fields": fields,
             "dataset_fields": dataset_fields,
             "dataset": dataset,
+            "datasets_without_facts": datasets_without_facts,
             "organisation_entity": organisation,
             "organisation_curie": organisation_curie,
             "feedback_form_footer": True,
@@ -302,6 +303,8 @@ def handle_entity_response(
 
     return entity_html_response(request, e, session)
 
+
+datasets_without_facts = ["title-boundary"]
 
 linked_datasets = {
     "local-plan-boundary": ["local-plan"],
