@@ -1141,6 +1141,106 @@ def test_search_entities_area_chip_remove_link_clears_area_params(
     assert "longitude=" not in area_href
 
 
+@pytest.fixture
+def title_boundary_entity_model():
+    model = EntityModel(
+        entity=12000000,
+        entry_date="2022-03-23",
+        name="Title boundary 1481207",
+        reference="1481207",
+        dataset="title-boundary",
+        prefix="title-boundary",
+        geojson={
+            "type": "Feature",
+            "geometry": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                    [
+                        [
+                            [0.145139, 50.986737],
+                            [0.145088, 50.986778],
+                            [0.14473, 50.986668],
+                            [0.145139, 50.986737],
+                        ]
+                    ]
+                ],
+            },
+        },
+    )
+    return model
+
+
+@pytest.fixture
+def title_boundary_dataset():
+    return DatasetModel(
+        collection="title-boundary",
+        dataset="title-boundary",
+        name="Title boundary",
+        plural="Title boundaries",
+        typology="geography",
+        paint_options={"colour": "#78AA00"},
+    )
+
+
+def test_get_entity_facts_link_hidden_for_title_boundary(
+    mocker, title_boundary_entity_model, title_boundary_dataset
+):
+    """
+    title-boundary has no fact data in datasette, so a Facts link would only
+    lead to an empty results page, the link is suppressed for this dataset
+    specifically, via the datasets_without_facts exclusion list.
+    """
+    mocker.patch(
+        "application.routers.entity.get_entity_query",
+        return_value=(title_boundary_entity_model, None, None),
+    )
+    mocker.patch(
+        "application.routers.entity.get_datasets",
+        return_value=[title_boundary_dataset],
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=title_boundary_dataset,
+    )
+
+    request = MagicMock()
+    result = get_entity(request=request, entity="12000000", extension=None)
+    rendered = result.template.render(result.context)
+    soup = BeautifulSoup(rendered, "html.parser")
+
+    assert soup.find("a", string="Facts") is None
+    assert not soup.select('a[href*="/fact?dataset=title-boundary"]')
+
+
+def test_get_entity_facts_link_shown_for_other_datasets(
+    mocker, single_entity_model, ancient_woodland_dataset
+):
+    """
+    The exclusion is specific to title-boundary, datasets not in
+    datasets_without_facts keep their Facts links as before.
+    """
+    mocker.patch(
+        "application.routers.entity.get_entity_query",
+        return_value=(single_entity_model, None, None),
+    )
+    mocker.patch(
+        "application.routers.entity.get_datasets",
+        return_value=[ancient_woodland_dataset],
+    )
+    mocker.patch(
+        "application.routers.entity.get_dataset_query",
+        return_value=ancient_woodland_dataset,
+    )
+
+    request = MagicMock()
+    result = get_entity(request=request, entity="11000000", extension=None)
+    rendered = result.template.render(result.context)
+    soup = BeautifulSoup(rendered, "html.parser")
+
+    assert soup.find("a", string="Facts") is not None
+    assert soup.select('a[href*="/fact?dataset=ancient-woodland"]')
+
+
 def test_get_entity_with_linked_local_plans(
     mocker, local_plan_dataset_model, local_plan_boundary_dataset, linked_entity_model
 ):
