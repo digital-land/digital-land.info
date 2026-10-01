@@ -7,15 +7,16 @@ You must publish your data:
 - in a format that is clear and easy to understand
 
 You can publish your data using any of the following:
+
 - CSV
 - GeoJSON
 - GML
 - GeoPackage
 
-
 You must include a statement to confirm that you provided the data under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
-[Find out more about how to publish data on your website.](./publish-data-on-your-website/examples/index.html/index)
+[Find out more about how to publish data on your website.](/guidance/publish-data-on-your-website/examples/)
+
 Hosting your data
 ------------------
 
@@ -47,29 +48,31 @@ Help with providing data using an ArcGIS data layer
 You only need to make changes to your data at your endpoint URL. Do not change your endpoint URL when you make updates.
 
 ## Create your webpage
+
 For each dataset, your webpage must include a:
+
 - link to the endpoint URL
 - summary of what the data is about
 - statement that the data is provided under the [Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
 
 Within your endpoint, you will need a `documentation-url` for each record in your dataset.
+
 ### Give each record a documentation-URL
 
 Each record in your dataset needs a `documentation-url`, so that we can find the part of your webpage that includes the record.
 
 Each documentation-URL must be unique. There are 2 ways that you can create a unique URL.
 
-
-
 1. **One page per record** <br>Give each record its own webpage, so that the documentation-url is the full page address. For example, [www.yourwebsite.gov.uk/planning/article-4-directions/smith-road](www.yourwebsite.gov.uk/planning/article-4-directions/smith-road).</br>
 
 2. **Multiple records** <br>List all records on a single page and add anchor link for each one. For example [www.yourwebsite.gov.uk/planning/article-4-directions#smith-road](www.yourwebsite.gov.uk/planning/article-4-directions#smith-road).</br>
 
-You need to check that your publishing system supports anchor links (also called l/;fragment identifiers).
-
+You need to check that your publishing system supports anchor links (also called fragment identifiers).
 
 ### Legal documents
+
 If a record is for a legal document, you need to add a `document-url` that links straight to the file. For example, a direction notice or order.
 
 ### Examples
-[View example webpages showing how to publish planning data.](./publish-data-on-your-website/examples/index.html)
+
+[View example webpages showing how to publish planning data.](/guidance/publish-data-on-your-website/examples/)

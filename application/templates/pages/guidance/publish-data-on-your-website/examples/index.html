@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+
+<html lang="en" class="govuk-template govuk-template--rebranded">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="blue">
+  <link rel="icon" sizes="48x48" href="/assets/images/favicon.ico">
+  <link rel="icon" sizes="any" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="blue">
+  <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png">
+  <link rel="manifest" href="/assets/rebrand/images/manifest.json">
+  <link rel="stylesheet" href="/static/stylesheets/application.css">
+  <style> .govuk-header__logotype { background-color:#1d70b8; color: #ffffff; } </style>
+</head>
+<body class="govuk-template__body">
+<script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
+
+<a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
+  <header class="govuk-template__header">
+    <div class="govuk-header">
+      <div class="govuk-header__container govuk-width-container">
+        <div class="govuk-header__logo">
+          <a href="/" class="govuk-header__Link--homepage" aria-label="Planning and housing data in England">
+            <svg
+              focusable="false"
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 324 60"
+              height="30"
+              width="162"
+              fill="currentcolor" class="govuk-header__logotype" aria-label="GOV.UK">
+              <title>GOV.UK</title>
+              <g>
+                <circle cx="20" cy="17.6" r="3.7" />
+                <circle cx="10.2" cy="23.5" r="3.7" />
+                <circle cx="3.7" cy="33.2" r="3.7" />
+                <circle cx="31.7" cy="30.6" r="3.7" />
+                <circle cx="43.3" cy="17.6" r="3.7" />
+                <circle cx="53.2" cy="23.5" r="3.7" />
+                <circle cx="59.7" cy="33.2" r="3.7" />
+                <circle cx="31.7" cy="30.6" r="3.7" />
+                <path d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z" />
+              </g>
+              <circle class="govuk-logo-dot" cx="226" cy="36" r="7.3" />
+              <path d="M93.94 41.25c.4 1.81 1.2 3.21 2.21 4.62 1 1.4 2.21 2.41 3.61 3.21s3.21 1.2 5.22 1.2 3.61-.4 4.82-1c1.4-.6 2.41-1.4 3.21-2.41.8-1 1.4-2.01 1.61-3.01s.4-2.01.4-3.01v.14h-10.86v-7.02h20.07v24.08h-8.03v-5.56c-.6.8-1.38 1.61-2.19 2.41-.8.8-1.81 1.2-2.81 1.81-1 .4-2.21.8-3.41 1.2s-2.41.4-3.81.4a18.56 18.56 0 0 1-14.65-6.63c-1.6-2.01-3.01-4.41-3.81-7.02s-1.4-5.62-1.4-8.83.4-6.02 1.4-8.83a20.45 20.45 0 0 1 19.46-13.65c3.21 0 4.01.2 5.82.8 1.81.4 3.61 1.2 5.02 2.01 1.61.8 2.81 2.01 4.01 3.21s2.21 2.61 2.81 4.21l-7.63 4.41c-.4-1-1-1.81-1.61-2.61-.6-.8-1.4-1.4-2.21-2.01-.8-.6-1.81-1-2.81-1.4-1-.4-2.21-.4-3.61-.4-2.01 0-3.81.4-5.22 1.2-1.4.8-2.61 1.81-3.61 3.21s-1.61 2.81-2.21 4.62c-.4 1.81-.6 3.71-.6 5.42s.8 5.22.8 5.22Zm57.8-27.9c3.21 0 6.22.6 8.63 1.81 2.41 1.2 4.82 2.81 6.62 4.82S170.2 24.39 171 27s1.4 5.62 1.4 8.83-.4 6.02-1.4 8.83-2.41 5.02-4.01 7.02-4.01 3.61-6.62 4.82-5.42 1.81-8.63 1.81-6.22-.6-8.63-1.81-4.82-2.81-6.42-4.82-3.21-4.41-4.01-7.02-1.4-5.62-1.4-8.83.4-6.02 1.4-8.83 2.41-5.02 4.01-7.02 4.01-3.61 6.42-4.82 5.42-1.81 8.63-1.81Zm0 36.73c1.81 0 3.61-.4 5.02-1s2.61-1.81 3.61-3.01 1.81-2.81 2.21-4.41c.4-1.81.8-3.61.8-5.62 0-2.21-.2-4.21-.8-6.02s-1.2-3.21-2.21-4.62c-1-1.2-2.21-2.21-3.61-3.01s-3.21-1-5.02-1-3.61.4-5.02 1c-1.4.8-2.61 1.81-3.61 3.01s-1.81 2.81-2.21 4.62c-.4 1.81-.8 3.61-.8 5.62 0 2.41.2 4.21.8 6.02.4 1.81 1.2 3.21 2.21 4.41s2.21 2.21 3.61 3.01c1.4.8 3.21 1 5.02 1Zm36.32 7.96-12.24-44.15h9.83l8.43 32.77h.4l8.23-32.77h9.83L200.3 58.04h-12.24Zm74.14-7.96c2.18 0 3.51-.6 3.51-.6 1.2-.6 2.01-1 2.81-1.81s1.4-1.81 1.81-2.81a13 13 0 0 0 .8-4.01V13.9h8.63v28.15c0 2.41-.4 4.62-1.4 6.62-.8 2.01-2.21 3.61-3.61 5.02s-3.41 2.41-5.62 3.21-4.62 1.2-7.02 1.2-5.02-.4-7.02-1.2c-2.21-.8-4.01-1.81-5.62-3.21s-2.81-3.01-3.61-5.02-1.4-4.21-1.4-6.62V13.9h8.63v26.95c0 1.61.2 3.01.8 4.01.4 1.2 1.2 2.21 2.01 2.81.8.8 1.81 1.4 2.81 1.81 0 0 1.34.6 3.51.6Zm34.22-36.18v18.92l15.65-18.92h10.82l-15.03 17.32 16.03 26.83h-10.21l-11.44-20.21-5.62 6.22v13.99h-8.83V13.9" />
+            </svg>
+             <span class="govuk-visually-hidden">Planning and housing data in England</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <section aria-label="Service information" class="govuk-service-navigation"
+      data-module="govuk-service-navigation">
+      <div class="govuk-width-container">
+        <div class="govuk-service-navigation__container">
+          <span class="govuk-service-navigation__service-name">
+            <a href="#" class="govuk-service-navigation__link">
+              Planning and housing data in England
+            </a>
+          </span>
+          <nav aria-label="Menu" class="govuk-service-navigation__wrapper">
+            <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden aria-hidden="true">
+              Menu
+  </button>
+        <ul class="govuk-service-navigation__list" id="navigation">
+
+          <li class="govuk-service-navigation__item" data-nav-href="/about">
+
+            <a class="govuk-service-navigation__link" href="/about">About</a>
+
+          </li>
+
+          <li class="govuk-service-navigation__item" data-nav-href="/entity">
+
+            <a class="govuk-service-navigation__link" href="/entity">Search</a>
+
+          </li>
+
+          <li class="govuk-service-navigation__item govuk-service-navigation__item--toggle" data-nav-href="">
+
+
+            <button type="button" class="govuk-service-navigation__link dl-subnav-toggle" aria-expanded="false" aria-controls="dl-subnav-data">
+              Data
+              <span class="dl-subnav-toggle__icon">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9999 10.5177L17.7928 16.3105L19.207 14.8963L11.9999 7.68923L4.79282 14.8963L6.20703 16.3105L11.9999 10.5177Z" fill="currentColor"/>
+                </svg>
+              </span>
+            </button>
+            <div class="dl-subnav" id="dl-subnav-data">
+              <nav aria-label="Data sub-menu">
+                <ul class="govuk-service-navigation__list">
+
+                  <li class="govuk-service-navigation__item" data-subnav-href="/dataset">
+                    <a class="govuk-service-navigation__link" href="/dataset">Datasets</a>
+                  </li>
+
+                  <li class="govuk-service-navigation__item" data-subnav-href="/organisation">
+                    <a class="govuk-service-navigation__link" href="/organisation">Organisations</a>
+                  </li>
+
+                  <li class="govuk-service-navigation__item" data-subnav-href="/local-plans">
+                    <a class="govuk-service-navigation__link" href="/local-plans">Local plans</a>
+                  </li>
+
+                </ul>
+              </nav>
+            </div>
+
+          </li>
+
+          <li class="govuk-service-navigation__item" data-nav-href="/map">
+
+            <a class="govuk-service-navigation__link" href="/map">Map</a>
+
+          </li>
+
+          <li class="govuk-service-navigation__item" data-nav-href="/docs">
+
+            <a class="govuk-service-navigation__link" href="/docs">API</a>
+
+          </li>
+
+          <li class="govuk-service-navigation__item" data-nav-href="https://design.planning.data.gov.uk">
+
+            <a class="govuk-service-navigation__link" href="https://design.planning.data.gov.uk">Design data</a>
+
+          </li>
+
+          <li class="govuk-service-navigation__item" data-nav-href="https://provide.planning.data.gov.uk/">
+
+            <a class="govuk-service-navigation__link" href="https://provide.planning.data.gov.uk/">Provide data</a>
+
+          </li>
+
+        </ul>
+      </nav>
+
+    </div>
+  </div>
+    </section>
+<script>
+  (function() {
+    // Get the pathname from the URL
+    var pathname = window.location.pathname;
+
+    // Mark active main nav item
+    var navItems = document.querySelectorAll('.govuk-service-navigation__item');
+    navItems.forEach(function(item) {
+      // Get the `data-nav-href` attribute value and check if it
+      // matches the value of the pathname, e.g. "/docs"
+      var href = item.getAttribute('data-nav-href');
+      if (href && pathname.startsWith(href)) {
+        item.classList.add('govuk-service-navigation__item--active');
+      }
+    });
+
+    var toggles = document.querySelectorAll('.dl-subnav-toggle');
+    toggles.forEach(function(toggle) {
+      var subnav = document.getElementById(toggle.getAttribute('aria-controls'));
+      if (!subnav) {
+        return;
+      }
+
+      subnav.hidden = true;
+
+      var subnavItems = subnav.querySelectorAll('.govuk-service-navigation__item');
+      subnavItems.forEach(function(item) {
+        var href = item.getAttribute('data-subnav-href');
+
+        if (href && pathname.startsWith(href)) {
+          item.classList.add('govuk-service-navigation__item--active');
+          toggle.parentElement.classList.add('govuk-service-navigation__item--active');
+        }
+      });
+
+      toggle.addEventListener('click', function(event) {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !expanded);
+        subnav.hidden = expanded;
+
+        // Only blur if clicked by mouse and not keyboard
+        if (event.detail > 0) {
+          toggle.blur();
+        }
+      });
+    });
+
+  })();
+</script>
+
+<div role="region" aria-label="Phase banner">
+
+    <div class="govuk-phase-banner govuk-width-container">
+      <p class="govuk-phase-banner__content">
+        <strong class="govuk-tag govuk-phase-banner__content__tag">
+          Beta
+        </strong>
+        <span class="govuk-phase-banner__text">
+          This is a new service – your <a class="govuk-link" href="https://forms.office.com/e/3tJn8Szq4U">feedback</a> will help us to improve it.
+        </span>
+      </p>
+    </div>
+
+</div>
+
+<div class="govuk-width-container">
+
+<div class="dlBackButtonWrapper" role="navigation">
+    <div
+        class="dlBackButton "
+    >
+        <
+        <a
+            class="dlBackButtonLink "
+
+            href="/"
+            onclick="window.history.back(); return false;"
+            id="backButton"
+        >
+            Back
+        </a>
+    </div>
+</div>
+
+
+
+
+  </header>
+
+
+
+<div class="govuk-width-container">
+
+
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-xl">Publishing planning data on your website</h1>
+
+    <p class="govuk-body-l">These pages show four example patterns for how a local planning authority can publish planning data on their website.</p>
+
+    <p class="govuk-body">The Ministry of Housing, Communities and Local Government (MHCLG) publishes <a class="govuk-link" href="https://digital-land.github.io/specification/">data specifications</a> that set out the fields and formats local planning authorities should use when publishing planning datasets. These patterns show how that data can then be presented to the public.</p>
+
+    <p class="govuk-body">The first three patterns are illustrated using Article 4 Directions as the example dataset. The fourth shows how a more complex group of related datasets can be presented together, using Local Plans as the example. All patterns can be applied to other planning datasets your authority publishes.</p>
+
+    <div class="govuk-inset-text">
+      These are example pages for demonstration purposes. West Brackenfield District Council is a fictional authority used to illustrate the patterns.
+    </div>
+
+    <h2 class="govuk-heading-l govuk-!-margin-top-8">URLs and how they are used</h2>
+
+    <p class="govuk-body">When you publish planning data, you need to provide URLs in your dataset that point back to your website. There are four types of URL involved.</p>
+
+    <style>
+      .url-diagram { border: 1px solid #b1b4b6; background: #fff; padding: 0; margin: 20px 0 30px; font-family: "GDS Transport", Arial, sans-serif; }
+      .url-diagram-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+      .url-diagram-main { padding: 24px; border-right: 1px solid #b1b4b6; }
+      .url-diagram-detail { padding: 24px; }
+      .url-diagram-main-top { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #b1b4b6; }
+      .url-diagram-detail-top { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #b1b4b6; }
+      .url-diagram-page { background: #f3f2f1; border: 1px solid #b1b4b6; padding: 16px; font-size: 14px; }
+      .url-diagram-page-title { font-weight: 700; font-size: 16px; margin-bottom: 10px; color: #0b0c0c; }
+      .url-diagram-page-body { background: #0b0c0c; height: 8px; border-radius: 1px; margin-bottom: 6px; }
+      .url-diagram-page-body.short { width: 70%; }
+      .url-diagram-page-body.med { width: 85%; }
+      .url-diagram-page-link { color: #1d70b8; text-decoration: underline; font-size: 13px; margin: 8px 0 4px; display: block; }
+      .url-diagram-page-link-body { background: #0b0c0c; height: 7px; border-radius: 1px; margin-bottom: 5px; }
+      .url-tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 2px; color: #fff; margin-bottom: 6px; }
+      .url-tag--webpage { background: #4c2c92; }
+      .url-tag--documentation { background: #007a7a; }
+      .url-tag--document { background: #1d70b8; }
+      .url-tag--endpoint { background: #505a5f; }
+      .url-diagram-label { font-size: 13px; color: #505a5f; line-height: 1.4; margin-top: 4px; }
+      .url-diagram-label code { font-size: 12px; background: #f3f2f1; padding: 1px 4px; border-radius: 2px; color: #0b0c0c; word-break: break-all; }
+      .url-diagram-footer { padding: 16px 24px; background: #f3f2f1; border-top: 1px solid #b1b4b6; font-size: 13px; color: #505a5f; }
+      .url-diagram-footer code { font-size: 12px; background: #fff; padding: 1px 5px; border-radius: 2px; border: 1px solid #b1b4b6; color: #0b0c0c; word-break: break-all; }
+      @media (max-width: 640px) {
+        .url-diagram-row { grid-template-columns: 1fr; }
+        .url-diagram-main { border-right: none; border-bottom: 1px solid #b1b4b6; }
+        .url-diagram-main-top { border-bottom: 1px solid #b1b4b6; }
+        .url-diagram-detail-top { border-bottom: 1px solid #b1b4b6; }
+      }
+
+      .url-pattern-box { background: #f3f2f1; border-left: 4px solid #505a5f; padding: 12px 16px; margin: 12px 0 0; font-size: 14px; }
+      .url-pattern-box dt { font-weight: 700; font-size: 13px; color: #505a5f; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; margin-top: 10px; }
+      .url-pattern-box dt:first-child { margin-top: 0; }
+      .url-pattern-box dd { margin: 0 0 2px; }
+      .url-pattern-box code { font-size: 13px; background: #fff; padding: 2px 6px; border-radius: 2px; border: 1px solid #b1b4b6; color: #0b0c0c; word-break: break-all; display: inline-block; }
+    </style>
+
+    <!-- Diagram -->
+    <div class="url-diagram" role="img" aria-label="Diagram showing the three types of URL: webpage URL, documentation-url, and document-url">
+      <div class="url-diagram-row">
+
+        <div class="url-diagram-main">
+          <div class="url-diagram-main-top">
+            <span class="url-tag url-tag--webpage">Webpage URL</span>
+            <div class="url-diagram-label" style="margin-bottom:12px">The URL of the page on your website that contains information about this dataset — for example, your Article 4 Directions page.</div>
+            <div class="url-diagram-page">
+              <div class="url-diagram-page-title">Article 4 Directions</div>
+              <div class="url-diagram-page-body med"></div>
+              <div class="url-diagram-page-body short"></div>
+              <div class="url-diagram-page-body med"></div>
+              <span class="url-diagram-page-link">Direction 1 name</span>
+              <div class="url-diagram-page-link-body med"></div>
+              <div class="url-diagram-page-link-body short"></div>
+              <span class="url-diagram-page-link">Direction 2 name</span>
+              <div class="url-diagram-page-link-body"></div>
+              <div class="url-diagram-page-link-body short"></div>
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid #b1b4b6">
+                <div style="font-weight:700; font-size:13px; margin-bottom:6px; color:#0b0c0c">Data</div>
+                <span class="url-diagram-page-link">Direction areas (CSV)</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span class="url-tag url-tag--endpoint">Endpoint URL</span>
+            <div class="url-diagram-label">The URL of the CSV or GeoJSON file itself — the direct download link for the data.</div>
+          </div>
+        </div>
+
+        <div class="url-diagram-detail">
+          <div class="url-diagram-detail-top">
+            <span class="url-tag url-tag--documentation">documentation-url</span>
+            <div class="url-diagram-label" style="margin-bottom:12px">The URL of the page (or anchor on a page) that introduces a specific record. Goes into your CSV in the <code>documentation-url</code> field. Each record must have a unique URL.</div>
+            <div class="url-diagram-page">
+              <div class="url-diagram-page-title">Direction 1 name</div>
+              <div class="url-diagram-page-body med"></div>
+              <div class="url-diagram-page-body short"></div>
+              <div class="url-diagram-page-body med"></div>
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid #b1b4b6">
+                <span class="url-diagram-page-link">Direction 1 document (PDF, 1.9MB)</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span class="url-tag url-tag--document">document-url</span>
+            <div class="url-diagram-label">The URL of the legal document itself (the PDF). Goes in the <code>document-url</code> field in your CSV.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="url-diagram-footer">
+        <strong>From the <a href="https://www.planning.data.gov.uk/guidance/specifications/article-4-direction#article-4-direction-dataset" style="color:#1d70b8">Article 4 Direction data specification</a>:</strong> each record must have a unique <code>documentation-url</code>. You can use a separate page per record, or list several on one page with anchor links — for example <code>yourwebsite.gov.uk/article-4-directions#WBDC-A4D-001</code>.
+      </div>
+    </div>
+
+    <h2 class="govuk-heading-l govuk-!-margin-top-8">The four patterns</h2>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="all-on-one-page">All on one page</a>
+    </h3>
+    <p class="govuk-body">All records are shown on a single page. Each record has its own section with an anchor link in a table of contents at the top.</p>
+    <p class="govuk-body"><strong>Best when</strong> you have a small number of records (fewer than 10) and users are likely to want to browse all of them at once.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions</code></dd>
+      <dt>documentation-url (per record)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions<strong>#WBDC-A4D-001</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions<strong>#WBDC-A4D-002</strong></code></dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="one-per-page">One per page</a>
+    </h3>
+    <p class="govuk-body">An index page lists all records with links to individual pages, one for each record containing the full detail.</p>
+    <p class="govuk-body"><strong>Best when</strong> each record has significant detail, or users are likely to search for a specific record by name or location.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL (index)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions</code></dd>
+      <dt>documentation-url (per record)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-001</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-002</strong></code></dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="finder">Using a finder</a>
+    </h3>
+    <p class="govuk-body">A filterable, searchable table allows users to find records by area, type, or date. This example also shows pagination for larger datasets.</p>
+    <p class="govuk-body"><strong>Best when</strong> you have a large number of records, or users need to filter by location, type, or date to find what they need.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL (finder)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions</code></dd>
+      <dt>documentation-url (per record)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-001</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/article-4-directions/<strong>WBDC-A4D-002</strong></code></dd>
+      <dt>Note</dt>
+      <dd>The finder itself is used to browse; each individual record still needs its own page or anchor URL for the <code>documentation-url</code> field.</dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h3 class="govuk-heading-m">
+      <a class="govuk-link" href="west-brackenfield-local-plans">Complex datasets</a>
+    </h3>
+    <p class="govuk-body">A richer page showing how multiple related datasets can be presented together, with tabbed navigation, a timetable visualisation, and open data downloads. Uses Local Plans (plan and plan-timetable datasets) as the example.</p>
+    <p class="govuk-body"><strong>Best when</strong> a topic spans several related datasets that users need to understand together, and where the relationships between the data matter as much as the individual records.</p>
+    <dl class="url-pattern-box">
+      <dt>Webpage URL</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/local-plans</code></dd>
+      <dt>documentation-url (per plan)</dt>
+      <dd><code>westbrackenfield.gov.uk/planning/local-plans<strong>#WBDC-LP2042</strong></code></dd>
+      <dd><code>westbrackenfield.gov.uk/planning/local-plans<strong>#WBDC-LP2036</strong></code></dd>
+    </dl>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <h2 class="govuk-heading-l govuk-!-margin-top-8">About the examples</h2>
+
+    <p class="govuk-body">The first three patterns use Article 4 Direction data for the fictional West Brackenfield District Council, following the <a class="govuk-link" href="https://digital-land.github.io/specification/specification/article-4-direction/">Article 4 Direction data specification</a> published by MHCLG. Article 4 Directions make a good illustration because they vary in complexity, have clear geographic boundaries, and are a dataset many LPAs already publish in some form.</p>
+
+    <p class="govuk-body">The complex datasets example uses Local Plans data for the same fictional authority, covering the <a class="govuk-link" href="https://digital-land.github.io/specification/specification/plan/">plan and plan-timetable specifications</a>. This shows how a topic that spans multiple related datasets can be presented in a coherent, useful way for the public.</p>
+
+    <table class="govuk-table">
+      <caption class="govuk-table__caption govuk-table__caption--s">Article 4 Directions used in the first three examples</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="col">Reference</th>
+          <th class="govuk-table__header" scope="col">Name</th>
+          <th class="govuk-table__header" scope="col">Confirmed</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-001</code></td>
+          <td class="govuk-table__cell">Brackenfield Old Town</td>
+          <td class="govuk-table__cell">14 March 2019</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-002</code></td>
+          <td class="govuk-table__cell">Fenwick Road</td>
+          <td class="govuk-table__cell">22 July 2021</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-003</code></td>
+          <td class="govuk-table__cell">Stonemoor Lane</td>
+          <td class="govuk-table__cell">5 November 2018</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-004</code></td>
+          <td class="govuk-table__cell">Holt Green</td>
+          <td class="govuk-table__cell">9 February 2023</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-005</code></td>
+          <td class="govuk-table__cell">Thornwick Business Park</td>
+          <td class="govuk-table__cell">17 September 2020</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>WBDC-A4D-006</code></td>
+          <td class="govuk-table__cell">Millgate Riverside</td>
+          <td class="govuk-table__cell">30 May 2022</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="govuk-table">
+      <caption class="govuk-table__caption govuk-table__caption--s">Local Plans data used in the complex datasets example</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="col">Dataset</th>
+          <th class="govuk-table__header" scope="col">Description</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>plan</code></td>
+          <td class="govuk-table__cell">Adopted, emerging, and superseded development plan documents for West Brackenfield</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell"><code>plan-timetable</code></td>
+          <td class="govuk-table__cell">Key stages for the preparation of each development plan document, including confirmed and planned dates</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+  </main>
+</div>
+
+	<footer class="govuk-footer " role="contentinfo">
+    <div class="govuk-width-container ">
+
+
+  <svg
+    focusable="false"
+    role="presentation"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 64 60"
+    height="30"
+    width="32"
+    fill="currentcolor" class="govuk-footer__crown"
+  >
+    <g>
+        <circle cx="20" cy="17.6" r="3.7"/>
+        <circle cx="10.2" cy="23.5" r="3.7"/>
+        <circle cx="3.7" cy="33.2" r="3.7"/>
+        <circle cx="31.7" cy="30.6" r="3.7"/>
+        <circle cx="43.3" cy="17.6" r="3.7"/>
+        <circle cx="53.2" cy="23.5" r="3.7"/>
+        <circle cx="59.7" cy="33.2" r="3.7"/>
+        <circle cx="31.7" cy="30.6" r="3.7"/>
+        <path d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"/>
+      </g>
+
+  </svg>
+
+
+        <div class="govuk-footer__meta">
+            <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+
+
+                <h2 class="govuk-visually-hidden">Support links</h2>
+                <ul class="govuk-footer__inline-list">
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/service-status">
+                            Service status
+                        </a>
+                    </li>
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/about/roadmap">
+                            Roadmap
+                        </a>
+                    </li>
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/about/performance">
+                            Performance
+                        </a>
+                    </li>
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/about/contact">
+                            Contact
+                        </a>
+                    </li>
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/accessibility-statement">
+                            Accessibility statement
+                        </a>
+                    </li>
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/terms-and-conditions">
+                            Terms and conditions
+                        </a>
+                    </li>
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/cookies">
+                            Cookie policy
+                        </a>
+                    </li>
+
+                    <li class="govuk-footer__inline-list-item">
+                        <a class="govuk-footer__link" href="/privacy-notice">
+                            Privacy notice
+                        </a>
+                    </li>
+                </ul>
+                <div class="govuk-footer__meta-custom">
+                    Built by the <a href="https://www.gov.uk/government/organisations/ministry-of-housing-communities-local-government" class="govuk-footer__link">Ministry of Housing, Communities and Local Government</a>
+                </div>
+
+                <svg
+                    aria-hidden="true"
+                    focusable="false"
+                    class="govuk-footer__licence-logo"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 483.2 195.7"
+                    height="17"
+                    width="41"
+                    >
+                    <path
+                        fill="currentColor"
+                        d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+                    />
+                </svg>
+                <span class="govuk-footer__licence-description">
+                All content is available under the
+                <a
+                    class="govuk-footer__link"
+                    href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+                    rel="license"
+                >Open Government Licence v3.0</a>, except where otherwise stated
+                </span>
+            </div>
+            <div class="govuk-footer__meta-item">
+                <a
+                class="govuk-footer__link govuk-footer__copyright-logo"
+                href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+                >© Crown copyright</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>window.GOVUKFrontend.initAll();</script>
+
+</body>
+</html>
