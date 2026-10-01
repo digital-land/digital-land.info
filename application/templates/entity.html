@@ -117,9 +117,10 @@
                 {{ entityValue(field, row[field], fields, dataset_fields, organisation_entity, linked_entities, dataset) }}
               {% endif %}
             {% endset %}
+            {% set fieldName %}{{ entityField(field, fields, dataset_fields, false)|trim }}{% endset %}
             {% set factsHtml %}
               {% if field not in ['curie', 'dataset', 'organisation-curie', 'typology', 'quality'] %}
-                <a href="/fact?{{ {'dataset': row['dataset'], 'entity': row['entity'], 'field': field}|make_url_param_str }}" class="govuk-link">Facts</a>
+                <a href="/fact?{{ {'dataset': row['dataset'], 'entity': row['entity'], 'field': field}|make_url_param_str }}" class="govuk-link">Facts<span class="govuk-visually-hidden"> about {{ fieldName }}</span></a>
               {% else %}
                 <span class='govuk-visually-hidden'>no fact link</span>
               {% endif %}
