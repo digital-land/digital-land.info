@@ -122,6 +122,12 @@ def get_fact(
 ):
     query_params = asdict(query_filters)
     path_params = asdict(path_params)
+    # close the session after the request is processed to avoid holding it while calling datasette.
+    # which can lead to (psycopg2.OperationalError) SSL SYSCALL error: EOF detected
+    with session:
+        dataset_obj = None
+        if extension is None or extension.value == "html":
+            dataset_obj = get_dataset_query(session, query_params["dataset"])
     fact = get_fact_query(path_params["fact"], query_params["dataset"])
 
     if fact is not None:
@@ -143,7 +149,6 @@ def get_fact(
 
         fact_dict = fact.model_dump(by_alias=True, exclude={"geojson"})
         fact_dict = _convert_resources_to_dict(fact_dict)
-        dataset_obj = get_dataset_query(session, query_params["dataset"])
         return templates.TemplateResponse(
             request,
             "fact.html",
