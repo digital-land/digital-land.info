@@ -211,11 +211,12 @@ def add_base_routes(app):
         else:
             content = (
                 "User-agent: GPTBot\n"
+                "User-agent: ClaudeBot\n"
                 "Disallow: /entity/?\n"
-                "Disallow: /fact/\n"
+                "Disallow: /fact\n"
                 "\n"
                 "User-agent: *\n"
-                "Disallow: /fact/"
+                "Disallow: /fact"
             )
         return PlainTextResponse(
             content, headers={"Cache-Control": "public, max-age=3600"}
