@@ -5,6 +5,7 @@ import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter, preventScroll } from "./utils.js";
 import { getApiToken, getFreshApiToken } from "./osApiToken.js";
 import {defaultPaintOptions} from "./defaultPaintOptions.js";
+import {getDatasetMinZoom} from "./datasetMinZoomLevels.js";
 
 // Colour/opacity used to highlight entities whose end-date are in the past (< today),
 // matching the "Show historical data" checkbox swatch in the side panel.
@@ -34,6 +35,11 @@ function withHistoricalOpacity(baseOpacity) {
     HISTORICAL_ENTITY_OPACITY,
     baseOpacity
   ];
+}
+
+function zoomRestrictionForDataset(dataset) {
+  const minZoom = getDatasetMinZoom(dataset);
+  return minZoom === null ? {} : {minzoom: minZoom};
 }
 
 function isFeatureExpired(feature) {
@@ -494,6 +500,8 @@ export default class MapController {
 			maxzoom: this.maxMapZoom
 		});
 
+		const zoomRestriction = zoomRestrictionForDataset(source.name);
+
 		// add layer
 		let layers;
 		if (source.dataType === 'point') {
@@ -507,6 +515,7 @@ export default class MapController {
           "circle-radius": defaultPaintOptions['circle-radius']
         },
         sourceLayer: `${source.name}`,
+        additionalOptions: zoomRestriction,
       });
 
 			layers = [layerName];
@@ -525,6 +534,7 @@ export default class MapController {
           'fill-extrusion-opacity': parseFloat(source.styleProps.opacity) || defaultPaintOptions['fill-opacity']
         },
         sourceLayer: `${source.name}`,
+        additionalOptions: zoomRestriction,
       });
 
       this.moveLayerBehindBuildings(fillLayerName)
@@ -538,6 +548,7 @@ export default class MapController {
           'line-width': source.styleProps.weight || defaultPaintOptions['weight']
         },
         sourceLayer: `${source.name}`,
+        additionalOptions: zoomRestriction,
       });
 
       // create point layer for geometries
@@ -552,6 +563,7 @@ export default class MapController {
         },
         sourceLayer: `${source.name}`,
         additionalOptions:{
+          ...zoomRestriction,
           filter:[ "==", ["geometry-type"], "Point"]
         },
       });
