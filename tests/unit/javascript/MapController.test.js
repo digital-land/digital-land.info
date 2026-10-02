@@ -141,6 +141,7 @@ describe('Map Controller - Unit', () => {
                 ],
             },
             sourceLayer: `testName`,
+            additionalOptions: {},
         })
 
         expect(mapController.addLayer).toHaveBeenCalledWith({
@@ -157,11 +158,75 @@ describe('Map Controller - Unit', () => {
                 ],
             },
             sourceLayer: `testName2`,
+            additionalOptions: {},
         })
 
         expect(layers1).toEqual(['testName-source-circle']);
         expect(layers2).toEqual(['testName2-source-circle']);
 
+    })
+
+    describe('addVectorTileSource() zoom restrictions', () => {
+        beforeEach(() => {
+            mapController.addLayer = vi.fn().mockImplementation((layerOptions) => {
+                return `${layerOptions.sourceName}-${layerOptions.layerType}`
+            })
+        })
+
+        test('applies the dataset minimum zoom to every layer of a restricted dataset', () => {
+            mapController.addVectorTileSource({
+                name: 'title-boundary',
+                vectorSource: 'testVectorSource',
+                styleProps: {},
+            })
+
+            expect(mapController.addLayer).toHaveBeenCalledTimes(3)
+            mapController.addLayer.mock.calls.forEach(([layerOptions]) => {
+                expect(layerOptions.additionalOptions.minzoom).toEqual(13)
+            })
+        })
+
+        test('keeps the geometry-type filter alongside the minimum zoom', () => {
+            mapController.addVectorTileSource({
+                name: 'title-boundary',
+                vectorSource: 'testVectorSource',
+                styleProps: {},
+            })
+
+            const pointLayerOptions = mapController.addLayer.mock.calls
+                .map(([layerOptions]) => layerOptions)
+                .find((layerOptions) => layerOptions.layerType === 'circle')
+
+            expect(pointLayerOptions.additionalOptions).toEqual({
+                minzoom: 13,
+                filter: ["==", ["geometry-type"], "Point"],
+            })
+        })
+
+        test('does not restrict a dataset without a configured minimum zoom', () => {
+            mapController.addVectorTileSource({
+                name: 'area-of-outstanding-natural-beauty',
+                vectorSource: 'testVectorSource',
+                styleProps: {},
+            })
+
+            expect(mapController.addLayer).toHaveBeenCalledTimes(3)
+            mapController.addLayer.mock.calls.forEach(([layerOptions]) => {
+                expect(layerOptions.additionalOptions.minzoom).toBeUndefined()
+            })
+        })
+
+        test('applies the dataset minimum zoom to a point dataset', () => {
+            mapController.addVectorTileSource({
+                name: 'title-boundary',
+                vectorSource: 'testVectorSource',
+                dataType: 'point',
+                styleProps: {},
+            })
+
+            expect(mapController.addLayer).toHaveBeenCalledTimes(1)
+            expect(mapController.addLayer.mock.calls[0][0].additionalOptions).toEqual({minzoom: 13})
+        })
     })
 
     test('addGeojsonSources() correctly executes', () => {
