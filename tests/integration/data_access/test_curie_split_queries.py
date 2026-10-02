@@ -1,0 +1,93 @@
+from datetime import date
+
+import pytest
+from application.data_access.entity_queries import get_entity_search
+from application.search.enum import SuffixEntity
+from application.db.models import EntityOrm
+
+
+@pytest.fixture
+def curie_entities(db_session):
+    def polygon(size):
+        return f"SRID=4326;MULTIPOLYGON(((0 0,{size} 0,{size} {size},0 {size},0 0)))"
+
+    rows = [
+        EntityOrm(entity=100, prefix="area", reference="A", geometry=polygon(10)),
+        EntityOrm(entity=101, prefix="area", reference="A", geometry=polygon(12)),
+        EntityOrm(entity=102, prefix="area", reference="B", geometry=polygon(8)),
+        EntityOrm(entity=103, prefix="area", reference="null"),
+        EntityOrm(
+            entity=104,
+            prefix="area",
+            reference="invalid",
+            geometry="SRID=4326;MULTIPOLYGON(((0 0,10 10,10 0,0 10,0 0)))",
+        ),
+        EntityOrm(
+            entity=1,
+            dataset="target",
+            geometry=polygon(3),
+            point="SRID=4326;POINT(2 2)",
+        ),
+        # The point must still match when the non-null geometry is outside.
+        EntityOrm(
+            entity=2,
+            dataset="target",
+            geometry="SRID=4326;MULTIPOLYGON(((20 20,21 20,21 21,20 21,20 20)))",
+            point="SRID=4326;POINT(4 4)",
+        ),
+        EntityOrm(entity=3, dataset="target", point="SRID=4326;POINT(20 20)"),
+        EntityOrm(
+            entity=4,
+            dataset="target",
+            point="SRID=4326;POINT(5 5)",
+            end_date=date(2000, 1, 1),
+        ),
+        EntityOrm(entity=5, dataset="target", geometry=polygon(2)),
+    ]
+    db_session.add_all(rows)
+    db_session.flush()
+
+
+@pytest.mark.parametrize(
+    "filters, expected",
+    [
+        ({"geometry_curie": ["area:A", "area:B"]}, [1, 2, 5]),
+        # Preserve legacy multiplicity for one CURIE resolving to two boundaries.
+        ({"geometry_curie": ["area:A"]}, [1, 1, 2, 2, 5, 5]),
+        ({"geometry_curie": ["area:A", "area:A"]}, [1, 2, 5]),
+        ({"geometry_curie": ["area:missing"]}, []),
+        ({"geometry_curie": ["area:null", "area:invalid"]}, []),
+        ({"geometry_curie": ["area:A", "area:B"], "period": ["historical"]}, [4]),
+        ({"geometry_curie": ["area:A", "area:B"], "period": ["all"]}, [1, 2, 4, 5]),
+        ({"geometry_curie": ["area:A"], "geometry_entity": [102]}, [1, 2, 5]),
+        ({"geometry_curie": ["area:A"], "geometry_reference": ["B"]}, [1, 2, 5]),
+        ({"geometry_curie": ["area:A"], "geometry_entity": [103]}, []),
+        ({"geometry_curie": ["area:A"], "geometry_reference": ["missing"]}, []),
+        ({"geometry_curie": ["area:A"], "longitude": 1, "latitude": 1}, [1, 1, 5, 5]),
+        (
+            {
+                "geometry_curie": ["area:A"],
+                "geometry": ["POLYGON((30 30,31 30,31 31,30 31,30 30))"],
+            },
+            [],
+        ),
+        ({}, [1, 2, 3, 5]),
+        (
+            {"geometry_curie": ["area:A", "area:B"], "geometry_relation": "intersects"},
+            [1, 2, 5],
+        ),
+        ({"geometry_curie": ["area:A", "area:B"], "entity": [2]}, [2]),
+        ({"geometry_curie": ["area:A", "area:B"], "dataset": ["other"]}, []),
+    ],
+)
+def test_curie_split_results_and_count(db_session, curie_entities, filters, expected):
+    params = {"dataset": ["target"], "period": ["current"], **filters}
+    result = get_entity_search(db_session, params, SuffixEntity.json)
+    assert result["count"] == len(expected)
+    assert [entity.entity for entity in result["entities"]] == expected
+
+    page = get_entity_search(
+        db_session, {**params, "offset": 1, "limit": 2}, SuffixEntity.json
+    )
+    assert page["count"] == len(expected)
+    assert [entity.entity for entity in page["entities"]] == expected[1:3]
