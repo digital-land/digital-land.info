@@ -70,6 +70,13 @@ class MapPOM:
         assert False, f"Popup did not appear on the map as {center} at zoom {zoom}"
 
     def wait_for_layer_controls_to_load(self, attempts=10, check_interval=500):
+        # NOTE: the "Data layers" panel used to be a maplibre control with
+        # its own close button (`.dl-map__close-btn`); it's now a
+        # server-rendered GOV.UK Accordion section ("Select a data layer")
+        # that's present on load and just needs expanding via its section
+        # button - update this (and callers using check_layer_checkbox())
+        # to expand that section before interacting with a checkbox if this
+        # currently-unused helper is ever reactivated.
         for i in range(attempts):
             isHidden = (
                 self.page.get_by_test_id("map")

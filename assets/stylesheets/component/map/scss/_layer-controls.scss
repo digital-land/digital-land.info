@@ -1,11 +1,24 @@
 // how can we import this from govuk
 // https://github.com/alphagov/govuk-frontend/blob/ecd839c3fcfb0468d8cecdb09cfb9f7f158c5fb8/src/govuk/components/checkboxes/_index.scss#L9
-$govuk-checkboxes-size: 40px;
+//
+// Matches the 24px visible size of GOV.UK's own small-checkbox variant
+// (govuk-checkboxes--small) used elsewhere on this panel, so the colour
+// swatch doesn't look oversized next to the (now small) checkbox itself.
+$govuk-checkboxes-size: 24px;
 
+// Checkbox on the left, label text to its right - GOV.UK's own default
+// govuk-checkboxes--small layout. Previously mirrored to the right so
+// the checkbox would sit next to this row's own colour swatch - but the
+// swatch moved out to the Key overlay (map-key-panel/macro.jinja) a
+// while ago, so that reason no longer applies. Horizontal position
+// (left/right) and the box itself (:before) are GOV.UK's own defaults,
+// deliberately not redeclared here at all - only the tick (:after) still
+// needs a custom rule, since it's deliberately larger than GOV.UK's own
+// default tick (see below for why, and for two rounds' worth of wrong
+// assumptions about the box's own vertical position that this comment
+// used to also cover).
 .dl-map__layer-item {
   .govuk-checkboxes__item {
-    padding-right: 18px;
-    padding-left: 0;
     cursor: pointer;
 
     &:hover {
@@ -15,27 +28,40 @@ $govuk-checkboxes-size: 40px;
     }
   }
 
-  .govuk-checkboxes__input {
-    right: -10px;
-    left: unset;
-    position: absolute;
-  }
-
+  // Two earlier rounds got this wrong by assuming .govuk-checkboxes__item's
+  // own rendered height tracks the *label's* height (padding + text line-
+  // height, ~34px desktop / ~30px mobile) and custom-centred :before
+  // against that - first at a single fixed top value, then at a
+  // breakpoint-specific pair once the mobile/desktop line-height
+  // difference surfaced as a real, measured 2px discrepancy. Both were
+  // still wrong: .govuk-checkboxes__input is 44x44 (width/height GOV.UK's
+  // own small-checkbox variant never resizes down, despite hiding it via
+  // opacity: 0 rather than removing it from layout) and is a flex sibling
+  // of the label inside .govuk-checkboxes__item (display: flex) - so the
+  // item's true rendered height is pinned to that fixed 44px, not the
+  // label's own (variable, breakpoint-dependent) text height at all.
+  // GOV.UK's own small-checkbox :before already accounts for exactly
+  // this - top: 10px centres a 24px box within the real 44px item
+  // ((44-24)/2 = 10) - correctly and identically at every breakpoint,
+  // since it's derived from the input's fixed size rather than the
+  // label's variable one. Nothing to override for :before at all now -
+  // removed outright rather than redeclaring GOV.UK's own value, so
+  // there's no risk of a future line-height change quietly reintroducing
+  // this same wrong assumption a third time.
   .govuk-checkboxes__label {
-    padding-left: 0;
-
-    &:before {
-      top: 8px;
-      right: 0;
-      left: unset;
-      width: 24px;
-      height: 24px;
-    }
-
+    // Sized larger than GOV.UK's own default tick (12x6.5) for better
+    // visibility against a 24px box. left: 4px centres a 16px-wide tick
+    // within the 24px box ((24-16)/2 = 4) - GOV.UK's own left: 6px is
+    // only correct for its own narrower 12px tick, and widening the tick
+    // without adjusting this was a separate, earlier bug (ticks sitting
+    // right of centre). top: 16px keeps the tick 6px below the checkbox's
+    // own top (now GOV.UK's un-overridden 10px above), the same
+    // relationship this tick has kept across every earlier round that
+    // touched it, just recalculated against the box's now-correct
+    // position rather than the wrong one.
     &:after {
-      top: 14px;
-      right: 4px;
-      left: unset;
+      top: 16px;
+      left: 4px;
       width: 16px;
       height: 9px;
       border-width: 0 0 4px 4px;
@@ -46,7 +72,7 @@ $govuk-checkboxes-size: 40px;
 .dl-label__key {
   display: block;
   position: relative;
-  margin-left: 53px;
+  margin-left: 34px;
   font-size: 1rem;
   min-height: $govuk-checkboxes-size;
 }
@@ -55,12 +81,18 @@ $govuk-checkboxes-size: 40px;
 .dl-label__key__symbol {
   box-sizing: border-box;
   position: absolute;
-  top: 0;
+  // -2px rather than 0 - .dl-label__key (this swatch's positioning parent)
+  // is sized to the text line next to it (20px), itself already centred
+  // within the item's ~34px row, but the swatch is taller (24px) than
+  // that text line - inheriting the text's own top offset left the
+  // (taller) swatch sitting 2px low of centre on the row. Shifting up 2px
+  // centres the swatch on the row instead, matching the checkbox tick's
+  // own centred position (govuk-checkboxes__label:before, above).
+  top: -2px;
   left: 0;
   width: $govuk-checkboxes-size;
   height: $govuk-checkboxes-size;
-  margin-top: -8px;
-  margin-left: -53px;
+  margin-left: -34px;
   border: $govuk-border-width-form-element solid govuk-colour("mid-grey");
   background: rgba(govuk-colour("light-grey"), .5);
 }
