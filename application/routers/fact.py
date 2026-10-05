@@ -1,5 +1,6 @@
 import logging
 import json
+import redis
 
 import re
 from typing import Optional
@@ -17,7 +18,7 @@ from application.search.filters import (
     FactQueryFilters,
 )
 
-from application.db.session import get_session
+from application.db.session import get_session, get_redis, DbSession
 from application.data_access.entity_queries import get_entity_query
 from application.data_access.fact_queries import (
     get_fact_query,
@@ -73,6 +74,7 @@ def validate_fact_path_params(request: Request) -> FactPathParams:
 def validate_fact_dataset_query_filters(
     request: Request,
     session: Session = Depends(get_session),
+    redis: redis.Redis = Depends(get_redis),
 ) -> FactDatasetQueryFilters:
     dataset = request.query_params.get("dataset")
     if not dataset:
@@ -86,13 +88,15 @@ def validate_fact_dataset_query_filters(
             ]
         )
     # datasette still holds sqlite for retired datasets, postgres is the source of truth
-    validate_dataset([dataset], get_dataset_names(session))
+    db_session = DbSession(session=session, redis=redis)
+    validate_dataset([dataset], get_dataset_names(db_session))
     return FactDatasetQueryFilters(dataset=dataset)
 
 
 def validate_fact_query_filters(
     request: Request,
     session: Session = Depends(get_session),
+    redis: redis.Redis = Depends(get_redis),
 ) -> FactQueryFilters:
     dataset = request.query_params.get("dataset")
     entity = request.query_params.get("entity")
@@ -106,7 +110,8 @@ def validate_fact_query_filters(
                 }
             ]
         )
-    validate_dataset([dataset], get_dataset_names(session))
+    db_session = DbSession(session=session, redis=redis)
+    validate_dataset([dataset], get_dataset_names(db_session))
     field = request.query_params.getlist("field") or None
     return FactQueryFilters(dataset=dataset, entity=int(entity), field=field)
 

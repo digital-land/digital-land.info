@@ -107,8 +107,11 @@ def get_typologies_with_entities(dbsession: DbSession) -> List[TypologyModel]:
     return [TypologyModel.model_validate(t) for t in typologies]
 
 
-def get_typology_names(session: Session):
-    typology_names = [result[0] for result in session.query(TypologyOrm.typology).all()]
+@redis_cache("typology-names", model_class=None, ttl_seconds=6 * 60 * 60)
+def get_typology_names(db_session: DbSession):
+    typology_names = [
+        result[0] for result in db_session.session.query(TypologyOrm.typology).all()
+    ]
     return typology_names
 
 

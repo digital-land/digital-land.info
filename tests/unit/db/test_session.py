@@ -1,5 +1,9 @@
 import application.db.session as session
 from datetime import timedelta
+import json
+from unittest.mock import MagicMock
+
+from application.core.models import DatasetModel
 
 
 def test__session_cache():
@@ -24,6 +28,20 @@ def test__session_cache():
 
     assert cached_fn("B") == 2
     assert len(cache) == 1
+
+
+def test_redis_cache_preserves_model_round_trip():
+    db = session.DbSession(session=MagicMock(), redis=MagicMock())
+    model = DatasetModel(dataset="listed-building")
+    loader = MagicMock(return_value=[model])
+    cached = session.redis_cache("test-models", model_class=DatasetModel)(loader)
+    db.redis.get.return_value = None
+    assert cached(db) == [model]
+    stored = db.redis.setex.call_args.kwargs["value"]
+    assert json.loads(stored)[0]["dataset"] == "listed-building"
+    db.redis.get.return_value = stored
+    assert cached(db) == [model]
+    loader.assert_called_once_with(db)
 
 
 def test__create_engine_applies_statement_timeout(mocker):
