@@ -76,6 +76,7 @@ def path_params(mocker):
 
 def test_get_fact_no_fact_returned_for_html(mocker, query_params, path_params):
     mocker.patch("application.routers.fact.get_fact_query", return_value=None)
+    mocker.patch("application.routers.fact.get_dataset_query", return_value=None)
     request = MagicMock()
     try:
         get_fact(
@@ -83,6 +84,7 @@ def test_get_fact_no_fact_returned_for_html(mocker, query_params, path_params):
             path_params=path_params,
             query_filters=query_params,
             extension=None,
+            session=MagicMock(),
         )
         assert False, "Expected HTTPException to be raised"
     except HTTPException:
@@ -100,6 +102,7 @@ def test_get_fact_no_facts_returned_for_json(mocker, query_params, path_params):
             path_params=path_params,
             query_filters=query_params,
             extension=extension,
+            session=MagicMock(),
         )
         assert False, "Expected HTTPException to be raised"
     except HTTPException:
@@ -134,11 +137,16 @@ def single_fact_model():
 def test_get_fact_fact_returned_for_html(
     mocker, single_fact_model, query_params, path_params
 ):
-    mocker.patch(
-        "application.routers.fact.get_fact_query", return_value=single_fact_model
-    )
+    session = MagicMock()
+
+    def fetch_fact(*args):
+        dataset_lookup.assert_called_once_with(session, query_params.dataset)
+        session.__exit__.assert_called_once_with(None, None, None)
+        return single_fact_model
+
+    mocker.patch("application.routers.fact.get_fact_query", side_effect=fetch_fact)
     dataset_model = DatasetModel(name="Ancient Woodland", dataset="ancient-woodland")
-    mocker.patch(
+    dataset_lookup = mocker.patch(
         "application.routers.fact.get_dataset_query", return_value=dataset_model
     )
     request = MagicMock()
@@ -147,7 +155,7 @@ def test_get_fact_fact_returned_for_html(
         path_params=path_params,
         query_filters=query_params,
         extension=None,
-        session=MagicMock(),
+        session=session,
     )
     # check response code and response type are correct
     assert (
@@ -174,6 +182,7 @@ def test_get_fact_fact_returned_for_json(
         path_params=path_params,
         query_filters=query_params,
         extension=extension,
+        session=MagicMock(),
     )
     assert isinstance(
         result, dict
