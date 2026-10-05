@@ -37,7 +37,22 @@ document.addEventListener('click', function (event) {
   const link = event.target.closest('a');
   if (!link || !link.href) return;
 
-  const fileExtensions = ['.geojson', '.json', '.xml', '.gml', '.kml', '.gpkg', '.shp', '.parquet'];
+  // This event is ALSO fired by GA4's "File downloads" enhanced measurement
+  // setting, which covers a fixed list of extensions Google maintains and we
+  // can't edit (csv, pdf, xlsx, zip, etc). The list below deliberately holds
+  // only the formats that setting misses, so reporting sees one event per
+  // download. csv is absent because GA already tracks it - adding it here, or
+  // any other extension Google covers, would double count.
+  const fileExtensions = [
+		'.geojson',
+		'.json',
+		'.xml',
+		'.gml',
+		'.kml',
+		'.gpkg',
+		'.shp',
+		'.parquet',
+  ];
 
   let url;
   try {
