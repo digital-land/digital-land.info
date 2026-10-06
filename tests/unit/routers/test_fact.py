@@ -10,6 +10,7 @@ from application.routers.fact import (
     get_fact,
     search_facts,
     validate_fact_dataset_query_filters,
+    validate_fact_query_filters,
 )
 from application.core.models import (
     DatasetFieldModel,
@@ -27,6 +28,23 @@ from starlette.datastructures import QueryParams
 
 class EmptyModel(BaseModel):
     pass
+
+
+@pytest.mark.parametrize(
+    "validator", [validate_fact_dataset_query_filters, validate_fact_query_filters]
+)
+def test_fact_validation_passes_database_and_redis(mocker, validator):
+    names = mocker.patch(
+        "application.routers.fact.get_dataset_names", return_value=["listed-building"]
+    )
+    request = MagicMock()
+    request.query_params = QueryParams(dataset="listed-building", entity="1")
+    session, redis = MagicMock(), MagicMock()
+    result = validator(request, session=session, redis=redis)
+    assert result.dataset == "listed-building"
+    db = names.call_args.args[0]
+    assert db.session is session
+    assert db.redis is redis
 
 
 def test_convert_model_to_dict_single_model():

@@ -142,6 +142,8 @@ def get_redis() -> Iterator[redis.Redis]:
 
 
 def redis_cache(key, model_class, ttl_seconds=60 * 60 * 6):
+    """Cache model lists, or JSON-compatible values when model_class is None."""
+
     def make_key(session):
         return f"cache:{key}"
 
@@ -156,13 +158,17 @@ def redis_cache(key, model_class, ttl_seconds=60 * 60 * 6):
             try:
                 cached = session.redis.get(key)
                 if cached is not None:
-                    items = json.loads(cached)  # TODO: try without "decode" option
-                    val = [model_class.parse_obj(obj) for obj in items]
+                    items = json.loads(cached)
+                    if model_class is not None:
+                        items = [model_class.parse_obj(obj) for obj in items]
+                    val = items
             except redis.exceptions.ConnectionError as redis_ex:
                 logger.warning(f"redis_cache(): redis connection error: {redis_ex}")
             except Exception as ex:
                 logger.warning(
-                    f"redis_cache(): Failed to get data from cache for key='{key}'", ex
+                    "redis_cache(): Failed to get data from cache for key='%s': %s",
+                    key,
+                    ex,
                 )
 
             if val is None:
@@ -171,6 +177,8 @@ def redis_cache(key, model_class, ttl_seconds=60 * 60 * 6):
                 try:
                     serialised = json.dumps(
                         [obj.model_dump(mode="json") for obj in val]
+                        if model_class is not None
+                        else val
                     )
                     session.redis.setex(key, time=ttl_seconds, value=serialised)
                 except redis.exceptions.ConnectionError as redis_ex:
@@ -179,7 +187,9 @@ def redis_cache(key, model_class, ttl_seconds=60 * 60 * 6):
                     )
                 except Exception as ex:
                     logger.warning(
-                        f"redis_cache(): Failed to set data for key='{key}'", ex
+                        "redis_cache(): Failed to set data for key='%s': %s",
+                        key,
+                        ex,
                     )
             return val
 

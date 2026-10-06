@@ -433,8 +433,9 @@ def search_entities(
     query_params = asdict(query_filters)
     # TODO minimse queries by using normal queries below rather than returning the names
     # queries required for additional validations
-    dataset_names = get_dataset_names(session)
-    typology_names = get_typology_names(session)
+    db_session = DbSession(session=session, redis=redis)
+    dataset_names = get_dataset_names(db_session)
+    typology_names = get_typology_names(db_session)
 
     # Find an area - Postcode / UPRN search
     search_query = search_query.strip()
