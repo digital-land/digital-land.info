@@ -12,21 +12,12 @@ We regularly ask our community to help us decide the things we need to work on a
 
 ### Now
 
-- We are also working with an [advisory group](https://design.planning.data.gov.uk/advisory-group) to develop a set of open, reusable data specifications to underpin planning applications.
-- We are continuing to add [local plan boundaries, documents and timetables](https://www.planning.data.gov.uk/entity/?dataset=local-plan-boundary&dataset=local-plan-document&dataset=local-plan-timetable&entry_date_day=&entry_date_month=&entry_date_year=) to the platform.
-- We are making it easier for data consumers and planning policymakers to get involved in our [data design process](https://design.planning.data.gov.uk/data-design-process). We are also taking more data specifications related to local planning through the [Screen and Research stages](https://design.planning.data.gov.uk/planning-consideration/?stage=Screen&stage=Research&stage=%5B%27screen%27%5D) of our process.
-- Based on our [data quality framework](https://digital-land.github.io/technical-documentation/data-operations-manual/Explanation/Key-Concepts/Data-quality-2-framework/), we’re introducing checks and changes to data management processes that will ensure the accuracy, consistency, and integrity of all datasets.
-
-### Next
-
-- We will be adding more datasets needed by the Planning Inspectorate and nationally significant infrastructure projects (consultees and geographies).
-- We will draft a template Statutory Instrument for potential data standards.
-- We will make it possible for local planning authorities to provide planning applications and decisions through our service.
-
-### Later
-
-- We will support the rollout of planning application submission and decision specifications.
-- We will be adding further datasets as required to support emerging and existing planning legislation and guidance.
+- We are working with the Spatial Development Strategy policy team to create standards for strategy timetables.
+- We are carrying out user research to gather feedback at least once a month from a range of users and we will use what we learn to set priorities.
+- We are agreeing shared data standards with HM Land Registry's Local Land Charges team.
+- We are planning which datasets to collect next from local planning authorities.
+- We are continuing our work on [planning permission submissions and decisions](https://design.planning.data.gov.uk/project/planning-applications).
+- We are defining 4 new datasets from our planning considerations backlog and adding them to the platform.
 
 ## Collecting and managing data
 
@@ -55,20 +46,26 @@ Alongside this, we are ensuring that our data collection pipeline remains perfor
 - We will give data providers more ways to securely manage their own data and notify them when its quality changes.
 
 ## Consuming data
-
-We are making planning and housing data easier to access, understand and reuse - whether developers building planning tools, analysts working with large datasets, or policymakers needing reliable evidence.
+We are making land and housing data easier to find, understand, use and trust.
 
 ### Now
 
-- We are publishing live platform performance metrics, so users can clearly understand reliability and availability.
-- We are publishing dataset quality and coverage information, so users can understand what data we currently have.
-- We are improving map search by Town, so users can find relevant data more easily.
+- We are improving our search, so that it is easier and faster for users to find relevant data.
+- We are making the map easier to use, including improving the way we list results and show where the map has no data.
+- We are allowing users to download full search results, pages and datasets from the map.
+- We are showing our data quality and coverage on dataset pages.
+- We are improving the way that we tell users about new data and features.
+- We are publishing a performance page using data from Google Analytics and our API.
 
 ### Next
 
-- We intend to package datasets around common user needs, with clearer context and guidance, to make them easier to use and consume.
+- We will allow users to draw an area on the map and search within it.
+- We will let users search the map by location.
+- We will make data consistent across the map and dataset pages.
+- We will create data packages for planning application submissions and brownfield land
+- We will publish our datasets on [data.gov.uk](http://data.gov.uk/).
 
 ### Later
 
-- We expect to improve discoverability on the search and map through smarter, more intuitive search.
-- We will explore whether lightweight authenticated access, such as API keys, could support enhanced services while maintaining open access to data.
+- We plan to explore whether some features should need users to sign in.
+- We plan to explore a Model Context Protocol (MCP) server, so that AI tools can use our data.
