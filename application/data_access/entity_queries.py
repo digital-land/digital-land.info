@@ -13,6 +13,7 @@ from application.data_access.entity_query_helpers import (
     get_date_to_filter,
     get_operator,
     get_point,
+    has_location_filters,
     get_spatial_function_for_relation,
     normalised_params,
 )
@@ -117,18 +118,16 @@ def get_entity_search(
     basequery = _apply_period_option_filter(basequery, params)
 
     count_subquery = _entity_count_subquery(session, basequery, params)
-    if params.get("geometry_curie"):
+    # As location filters introduce multiplicity, we need to materialise the matching IDs once for both the total and page queries.
+    if has_location_filters(params):
         return _search_with_shared_matches(session, count_subquery, params, extension)
 
-    # Database 1st call
     with sentry_sdk.start_span(op="entity.search", name="count.execute_fetch"):
         count = session.query(func.count()).select_from(count_subquery).scalar()
 
-    # Pagination and field filters
     query = _apply_limit_and_pagination_filters(basequery, params)
     query = _apply_field_filters(query, params, extension)
 
-    # Database 2nd call
     with sentry_sdk.start_span(op="entity.search", name="page.execute_fetch"):
         rows = query.all()
     with sentry_sdk.start_span(op="entity.search", name="models.convert"):
@@ -181,10 +180,9 @@ def _search_with_shared_matches(session, count_subquery, params, extension):
 def _entity_count_subquery(session, basequery, params):
     # Other location filters may restrict rows or introduce multiplicity. Keep
     # the complete query for those combinations.
-    other_location_filters = get_point(params) is not None or any(
-        params.get(key) for key in ("geometry", "geometry_entity", "geometry_reference")
-    )
-    if not params.get("geometry_curie") or other_location_filters:
+    if not params.get("geometry_curie") or has_location_filters(
+        params, include_curie=False
+    ):
         return basequery.with_entities(EntityOrm.entity).subquery()
 
     # Both spatial branches already include base, date and period filters.

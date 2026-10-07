@@ -79,6 +79,21 @@ def curie_entities(db_session, request):
             [],
         ),
         ({}, [1, 2, 3, 5]),
+        ({"geometry_entity": [100]}, [1, 2, 5]),
+        ({"geometry_entity": [100, 102]}, [1, 2, 5]),
+        ({"geometry_reference": ["A"]}, [1, 2, 5]),
+        ({"geometry_entity": [103]}, []),
+        ({"geometry_reference": ["missing"]}, []),
+        ({"longitude": 1, "latitude": 1}, [1, 5]),
+        (
+            {"geometry": ["POLYGON((0 0,10 0,10 10,0 10,0 0))"]},
+            [1, 2, 5],
+        ),
+        (
+            {"geometry_entity": [100], "longitude": 1, "latitude": 1},
+            [1, 5],
+        ),
+        ({"geometry_entity": [100], "period": ["historical"]}, [4]),
         (
             {"geometry_curie": ["area:A", "area:B"], "geometry_relation": "intersects"},
             [1, 2, 5],
@@ -106,10 +121,43 @@ def test_curie_split_results_and_count(
 
 @pytest.mark.parametrize("offset", [0, 100])
 @pytest.mark.parametrize(
+    "filters, expected, statement_count",
+    [
+        ({}, [1, 2, 3, 5], 2),
+        ({"entity": [2]}, [2], 2),
+        ({"dataset": ["other"]}, [], 2),
+        ({"period": ["historical"]}, [4], 2),
+        ({"geometry_curie": ["area:A", "area:B"]}, [1, 2, 5], 1),
+        ({"geometry_entity": [100]}, [1, 2, 5], 1),
+        ({"geometry_entity": [100, 102]}, [1, 2, 5], 1),
+        ({"geometry_reference": ["A"]}, [1, 2, 5], 1),
+        ({"longitude": 1, "latitude": 1}, [1, 5], 1),
+        (
+            {"geometry": ["POLYGON((0 0,10 0,10 10,0 10,0 0))"]},
+            [1, 2, 5],
+            1,
+        ),
+        (
+            {"geometry_entity": [100], "longitude": 1, "latitude": 1},
+            [1, 5],
+            1,
+        ),
+        ({"geometry_entity": [103]}, [], 1),
+        ({"geometry_curie": ["area:missing"]}, [], 1),
+        ({"geometry_reference": ["missing"]}, [], 1),
+        ({"longitude": 30, "latitude": 30}, [], 1),
+        (
+            {"geometry": ["POLYGON((30 30,31 30,31 31,30 31,30 30))"]},
+            [],
+            1,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
     "fields", [{"field": ["entity,name,json"]}, {"exclude_field": ["geometry,point"]}]
 )
-def test_shared_matches_fields_and_single_statement(
-    db_session, curie_entities, offset, fields
+def test_search_fields_and_statement_count(
+    db_session, curie_entities, offset, fields, filters, expected, statement_count
 ):
     from sqlalchemy import event
 
@@ -126,7 +174,7 @@ def test_shared_matches_fields_and_single_statement(
             {
                 "dataset": ["target"],
                 "period": ["current"],
-                "geometry_curie": ["area:A", "area:B"],
+                **filters,
                 "limit": 2,
                 "offset": offset,
                 **fields,
@@ -136,7 +184,7 @@ def test_shared_matches_fields_and_single_statement(
     finally:
         event.remove(connection, "before_cursor_execute", record)
 
-    assert len(statements) == 1
-    assert result["count"] == 3
-    assert [e.entity for e in result["entities"]] == ([1, 2] if offset == 0 else [])
+    assert len(statements) == statement_count
+    assert result["count"] == len(expected)
+    assert [e.entity for e in result["entities"]] == expected[offset : offset + 2]
     assert all(e.geometry is None and e.point is None for e in result["entities"])

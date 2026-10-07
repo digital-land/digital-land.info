@@ -45,6 +45,18 @@ def get_point(params):
     return None
 
 
+def has_location_filters(params, *, include_curie=True):
+    """Detect location filters, optionally excluding CURIE for its count shortcut."""
+    return (
+        get_point(params) is not None
+        or any(
+            params.get(key)
+            for key in ("geometry", "geometry_entity", "geometry_reference")
+        )
+        or (include_curie and bool(params.get("geometry_curie")))
+    )
+
+
 def get_spatial_function_for_relation(relation):
     from sqlalchemy import func
 
