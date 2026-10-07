@@ -178,8 +178,9 @@ def _search_with_shared_matches(session, count_subquery, params, extension):
 
 
 def _entity_count_subquery(session, basequery, params):
-    # Other location filters may restrict rows or introduce multiplicity. Keep
-    # the complete query for those combinations.
+    # Only CURIE-only location searches can use the direct matches shortcut.
+    # Otherwise, select IDs from the complete query to preserve all filters
+    # and any duplicate matches.
     if not params.get("geometry_curie") or has_location_filters(
         params, include_curie=False
     ):
