@@ -118,7 +118,7 @@ def get_entity_search(
     basequery = _apply_period_option_filter(basequery, params)
 
     count_subquery = _entity_count_subquery(session, basequery, params)
-    # As location filters introduce multiplicity, we need to materialise the matching IDs once for both the total and page queries.
+    # As location filters introduce multiplicity, we need to materialize the matching IDs once for total and page
     if has_location_filters(params):
         return _search_with_shared_matches(session, count_subquery, params, extension)
 
