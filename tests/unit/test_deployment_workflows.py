@@ -120,9 +120,20 @@ def test_publish_test_bypass_is_limited_to_dev_diagnostic_branch(
         expression = expression.strip()[3:-2].strip()
         expression = re.sub(r"!(?!=)", " not ", expression)
         expression = expression.replace("&&", " and ").replace("||", " or ")
+        expression = expression.replace(
+            "needs.detect-environments", "needs.detect_environments"
+        )
         return eval(expression.strip(), {"__builtins__": {}}, context)
 
     assert evaluate(jobs["test"]["if"]) is (not allowed)
     assert evaluate(jobs["detect-environments"]["if"]) is (
         not cancelled and (result == "success" or (result == "skipped" and allowed))
     )
+    # Publishing must explicitly override the default success() check when
+    # tests were skipped, while still requiring successful environment detection.
+    assert "cancelled()" in jobs["publish"]["if"]
+    for detection_result in ("success", "failure", "skipped", "cancelled"):
+        context["needs"].detect_environments = SimpleNamespace(result=detection_result)
+        assert evaluate(jobs["publish"]["if"]) is (
+            not cancelled and detection_result == "success"
+        )

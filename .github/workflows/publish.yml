@@ -47,6 +47,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: [detect-environments]
+    if: ${{ !cancelled() && needs.detect-environments.result == 'success' }}
     permissions:
       id-token: write
       contents: read
