@@ -352,6 +352,8 @@ export default class LayerControls {
       // pass correct this arg
       enabledLayers.forEach(layer => layer.enable());
       disabledLayers.forEach(layer => layer.disable());
+
+      this.mapController.datasetZoomAlerts?.update();
     }
 
     enabledLayers() {

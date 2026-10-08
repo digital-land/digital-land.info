@@ -1,5 +1,6 @@
 import BrandImageControl from "./BrandImageControl.js";
 import CopyrightControl from "./CopyrightControl.js";
+import DatasetZoomAlerts from "./DatasetZoomAlerts.js";
 import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter, preventScroll } from "./utils.js";
@@ -302,6 +303,7 @@ export default class MapController {
     if(this.LayerControlOptions.enabled){
       this.layerControlsComponent = new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions);
       this.map.addControl(this.layerControlsComponent, 'top-right');
+      this.datasetZoomAlerts = new DatasetZoomAlerts(this, this.layerControlsComponent);
     }
   }
 
