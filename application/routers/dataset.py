@@ -18,7 +18,11 @@ from application.data_access.digital_land_queries import (
     get_providers_for_dataset,
 )
 
-from application.data_access.entity_queries import get_entity_count, get_entity_search
+from application.data_access.entity_queries import (
+    EntityCountCacheBusy,
+    get_entity_count,
+    get_entity_search,
+)
 from application.core.templates import templates
 from application.core.models import AUTHORITATIVE_QUALITIES
 from application.core.utils import DigitalLandJSONResponse, to_snake
@@ -28,6 +32,19 @@ from application.db.session import get_session, get_redis, DbSession
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _get_cached_entity_count(session, datasets=None):
+    try:
+        if datasets is None:
+            return get_entity_count(session)
+        return get_entity_count(session, datasets=datasets)
+    except EntityCountCacheBusy:
+        raise HTTPException(
+            status_code=503,
+            detail="Dataset counts are being refreshed. Please retry shortly.",
+            headers={"Retry-After": "30"},
+        )
 
 
 def get_origin_label(dataset):
@@ -69,7 +86,7 @@ def list_datasets(
     if query_filters.dataset:
         datasets = [ds for ds in datasets if ds.dataset in query_filters.dataset]
 
-    entity_counts_response = get_entity_count(session)
+    entity_counts_response = _get_cached_entity_count(session)
     entity_counts = {count[0]: count[1] for count in entity_counts_response}
     # add entity count if available
     for dataset in datasets:
@@ -145,7 +162,7 @@ def get_dataset(
         if is_json and "entity_count" in exclude_fields:
             return _dataset.model_dump(exclude=exclude_fields, by_alias=True)
 
-        entity_counts = get_entity_count(session, datasets=[dataset])
+        entity_counts = _get_cached_entity_count(session, datasets=[dataset])
         entity_count = entity_counts[0][1] if entity_counts else 0
 
         if is_json:

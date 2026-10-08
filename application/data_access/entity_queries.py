@@ -1,5 +1,8 @@
 import logging
+import hashlib
+import json
 import sentry_sdk
+from redis.exceptions import RedisError
 
 from typing import Optional, List, Tuple
 from sqlalchemy import select, func, or_, and_, tuple_, union_all, true
@@ -19,7 +22,13 @@ from application.data_access.entity_query_helpers import (
 )
 from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
-from application.db.session import redis_cache, DbSession, get_context_session
+from application.db.session import (
+    redis_cache,
+    DbSession,
+    get_context_session,
+    get_redis,
+)
+from application.settings import get_settings
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
@@ -51,10 +60,89 @@ def get_entity_query(
             return entity_factory(entity), None, None
 
 
+class EntityCountCacheBusy(Exception):
+    """Another request is populating the requested dataset counts."""
+
+
 def get_entity_count(
     session: Session,
     datasets: Optional[List[str]] = None,
 ):
+    """Cache dataset counts for six hours and prevent concurrent cache fills."""
+    client = get_redis()
+    if client is None:
+        return _query_entity_count(session, datasets)
+
+    selection = sorted(set(datasets)) if datasets is not None else None
+    digest = hashlib.sha256(json.dumps(selection).encode()).hexdigest()
+    key = f"cache:entity-counts:v1:{digest}"
+
+    def read_cache():
+        cached = client.get(key)
+        if cached is None:
+            return None
+        try:
+            rows = json.loads(cached)
+            if not isinstance(rows, list) or any(
+                not isinstance(row, list)
+                or len(row) != 2
+                or (row[0] is not None and not isinstance(row[0], str))
+                or type(row[1]) is not int
+                or row[1] < 0
+                for row in rows
+            ):
+                raise ValueError("Invalid dataset count cache")
+            return [tuple(row) for row in rows]
+        except (ValueError, TypeError):
+            logger.warning("Invalid cached entity counts for %s", key)
+            return None
+
+    try:
+        cached = read_cache()
+        if cached is not None:
+            return cached
+        lock = client.lock(
+            f"{key}:lock",
+            timeout=(get_settings().DB_STATEMENT_TIMEOUT_MS or 600000) / 1000 + 60,
+        )
+        acquired = lock.acquire(blocking=False)
+    except RedisError:
+        logger.warning(
+            "Entity count cache unavailable; querying database", exc_info=True
+        )
+        return _query_entity_count(session, datasets)
+
+    if not acquired:
+        # The fill may have completed between the cache read and lock attempt.
+        try:
+            cached = read_cache()
+        except RedisError:
+            cached = None
+        if cached is not None:
+            return cached
+        raise EntityCountCacheBusy()
+
+    try:
+        try:
+            cached = read_cache()
+        except RedisError:
+            cached = None
+        if cached is not None:
+            return cached
+        rows = _query_entity_count(session, datasets)
+        try:
+            client.setex(key, 60 * 60 * 6, json.dumps([list(row) for row in rows]))
+        except RedisError:
+            logger.warning("Unable to cache entity counts", exc_info=True)
+        return rows
+    finally:
+        try:
+            lock.release()
+        except RedisError:
+            logger.warning("Unable to release entity count cache lock", exc_info=True)
+
+
+def _query_entity_count(session, datasets):
     sql = select(EntityOrm.dataset, func.count())
     sql = sql.group_by(EntityOrm.dataset)
     if datasets is not None:

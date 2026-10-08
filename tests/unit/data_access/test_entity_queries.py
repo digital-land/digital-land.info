@@ -22,6 +22,7 @@ from application.db.models import EntityOrm
     ],
 )
 def test_get_entity_count_filters(mocker, filters, expected_where):
+    mocker.patch("application.data_access.entity_queries.get_redis", return_value=None)
     session = mocker.MagicMock()
     result = get_entity_count(session, **filters)
     statement = session.execute.call_args.args[0]
