@@ -84,6 +84,22 @@ def curie_entities(db_session, request):
         ({"geometry_reference": ["A"]}, [1, 2, 5]),
         ({"geometry_entity": [103]}, []),
         ({"geometry_reference": ["missing"]}, []),
+        ({"geometry_entity": [104]}, []),
+        ({"geometry_reference": ["invalid"]}, []),
+        ({"geometry_reference": ["A"], "period": ["historical"]}, [4]),
+        (
+            {"geometry_entity": [100], "geometry_reference": ["B"]},
+            [1, 2, 5],
+        ),
+        (
+            {
+                "geometry": [
+                    "POLYGON((0 0,10 0,10 10,0 10,0 0))",
+                    "POLYGON((0 0,8 0,8 8,0 8,0 0))",
+                ]
+            },
+            [1, 2, 5],
+        ),
         ({"longitude": 1, "latitude": 1}, [1, 5]),
         (
             {"geometry": ["POLYGON((0 0,10 0,10 10,0 10,0 0))"]},
@@ -188,3 +204,38 @@ def test_search_fields_and_statement_count(
     assert result["count"] == len(expected)
     assert [e.entity for e in result["entities"]] == expected[offset : offset + 2]
     assert all(e.geometry is None and e.point is None for e in result["entities"])
+
+
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"geometry_entity": [100]},
+        {"geometry_reference": ["A"]},
+        {"geometry": ["POLYGON((0 0,10 0,10 10,0 10,0 0))"]},
+    ],
+)
+@pytest.mark.parametrize(
+    "relation, expected",
+    [
+        ("within", [1, 2, 5]),
+        ("intersects", [1, 2, 5]),
+        # Entity 2 matches through its outside polygon despite its inside point.
+        ("disjoint", [2, 3]),
+        ("equals", []),
+    ],
+)
+def test_split_location_matches_preserve_relations(
+    db_session, curie_entities, filters, relation, expected
+):
+    result = get_entity_search(
+        db_session,
+        {
+            "dataset": ["target"],
+            "period": ["current"],
+            "geometry_relation": relation,
+            **filters,
+        },
+        SuffixEntity.json,
+    )
+    assert result["count"] == len(expected)
+    assert [entity.entity for entity in result["entities"]] == expected

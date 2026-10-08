@@ -379,19 +379,28 @@ def _union_of(branches):
 
 
 def _curie_matches(session, params):
-    curies = params["geometry_curie"]
+    split_curies = [tuple(curie.split(":")) for curie in params["geometry_curie"]]
+    return _boundary_matches(
+        session,
+        params,
+        tuple_(EntityOrm.prefix, EntityOrm.reference).in_(split_curies),
+        "curie_boundaries",
+    )
+
+
+def _boundary_matches(session, params, boundary_filter, boundary_name):
+    """Match polygons and points separately, keeping each entity-boundary pair."""
     spatial_function = get_spatial_function_for_relation(
         params.get("geometry_relation", GeometryRelation.within)
     )
-    split_curies = [tuple(curie.split(":")) for curie in curies]
     boundaries = (
         select(EntityOrm.entity.label("boundary_entity"), EntityOrm.geometry)
         .where(
-            tuple_(EntityOrm.prefix, EntityOrm.reference).in_(split_curies),
+            boundary_filter,
             EntityOrm.geometry.is_not(None),
             func.ST_IsValid(EntityOrm.geometry),
         )
-        .cte("curie_boundaries")
+        .cte(boundary_name)
         .prefix_with("MATERIALIZED", dialect="postgresql")
     )
     branches = []
@@ -412,8 +421,8 @@ def _curie_matches(session, params):
         branches.append(branch)
 
     # Deduplicate geometry/point matches for each entity-boundary pair.
-    # Keeping boundary identity preserves the existing single-CURIE count
-    # when one CURIE resolves to multiple boundary entities.
+    # Keeping boundary identity preserves multiplicity until the outer query
+    # applies the existing grouping rules for each location filter.
     return branches[0].union(branches[1]).subquery()
 
 
@@ -480,23 +489,17 @@ def _apply_location_filters(session, query, params):
 
         # Entities from EntityOrm (for all other datasets)
         if entity_filter is not None:
-            branches.append(
-                select(EntityOrm.entity).where(
+            for column in (EntityOrm.geometry, EntityOrm.point):
+                branch = select(EntityOrm.entity).where(
                     entity_filter,
-                    or_(
-                        and_(
-                            EntityOrm.geometry.is_not(None),
-                            func.ST_IsValid(EntityOrm.geometry),
-                            spatial_function(EntityOrm.geometry, geom),
-                        ),
-                        and_(
-                            EntityOrm.point.is_not(None),
-                            func.ST_IsValid(EntityOrm.point),
-                            spatial_function(EntityOrm.point, geom),
-                        ),
-                    ),
+                    column.is_not(None),
+                    func.ST_IsValid(column),
+                    spatial_function(column, geom),
                 )
-            )
+                branch = _apply_base_filters(branch, params)
+                branch = _apply_date_filters(branch, params)
+                branch = _apply_period_option_filter(branch, params)
+                branches.append(branch)
 
         # Combine results with UNION ALL
         entity_matches.append(_union_of(branches))
@@ -510,59 +513,23 @@ def _apply_location_filters(session, query, params):
 
     intersecting_entities = params.get("geometry_entity", [])
     if intersecting_entities:
-        intersecting_entities_query = (
-            session.query(EntityOrm.geometry)
-            .filter(EntityOrm.entity.in_(intersecting_entities))
-            .group_by(EntityOrm.entity, EntityOrm.geometry)
-            .subquery()
+        matches = _boundary_matches(
+            session,
+            params,
+            EntityOrm.entity.in_(intersecting_entities),
+            "entity_boundaries",
         )
-
-        query = query.join(
-            intersecting_entities_query,
-            or_(
-                and_(
-                    EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
-                    func.ST_IsValid(intersecting_entities_query.c.geometry),
-                    spatial_function(
-                        EntityOrm.geometry,
-                        intersecting_entities_query.c.geometry,
-                    ),
-                ),
-                and_(
-                    EntityOrm.point.is_not(None),
-                    func.ST_IsValid(intersecting_entities_query.c.geometry),
-                    spatial_function(
-                        EntityOrm.point, intersecting_entities_query.c.geometry
-                    ),
-                ),
-            ),
-        )
+        query = query.join(matches, EntityOrm.entity == matches.c.matched_entity)
 
     references = params.get("geometry_reference", [])
     if references:
-        reference_query = (
-            session.query(EntityOrm.geometry)
-            .filter(EntityOrm.reference.in_(references))
-            .group_by(EntityOrm)
-            .subquery()
+        matches = _boundary_matches(
+            session,
+            params,
+            EntityOrm.reference.in_(references),
+            "reference_boundaries",
         )
-        query = query.join(
-            reference_query,
-            or_(
-                and_(
-                    EntityOrm.geometry.is_not(None),
-                    func.ST_IsValid(EntityOrm.geometry),
-                    func.ST_IsValid(reference_query.c.geometry),
-                    spatial_function(EntityOrm.geometry, reference_query.c.geometry),
-                ),
-                and_(
-                    EntityOrm.point.is_not(None),
-                    func.ST_IsValid(reference_query.c.geometry),
-                    spatial_function(EntityOrm.point, reference_query.c.geometry),
-                ),
-            ),
-        )
+        query = query.join(matches, EntityOrm.entity == matches.c.matched_entity)
 
     curies = params.get("geometry_curie", [])
     if curies:
