@@ -114,13 +114,11 @@ def get_entity_search(
     basequery = session.query(EntityOrm)
     basequery = _apply_base_filters(basequery, params)
     basequery = _apply_date_filters(basequery, params)
-    basequery = _apply_location_filters(session, basequery, params)
+    # Diagnostic branch: ignore location filters to isolate their effect on dev.
     basequery = _apply_period_option_filter(basequery, params)
 
-    count_subquery = _entity_count_subquery(session, basequery, params)
-    # As location filters introduce multiplicity, we need to materialize the matching IDs once for total and page
-    if has_location_filters(params):
-        return _search_with_shared_matches(session, count_subquery, params, extension)
+    # Bypass CURIE matching and shared spatial matches as well as the page filter.
+    count_subquery = basequery.with_entities(EntityOrm.entity).subquery()
 
     with sentry_sdk.start_span(op="entity.search", name="count.execute_fetch"):
         count = session.query(func.count()).select_from(count_subquery).scalar()
