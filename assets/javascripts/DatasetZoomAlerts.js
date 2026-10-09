@@ -1,4 +1,5 @@
 import { getDatasetMinZoom } from "./datasetMinZoomLevels.js";
+import { trackEvent } from "./analytics/trackEvent.js";
 
 /**
  * Messaging to inform user to zoom in to view datasets which have
@@ -82,6 +83,8 @@ export default class DatasetZoomAlerts {
 
     this._container.appendChild(alert);
     this.alertElements[dataset] = alert;
+
+    trackEvent('zoom_alert_shown', { dataset });
   }
 
   hideAlert(dataset) {
@@ -95,5 +98,7 @@ export default class DatasetZoomAlerts {
   dismiss(dataset) {
     this.dismissed[dataset] = true;
     this.hideAlert(dataset);
+
+    trackEvent('zoom_alert_dismissed', { dataset });
   }
 }
