@@ -169,6 +169,10 @@ If the geometry is the boundary of a building, you can provide the Unique Proper
 
 If you provide the UPRN, you must also provide the address text.
 
+If your uprns field includes multiple values, enter them in a list and separate each of them with a semi-colon.
+
+Example: `8286876065;885869861345;21992016452`
+
 ### address-texts
 
 If the geometry is the boundary of a building, you can provide the address of the article 4 direction, written as text.
@@ -176,6 +180,10 @@ If the geometry is the boundary of a building, you can provide the address of th
 If you provide the address text, you must also provide the UPRN.
 
 Example: `100 High Street, Bath`
+
+If your address-texts field includes multiple values, enter them in a list and separate each of them with a semi-colon.
+
+Example: `100 High Street, Bath;68 Church Street, Bath`
 
 ### article-4-direction
 
@@ -224,4 +232,3 @@ Example: `2022-12-20`
 ###Technical specification
 
 [Article 4 direction technical specification](https://digital-land.github.io/specification/specification/article-4-direction/).
-
