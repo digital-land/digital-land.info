@@ -1,11 +1,16 @@
-import { describe, expect, test, vi, beforeEach } from 'vitest'
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest'
 import DatasetZoomAlerts from '../../../assets/javascripts/DatasetZoomAlerts.js'
+import { trackEvent } from '../../../assets/javascripts/analytics/trackEvent.js'
 
 vi.mock('../../../assets/javascripts/datasetMinZoomLevels.js', () => ({
   getDatasetMinZoom: (dataset) => {
     const levels = { 'restricted-dataset': 13, 'another-restricted-dataset': 10 }
     return levels[dataset] ?? null
   },
+}))
+
+vi.mock('../../../assets/javascripts/analytics/trackEvent.js', () => ({
+  trackEvent: vi.fn(),
 }))
 
 function mockElement() {
@@ -50,6 +55,11 @@ function mockLayerOption(dataset, name, checked) {
 describe('DatasetZoomAlerts', () => {
   beforeEach(() => {
     vi.stubGlobal('document', { createElement: vi.fn(() => mockElement()) })
+    trackEvent.mockClear()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
   describe('visibility', () => {
@@ -177,6 +187,43 @@ describe('DatasetZoomAlerts', () => {
       alerts.dismiss('restricted-dataset')
       expect(alerts.alertElements['another-restricted-dataset']).toBeDefined()
       expect(alerts.alertElements['restricted-dataset']).toBeUndefined()
+    })
+  })
+
+  describe('tracking', () => {
+    test('fires a zoom_alert_shown event with the dataset when the alert first appears', () => {
+      const option = mockLayerOption('restricted-dataset', 'Restricted dataset', true)
+      const layerControls = { layerOptions: [option] }
+      new DatasetZoomAlerts(mockMapController(6), layerControls)
+
+      expect(trackEvent).toHaveBeenCalledWith('zoom_alert_shown', {
+        dataset: 'restricted-dataset',
+      })
+    })
+
+    test('does not fire a duplicate shown event on subsequent update() calls while still below minzoom', () => {
+      const option = mockLayerOption('restricted-dataset', 'Restricted dataset', true)
+      const mapController = mockMapController(6)
+      const layerControls = { layerOptions: [option] }
+      const alerts = new DatasetZoomAlerts(mapController, layerControls)
+
+      alerts.update()
+      alerts.update()
+
+      expect(trackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    test('fires a zoom_alert_dismissed event with the dataset when dismissed', () => {
+      const option = mockLayerOption('restricted-dataset', 'Restricted dataset', true)
+      const layerControls = { layerOptions: [option] }
+      const alerts = new DatasetZoomAlerts(mockMapController(6), layerControls)
+      trackEvent.mockClear() // ignore the 'shown' event fired on construction
+
+      alerts.dismiss('restricted-dataset')
+
+      expect(trackEvent).toHaveBeenCalledWith('zoom_alert_dismissed', {
+        dataset: 'restricted-dataset',
+      })
     })
   })
 })
