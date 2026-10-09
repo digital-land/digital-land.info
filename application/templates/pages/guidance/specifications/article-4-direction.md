@@ -171,7 +171,7 @@ If you provide the UPRN, you must also provide the address text.
 
 If your uprns field includes multiple values, enter them in a list and separate each of them with a semi-colon.
 
-Example: 8286876065;885869861345;21992016452
+Example: `8286876065;885869861345;21992016452`
 
 ### address-texts
 
@@ -183,7 +183,7 @@ Example: `100 High Street, Bath`
 
 If your address-texts field includes multiple values, enter them in a list and separate each of them with a semi-colon.
 
-Example: 100 High Street, Bath;68 Church Street, Bath
+Example: `100 High Street, Bath;68 Church Street, Bath`
 
 ### article-4-direction
 
