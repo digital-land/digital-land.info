@@ -17,6 +17,7 @@ const mapMock = {
     addLayer: vi.fn(),
     addControl: vi.fn(),
     flyTo: vi.fn(),
+    getZoom: vi.fn().mockImplementation(() => 10),
     getContainer: vi.fn().mockImplementation(() => {
         return domElementMock;
     }),
