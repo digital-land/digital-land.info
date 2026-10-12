@@ -346,6 +346,7 @@ def add_middleware(app, settings):
             traces_sample_rate=settings.SENTRY_TRACE_SAMPLE_RATE,
             release=settings.RELEASE_TAG,
             enable_logs=True,
+            ignore_errors=["TimeoutError", "OperationalError"],
             integrations=[sentry_logging],
         )
         app.add_middleware(SentryAsgiMiddleware)
