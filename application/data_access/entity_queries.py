@@ -2,7 +2,7 @@ import logging
 import sentry_sdk
 
 from typing import Optional, List, Tuple
-from sqlalchemy import select, func, or_, and_, tuple_, union_all
+from sqlalchemy import select, func, or_, and_, tuple_, union_all, true
 from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
@@ -119,35 +119,58 @@ def get_entity_search(
 
     count_subquery = _entity_count_subquery(session, basequery, params)
 
+    if has_location_filters(params):
+        return _search_with_shared_matches(session, count_subquery, params, extension)
+
     with sentry_sdk.start_span(op="entity.search", name="count.execute_fetch"):
         count = session.query(func.count()).select_from(count_subquery).scalar()
 
-    if has_location_filters(params):
-        # Page matching IDs separately from the count, then retrieve full rows.
-        # Grouping IDs first also supports views without an inferred primary key.
-        matched_id = list(count_subquery.c)[0]
-        page_ids = (
-            select(matched_id.label("entity"))
-            .order_by(matched_id)
-            .limit(params.get("limit"))
-            .offset(params.get("offset"))
-            .subquery()
-        )
-        query = (
-            session.query(EntityOrm)
-            .join(page_ids, EntityOrm.entity == page_ids.c.entity)
-            .order_by(EntityOrm.entity)
-        )
-    else:
-        query = _apply_limit_and_pagination_filters(basequery, params)
+    query = _apply_limit_and_pagination_filters(basequery, params)
+    query = _apply_field_filters(query, params, extension)
+    with sentry_sdk.start_span(op="entity.search", name="page.execute_fetch"):
+        rows = query.all()
+    with sentry_sdk.start_span(op="entity.search", name="models.convert"):
+        entities = [entity_factory(row) for row in rows]
+    return {"params": params, "count": count, "entities": entities}
+
+
+def _search_with_shared_matches(session, count_subquery, params, extension):
+    # Materialize matching IDs once; both the exact count and page reuse them.
+    matches = (
+        select(list(count_subquery.c)[0].label("entity"))
+        .cte("search_matches")
+        .prefix_with("MATERIALIZED", dialect="postgresql")
+    )
+    total = select(func.count().label("total")).select_from(matches).subquery()
+    page = (
+        select(matches.c.entity)
+        .order_by(matches.c.entity)
+        .limit(params.get("limit"))
+        .offset(params.get("offset"))
+        .cte("search_page")
+    )
+    # Keep the total even when the requested page is empty.
+    query = (
+        session.query(EntityOrm)
+        .select_from(total)
+        .outerjoin(page, true())
+        .outerjoin(EntityOrm, EntityOrm.entity == page.c.entity)
+        .order_by(page.c.entity)
+    )
     query = _apply_field_filters(query, params, extension)
     orm_result = query.is_single_entity
-
-    with sentry_sdk.start_span(op="entity.search", name="page.execute_fetch"):
-        rows = query.add_columns(EntityOrm.entity.label("_matched_entity")).all()
+    with sentry_sdk.start_span(op="entity.search", name="shared_query.execute_fetch"):
+        rows = query.add_columns(
+            total.c.total.label("_search_count"),
+            page.c.entity.label("_matched_entity"),
+        ).all()
     with sentry_sdk.start_span(op="entity.search", name="models.convert"):
-        entities = [entity_factory(row[0] if orm_result else row) for row in rows]
-    return {"params": params, "count": count, "entities": entities}
+        entities = [
+            entity_factory(row[0] if orm_result else row)
+            for row in rows
+            if row._matched_entity is not None
+        ]
+    return {"params": params, "count": rows[0]._search_count, "entities": entities}
 
 
 def _entity_count_subquery(session, basequery, params):
