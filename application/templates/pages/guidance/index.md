@@ -86,6 +86,14 @@ Help with providing data using an ArcGIS data layer
 
 You only need to make changes to your data at your endpoint URL. Do not change your endpoint URL when you make updates.
 
+### Using multiple endpoints
+
+We recommend that you host your data using one endpoint.
+
+You can choose to use multiple endpoints to host your data. For example. using a different endpoint for each year of your brownfield land register or hosting different endpoints for active and historic entities. If you choose to do this, we will combine your data to create a single dataset.
+
+If you want us to stop collecting data from a previous endpoint, email [digitalland@communities.go.uk](mailto:digitalland@communities.go.uk) to request that we remove it from the Planning Data platform.
+
 ### Create your webpage
 
 For each dataset, your webpage must include a:
