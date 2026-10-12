@@ -45,7 +45,7 @@
       <!-- /.govuk-grid-column-one-third -->
       <div class="govuk-grid-column-two-thirds" id="search-results" role="region" aria-label="Search results" aria-busy="false">
         <div class="app-results-summary">
-          <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
+          <h2 class="app-results-summary__title">{% if count_is_capped %}More than {% endif %}{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
           {% macro removeFilterButton(params) %}
           <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" aria-label="Remove filter for {{ params.filter.name }}">
             <span class="app-facet-tag__icon" aria-hidden="true">

@@ -35,6 +35,7 @@ from sqlalchemy.orm import aliased
 
 logger = logging.getLogger(__name__)
 complex_datasets = ["flood-risk-zone"]
+SPATIAL_COUNT_LIMIT = 500
 
 
 def get_entity_query(
@@ -202,23 +203,47 @@ def get_entity_search(
     basequery = session.query(EntityOrm)
     basequery = _apply_base_filters(basequery, params)
     basequery = _apply_date_filters(basequery, params)
-    # Diagnostic branch: ignore location filters to isolate their effect on dev.
+    basequery = _apply_location_filters(session, basequery, params)
     basequery = _apply_period_option_filter(basequery, params)
 
-    # Bypass CURIE matching and shared spatial matches as well as the page filter.
-    count_subquery = basequery.with_entities(EntityOrm.entity).subquery()
+    spatial_search = has_location_filters(params)
+    count_query = basequery.with_entities(EntityOrm.entity)
+    if spatial_search:
+        # Fetch one extra match to distinguish exactly 500 from more than 500.
+        # Avoid the shared materialized CTE, which would collect every match.
+        count_query = count_query.limit(SPATIAL_COUNT_LIMIT + 1)
+    count_subquery = count_query.subquery()
 
     with sentry_sdk.start_span(op="entity.search", name="count.execute_fetch"):
         count = session.query(func.count()).select_from(count_subquery).scalar()
 
-    query = _apply_limit_and_pagination_filters(basequery, params)
+    if spatial_search:
+        # Group IDs before retrieving full rows; this also works through views
+        # where PostgreSQL cannot infer the entity primary key.
+        page_ids = _apply_limit_and_pagination_filters(
+            basequery.with_entities(EntityOrm.entity), params
+        ).subquery()
+        query = (
+            session.query(EntityOrm)
+            .join(page_ids, EntityOrm.entity == page_ids.c.entity)
+            .order_by(EntityOrm.entity)
+        )
+    else:
+        query = _apply_limit_and_pagination_filters(basequery, params)
     query = _apply_field_filters(query, params, extension)
+    orm_result = query.is_single_entity
 
     with sentry_sdk.start_span(op="entity.search", name="page.execute_fetch"):
-        rows = query.all()
+        # Adding a column preserves matching-row multiplicity for ORM results.
+        rows = query.add_columns(EntityOrm.entity.label("_matched_entity")).all()
     with sentry_sdk.start_span(op="entity.search", name="models.convert"):
-        entities = [entity_factory(entity_orm) for entity_orm in rows]
-    return {"params": params, "count": count, "entities": entities}
+        entities = [entity_factory(row[0] if orm_result else row) for row in rows]
+    return {
+        "params": params,
+        "count": min(count, SPATIAL_COUNT_LIMIT) if spatial_search else count,
+        "count_is_capped": spatial_search and count > SPATIAL_COUNT_LIMIT,
+        "entities": entities,
+    }
 
 
 def _search_with_shared_matches(session, count_subquery, params, extension):

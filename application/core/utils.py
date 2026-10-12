@@ -130,6 +130,33 @@ def make_links(scheme, netloc, path, query, data):
     limit = data["params"].get("limit", 10)
     offset = data["params"].get("offset", 0)
 
+    if data.get("count_is_capped"):
+        if limit <= 0:
+            return {}
+        links = {}
+        for name, page_offset in (("first", 0), ("prev", max(0, offset - limit))):
+            if offset > 0:
+                links[name] = urlunsplit(
+                    (
+                        scheme,
+                        netloc,
+                        path,
+                        make_pagination_query_str(query, limit, page_offset),
+                        "",
+                    )
+                )
+        if len(data["entities"]) >= limit:
+            links["next"] = urlunsplit(
+                (
+                    scheme,
+                    netloc,
+                    path,
+                    make_pagination_query_str(query, limit, offset + limit),
+                    "",
+                )
+            )
+        return links
+
     # note api validation ensures limit > 0 but handle ZeroDivisionError
     try:
         page_count = count / limit

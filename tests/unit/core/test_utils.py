@@ -145,3 +145,24 @@ class TestEntityQualityMapsToDescription:
 
         # Should title case the quality even if description not found
         assert result["quality"] == "Special quality"
+
+
+@pytest.mark.parametrize("returned, has_next", [(10, True), (3, False), (0, False)])
+def test_capped_count_pagination(returned, has_next):
+    from application.core.utils import make_links
+
+    links = make_links(
+        "https",
+        "example.com",
+        "/entity/",
+        "offset=500",
+        {
+            "params": {"limit": 10, "offset": 500},
+            "count": 500,
+            "count_is_capped": True,
+            "entities": [None] * returned,
+        },
+    )
+    assert "last" not in links
+    assert "prev" in links
+    assert ("next" in links) is has_next

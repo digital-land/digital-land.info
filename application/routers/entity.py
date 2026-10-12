@@ -510,7 +510,12 @@ def search_entities(
             entities = _get_entity_json(data["entities"], exclude=exclude_fields)
         else:
             entities = _get_entity_json(data["entities"])
-        return {"entities": entities, "links": links, "count": data["count"]}
+        return {
+            "entities": entities,
+            "links": links,
+            "count": data["count"],
+            "count_is_capped": data.get("count_is_capped", False),
+        }
 
     if extension == SuffixEntity.geojson:
         if params.get("exclude_field") is not None:
@@ -568,6 +573,7 @@ def search_entities(
         "search.html",
         {
             "count": data["count"],
+            "count_is_capped": data.get("count_is_capped", False),
             "limit": params["limit"],
             "data": data["entities"],
             "datasets": datasets,

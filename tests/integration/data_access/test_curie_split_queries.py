@@ -143,29 +143,29 @@ def test_curie_split_results_and_count(
         ({"entity": [2]}, [2], 2),
         ({"dataset": ["other"]}, [], 2),
         ({"period": ["historical"]}, [4], 2),
-        ({"geometry_curie": ["area:A", "area:B"]}, [1, 2, 5], 1),
-        ({"geometry_entity": [100]}, [1, 2, 5], 1),
-        ({"geometry_entity": [100, 102]}, [1, 2, 5], 1),
-        ({"geometry_reference": ["A"]}, [1, 2, 5], 1),
-        ({"longitude": 1, "latitude": 1}, [1, 5], 1),
+        ({"geometry_curie": ["area:A", "area:B"]}, [1, 2, 5], 2),
+        ({"geometry_entity": [100]}, [1, 2, 5], 2),
+        ({"geometry_entity": [100, 102]}, [1, 2, 5], 2),
+        ({"geometry_reference": ["A"]}, [1, 2, 5], 2),
+        ({"longitude": 1, "latitude": 1}, [1, 5], 2),
         (
             {"geometry": ["POLYGON((0 0,10 0,10 10,0 10,0 0))"]},
             [1, 2, 5],
-            1,
+            2,
         ),
         (
             {"geometry_entity": [100], "longitude": 1, "latitude": 1},
             [1, 5],
-            1,
+            2,
         ),
-        ({"geometry_entity": [103]}, [], 1),
-        ({"geometry_curie": ["area:missing"]}, [], 1),
-        ({"geometry_reference": ["missing"]}, [], 1),
-        ({"longitude": 30, "latitude": 30}, [], 1),
+        ({"geometry_entity": [103]}, [], 2),
+        ({"geometry_curie": ["area:missing"]}, [], 2),
+        ({"geometry_reference": ["missing"]}, [], 2),
+        ({"longitude": 30, "latitude": 30}, [], 2),
         (
             {"geometry": ["POLYGON((30 30,31 30,31 31,30 31,30 30))"]},
             [],
-            1,
+            2,
         ),
     ],
 )
@@ -239,3 +239,26 @@ def test_split_location_matches_preserve_relations(
     )
     assert result["count"] == len(expected)
     assert [entity.entity for entity in result["entities"]] == expected
+
+
+@pytest.mark.parametrize("size", [500, 501])
+def test_spatial_count_cap_preserves_later_pages(db_session, size):
+    db_session.add_all(
+        [
+            EntityOrm(entity=1000 + i, dataset="cap-test", point="SRID=4326;POINT(1 1)")
+            for i in range(size)
+        ]
+    )
+    db_session.flush()
+    result = get_entity_search(
+        db_session,
+        {
+            "dataset": ["cap-test"],
+            "geometry": ["POLYGON((0 0,2 0,2 2,0 2,0 0))"],
+            "limit": 10,
+            "offset": 500,
+        },
+    )
+    assert result["count"] == 500
+    assert result["count_is_capped"] is (size > 500)
+    assert len(result["entities"]) == size - 500
