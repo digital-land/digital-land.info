@@ -89,18 +89,6 @@ make emptyDatabase
 
 
 
-### Dataset entity counts
-
-The dataset list and individual dataset pages share a Redis cache of entity
-counts, stored as a dataset-to-count mapping under `cache:dataset-entity-counts`.
-The cache expires after 15 minutes and is filled by the next request needing
-counts. Counts can therefore lag behind data loads by up to 15 minutes.
-
-An empty or unavailable cache requires a count across all datasets, including
-when an individual dataset page fills it. Concurrent cache misses can still
-run that query independently. Requests excluding `entity-count` from an
-individual dataset's JSON response skip the count cache entirely.
-
 ### Run integration tests
 
 Setup a test database
