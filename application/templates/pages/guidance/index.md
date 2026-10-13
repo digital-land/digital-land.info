@@ -92,7 +92,7 @@ We recommend that you host your data using one endpoint.
 
 You can choose to use multiple endpoints to host your data. For example, using a different endpoint for each year of your brownfield land register or hosting different endpoints for active and historic entities. If you choose to do this, we will combine your data to create a single dataset.
 
-If you want us to stop collecting data from a previous endpoint, email [digitalland@communities.go.uk](mailto:digitalland@communities.gov.uk) to request that we remove it from the Planning Data platform.
+If you want us to stop collecting data from a previous endpoint, email [digitalland@communities.gov.uk](mailto:digitalland@communities.gov.uk) to request that we remove it from the Planning Data platform.
 
 ### Create your webpage
 
