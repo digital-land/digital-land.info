@@ -27,13 +27,13 @@ def test_cached_counts_skip_database(db, counts):
     db.redis.get.assert_called_once_with("cache:dataset-entity-counts")
 
 
-def test_cache_miss_round_trips_counts_with_fifteen_minute_expiry(db):
+def test_cache_miss_round_trips_counts_with_default_expiry(db):
     db.redis.get.return_value = None
     counts = get_dataset_entity_counts(db)
 
     assert counts == {"ancient-woodland": 10, "brownfield-land": 20}
     db.redis.setex.assert_called_once_with(
-        "cache:dataset-entity-counts", time=900, value=json.dumps(counts)
+        "cache:dataset-entity-counts", time=21600, value=json.dumps(counts)
     )
     db.redis.get.return_value = db.redis.setex.call_args.kwargs["value"]
 
