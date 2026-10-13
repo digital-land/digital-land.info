@@ -18,7 +18,10 @@ from application.data_access.digital_land_queries import (
     get_providers_for_dataset,
 )
 
-from application.data_access.entity_queries import get_entity_count, get_entity_search
+from application.data_access.entity_queries import (
+    get_dataset_entity_counts,
+    get_entity_search,
+)
 from application.core.templates import templates
 from application.core.models import AUTHORITATIVE_QUALITIES
 from application.core.utils import DigitalLandJSONResponse, to_snake
@@ -69,16 +72,10 @@ def list_datasets(
     if query_filters.dataset:
         datasets = [ds for ds in datasets if ds.dataset in query_filters.dataset]
 
-    entity_counts_response = get_entity_count(session)
-    entity_counts = {count[0]: count[1] for count in entity_counts_response}
+    entity_counts = get_dataset_entity_counts(DbSession(session=session, redis=redis))
     # add entity count if available
     for dataset in datasets:
-        count = (
-            entity_counts.get(dataset.dataset)
-            if entity_counts.get(dataset.dataset)
-            else 0
-        )
-        dataset.entity_count = count
+        dataset.entity_count = entity_counts.get(dataset.dataset, 0)
 
     data = {"datasets": datasets, "feedback_form_footer": True}
 
@@ -125,6 +122,7 @@ def get_dataset(
     # limit: int = Path(default=50,description="Limit number of rows in the response"),
     extension: Optional[SuffixDataset] = None,
     session: Session = Depends(get_session),
+    redis: Redis = Depends(get_redis),
     exclude_field: Annotated[
         Optional[List[str]],
         Query(description="Fields to exclude from dataset JSON response"),
@@ -145,8 +143,10 @@ def get_dataset(
         if is_json and "entity_count" in exclude_fields:
             return _dataset.model_dump(exclude=exclude_fields, by_alias=True)
 
-        entity_counts = get_entity_count(session, datasets=[dataset])
-        entity_count = entity_counts[0][1] if entity_counts else 0
+        entity_counts = get_dataset_entity_counts(
+            DbSession(session=session, redis=redis)
+        )
+        entity_count = entity_counts.get(dataset, 0)
 
         if is_json:
             _dataset.entity_count = entity_count
