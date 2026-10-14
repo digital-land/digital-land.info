@@ -60,6 +60,12 @@ def get_entity_count(
     return result.fetchall()
 
 
+@redis_cache("dataset-entity-counts", model_class=None)
+def get_dataset_entity_counts(session: DbSession) -> dict[str, int]:
+    """Share dataset counts across list and detail requests using the default TTL."""
+    return dict(get_entity_count(session.session))
+
+
 def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     entities = (
         session.query(EntityOrm).filter(EntityOrm.dataset == dataset).limit(limit).all()

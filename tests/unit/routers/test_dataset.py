@@ -10,11 +10,10 @@ from application.routers.dataset import (
 )
 
 from application.core.models import DatasetModel
+from application.db.session import DbSession
 
 
-@pytest.mark.parametrize(
-    "counts, expected", [([("ancient-woodland", 10)], 10), ([], 0)]
-)
+@pytest.mark.parametrize("counts, expected", [({"ancient-woodland": 10}, 10), ({}, 0)])
 def test_get_dataset_count(mocker, multiple_dataset_models, counts, expected):
     session = MagicMock()
     mocker.patch(
@@ -22,7 +21,7 @@ def test_get_dataset_count(mocker, multiple_dataset_models, counts, expected):
         return_value=multiple_dataset_models[0],
     )
     count_query = mocker.patch(
-        "application.routers.dataset.get_entity_count", return_value=counts
+        "application.routers.dataset.get_dataset_entity_counts", return_value=counts
     )
 
     result = get_dataset(
@@ -31,9 +30,10 @@ def test_get_dataset_count(mocker, multiple_dataset_models, counts, expected):
         settings=MagicMock(),
         extension=MagicMock(value="json"),
         session=session,
+        redis=None,
     )
 
-    count_query.assert_called_once_with(session, datasets=["ancient-woodland"])
+    count_query.assert_called_once_with(DbSession(session=session, redis=None))
     assert result.entity_count == expected
 
 
@@ -112,8 +112,8 @@ def test_list_datasets(
         return_value=multiple_dataset_models,
     )
     mock_entity_count = mocker.patch(
-        "application.routers.dataset.get_entity_count",
-        return_value=[(ds.dataset, 10) for ds in multiple_dataset_models],
+        "application.routers.dataset.get_dataset_entity_counts",
+        return_value={ds.dataset: 10 for ds in multiple_dataset_models},
     )
     mocker.patch(
         "application.routers.dataset.get_datasets_by_typology",
@@ -133,7 +133,9 @@ def test_list_datasets(
         redis=None,
     )
     assert len(result["datasets"]) == expected_count
-    mock_entity_count.assert_called_once_with(mock_session)
+    mock_entity_count.assert_called_once_with(
+        DbSession(session=mock_session, redis=None)
+    )
 
     if query_filters and query_filters.field:
         assert "name" in result["datasets"][0]
@@ -169,7 +171,7 @@ def test_get_dataset_skips_excluded_entity_count(
     dataset = multiple_dataset_models[0]
     dataset.entity_count = 99
     mocker.patch("application.routers.dataset.get_dataset_query", return_value=dataset)
-    count = mocker.patch("application.routers.dataset.get_entity_count")
+    count = mocker.patch("application.routers.dataset.get_dataset_entity_counts")
     result = get_dataset(
         request=MagicMock(),
         dataset=dataset.dataset,
@@ -193,8 +195,8 @@ def test_get_dataset_other_exclusions_keep_count(mocker, multiple_dataset_models
         return_value=multiple_dataset_models[0],
     )
     count = mocker.patch(
-        "application.routers.dataset.get_entity_count",
-        return_value=[("ancient-woodland", 10)],
+        "application.routers.dataset.get_dataset_entity_counts",
+        return_value={"ancient-woodland": 10},
     )
     session = MagicMock()
     result = get_dataset(
@@ -203,9 +205,10 @@ def test_get_dataset_other_exclusions_keep_count(mocker, multiple_dataset_models
         settings=MagicMock(),
         extension=MagicMock(value="json"),
         session=session,
+        redis=None,
         exclude_field=["name"],
     )
-    count.assert_called_once_with(session, datasets=["ancient-woodland"])
+    count.assert_called_once_with(DbSession(session=session, redis=None))
     assert "name" not in result
     assert result["entity-count"] == 10
 
@@ -216,7 +219,7 @@ def test_get_dataset_html_keeps_count(mocker, multiple_dataset_models):
         return_value=multiple_dataset_models[0],
     )
     count = mocker.patch(
-        "application.routers.dataset.get_entity_count", return_value=[]
+        "application.routers.dataset.get_dataset_entity_counts", return_value={}
     )
     mocker.patch("application.routers.dataset.get_latest_resource", return_value=None)
     mocker.patch(
@@ -232,9 +235,10 @@ def test_get_dataset_html_keeps_count(mocker, multiple_dataset_models):
         dataset="ancient-woodland",
         settings=MagicMock(),
         session=session,
+        redis=None,
         exclude_field=["entity-count"],
     )
-    count.assert_called_once_with(session, datasets=["ancient-woodland"])
+    count.assert_called_once_with(DbSession(session=session, redis=None))
     assert render.call_args.args[2]["entity_count"] == 0
 
 
@@ -242,7 +246,7 @@ def test_get_dataset_exclusion_preserves_not_found(mocker):
     from fastapi import HTTPException
 
     mocker.patch("application.routers.dataset.get_dataset_query", return_value=None)
-    count = mocker.patch("application.routers.dataset.get_entity_count")
+    count = mocker.patch("application.routers.dataset.get_dataset_entity_counts")
     with pytest.raises(HTTPException) as error:
         get_dataset(
             request=MagicMock(),
@@ -271,7 +275,7 @@ def test_get_dataset_json_exclude_field_query_parameter(
         "application.routers.dataset.get_dataset_query",
         return_value=multiple_dataset_models[0],
     )
-    count = mocker.patch("application.routers.dataset.get_entity_count")
+    count = mocker.patch("application.routers.dataset.get_dataset_entity_counts")
     response = TestClient(app).get(
         "/dataset/ancient-woodland.json?exclude_field=entity-count&exclude_field=name"
     )
@@ -280,3 +284,43 @@ def test_get_dataset_json_exclude_field_query_parameter(
     assert "entity-count" not in response.json()
     assert "name" not in response.json()
     count.assert_not_called()
+
+
+def test_list_and_detail_share_counts_cache(mocker, multiple_dataset_models):
+    mocker.patch(
+        "application.routers.dataset.get_all_datasets",
+        return_value=multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.dataset.get_dataset_query",
+        return_value=multiple_dataset_models[1],
+    )
+    session = MagicMock()
+    session.execute.return_value.fetchall.return_value = [
+        ("ancient-woodland", 10),
+        ("ancient-woodland-status", 20),
+    ]
+    cache = {}
+    redis = MagicMock()
+    redis.get.side_effect = cache.get
+    redis.setex.side_effect = lambda key, time, value: cache.update({key: value})
+
+    listing = list_datasets(
+        request=MagicMock(),
+        extension=MagicMock(value="json"),
+        query_filters=DatasetQueryFilters(dataset=["ancient-woodland"]),
+        session=session,
+        redis=redis,
+    )
+    detail = get_dataset(
+        request=MagicMock(),
+        dataset="ancient-woodland-status",
+        settings=MagicMock(),
+        extension=MagicMock(value="json"),
+        session=session,
+        redis=redis,
+    )
+
+    assert listing["datasets"][0].entity_count == 10
+    assert detail.entity_count == 20
+    session.execute.assert_called_once()
