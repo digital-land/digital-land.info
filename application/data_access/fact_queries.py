@@ -70,12 +70,11 @@ def get_fact_query(fact: str, dataset: str) -> Optional[FactModel]:
         resp = http.get(url, params=params)
         resp.raise_for_status()
         rows = resp.json()
-        # datasette returns empty strings for nulls. is there
-        # a datasette config way to prevent this? for now set empties
-        # to None.
+        # Normalise blank metadata, but preserve empty fact values:
+        # an empty end-date is valid and FactModel.value requires a string.
         for r in rows:
             for key, val in r.items():
-                if not val:
+                if key != "value" and val == "":
                     r[key] = None
         facts = [FactModel(**fact) for fact in rows]
 
@@ -129,12 +128,11 @@ def get_search_facts_query(query_params: List) -> Optional[FactModel]:
         resp = http.get(url, params=params)
         resp.raise_for_status()
         rows = resp.json()
-        # datasette returns empty strings for nulls. is there
-        # a datasette config way to prevent this? for now set empties
-        # to None.
+        # Normalise blank metadata, but preserve empty fact values:
+        # an empty end-date is valid and FactModel.value requires a string.
         for r in rows:
             for key, val in r.items():
-                if not val:
+                if key != "value" and val == "":
                     r[key] = None
         facts = [FactModel(**fact) for fact in rows]
         return facts
