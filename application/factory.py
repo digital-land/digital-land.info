@@ -53,6 +53,15 @@ sentry_logging = LoggingIntegration(
     event_level=logging.ERROR,  # Only send ERROR and above (CRITICAL) to Sentry
 )
 
+
+def sample_sentry_error(event, hint):
+    """Keep 1% of the previously ignored errors and all other error events."""
+    exc_info = hint.get("exc_info")
+    if exc_info and exc_info[0].__name__ in ("TimeoutError", "OperationalError"):
+        return 0.01
+    return 1.0
+
+
 SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
 
 # Add markdown here
@@ -346,7 +355,7 @@ def add_middleware(app, settings):
             traces_sample_rate=settings.SENTRY_TRACE_SAMPLE_RATE,
             release=settings.RELEASE_TAG,
             enable_logs=True,
-            ignore_errors=["TimeoutError", "OperationalError"],
+            error_sampler=sample_sentry_error,
             integrations=[sentry_logging],
         )
         app.add_middleware(SentryAsgiMiddleware)
