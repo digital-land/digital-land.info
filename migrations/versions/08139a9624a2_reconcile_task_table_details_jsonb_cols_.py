@@ -14,10 +14,10 @@ Revises: a41b142924f7
 Create Date: 2026-06-22 12:53:01.587036
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
-
 
 # revision identifiers, used by Alembic.
 revision = "08139a9624a2"

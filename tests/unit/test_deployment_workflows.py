@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 AWS_CREDENTIALS_ACTION = "aws-actions/configure-aws-credentials@"
 DEPLOYMENT_JOBS = (
