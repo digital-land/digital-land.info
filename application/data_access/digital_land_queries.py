@@ -64,12 +64,17 @@ def get_dataset_filter_fields(dataset: DatasetModel, fields: List[str]):
 def get_datasets_with_data_by_typology(
     session: Session, typology
 ) -> List[DatasetModel]:
-    query = session.query(DatasetOrm).join(
-        EntityOrm, DatasetOrm.dataset == EntityOrm.dataset
+    has_entities = (
+        session.query(EntityOrm.entity)
+        .filter(
+            EntityOrm.dataset == DatasetOrm.dataset,
+            EntityOrm.entity.is_not(None),
+        )
+        .exists()
     )
-    query = query.filter(DatasetOrm.typology == typology)
-    query = query.group_by(DatasetOrm.dataset)
-    query = query.having(func.count(EntityOrm.entity) > 0)
+    query = session.query(DatasetOrm).filter(
+        DatasetOrm.typology == typology, has_entities
+    )
     datasets = query.all()
     return [DatasetModel.model_validate(ds) for ds in datasets]
 
