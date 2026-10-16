@@ -365,6 +365,17 @@ def format_date(date_str):
     return formatted_date
 
 
+def format_date_short(date_obj):
+    """
+    Formats a date object as e.g. "7 Oct 2026", for compact statistics
+    where format_date's "7th October 2026" would take up too much room.
+    """
+    if not date_obj:
+        return date_obj
+
+    return f"{date_obj.day} {date_obj.strftime('%b %Y')}"
+
+
 def is_past_date(date_obj):
     """
     Checks if the date passed as an argument is in the past.
