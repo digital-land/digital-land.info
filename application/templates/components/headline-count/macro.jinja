@@ -1,0 +1,19 @@
+{% macro appHeadlineCount(params) %}
+  {% set tag = 'a' if params.href else 'div' %}
+  <{{ tag }} class="app-headline-count app-headline-count--{{ params.variant | default('secondary') }}"
+    {%- if params.href %} href="{{ params.href }}"{% endif %}>
+    <p class="app-headline-count__value govuk-!-font-size-36 govuk-!-font-weight-bold">{{ params.value }}</p>
+    <p class="app-headline-count__label govuk-body govuk-!-font-weight-bold">{{ params.label }}</p>
+    <p class="app-headline-count__change govuk-body">
+      {% if params.changeSinceLastCount > 0 %}
+        <svg class="app-headline-count__change-arrow" aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="govuk-visually-hidden">Up </span>{{ params.changeSinceLastCount }} since last count
+      {% else %}
+        No change since last count
+      {% endif %}
+    </p>
+    {% if params.linkLabel %}<span class="govuk-visually-hidden">{{ params.linkLabel }}</span>{% endif %}
+  </{{ tag }}>
+{% endmacro %}
