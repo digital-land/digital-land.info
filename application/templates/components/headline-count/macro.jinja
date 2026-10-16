@@ -1,0 +1,16 @@
+{% macro appHeadlineCount(params) %}
+  <div class="app-headline-count app-headline-count--{{ params.variant | default('secondary') }}">
+    <p class="app-headline-count__value govuk-!-font-size-36 govuk-!-font-weight-bold">{{ params.value }}</p>
+    <p class="app-headline-count__label govuk-body govuk-!-font-weight-bold">{{ params.label }}</p>
+    <p class="app-headline-count__change govuk-body">
+      {% if params.changeSinceLastCount > 0 %}
+        <svg class="app-headline-count__change-arrow" aria-hidden="true" focusable="false" width="13" height="11" viewBox="0 0 13 11" xmlns="http://www.w3.org/2000/svg">
+          <path fill="currentColor" d="M6.5 0L13 11H0L6.5 0Z"/>
+        </svg>
+        <span class="govuk-visually-hidden">Up </span>{{ params.changeSinceLastCount }} since last count
+      {% else %}
+        No change since last count
+      {% endif %}
+    </p>
+  </div>
+{% endmacro %}
