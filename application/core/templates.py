@@ -26,6 +26,7 @@ from application.core.filters import (
     get_entity_paint_options,
     get_os_oauth2_token,
     format_date,
+    format_date_short,
     is_past_date,
     pluralize,
 )
@@ -93,6 +94,7 @@ templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key
 templates.env.filters["get_entity_geometry"] = get_entity_geometry
 templates.env.filters["format_date"] = format_date
+templates.env.filters["format_date_short"] = format_date_short
 templates.env.filters["is_past_date"] = is_past_date
 templates.env.filters["pluralize"] = pluralize
 
