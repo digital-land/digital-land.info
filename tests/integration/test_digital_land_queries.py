@@ -87,3 +87,22 @@ def test_get_datasets_with_data_by_geography(db_session):
         DbSession(session=db_session, redis=None)
     )
     assert len(datasets1) == 1
+
+
+def test_get_datasets_with_data_by_typology_returns_each_matching_dataset_once(
+    db_session,
+):
+    db_session.add_all(
+        [
+            DatasetOrm(dataset="matching", typology="geography"),
+            DatasetOrm(dataset="empty", typology="geography"),
+            DatasetOrm(dataset="other-typology", typology="category"),
+            EntityOrm(entity=1, dataset="matching"),
+            EntityOrm(entity=2, dataset="matching"),
+            EntityOrm(entity=3, dataset="other-typology"),
+        ]
+    )
+
+    datasets = get_datasets_with_data_by_typology(db_session, "geography")
+
+    assert [dataset.dataset for dataset in datasets] == ["matching"]
