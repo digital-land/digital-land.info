@@ -1,6 +1,6 @@
 import logging
 import yaml
-from typing import List
+from typing import List, Optional
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -61,9 +61,13 @@ def get_dataset_filter_fields(dataset: DatasetModel, fields: List[str]):
     return dataset.model_dump(include=set(fields))
 
 
-def get_datasets_with_data_by_typology(
-    session: Session, typology
+def _datasets_with_entities(
+    session: Session, typology: Optional[str] = None
 ) -> List[DatasetModel]:
+    """
+    A dataset is only worth offering as a map layer or search filter once it
+    has at least one entity - an empty dataset is a dead end for the user.
+    """
     has_entities = (
         session.query(EntityOrm.entity)
         .filter(
@@ -73,15 +77,28 @@ def get_datasets_with_data_by_typology(
         .exists()
     )
     query = session.query(DatasetOrm).filter(
-        DatasetOrm.typology == typology, has_entities
+        DatasetOrm.typology != "specification", has_entities
     )
+    if typology is not None:
+        query = query.filter(DatasetOrm.typology == typology)
     datasets = query.all()
     return [DatasetModel.model_validate(ds) for ds in datasets]
+
+
+def get_datasets_with_data_by_typology(
+    session: Session, typology
+) -> List[DatasetModel]:
+    return _datasets_with_entities(session, typology)
 
 
 @redis_cache("datasets-typology-geo", model_class=DatasetModel)
 def get_datasets_with_data_by_geography(session: DbSession) -> List[DatasetModel]:
     return get_datasets_with_data_by_typology(session.session, "geography")
+
+
+@redis_cache("datasets-with-entities", model_class=DatasetModel)
+def get_all_datasets_with_entities(session: DbSession) -> List[DatasetModel]:
+    return _datasets_with_entities(session.session)
 
 
 def get_typologies(session: Session) -> List[TypologyModel]:

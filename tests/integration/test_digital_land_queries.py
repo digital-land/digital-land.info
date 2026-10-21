@@ -1,6 +1,7 @@
 from application.data_access.digital_land_queries import (
     get_datasets_with_data_by_typology,
     get_datasets_with_data_by_geography,
+    get_all_datasets_with_entities,
 )
 from application.db.models import DatasetOrm, EntityOrm
 from application.db.session import SESSION_CACHE, DbSession
@@ -106,3 +107,26 @@ def test_get_datasets_with_data_by_typology_returns_each_matching_dataset_once(
     datasets = get_datasets_with_data_by_typology(db_session, "geography")
 
     assert [dataset.dataset for dataset in datasets] == ["matching"]
+
+
+def test_get_all_datasets_with_entities_spans_typologies_and_excludes_empty(
+    db_session,
+):
+    db_session.add_all(
+        [
+            DatasetOrm(dataset="geography-with-data", typology="geography"),
+            DatasetOrm(dataset="category-with-data", typology="category"),
+            DatasetOrm(dataset="empty", typology="geography"),
+            DatasetOrm(dataset="spec", typology="specification"),
+            EntityOrm(entity=1, dataset="geography-with-data"),
+            EntityOrm(entity=2, dataset="category-with-data"),
+            EntityOrm(entity=3, dataset="spec"),
+        ]
+    )
+
+    datasets = get_all_datasets_with_entities(DbSession(session=db_session, redis=None))
+
+    assert sorted(dataset.dataset for dataset in datasets) == [
+        "category-with-data",
+        "geography-with-data",
+    ]

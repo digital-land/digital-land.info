@@ -19,7 +19,7 @@ import redis
 from application.core.models import GeoJSON, EntityModel
 from application.data_access.digital_land_queries import (
     get_datasets,
-    get_all_datasets,
+    get_all_datasets_with_entities,
     get_local_authorities,
     get_typologies_with_entities,
     get_dataset_query,
@@ -533,8 +533,8 @@ def search_entities(
     db_session = DbSession(session=session, redis=redis)
     typologies = get_typologies_with_entities(db_session)
     typologies = [t.model_dump() for t in typologies]
-    # dataset facet
-    response = get_all_datasets(db_session)
+    # dataset facet - only offer datasets that actually have entities to filter by
+    response = get_all_datasets_with_entities(db_session)
     columns = ["dataset", "name", "plural", "typology", "themes", "paint_options"]
     datasets = [dataset.model_dump(include=set(columns)) for dataset in response]
 
