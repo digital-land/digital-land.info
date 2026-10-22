@@ -1,6 +1,10 @@
 {% extends "layouts/layout--about.html" %}
 {% set templateName = 'dl-info/about/performance.html' %}
 {%- from "components/back-button/macro.jinja" import dlBackButton %}
+{%- from "components/headline-count/macro.jinja" import appHeadlineCount %}
+{% set lede %}
+  <p class="govuk-body">We use different performance indicators to show how the planning data platform makes land and housing data easier to find, use and trust.</p>
+{% endset %}
 {%- block breadcrumbs -%}
   {{ dlBackButton({
     "parentHref": '/about/'
@@ -11,6 +15,57 @@
   'lede': lede
 }) %}
 {% block content_primary %}
-    {%- set page_content -%}{%- include pageData.root_url + "performance.md" -%}{%- endset -%}
-    {{ page_content | render_markdown }}
+
+  <h2 class="govuk-heading-l">Who provides data</h2>
+  <p class="govuk-body govuk-!-margin-bottom-6">
+    Last updated {{ counted_on | format_date_short }}. Previous count {{ previously_counted_on | format_date_short }}.
+  </p>
+
+  <div class="govuk-grid-row app-headline-count-row">
+    <div class="govuk-grid-column-one-half">
+      {{ appHeadlineCount({
+        "value": dataset_count,
+        "label": "Datasets available",
+        "changeSinceLastCount": dataset_count_change,
+        "variant": "primary",
+        "href": "/dataset/",
+        "linkLabel": "View all datasets"
+      }) }}
+    </div>
+    <div class="govuk-grid-column-one-half">
+      {{ appHeadlineCount({
+        "value": data_provider_count,
+        "label": "Data providers",
+        "changeSinceLastCount": data_provider_count_change,
+        "variant": "secondary"
+      }) }}
+    </div>
+  </div>
+
+  <p class="govuk-body">We index planning and housing datasets provided by multiple sources in England.</p>
+
+  {% if data_provider_count %}
+  <p class="govuk-body">Data providers are currently made up of:</p>
+  <ul class="govuk-list govuk-list--bullet">
+    <li>{{ authoritative_provider_count }} authoritative sources</li>
+    <li>{{ alternative_provider_count }} alternative sources</li>
+  </ul>
+  {% endif %}
+
+  <p class="govuk-body">Many datasets have one owner who provides the data nationally.</p>
+
+  <p class="govuk-body">
+    You can <a class="govuk-link" href="https://design.planning.data.gov.uk/get-involved-in-designing-data">get involved</a> to help improve, identify and design data for planning.data.gov.uk.
+  </p>
+
+  <h2 class="govuk-heading-l">Checking data quality</h2>
+
+  <p class="govuk-body">We check data sources for issues and help owners to improve the quality of their data. For example, we check for invalid dates, geometries outside of administrative boundaries and duplicate data.</p>
+
+  <p class="govuk-body">We will publish our data quality performance metrics soon.</p>
+
+  <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+  <p class="govuk-body">Tell us what performance data you need by emailing <a class="govuk-link" href="mailto:{{ templateVar.email }}?subject=Performance data request">{{ templateVar.email }}</a>.</p>
+
 {% endblock %}
