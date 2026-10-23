@@ -216,8 +216,6 @@ describe('cookies.js', () => {
             cookies_policy: "essential",
             cookies_preferences_set: "essential",
             _ga: "usage",
-            _gid: "usage",
-            _gat: "usage",
           };
 
         test('invalidateRejectedCookies', () => {
@@ -228,7 +226,7 @@ describe('cookies.js', () => {
 
             cookiePrefs.invalidateRejectedCookies();
 
-            expect(document.cookie).toBe(`_ga=;expires=${new Date};domain=${window.location.hostname};path=/;_gid=;expires=${new Date};domain=${window.location.hostname};path=/;_gat=;expires=${new Date};domain=${window.location.hostname};path=/`);
+            expect(document.cookie).toBe(`_ga=;expires=${new Date};domain=${window.location.hostname};path=/`);
         })
 
         test('save', () => {
