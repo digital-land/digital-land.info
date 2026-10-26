@@ -67,7 +67,6 @@ def init_templates(settings: Settings) -> None:
     # Called from create_app() so settings are only read after the app starts,
     # not at import time.
     templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
-    templates.env.globals["smartLookId"] = settings.SMARTLOOK_ID
 
 
 # Set a global `govukRebrand` variable to allow the
