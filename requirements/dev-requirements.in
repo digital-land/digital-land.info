@@ -13,4 +13,5 @@ testcontainers[postgres]
 pytest-md-report
 pre-commit
 locust
+brotli>=1.2.1
 jsonschema
