@@ -1,7 +1,13 @@
 import os
 import logging
-from fastapi import APIRouter, Request
+from datetime import date
+
+from fastapi import APIRouter, Request, Depends
+from sqlalchemy.orm import Session
+
 from application.core.templates import templates
+from application.data_access.performance_queries import get_performance_summary
+from application.db.session import get_session
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -64,6 +70,30 @@ def get_breadcrumbs(path):
             )
 
     return crumb_dict
+
+
+@router.get("/performance")
+def get_performance(
+    request: Request,
+    session: Session = Depends(get_session),
+):
+    summary = get_performance_summary(session, date.today())
+
+    return templates.TemplateResponse(
+        request,
+        "pages/about/performance.html",
+        {
+            "pageData": {"name": "performance"},
+            "counted_on": summary["counted_on"],
+            "previously_counted_on": summary["previously_counted_on"],
+            "dataset_count": summary["dataset_count"],
+            "dataset_count_change": summary["dataset_count_change"],
+            "data_provider_count": summary["data_provider_count"],
+            "data_provider_count_change": summary["data_provider_count_change"],
+            "authoritative_provider_count": summary["authoritative_provider_count"],
+            "alternative_provider_count": summary["alternative_provider_count"],
+        },
+    )
 
 
 @router.get("/{url_path:path}")

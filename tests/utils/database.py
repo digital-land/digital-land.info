@@ -64,6 +64,7 @@ def add_base_provision_quality_to_database():
                 quality_score=(
                     float(row["quality_score"]) if row.get("quality_score") else None
                 ),
+                start_date=row.get("start_date"),
             )
         )
     session.commit()
