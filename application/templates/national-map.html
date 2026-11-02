@@ -87,8 +87,9 @@
 
 {% block bodyEnd %}
 {{ super() }}
-  <script src="/static/javascripts/FindAnAreaForm.js"></script>
-  <script>
+  <script type="module">
+    import FindAnAreaForm from "/static/javascripts/FindAnAreaForm.js";
+
     const searchResult = {{ search_result | tojson }};
 
     document.addEventListener('DOMContentLoaded', function () {

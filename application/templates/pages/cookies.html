@@ -97,17 +97,17 @@
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-bottom-6">Change your cookie options</legend>
           <div class="govuk-form-group govuk-radios">
             <div class="govuk-radios__item" data-children-count="1">
-              <input type="radio" name="cookies-usage" id="radio-ga-on" value="on" class="govuk-radios__input" onclick="cookiePrefs.setUsage(true);">
+              <input type="radio" name="cookies-usage" id="radio-ga-on" value="on" class="govuk-radios__input" onclick="setCookiePrefsUsage(true);">
               <label for="radio-ga-on" class="govuk-label govuk-radios__label">Use cookies that measure my website use</label>
             </div>
             <div class="govuk-radios__item" data-children-count="1">
-              <input type="radio" name="cookies-usage" id="radio-ga-off" value="off" class="govuk-radios__input" onclick="cookiePrefs.setUsage(false);">
+              <input type="radio" name="cookies-usage" id="radio-ga-off" value="off" class="govuk-radios__input" onclick="setCookiePrefsUsage(false);">
               <label for="radio-ga-off" class="govuk-label govuk-radios__label">Do not use cookies that measure my website use</label>
             </div>
           </div>
         </fieldset>
 
-        <button class="govuk-button" type="submit" onclick="cookiePrefs.save();showSuccessBanner();">Save changes</button>
+        <button class="govuk-button" type="submit" onclick="saveCookiePrefs();showSuccessBanner();">Save changes</button>
       </form>
 
       <script>

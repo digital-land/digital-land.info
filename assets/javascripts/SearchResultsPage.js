@@ -1,4 +1,6 @@
-class SearchResultsPage {
+import { trackEvent } from './analytics/trackEvent.js';
+
+export default class SearchResultsPage {
   constructor(formElements, paginationElements) {
     this.forms = (formElements || []).filter(Boolean);
     this.paginationLinks = (paginationElements || []).filter(Boolean);
@@ -80,8 +82,6 @@ class SearchResultsPage {
   }
 
   sendAnalyticsEvent(action, params) {
-    if (window.gtag) {
-      window.gtag('event', action, params);
-    }
+    trackEvent(action, params);
   }
 }

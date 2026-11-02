@@ -1,27 +1,6 @@
-const cookieTypes = {
-  cookies_policy: "essential",
-  cookies_preferences_set: "essential",
-  _ga: "usage",
-};
+import { loadGA4 } from './analytics/ga4Loader.js';
 
-
-
-export function showCookieBannerIfNotSetAndSetTrackingCookies(){
-  if(window.gaMeasurementId){
-    cookieTypes[`_ga_${window.gaMeasurementId}`] = 'usage';
-  }
-
-  showCookieBanner()
-  if (getCookie('cookies_preferences_set')) {
-    hideCookieBanner()
-  }
-
-  setTrackingCookies()
-}
-
-export function deleteCookie (name) {
-  document.cookie = name + "=;expires=" + new Date + ";domain=" + window.location.hostname + ";path=/";
-}
+/* Storage */
 
 export function setCookie (name, value, days) {
   var expires = ''
@@ -44,39 +23,41 @@ export function getCookie (name) {
   return null
 }
 
-/**
- * Records the acceptance of additional analytical cookies,
- * hides the banner, and enables tracking scripts.
- *
- * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
- * describing which categories of cookies are permitted.
- */
-export function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
-  let cookiesAccepted = true
-  setCookie('cookies_preferences_set', true, 365)
-  setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
-  hideCookieBanner()
-  // explicitly show acceptance confirmation
-  showCookieConfirmation(cookiesAccepted)
-  setTrackingCookies()
+export function deleteCookie (name) {
+  document.cookie = name + "=;expires=" + new Date + ";domain=" + window.location.hostname + ";path=/";
 }
 
-/**
- * Records the rejection of additional analytical cookies,
- * hides the banner, and keeps only essential cookies.
- *
- * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
- * describing which categories of cookies are permitted.
- */
-export function rejectCookies (cookiePrefs = { essential: true, settings: false, usage: false, campaigns: false }) { // eslint-disable-line no-unused-vars
-  let cookiesAccepted = false
-  setCookie('cookies_preferences_set', true, 365)
-  setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
-  hideCookieBanner()
-  // explicitly show rejection confirmation
-  showCookieConfirmation(cookiesAccepted)
-  setTrackingCookies(false)
+/* Consent decision */
+
+export const ConsentCategory = Object.freeze({
+  ESSENTIAL: 'essential',
+  SETTINGS: 'settings',
+  USAGE: 'usage',
+  CAMPAIGNS: 'campaigns',
+});
+
+export function getCookieConsent () {
+  const rawPolicy = getCookie('cookies_policy');
+  if (!rawPolicy) return null;
+
+  try {
+    return JSON.parse(rawPolicy);
+  } catch (error) {
+    console.warn('Cookies policy cookie could not be parsed', error);
+    return null;
+  }
 }
+
+export function hasCookieConsent (category) {
+  try {
+    const consent = getCookieConsent();
+    return !!(consent && consent[category]);
+  } catch (error) {
+    return false;
+  }
+}
+
+/* Banner UI */
 
 /**
  * Releases focus if the currently active element lives within the provided
@@ -153,90 +134,111 @@ export function showCookieConfirmation (cookiesAccepted = true) {
   updateBanner(rejectBanner, !cookiesAccepted)
 }
 
-/**
- * Enables or disables third-party tracking based on preference data.
- * @param {boolean} shouldTrack - When false, disables analytics regardless of cookie values.
- */
-export function setTrackingCookies (shouldTrack = true) {
-  let cookiesPolicy = null
-  const rawPolicy = getCookie('cookies_policy')
+/* Recording a consent decision */
 
-  if (rawPolicy) {
-    try {
-      cookiesPolicy = JSON.parse(rawPolicy)
-    } catch (error) {
-      console.warn('Cookies policy cookie could not be parsed', error)
-    }
+export const cookieTypes = {
+  cookies_policy: "essential",
+  cookies_preferences_set: "essential",
+  _ga: "usage",
+};
+
+export function showCookieBannerIfNoChoiceMade () {
+  if (window.gaMeasurementId) {
+    cookieTypes[`_ga_${window.gaMeasurementId}`] = 'usage';
   }
 
-  const usageAllowed = shouldTrack && cookiesPolicy && cookiesPolicy.usage
-
-  if (!usageAllowed) {
-    if (window.gaMeasurementId) {
-      window[`ga-disable-${window.gaMeasurementId}`] = true
-    }
-    return
-  }
-
-  if(window.gaMeasurementId){
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function(){dataLayer.push(arguments);}
-    window.gtag('js', new Date());
-    window.gtag('config', window.gaMeasurementId);
-    window[`ga-disable-${window.gaMeasurementId}`] = false;
-  } else {
-    console.warn('Google Analytics: No measurement ID specified');
+  showCookieBanner()
+  if (getCookie('cookies_preferences_set')) {
+    hideCookieBanner()
   }
 }
 
-export class cookiePrefs{
-  static essential = true;
-  static settings = false;
-  static usage = false;
-  static campaigns = false;
+/**
+ * Brings tracking scripts in line with the current cookie choice.
+ */
+export function syncTrackingWithConsent () {
+  const consent = getCookieConsent();
+  const usageAllowed = !!(consent && consent.usage);
 
-  static get = () => {
-    var cookiesPolicy = JSON.parse(getCookie('cookies_policy'));
-    if(cookiesPolicy){
-      this.setEssential(cookiesPolicy.essential);
-      this.setSettings(cookiesPolicy.settings);
-      this.setUsage(cookiesPolicy.usage);
-      this.setCampaigns(cookiesPolicy.campaigns);
+  loadGA4(window.gaMeasurementId, usageAllowed);
+}
+
+/**
+ * Records the acceptance of additional analytical cookies,
+ * hides the banner, and enables tracking scripts.
+ *
+ * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * describing which categories of cookies are permitted.
+ */
+export function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
+  let cookiesAccepted = true
+  setCookie('cookies_preferences_set', true, 365)
+  setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
+  hideCookieBanner()
+  // explicitly show acceptance confirmation
+  showCookieConfirmation(cookiesAccepted)
+  syncTrackingWithConsent()
+}
+
+/**
+ * Records the rejection of additional analytical cookies,
+ * hides the banner, and keeps only essential cookies.
+ *
+ * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * describing which categories of cookies are permitted.
+ */
+export function rejectCookies (cookiePrefs = { essential: true, settings: false, usage: false, campaigns: false }) { // eslint-disable-line no-unused-vars
+  let cookiesAccepted = false
+  setCookie('cookies_preferences_set', true, 365)
+  setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
+  hideCookieBanner()
+  // explicitly show rejection confirmation
+  showCookieConfirmation(cookiesAccepted)
+  syncTrackingWithConsent()
+}
+
+/* /cookies settings-page state */
+
+let essential = true;
+let settings = false;
+let usage = false;
+let campaigns = false;
+
+export function loadCookiePrefs () {
+  const consent = getCookieConsent();
+  if (consent) {
+    essential = consent.essential;
+    settings = consent.settings;
+    usage = consent.usage;
+    campaigns = consent.campaigns;
+  }
+}
+
+export function setCookiePrefsUsage (value) {
+  usage = value;
+}
+
+export function saveCookiePrefs (expires = 365) {
+  setCookie('cookies_preferences_set', true, expires);
+  setCookie('cookies_policy', JSON.stringify({ essential, settings, usage, campaigns }), expires);
+  hideCookieBanner();
+  invalidateRejectedCookiePrefs();
+  syncTrackingWithConsent();
+}
+
+function invalidateRejectedCookiePrefs () {
+  for (const name in cookieTypes) {
+    if (!essential && cookieTypes[name] == 'essential') {
+      deleteCookie(name);
     }
-  }
-
-  static setEssential = (value) => this.essential = value;
-  static setSettings = (value) => this.settings = value;
-  static setUsage = (value) => this.usage = value;
-  static setCampaigns = (value) => this.campaigns = value;
-
-  static save = (expires = 365) => {
-    setCookie('cookies_preferences_set', true, expires)
-    setCookie('cookies_policy', JSON.stringify({
-      essential: this.essential,
-      settings: this.settings,
-      usage: this.usage,
-      campaigns: this.campaigns
-    }), expires)
-    hideCookieBanner()
-    this.invalidateRejectedCookies()
-    setTrackingCookies()
-  }
-
-  static invalidateRejectedCookies = () => {
-    for (const name in cookieTypes){
-      if(!this.essential && cookieTypes[name] == 'essential'){
-        deleteCookie(name);
-      }
-      if(!this.settings && cookieTypes[name] == 'settings'){
-        deleteCookie(name);
-      }
-      if(!this.usage && cookieTypes[name] == 'usage'){
-        deleteCookie(name);
-      }
-      if(!this.campaigns && cookieTypes[name] == 'campaigns'){
-        deleteCookie(name);
-      }
+    if (!settings && cookieTypes[name] == 'settings') {
+      deleteCookie(name);
+    }
+    if (!usage && cookieTypes[name] == 'usage') {
+      deleteCookie(name);
+    }
+    if (!campaigns && cookieTypes[name] == 'campaigns') {
+      deleteCookie(name);
     }
   }
 }
