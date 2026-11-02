@@ -2,27 +2,33 @@ function gtagScriptSrc(measurementId) {
   return `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
 }
 
+function gtagScriptSelector(measurementId) {
+  return `script[src="${gtagScriptSrc(measurementId)}"]`;
+}
+
 function injectGtagScriptTag(measurementId) {
-  const src = gtagScriptSrc(measurementId);
-  if (document.querySelector(`script[src="${src}"]`)) return;
+  if (document.querySelector(gtagScriptSelector(measurementId))) return;
 
   const scriptElement = document.createElement('script');
-  scriptElement.src = src;
+  scriptElement.src = gtagScriptSrc(measurementId);
   document.head.appendChild(scriptElement);
 }
 
+function removeGtagScriptTag(measurementId) {
+  const scriptElement = document.querySelector(gtagScriptSelector(measurementId));
+  if (scriptElement) scriptElement.remove();
+}
+
 /**
- * Loads GA4
  * - injects the gtag.js script tag and initialises the dataLayer
  * - subject to cookie consent.
  */
 export function loadGA4(measurementId, usageAllowed = true) {
-  injectGtagScriptTag(measurementId);
-
   if (!usageAllowed) {
     if (measurementId) {
       window[`ga-disable-${measurementId}`] = true;
     }
+    removeGtagScriptTag(measurementId);
     return;
   }
 
@@ -30,6 +36,12 @@ export function loadGA4(measurementId, usageAllowed = true) {
     console.warn('Google Analytics: No measurement ID specified');
     return;
   }
+
+  const alreadyEnabled = window[`ga-disable-${measurementId}`] === false &&
+    document.querySelector(gtagScriptSelector(measurementId));
+  if (alreadyEnabled) return;
+
+  injectGtagScriptTag(measurementId);
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = function () { window.dataLayer.push(arguments) };
