@@ -2,8 +2,6 @@ const cookieTypes = {
   cookies_policy: "essential",
   cookies_preferences_set: "essential",
   _ga: "usage",
-  _gid: "usage",
-  _gat: "usage",
 };
 
 
