@@ -75,6 +75,10 @@ def test_accessibility_of_the_roadmap_page(server_url):
     accessibility_test(server_url + "/about/roadmap")
 
 
+def test_accessibility_of_the_performance_page(server_url):
+    accessibility_test(server_url + "/about/performance")
+
+
 def test_accessibility_of_the_accessibility_statement_page(server_url):
     accessibility_test(server_url + "/accessibility-statement")
 
