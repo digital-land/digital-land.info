@@ -96,6 +96,10 @@ Description of the location/setting of the listing.
 
 Example: `Small chapel located in the west of Chapel Woods`
 
+### document-url
+
+An optional URL of a document providing the authoritative source of the boundary. For example, a PDF containing a map of the area, indicated with a red-line boundary.
+
 ### notes
 
 Optional text on how this data was made or produced, or how it can be interpreted.
