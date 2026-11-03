@@ -78,8 +78,6 @@ describe('cookies.js', () => {
         document.activeElement = null;
         delete window.dataLayer;
         delete window.gtag;
-        delete window.smartlook;
-        delete window.smartlookId;
         delete window.gaMeasurementId;
     });
 
