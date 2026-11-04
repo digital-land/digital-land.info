@@ -140,9 +140,13 @@ export const cookieTypes = {
   _ga: "usage",
 };
 
+function gaSessionCookieName (measurementId) {
+  return `_ga_${measurementId.replace(/^G-/, '')}`;
+}
+
 export function showCookieBannerIfNoChoiceMade () {
   if (window.gaMeasurementId) {
-    cookieTypes[`_ga_${window.gaMeasurementId}`] = 'usage';
+    cookieTypes[gaSessionCookieName(window.gaMeasurementId)] = 'usage';
   }
 
   showCookieBanner()
