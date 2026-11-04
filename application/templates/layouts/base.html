@@ -73,6 +73,7 @@
     <script type="module">
       import {showCookieBannerIfNoChoiceMade, syncTrackingWithConsent, loadCookiePrefs, setCookiePrefsUsage, saveCookiePrefs} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
       window.gaMeasurementId = '{{ gaMeasurementId }}';
+      window.cookieDomain = '{{ cookieDomain }}';
       // Expose module symbols globally to allow inline `onclick` handlers to use them
       window.setCookiePrefsUsage = setCookiePrefsUsage;
       window.saveCookiePrefs = saveCookiePrefs;

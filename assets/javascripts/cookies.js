@@ -23,8 +23,8 @@ export function getCookie (name) {
   return null
 }
 
-export function deleteCookie (name) {
-  document.cookie = name + "=;expires=" + new Date + ";domain=" + window.location.hostname + ";path=/";
+export function deleteCookie (name, domain = window.location.hostname) {
+  document.cookie = name + "=;expires=" + new Date + ";domain=" + domain + ";path=/";
 }
 
 /* Consent decision */
@@ -226,7 +226,7 @@ function invalidateRejectedCookiePrefs () {
       deleteCookie(name);
     }
     if (!usage && cookieTypes[name] == 'usage') {
-      deleteCookie(name);
+      deleteCookie(name, window.cookieDomain);
     }
   }
 }
