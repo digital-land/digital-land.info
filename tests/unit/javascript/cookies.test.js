@@ -173,12 +173,10 @@ describe('cookies.js', () => {
       expect(getCookieConsent()).toBeNull();
     })
 
-    test('ConsentCategory exposes the four cookie categories', () => {
+    test('ConsentCategory exposes the cookie categories', () => {
       expect(ConsentCategory).toEqual({
         ESSENTIAL: 'essential',
-        SETTINGS: 'settings',
-        USAGE: 'usage',
-        CAMPAIGNS: 'campaigns'
+        USAGE: 'usage'
       });
     })
   })
@@ -267,9 +265,9 @@ describe('cookies.js', () => {
     describe('acceptCookies', () => {
       test('records acceptance and enables tracking', () => {
         window.gaMeasurementId = '1234';
-        acceptCookies({ essential: true, settings: true, usage: true, campaigns: true });
+        acceptCookies({ essential: true, usage: true });
 
-        expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, settings: true, usage: true, campaigns: true })
+        expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, usage: true })
         expect(loadGA4).toHaveBeenCalledWith('1234', true)
       })
     })
@@ -277,9 +275,9 @@ describe('cookies.js', () => {
     describe('rejectCookies', () => {
       test('records rejection and disables tracking', () => {
         window.gaMeasurementId = '1234';
-        rejectCookies({ essential: true, settings: false, usage: false, campaigns: false });
+        rejectCookies({ essential: true, usage: false });
 
-        expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, settings: false, usage: false, campaigns: false })
+        expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, usage: false })
         expect(loadGA4).toHaveBeenCalledWith('1234', false)
       })
     })
@@ -287,24 +285,24 @@ describe('cookies.js', () => {
 
   describe('/cookies settings-page state', () => {
     test('loadCookiePrefs populates state from the cookies_policy cookie, preserved by a later save', () => {
-      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, settings: true, campaigns: true, usage: true })}`;
+      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, usage: true })}`;
       loadCookiePrefs();
       saveCookiePrefs();
 
-      expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, settings: true, campaigns: true, usage: true });
+      expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, usage: true });
     })
 
     test('setCookiePrefsUsage changes only the usage field, leaving the other loaded categories untouched', () => {
-      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, settings: true, campaigns: true, usage: true })}`;
+      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, usage: true })}`;
       loadCookiePrefs();
       setCookiePrefsUsage(false);
       saveCookiePrefs();
 
-      expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, settings: true, campaigns: true, usage: false });
+      expect(JSON.parse(getCookie('cookies_policy'))).toEqual({ essential: true, usage: false });
     })
 
     test('saveCookiePrefs deletes usage cookies when usage ends up rejected', () => {
-      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, settings: false, campaigns: false, usage: true })}`;
+      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, usage: true })}`;
       loadCookiePrefs();
       setCookiePrefsUsage(false);
       saveCookiePrefs();
@@ -313,7 +311,7 @@ describe('cookies.js', () => {
     })
 
     test('saveCookiePrefs does not delete usage cookies when usage remains allowed', () => {
-      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, settings: false, campaigns: false, usage: true })}`;
+      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, usage: true })}`;
       loadCookiePrefs();
       saveCookiePrefs();
 
@@ -322,7 +320,7 @@ describe('cookies.js', () => {
 
     test('saveCookiePrefs syncs tracking with the saved decision', () => {
       window.gaMeasurementId = '1234';
-      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, settings: false, campaigns: false, usage: true })}`;
+      documentCookieMock.cookie = `cookies_policy=${JSON.stringify({ essential: true, usage: true })}`;
       loadCookiePrefs();
       saveCookiePrefs();
 

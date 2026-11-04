@@ -31,9 +31,7 @@ export function deleteCookie (name) {
 
 export const ConsentCategory = Object.freeze({
   ESSENTIAL: 'essential',
-  SETTINGS: 'settings',
   USAGE: 'usage',
-  CAMPAIGNS: 'campaigns',
 });
 
 export function getCookieConsent () {
@@ -167,10 +165,10 @@ export function syncTrackingWithConsent () {
  * Records the acceptance of additional analytical cookies,
  * hides the banner, and enables tracking scripts.
  *
- * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * @param {{ essential: boolean, usage: boolean }} [cookiePrefs] - Object
  * describing which categories of cookies are permitted.
  */
-export function acceptCookies (cookiePrefs = { essential: true, settings: true, usage: true, campaigns: true }) { // eslint-disable-line no-unused-vars
+export function acceptCookies (cookiePrefs = { essential: true, usage: true }) { // eslint-disable-line no-unused-vars
   let cookiesAccepted = true
   setCookie('cookies_preferences_set', true, 365)
   setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
@@ -184,10 +182,10 @@ export function acceptCookies (cookiePrefs = { essential: true, settings: true, 
  * Records the rejection of additional analytical cookies,
  * hides the banner, and keeps only essential cookies.
  *
- * @param {{ essential: boolean, settings: boolean, usage: boolean, campaigns: boolean }} [cookiePrefs] - Object
+ * @param {{ essential: boolean, usage: boolean }} [cookiePrefs] - Object
  * describing which categories of cookies are permitted.
  */
-export function rejectCookies (cookiePrefs = { essential: true, settings: false, usage: false, campaigns: false }) { // eslint-disable-line no-unused-vars
+export function rejectCookies (cookiePrefs = { essential: true, usage: false }) { // eslint-disable-line no-unused-vars
   let cookiesAccepted = false
   setCookie('cookies_preferences_set', true, 365)
   setCookie('cookies_policy', JSON.stringify(cookiePrefs), 365)
@@ -200,17 +198,13 @@ export function rejectCookies (cookiePrefs = { essential: true, settings: false,
 /* /cookies settings-page state */
 
 let essential = true;
-let settings = false;
 let usage = false;
-let campaigns = false;
 
 export function loadCookiePrefs () {
   const consent = getCookieConsent();
   if (consent) {
     essential = consent.essential;
-    settings = consent.settings;
     usage = consent.usage;
-    campaigns = consent.campaigns;
   }
 }
 
@@ -220,7 +214,7 @@ export function setCookiePrefsUsage (value) {
 
 export function saveCookiePrefs (expires = 365) {
   setCookie('cookies_preferences_set', true, expires);
-  setCookie('cookies_policy', JSON.stringify({ essential, settings, usage, campaigns }), expires);
+  setCookie('cookies_policy', JSON.stringify({ essential, usage }), expires);
   hideCookieBanner();
   invalidateRejectedCookiePrefs();
   syncTrackingWithConsent();
@@ -231,13 +225,7 @@ function invalidateRejectedCookiePrefs () {
     if (!essential && cookieTypes[name] == 'essential') {
       deleteCookie(name);
     }
-    if (!settings && cookieTypes[name] == 'settings') {
-      deleteCookie(name);
-    }
     if (!usage && cookieTypes[name] == 'usage') {
-      deleteCookie(name);
-    }
-    if (!campaigns && cookieTypes[name] == 'campaigns') {
       deleteCookie(name);
     }
   }
