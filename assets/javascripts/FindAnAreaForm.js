@@ -1,4 +1,6 @@
-class FindAnAreaForm {
+import { trackEvent } from './analytics/trackEvent.js';
+
+export default class FindAnAreaForm {
   constructor(searchResult) {
     this.searchResult = searchResult;
     this.form = document.querySelector('#dl-find-an-area-form')
@@ -289,8 +291,6 @@ class FindAnAreaForm {
   }
 
   sendAnalyticsEvent(action, params) {
-    if (window.gtag) {
-      window.gtag('event', action, params);
-    }
+    trackEvent(action, params);
   }
 }

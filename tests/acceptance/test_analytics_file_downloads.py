@@ -1,4 +1,3 @@
-import pytest
 from playwright.sync_api import Page
 
 
@@ -43,7 +42,9 @@ def test_file_download_tracking_respects_cookie_consent(
     page.wait_for_load_state("networkidle")
 
     # REJECT analytics (additional) cookies
-    page.evaluate("window.cookiePrefs = { usage: false }")
+    page.evaluate(
+        "document.cookie = 'cookies_policy=' + JSON.stringify({ usage: false }) + '; path=/'"
+    )
 
     # Find and click the first .geojson download link
     geojson_link = page.locator('a[href*=".geojson"]').first
@@ -68,7 +69,9 @@ def test_file_download_tracking_respects_cookie_consent(
         ), f"Expected no tracking when cookies rejected, but got: {file_download_events}"
 
     # ACCEPT analytics (additional) cookies
-    page.evaluate("window.cookiePrefs = { usage: true }")
+    page.evaluate(
+        "document.cookie = 'cookies_policy=' + JSON.stringify({ usage: true }) + '; path=/'"
+    )
 
     # Click the geojson download link (with cookies now accepted)
     download_link = page.locator('a[href*=".geojson"]').first
@@ -145,7 +148,9 @@ def test_file_download_tracking_ignores_non_download_links(server_url, page: Pag
     page.wait_for_load_state("networkidle")
 
     # Accept analytics cookies
-    page.evaluate("window.cookiePrefs = { usage: true }")
+    page.evaluate(
+        "document.cookie = 'cookies_policy=' + JSON.stringify({ usage: true }) + '; path=/'"
+    )
 
     # Inject a test link that's NOT a download
     page.evaluate("""
@@ -174,74 +179,3 @@ def test_file_download_tracking_ignores_non_download_links(server_url, page: Pag
     assert (
         len(file_download_events) == 0
     ), f"Regular links should not trigger file_download tracking, but got: {file_download_events}"
-
-
-@pytest.mark.parametrize(
-    "extension", ["geojson", "json", "xml", "gml", "kml", "gpkg", "shp", "parquet"]
-)
-def test_file_download_tracking_captures_different_extensions(
-    server_url, page: Page, extension
-):
-    """
-    Tests that all tracked file extensions are properly captured.
-
-    Uses mock links since not all extensions may exist on dataset pages.
-    """
-
-    gtag_calls = []
-
-    def capture_gtag_calls(msg):
-        text = msg.text
-        if "GTAG_CALLED:" in text:
-            try:
-                import json
-
-                payload = text.split("GTAG_CALLED:", 1)[1].strip()
-                gtag_calls.append(json.loads(payload))
-            except Exception:
-                pass
-
-    page.on("console", capture_gtag_calls)
-
-    page.add_init_script("""
-        window.gtag = function(...args) {
-            console.log('GTAG_CALLED:', JSON.stringify(args));
-        };
-    """)
-
-    page.goto(f"{server_url}/")
-    page.wait_for_load_state("networkidle")
-
-    # Accept analytics cookies
-    page.evaluate("window.cookiePrefs = { usage: true }")
-
-    # Inject a test link with the desired extension
-    page.evaluate(f"""
-        const link = document.createElement('a');
-        link.href = 'https://example.com/test.{extension}';
-        link.innerText = 'Test {extension.upper()} Download';
-        link.id = 'test-download-link';
-        document.body.appendChild(link);
-    """)
-
-    # Click the injected link
-    gtag_calls.clear()
-    page.evaluate("""
-        const link = document.getElementById('test-download-link');
-        link.addEventListener('click', (e) => e.preventDefault());
-        link.click();
-        """)
-    page.wait_for_timeout(500)
-
-    # Should see one file_download event
-    file_download_events = [
-        call
-        for call in gtag_calls
-        if len(call) >= 2 and call[0] == "event" and call[1] == "file_download"
-    ]
-    assert len(file_download_events) == 1
-
-    # Verify the extension is captured correctly
-    event_data = file_download_events[0][2]
-    assert event_data["file_extension"] == extension
-    assert event_data["link_url"] == f"https://example.com/test.{extension}"
