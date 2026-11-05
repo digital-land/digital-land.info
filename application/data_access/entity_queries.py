@@ -3,6 +3,7 @@ import sentry_sdk
 
 from typing import Optional, List, Tuple
 from sqlalchemy import select, func, or_, and_, tuple_, union_all, true
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from application.core.models import EntityModel, entity_factory
@@ -19,12 +20,19 @@ from application.data_access.entity_query_helpers import (
 from application.db.models import EntityOrm, OldEntityOrm, EntitySubdividedOrm
 from application.search.enum import GeometryRelation, PeriodOption, SuffixEntity
 from application.db.session import redis_cache, DbSession, get_context_session
+from application.settings import get_settings
 from sqlalchemy.types import Date
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.orm import aliased
 
 logger = logging.getLogger(__name__)
 complex_datasets = ["flood-risk-zone"]
+ENTITY_SEARCH_COUNT_CAP = 10_000
+PG_QUERY_CANCELED = "57014"
+
+
+class EntitySearchTooBroad(Exception):
+    """A location search hit the search statement timeout."""
 
 
 def get_entity_query(
@@ -118,16 +126,20 @@ def get_entity_search(
     basequery = session.query(EntityOrm)
     basequery = _apply_base_filters(basequery, params)
     basequery = _apply_date_filters(basequery, params)
-    basequery = _apply_location_filters(session, basequery, params)
+    basequery = _apply_location_filters(
+        session, basequery, params, include_geometry=False
+    )
     basequery = _apply_period_option_filter(basequery, params)
 
-    count_subquery = _entity_count_subquery(session, basequery, params)
-
     if has_location_filters(params):
-        return _search_with_shared_matches(session, count_subquery, params, extension)
+        return _search_with_capped_matches(session, basequery, params, extension)
 
     with sentry_sdk.start_span(op="entity.search", name="count.execute_fetch"):
-        count = session.query(func.count()).select_from(count_subquery).scalar()
+        count = (
+            session.query(func.count())
+            .select_from(basequery.with_entities(EntityOrm.entity).subquery())
+            .scalar()
+        )
 
     query = _apply_limit_and_pagination_filters(basequery, params)
     query = _apply_field_filters(query, params, extension)
@@ -138,10 +150,18 @@ def get_entity_search(
     return {"params": params, "count": count, "entities": entities}
 
 
-def _search_with_shared_matches(session, count_subquery, params, extension):
-    # Materialize matching IDs once; both the exact count and page reuse them.
+def _search_with_capped_matches(session, basequery, params, extension):
+    # Stop at cap + 1 matches in whatever order the database finds them, then sort
+    # only those. At or below the cap the set is complete, so pagination is stable.
+    # Above it the set is arbitrary, so only the first page is returned.
+    branches = _location_match_branches(session, basequery, params)
+    if len(branches) == 1:
+        found = branches[0].subquery()
+    else:
+        found = union_all(*[branch.statement for branch in branches]).subquery()
     matches = (
-        select(list(count_subquery.c)[0].label("entity"))
+        select(list(found.c)[0].label("entity"))
+        .limit(ENTITY_SEARCH_COUNT_CAP + 1)
         .cte("search_matches")
         .prefix_with("MATERIALIZED", dialect="postgresql")
     )
@@ -163,36 +183,119 @@ def _search_with_shared_matches(session, count_subquery, params, extension):
     )
     query = _apply_field_filters(query, params, extension)
     orm_result = query.is_single_entity
+    query = query.add_columns(
+        total.c.total.label("_search_count"),
+        page.c.entity.label("_matched_entity"),
+    )
     with sentry_sdk.start_span(op="entity.search", name="shared_query.execute_fetch"):
-        rows = query.add_columns(
-            total.c.total.label("_search_count"),
-            page.c.entity.label("_matched_entity"),
-        ).all()
+        rows = _fetch_with_search_timeout(session, query)
+
+    matched_count = rows[0]._search_count
+    count_is_capped = matched_count > ENTITY_SEARCH_COUNT_CAP
+    if count_is_capped and params.get("offset"):
+        rows = []
     with sentry_sdk.start_span(op="entity.search", name="models.convert"):
         entities = [
             entity_factory(row[0] if orm_result else row)
             for row in rows
             if row._matched_entity is not None
         ]
-    return {"params": params, "count": rows[0]._search_count, "entities": entities}
+    return {
+        "params": params,
+        "count": min(matched_count, ENTITY_SEARCH_COUNT_CAP),
+        "count_is_capped": count_is_capped,
+        "entities": entities,
+    }
 
 
-def _entity_count_subquery(session, basequery, params):
-    # Only CURIE-only location searches can use the direct matches shortcut.
-    # Otherwise, select IDs from the complete query to preserve all filters
-    # and any duplicate matches.
-    if not params.get("geometry_curie") or has_location_filters(
+def _location_match_branches(session, basequery, params):
+    """Build the queries whose first column is the ID of each matching entity."""
+    if params.get("geometry"):
+        return _geometry_match_branches(basequery, params)
+
+    if params.get("geometry_curie") and not has_location_filters(
         params, include_curie=False
     ):
-        return basequery.with_entities(EntityOrm.entity).subquery()
+        # Both spatial branches already include base, date and period filters,
+        # so read their matches without looking up the entity rows again.
+        matches = _curie_matches(session, params)
+        query = session.query(matches.c.matched_entity)
+        if len(params["geometry_curie"]) > 1:
+            query = query.group_by(matches.c.matched_entity)
+        return [query]
 
-    # Both spatial branches already include base, date and period filters.
-    # Count their matches directly without looking up the entity rows again.
-    matches = _curie_matches(session, params)
-    query = session.query(matches.c.matched_entity)
-    if len(params["geometry_curie"]) > 1:
-        query = query.group_by(matches.c.matched_entity)
-    return query.subquery()
+    return [basequery.with_entities(EntityOrm.entity)]
+
+
+def _geometry_match_branches(basequery, params):
+    # Filter entity directly so the planner can use its spatial or dataset indexes
+    # and stop early. Subdivided datasets stay in a separate branch, because an OR
+    # with their subquery would rule those indexes out. A dataset is only ever in
+    # one branch, so the branches cannot return the same entity.
+    subdivided = aliased(EntitySubdividedOrm)
+    subdivided_filter, entity_filter = _dataset_filters(params, subdivided)
+    spatial_function = get_spatial_function_for_relation(
+        params.get("geometry_relation", GeometryRelation.within)
+    )
+    geometries = [
+        func.ST_GeomFromText(geometry, 4326) for geometry in params["geometry"]
+    ]
+
+    branches = []
+    if entity_filter is not None:
+        conditions = [
+            and_(
+                column.is_not(None),
+                func.ST_IsValid(column),
+                spatial_function(column, geom),
+            )
+            for geom in geometries
+            for column in (EntityOrm.geometry, EntityOrm.point)
+        ]
+        branches.append(
+            basequery.filter(entity_filter, or_(*conditions)).with_entities(
+                EntityOrm.entity
+            )
+        )
+    if subdivided_filter is not None:
+        subdivided_ids = select(subdivided.entity).where(
+            subdivided_filter,
+            subdivided.geometry_subdivided.isnot(None),
+            func.ST_IsValid(subdivided.geometry_subdivided),
+            or_(
+                *[
+                    spatial_function(subdivided.geometry_subdivided, geom)
+                    for geom in geometries
+                ]
+            ),
+        )
+        branches.append(
+            basequery.filter(EntityOrm.entity.in_(subdivided_ids)).with_entities(
+                EntityOrm.entity
+            )
+        )
+    return branches
+
+
+def _fetch_with_search_timeout(session, query):
+    settings = get_settings()
+    _set_local_statement_timeout(session, settings.ENTITY_SEARCH_STATEMENT_TIMEOUT_MS)
+    try:
+        rows = query.all()
+    except OperationalError as error:
+        if getattr(error.orig, "pgcode", None) != PG_QUERY_CANCELED:
+            raise
+        # Rolling back clears the aborted transaction and the local timeout, so the
+        # rest of the request can still use this session.
+        session.rollback()
+        raise EntitySearchTooBroad() from error
+    # Later queries in this transaction keep the normal timeout.
+    _set_local_statement_timeout(session, settings.DB_STATEMENT_TIMEOUT_MS)
+    return rows
+
+
+def _set_local_statement_timeout(session, timeout_ms):
+    session.execute(select(func.set_config("statement_timeout", str(timeout_ms), True)))
 
 
 def get_entity_map_lpa(session: Session, parameters: dict):
@@ -426,7 +529,7 @@ def _boundary_matches(session, params, boundary_filter, boundary_name):
     return branches[0].union(branches[1]).subquery()
 
 
-def _apply_location_filters(session, query, params):
+def _apply_location_filters(session, query, params, *, include_geometry=True):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
     subdivided_filter, entity_filter = _dataset_filters(params, entity_subdivided_alias)
@@ -472,7 +575,8 @@ def _apply_location_filters(session, query, params):
     )
 
     entity_matches = []
-    for geometry in params.get("geometry", []):
+    geometries = params.get("geometry", []) if include_geometry else []
+    for geometry in geometries:
         geom = func.ST_GeomFromText(geometry, 4326)
         branches = []
 

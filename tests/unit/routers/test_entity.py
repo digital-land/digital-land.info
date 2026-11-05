@@ -1276,3 +1276,140 @@ def test_get_entity_with_linked_local_plans(
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
+
+
+@pytest.mark.parametrize(
+    "count, count_is_capped, expected_text",
+    [
+        (0, False, "0 results"),
+        (1, False, "1 result"),
+        (10_000, False, "10,000 results"),
+        (10_000, True, "10,000+ results"),
+    ],
+)
+def test_search_entities_displays_capped_count(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    count,
+    count_is_capped,
+    expected_text,
+):
+    query_filters = QueryFilters()
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": count,
+            "count_is_capped": count_is_capped,
+            "entities": [],
+        },
+    )
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=None,
+    )
+    soup = BeautifulSoup(response.body, "html.parser")
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == expected_text
+    )
+    notice = soup.select_one(".govuk-inset-text")
+    assert (notice is not None) is count_is_capped
+
+
+def test_search_entities_html_explains_search_too_broad(
+    mocker, typologies, local_authorities, multiple_dataset_models, organisation_list
+):
+    from application.data_access.entity_queries import EntitySearchTooBroad
+
+    query_filters = QueryFilters()
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        side_effect=EntitySearchTooBroad(),
+    )
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=None,
+    )
+    soup = BeautifulSoup(response.body, "html.parser")
+    assert response.status_code == 422
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "Search too broad"
+    )
+    assert "No results found" not in soup.get_text()
+
+
+@pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
+def test_search_entities_api_returns_422_when_search_too_broad(mocker, extension):
+    from fastapi import HTTPException
+    from application.data_access.entity_queries import EntitySearchTooBroad
+
+    query_filters = QueryFilters()
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        side_effect=EntitySearchTooBroad(),
+    )
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    with pytest.raises(HTTPException) as error:
+        search_entities(
+            request=_make_search_request(""),
+            search_query="",
+            query_filters=query_filters,
+            extension=extension,
+        )
+    assert error.value.status_code == 422
+    assert "too much data" in error.value.detail
+
+
+@pytest.mark.parametrize("count_is_capped", [False, True])
+def test_search_entities_json_exposes_numeric_count_and_cap_flag(
+    mocker, count_is_capped
+):
+    query_filters = QueryFilters()
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": 10_000,
+            "count_is_capped": count_is_capped,
+            "entities": [],
+        },
+    )
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=SuffixEntity.json,
+    )
+    assert response["count"] == 10_000
+    assert isinstance(response["count"], int)
+    assert response["count_is_capped"] is count_is_capped
+    assert "last" not in response["links"] or not count_is_capped
+    assert "next" not in response["links"] or not count_is_capped

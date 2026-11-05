@@ -45,7 +45,11 @@
       <!-- /.govuk-grid-column-one-third -->
       <div class="govuk-grid-column-two-thirds" id="search-results" role="region" aria-label="Search results" aria-busy="false">
         <div class="app-results-summary">
-          <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
+          {% if search_too_broad %}
+          <h2 class="app-results-summary__title">Search too broad</h2>
+          {% else %}
+          <h2 class="app-results-summary__title">{{ count|commanum }}{{ "+" if count_is_capped else "" }} result{{ "" if count == 1 else "s" }}</h2>
+          {% endif %}
           {% macro removeFilterButton(params) %}
           <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" aria-label="Remove filter for {{ params.filter.name }}">
             <span class="app-facet-tag__icon" aria-hidden="true">
@@ -220,6 +224,14 @@
         </div>
         <!-- /.app-results-summary -->
 
+        {% if count_is_capped %}
+        <div class="govuk-inset-text">
+          This search found more than {{ count|commanum }} results, so we can only show one page and the results may change between searches.
+          To see more, narrow your search using the filters or <a href="/dataset/" class="govuk-link">download the dataset</a>.
+          {% if first_url %}<a href="{{ first_url }}" class="govuk-link">Go back to the first page of results</a>.{% endif %}
+        </div>
+        {% endif %}
+
         {% if data and data|count > 0 %}
         <div class="app-results-body">
 
@@ -295,6 +307,11 @@
 
         </div>
         <!-- /.app-results-body -->
+        {% elif search_too_broad %}
+        <div class="app-results-body">
+          <p class="govuk-body">This search covers too much data for us to complete.</p>
+          <p class="govuk-body">Try a smaller area, choose a dataset or <a href="/dataset/" class="govuk-link">download the dataset</a>.</p>
+        </div>
         {% elif count == 0 %}
         <div class="app-results-body">
           <p class="govuk-body">No results found</p>
