@@ -1,5 +1,3 @@
-import { trackEvent } from './analytics/trackEvent.js';
-
 export default class SearchResultsPage {
   constructor(formElements, paginationElements) {
     this.forms = (formElements || []).filter(Boolean);
@@ -33,11 +31,6 @@ export default class SearchResultsPage {
       e.preventDefault();
       try {
         this.disableInteractiveElements();
-        this.sendAnalyticsEvent('search_term', {
-          'event_category': 'Search',
-          'event_label': 'Find an area form',
-          'value': formEl.querySelector('[name="q"]').value
-        });
       } finally {
         HTMLFormElement.prototype.submit.call(formEl);
       }
@@ -79,9 +72,5 @@ export default class SearchResultsPage {
       this.resultsSection.classList.add('app-search--loading');
       this.resultsSection.setAttribute('aria-busy', 'true');
     }
-  }
-
-  sendAnalyticsEvent(action, params) {
-    trackEvent(action, params);
   }
 }
