@@ -310,7 +310,10 @@ PLAN_DATASETS = ["local-plan", "minerals-plan", "waste-plan"]
 
 linked_datasets = {
     **{f"{plan}-boundary": [plan] for plan in PLAN_DATASETS},
-    **{plan: [f"{plan}-boundary", "plan-timetable"] for plan in PLAN_DATASETS},
+    **{
+        plan: [f"{plan}-boundary", "plan-timetable", "development-plan-document"]
+        for plan in PLAN_DATASETS
+    },
 }
 
 
@@ -328,8 +331,11 @@ def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
                     )
                 continue
 
-            # timetable entries refer to their plan by reference in "plan"
-            link_field = "plan" if linked_dataset == "plan-timetable" else dataset
+            # timetables and documents refer to their plan by reference
+            link_field = {
+                "plan-timetable": "plan",
+                "development-plan-document": "development-plan",
+            }.get(linked_dataset, dataset)
             linked_entities = get_linked_entities(
                 session, linked_dataset, reference, linked_dataset=link_field
             )

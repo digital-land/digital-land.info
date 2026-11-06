@@ -371,11 +371,11 @@
     </div>
   {% endif %}
 
-    {% if local_plans['local-plan-document'] %}
+    {% if local_plans['development-plan-document'] %}
     <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plan Document'
+      'titleText': 'Documents'
       }) %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
@@ -387,7 +387,7 @@
           </tr>
         </thead>
         <tbody class="govuk-table__body">
-          {% for plan in local_plans['local-plan-document'] %}
+          {% for plan in local_plans['development-plan-document'] %}
           <tr class="govuk-table__row">
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
@@ -395,7 +395,7 @@
             <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
             <td class="govuk-table__cell app-table__cell">{{ plan.document_types }}</td>
             <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+              <a class="govuk-link" href="{{ plan.document_url }}">{{ plan.document_url }}</a>
             </td>
           </tr>
           {% endfor %}
