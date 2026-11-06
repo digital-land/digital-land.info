@@ -554,3 +554,116 @@ def test_search_entity_with_exclude_parameter(test_data, params, db_session):
 
 
 # TODO test cases for contains, within
+
+
+WHOLE_WORLD = "POLYGON((-180 -90,180 -90,180 90,-180 90,-180 -90))"
+
+
+def _whole_world_search(params, **overrides):
+    return {
+        **params,
+        "geometry": [WHOLE_WORLD],
+        "geometry_relation": GeometryRelation.intersects,
+        **overrides,
+    }
+
+
+def test_capped_search_at_or_below_cap_returns_complete_sorted_pages(
+    test_data, params, db_session, mocker
+):
+    everything = get_entity_search(db_session, _whole_world_search(params, limit=500))
+    total = everything["count"]
+    assert total > 2
+    ids = [entity.entity for entity in everything["entities"]]
+    assert ids == sorted(ids) and len(ids) == total
+
+    mocker.patch(
+        "application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", total
+    )
+    second_page = get_entity_search(
+        db_session, _whole_world_search(params, limit=1, offset=1)
+    )
+    assert second_page["count"] == total
+    assert second_page["count_is_capped"] is False
+    assert [entity.entity for entity in second_page["entities"]] == [ids[1]]
+
+
+def test_capped_search_above_cap_returns_one_page_only(
+    test_data, params, db_session, mocker
+):
+    mocker.patch("application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", 2)
+    first = get_entity_search(db_session, _whole_world_search(params, limit=2))
+    assert first["count"] == 2
+    assert first["count_is_capped"] is True
+    assert len(first["entities"]) == 2
+
+    later = get_entity_search(
+        db_session, _whole_world_search(params, limit=2, offset=2)
+    )
+    assert later["count"] == 2
+    assert later["count_is_capped"] is True
+    assert later["entities"] == []
+
+
+def test_direct_filter_matches_original_filter(test_data, params, db_session):
+    from application.data_access.entity_queries import (
+        _apply_base_filters,
+        _apply_location_filters,
+    )
+    from application.data_access.entity_query_helpers import normalised_params
+    from application.db.models import EntityOrm
+
+    for polygon in (brownfield, greenspace, no_intersection, WHOLE_WORLD):
+        search = _whole_world_search(params, geometry=[polygon], limit=500)
+        direct = get_entity_search(db_session, search)
+        normalised = normalised_params(search)
+        original = _apply_location_filters(
+            db_session,
+            _apply_base_filters(db_session.query(EntityOrm), normalised),
+            normalised,
+        ).order_by(EntityOrm.entity)
+        assert [entity.entity for entity in direct["entities"]] == [
+            row.entity for row in original
+        ]
+
+
+def test_search_timeout_is_reported_and_session_stays_usable(db_session, mocker):
+    from sqlalchemy import func, text
+    from application.data_access.entity_queries import (
+        EntitySearchTooBroad,
+        _fetch_with_search_timeout,
+    )
+
+    settings = mocker.Mock(
+        ENTITY_SEARCH_STATEMENT_TIMEOUT_MS=50, DB_STATEMENT_TIMEOUT_MS=60000
+    )
+    mocker.patch(
+        "application.data_access.entity_queries.get_settings", return_value=settings
+    )
+    with pytest.raises(EntitySearchTooBroad):
+        _fetch_with_search_timeout(db_session, db_session.query(func.pg_sleep(1)))
+    assert db_session.execute(text("SELECT 1")).scalar() == 1
+
+    _fetch_with_search_timeout(db_session, db_session.query(func.pg_sleep(0)))
+    assert db_session.execute(text("SHOW statement_timeout")).scalar() == "1min"
+    db_session.rollback()
+
+
+def test_capped_geojson_search_reports_count_and_cap_flag(
+    test_data, client, exclude_middleware, mocker
+):
+    mocker.patch("application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", 2)
+    response = client.get(
+        "/entity.geojson",
+        params={
+            "geometry": WHOLE_WORLD,
+            "geometry_relation": "intersects",
+            "limit": 2,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["type"] == "FeatureCollection"
+    assert data["count"] == 2
+    assert data["count_is_capped"] is True
+    assert "next" not in data["links"]

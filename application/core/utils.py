@@ -130,6 +130,13 @@ def make_links(scheme, netloc, path, query, data):
     limit = data["params"].get("limit", 10)
     offset = data["params"].get("offset", 0)
 
+    if data.get("count_is_capped"):
+        # Only one page is available above the cap, so offer a way back to it.
+        if limit <= 0 or offset == 0:
+            return {}
+        query_str = make_pagination_query_str(query, limit)
+        return {"first": urlunsplit((scheme, netloc, path, query_str, ""))}
+
     # note api validation ensures limit > 0 but handle ZeroDivisionError
     try:
         page_count = count / limit

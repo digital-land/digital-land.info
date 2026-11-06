@@ -89,3 +89,33 @@ def test_pagination_if_limit_zero_then_no_links():
     params = {}
     links = make_links(scheme, netloc, path, params, data)
     assert links == {}
+
+
+def test_capped_first_page_has_no_links():
+    data = {
+        "count": 10_000,
+        "count_is_capped": True,
+        "params": {"limit": 10, "offset": 0},
+    }
+    assert make_links(scheme, netloc, path, "limit=10", data) == {}
+
+
+def test_capped_later_page_only_links_back_to_first_page():
+    data = {
+        "count": 10_000,
+        "count_is_capped": True,
+        "params": {"limit": 10, "offset": 10},
+    }
+    links = make_links(scheme, netloc, path, "limit=10&offset=10", data)
+    assert list(links) == ["first"]
+    assert "offset" not in links["first"]
+
+
+def test_count_exactly_at_the_cap_keeps_normal_pagination():
+    data = {
+        "count": 10_000,
+        "count_is_capped": False,
+        "params": {"limit": 10, "offset": 0},
+    }
+    links = make_links(scheme, netloc, path, "limit=10", data)
+    assert "next" in links and "last" in links
