@@ -261,7 +261,7 @@ def _capture_capped_search(mocker, parameters, *, matched_count=0, entity=None):
 BOX = "POLYGON((0 0,1 0,1 1,0 1,0 0))"
 
 
-def test_geometry_search_on_simple_dataset_filters_entity_directly(mocker):
+def test_geometry_search_with_dataset_filters_geometry_or_point_directly(mocker):
     _, sql, _ = _capture_capped_search(
         mocker,
         {
@@ -278,8 +278,24 @@ def test_geometry_search_on_simple_dataset_filters_entity_directly(mocker):
     assert "UNION ALL" not in matches
     assert "IN (SELECT" not in matches
     assert "entity_subdivided" not in sql
-    assert "entity.geometry" in matches and "entity.point" in matches
+    assert "ST_Intersects(entity.geometry" in matches
+    assert "ST_Intersects(entity.point" in matches
     assert " OR " in matches
+
+
+def test_geometry_search_without_dataset_splits_geometry_and_point(mocker):
+    _, sql, _ = _capture_capped_search(
+        mocker,
+        {"geometry": [BOX], "geometry_relation": "intersects", "limit": 500},
+    )
+    matches = sql[: sql.index("search_page AS")]
+    geometry_branch, point_branch, subdivided_branch = matches.split("UNION ALL")
+    assert "ST_Intersects(entity.geometry" in geometry_branch
+    assert "entity.point" not in geometry_branch
+    assert "ST_Intersects(entity.point" in point_branch
+    # The point branch skips entities the geometry branch already returned.
+    assert "NOT (entity.geometry IS NOT NULL" in point_branch
+    assert "entity_subdivided" in subdivided_branch
 
 
 def test_geometry_search_without_dataset_keeps_subdivided_branch_separate(mocker):

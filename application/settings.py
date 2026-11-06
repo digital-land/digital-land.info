@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     DB_POOL_SIZE: Optional[int] = 5
     DB_POOL_MAX_OVERFLOW: Optional[int] = 10
     DB_STATEMENT_TIMEOUT_MS: Optional[int] = 420000
-    ENTITY_SEARCH_STATEMENT_TIMEOUT_MS: Optional[int] = 10000
+    ENTITY_SEARCH_STATEMENT_TIMEOUT_MS: Optional[int] = 15000
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_SECURE: bool = True

@@ -2,7 +2,7 @@ import logging
 import sentry_sdk
 
 from typing import Optional, List, Tuple
-from sqlalchemy import select, func, or_, and_, tuple_, union_all, true
+from sqlalchemy import select, func, or_, and_, not_, tuple_, union_all, true
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
@@ -131,6 +131,7 @@ def get_entity_search(
     )
     basequery = _apply_period_option_filter(basequery, params)
 
+    # If there are location filters, we need to use a different approach to get the count and entities.
     if has_location_filters(params):
         return _search_with_capped_matches(session, basequery, params, extension)
 
@@ -228,10 +229,22 @@ def _location_match_branches(session, basequery, params):
 
 
 def _geometry_match_branches(basequery, params):
-    # Filter entity directly so the planner can use its spatial or dataset indexes
-    # and stop early. Subdivided datasets stay in a separate branch, because an OR
-    # with their subquery would rule those indexes out. A dataset is only ever in
-    # one branch, so the branches cannot return the same entity.
+    # Filter entity directly so the cap can stop the scan early, instead of
+    # collecting every match through an IN subquery.
+    #
+    # With a dataset filter, test geometry OR point in one branch. Postgres can then
+    # walk the dataset index and stop at the cap, which was fastest for broad
+    # searches on one dataset.
+    #
+    # Without one, an OR across the two columns makes Postgres build a bitmap of
+    # every match in the box before returning any rows, which timed out for broad
+    # boxes. Splitting geometry and point into separate branches lets each stream
+    # from its own spatial index instead. The point branch skips entities the
+    # geometry branch already matched, so no entity is returned twice.
+    #
+    # Subdivided datasets stay in their own branch, because an OR with their
+    # subquery would rule the entity indexes out. A dataset is only ever in one of
+    # the entity or subdivided branches.
     subdivided = aliased(EntitySubdividedOrm)
     subdivided_filter, entity_filter = _dataset_filters(params, subdivided)
     spatial_function = get_spatial_function_for_relation(
@@ -241,22 +254,27 @@ def _geometry_match_branches(basequery, params):
         func.ST_GeomFromText(geometry, 4326) for geometry in params["geometry"]
     ]
 
+    def column_matches(column):
+        return and_(
+            column.is_not(None),
+            func.ST_IsValid(column),
+            or_(*[spatial_function(column, geom) for geom in geometries]),
+        )
+
     branches = []
     if entity_filter is not None:
-        conditions = [
-            and_(
-                column.is_not(None),
-                func.ST_IsValid(column),
-                spatial_function(column, geom),
+        geometry_matches = column_matches(EntityOrm.geometry)
+        point_matches = column_matches(EntityOrm.point)
+        if params.get("dataset"):
+            conditions = [or_(geometry_matches, point_matches)]
+        else:
+            conditions = [geometry_matches, and_(point_matches, not_(geometry_matches))]
+        for condition in conditions:
+            branches.append(
+                basequery.filter(entity_filter, condition).with_entities(
+                    EntityOrm.entity
+                )
             )
-            for geom in geometries
-            for column in (EntityOrm.geometry, EntityOrm.point)
-        ]
-        branches.append(
-            basequery.filter(entity_filter, or_(*conditions)).with_entities(
-                EntityOrm.entity
-            )
-        )
     if subdivided_filter is not None:
         subdivided_ids = select(subdivided.entity).where(
             subdivided_filter,
