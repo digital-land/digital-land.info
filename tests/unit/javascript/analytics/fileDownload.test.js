@@ -63,4 +63,24 @@ describe('Tracking file downloads', () => {
     expect(() => clickHandler({ target: link })).not.toThrow();
     expect(trackEvent).not.toHaveBeenCalled();
   });
+
+  test('strips a parameter that is not on the allow-list from link_url', () => {
+    clickOn('https://example.com/data.json?q=whitehall', 'Download json');
+
+    expect(trackEvent).toHaveBeenCalledWith('file_download', {
+      link_url: 'https://example.com/data.json',
+      link_text: 'Download json',
+      file_extension: 'json'
+    });
+  });
+
+  test('retains an allow-listed parameter in link_url', () => {
+    clickOn('https://example.com/data.json?dataset=conservation-area&q=whitehall', 'Download json');
+
+    expect(trackEvent).toHaveBeenCalledWith('file_download', {
+      link_url: 'https://example.com/data.json?dataset=conservation-area',
+      link_text: 'Download json',
+      file_extension: 'json'
+    });
+  });
 });
