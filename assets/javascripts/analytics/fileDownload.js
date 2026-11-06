@@ -1,4 +1,5 @@
 import { trackEvent } from './trackEvent.js';
+import { sanitiseUrl } from './urlSanitiser.js';
 
 // This event is ALSO fired by GA4's "File downloads" enhanced measurement
 // setting, which covers a fixed list of extensions Google maintains and we
@@ -27,7 +28,7 @@ function handleDownloadClick(event) {
   if (!shouldTrackFileDownload(extension)) return;
 
   trackEvent('file_download', {
-    link_url: link.href,
+    link_url: sanitiseUrl(link.href),
     link_text: link.innerText || link.href,
     file_extension: extension.substring(1),
   });
