@@ -556,6 +556,8 @@ def search_entities(
         else:
             geojson = _get_geojson(data["entities"])
         geojson["links"] = links
+        geojson["count"] = data["count"]
+        geojson["count_is_capped"] = data.get("count_is_capped", False)
         return geojson
 
     db_session = DbSession(session=session, redis=redis)

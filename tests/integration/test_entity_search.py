@@ -647,3 +647,23 @@ def test_search_timeout_is_reported_and_session_stays_usable(db_session, mocker)
     _fetch_with_search_timeout(db_session, db_session.query(func.pg_sleep(0)))
     assert db_session.execute(text("SHOW statement_timeout")).scalar() == "1min"
     db_session.rollback()
+
+
+def test_capped_geojson_search_reports_count_and_cap_flag(
+    test_data, client, exclude_middleware, mocker
+):
+    mocker.patch("application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", 2)
+    response = client.get(
+        "/entity.geojson",
+        params={
+            "geometry": WHOLE_WORLD,
+            "geometry_relation": "intersects",
+            "limit": 2,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["type"] == "FeatureCollection"
+    assert data["count"] == 2
+    assert data["count_is_capped"] is True
+    assert "next" not in data["links"]

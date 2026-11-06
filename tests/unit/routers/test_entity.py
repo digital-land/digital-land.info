@@ -1413,3 +1413,30 @@ def test_search_entities_json_exposes_numeric_count_and_cap_flag(
     assert response["count_is_capped"] is count_is_capped
     assert "last" not in response["links"] or not count_is_capped
     assert "next" not in response["links"] or not count_is_capped
+
+
+@pytest.mark.parametrize("count_is_capped", [False, True])
+def test_search_entities_geojson_exposes_count_and_cap_flag(mocker, count_is_capped):
+    query_filters = QueryFilters()
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": 10_000,
+            "count_is_capped": count_is_capped,
+            "entities": [],
+        },
+    )
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=SuffixEntity.geojson,
+    )
+    assert response["type"] == "FeatureCollection"
+    assert response["count"] == 10_000
+    assert response["count_is_capped"] is count_is_capped
+    if count_is_capped:
+        assert "next" not in response["links"]
