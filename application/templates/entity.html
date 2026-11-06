@@ -34,7 +34,10 @@
   {% set includesMap = true %}
 {% endif %}
 
-{% if pipeline_name == 'local-plan'%}
+{% set plan_datasets = ['local-plan', 'minerals-plan', 'waste-plan'] %}
+{% set plan_boundary_datasets = ['local-plan-boundary', 'minerals-plan-boundary', 'waste-plan-boundary'] %}
+
+{% if pipeline_name in plan_datasets %}
   {% if local_plan_geojson != none %}
     {% set includesMap = true %}
     {% set geojson_data = local_plan_geojson %}
@@ -82,7 +85,7 @@
         {%- if includesMap %}
           {% call appSummaryCard({
             'classes': 'govuk-!-margin-bottom-6',
-            'titleText': 'Local Plan Boundary' if pipeline_name == 'local-plan' else 'Geographical area',
+            'titleText': 'Plan boundary' if pipeline_name in plan_datasets else 'Geographical area',
           })%}
 
             {{
@@ -284,22 +287,28 @@
       {{ appSideNav({ "sections": sideNavSections }) }}
     </div>
 
-    {% if local_plans['local-plan'] %}
+    {% set related_plans = [] %}
+    {% for plan_dataset in plan_datasets %}
+      {% for plan in local_plans[plan_dataset] or [] %}
+        {% do related_plans.append(plan) %}
+      {% endfor %}
+    {% endfor %}
+    {% if related_plans %}
     <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plans'
+      'titleText': 'Related plans'
       }) %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
           <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Entity</th>
-            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Local Plan Name</th>
+            <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Plan name</th>
             <th scope="col" class="govuk-table__header" style="white-space: nowrap;">Documentation URL</th>
           </tr>
         </thead>
         <tbody class="govuk-table__body">
-          {% for plan in local_plans['local-plan'] %}
+          {% for plan in related_plans %}
           <tr class="govuk-table__row">
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
@@ -314,17 +323,17 @@
       </table>
       {% endcall %}
     </div>
-    {% elif entity.dataset == "local-plan-boundary" %}
+    {% elif entity.dataset in plan_boundary_datasets %}
     <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plans'
+      'titleText': 'Related plans'
       }) %}
       <table class="govuk-table">
         <tbody class="govuk-table__body">
           <tr class="govuk-table__row">
             <td colspan="2" class="govuk-table__cell govuk-body">
-              No related local plans are available for this entity.
+              No related plans are available for this entity.
             </td>
           </tr>
         </tbody>
@@ -333,18 +342,18 @@
     </div>
     {% endif %}
 
-    {% if local_plans['local-plan-timetable'] %}
+    {% if local_plans['plan-timetable'] %}
       <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
         {% call appSummaryCard({
             'classes': 'govuk-!-margin-bottom-0',
-            'titleText': 'Related Local Plan Timetable'
+            'titleText': 'Timetable'
         }) %}
         <ol class="dl-timeline dl-timeline--dates">
-            {% for plan in local_plans['local-plan-timetable'] %}
-            {% if plan.local_plan_event %}
+            {% for plan in local_plans['plan-timetable'] %}
+            {% if plan.plan_event %}
             <li class="dl-timeline__entry">
               <h3 class="govuk-heading-s dl-timeline__entry-heading">
-                    {{ plan.local_plan_event.name }}
+                    {{ plan.plan_event.name }}
                 </h3>
                 <p class="dl-timeline__entry-details govuk-body-s">
                     {{ plan.event_date | format_date}}
@@ -362,11 +371,11 @@
     </div>
   {% endif %}
 
-    {% if local_plans['local-plan-document'] %}
+    {% if local_plans['development-plan-document'] %}
     <div class="govuk-grid-column-two-thirds govuk-!-margin-top-6 govuk-!-margin-bottom-6">
       {% call appSummaryCard({
       'classes': 'govuk-!-margin-bottom-0',
-      'titleText': 'Related Local Plan Document'
+      'titleText': 'Documents'
       }) %}
       <table class="govuk-table">
         <thead class="govuk-table__head">
@@ -378,7 +387,7 @@
           </tr>
         </thead>
         <tbody class="govuk-table__body">
-          {% for plan in local_plans['local-plan-document'] %}
+          {% for plan in local_plans['development-plan-document'] %}
           <tr class="govuk-table__row">
             <td class="govuk-table__cell app-table__cell">
               <a class="govuk-link" style="white-space: nowrap;" href="{{ plan.entity }}">{{ plan.entity}}</a>
@@ -386,7 +395,7 @@
             <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
             <td class="govuk-table__cell app-table__cell">{{ plan.document_types }}</td>
             <td class="govuk-table__cell app-table__cell">
-              <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+              <a class="govuk-link" href="{{ plan.document_url }}">{{ plan.document_url }}</a>
             </td>
           </tr>
           {% endfor %}
