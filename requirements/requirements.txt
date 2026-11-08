@@ -54,6 +54,8 @@ markupsafe==3.0.3
     # via
     #   jinja2
     #   mako
+nh3==0.3.7
+    # via -r requirements/requirements.in
 numpy==2.4.6
     # via shapely
 packaging==26.2

@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 def get_field_specifications(fields):
     url = f"{get_settings().DATASETTE_URL}/digital-land.json"
+    # Bind field values as datasette named parameters rather than
+    # interpolating them into the SQL, to prevent SQL injection.
+    field_params = {f"field{i}": value for i, value in enumerate(fields)}
+    placeholders = ", ".join(f":{name}" for name in field_params) or "NULL"
     sql = f"""
          SELECT
             f.field,
@@ -19,10 +23,10 @@ def get_field_specifications(fields):
             f.typology,
             f.uri_template
          FROM field f
-         WHERE field in ('{"','".join(fields)}');
+         WHERE field in ({placeholders});
     """
 
-    params = {"sql": sql, "_shape": "array"}
+    params = {"sql": sql, "_shape": "array", **field_params}
 
     try:
         http = get_datasette_http()

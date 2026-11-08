@@ -2,6 +2,7 @@ from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
 from markdown import markdown
 from markupsafe import Markup
+import nh3
 import json
 import jsonpickle
 from bs4 import BeautifulSoup
@@ -105,7 +106,12 @@ def make_url_param_str(param_dict, exclude_values=None, exclude_params=None):
 def render_markdown(text, govAttributes=False, makeSafe=True):
     if text is None:
         return ""
-    soup = BeautifulSoup(markdown(text), "html.parser")
+    # Sanitise the rendered HTML against an allowlist so that any raw
+    # HTML/script embedded in the source text cannot reach the page. The
+    # GOV.UK classes added below are applied after sanitisation, so they are
+    # unaffected.
+    sanitised_html = nh3.clean(markdown(text))
+    soup = BeautifulSoup(sanitised_html, "html.parser")
     if govAttributes:
         _add_html_attrs(soup)
     if makeSafe:
@@ -164,7 +170,7 @@ def digital_land_to_json(dict):
         # Replace geometry with a placeholder message if truncated
         if "geometry" in filtered_dict:
             filtered_dict["geometry"] = (
-                "<b>Too large to display. Download JSON for full geometry.</b>"
+                "Too large to display. Download JSON for full geometry."
             )
     # dict["geometry"] = dict["geometry"][:1000]
     return json.dumps(

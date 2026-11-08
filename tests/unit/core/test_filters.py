@@ -221,3 +221,56 @@ def test_is_past_date():
     end_date_three_years_in_past = (today - relativedelta(years=3)).date()
     result = is_past_date(end_date_three_years_in_past)
     assert result is True
+
+
+def test_render_markdown_strips_script_and_handlers():
+    """Regression: render_markdown must sanitise embedded HTML/script."""
+    from application.core.filters import render_markdown
+
+    out = str(
+        render_markdown("ok <script>alert(1)</script> <img src=x onerror=alert(1)>")
+    )
+    assert "<script>" not in out
+    assert "onerror" not in out
+    assert "alert(1)" not in out or "<script>" not in out
+
+
+def test_render_markdown_keeps_safe_formatting():
+    from application.core.filters import render_markdown
+
+    out = str(render_markdown("**bold** and [a link](https://example.com)"))
+    assert "<strong>bold</strong>" in out
+    assert 'href="https://example.com"' in out
+
+
+def test_os_token_route_requires_same_origin():
+    """Regression: /os/getToken must reject non-same-origin callers."""
+    from types import SimpleNamespace
+    from application.routers.osMapOAuth import _is_same_origin
+
+    def req(headers):
+        return SimpleNamespace(headers=headers)
+
+    assert _is_same_origin(req({"sec-fetch-site": "same-origin"})) is True
+    assert _is_same_origin(req({"sec-fetch-site": "cross-site"})) is False
+    assert _is_same_origin(req({"sec-fetch-site": "none"})) is False
+    # Fallback to Origin/Referer host matching when Sec-Fetch-Site is absent.
+    assert (
+        _is_same_origin(
+            req(
+                {
+                    "host": "planning.data.gov.uk",
+                    "origin": "https://planning.data.gov.uk",
+                }
+            )
+        )
+        is True
+    )
+    assert (
+        _is_same_origin(
+            req({"host": "planning.data.gov.uk", "origin": "https://evil.example"})
+        )
+        is False
+    )
+    # No origin signal at all -> reject.
+    assert _is_same_origin(req({"host": "planning.data.gov.uk"})) is False

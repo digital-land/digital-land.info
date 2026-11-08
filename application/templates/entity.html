@@ -182,10 +182,10 @@
      </div>
     </a>
 
-        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ data_to_send | digital_land_to_json | safe }}
+        <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ data_to_send | digital_land_to_json }}
         </code></pre>
       {% else %}
-      <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ data_to_send | digital_land_to_json | safe }}</code></pre>
+      <pre class="govuk-!-margin-0"><code class="language-json app-code-block app-code-block-overflow" tabindex="0">{{ data_to_send | digital_land_to_json }}</code></pre>
       {% endif %}
       {% endset %}
       {% set geojsonHTML %}
