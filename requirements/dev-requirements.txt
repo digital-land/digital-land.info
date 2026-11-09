@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/dev-requirements.txt requirements/dev-requirements.in
 #
-anyio==4.14.0
+anyio==4.14.2
     # via
     #   -c requirements/requirements.txt
     #   httpx2
@@ -24,7 +24,7 @@ brotli==1.2.1
     # via
     #   -r requirements/dev-requirements.in
     #   geventhttpclient
-certifi==2026.6.17
+certifi==2026.10.19
     # via
     #   -c requirements/requirements.txt
     #   geventhttpclient
@@ -76,6 +76,7 @@ geventhttpclient==2.3.9
     # via locust
 greenlet==3.5.1
     # via
+    #   -c requirements/requirements.txt
     #   gevent
     #   playwright
 h11==0.16.0
@@ -128,7 +129,7 @@ mypy-extensions==1.1.0
     # via black
 nodeenv==1.10.0
     # via pre-commit
-packaging==26.2
+packaging==26.3
     # via
     #   -c requirements/requirements.txt
     #   black
@@ -270,8 +271,10 @@ urllib3==2.7.0
     #   geventhttpclient
     #   requests
     #   testcontainers
-virtualenv==21.14.5
-    # via pre-commit
+virtualenv==21.14.7
+    # via
+    #   -r requirements/dev-requirements.in
+    #   pre-commit
 websocket-client==1.9.0
     # via python-socketio
 werkzeug==3.1.8

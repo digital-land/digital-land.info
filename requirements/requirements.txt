@@ -10,12 +10,15 @@ annotated-doc==0.0.4
     # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.14.0
-    # via starlette
+anyio==4.14.2
+    # via
+    #   -r requirements/requirements.in
+    #   starlette
 beautifulsoup4==4.15.0
     # via -r requirements/requirements.in
-certifi==2026.6.17
+certifi==2026.10.19
     # via
+    #   -r requirements/requirements.in
     #   requests
     #   sentry-sdk
 charset-normalizer==3.4.7
@@ -31,6 +34,8 @@ fastapi-utils==0.8.0
 geoalchemy2==0.20.0
     # via -r requirements/requirements.in
 govuk-frontend-jinja==3.7.0
+    # via -r requirements/requirements.in
+greenlet==3.5.1
     # via -r requirements/requirements.in
 gunicorn==26.0.0
     # via -r requirements/requirements.in
@@ -57,8 +62,10 @@ markupsafe==3.0.3
 nh3==0.3.7
     # via -r requirements/requirements.in
 numpy==2.4.6
-    # via shapely
-packaging==26.2
+    # via
+    #   -r requirements/requirements.in
+    #   shapely
+packaging==26.3
     # via
     #   geoalchemy2
     #   gunicorn

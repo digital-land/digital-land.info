@@ -23,7 +23,7 @@ aws-cdk-lib==2.154.1
     # via -r requirements_test.in
 cattrs==23.2.3
     # via jsii
-certifi==2024.8.30
+certifi==2026.10.19
     # via
     #   -r requirements.txt
     #   selenium
