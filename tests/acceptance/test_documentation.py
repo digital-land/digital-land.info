@@ -15,19 +15,21 @@ def test_accessing_the_openAPI_file_and_the_swagger_editor(server_url, page):
     page.goto(server_url)
     page.get_by_role("link", name="API", exact=True).click()
 
-    with page.expect_navigation() as navigation_info:
-        page.get_by_role(
-            "link", name="https://www.planning.data.gov.uk/openapi.json"
-        ).click()
+    # The docs page links to the canonical production OpenAPI URL as product
+    # content. Assert the link is present without navigating to the live
+    # service, then validate the OpenAPI document served by this instance.
+    openapi_link = page.get_by_role(
+        "link", name="https://www.planning.data.gov.uk/openapi.json"
+    )
+    assert openapi_link.is_visible()
 
-    assert navigation_info.value.ok
+    response = page.request.get(server_url + "/openapi.json")
+    assert response.ok
 
     try:
-        json.loads(navigation_info.value.body())
+        json.loads(response.body())
     except ValueError:
         assert False, "The openapi.json file is not valid JSON."
-
-    page.go_back()
 
     linkHref = page.get_by_role("link", name="Swagger Editor").get_attribute("href")
 
