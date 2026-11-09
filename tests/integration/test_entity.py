@@ -285,6 +285,6 @@ def test_fetch_linked_local_plans_boundary(db_session):
 
     linked_entities, boundary = fetch_linked_local_plans(db_session, params)
     assert hasattr(boundary, "geojson")
-    assert "local-plan-timetable" in linked_entities
-    assert linked_entities["local-plan-timetable"] == []
-    assert linked_entities["local-plan-document"] == []
+    assert "plan-timetable" in linked_entities
+    assert linked_entities["plan-timetable"] == []
+    assert linked_entities["development-plan-document"] == []
