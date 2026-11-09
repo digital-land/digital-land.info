@@ -580,8 +580,11 @@ def get_linked_entities(
         .filter(EntityOrm.json.contains({linked_dataset: reference}))
     )
 
-    if dataset in ["local-plan-timetable"]:
-        query = query.order_by(cast(EntityOrm.json["event-date"].astext, Date).desc())
+    if dataset in ["plan-timetable"]:
+        query = query.order_by(
+            cast(EntityOrm.json["event-date"].astext, Date).desc(),
+            EntityOrm.entity, # tiebreaker so same-day events have a stable order
+            )
 
     entities = query.all()
     return [entity_factory(e) for e in entities]

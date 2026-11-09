@@ -47,8 +47,8 @@ def local_plan_timetable_model():
         entry_date="2022-03-23",
         name="test Local Plan timetable",
         reference="1481207",
-        dataset="local-plan-timetable",
-        prefix="local-plan-timetable",
+        dataset="plan-timetable",
+        prefix="plan-timetable",
         json={"event-date": "2018-11-20", "local-plan": "1481207"},
     )
 
@@ -57,8 +57,8 @@ def local_plan_timetable_model():
         entry_date="2022-03-23",
         name="test Local Plan timetable",
         reference="1481207",
-        dataset="local-plan-timetable",
-        prefix="local-plan-timetable",
+        dataset="plan-timetable",
+        prefix="plan-timetable",
         json={"event-date": "2020-11-20", "local-plan": "1481207"},
     )
 
@@ -72,8 +72,8 @@ def local_plan_document_model():
         entry_date="2022-03-23",
         name="test Local Plan Document",
         reference="1481207",
-        dataset="local-plan-document",
-        prefix="local-plan-document",
+        dataset="development-plan-document",
+        prefix="development-plan-document",
         json={
             "documentation-url": "https://www.arun.gov.uk/adopted-local-plan/",
             "local-plan": "1481207",
@@ -93,15 +93,15 @@ def test_fetch_linked_local_plans_json_returned(
     mocker.patch(
         "application.routers.entity.linked_datasets",
         {
-            "local-plan": ["local-plan-timetable", "local-plan-document"],
+            "local-plan": ["plan-timetable", "development-plan-document"],
         },
     )
 
     mocker.patch(
         "application.routers.entity.get_linked_entities",
         side_effect=lambda session, dataset, reference, linked_dataset=None: {
-            "local-plan-timetable": local_plan_timetable_model,
-            "local-plan-document": local_plan_document_model,
+            "plan-timetable": local_plan_timetable_model,
+            "development-plan-document": local_plan_document_model,
             "local-plan-boundary": local_plan_boundary_model,
         }[
             dataset
@@ -116,14 +116,14 @@ def test_fetch_linked_local_plans_json_returned(
 
     # Assertions
     assert isinstance(results, dict), f"{type(results)} is expected to be a Dict"
-    assert "local-plan-timetable" in results, "Expected local-plan-timetable in results"
-    assert "local-plan-document" in results, "Expected local-plan-document in results"
+    assert "plan-timetable" in results, "Expected plan-timetable in results"
+    assert "development-plan-document" in results, "Expected development-plan-document in results"
     assert (
-        len(results["local-plan-timetable"]) == 2
-    ), "Expected 2 entities in 'local-plan-timetable'"
+        len(results["plan-timetable"]) == 2
+    ), "Expected 2 entities in 'plan-timetable'"
     assert (
-        len(results["local-plan-document"]) == 1
-    ), "Expected 1 entity in 'local-plan-document'"
+        len(results["development-plan-document"]) == 1
+    ), "Expected 1 entity in 'development-plan-document'"
 
 
 @pytest.mark.parametrize(

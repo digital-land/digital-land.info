@@ -306,13 +306,14 @@ def handle_entity_response(
 
 datasets_without_facts = ["title-boundary"]
 
+PLAN_DATASETS = ["local-plan", "minerals-plan", "waste-plan"]
+
 linked_datasets = {
-    "local-plan-boundary": ["local-plan"],
-    "local-plan": [
-        "local-plan-document",
-        "local-plan-timetable",
-        "local-plan-boundary",
-    ],
+    **{f"{plan}-boundary": [plan] for plan in PLAN_DATASETS},
+    **{
+        plan: [f"{plan}-boundary", "plan-timetable", "development-plan-document"]
+        for plan in PLAN_DATASETS
+    },
 }
 
 
@@ -322,31 +323,36 @@ def fetch_linked_local_plans(session: Session, e_dict_sorted: Dict = None):
     dataset = e_dict_sorted["dataset"]
     reference = e_dict_sorted["reference"]
     if dataset in linked_datasets:
-        linked_dataset_value = linked_datasets[dataset]
-        for linked_dataset in linked_dataset_value:
-            if dataset == "local-plan" and linked_dataset == "local-plan-boundary":
+        for linked_dataset in linked_datasets[dataset]:
+            if dataset in PLAN_DATASETS and linked_dataset == f"{dataset}-boundary":
                 if linked_dataset in e_dict_sorted:
                     local_plan_boundary_geojson = fetchEntityFromReference(
                         session, linked_dataset, e_dict_sorted[linked_dataset]
                     )
+                continue
+
+            # timetables and documents refer to their plan by reference
+            link_field = {
+                "plan-timetable": "plan",
+                "development-plan-document": "development-plan",
+            }.get(linked_dataset, dataset)
             linked_entities = get_linked_entities(
-                session, linked_dataset, reference, linked_dataset=dataset
+                session, linked_dataset, reference, linked_dataset=link_field
             )
             results[linked_dataset] = linked_entities
 
-            # Handle special case for "local-plan-timetable"
-            if dataset == "local-plan" and linked_dataset == "local-plan-timetable":
+            if linked_dataset == "plan-timetable":
                 for entity in linked_entities:
                     if (
-                        hasattr(entity, "local_plan_event")
-                        and entity.local_plan_event
-                        and not entity.local_plan_event.startswith("estimated")
+                        hasattr(entity, "plan_event")
+                        and entity.plan_event
+                        and not entity.plan_event.startswith("estimated")
                     ):
-                        entity.local_plan_event = fetchEntityFromReference(
-                            session, "local-plan-event", entity.local_plan_event
+                        entity.plan_event = fetchEntityFromReference(
+                            session, "plan-event", entity.plan_event
                         )
                     else:
-                        entity.local_plan_event = None
+                        entity.plan_event = None
 
     return results, local_plan_boundary_geojson
 
