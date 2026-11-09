@@ -170,7 +170,7 @@ def test_fetch_linked_local_plans(db_session):
         "end_date": "2020-01-07",
         "dataset": "plan-timetable",
         "json": {
-            "event-date": "2018-11-20",
+            "event-date": "2018-10-20",
             "plan": "1481207",
             "plan-event": "estimated-plan-published",
         },
