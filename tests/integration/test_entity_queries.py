@@ -244,7 +244,7 @@ def test__local_plan_linked_entity_timetable_order_check(
         "entry_date": "2019-01-07",
         "start_date": "2019-01-05",
         "end_date": "2020-01-07",
-        "dataset": "local-plan-timetable",
+        "dataset": "plan-timetable",
         "json": {"event-date": "2022-11-20", "local-plan": "1481207"},
         "organisation_entity": 123,
         "prefix": "development-plan-document",
