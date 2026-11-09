@@ -1,6 +1,7 @@
 -c requirements.txt
 pytest
 flake8
+filelock==4.2.1
 pre-commit
 playwright
 pytest-playwright

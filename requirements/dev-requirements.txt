@@ -52,8 +52,9 @@ distlib==0.4.3
     # via virtualenv
 docker==7.1.0
     # via testcontainers
-filelock==3.29.4
+filelock==4.2.1
     # via
+    #   -r requirements/dev-requirements.in
     #   python-discovery
     #   virtualenv
 flake8==7.3.0
@@ -133,6 +134,7 @@ packaging==26.2
     #   black
     #   pytest
     #   typepy
+    #   virtualenv
 pathspec==1.1.1
     # via black
 pathvalidate==3.3.1
@@ -140,7 +142,6 @@ pathvalidate==3.3.1
 platformdirs==4.10.0
     # via
     #   black
-    #   python-discovery
     #   virtualenv
 playwright==1.60.0
     # via
@@ -183,7 +184,7 @@ pytest-playwright==0.8.0
     # via -r requirements/dev-requirements.in
 python-dateutil==2.9.0.post0
     # via typepy
-python-discovery==1.4.2
+python-discovery==1.9.5
     # via virtualenv
 python-dotenv==1.2.2
     # via
@@ -269,7 +270,7 @@ urllib3==2.7.0
     #   geventhttpclient
     #   requests
     #   testcontainers
-virtualenv==21.5.1
+virtualenv==21.14.5
     # via pre-commit
 websocket-client==1.9.0
     # via python-socketio
