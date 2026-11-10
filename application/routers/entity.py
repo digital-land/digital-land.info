@@ -485,8 +485,14 @@ def search_entities(
     try:
         data = get_entity_search(session, query_params, extension)
     except EntitySearchTooBroad:
-        _record_search_error("statement_timeout", extension, query_params)
-        logger.warning("Entity search hit the search statement timeout")
+        # Expected for very broad searches: a metric and a warning, not a Sentry error.
+        extension_tag, dataset_filters = _record_search_error(
+            "statement_timeout", extension, query_params
+        )
+        logger.warning(
+            "Entity search too broad: hit the search statement timeout",
+            extra={"extension": extension_tag, "dataset_filters": dataset_filters},
+        )
         if extension in (SuffixEntity.json, SuffixEntity.geojson):
             raise HTTPException(status_code=422, detail=SEARCH_TOO_BROAD_MESSAGE)
         data = {
@@ -603,6 +609,7 @@ def search_entities(
         {
             "count": data["count"],
             "count_is_capped": data.get("count_is_capped", False),
+            "pagination_is_capped": data.get("pagination_is_capped", False),
             "search_too_broad": data.get("search_too_broad", False),
             "first_url": links.get("first"),
             "limit": params["limit"],

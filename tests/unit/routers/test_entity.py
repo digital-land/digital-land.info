@@ -1330,6 +1330,110 @@ def test_search_entities_displays_capped_count(
     assert (notice is not None) is count_is_capped
 
 
+@pytest.mark.parametrize(
+    "pagination_is_capped, expected_text",
+    [
+        (True, "we can only show one page"),
+        (False, "This search found more than 10,000 results."),
+    ],
+)
+def test_search_entities_cap_notice_says_whether_pages_are_limited(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    pagination_is_capped,
+    expected_text,
+):
+    query_filters = QueryFilters()
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": 10_000,
+            "count_is_capped": True,
+            "pagination_is_capped": pagination_is_capped,
+            "has_next_page": True,
+            "entities": [],
+        },
+    )
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=None,
+    )
+    notice = BeautifulSoup(response.body, "html.parser").select_one(".govuk-inset-text")
+    assert expected_text in notice.get_text(" ", strip=True)
+    assert ("one page" in notice.get_text()) is pagination_is_capped
+
+
+@pytest.mark.parametrize("extension", [None, SuffixEntity.json])
+def test_search_too_broad_is_reported_as_metric_and_warning_not_error(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    extension,
+):
+    from fastapi import HTTPException
+    from application.data_access.entity_queries import (
+        EntitySearchTooBroad,
+        get_entity_search,
+    )
+
+    query_filters = QueryFilters()
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    # Raise from inside the real decorated function, so its error handling runs too.
+    mocker.patch(
+        "application.data_access.entity_queries.normalised_params",
+        side_effect=EntitySearchTooBroad(),
+    )
+    mocker.patch("application.routers.entity.get_entity_search", get_entity_search)
+    router_logger = mocker.patch("application.routers.entity.logger")
+    utils_logger = mocker.patch("application.core.utils.logger")
+    # Both modules share sentry_sdk.metrics, so one mock sees every metric.
+    metrics = mocker.patch("sentry_sdk.metrics")
+
+    call = lambda: search_entities(  # noqa: E731
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=extension,
+    )
+    if extension is None:
+        call()
+    else:
+        with pytest.raises(HTTPException):
+            call()
+
+    # Only the search error metric, not the decorator's function.exception metric.
+    metrics.count.assert_called_once()
+    assert metrics.count.call_args.args[0] == "entity.search.error"
+    assert metrics.count.call_args.kwargs["attributes"]["error"] == "statement_timeout"
+    router_logger.warning.assert_called_once()
+    router_logger.exception.assert_not_called()
+    router_logger.error.assert_not_called()
+    utils_logger.error.assert_not_called()
+
+
 def test_search_entities_html_explains_search_too_broad(
     mocker, typologies, local_authorities, multiple_dataset_models, organisation_list
 ):

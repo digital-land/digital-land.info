@@ -224,11 +224,16 @@
         </div>
         <!-- /.app-results-summary -->
 
-        {% if count_is_capped %}
+        {% if pagination_is_capped %}
         <div class="govuk-inset-text">
           This search found more than {{ count|commanum }} results, so we can only show one page and the results may change between searches.
           To see more, narrow your search using the filters or <a href="/dataset/" class="govuk-link">download the dataset</a>.
           {% if first_url %}<a href="{{ first_url }}" class="govuk-link">Go back to the first page of results</a>.{% endif %}
+        </div>
+        {% elif count_is_capped %}
+        <div class="govuk-inset-text">
+          This search found more than {{ count|commanum }} results.
+          To find what you need, narrow your search using the filters or <a href="/dataset/" class="govuk-link">download the dataset</a>.
         </div>
         {% endif %}
 

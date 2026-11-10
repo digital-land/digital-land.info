@@ -378,7 +378,18 @@ def test_capped_search_only_returns_one_page_above_the_cap(
     assert result["entities"] == expected_entities
 
 
-def test_search_without_location_filter_keeps_exact_count_and_pagination(mocker):
+@pytest.mark.parametrize(
+    "cap, offset, expected_count, is_capped, expected_entities, has_next_page",
+    [
+        (20, 10, 15, False, [11, 12, 13, 14, 15], None),
+        (15, 10, 15, False, [11, 12, 13, 14, 15], None),
+        (5, 5, 5, True, [6, 7, 8, 9, 10], True),
+        (5, 10, 5, True, [11, 12, 13, 14, 15], False),
+    ],
+)
+def test_search_without_location_filter_caps_count_and_keeps_pagination(
+    mocker, cap, offset, expected_count, is_capped, expected_entities, has_next_page
+):
     from sqlalchemy import create_engine, text
     from sqlalchemy.orm import Session
     from application.data_access.entity_queries import get_entity_search
@@ -394,8 +405,13 @@ def test_search_without_location_filter_keeps_exact_count_and_pagination(mocker)
             [{"entity": i, "dataset": "title-boundary"} for i in range(1, 16)],
         )
         mocker.patch(
-            "application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", 5
+            "application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", cap
         )
+        # SQLite has no statement timeout setting.
+        mocker.patch(
+            "application.data_access.entity_queries._set_local_statement_timeout"
+        )
+        mocker.patch("application.data_access.entity_queries.get_settings")
         mocker.patch(
             "application.data_access.entity_queries.entity_factory",
             side_effect=lambda row: row.entity,
@@ -406,13 +422,45 @@ def test_search_without_location_filter_keeps_exact_count_and_pagination(mocker)
                 "dataset": ["title-boundary"],
                 "field": ["entity"],
                 "limit": 5,
-                "offset": 10,
+                "offset": offset,
             },
         )
-    assert result["count"] == 15
-    assert result["entities"] == [11, 12, 13, 14, 15]
-    assert "count_is_capped" not in result
+    assert result["count"] == expected_count
+    assert result["count_is_capped"] is is_capped
+    assert result["entities"] == expected_entities
+    assert result.get("has_next_page") is has_next_page
+    assert "pagination_is_capped" not in result
     engine.dispose()
+
+
+def test_search_without_location_filter_uses_capped_count_and_timeout(mocker):
+    settings = mocker.MagicMock(
+        ENTITY_SEARCH_STATEMENT_TIMEOUT_MS=15000, DB_STATEMENT_TIMEOUT_MS=420000
+    )
+    mocker.patch(
+        "application.data_access.entity_queries.get_settings", return_value=settings
+    )
+    session = mocker.MagicMock()
+    session.query.return_value.select_from.return_value.all.return_value = [(3,)]
+    from application.data_access.entity_queries import _search_with_capped_count
+
+    basequery = mocker.MagicMock()
+    page_query = mocker.patch(
+        "application.data_access.entity_queries._apply_limit_and_pagination_filters"
+    )
+    mocker.patch(
+        "application.data_access.entity_queries._apply_field_filters",
+        return_value=page_query.return_value,
+    )
+    page_query.return_value.all.return_value = []
+    _search_with_capped_count(session, basequery, {"limit": 10}, None)
+
+    basequery.with_entities.return_value.limit.assert_called_once_with(10_001)
+    timeouts = [
+        str(call.args[0].compile(compile_kwargs={"literal_binds": True}))
+        for call in session.execute.call_args_list
+    ]
+    assert "15000" in timeouts[0] and "420000" in timeouts[1]
 
 
 def _operational_error(pgcode):

@@ -116,7 +116,9 @@ def get_entity_search_OLD_VERSION(
     return {"params": params, "count": count, "entities": entities}
 
 
-@log_slow_execution(threshold_seconds=1)
+# A search that is too broad is expected, so the router reports it as a metric
+# and a warning rather than an error.
+@log_slow_execution(threshold_seconds=1, expected_exceptions=(EntitySearchTooBroad,))
 def get_entity_search(
     session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
 ):
@@ -134,21 +136,46 @@ def get_entity_search(
     # If there are location filters, we need to use a different approach to get the count and entities.
     if has_location_filters(params):
         return _search_with_capped_matches(session, basequery, params, extension)
+    return _search_with_capped_count(session, basequery, params, extension)
 
+
+def _search_with_capped_count(session, basequery, params, extension):
+    # Without a location filter the page can be read in entity order straight from
+    # the primary key, so pagination stays stable. Only the count is costly for a
+    # broad search, so stop counting at cap + 1 instead of counting every match.
+    capped_ids = (
+        basequery.with_entities(EntityOrm.entity)
+        .limit(ENTITY_SEARCH_COUNT_CAP + 1)
+        .subquery()
+    )
+    count_query = session.query(func.count()).select_from(capped_ids)
     with sentry_sdk.start_span(op="entity.search", name="count.execute_fetch"):
-        count = (
-            session.query(func.count())
-            .select_from(basequery.with_entities(EntityOrm.entity).subquery())
-            .scalar()
-        )
+        matched_count = _fetch_with_search_timeout(session, count_query)[0][0]
+    count_is_capped = matched_count > ENTITY_SEARCH_COUNT_CAP
 
-    query = _apply_limit_and_pagination_filters(basequery, params)
+    # Above the cap the last page is unknown, so read one extra row to tell
+    # whether there is a next page.
+    limit = params.get("limit")
+    page_params = params
+    if count_is_capped and limit is not None:
+        page_params = {**params, "limit": limit + 1}
+    query = _apply_limit_and_pagination_filters(basequery, page_params)
     query = _apply_field_filters(query, params, extension)
     with sentry_sdk.start_span(op="entity.search", name="page.execute_fetch"):
         rows = query.all()
+    has_next_page = limit is not None and len(rows) > limit
+    rows = rows[:limit] if limit is not None else rows
     with sentry_sdk.start_span(op="entity.search", name="models.convert"):
         entities = [entity_factory(row) for row in rows]
-    return {"params": params, "count": count, "entities": entities}
+    result = {
+        "params": params,
+        "count": min(matched_count, ENTITY_SEARCH_COUNT_CAP),
+        "count_is_capped": count_is_capped,
+        "entities": entities,
+    }
+    if count_is_capped:
+        result["has_next_page"] = has_next_page
+    return result
 
 
 def _search_with_capped_matches(session, basequery, params, extension):
@@ -205,6 +232,7 @@ def _search_with_capped_matches(session, basequery, params, extension):
         "params": params,
         "count": min(matched_count, ENTITY_SEARCH_COUNT_CAP),
         "count_is_capped": count_is_capped,
+        "pagination_is_capped": count_is_capped,
         "entities": entities,
     }
 
