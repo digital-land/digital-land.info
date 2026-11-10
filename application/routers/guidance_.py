@@ -1,5 +1,6 @@
 import os
 import logging
+from pathlib import Path
 from fastapi import APIRouter, Request
 from starlette.responses import RedirectResponse
 from application.core.templates import templates
@@ -7,6 +8,16 @@ from application.core.templates import templates
 router = APIRouter()
 logger = logging.getLogger(__name__)
 file_extension = ".html"
+guidance_templates_root = Path("application/templates/pages/guidance").resolve()
+
+
+def _is_within_guidance_root(path: str) -> bool:
+    """Reject any `url_path` whose `..` segments resolve outside the guidance
+    templates directory"""
+    try:
+        return Path(path).resolve().is_relative_to(guidance_templates_root)
+    except (OSError, ValueError):
+        return False
 
 
 # get the 'page name' for use in tracking current page in
@@ -112,6 +123,9 @@ async def catch_all(request: Request, url_path: str):
     url_path_to_file = root_url_path + url_path
     sys_path_to_file = f"application/templates/{url_path_to_file}{file_extension}"
     sys_path_directory = sys_path_to_file.replace(".html", "")
+
+    if not _is_within_guidance_root(sys_path_directory):
+        return templates.TemplateResponse(request, "404.html", status_code=404)
 
     # if matched path is to a directory assume looking for index file
     if os.path.isdir(sys_path_directory):
