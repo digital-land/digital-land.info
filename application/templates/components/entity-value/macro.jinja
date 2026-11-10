@@ -3,7 +3,11 @@
         {% if field_spec[field]['typology'] == 'value' %}
             {% if field_spec[field]['datatype'] == 'url' %}
                 <span class="app-u-breakword">
+                    {%- if value is safe_url %}
                     <a class="govuk-link" href="{{ value }}">{{value}}</a>
+                    {%- else %}
+                    {{ value if value is not none }}
+                    {%- endif %}
                 </span>
             {% elif field_spec[field]['datatype'] == 'wkt' %}
                 <div class="app-code-block">{{ value }}</div>
@@ -87,14 +91,23 @@
         {%- elif field == "twitter" %}
             <a class ="govuk-link" href="https://twitter.com/{{ value }}">@{{ value }}</a>
         {%- elif field in ["website","opendatacommunities"] or field.endswith("-url") or field.endswith("-uri") %}
+            {%- if value is safe_url %}
             <a class ="govuk-link" href="{{ value }}">{{ value }}</a>
+            {%- elif value is not none %}
+            {{ value }}
+            {%- endif %}
         {%- elif field.endswith("-urls") %}
             {%- set urls = value.split(';') %}
                 <ul class="govuk-list">
                 {%- for url in urls %}
+                {%- set url = url.strip() %}
                 <li>
                     <span class="app-u-breakword">
+                        {%- if url is safe_url %}
                         <a class="govuk-link" href="{{ url }}">{{url}}</a>
+                        {%- else %}
+                        {{ url }}
+                        {%- endif %}
                     </span>
                 </li>
                 {% endfor -%}

@@ -341,6 +341,55 @@ describe('Layer Controls', () => {
                 expect(result).toContain('opacity: 0.5;')
                 expect(result).toContain('TestLayer1')
             })
+
+            test('escapes the layer name and rejects unsafe paint options',() => {
+                const layerOptionMock = {
+                    paint_options: {
+                        type: 'fill',
+                        opacity: '0.5;" onclick="alert(1)',
+                        colour: 'red;" onmouseover="alert(1)',
+                    },
+                    dataset: 'testLayer1',
+                    name: '<img src=x onerror=alert(1)>',
+                }
+
+                const result = LayerOption.prototype.makeLayerSymbol(layerOptionMock);
+
+                expect(result).not.toContain('<img')
+                expect(result).not.toContain('onmouseover')
+                expect(result).not.toContain('onclick')
+                expect(result).toContain('&lt;img src=x onerror=alert(1)&gt;')
+                // Falls back to the default colour and opacity (0.6 -> 99)
+                expect(result).toContain('border-color: #003078;')
+                expect(result).toContain('background: #00307899')
+            })
+
+            test('rejects unsafe paint options for point layers',() => {
+                const layerOptionMock = {
+                    paint_options: {
+                        type: 'point',
+                        opacity: 'x',
+                        colour: 'red; background: url(https://evil.example)',
+                    },
+                    dataset: 'testLayer1',
+                    name: 'TestLayer1',
+                }
+
+                const result = LayerOption.prototype.makeLayerSymbol(layerOptionMock);
+
+                expect(result).not.toContain('evil.example')
+                expect(result).toContain('fill: #003078;')
+                expect(result).toContain('opacity: 0.6;')
+            })
+
+            test('pads low opacities to two hex digits',() => {
+                const result = LayerOption.prototype.makeLayerSymbol({
+                    paint_options: { colour: '#AABBCC', opacity: 0.02 },
+                    name: 'Low',
+                });
+
+                expect(result).toContain('background: #AABBCC05')
+            })
         })
 
         test('enable() correctly executes',() => {

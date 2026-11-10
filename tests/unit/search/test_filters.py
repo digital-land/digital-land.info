@@ -1,3 +1,4 @@
+import pytest
 from fastapi import FastAPI
 from pydantic import ValidationError
 
@@ -151,3 +152,14 @@ def test_FactPathParams_hash_sha256_regex_validator_invalid_hash_supplied():
         assert False, f" invalid hash :{fact} has been labelled as valid"
     except ValidationError:
         assert True
+
+
+def test_query_filters_rejects_negative_offset():
+    with pytest.raises(ValidationError):
+        QueryFilters(offset=-1)
+
+
+def test_query_filters_accepts_zero_and_positive_offset():
+    assert QueryFilters(offset=0).offset == 0
+    assert QueryFilters(offset=500).offset == 500
+    assert QueryFilters().offset is None

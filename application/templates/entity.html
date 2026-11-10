@@ -306,7 +306,11 @@
             </td>
             <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
             <td class="govuk-table__cell app-table__cell">
+              {%- if plan.documentation_url is safe_url %}
               <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+              {%- elif plan.documentation_url is not none %}
+              {{ plan.documentation_url }}
+              {%- endif %}
             </td>
           </tr>
           {% endfor %}
@@ -386,7 +390,11 @@
             <td class="govuk-table__cell app-table__cell">{{ plan.name }}</td>
             <td class="govuk-table__cell app-table__cell">{{ plan.document_types }}</td>
             <td class="govuk-table__cell app-table__cell">
+              {%- if plan.documentation_url is safe_url %}
               <a class="govuk-link" href="{{ plan.documentation_url }}">{{ plan.documentation_url }}</a>
+              {%- elif plan.documentation_url is not none %}
+              {{ plan.documentation_url }}
+              {%- endif %}
             </td>
           </tr>
           {% endfor %}
@@ -448,16 +456,21 @@
       // Function to handle loading GeoJSON content
       function loadGeoJSON() {
           const geojsonContentElement = document.getElementById('geojson-content');
-          if (geojsonContentElement && geojsonContentElement.innerHTML === 'Loading...') {
+          if (geojsonContentElement && geojsonContentElement.textContent.trim() === 'Loading...') {
               // Fetch the GeoJSON content
               fetch('{{ geometry_url }}')
                   .then(response => response.text())
                   .then(data => {
-                      geojsonContentElement.innerHTML = JSON.stringify(JSON.parse(data), null, 4);
+                      // GeoJSON properties come from publisher data, so write it
+                      // as text rather than HTML to avoid script injection.
+                      geojsonContentElement.textContent = JSON.stringify(JSON.parse(data), null, 4);
                   })
                   .catch(error => {
                       console.error('Error loading GeoJSON:', error);
-                      geojsonContentElement.innerHTML = '<b>Too large to display. Download GeoJSON instead.</b ';
+                      geojsonContentElement.textContent = '';
+                      const message = document.createElement('b');
+                      message.textContent = 'Too large to display. Download GeoJSON instead.';
+                      geojsonContentElement.appendChild(message);
                       // Create and append the download button
                       const downloadButton = document.createElement('a');
                       downloadButton.href = '{{ geometry_url }}';

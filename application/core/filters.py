@@ -172,6 +172,18 @@ def digital_land_to_json(dict):
     )
 
 
+def is_safe_url(value) -> bool:
+    """True only for absolute http(s) URLs with a host.
+
+    Used before rendering publisher-supplied values as links, so values such
+    as javascript:, data: and vbscript: are never placed in an href.
+    """
+    if not isinstance(value, str):
+        return False
+    parsed = urlparse.urlparse(value.strip())
+    return parsed.scheme.lower() in ("http", "https") and bool(parsed.netloc)
+
+
 def uri_encode(uri_template, kwarg_list):
     uri = URITemplate(uri_template)
     return uri.expand(**kwarg_list)

@@ -13,6 +13,7 @@ from application.core.filters import (
     get_entity_name_filter,
     digital_land_to_json,
     uri_encode,
+    is_safe_url,
     cacheBust,
     make_url_param_str,
     to_slug,
@@ -97,6 +98,8 @@ templates.env.filters["render_markdown"] = render_markdown
 templates.env.filters["get_entity_name"] = get_entity_name_filter
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
+# Usage: {% if value is safe_url %} - only render http(s) values as links
+templates.env.tests["safe_url"] = is_safe_url
 templates.env.filters["make_url_param_str"] = make_url_param_str
 templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key

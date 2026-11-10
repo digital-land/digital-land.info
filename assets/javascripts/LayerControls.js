@@ -1,4 +1,5 @@
 import {defaultPaintOptions} from "./defaultPaintOptions.js";
+import { escapeHtml, safeCssColour, safeOpacity } from "./safeHtml.js";
 
 export default class LayerControls {
     constructor (mapController, source, layers, availableLayers, options) {
@@ -498,11 +499,15 @@ export class LayerOption {
   makeLayerSymbol(layer) {
     let symbolHtml = '';
 
-    let opacityNumber = (layer.paint_options && layer.paint_options.opacity) ? layer.paint_options.opacity : defaultPaintOptions["fill-opacity"];
-    let color = (layer.paint_options && layer.paint_options.colour) ? layer.paint_options.colour : defaultPaintOptions["fill-color"];
+    // Paint options come from dataset data and are written into style
+    // attributes, so only allow known-safe colour and opacity formats.
+    const paintOptions = layer.paint_options || {};
+    const defaultOpacity = defaultPaintOptions["fill-opacity"];
+    const defaultColour = defaultPaintOptions["fill-color"];
+    let opacityNumber = paintOptions.opacity ? safeOpacity(paintOptions.opacity, defaultOpacity) : defaultOpacity;
+    let color = paintOptions.colour ? safeCssColour(paintOptions.colour, defaultColour) : defaultColour;
 
-    if(layer.paint_options && layer.paint_options.type && layer.paint_options.type == 'point') {
-      const fill =
+    if(paintOptions.type == 'point') {
       symbolHtml = `
         <svg class="dl-label__key__symbol--pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" viewBox="0 0 90 90">
           <defs>
@@ -526,10 +531,8 @@ export class LayerOption {
           </g>
         </svg>`
     } else {
-
-
-
-      const opacity = parseInt((opacityNumber * 255)).toString(16);
+      // Two-digit hex alpha, e.g. 0.02 -> "05" rather than "5".
+      const opacity = Math.floor(opacityNumber * 255).toString(16).padStart(2, '0');
       symbolHtml = `
         <span
           class="dl-label__key__symbol"
@@ -542,7 +545,7 @@ export class LayerOption {
       `
     }
 
-    const html = `<span class="dl-label__key">${symbolHtml}${layer.name}</span>`;
+    const html = `<span class="dl-label__key">${symbolHtml}${escapeHtml(layer.name)}</span>`;
     return html;
   }
 

@@ -1,6 +1,8 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+import pytest
+
 from application.core.filters import (
     _remove_value_from_list,
     remove_param_from_param_dict,
@@ -11,6 +13,7 @@ from application.core.filters import (
     append_uri_param,
     hash_file,
     is_past_date,
+    is_safe_url,
 )
 
 
@@ -274,3 +277,91 @@ def test_os_token_route_requires_same_origin():
     )
     # No origin signal at all -> reject.
     assert _is_same_origin(req({"host": "planning.data.gov.uk"})) is False
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "http://example.com",
+        "https://example.com/path?q=1",
+        "HTTPS://EXAMPLE.COM",
+        "  https://example.com  ",
+    ],
+)
+def test_is_safe_url_accepts_http_and_https(value):
+    assert is_safe_url(value) is True
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "javascript:alert(1)",
+        "JaVaScRiPt:alert(1)",
+        " javascript:alert(1)",
+        "java\tscript:alert(1)",
+        "java\nscript:alert(1)",
+        "data:text/html,<script>alert(1)</script>",
+        "vbscript:msgbox(1)",
+        "//evil.example.com",
+        "/relative/path",
+        "example.com",
+        "https://",
+        "",
+        None,
+        123,
+    ],
+)
+def test_is_safe_url_rejects_everything_else(value):
+    assert is_safe_url(value) is False
+
+
+def _render_entity_value(field, value, field_spec=None):
+    from application.core.templates import templates
+
+    template = templates.env.from_string(
+        '{% from "components/entity-value/macro.jinja" import entityValue %}'
+        "{{ entityValue(field, value, field_spec, [], None, {}, None) }}"
+    )
+    return template.render(field=field, value=value, field_spec=field_spec)
+
+
+@pytest.mark.parametrize(
+    "field,value,field_spec",
+    [
+        ("website", "javascript:alert(1)", None),
+        ("documentation-url", "javascript:alert(1)", None),
+        ("thing-uri", "javascript:alert(1)", None),
+        ("evidence-urls", "javascript:alert(1)", None),
+        (
+            "homepage",
+            "javascript:alert(1)",
+            {"homepage": {"typology": "value", "datatype": "url"}},
+        ),
+    ],
+)
+def test_entity_value_does_not_link_unsafe_urls(field, value, field_spec):
+    html = _render_entity_value(field, value, field_spec)
+    assert 'href="javascript:' not in html
+    assert "javascript:alert(1)" in html
+
+
+@pytest.mark.parametrize(
+    "field,field_spec",
+    [
+        ("website", None),
+        ("evidence-urls", None),
+        ("homepage", {"homepage": {"typology": "value", "datatype": "url"}}),
+    ],
+)
+def test_entity_value_still_links_safe_urls(field, field_spec):
+    html = _render_entity_value(field, "https://example.com/ok", field_spec)
+    assert 'href="https://example.com/ok"' in html
+
+
+def test_entity_value_urls_list_links_only_safe_items():
+    html = _render_entity_value(
+        "evidence-urls", "javascript:alert(1); https://example.com/ok"
+    )
+    assert 'href="https://example.com/ok"' in html
+    assert 'href="javascript:' not in html
+    assert "javascript:alert(1)" in html

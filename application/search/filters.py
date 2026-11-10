@@ -240,7 +240,8 @@ class QueryFilters:
         Query(description="limit for the number of results", ge=1, le=500),
     ] = 10
     offset: Annotated[
-        Optional[int], Query(description="paginate results from this entity")
+        Optional[int],
+        Query(description="Number of results to skip, for pagination", ge=0),
     ] = None
 
     # response format filters

@@ -1,3 +1,6 @@
+from urllib.parse import quote
+
+
 def test_guidance_pages_load_ok(server_url, page):
     response = page.goto(server_url + "/guidance")
     assert response.ok
@@ -71,3 +74,25 @@ def test_guidance_pages_load_ok(server_url, page):
         name="Update your data",
     )
     assert heading.is_visible()
+
+
+def test_finder_example_shows_url_filters_as_text(server_url, page):
+    """Values from the finder's query string are shown as text in the filter
+    chips and never run as HTML."""
+    payload = '<img src=x onerror="window.__xss=1">'
+    dialogs = []
+    page.on("dialog", lambda dialog: (dialogs.append(dialog), dialog.dismiss()))
+
+    page.goto(
+        server_url
+        + "/guidance/publish-data-on-your-website/examples/finder"
+        + f"?q={quote(payload)}&type={quote(payload)}"
+    )
+
+    chips = page.locator("#active-filters-row")
+    chips.locator(".filter-chip").first.wait_for()
+
+    assert chips.locator("img").count() == 0
+    assert payload in chips.inner_text()
+    assert page.evaluate("window.__xss") is None
+    assert dialogs == []
