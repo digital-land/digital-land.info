@@ -365,3 +365,29 @@ def test_entity_value_urls_list_links_only_safe_items():
     assert 'href="https://example.com/ok"' in html
     assert 'href="javascript:' not in html
     assert "javascript:alert(1)" in html
+
+
+def test_get_entity_geometry_logs_cleanly_when_entity_has_no_geometry(caplog):
+    """A geography entity without geometry must log a warning, not raise a
+    logging format error (pytest's log capture raises on those)."""
+    from application.core.filters import get_entity_geometry
+    from application.core.models import EntityModel
+
+    entity = EntityModel(
+        entity=900903,
+        name="No geometry",
+        dataset="greenspace",
+        typology="geography",
+        reference="NO-GEOM",
+        prefix="greenspace",
+        entry_date="2022-01-01",
+    )
+
+    with caplog.at_level("WARNING"):
+        result = get_entity_geometry(entity)
+
+    assert result["data"] is None
+    assert result["entity"] == 900903
+    assert "No geojson for entity that has a typology of geography: 900903" in (
+        caplog.text
+    )

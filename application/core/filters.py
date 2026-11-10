@@ -274,8 +274,8 @@ def get_entity_geometry(entity):
 
     if data is None:
         logger.warning(
-            f"No geojson for entity that has a typology of geography: {entity.entity}",
-            entity,
+            "No geojson for entity that has a typology of geography: %s",
+            entity.entity,
         )
     return {
         "name": get_entity_name(entity),
