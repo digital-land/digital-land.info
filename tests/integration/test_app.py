@@ -60,3 +60,13 @@ def test_x_content_type_options_header(client):
     response = client.get("/entity.json", headers={"Origin": "localhost"})
     assert "X-Content-Type-Options" in response.headers
     assert response.headers["X-Content-Type-Options"] == "nosniff"
+
+
+def test_invalid_geometries_endpoint_is_removed(client, app):
+    """/invalid-geometries ran an unauthenticated full-table PostGIS scan and
+    has been removed."""
+    assert not any(
+        getattr(route, "path", None) == "/invalid-geometries" for route in app.routes
+    )
+    response = client.get("/invalid-geometries", headers={"accept": "application/json"})
+    assert response.status_code == 404

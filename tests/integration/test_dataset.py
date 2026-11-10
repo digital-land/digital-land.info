@@ -1,6 +1,14 @@
+from unittest.mock import MagicMock
+
 from bs4 import BeautifulSoup
 
-from application.db.models import OrganisationOrm, ProvisionQualityOrm
+from application.db.models import (
+    DatasetOrm,
+    LicenceOrm,
+    OrganisationOrm,
+    ProvisionQualityOrm,
+)
+from application.routers.dataset import get_dataset
 
 
 def add_provision_quality(
@@ -140,3 +148,103 @@ def test_dataset_page_counts_every_provider_whatever_its_quality(
     provider_link = soup.find("a", href="/data-provider/greenspace")
     assert provider_link is not None
     assert provider_link.get_text(strip=True) == "6 data providers"
+
+
+def test_dataset_page_sanitises_html_in_markdown_metadata(
+    client, db_session, test_data, exclude_middleware
+):
+    """Script embedded in dataset licence/attribution/text metadata must be
+    stripped by the markdown sanitiser, while legitimate markdown formatting
+    still renders.
+    """
+    script = "<script>alert(1)</script>"
+    licence = db_session.query(LicenceOrm).get("ogl3")
+    assert licence is not None, "test_data should have created the ogl3 licence"
+    licence.text = f"{script} and some **bold** licence text"
+    db_session.flush()
+
+    response = client.get("/dataset/greenspace")
+    assert response.status_code == 200
+
+    # The script payload must be stripped...
+    assert script not in response.text
+    soup = BeautifulSoup(response.text, "html.parser")
+    assert not any("alert(1)" in (s.string or "") for s in soup.find_all("script"))
+    # ...while legitimate markdown formatting survives sanitisation.
+    assert "<strong>bold</strong>" in response.text
+
+
+DATASET_NAME_PAYLOAD = '<img src=x onerror="window.__xss=1">'
+
+
+def _render_dataset_page(db_session, dataset="greenspace"):
+    """Call the dataset router function directly and parse the HTML."""
+    settings = MagicMock(DATA_FILE_URL="https://files.example.com")
+    response = get_dataset(
+        request=MagicMock(),
+        dataset=dataset,
+        settings=settings,
+        extension=None,
+        session=db_session,
+        redis=None,
+        exclude_field=None,
+    )
+    assert response.status_code == 200
+    return response.body.decode(), BeautifulSoup(response.body, "html.parser")
+
+
+def _set_dataset_names(db_session, name, plural):
+    dataset = db_session.query(DatasetOrm).get("greenspace")
+    dataset.name = name
+    dataset.plural = plural
+    db_session.flush()
+
+
+def test_get_dataset_escapes_dataset_name_in_total_cell(db_session, test_data):
+    _set_dataset_names(db_session, DATASET_NAME_PAYLOAD, DATASET_NAME_PAYLOAD)
+
+    html, soup = _render_dataset_page(db_session)
+
+    assert soup.find("img", attrs={"onerror": True}) is None
+    assert DATASET_NAME_PAYLOAD not in html
+    total_link = soup.find("a", href="/entity?dataset=greenspace")
+    assert total_link is not None
+    assert DATASET_NAME_PAYLOAD in total_link.get_text()
+
+
+def test_get_dataset_escapes_values_in_provider_link(db_session, test_data):
+    _set_dataset_names(db_session, DATASET_NAME_PAYLOAD, DATASET_NAME_PAYLOAD)
+    for i in range(6):
+        add_provider(
+            db_session, f"X{i}", 600040 + i, is_designated_provider=(i % 2 == 0)
+        )
+    db_session.flush()
+
+    html, soup = _render_dataset_page(db_session)
+
+    assert soup.find("img", attrs={"onerror": True}) is None
+    provider_link = soup.find("a", href="/data-provider/greenspace")
+    assert provider_link is not None
+    assert provider_link.get_text(strip=True) == "6 data providers"
+
+
+def test_get_dataset_about_table_renders_as_before(db_session, test_data):
+    html, soup = _render_dataset_page(db_session)
+
+    table = soup.find("table", attrs={"aria-label": "About the dataset"})
+    assert table is not None
+    headers = [th.get_text(strip=True) for th in table.find_all("th")]
+    for label in [
+        "Total",
+        "Data providers",
+        "Collector last ran on",
+        "New data last found on",
+        "Origin",
+    ]:
+        assert label in headers
+
+    total_link = table.find("a", href="/entity?dataset=greenspace")
+    assert total_link is not None
+    # The count and the dataset name are split by a line break.
+    assert total_link.find("br") is not None
+    assert total_link.find("span", class_="govuk-!-font-size-14") is not None

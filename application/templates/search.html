@@ -340,8 +340,9 @@
 {% endblock %}
 
 {% block pageScripts %}
-<script src="/static/javascripts/SearchResultsPage.js" defer></script>
-<script>
+<script type="module">
+  import SearchResultsPage from "/static/javascripts/SearchResultsPage.js";
+
   document.addEventListener('DOMContentLoaded', function () {
     const forms = [
       document.getElementById('search-facets-form')

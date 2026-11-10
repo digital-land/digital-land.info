@@ -11,9 +11,9 @@ from application.core.filters import (
     make_param_str_filter,
     render_markdown,
     get_entity_name_filter,
-    debug,
     digital_land_to_json,
     uri_encode,
+    is_safe_url,
     cacheBust,
     make_url_param_str,
     to_slug,
@@ -52,6 +52,16 @@ templates.env.loader = jinja2.ChoiceLoader(
     ]
 )
 
+# Starlette's default select_autoescape only enables autoescaping for
+# .html/.htm/.xml/.xhtml templates, which leaves this application's own .jinja
+# macros (e.g. entity-value) rendering values unescaped. Extend it to cover
+# .jinja so attacker/provider-controlled values rendered in those macros are
+# HTML-escaped too.
+templates.env.autoescape = jinja2.select_autoescape(
+    enabled_extensions=("html", "htm", "xml", "xhtml", "jinja"),
+    default_for_string=True,
+)
+
 # Used to customize jinja tojson filter
 templates.env.policies["json.dumps_function"] = model_dumps
 
@@ -68,6 +78,7 @@ def init_templates(settings: Settings) -> None:
     # Called from create_app() so settings are only read after the app starts,
     # not at import time.
     templates.env.globals["gaMeasurementId"] = settings.GA_MEASUREMENT_ID
+    templates.env.globals["cookieDomain"] = settings.COOKIE_DOMAIN
 
 
 # Set a global `govukRebrand` variable to allow the
@@ -85,9 +96,10 @@ templates.env.filters["hex_to_rgb"] = hex_to_rgb_string_filter
 templates.env.filters["make_param_str"] = make_param_str_filter
 templates.env.filters["render_markdown"] = render_markdown
 templates.env.filters["get_entity_name"] = get_entity_name_filter
-templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
+# Usage: {% if value is safe_url %} - only render http(s) values as links
+templates.env.tests["safe_url"] = is_safe_url
 templates.env.filters["make_url_param_str"] = make_url_param_str
 templates.env.filters["slugify"] = to_slug
 templates.env.filters["extract_component_key"] = extract_component_key

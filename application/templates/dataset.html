@@ -73,7 +73,8 @@
       {% set all_providers = authoritative_providers + alternative_providers %}
       {% set total_provider_count = all_providers|length %}
       {% if total_provider_count > 5 %}
-        {% set data_providers_html = '<a class="govuk-link" href="/data-provider/' + dataset["dataset"] + '">' + total_provider_count|commanum + ' data provider' + ('s' if total_provider_count != 1 else '') + '</a>' %}
+        {#- Built as a block so values are HTML-escaped; govukTable outputs 'html' cells unescaped. #}
+        {% set data_providers_html %}<a class="govuk-link" href="/data-provider/{{ dataset['dataset'] | urlencode }}">{{ total_provider_count|commanum }} data provider{{ 's' if total_provider_count != 1 }}</a>{% endset %}
       {% else %}
         {% set provider_links = [] %}
         {% for provider in all_providers %}
@@ -87,22 +88,26 @@
         {% set data_providers_html = provider_links|join if provider_links else 'None' %}
       {% endif %}
 
+      {#- govukTable outputs 'html' cells unescaped, so 'html' is only used for
+          markup built in escaped blocks or sanitised markdown. Plain values use 'text'. #}
+      {% set total_html %}<a class="govuk-link" href="/entity?dataset={{ dataset['dataset'] | urlencode }}">{{ entity_count|commanum }}<br><span class="govuk-!-font-size-14">{{ dataset["name"] if entity_count <= 1 else dataset["plural"] }}</span></a>{% endset %}
+
       {%
         set rows = [
           [
             {
-              'html': 'Total',
+              'text': 'Total',
               'attributes': {
                 'style': 'width: 35%'
               }
             },
             {
-              'html': '<a class="govuk-link" href="/entity?dataset=' + dataset["dataset"] + '">' + entity_count|commanum + '<br><span class="govuk-!-font-size-14">' + (dataset["name"] if entity_count <= 1 else dataset["plural"]) +'</span></a>'
+              'html': total_html
             },
           ],
           [
             {
-              'html': 'Data providers',
+              'text': 'Data providers',
             },
             {
               'html': data_providers_html,
@@ -110,26 +115,26 @@
           ],
           [
             {
-              'html': 'Collector last ran on'
+              'text': 'Collector last ran on'
             },
             {
-              'html': last_collection_attempt if last_collection_attempt else 'no attempt'
-            },
-          ],
-          [
-            {
-              'html': 'New data last found on'
-            },
-            {
-              'html': latest_resource.last_updated if latest_resource.last_updated else 'N/A'
+              'text': last_collection_attempt if last_collection_attempt else 'no attempt'
             },
           ],
           [
             {
-              'html': 'Origin'
+              'text': 'New data last found on'
             },
             {
-              'html': dataset_origin_label
+              'text': latest_resource.last_updated if latest_resource.last_updated else 'N/A'
+            },
+          ],
+          [
+            {
+              'text': 'Origin'
+            },
+            {
+              'text': dataset_origin_label
             }
           ]
         ]
@@ -139,7 +144,7 @@
         {{
           rows.append([
             {
-              'html': 'Licence'
+              'text': 'Licence'
             },
             {
               'html': dataset.licence_text | render_markdown(govAttributes=True)
@@ -152,7 +157,7 @@
         {{
           rows.append([
             {
-              'html': 'Attribution'
+              'text': 'Attribution'
             },
             {
               'html': dataset.attribution_text | render_markdown(govAttributes=True) if dataset.attribution else ''
@@ -165,7 +170,7 @@
         {%- set rows = [
           [
             {
-              'html': 'Summary'
+              'text': 'Summary'
             },
             {
               'html': dataset.text | render_markdown(govAttributes=True)

@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     TILES_URL: Optional[str] = None
     DATA_FILE_URL: str
     GA_MEASUREMENT_ID: Optional[str] = None
+    COOKIE_DOMAIN: str = ".data.gov.uk"
     OS_CLIENT_KEY: Optional[str] = None
     OS_CLIENT_SECRET: Optional[str] = None
     DB_POOL_SIZE: Optional[int] = 5

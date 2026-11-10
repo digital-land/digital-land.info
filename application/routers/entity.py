@@ -70,7 +70,7 @@ def dataset_name_search(
     _request: Request,
     search: Optional[str] = None,
     dataset: Optional[str] = None,
-    limit: int = 10,
+    limit: int = Query(10, ge=1, le=500),
     session: Session = Depends(get_session),
 ):
     """

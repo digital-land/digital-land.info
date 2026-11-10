@@ -90,3 +90,30 @@ def test_search_keeps_other_facts_when_end_date_is_empty(mocker, caplog):
         ("end-date", ""),
     ]
     assert not caplog.records
+
+
+def test_search_facts_binds_field_values_as_parameters(mocker):
+    """Regression: field values must be bound as datasette parameters, not
+    interpolated into the SQL string (SQL injection fix)."""
+    mocker.patch(
+        "application.data_access.fact_queries.get_settings",
+        return_value=SimpleNamespace(DATASETTE_URL="http://datasette"),
+    )
+    http = mocker.patch("application.data_access.fact_queries.get_datasette_http")
+    response = mocker.Mock()
+    response.json.return_value = []
+    http.return_value.get.return_value = response
+
+    malicious = "x') UNION SELECT 1 --"
+    get_search_facts_query(
+        {"dataset": "listed-building", "entity": 1, "field": [malicious, "name"]}
+    )
+
+    params = http.return_value.get.call_args.kwargs["params"]
+    # The raw value must not appear in the SQL text...
+    assert malicious not in params["sql"]
+    # ...it must be carried as a bound parameter, referenced by placeholder.
+    assert params["field0"] == malicious
+    assert params["field1"] == "name"
+    assert ":field0" in params["sql"]
+    assert ":field1" in params["sql"]

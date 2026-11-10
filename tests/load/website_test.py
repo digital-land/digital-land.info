@@ -19,7 +19,3 @@ class WebsiteUser(HttpUser):
     @task
     def load_api_page(self):
         self.client.get("/docs")
-
-    @task
-    def load_invalid_geometries(self):
-        self.client.get("/invalid-geometries")

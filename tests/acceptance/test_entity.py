@@ -209,3 +209,68 @@ def test_find_an_entity_via_the_search_page(
 #         "//div[contains(@class, 'leaflet-control-container')]"
 #     )
 #     assert mapControls.count() == 1
+
+
+def test_geojson_tab_shows_publisher_html_as_text(
+    server_url, page, app_db_session, app_test_data
+):
+    """HTML in publisher data must appear as text in the GeoJSON tab and
+    must not run, even when the tab is opened from a #geojson link."""
+    # No quotes in the payload, so it appears unchanged in the pretty-printed JSON.
+    payload = "<img src=x onerror=window.__xss=1>"
+    app_db_session.add(
+        EntityOrm(
+            entity=900902,
+            name="GeoJSON XSS entity",
+            dataset="greenspace",
+            typology="geography",
+            reference="GEOJSON-XSS",
+            prefix="greenspace",
+            entry_date="2022-01-01",
+            json={"notes": payload},
+            geometry="MultiPolygon (((-0.33 53.74, -0.34 53.74, -0.34 53.75, -0.33 53.74)))",  # noqa: E501
+            point="POINT (-0.335 53.745)",
+        )
+    )
+    app_db_session.commit()
+
+    dialogs = []
+    page.on("dialog", lambda dialog: (dialogs.append(dialog), dialog.dismiss()))
+
+    page.goto(server_url + ENTITY_ROUTE + "900902#geojson")
+
+    geojson_content = page.locator("#geojson-content")
+    geojson_content.filter(has_text="window.__xss").wait_for()
+
+    # The payload is shown as text, not turned into an element.
+    assert payload in geojson_content.text_content()
+    assert geojson_content.locator("img").count() == 0
+    assert page.evaluate("window.__xss") is None
+    assert dialogs == []
+
+
+def test_entity_page_does_not_link_javascript_urls(
+    server_url, page, app_db_session, app_test_data
+):
+    """A javascript: value in publisher data is shown as text, not as a
+    clickable link."""
+    unsafe_url = "javascript:window.__xss=1"
+    app_db_session.add(
+        EntityOrm(
+            entity=900903,
+            name="Unsafe website entity",
+            dataset="greenspace",
+            typology="geography",
+            reference="UNSAFE-WEBSITE",
+            prefix="greenspace",
+            entry_date="2022-01-01",
+            json={"website": unsafe_url},
+        )
+    )
+    app_db_session.commit()
+
+    page.goto(server_url + ENTITY_ROUTE + "900903")
+
+    assert page.locator('a[href^="javascript:" i]').count() == 0
+    # The value is still shown as text in the "About this entity" table.
+    assert page.locator("tr", has_text=unsafe_url).count() == 1

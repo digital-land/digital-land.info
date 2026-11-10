@@ -1,8 +1,13 @@
+from contextlib import contextmanager
+from unittest.mock import MagicMock, patch
+
+import pytest
 from bs4 import BeautifulSoup
 
-from application.routers.entity import fetch_linked_local_plans
+from application.routers.entity import fetch_linked_local_plans, get_entity
 from application.core.models import EntityModel
 from application.db.models import EntityOrm
+from application.search.enum import SuffixEntity
 
 
 def test_entity_page_shows_organisation_name_not_none(
@@ -291,3 +296,266 @@ def test_fetch_linked_local_plans_boundary(db_session):
     assert "local-plan-timetable" in linked_entities
     assert linked_entities["local-plan-timetable"] == []
     assert linked_entities["local-plan-document"] == []
+
+
+def test_entity_json_tab_escapes_html_in_field_values(
+    client, db_session, test_data, exclude_middleware
+):
+    """Field values rendered in the entity JSON tab must be HTML-escaped so
+    that attacker-controlled content cannot inject live markup.
+
+    Entity field values are ingested from external data providers, so the JSON
+    tab must escape them rather than mark them safe.
+    """
+    xss = '</code></pre><img src=x onerror="alert(1)">'
+    script = "<script>alert(1)</script>"
+    db_session.add(
+        EntityOrm(
+            entity=900900,
+            name=xss,
+            dataset="greenspace",
+            typology="geography",
+            reference="XSS-REF",
+            prefix="greenspace",
+            entry_date="2022-01-01",
+            json={"attacker_field": script},
+        )
+    )
+    db_session.flush()
+
+    response = client.get("/entity/900900", follow_redirects=True)
+    assert response.status_code == 200
+
+    # The raw, executable payloads must not appear unescaped anywhere: not as a
+    # live tag, and not as a raw <script> element.
+    assert "<img src=x onerror=" not in response.text
+    assert script not in response.text
+
+    # No live element may have been injected into the DOM from our payload.
+    soup = BeautifulSoup(response.text, "html.parser")
+    assert soup.find("img", attrs={"onerror": True}) is None
+
+    # The payload survives only as escaped text (in the "About this entity"
+    # table, the heading/title, and the JSON tab).
+    assert "&lt;img" in response.text
+    assert "&lt;script&gt;" in response.text
+
+
+GEOJSON_XSS_PAYLOAD = '<img src=x onerror="window.__xss=1">'
+
+
+@pytest.fixture
+def entity_with_html_in_json(db_session, test_data):
+    """A geography entity whose publisher-supplied json holds an HTML payload.
+
+    The payload ends up in the entity's GeoJSON properties, which the GeoJSON
+    tab on the entity page fetches and displays.
+    """
+    db_session.add(
+        EntityOrm(
+            entity=900901,
+            name="GeoJSON XSS entity",
+            dataset="greenspace",
+            typology="geography",
+            reference="GEOJSON-XSS",
+            prefix="greenspace",
+            entry_date="2022-01-01",
+            json={"notes": GEOJSON_XSS_PAYLOAD},
+            geometry="MultiPolygon (((-0.33 53.74, -0.34 53.74, -0.34 53.75, -0.33 53.74)))",
+            point="POINT (-0.335 53.745)",
+        )
+    )
+    db_session.flush()
+
+    @contextmanager
+    def _context_session():
+        yield db_session
+
+    with patch(
+        "application.data_access.entity_queries.get_context_session",
+        _context_session,
+    ):
+        yield 900901
+
+
+def test_get_entity_geojson_returns_publisher_html_unescaped(
+    db_session, entity_with_html_in_json
+):
+    """The .geojson endpoint returns publisher values as raw data.
+
+    This is correct for a data API, and it is why the page that displays this
+    data must treat it as text rather than HTML.
+    """
+    geojson = get_entity(
+        request=MagicMock(),
+        entity=entity_with_html_in_json,
+        extension=SuffixEntity.geojson,
+        session=db_session,
+    )
+
+    assert geojson.properties["notes"] == GEOJSON_XSS_PAYLOAD
+
+
+def test_get_entity_html_geojson_tab_writes_fetched_data_as_text(
+    db_session, entity_with_html_in_json
+):
+    """The entity page must write fetched GeoJSON with textContent, not
+    innerHTML, so HTML in publisher data is shown as text and never run."""
+    response = get_entity(
+        request=MagicMock(),
+        entity=entity_with_html_in_json,
+        extension=None,
+        session=db_session,
+    )
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.body.decode(), "html.parser")
+    geojson_script = next(
+        (
+            s.string
+            for s in soup.find_all("script")
+            if s.string and "loadGeoJSON" in s.string
+        ),
+        None,
+    )
+    assert geojson_script is not None, "GeoJSON tab script not found on page"
+
+    assert "geojsonContentElement.innerHTML" not in geojson_script
+    assert (
+        "geojsonContentElement.textContent = JSON.stringify(JSON.parse(data)"
+        in geojson_script
+    )
+
+
+UNSAFE_URL = "javascript:alert(1)"
+SAFE_URL = "https://example.com/ok"
+
+
+@pytest.fixture
+def context_session(db_session):
+    """Point get_entity_query at the test session so router functions can be
+    called directly."""
+
+    @contextmanager
+    def _context_session():
+        yield db_session
+
+    with patch(
+        "application.data_access.entity_queries.get_context_session",
+        _context_session,
+    ):
+        yield
+
+
+def _render_entity_page(db_session, entity_id):
+    response = get_entity(
+        request=MagicMock(), entity=entity_id, extension=None, session=db_session
+    )
+    assert response.status_code == 200
+    return response.body.decode(), BeautifulSoup(response.body, "html.parser")
+
+
+def _assert_no_javascript_links(soup):
+    bad = [a["href"] for a in soup.find_all("a", href=True)]
+    bad = [href for href in bad if href.strip().lower().startswith("javascript:")]
+    assert bad == [], f"Unsafe links rendered: {bad}"
+
+
+def test_get_entity_does_not_link_unsafe_urls_in_field_values(
+    db_session, test_data, context_session
+):
+    db_session.add(
+        EntityOrm(
+            entity=4220100,
+            name="Unsafe URL local plan",
+            dataset="local-plan",
+            typology="legal-instrument",
+            prefix="local-plan",
+            reference="UNSAFE-LP",
+            entry_date="2022-01-01",
+            json={
+                "website": UNSAFE_URL,
+                "documentation-url": UNSAFE_URL,
+                "evidence-urls": f"{UNSAFE_URL}; {SAFE_URL}",
+            },
+        )
+    )
+    db_session.flush()
+
+    html, soup = _render_entity_page(db_session, 4220100)
+
+    _assert_no_javascript_links(soup)
+    # The unsafe values are still shown, as text.
+    assert UNSAFE_URL in soup.get_text()
+    # Safe values in the same list are still links.
+    assert soup.find("a", href=SAFE_URL) is not None
+
+
+def test_get_entity_does_not_link_unsafe_local_plan_documentation_urls(
+    db_session, test_data, context_session
+):
+    # A local plan page lists its documents (entity.html "Related Local Plan
+    # Document" table).
+    db_session.add(
+        EntityOrm(
+            entity=4220101,
+            name="Local plan with documents",
+            dataset="local-plan",
+            typology="legal-instrument",
+            prefix="local-plan",
+            reference="LP-DOCS",
+            entry_date="2022-01-01",
+            json={},
+        )
+    )
+    for entity_id, url in [(4220102, UNSAFE_URL), (4220103, SAFE_URL)]:
+        db_session.add(
+            EntityOrm(
+                entity=entity_id,
+                name=f"Document {entity_id}",
+                dataset="local-plan-document",
+                typology="document",
+                prefix="local-plan-document",
+                reference=f"LPD-{entity_id}",
+                entry_date="2022-01-01",
+                json={"local-plan": "LP-DOCS", "documentation-url": url},
+            )
+        )
+    # A local plan boundary page lists its plans (entity.html "Related Local
+    # Plans" table).
+    db_session.add(
+        EntityOrm(
+            entity=4220104,
+            name="Boundary",
+            dataset="local-plan-boundary",
+            typology="geography",
+            prefix="local-plan-boundary",
+            reference="LPB-UNSAFE",
+            entry_date="2022-01-01",
+            json={},
+        )
+    )
+    db_session.add(
+        EntityOrm(
+            entity=4220105,
+            name="Plan in boundary",
+            dataset="local-plan",
+            typology="legal-instrument",
+            prefix="local-plan",
+            reference="LP-IN-BOUNDARY",
+            entry_date="2022-01-01",
+            json={"local-plan-boundary": "LPB-UNSAFE", "documentation-url": UNSAFE_URL},
+        )
+    )
+    db_session.flush()
+
+    _, plan_soup = _render_entity_page(db_session, 4220101)
+    assert "Related Local Plan Document" in plan_soup.get_text()
+    _assert_no_javascript_links(plan_soup)
+    assert UNSAFE_URL in plan_soup.get_text()
+    assert plan_soup.find("a", href=SAFE_URL) is not None
+
+    _, boundary_soup = _render_entity_page(db_session, 4220104)
+    assert "Related Local Plans" in boundary_soup.get_text()
+    _assert_no_javascript_links(boundary_soup)
+    assert UNSAFE_URL in boundary_soup.get_text()

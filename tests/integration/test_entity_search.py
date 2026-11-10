@@ -688,3 +688,17 @@ def test_capped_geojson_search_reports_count_and_cap_flag(
     assert data["count"] == 2
     assert data["count_is_capped"] is True
     assert "next" not in data["links"]
+
+
+@pytest.mark.parametrize("path", ["/entity.json", "/entity.geojson"])
+def test_entity_search_rejects_negative_offset(client, exclude_middleware, path):
+    """A negative offset is a validation error, not a database error (500)."""
+    response = client.get(f"{path}?offset=-1")
+    assert response.status_code == 422
+    assert any(error["loc"][-1] == "offset" for error in response.json()["detail"])
+
+
+def test_entity_search_html_rejects_negative_offset(client, exclude_middleware):
+    # HTML pages show the not-found page for invalid query parameters.
+    response = client.get("/entity?offset=-1")
+    assert response.status_code == 404

@@ -1,6 +1,8 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+import pytest
+
 from application.core.filters import (
     _remove_value_from_list,
     remove_param_from_param_dict,
@@ -11,6 +13,7 @@ from application.core.filters import (
     append_uri_param,
     hash_file,
     is_past_date,
+    is_safe_url,
 )
 
 
@@ -221,3 +224,170 @@ def test_is_past_date():
     end_date_three_years_in_past = (today - relativedelta(years=3)).date()
     result = is_past_date(end_date_three_years_in_past)
     assert result is True
+
+
+def test_render_markdown_strips_script_and_handlers():
+    """Regression: render_markdown must sanitise embedded HTML/script."""
+    from application.core.filters import render_markdown
+
+    out = str(
+        render_markdown("ok <script>alert(1)</script> <img src=x onerror=alert(1)>")
+    )
+    assert "<script>" not in out
+    assert "onerror" not in out
+    assert "alert(1)" not in out or "<script>" not in out
+
+
+def test_render_markdown_keeps_safe_formatting():
+    from application.core.filters import render_markdown
+
+    out = str(render_markdown("**bold** and [a link](https://example.com)"))
+    assert "<strong>bold</strong>" in out
+    assert 'href="https://example.com"' in out
+
+
+def test_os_token_route_requires_same_origin():
+    """Regression: /os/getToken must reject non-same-origin callers."""
+    from types import SimpleNamespace
+    from application.routers.osMapOAuth import _is_same_origin
+
+    def req(headers):
+        return SimpleNamespace(headers=headers)
+
+    assert _is_same_origin(req({"sec-fetch-site": "same-origin"})) is True
+    assert _is_same_origin(req({"sec-fetch-site": "cross-site"})) is False
+    assert _is_same_origin(req({"sec-fetch-site": "none"})) is False
+    # Fallback to Origin/Referer host matching when Sec-Fetch-Site is absent.
+    assert (
+        _is_same_origin(
+            req(
+                {
+                    "host": "planning.data.gov.uk",
+                    "origin": "https://planning.data.gov.uk",
+                }
+            )
+        )
+        is True
+    )
+    assert (
+        _is_same_origin(
+            req({"host": "planning.data.gov.uk", "origin": "https://evil.example"})
+        )
+        is False
+    )
+    # No origin signal at all -> reject.
+    assert _is_same_origin(req({"host": "planning.data.gov.uk"})) is False
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "http://example.com",
+        "https://example.com/path?q=1",
+        "HTTPS://EXAMPLE.COM",
+        "  https://example.com  ",
+    ],
+)
+def test_is_safe_url_accepts_http_and_https(value):
+    assert is_safe_url(value) is True
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "javascript:alert(1)",
+        "JaVaScRiPt:alert(1)",
+        " javascript:alert(1)",
+        "java\tscript:alert(1)",
+        "java\nscript:alert(1)",
+        "data:text/html,<script>alert(1)</script>",
+        "vbscript:msgbox(1)",
+        "//evil.example.com",
+        "/relative/path",
+        "example.com",
+        "https://",
+        "",
+        None,
+        123,
+    ],
+)
+def test_is_safe_url_rejects_everything_else(value):
+    assert is_safe_url(value) is False
+
+
+def _render_entity_value(field, value, field_spec=None):
+    from application.core.templates import templates
+
+    template = templates.env.from_string(
+        '{% from "components/entity-value/macro.jinja" import entityValue %}'
+        "{{ entityValue(field, value, field_spec, [], None, {}, None) }}"
+    )
+    return template.render(field=field, value=value, field_spec=field_spec)
+
+
+@pytest.mark.parametrize(
+    "field,value,field_spec",
+    [
+        ("website", "javascript:alert(1)", None),
+        ("documentation-url", "javascript:alert(1)", None),
+        ("thing-uri", "javascript:alert(1)", None),
+        ("evidence-urls", "javascript:alert(1)", None),
+        (
+            "homepage",
+            "javascript:alert(1)",
+            {"homepage": {"typology": "value", "datatype": "url"}},
+        ),
+    ],
+)
+def test_entity_value_does_not_link_unsafe_urls(field, value, field_spec):
+    html = _render_entity_value(field, value, field_spec)
+    assert 'href="javascript:' not in html
+    assert "javascript:alert(1)" in html
+
+
+@pytest.mark.parametrize(
+    "field,field_spec",
+    [
+        ("website", None),
+        ("evidence-urls", None),
+        ("homepage", {"homepage": {"typology": "value", "datatype": "url"}}),
+    ],
+)
+def test_entity_value_still_links_safe_urls(field, field_spec):
+    html = _render_entity_value(field, "https://example.com/ok", field_spec)
+    assert 'href="https://example.com/ok"' in html
+
+
+def test_entity_value_urls_list_links_only_safe_items():
+    html = _render_entity_value(
+        "evidence-urls", "javascript:alert(1); https://example.com/ok"
+    )
+    assert 'href="https://example.com/ok"' in html
+    assert 'href="javascript:' not in html
+    assert "javascript:alert(1)" in html
+
+
+def test_get_entity_geometry_logs_cleanly_when_entity_has_no_geometry(caplog):
+    """A geography entity without geometry must log a warning, not raise a
+    logging format error (pytest's log capture raises on those)."""
+    from application.core.filters import get_entity_geometry
+    from application.core.models import EntityModel
+
+    entity = EntityModel(
+        entity=900903,
+        name="No geometry",
+        dataset="greenspace",
+        typology="geography",
+        reference="NO-GEOM",
+        prefix="greenspace",
+        entry_date="2022-01-01",
+    )
+
+    with caplog.at_level("WARNING"):
+        result = get_entity_geometry(entity)
+
+    assert result["data"] is None
+    assert result["entity"] == 900903
+    assert "No geojson for entity that has a typology of geography: 900903" in (
+        caplog.text
+    )

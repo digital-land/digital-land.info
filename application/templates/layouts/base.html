@@ -71,27 +71,19 @@
 
   {% block bodyScripts %}
     <script type="module">
-      import {showCookieBannerIfNotSetAndSetTrackingCookies, cookiePrefs} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
+      import {showCookieBannerIfNoChoiceMade, syncTrackingWithConsent, loadCookiePrefs, setCookiePrefsUsage, saveCookiePrefs} from "{{ cacheBust(assetPath | default('/assets') + '/javascripts/cookies.js') }}";
+      window.gaMeasurementId = '{{ gaMeasurementId }}';
+      window.cookieDomain = '{{ cookieDomain }}';
       // Expose module symbols globally to allow inline `onclick` handlers to use them
-      window.cookiePrefs = cookiePrefs;
-      window.showCookieBannerIfNotSetAndSetTrackingCookies = showCookieBannerIfNotSetAndSetTrackingCookies;
-      showCookieBannerIfNotSetAndSetTrackingCookies();
-      cookiePrefs.get();
+      window.setCookiePrefsUsage = setCookiePrefsUsage;
+      window.saveCookiePrefs = saveCookiePrefs;
+      showCookieBannerIfNoChoiceMade();
+      syncTrackingWithConsent();
+      loadCookiePrefs();
     </script>
 
-    {% block analyticScripts %}
-      <!-- Google tag (gtag.js) -->
-      <script>
-        window.gaMeasurementId = '{{ gaMeasurementId }}';
-
-        var scriptElement = document.createElement("script");
-        scriptElement.src = `https://www.googletagmanager.com/gtag/js?id=${window.gaMeasurementId}`;
-        document.head.appendChild(scriptElement);
-      </script>
-
-      {# Google analytics custom download tracker #}
-      <script src="{{ staticPath | default('/static') }}/javascripts/analytics/file-download.js" defer></script>
-    {% endblock analyticScripts %}
+    {# Google analytics custom download tracker #}
+    <script type="module" src="{{ staticPath | default('/static') }}/javascripts/analytics/fileDownload.js" defer></script>
 
     {% block libraryScripts %}
     	{%- if includeJQuery == "true" -%}
