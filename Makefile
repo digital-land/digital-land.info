@@ -11,6 +11,12 @@ NAME                := $(REPO)/$(DL_APP_REMOTE_NAME)
 COMMIT_IMG          := $(NAME):$(COMMIT_TAG)
 EXPLICIT_IMG        := $(NAME):$(EXPLICIT_TAG)
 
+.DEFAULT_GOAL := help
+
+.PHONY: help
+help: ## Show the available make targets
+	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-26s %s\n", $$1, $$2}'
+
 
 all::	lint
 
@@ -18,7 +24,7 @@ ifeq ($(UNAME), Darwin)
 server: export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 endif
 
-init::
+init:: ## Install deps (Python & JS), git hooks and frontend assets
 	# Pinned pip version because stdlib_pkgs no longer works since the update to 26.2, breaking the pipeline
 	python -m pip install --upgrade "pip==26.1.2" "pip-tools==7.6.0"
 	python -m piptools sync requirements/requirements.txt requirements/dev-requirements.txt --pip-args "--no-cache-dir"
@@ -48,11 +54,11 @@ insertBaseData::
 emptyDatabase::
 	python -c 'from tests.utils.database import reset_database; reset_database()'
 
-server:
+server: ## Run the app locally (gunicorn + uvicorn workers)
 	echo $$OBJC_DISABLE_INITIALIZE_FORK_SAFETY
 	gunicorn -w 2 -k uvicorn.workers.UvicornWorker application.app:app --preload --forwarded-allow-ips="*"
 
-docker-build:
+docker-build: ## Build the production Docker image
 	docker build --build-arg RELEASE_TAG=$(COMMIT_TAG) --target production -t $(EXPLICIT_IMG) .
 	docker tag $(EXPLICIT_IMG) $(COMMIT_IMG)
 
@@ -66,7 +72,7 @@ login:
 docker-login:
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
-test-acceptance:
+test-acceptance: ## Run the Playwright acceptance tests
 	python -m playwright install --with-deps chromium firefox webkit
 	python -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
@@ -74,14 +80,14 @@ test-acceptance-debug:
 	python -m playwright install --with-deps chromium firefox webkit
 	PWDEBUG=1 python3 -m pytest --browser webkit --browser firefox --browser chromium --md-report --md-report-color=never -p no:warnings tests/acceptance
 
-test-accessibility:
+test-accessibility: ## Run the accessibility tests
 	python -m playwright install chromium
 	python -m pytest --browser chromium --md-report --md-report-color=never -p no:warnings tests/accessibility
 
 playwright-codegen:
 	python -m playwright codegen --viewport-size=800,600 localhost:8000
 
-test: test-unit test-integration test-acceptance test-accessibility
+test: test-unit test-integration test-acceptance test-accessibility ## Run all test suites
 
 test-js:
 	npm run test
@@ -92,20 +98,20 @@ test-js-unit:
 test-js-integration:
 	npm run test-integration
 
-test-unit:
+test-unit: ## Run the unit tests
 	python -m pytest --md-report --md-report-color=never --md-report-output=unit-tests.md tests/unit
 	npm run test-unit
 
-test-integration:
+test-integration: ## Run the integration tests
 	python -m pytest --md-report --md-report-color=never --md-report-output=integration-tests.md tests/integration
 	npm run test-integration
 
 test-integration-docker:
 	docker-compose run web python -m pytest tests/integration --junitxml=.junitxml/integration.xml $(PYTEST_RUNTIME_ARGS)
 
-lint:	black flake8
+lint:	black flake8 ## Format and lint the code (black + flake8)
 
-clean::
+clean:: ## Remove built static assets
 	rm -rf static/
 
 stylesheets::
@@ -118,7 +124,7 @@ javascripts:
 	npm run build
 	rsync -r assets/javascripts static/
 
-frontend:
+frontend: ## Build the frontend assets
 	npm i
 	make javascripts
 	make stylesheets
@@ -158,14 +164,14 @@ black-check:
 flake8:
 	flake8 .
 
-server-dev:
+server-dev: ## Run the app with live frontend rebuild
 	make -j 2 server frontend-watch
 
-load-db: login
+load-db: login ## Load a database dump locally (docker-compose)
 	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-dataset
 	docker-compose -f docker-compose.yml -f docker-compose.load-db.yml run load-db-entity
 
-deploy: aws-deploy
+deploy: aws-deploy ## Force a new ECS deployment (ENVIRONMENT required)
 
 aws-deploy:
 ifeq (, $(ENVIRONMENT))
@@ -174,7 +180,7 @@ endif
 	aws ecs update-service --force-new-deployment --service $(ENVIRONMENT)-web-service --cluster $(ENVIRONMENT)-web-cluster
 
 .PHONY: docker-security-scan
-docker-security-scan:
+docker-security-scan: ## Run the OWASP ZAP dynamic scan (needs the image)
 	mkdir -p zap-working-dir
 	touch zap-working-dir/zap.log
 	chmod -R a+rw zap-working-dir
@@ -199,3 +205,19 @@ test-load-entity-static-pool:
 	locust -f tests/load/entity_rand_test.py -H $(TEST_HOST) -t 5m -E random -T static
 test-load-cache-warmup:
 	locust -f tests/load/cache_warmup_test.py -H $(TEST_HOST) -t 10m -u 3 -r 1 --headless
+
+.PHONY: scan docker-scan
+
+SEMGREP_VERSION = 1.183.0
+SEMGREP_IMAGE = semgrep/semgrep:$(SEMGREP_VERSION)
+# Shared args so `scan` and `scan-docker` stay identical. Fails on high/critical
+# (ERROR-severity) findings only.
+SEMGREP_ARGS = scan --config p/python --config p/secrets --config p/javascript --config p/dockerfile --config p/github-actions --severity ERROR --error --metrics=off
+
+# scan        - native, needs `pip install semgrep==$(SEMGREP_VERSION)`
+# docker-scan - containerised, needs only Docker
+scan: ## Static security scan (SAST); fails on high/critical
+	semgrep $(SEMGREP_ARGS)
+
+docker-scan: ## Static security scan in Docker (no local install)
+	docker run --rm -v $(CURDIR):/src -w /src $(SEMGREP_IMAGE) semgrep $(SEMGREP_ARGS)

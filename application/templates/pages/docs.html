@@ -67,8 +67,7 @@
 
   <!-- for path in params.paths.keys() -->
   {% for parameter in params.parameters %}
-    {{
-      _parameterRows.append([
+    {% do _parameterRows.append([
         {
           'html': _parameterName({ 'name': parameter.name }) | safe
         },
@@ -83,8 +82,7 @@
           'html': _parameterDescription({'parameter':parameter,'components':components})| safe,
           'classes': 'govuk-!-font-size-16'
         }
-      ]) | debug | safe
-    }}
+      ]) %}
   {% endfor %}
 
   {% call appSummaryCard({

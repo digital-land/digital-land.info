@@ -53,18 +53,14 @@ jobs:
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
           sudo ./aws/install --update
-          sudo apt-get update
-          sudo apt-get install -y rsync
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.DEPLOY_AWS_ROLE_ARN }}
           aws-region: eu-west-2
 
-      - run: |
-          npm install
-          make frontend-all
-
+      # Frontend static assets are now built inside the Docker image (assets
+      # stage), so no separate `make frontend-all` step is needed here.
       - uses: aws-actions/amazon-ecr-login@v2
 
       - run: docker pull $DOCKER_REPO:latest || echo "no current latest image"

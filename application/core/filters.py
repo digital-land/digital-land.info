@@ -4,7 +4,6 @@ from markdown import markdown
 from markupsafe import Markup
 import nh3
 import json
-import jsonpickle
 from bs4 import BeautifulSoup
 from slugify import slugify
 from uritemplate import URITemplate
@@ -144,11 +143,6 @@ def _add_html_attrs(soup):
         tag["class"] = "govuk-section-break govuk-section-break--l"
     for tag in soup.select("code"):
         tag["class"] = "app-code"
-
-
-def debug(thing):
-    dumpee = json.dumps(json.loads(jsonpickle.encode(thing)), indent=2)
-    return f"<script>console.log({dumpee});</script>"
 
 
 def get_entity_name_filter(entity):

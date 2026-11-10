@@ -288,3 +288,46 @@ def test_fetch_linked_local_plans_boundary(db_session):
     assert "local-plan-timetable" in linked_entities
     assert linked_entities["local-plan-timetable"] == []
     assert linked_entities["local-plan-document"] == []
+
+
+def test_entity_json_tab_escapes_html_in_field_values(
+    client, db_session, test_data, exclude_middleware
+):
+    """Field values rendered in the entity JSON tab must be HTML-escaped so
+    that attacker-controlled content cannot inject live markup.
+
+    Entity field values are ingested from external data providers, so the JSON
+    tab must escape them rather than mark them safe.
+    """
+    xss = '</code></pre><img src=x onerror="alert(1)">'
+    script = "<script>alert(1)</script>"
+    db_session.add(
+        EntityOrm(
+            entity=900900,
+            name=xss,
+            dataset="greenspace",
+            typology="geography",
+            reference="XSS-REF",
+            prefix="greenspace",
+            entry_date="2022-01-01",
+            json={"attacker_field": script},
+        )
+    )
+    db_session.flush()
+
+    response = client.get("/entity/900900", follow_redirects=True)
+    assert response.status_code == 200
+
+    # The raw, executable payloads must not appear unescaped anywhere: not as a
+    # live tag, and not as a raw <script> element.
+    assert "<img src=x onerror=" not in response.text
+    assert script not in response.text
+
+    # No live element may have been injected into the DOM from our payload.
+    soup = BeautifulSoup(response.text, "html.parser")
+    assert soup.find("img", attrs={"onerror": True}) is None
+
+    # The payload survives only as escaped text (in the "About this entity"
+    # table, the heading/title, and the JSON tab).
+    assert "&lt;img" in response.text
+    assert "&lt;script&gt;" in response.text

@@ -36,3 +36,4 @@ pyrightconfig.json
 .env.staging
 .env.production
 .env.sandbox
+static/

@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from application.db.models import OrganisationOrm, ProvisionQualityOrm
+from application.db.models import LicenceOrm, OrganisationOrm, ProvisionQualityOrm
 
 
 def add_provision_quality(
@@ -140,3 +140,27 @@ def test_dataset_page_counts_every_provider_whatever_its_quality(
     provider_link = soup.find("a", href="/data-provider/greenspace")
     assert provider_link is not None
     assert provider_link.get_text(strip=True) == "6 data providers"
+
+
+def test_dataset_page_sanitises_html_in_markdown_metadata(
+    client, db_session, test_data, exclude_middleware
+):
+    """Script embedded in dataset licence/attribution/text metadata must be
+    stripped by the markdown sanitiser, while legitimate markdown formatting
+    still renders.
+    """
+    script = "<script>alert(1)</script>"
+    licence = db_session.query(LicenceOrm).get("ogl3")
+    assert licence is not None, "test_data should have created the ogl3 licence"
+    licence.text = f"{script} and some **bold** licence text"
+    db_session.flush()
+
+    response = client.get("/dataset/greenspace")
+    assert response.status_code == 200
+
+    # The script payload must be stripped...
+    assert script not in response.text
+    soup = BeautifulSoup(response.text, "html.parser")
+    assert not any("alert(1)" in (s.string or "") for s in soup.find_all("script"))
+    # ...while legitimate markdown formatting survives sanitisation.
+    assert "<strong>bold</strong>" in response.text

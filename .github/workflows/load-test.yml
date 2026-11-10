@@ -28,9 +28,13 @@ jobs:
         pip install locust==2.34.0
 
     - name: Run Locust load test
+      # Pass the untrusted input via an env var (quoted) rather than interpolating
+      # ${{ ... }} straight into the shell, to avoid shell command injection.
+      env:
+        TARGET_URL: ${{ github.event.inputs.target_url }}
       run: |
         locust -f tests/load/entity_rand_test.py \
-          -H ${{ github.event.inputs.target_url }} \
+          -H "$TARGET_URL" \
           --csv=log --html=locust_report.html \
           --only-summary \
           --headless -u 10 -r 1 -t 1m > locust_output.txt 2>&1 || true

@@ -11,7 +11,6 @@ from application.core.filters import (
     make_param_str_filter,
     render_markdown,
     get_entity_name_filter,
-    debug,
     digital_land_to_json,
     uri_encode,
     cacheBust,
@@ -52,6 +51,16 @@ templates.env.loader = jinja2.ChoiceLoader(
     ]
 )
 
+# Starlette's default select_autoescape only enables autoescaping for
+# .html/.htm/.xml/.xhtml templates, which leaves this application's own .jinja
+# macros (e.g. entity-value) rendering values unescaped. Extend it to cover
+# .jinja so attacker/provider-controlled values rendered in those macros are
+# HTML-escaped too.
+templates.env.autoescape = jinja2.select_autoescape(
+    enabled_extensions=("html", "htm", "xml", "xhtml", "jinja"),
+    default_for_string=True,
+)
+
 # Used to customize jinja tojson filter
 templates.env.policies["json.dumps_function"] = model_dumps
 
@@ -86,7 +95,6 @@ templates.env.filters["hex_to_rgb"] = hex_to_rgb_string_filter
 templates.env.filters["make_param_str"] = make_param_str_filter
 templates.env.filters["render_markdown"] = render_markdown
 templates.env.filters["get_entity_name"] = get_entity_name_filter
-templates.env.filters["debug"] = debug
 templates.env.filters["digital_land_to_json"] = digital_land_to_json
 templates.env.filters["uri_encode"] = uri_encode
 templates.env.filters["make_url_param_str"] = make_url_param_str
