@@ -13,9 +13,7 @@ RUN npm ci \
     && npx nps build.stylesheets \
     && npx nps copy.govukAssets \
     && rsync -r assets/images static/ \
-    && cp node_modules/maplibre-gl/dist/maplibre-gl.css static/stylesheets/maplibre-gl.css \
-    && mkdir -p static/govuk/assets \
-    && cp -r node_modules/govuk-frontend/dist/govuk/* static/govuk
+    && cp node_modules/maplibre-gl/dist/maplibre-gl.css static/stylesheets/maplibre-gl.css
 
 # Stage 2: production (runs as a non-root user).
 FROM python:3.13-slim AS production

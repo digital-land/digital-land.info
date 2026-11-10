@@ -258,13 +258,13 @@ typepy[datetime]==1.3.5
     #   pytablewriter
     #   pytest-md-report
     #   tabledata
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   -c requirements/requirements.txt
     #   pyee
     #   sqlalchemy
     #   testcontainers
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   -c requirements/requirements.txt
     #   docker
