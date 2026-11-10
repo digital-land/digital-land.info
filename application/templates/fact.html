@@ -54,7 +54,11 @@
                       {%- if field == 'value' and fact['field'] == "twitter" %}
                         <a class ="govuk-link" href="https://twitter.com/{{ fact[field] }}">@{{ fact[field] }}</a>
                       {%- elif field == 'value' and fact['field'] in ["website","opendatacommunities"] %}
+                        {%- if fact[field] is safe_url %}
                         <a class ="govuk-link" href="{{ fact[field] }}">{{ fact[field] }}</a>
+                        {%- else %}
+                        {{ fact[field] if fact[field] is not none }}
+                        {%- endif %}
                       {%- elif field == 'value' and fact['field'] in ["wikipedia"] %}
                         <a class ="govuk-link" href="{{ 'https://en.wikipedia.org/wiki/' + fact[field] }}">{{ fact[field] }}</a>
                       {%- elif field == 'value' and fact['field'] in ["geometry","point"] %}

@@ -26,7 +26,7 @@ services:
     volumes:
       - .:/src
     healthcheck:
-      test: curl -v -i -f http://localhost:8000
+      test: python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8000')"
       interval: 1s
       timeout: 3s
       retries: 60

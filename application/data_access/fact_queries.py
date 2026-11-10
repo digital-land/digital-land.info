@@ -113,15 +113,22 @@ def get_search_facts_query(query_params: List) -> Optional[FactModel]:
             AND f.entity = e.entity
             AND f.entity = {query_params['entity']}"""
 
+    # Bind field values as datasette named parameters rather than
+    # interpolating them into the SQL, to prevent SQL injection.
+    field_params = {}
     if query_params["field"]:
+        field_params = {
+            f"field{i}": value for i, value in enumerate(query_params["field"])
+        }
+        placeholders = ", ".join(f":{name}" for name in field_params)
         sql = sql + f"""
-        AND f.field in ('{"','".join(query_params['field'])}')
+        AND f.field in ({placeholders})
         """
 
     sql = sql + """
         GROUP BY f.entity, f.fact, f.field,f.value;
     """
-    params = {"sql": sql, "_shape": "array"}
+    params = {"sql": sql, "_shape": "array", **field_params}
 
     try:
         http = get_datasette_http()

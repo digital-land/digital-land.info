@@ -2,8 +2,8 @@ from application.core.utils import NoneToEmptyStringEncoder
 from jinja2 import pass_eval_context
 from markdown import markdown
 from markupsafe import Markup
+import nh3
 import json
-import jsonpickle
 from bs4 import BeautifulSoup
 from slugify import slugify
 from uritemplate import URITemplate
@@ -105,7 +105,12 @@ def make_url_param_str(param_dict, exclude_values=None, exclude_params=None):
 def render_markdown(text, govAttributes=False, makeSafe=True):
     if text is None:
         return ""
-    soup = BeautifulSoup(markdown(text), "html.parser")
+    # Sanitise the rendered HTML against an allowlist so that any raw
+    # HTML/script embedded in the source text cannot reach the page. The
+    # GOV.UK classes added below are applied after sanitisation, so they are
+    # unaffected.
+    sanitised_html = nh3.clean(markdown(text))
+    soup = BeautifulSoup(sanitised_html, "html.parser")
     if govAttributes:
         _add_html_attrs(soup)
     if makeSafe:
@@ -140,11 +145,6 @@ def _add_html_attrs(soup):
         tag["class"] = "app-code"
 
 
-def debug(thing):
-    dumpee = json.dumps(json.loads(jsonpickle.encode(thing)), indent=2)
-    return f"<script>console.log({dumpee});</script>"
-
-
 def get_entity_name_filter(entity):
     if entity:
         return entity.name if entity.name else entity.reference
@@ -164,12 +164,24 @@ def digital_land_to_json(dict):
         # Replace geometry with a placeholder message if truncated
         if "geometry" in filtered_dict:
             filtered_dict["geometry"] = (
-                "<b>Too large to display. Download JSON for full geometry.</b>"
+                "Too large to display. Download JSON for full geometry."
             )
     # dict["geometry"] = dict["geometry"][:1000]
     return json.dumps(
         filtered_dict, default=str, indent=4, cls=NoneToEmptyStringEncoder
     )
+
+
+def is_safe_url(value) -> bool:
+    """True only for absolute http(s) URLs with a host.
+
+    Used before rendering publisher-supplied values as links, so values such
+    as javascript:, data: and vbscript: are never placed in an href.
+    """
+    if not isinstance(value, str):
+        return False
+    parsed = urlparse.urlparse(value.strip())
+    return parsed.scheme.lower() in ("http", "https") and bool(parsed.netloc)
 
 
 def uri_encode(uri_template, kwarg_list):
@@ -262,8 +274,8 @@ def get_entity_geometry(entity):
 
     if data is None:
         logger.warning(
-            f"No geojson for entity that has a typology of geography: {entity.entity}",
-            entity,
+            "No geojson for entity that has a typology of geography: %s",
+            entity.entity,
         )
     return {
         "name": get_entity_name(entity),

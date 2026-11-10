@@ -349,14 +349,40 @@ function renderChips(params) {
   });
 
   var row = document.getElementById('active-filters-row');
-  if (chips.length === 0) { row.innerHTML = ''; return; }
+  row.textContent = '';
+  if (chips.length === 0) { return; }
 
-  row.innerHTML = '<div class="active-filters"><span class="active-filters-label">Filters:</span>' +
-    chips.map(function(c) {
-      return '<a href="' + c.url + '" class="filter-chip">' + c.label + ' <span class="remove" aria-hidden="true">x</span></a>';
-    }).join('') +
-    '<a href="finder" class="filter-chip" style="background:#fff0e0; border-color:#f47738; color:#7a3000">Clear all</a>' +
-  '</div>';
+  // Chip labels come from the URL, so build elements and set text rather than
+  // writing HTML strings, to avoid script injection.
+  var container = document.createElement('div');
+  container.className = 'active-filters';
+
+  var heading = document.createElement('span');
+  heading.className = 'active-filters-label';
+  heading.textContent = 'Filters:';
+  container.appendChild(heading);
+
+  chips.forEach(function(c) {
+    var chip = document.createElement('a');
+    chip.href = c.url;
+    chip.className = 'filter-chip';
+    chip.appendChild(document.createTextNode(c.label + ' '));
+    var remove = document.createElement('span');
+    remove.className = 'remove';
+    remove.setAttribute('aria-hidden', 'true');
+    remove.textContent = 'x';
+    chip.appendChild(remove);
+    container.appendChild(chip);
+  });
+
+  var clearAll = document.createElement('a');
+  clearAll.href = 'finder';
+  clearAll.className = 'filter-chip';
+  clearAll.setAttribute('style', 'background:#fff0e0; border-color:#f47738; color:#7a3000');
+  clearAll.textContent = 'Clear all';
+  container.appendChild(clearAll);
+
+  row.appendChild(container);
 }
 
 // Render results

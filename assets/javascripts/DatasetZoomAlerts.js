@@ -1,5 +1,6 @@
 import { getDatasetMinZoom } from "./datasetMinZoomLevels.js";
 import { trackEvent } from "./analytics/trackEvent.js";
+import { escapeHtml } from "./safeHtml.js";
 
 /**
  * Messaging to inform user to zoom in to view datasets which have
@@ -71,11 +72,13 @@ export default class DatasetZoomAlerts {
     alert.classList.add('dl-zoom-alert');
     alert.setAttribute('role', 'region');
     alert.setAttribute('aria-label', `Information: zoom in to view ${layerName} data layer`);
+    // Layer names come from dataset data, so escape them before using innerHTML.
+    const safeLayerName = escapeHtml(layerName);
     alert.innerHTML = `
       ${DatasetZoomAlerts.iconInfoSvg()}
-      <p class="dl-zoom-alert__content">Zoom in to view ${layerName} data layer.</p>
+      <p class="dl-zoom-alert__content">Zoom in to view ${safeLayerName} data layer.</p>
       <button type="button" class="dl-zoom-alert__dismiss">
-        <span class="govuk-visually-hidden">Dismiss zoom message for ${layerName}</span>
+        <span class="govuk-visually-hidden">Dismiss zoom message for ${safeLayerName}</span>
       </button>
     `;
 

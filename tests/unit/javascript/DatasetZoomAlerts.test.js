@@ -63,6 +63,20 @@ describe('DatasetZoomAlerts', () => {
   })
 
   describe('visibility', () => {
+    test('escapes the layer name in the alert markup', () => {
+      const layerName = '<img src=x onerror=alert(1)>'
+      const layerControls = {
+        layerOptions: [mockLayerOption('restricted-dataset', layerName, true)],
+      }
+      const alerts = new DatasetZoomAlerts(mockMapController(6), layerControls)
+
+      const alert = alerts.alertElements['restricted-dataset']
+      expect(alert.innerHTML).not.toContain('<img')
+      expect(alert.innerHTML).toContain('Zoom in to view &lt;img src=x onerror=alert(1)&gt; data layer.')
+      // aria-label is set with setAttribute, which never parses HTML.
+      expect(alert.attributes['aria-label']).toBe(`Information: zoom in to view ${layerName} data layer`)
+    })
+
     test('shows alert message for a checked dataset below zoom level at which dataset displays', () => {
       const layerControls = {
         layerOptions: [mockLayerOption('restricted-dataset', 'Restricted dataset', true)],

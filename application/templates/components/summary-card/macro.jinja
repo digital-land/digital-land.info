@@ -20,7 +20,6 @@
       {% if params.actions %}
         <div class="app-summary-card__actions">
           {% if params.actions.get('items', []).length == 1 %}
-          {{ params.actions.get('items', []) | debug | safe }}
             {{ _actionLink(params.actions.items[0]) | indent(12) | trim }}
           {% else %}
             <ul class="app-summary-card__actions-list">
