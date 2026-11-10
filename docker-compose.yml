@@ -22,7 +22,7 @@ services:
       REDIS_PORT: 6379
       REDIS_SECURE: false
     healthcheck:
-      test: curl -v -i -f http://localhost:8000
+      test: python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8000')"
       interval: ${WEB_HEALTHCHECK_INTERVAL:-1s}
       timeout: 3s
       retries: 60
