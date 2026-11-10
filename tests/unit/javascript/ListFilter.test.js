@@ -25,7 +25,10 @@ describe('ListFilter', () => {
     describe('constructor', () => {
 
         test('it calls init', () => {
-            expect(listFilter.init).toHaveBeenCalledOnce();
+            // Construct here: Vitest clears mock calls before each test, so
+            // the call from the shared instance above isn't visible.
+            new ListFilter(mockFormElement);
+            expect(ListFilter.prototype.init).toHaveBeenCalledOnce();
         });
 
         test('it returns an instance of a List filter', () => {

@@ -1,6 +1,45 @@
 import MapController from './MapController.js';
 
+// Shown in place of the map when the browser can't run it. Mirrors the
+// <noscript> message in components/map/macro.jinja.
+export const MAP_UNSUPPORTED_MESSAGE = 'To view this map, you need to use a more up-to-date browser.';
+
+// MapLibre needs WebGL2, and its script won't load at all in older browsers
+// (leaving `maplibregl` undefined), so check both before creating a map.
+export const isMapSupported = () => {
+  if (typeof maplibregl === 'undefined') {
+    return false;
+  }
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(canvas.getContext && canvas.getContext('webgl2'));
+  } catch (e) {
+    return false;
+  }
+}
+
+export const showMapUnsupportedMessage = (mapId) => {
+  const mapElement = document.getElementById(mapId);
+  if (!mapElement) {
+    return;
+  }
+  mapElement.textContent = MAP_UNSUPPORTED_MESSAGE;
+
+  // Hide the loading overlay, if this map has one, so the message is visible.
+  const wrapper = mapElement.closest && mapElement.closest('.dl-map__wrapper');
+  const loader = wrapper && wrapper.querySelector('.dl-map__loader');
+  if (loader) {
+    loader.remove();
+  }
+}
+
 export const newMapController = (params = { layers: []}) => {
+
+  const mapId = params.mapId || 'map';
+  if (!isMapSupported()) {
+    showMapUnsupportedMessage(mapId);
+    return null;
+  }
 
   const datasetUrl = params.DATASETTE_TILES_URL || '';
 
@@ -15,7 +54,7 @@ export const newMapController = (params = { layers: []}) => {
         vectorSource: `${datasetUrl}/-/tiles/"${d.dataset}/{z}/{x}/{y}.vector.pbf`,
       }
     }),
-    mapId: params.mapId || 'map',
+    mapId: mapId,
   };
   return new MapController(mapParams);
 }
