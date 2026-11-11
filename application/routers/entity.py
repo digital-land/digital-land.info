@@ -31,6 +31,7 @@ from application.data_access.entity_queries import (
     get_entity_search,
     get_organisations,
     lookup_entity_link,
+    record_search_too_broad,
     get_linked_entities,
     fetchEntityFromReference,
 )
@@ -54,6 +55,11 @@ from application.search.validators import validate_dataset
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+BEYOND_FIRST_PAGE_MESSAGE = (
+    "This search has more than 10,000 results, so only the first page is "
+    "available. Remove offset, narrow your search using the filters or "
+    "download the dataset."
+)
 SEARCH_TOO_BROAD_MESSAGE = (
     "This search covers too much data to complete. "
     "Try a smaller area, choose a dataset or download the dataset."
@@ -486,12 +492,9 @@ def search_entities(
         data = get_entity_search(session, query_params, extension)
     except EntitySearchTooBroad:
         # Expected for very broad searches: a metric and a warning, not a Sentry error.
-        extension_tag, dataset_filters = _record_search_error(
-            "statement_timeout", extension, query_params
-        )
-        logger.warning(
-            "Entity search too broad: hit the search statement timeout",
-            extra={"extension": extension_tag, "dataset_filters": dataset_filters},
+        record_search_too_broad(
+            extension.value if extension is not None else "html",
+            query_params.get("dataset") or [],
         )
         if extension in (SuffixEntity.json, SuffixEntity.geojson):
             raise HTTPException(status_code=422, detail=SEARCH_TOO_BROAD_MESSAGE)
@@ -523,6 +526,16 @@ def search_entities(
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
+
+    # Above the cap a location search only has a first page. Tell API clients
+    # instead of returning an empty page they could mistake for the end of the
+    # results. The HTML page explains this to the user instead.
+    if (
+        extension in (SuffixEntity.json, SuffixEntity.geojson)
+        and data.get("pagination_is_capped")
+        and params.get("offset")
+    ):
+        raise HTTPException(status_code=400, detail=BEYOND_FIRST_PAGE_MESSAGE)
     scheme = request.url.scheme
     netloc = request.url.netloc
     path = request.url.path

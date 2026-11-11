@@ -626,22 +626,64 @@ def test_search_without_location_filter_caps_count_but_keeps_pagination(
     assert [entity.entity for entity in last["entities"]] == ids[-1:]
 
 
-def test_direct_filter_matches_original_filter(test_data, params, db_session):
+def _original_geometry_filter(session, params):
+    """The geometry filter as it was before the direct filter: matching IDs from
+    entity_subdivided, entity.geometry and entity.point collected through IN."""
+    from sqlalchemy import func, select, union_all
+    from sqlalchemy.orm import aliased
     from application.data_access.entity_queries import (
         _apply_base_filters,
-        _apply_location_filters,
+        _apply_date_filters,
+        _apply_period_option_filter,
+        _dataset_filters,
     )
+    from application.data_access.entity_query_helpers import (
+        get_spatial_function_for_relation,
+    )
+    from application.db.models import EntityOrm, EntitySubdividedOrm
+
+    subdivided = aliased(EntitySubdividedOrm)
+    subdivided_filter, entity_filter = _dataset_filters(params, subdivided)
+    spatial_function = get_spatial_function_for_relation(
+        params.get("geometry_relation", GeometryRelation.within)
+    )
+    branches = []
+    for geometry in params["geometry"]:
+        geom = func.ST_GeomFromText(geometry, 4326)
+        if subdivided_filter is not None:
+            branches.append(
+                select(subdivided.entity).where(
+                    subdivided_filter,
+                    subdivided.geometry_subdivided.isnot(None),
+                    func.ST_IsValid(subdivided.geometry_subdivided),
+                    spatial_function(subdivided.geometry_subdivided, geom),
+                )
+            )
+        if entity_filter is not None:
+            for column in (EntityOrm.geometry, EntityOrm.point):
+                branch = select(EntityOrm.entity).where(
+                    entity_filter,
+                    column.is_not(None),
+                    func.ST_IsValid(column),
+                    spatial_function(column, geom),
+                )
+                branch = _apply_base_filters(branch, params)
+                branch = _apply_date_filters(branch, params)
+                branches.append(_apply_period_option_filter(branch, params))
+    ids = union_all(*branches).subquery()
+    query = _apply_base_filters(session.query(EntityOrm), params)
+    return query.filter(EntityOrm.entity.in_(select(ids.c.entity)))
+
+
+def test_direct_filter_matches_original_filter(test_data, params, db_session):
     from application.data_access.entity_query_helpers import normalised_params
     from application.db.models import EntityOrm
 
     for polygon in (brownfield, greenspace, no_intersection, WHOLE_WORLD):
         search = _whole_world_search(params, geometry=[polygon], limit=500)
         direct = get_entity_search(db_session, search)
-        normalised = normalised_params(search)
-        original = _apply_location_filters(
-            db_session,
-            _apply_base_filters(db_session.query(EntityOrm), normalised),
-            normalised,
+        original = _original_geometry_filter(
+            db_session, normalised_params(search)
         ).order_by(EntityOrm.entity)
         assert [entity.entity for entity in direct["entities"]] == [
             row.entity for row in original

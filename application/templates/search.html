@@ -226,19 +226,26 @@
         </div>
         <!-- /.app-results-summary -->
 
+        {% set downloadDatasetHTML %}<p class="govuk-body">To download an individual dataset, go directly to the <a href="/dataset/" class="govuk-link">dataset page</a>.</p>{% endset %}
+        {% set tooManyResultsHTML %}
+          <p class="govuk-body">There are too many results to show for this query. You can narrow your search using the filters.</p>
+          {{ downloadDatasetHTML }}
+        {% endset %}
+
         {% if pagination_is_capped and first_url %}
+        {#- A later page of a location search over the cap: nothing can be shown. #}
         <div class="app-results-body">
-          <p class="govuk-body">We cannot show results beyond the first page. Go back and narrow your search using the filters to get more relevant results.</p>
+          {{ tooManyResultsHTML }}
           <p class="govuk-body"><a href="{{ first_url }}" class="govuk-link">Go back to the first page of results</a></p>
-          <p class="govuk-body">If you need a larger amount of data, you can <a href="/dataset/" class="govuk-link">download data</a>.</p>
         </div>
-        {% elif count_is_capped %}
+        {% elif pagination_is_capped %}
+        {#- The first page of a location search over the cap: the only page there is. #}
         <div class="govuk-inset-text">
-          {% if pagination_is_capped %}<strong>This search found more than {{ count|commanum }} results.</strong>{% else %}This search found more than {{ count|commanum }} results.{% endif %}
-          Try narrowing your search using the filters to get more relevant results.
-          If you need a larger amount of data, you can <a href="/dataset/" class="govuk-link">download data</a>.
+          <p class="govuk-body">We can only display the first {{ limit|commanum }} results for this query. You can narrow your search using the filters.</p>
+          {{ downloadDatasetHTML }}
         </div>
         {% endif %}
+        {#- Searches without a location filter still page past the cap, so the 10,000+ count is enough. #}
 
         {% if data and data|count > 0 %}
         <div class="app-results-body">
@@ -317,8 +324,7 @@
         <!-- /.app-results-body -->
         {% elif search_too_broad %}
         <div class="app-results-body">
-          <p class="govuk-body">This search covers too much data for us to complete.</p>
-          <p class="govuk-body">Try searching a smaller area or using the filters to narrow your search. If you need a larger amount of data, you can <a href="/dataset/" class="govuk-link">download data</a>.</p>
+          {{ tooManyResultsHTML }}
         </div>
         {% elif count == 0 %}
         <div class="app-results-body">

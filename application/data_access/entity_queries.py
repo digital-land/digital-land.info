@@ -32,7 +32,24 @@ PG_QUERY_CANCELED = "57014"
 
 
 class EntitySearchTooBroad(Exception):
-    """A location search hit the search statement timeout."""
+    """An entity search hit the search statement timeout."""
+
+
+def record_search_too_broad(extension_tag, dataset_filters):
+    """Report a too-broad search as a metric and a warning, not a Sentry error."""
+    sentry_sdk.metrics.count(
+        "entity.search.error",
+        1,
+        attributes={
+            "error": "statement_timeout",
+            "extension": extension_tag,
+            "dataset": ",".join(dataset_filters) if dataset_filters else "all",
+        },
+    )
+    logger.warning(
+        "Entity search too broad: hit the search statement timeout",
+        extra={"extension": extension_tag, "dataset_filters": dataset_filters},
+    )
 
 
 def get_entity_query(
@@ -83,39 +100,6 @@ def get_entities(session, dataset: str, limit: int) -> List[EntityModel]:
     return [entity_factory(e) for e in entities]
 
 
-# TODO: this function will be moved in the next PR into a performance
-# test folder and use it as a comparison helper/benchmark
-def get_entity_search_OLD_VERSION(
-    session: Session, parameters: dict, extension: Optional[SuffixEntity] = None
-):
-    params = normalised_params(parameters)
-    count: int
-    entities: list[EntityModel]
-    subquery = session.query(EntityOrm.entity)
-    subquery = _apply_base_filters(subquery, params)
-    subquery = _apply_date_filters(subquery, params)
-    subquery = _apply_location_filters(session, subquery, params)
-    subquery = _apply_period_option_filter(subquery, params).subquery()
-    count_query = session.query(func.count()).select_from(subquery)
-
-    count = count_query.scalar()
-
-    query_args = [EntityOrm]
-    query = session.query(*query_args)
-    query = _apply_base_filters(query, params)
-    query = _apply_date_filters(query, params)
-    query = _apply_location_filters(session, query, params)
-    query = _apply_period_option_filter(query, params)
-    query = _apply_limit_and_pagination_filters(query, params)
-    query = _apply_field_filters(
-        query, params, extension
-    )  # Build the query without excluded params
-
-    entities = query.all()
-    entities = [entity_factory(entity_orm) for entity_orm in entities]
-    return {"params": params, "count": count, "entities": entities}
-
-
 # A search that is too broad is expected, so the router reports it as a metric
 # and a warning rather than an error.
 @log_slow_execution(threshold_seconds=1, expected_exceptions=(EntitySearchTooBroad,))
@@ -128,9 +112,8 @@ def get_entity_search(
     basequery = session.query(EntityOrm)
     basequery = _apply_base_filters(basequery, params)
     basequery = _apply_date_filters(basequery, params)
-    basequery = _apply_location_filters(
-        session, basequery, params, include_geometry=False
-    )
+    # Geometry filters are applied by _geometry_match_branches instead.
+    basequery = _apply_location_filters(session, basequery, params)
     basequery = _apply_period_option_filter(basequery, params)
 
     # If there are location filters, we need to use a different approach to get the count and entities.
@@ -162,7 +145,7 @@ def _search_with_capped_count(session, basequery, params, extension):
     query = _apply_limit_and_pagination_filters(basequery, page_params)
     query = _apply_field_filters(query, params, extension)
     with sentry_sdk.start_span(op="entity.search", name="page.execute_fetch"):
-        rows = query.all()
+        rows = _fetch_with_search_timeout(session, query)
     has_next_page = limit is not None and len(rows) > limit
     rows = rows[:limit] if limit is not None else rows
     with sentry_sdk.start_span(op="entity.search", name="models.convert"):
@@ -329,7 +312,7 @@ def _fetch_with_search_timeout(session, query):
     try:
         rows = query.all()
     except OperationalError as error:
-        if getattr(error.orig, "pgcode", None) != PG_QUERY_CANCELED:
+        if not _is_statement_timeout(error):
             raise
         # Rolling back clears the aborted transaction and the local timeout, so the
         # rest of the request can still use this session.
@@ -338,6 +321,14 @@ def _fetch_with_search_timeout(session, query):
     # Later queries in this transaction keep the normal timeout.
     _set_local_statement_timeout(session, settings.DB_STATEMENT_TIMEOUT_MS)
     return rows
+
+
+def _is_statement_timeout(error):
+    # 57014 also covers admin cancels and read-replica recovery conflicts, which are
+    # real incidents rather than broad searches, so check the message as well.
+    return getattr(error.orig, "pgcode", None) == PG_QUERY_CANCELED and (
+        "statement timeout" in str(error.orig)
+    )
 
 
 def _set_local_statement_timeout(session, timeout_ms):
@@ -441,7 +432,12 @@ def lookup_entity_link(
     if dataset != "listed-building" and organisation_entity is not None:
         search_params["organisation_entity"] = [organisation_entity]
 
-    found_entities = get_entity_search(session, search_params)
+    try:
+        found_entities = get_entity_search(session, search_params)
+    except EntitySearchTooBroad:
+        # A linked entity is optional on the entity page, so show the page without it.
+        record_search_too_broad("entity_link", [dataset])
+        return None
     if found_entities["count"] == 1:
         found_entity = found_entities["entities"][0]
         return found_entity.model_dump(by_alias=True, exclude={"geojson"})
@@ -575,7 +571,7 @@ def _boundary_matches(session, params, boundary_filter, boundary_name):
     return branches[0].union(branches[1]).subquery()
 
 
-def _apply_location_filters(session, query, params, *, include_geometry=True):
+def _apply_location_filters(session, query, params):
     point = get_point(params)
     entity_subdivided_alias = aliased(EntitySubdividedOrm)
     subdivided_filter, entity_filter = _dataset_filters(params, entity_subdivided_alias)
@@ -615,51 +611,6 @@ def _apply_location_filters(session, query, params, *, include_geometry=True):
 
         # Step 2: Get full EntityOrm rows matching those IDs
         query = query.filter(EntityOrm.entity.in_(select(union_ids.c.entity)))
-
-    spatial_function = get_spatial_function_for_relation(
-        params.get("geometry_relation", GeometryRelation.within)
-    )
-
-    entity_matches = []
-    geometries = params.get("geometry", []) if include_geometry else []
-    for geometry in geometries:
-        geom = func.ST_GeomFromText(geometry, 4326)
-        branches = []
-
-        # Entities from entity_subdivided (for complex datasets)
-        if subdivided_filter is not None:
-            branches.append(
-                select(entity_subdivided_alias.entity).where(
-                    subdivided_filter,
-                    entity_subdivided_alias.geometry_subdivided.isnot(None),
-                    func.ST_IsValid(entity_subdivided_alias.geometry_subdivided),
-                    spatial_function(entity_subdivided_alias.geometry_subdivided, geom),
-                )
-            )
-
-        # Entities from EntityOrm (for all other datasets)
-        if entity_filter is not None:
-            for column in (EntityOrm.geometry, EntityOrm.point):
-                branch = select(EntityOrm.entity).where(
-                    entity_filter,
-                    column.is_not(None),
-                    func.ST_IsValid(column),
-                    spatial_function(column, geom),
-                )
-                branch = _apply_base_filters(branch, params)
-                branch = _apply_date_filters(branch, params)
-                branch = _apply_period_option_filter(branch, params)
-                branches.append(branch)
-
-        # Combine results with UNION ALL
-        entity_matches.append(_union_of(branches))
-
-    # Combine all geometries' matching entities via UNION ALL
-    if entity_matches:
-        unioned_entities_subq = _union_of(entity_matches).subquery()
-        query = query.filter(
-            EntityOrm.entity.in_(select(unioned_entities_subq.c.entity))
-        )
 
     intersecting_entities = params.get("geometry_entity", [])
     if intersecting_entities:

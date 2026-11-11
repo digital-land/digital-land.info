@@ -324,3 +324,39 @@ def test_list_and_detail_share_counts_cache(mocker, multiple_dataset_models):
     assert listing["datasets"][0].entity_count == 10
     assert detail.entity_count == 20
     session.execute.assert_called_once()
+
+
+def test_get_dataset_html_shows_page_when_category_search_is_too_broad(
+    mocker, multiple_dataset_models
+):
+    from application.data_access.entity_queries import EntitySearchTooBroad
+
+    dataset = multiple_dataset_models[0]
+    dataset.typology = "category"
+    mocker.patch("application.routers.dataset.get_dataset_query", return_value=dataset)
+    mocker.patch(
+        "application.routers.dataset.get_dataset_entity_counts", return_value={}
+    )
+    mocker.patch("application.routers.dataset.get_latest_resource", return_value=None)
+    mocker.patch(
+        "application.routers.dataset.get_dataset_coverage_status", return_value=None
+    )
+    mocker.patch(
+        "application.routers.dataset.get_providers_for_dataset", return_value=[]
+    )
+    mocker.patch(
+        "application.routers.dataset.get_entity_search",
+        side_effect=EntitySearchTooBroad(),
+    )
+    record = mocker.patch("application.routers.dataset.record_search_too_broad")
+    render = mocker.patch("application.routers.dataset.templates.TemplateResponse")
+    get_dataset(
+        request=MagicMock(),
+        dataset=dataset.dataset,
+        settings=MagicMock(),
+        session=MagicMock(),
+        redis=None,
+        exclude_field=None,
+    )
+    record.assert_called_once_with("html", [dataset.dataset])
+    assert render.call_args.args[2]["categories"] == []

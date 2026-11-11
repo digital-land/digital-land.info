@@ -99,26 +99,6 @@ def test__apply_location_filters_for_both(mocker):
     assert "flood-risk-zone" not in entity_branch
 
 
-def test__apply_location_filters_pushes_dataset_into_entity_branch(mocker):
-    """
-    The requested dataset must be applied inside the spatial subquery, not only
-    by the outer query, otherwise every dataset's geometries are searched.
-    """
-    query = Query(EntityOrm)
-    result = _apply_location_filters(
-        mocker.MagicMock(),
-        query,
-        params={
-            "geometry": ["MULTIPOLYGON((-0.1 52.5, -0.5 52.3, 0.0 52.1, -0.1 52.5))"],
-            "dataset": ["conservation-area"],
-        },
-    )
-    sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-    spatial_subquery = sql_str.split("WHERE entity.entity IN")[1]
-    assert "conservation-area" in spatial_subquery
-    assert "NOT IN" not in spatial_subquery
-
-
 def test__apply_location_filters_without_dataset(mocker):
     query = Query(EntityOrm)
     params = {
@@ -130,17 +110,6 @@ def test__apply_location_filters_without_dataset(mocker):
     sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
 
     assert "ST_Contains" in sql
-
-
-def test__apply_location_filters_geometry_within(mocker):
-    query = Query(EntityOrm)
-    params = {"geometry": ["MULTIPOLYGON((-0.1 52.5, -0.5 52.3, 0.0 52.1, -0.1 52.5))"]}
-
-    result = _apply_location_filters(mocker.MagicMock(), query, params)
-    sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-
-    assert "MULTIPOLYGON" in sql
-    assert any(spatial_func in sql for spatial_func in "ST_Within")
 
 
 def test_get_entity_query_closes_session(mocker):
@@ -460,13 +429,39 @@ def test_search_without_location_filter_uses_capped_count_and_timeout(mocker):
         str(call.args[0].compile(compile_kwargs={"literal_binds": True}))
         for call in session.execute.call_args_list
     ]
+    # The count and the page each run under the search timeout, then restore it.
+    assert len(timeouts) == 4
     assert "15000" in timeouts[0] and "420000" in timeouts[1]
+    assert "15000" in timeouts[2] and "420000" in timeouts[3]
 
 
-def _operational_error(pgcode):
+def test_lookup_entity_link_returns_none_when_search_is_too_broad(mocker):
+    from application.data_access.entity_queries import (
+        EntitySearchTooBroad,
+        lookup_entity_link,
+    )
+
+    mocker.patch(
+        "application.data_access.entity_queries.get_entity_search",
+        side_effect=EntitySearchTooBroad(),
+    )
+    metrics = mocker.patch("sentry_sdk.metrics")
+    logger = mocker.patch("application.data_access.entity_queries.logger")
+
+    assert lookup_entity_link(mocker.MagicMock(), "CA1", "conservation-area") is None
+    assert metrics.count.call_args.kwargs["attributes"] == {
+        "error": "statement_timeout",
+        "extension": "entity_link",
+        "dataset": "conservation-area",
+    }
+    logger.warning.assert_called_once()
+    logger.exception.assert_not_called()
+
+
+def _operational_error(pgcode, message="database error"):
     from sqlalchemy.exc import OperationalError
 
-    orig = Exception("database error")
+    orig = Exception(message)
     orig.pgcode = pgcode
     return OperationalError("SELECT 1", {}, orig)
 
@@ -480,10 +475,32 @@ def test_search_timeout_raises_too_broad_and_rolls_back(mocker):
     _mock_search_settings(mocker)
     session = mocker.MagicMock()
     query = mocker.MagicMock()
-    query.all.side_effect = _operational_error("57014")
+    query.all.side_effect = _operational_error(
+        "57014", "canceling statement due to statement timeout"
+    )
     with pytest.raises(EntitySearchTooBroad):
         _fetch_with_search_timeout(session, query)
     session.rollback.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "canceling statement due to user request",
+        "canceling statement due to conflict with recovery",
+    ],
+)
+def test_other_cancels_are_not_reported_as_too_broad(mocker, message):
+    from sqlalchemy.exc import OperationalError
+    from application.data_access.entity_queries import _fetch_with_search_timeout
+
+    _mock_search_settings(mocker)
+    session = mocker.MagicMock()
+    query = mocker.MagicMock()
+    query.all.side_effect = _operational_error("57014", message)
+    with pytest.raises(OperationalError):
+        _fetch_with_search_timeout(session, query)
+    session.rollback.assert_not_called()
 
 
 def test_other_database_errors_are_not_reported_as_too_broad(mocker):

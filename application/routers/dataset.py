@@ -19,8 +19,10 @@ from application.data_access.digital_land_queries import (
 )
 
 from application.data_access.entity_queries import (
+    EntitySearchTooBroad,
     get_dataset_entity_counts,
     get_entity_search,
+    record_search_too_broad,
 )
 from application.core.templates import templates
 from application.core.models import AUTHORITATIVE_QUALITIES
@@ -171,6 +173,12 @@ def get_dataset(
             entity_query_params = {"dataset": [dataset]}
             try:
                 categories = get_entity_search(session, entity_query_params)["entities"]
+            except EntitySearchTooBroad:
+                # Show the dataset page without its category list.
+                record_search_too_broad(
+                    extension.value if extension is not None else "html", [dataset]
+                )
+                categories = []
             except SQLAlchemyError as e:
                 extension_tag = extension.value if extension is not None else "html"
                 error_tag = (
