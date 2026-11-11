@@ -2,9 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Entity Search GeoJSON (/entity.geojson)",
   "type": "object",
-  "required": ["type", "features"],
+  "required": ["type", "features", "count", "count_is_capped"],
   "properties": {
     "type": { "type": "string", "const": "FeatureCollection" },
+    "count": { "type": "integer", "minimum": 0, "maximum": 10000 },
+    "count_is_capped": { "type": "boolean" },
     "features": {
       "type": "array",
       "items": {
