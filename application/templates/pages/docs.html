@@ -391,68 +391,18 @@ limit=50</code></pre>
     <p class="govuk-body">You can read about the API below. Get in touch with the team if you are interested in getting support using the planning data API.</p>
 
     <h2 class="govuk-heading-l" id="changelog">Changelog</h2>
-    <p class="govuk-body">Changes to the API that may affect how you use it, newest first.</p>
 
-    <h3 class="govuk-heading-m" id="changelog-2026-11-result-limit">November 2026: entity searches count up to 10,000 results</h3>
-    <p class="govuk-body">
-      This applies to <code class="app-code-block app-code-block--inline">/entity.json</code> and <code class="app-code-block app-code-block--inline">/entity.geojson</code>.
-      Searches with 10,000 results or fewer are not affected.
-    </p>
-
-    <h4 class="govuk-heading-s">The count stops at 10,000</h4>
-    <p class="govuk-body">
-      <code class="app-code-block app-code-block--inline">count</code> is still a number, but it is never more than 10,000.
-      A new field, <code class="app-code-block app-code-block--inline">count_is_capped</code>, is <code class="app-code-block app-code-block--inline">true</code> when the search has more than 10,000 results
-      and <code class="app-code-block app-code-block--inline">false</code> when <code class="app-code-block app-code-block--inline">count</code> is exact.
-    </p>
-    <pre class="app-code-block govuk-!-margin-bottom-4" tabindex="0" role="region" aria-label="Example response: a search with more than 10,000 results"><code>{
-  "entities": [...],
-  "links": {...},
-  "count": 10000,
-  "count_is_capped": true
-}</code></pre>
-    <p class="govuk-body">
-      If you use <code class="app-code-block app-code-block--inline">count</code> to work out how many pages to request, check <code class="app-code-block app-code-block--inline">count_is_capped</code> first.
-      When it is <code class="app-code-block app-code-block--inline">true</code>, <code class="app-code-block app-code-block--inline">count</code> is not the total.
-    </p>
-
-    <h4 class="govuk-heading-s">Pagination when the count is capped</h4>
-    <p class="govuk-body">
-      When <code class="app-code-block app-code-block--inline">count_is_capped</code> is <code class="app-code-block app-code-block--inline">true</code>, <code class="app-code-block app-code-block--inline">links</code> does not include <code class="app-code-block app-code-block--inline">last</code>.
-      What else changes depends on whether the search filters by location.
-    </p>
+    <h3 class="govuk-heading-m" id="changelog-2026-11-result-limit">November 2026: entity search results capped at 10,000</h3>
+    <p class="govuk-body">For <code class="app-code-block app-code-block--inline">/entity.json</code> and <code class="app-code-block app-code-block--inline">/entity.geojson</code> searches with more than 10,000 results:</p>
     <ul class="govuk-list govuk-list--bullet">
-      <li>
-        <strong>Searches without a location filter:</strong> you can page through the first 10,000 results.
-        Follow <code class="app-code-block app-code-block--inline">links.next</code> until it is missing. A request with an <code class="app-code-block app-code-block--inline">offset</code> of 10,000 or more returns HTTP <code class="app-code-block app-code-block--inline">400</code>.
-      </li>
-      <li>
-        <strong>Searches with a location filter</strong>
-        (<code class="app-code-block app-code-block--inline">geometry</code>, <code class="app-code-block app-code-block--inline">geometry_reference</code>, <code class="app-code-block app-code-block--inline">geometry_entity</code>, <code class="app-code-block app-code-block--inline">geometry_curie</code>,
-        or <code class="app-code-block app-code-block--inline">latitude</code> and <code class="app-code-block app-code-block--inline">longitude</code>): only the first page is returned.
-        <code class="app-code-block app-code-block--inline">links</code> is empty, a request with an <code class="app-code-block app-code-block--inline">offset</code> returns HTTP <code class="app-code-block app-code-block--inline">400</code>,
-        and the entities on the first page can differ between requests.
-      </li>
+      <li><code class="app-code-block app-code-block--inline">count</code> stops at 10,000 and a new field, <code class="app-code-block app-code-block--inline">count_is_capped</code>, is <code class="app-code-block app-code-block--inline">true</code></li>
+      <li><code class="app-code-block app-code-block--inline">links</code> has no <code class="app-code-block app-code-block--inline">last</code> link</li>
+      <li>without a location filter, you can page through the first 10,000 results</li>
+      <li>with a location filter, only the first page is available and any <code class="app-code-block app-code-block--inline">offset</code> returns HTTP <code class="app-code-block app-code-block--inline">400</code></li>
     </ul>
     <p class="govuk-body">
-      To get more than 10,000 results, split a location search into smaller areas, or add filters such as <code class="app-code-block app-code-block--inline">dataset</code>.
-      For whole datasets, <a class="govuk-link" href="#downloading-the-data">download the data</a> instead.
+      Searches that take too long now return HTTP <code class="app-code-block app-code-block--inline">422</code>. Narrow your search, or <a class="govuk-link" href="#downloading-the-data">download the data</a> instead.
     </p>
-
-    <pre class="app-code-block govuk-!-margin-bottom-4" tabindex="0" role="region" aria-label="Example response: a request beyond the first page of a capped location search"><code>{
-  "detail": "This search has more than 10,000 results, so only the first page is available. Remove offset, narrow your search using the filters or download the dataset."
-}</code></pre>
-    <p class="govuk-body">A search without a location filter returns a similar message when the <code class="app-code-block app-code-block--inline">offset</code> is 10,000 or more.</p>
-
-    <h4 class="govuk-heading-s">Searches that are too broad return an error</h4>
-    <p class="govuk-body">
-      A search that takes too long to complete now returns HTTP <code class="app-code-block app-code-block--inline">422</code>, where before it could run for several minutes.
-      This usually means the search covers too much data, but it can also happen when the service is busy, so a later retry may succeed.
-      The <code class="app-code-block app-code-block--inline">detail</code> field is a text message, not the list of errors returned for invalid parameters.
-    </p>
-    <pre class="app-code-block govuk-!-margin-bottom-4" tabindex="0" role="region" aria-label="Example response: a search that is too broad"><code>{
-  "detail": "This search took too long to complete, probably because it covers too much data. Try a smaller area, choose a dataset or download the dataset."
-}</code></pre>
 
     <hr class="govuk-section-break govuk-section-break--l">
 
