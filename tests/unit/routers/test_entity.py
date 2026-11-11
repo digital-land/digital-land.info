@@ -1330,23 +1330,23 @@ def test_search_entities_displays_capped_count(
     assert (notice is not None) is count_is_capped
 
 
-@pytest.mark.parametrize(
-    "pagination_is_capped, expected_text",
-    [
-        (True, "we can only show one page"),
-        (False, "This search found more than 10,000 results."),
-    ],
+CAP_NOTICE = (
+    "This search found more than 10,000 results. "
+    "Try narrowing your search using the filters to get more relevant results. "
+    "If you need a larger amount of data, you can download data ."
 )
-def test_search_entities_cap_notice_says_whether_pages_are_limited(
+
+
+def _capped_search_soup(
     mocker,
     typologies,
     local_authorities,
     multiple_dataset_models,
     organisation_list,
     pagination_is_capped,
-    expected_text,
+    offset=0,
 ):
-    query_filters = QueryFilters()
+    query_filters = QueryFilters(offset=offset) if offset else QueryFilters()
     _mock_search_entities_html_dependencies(
         mocker,
         query_filters,
@@ -1367,14 +1367,74 @@ def test_search_entities_cap_notice_says_whether_pages_are_limited(
         },
     )
     response = search_entities(
-        request=_make_search_request(""),
+        request=_make_search_request(f"offset={offset}" if offset else ""),
         search_query="",
         query_filters=query_filters,
         extension=None,
     )
-    notice = BeautifulSoup(response.body, "html.parser").select_one(".govuk-inset-text")
-    assert expected_text in notice.get_text(" ", strip=True)
-    assert ("one page" in notice.get_text()) is pagination_is_capped
+    return BeautifulSoup(response.body, "html.parser")
+
+
+@pytest.mark.parametrize("pagination_is_capped", [True, False])
+def test_search_entities_cap_notice_on_first_page(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    pagination_is_capped,
+):
+    soup = _capped_search_soup(
+        mocker,
+        typologies,
+        local_authorities,
+        multiple_dataset_models,
+        organisation_list,
+        pagination_is_capped,
+    )
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "10,000+ results"
+    )
+    notice = soup.select_one(".govuk-inset-text")
+    assert " ".join(notice.get_text(" ", strip=True).split()) == CAP_NOTICE
+    assert notice.select_one("a")["href"] == "/dataset/"
+    # Only the one-page (location) notice leads with a bold sentence.
+    assert (notice.select_one("strong") is not None) is pagination_is_capped
+
+
+def test_search_entities_beyond_first_page_of_capped_location_search(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+):
+    soup = _capped_search_soup(
+        mocker,
+        typologies,
+        local_authorities,
+        multiple_dataset_models,
+        organisation_list,
+        pagination_is_capped=True,
+        offset=500,
+    )
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "This search has more than 10,000 results"
+    )
+    assert soup.select_one(".govuk-inset-text") is None
+    body = soup.select_one(".app-results-body")
+    text = " ".join(body.get_text(" ", strip=True).split())
+    assert (
+        "We cannot show results beyond the first page. Go back and narrow your "
+        "search using the filters to get more relevant results." in text
+    )
+    assert "If you need a larger amount of data, you can download data ." in text
+    first_link, download_link = body.select("a")
+    assert first_link.get_text(strip=True) == "Go back to the first page of results"
+    assert "offset" not in first_link["href"]
+    assert download_link["href"] == "/dataset/"
 
 
 @pytest.mark.parametrize("extension", [None, SuffixEntity.json])
@@ -1465,6 +1525,14 @@ def test_search_entities_html_explains_search_too_broad(
         == "Search too broad"
     )
     assert "No results found" not in soup.get_text()
+    body = " ".join(
+        soup.select_one(".app-results-body").get_text(" ", strip=True).split()
+    )
+    assert body == (
+        "This search covers too much data for us to complete. "
+        "Try searching a smaller area or using the filters to narrow your search. "
+        "If you need a larger amount of data, you can download data ."
+    )
 
 
 @pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])

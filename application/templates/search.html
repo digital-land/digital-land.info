@@ -47,6 +47,8 @@
         <div class="app-results-summary">
           {% if search_too_broad %}
           <h2 class="app-results-summary__title">Search too broad</h2>
+          {% elif pagination_is_capped and first_url %}
+          <h2 class="app-results-summary__title">This search has more than {{ count|commanum }} results</h2>
           {% else %}
           <h2 class="app-results-summary__title">{{ count|commanum }}{{ "+" if count_is_capped else "" }} result{{ "" if count == 1 else "s" }}</h2>
           {% endif %}
@@ -224,16 +226,17 @@
         </div>
         <!-- /.app-results-summary -->
 
-        {% if pagination_is_capped %}
-        <div class="govuk-inset-text">
-          This search found more than {{ count|commanum }} results, so we can only show one page and the results may change between searches.
-          To see more, narrow your search using the filters or <a href="/dataset/" class="govuk-link">download the dataset</a>.
-          {% if first_url %}<a href="{{ first_url }}" class="govuk-link">Go back to the first page of results</a>.{% endif %}
+        {% if pagination_is_capped and first_url %}
+        <div class="app-results-body">
+          <p class="govuk-body">We cannot show results beyond the first page. Go back and narrow your search using the filters to get more relevant results.</p>
+          <p class="govuk-body"><a href="{{ first_url }}" class="govuk-link">Go back to the first page of results</a></p>
+          <p class="govuk-body">If you need a larger amount of data, you can <a href="/dataset/" class="govuk-link">download data</a>.</p>
         </div>
         {% elif count_is_capped %}
         <div class="govuk-inset-text">
-          This search found more than {{ count|commanum }} results.
-          To find what you need, narrow your search using the filters or <a href="/dataset/" class="govuk-link">download the dataset</a>.
+          {% if pagination_is_capped %}<strong>This search found more than {{ count|commanum }} results.</strong>{% else %}This search found more than {{ count|commanum }} results.{% endif %}
+          Try narrowing your search using the filters to get more relevant results.
+          If you need a larger amount of data, you can <a href="/dataset/" class="govuk-link">download data</a>.
         </div>
         {% endif %}
 
@@ -315,7 +318,7 @@
         {% elif search_too_broad %}
         <div class="app-results-body">
           <p class="govuk-body">This search covers too much data for us to complete.</p>
-          <p class="govuk-body">Try a smaller area, choose a dataset or <a href="/dataset/" class="govuk-link">download the dataset</a>.</p>
+          <p class="govuk-body">Try searching a smaller area or using the filters to narrow your search. If you need a larger amount of data, you can <a href="/dataset/" class="govuk-link">download data</a>.</p>
         </div>
         {% elif count == 0 %}
         <div class="app-results-body">
