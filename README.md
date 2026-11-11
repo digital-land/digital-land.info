@@ -304,7 +304,6 @@ There are a set of workflows for continuous integration and running scans on the
 * Publish - Used to publish container images to our ECR repos. This triggers continuous deployments that are handled by CodeDeploy in AWS. This can be manually ran on branches before they are merged in, this is primarily used to deploy for manual testing in the development environment. It is automatically ran when changes are merged into main via a PR. You will need to have an approver release the image to the production environment.
 * Security Scan - runs both dynamic and static security audits in our code base. Can be triggered manually but is automatically ran once a week.
 * Load Test - runs performance based testing for the application. As it's performance it needs to be ran against a live version of the service in staging or production hence it asks for a url to use.
-* Deploy Smoke Test - experimental action to deploy unique canaries in AWS to monitor the site.
 
 ## Updating list of datasets that have full coverage
 

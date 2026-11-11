@@ -5,10 +5,7 @@ import yaml
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 AWS_CREDENTIALS_ACTION = "aws-actions/configure-aws-credentials@"
-DEPLOYMENT_JOBS = (
-    ("deploy-smoke-test.yml", "publish-deploy"),
-    ("publish.yml", "publish"),
-)
+DEPLOYMENT_JOBS = (("publish.yml", "publish"),)
 LONG_LIVED_CREDENTIAL_REFERENCES = (
     "aws-access-key-id",
     "aws-secret-access-key",
