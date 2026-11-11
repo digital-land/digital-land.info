@@ -605,7 +605,7 @@ def test_capped_search_above_cap_returns_one_page_only(
     assert later["entities"] == []
 
 
-def test_search_without_location_filter_caps_count_but_keeps_pagination(
+def test_search_without_location_filter_caps_count_and_pages_up_to_the_cap(
     test_data, params, db_session, mocker
 ):
     everything = get_entity_search(db_session, {**params, "limit": 500})
@@ -613,17 +613,23 @@ def test_search_without_location_filter_caps_count_but_keeps_pagination(
     assert everything["count"] == len(ids) > 3
     assert everything["count_is_capped"] is False
 
-    mocker.patch("application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", 2)
+    cap = len(ids) - 1
+    mocker.patch("application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", cap)
     first = get_entity_search(db_session, {**params, "limit": 2})
-    assert first["count"] == 2
+    assert first["count"] == cap
     assert first["count_is_capped"] is True
     assert first["has_next_page"] is True
     assert [entity.entity for entity in first["entities"]] == ids[:2]
 
-    last = get_entity_search(db_session, {**params, "limit": 2, "offset": len(ids) - 1})
+    # The last browsable page is trimmed at the cap.
+    last = get_entity_search(db_session, {**params, "limit": 2, "offset": cap - 1})
     assert last["count_is_capped"] is True
     assert last["has_next_page"] is False
-    assert [entity.entity for entity in last["entities"]] == ids[-1:]
+    assert [entity.entity for entity in last["entities"]] == ids[cap - 1 : cap]
+
+    beyond = get_entity_search(db_session, {**params, "limit": 2, "offset": cap})
+    assert beyond["beyond_browse_limit"] is True
+    assert beyond["entities"] == []
 
 
 def _original_geometry_filter(session, params):

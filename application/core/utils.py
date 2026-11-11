@@ -130,8 +130,9 @@ def make_links(scheme, netloc, path, query, data):
     limit = data["params"].get("limit", 10)
     offset = data["params"].get("offset", 0)
 
-    if data.get("pagination_is_capped"):
-        # Only one page is available above the cap, so offer a way back to it.
+    if data.get("pagination_is_capped") or data.get("beyond_browse_limit"):
+        # The requested page is past what can be browsed above the cap, so offer a
+        # way back to the first page.
         if limit <= 0 or offset == 0:
             return {}
         query_str = make_pagination_query_str(query, limit)

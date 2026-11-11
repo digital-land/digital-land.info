@@ -60,9 +60,16 @@ BEYOND_FIRST_PAGE_MESSAGE = (
     "available. Remove offset, narrow your search using the filters or "
     "download the dataset."
 )
+BEYOND_BROWSE_LIMIT_MESSAGE = (
+    "This search has more than 10,000 results, so only the first 10,000 can be "
+    "browsed. Use an offset below 10,000, narrow your search using the filters "
+    "or download the dataset."
+)
+# A timeout usually means the search covers too much data, but a busy database
+# can cause one too, so the message says "probably".
 SEARCH_TOO_BROAD_MESSAGE = (
-    "This search covers too much data to complete. "
-    "Try a smaller area, choose a dataset or download the dataset."
+    "This search took too long to complete, probably because it covers too much "
+    "data. Try a smaller area, choose a dataset or download the dataset."
 )
 
 
@@ -527,15 +534,15 @@ def search_entities(
     # params and they get returned from search
     params = data["params"]
 
-    # Above the cap a location search only has a first page. Tell API clients
-    # instead of returning an empty page they could mistake for the end of the
-    # results. The HTML page explains this to the user instead.
-    if (
-        extension in (SuffixEntity.json, SuffixEntity.geojson)
-        and data.get("pagination_is_capped")
-        and params.get("offset")
-    ):
-        raise HTTPException(status_code=400, detail=BEYOND_FIRST_PAGE_MESSAGE)
+    # Above the cap a location search only has a first page, and other searches
+    # can only be browsed up to the cap. Tell API clients instead of returning an
+    # empty page they could mistake for the end of the results. The HTML page
+    # explains this to the user instead.
+    if extension in (SuffixEntity.json, SuffixEntity.geojson):
+        if data.get("pagination_is_capped") and params.get("offset"):
+            raise HTTPException(status_code=400, detail=BEYOND_FIRST_PAGE_MESSAGE)
+        if data.get("beyond_browse_limit"):
+            raise HTTPException(status_code=400, detail=BEYOND_BROWSE_LIMIT_MESSAGE)
     scheme = request.url.scheme
     netloc = request.url.netloc
     path = request.url.path
@@ -623,6 +630,7 @@ def search_entities(
             "count": data["count"],
             "count_is_capped": data.get("count_is_capped", False),
             "pagination_is_capped": data.get("pagination_is_capped", False),
+            "beyond_browse_limit": data.get("beyond_browse_limit", False),
             "search_too_broad": data.get("search_too_broad", False),
             "first_url": links.get("first"),
             "limit": params["limit"],

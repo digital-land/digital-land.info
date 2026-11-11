@@ -423,8 +423,8 @@ limit=50</code></pre>
     </p>
     <ul class="govuk-list govuk-list--bullet">
       <li>
-        <strong>Searches without a location filter:</strong> you can still page through every result.
-        Follow <code class="app-code-block app-code-block--inline">links.next</code> until it is missing.
+        <strong>Searches without a location filter:</strong> you can page through the first 10,000 results.
+        Follow <code class="app-code-block app-code-block--inline">links.next</code> until it is missing. A request with an <code class="app-code-block app-code-block--inline">offset</code> of 10,000 or more returns HTTP <code class="app-code-block app-code-block--inline">400</code>.
       </li>
       <li>
         <strong>Searches with a location filter</strong>
@@ -435,21 +435,23 @@ limit=50</code></pre>
       </li>
     </ul>
     <p class="govuk-body">
-      To get more than 10,000 results from a location search, split it into smaller areas or add filters such as <code class="app-code-block app-code-block--inline">dataset</code>.
+      To get more than 10,000 results, split a location search into smaller areas, or add filters such as <code class="app-code-block app-code-block--inline">dataset</code>.
       For whole datasets, <a class="govuk-link" href="#downloading-the-data">download the data</a> instead.
     </p>
 
     <pre class="app-code-block govuk-!-margin-bottom-4" tabindex="0" role="region" aria-label="Example response: a request beyond the first page of a capped location search"><code>{
   "detail": "This search has more than 10,000 results, so only the first page is available. Remove offset, narrow your search using the filters or download the dataset."
 }</code></pre>
+    <p class="govuk-body">A search without a location filter returns a similar message when the <code class="app-code-block app-code-block--inline">offset</code> is 10,000 or more.</p>
 
     <h4 class="govuk-heading-s">Searches that are too broad return an error</h4>
     <p class="govuk-body">
-      A search that cannot finish within 15 seconds now returns HTTP <code class="app-code-block app-code-block--inline">422</code>, where before it could run for several minutes.
+      A search that takes too long to complete now returns HTTP <code class="app-code-block app-code-block--inline">422</code>, where before it could run for several minutes.
+      This usually means the search covers too much data, but it can also happen when the service is busy, so a later retry may succeed.
       The <code class="app-code-block app-code-block--inline">detail</code> field is a text message, not the list of errors returned for invalid parameters.
     </p>
     <pre class="app-code-block govuk-!-margin-bottom-4" tabindex="0" role="region" aria-label="Example response: a search that is too broad"><code>{
-  "detail": "This search covers too much data to complete. Try a smaller area, choose a dataset or download the dataset."
+  "detail": "This search took too long to complete, probably because it covers too much data. Try a smaller area, choose a dataset or download the dataset."
 }</code></pre>
 
     <hr class="govuk-section-break govuk-section-break--l">

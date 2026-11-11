@@ -348,16 +348,32 @@ def test_capped_search_only_returns_one_page_above_the_cap(
 
 
 @pytest.mark.parametrize(
-    "cap, offset, expected_count, is_capped, expected_entities, has_next_page",
+    "cap, offset, expected_count, is_capped, expected_entities, has_next_page, "
+    "beyond_browse_limit",
     [
-        (20, 10, 15, False, [11, 12, 13, 14, 15], None),
-        (15, 10, 15, False, [11, 12, 13, 14, 15], None),
-        (5, 5, 5, True, [6, 7, 8, 9, 10], True),
-        (5, 10, 5, True, [11, 12, 13, 14, 15], False),
+        # At or below the cap, pagination is unchanged.
+        (20, 10, 15, False, [11, 12, 13, 14, 15], None, None),
+        (15, 10, 15, False, [11, 12, 13, 14, 15], None, None),
+        # Above the cap, pages are read up to the cap.
+        (12, 0, 12, True, [1, 2, 3, 4, 5], True, None),
+        (12, 5, 12, True, [6, 7, 8, 9, 10], True, None),
+        # The last browsable page is trimmed at the cap, with no next page.
+        (12, 10, 12, True, [11, 12], False, None),
+        (10, 5, 10, True, [6, 7, 8, 9, 10], False, None),
+        # Past the cap nothing is returned.
+        (5, 5, 5, True, [], False, True),
+        (5, 10, 5, True, [], False, True),
     ],
 )
-def test_search_without_location_filter_caps_count_and_keeps_pagination(
-    mocker, cap, offset, expected_count, is_capped, expected_entities, has_next_page
+def test_search_without_location_filter_caps_count_and_pages_up_to_the_cap(
+    mocker,
+    cap,
+    offset,
+    expected_count,
+    is_capped,
+    expected_entities,
+    has_next_page,
+    beyond_browse_limit,
 ):
     from sqlalchemy import create_engine, text
     from sqlalchemy.orm import Session
@@ -398,6 +414,7 @@ def test_search_without_location_filter_caps_count_and_keeps_pagination(
     assert result["count_is_capped"] is is_capped
     assert result["entities"] == expected_entities
     assert result.get("has_next_page") is has_next_page
+    assert result.get("beyond_browse_limit") is beyond_browse_limit
     assert "pagination_is_capped" not in result
     engine.dispose()
 

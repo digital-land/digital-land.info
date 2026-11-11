@@ -124,8 +124,9 @@ def get_entity_search(
 
 def _search_with_capped_count(session, basequery, params, extension):
     # Without a location filter the page can be read in entity order straight from
-    # the primary key, so pagination stays stable. Only the count is costly for a
-    # broad search, so stop counting at cap + 1 instead of counting every match.
+    # the primary key, so pagination stays stable up to the cap. Only the count is
+    # costly for a broad search, so stop counting at cap + 1 instead of counting
+    # every match.
     capped_ids = (
         basequery.with_entities(EntityOrm.entity)
         .limit(ENTITY_SEARCH_COUNT_CAP + 1)
@@ -135,13 +136,28 @@ def _search_with_capped_count(session, basequery, params, extension):
     with sentry_sdk.start_span(op="entity.search", name="count.execute_fetch"):
         matched_count = _fetch_with_search_timeout(session, count_query)[0][0]
     count_is_capped = matched_count > ENTITY_SEARCH_COUNT_CAP
+    result = {
+        "params": params,
+        "count": min(matched_count, ENTITY_SEARCH_COUNT_CAP),
+        "count_is_capped": count_is_capped,
+        "entities": [],
+    }
 
-    # Above the cap the last page is unknown, so read one extra row to tell
-    # whether there is a next page.
     limit = params.get("limit")
     page_params = params
     if count_is_capped and limit is not None:
-        page_params = {**params, "limit": limit + 1}
+        # Above the cap only the first ENTITY_SEARCH_COUNT_CAP results can be
+        # browsed. Deeper offsets get slower the further they go, so stop there.
+        offset = params.get("offset") or 0
+        if offset >= ENTITY_SEARCH_COUNT_CAP:
+            result["beyond_browse_limit"] = True
+            result["has_next_page"] = False
+            return result
+        # Trim the last page at the limit, and read one extra row before it to
+        # tell whether there is a next page, as the last page is unknown.
+        limit = min(limit, ENTITY_SEARCH_COUNT_CAP - offset)
+        extra = 1 if offset + limit < ENTITY_SEARCH_COUNT_CAP else 0
+        page_params = {**params, "limit": limit + extra}
     query = _apply_limit_and_pagination_filters(basequery, page_params)
     query = _apply_field_filters(query, params, extension)
     with sentry_sdk.start_span(op="entity.search", name="page.execute_fetch"):
@@ -149,13 +165,7 @@ def _search_with_capped_count(session, basequery, params, extension):
     has_next_page = limit is not None and len(rows) > limit
     rows = rows[:limit] if limit is not None else rows
     with sentry_sdk.start_span(op="entity.search", name="models.convert"):
-        entities = [entity_factory(row) for row in rows]
-    result = {
-        "params": params,
-        "count": min(matched_count, ENTITY_SEARCH_COUNT_CAP),
-        "count_is_capped": count_is_capped,
-        "entities": entities,
-    }
+        result["entities"] = [entity_factory(row) for row in rows]
     if count_is_capped:
         result["has_next_page"] = has_next_page
     return result

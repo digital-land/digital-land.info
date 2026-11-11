@@ -1357,6 +1357,7 @@ def _capped_search_soup(
     multiple_dataset_models,
     organisation_list,
     pagination_is_capped,
+    beyond_browse_limit=False,
     offset=0,
     limit=10,
 ):
@@ -1376,7 +1377,8 @@ def _capped_search_soup(
             "count": 10_000,
             "count_is_capped": True,
             "pagination_is_capped": pagination_is_capped,
-            "has_next_page": True,
+            "beyond_browse_limit": beyond_browse_limit,
+            "has_next_page": not beyond_browse_limit,
             "entities": [],
         },
     )
@@ -1554,10 +1556,13 @@ def test_search_entities_html_explains_search_too_broad(
     assert response.status_code == 422
     assert (
         soup.select_one(".app-results-summary__title").get_text(strip=True)
-        == "Search too broad"
+        == "Search took too long"
     )
     assert "No results found" not in soup.get_text()
-    assert _flat_text(soup.select_one(".app-results-body")) == TOO_MANY_RESULTS
+    assert _flat_text(soup.select_one(".app-results-body")) == (
+        "This search probably covers too much data. Try a smaller area or "
+        "narrow your search using the filters. " + DOWNLOAD_DATASET
+    )
 
 
 @pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
@@ -1580,10 +1585,40 @@ def test_search_entities_api_returns_422_when_search_too_broad(mocker, extension
             extension=extension,
         )
     assert error.value.status_code == 422
-    assert "too much data" in error.value.detail
+    assert "probably because it covers too much data" in error.value.detail
 
 
-def _capped_api_search(mocker, extension, offset, pagination_is_capped):
+def test_search_entities_beyond_browse_limit_without_location_filter(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+):
+    soup = _capped_search_soup(
+        mocker,
+        typologies,
+        local_authorities,
+        multiple_dataset_models,
+        organisation_list,
+        pagination_is_capped=False,
+        beyond_browse_limit=True,
+        offset=10_000,
+    )
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "This search has more than 10,000 results"
+    )
+    body = soup.select_one(".app-results-body")
+    assert _flat_text(body) == (
+        TOO_MANY_RESULTS + " Go back to the first page of results"
+    )
+    assert "offset" not in body.select("a")[-1]["href"]
+
+
+def _capped_api_search(
+    mocker, extension, offset, pagination_is_capped, beyond_browse_limit=False
+):
     query_filters = QueryFilters(offset=offset) if offset else QueryFilters()
     mocker.patch(
         "application.routers.entity.get_entity_search",
@@ -1592,7 +1627,8 @@ def _capped_api_search(mocker, extension, offset, pagination_is_capped):
             "count": 10_000,
             "count_is_capped": True,
             "pagination_is_capped": pagination_is_capped,
-            "has_next_page": True,
+            "beyond_browse_limit": beyond_browse_limit,
+            "has_next_page": not beyond_browse_limit,
             "entities": [],
         },
     )
@@ -1619,12 +1655,28 @@ def test_search_entities_api_returns_400_beyond_first_page_of_capped_location_se
 
 
 @pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
+def test_search_entities_api_returns_400_beyond_browse_limit(mocker, extension):
+    from fastapi import HTTPException
+
+    with pytest.raises(HTTPException) as error:
+        _capped_api_search(
+            mocker,
+            extension,
+            offset=10_000,
+            pagination_is_capped=False,
+            beyond_browse_limit=True,
+        )
+    assert error.value.status_code == 400
+    assert "only the first 10,000 can be browsed" in error.value.detail
+
+
+@pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
 @pytest.mark.parametrize(
     "offset, pagination_is_capped",
     [
         # The first page of a capped location search is still returned.
         (0, True),
-        # Searches without a location filter can page past the cap.
+        # Searches without a location filter can page up to the cap.
         (500, False),
     ],
 )

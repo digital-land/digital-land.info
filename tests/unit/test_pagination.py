@@ -145,3 +145,16 @@ def test_capped_count_keeps_pagination_without_a_last_page(
     assert list(links) == expected_links
     if "next" in links:
         assert f"offset={offset + 10}" in links["next"]
+
+
+def test_page_beyond_browse_limit_only_links_back_to_first_page():
+    data = {
+        "count": 10_000,
+        "count_is_capped": True,
+        "beyond_browse_limit": True,
+        "has_next_page": False,
+        "params": {"limit": 10, "offset": 10_000},
+    }
+    links = make_links(scheme, netloc, path, "limit=10&offset=10000", data)
+    assert list(links) == ["first"]
+    assert "offset" not in links["first"]

@@ -45,9 +45,10 @@
       <!-- /.govuk-grid-column-one-third -->
       <div class="govuk-grid-column-two-thirds" id="search-results" role="region" aria-label="Search results" aria-busy="false">
         <div class="app-results-summary">
+          {% set page_unavailable = (pagination_is_capped and first_url) or beyond_browse_limit %}
           {% if search_too_broad %}
-          <h2 class="app-results-summary__title">Search too broad</h2>
-          {% elif pagination_is_capped and first_url %}
+          <h2 class="app-results-summary__title">Search took too long</h2>
+          {% elif page_unavailable %}
           <h2 class="app-results-summary__title">This search has more than {{ count|commanum }} results</h2>
           {% else %}
           <h2 class="app-results-summary__title">{{ count|commanum }}{{ "+" if count_is_capped else "" }} result{{ "" if count == 1 else "s" }}</h2>
@@ -232,8 +233,9 @@
           {{ downloadDatasetHTML }}
         {% endset %}
 
-        {% if pagination_is_capped and first_url %}
-        {#- A later page of a location search over the cap: nothing can be shown. #}
+        {% if page_unavailable %}
+        {#- A later page of a location search over the cap, or a page past the first
+            10,000 results of any other search: nothing can be shown. #}
         <div class="app-results-body">
           {{ tooManyResultsHTML }}
           <p class="govuk-body"><a href="{{ first_url }}" class="govuk-link">Go back to the first page of results</a></p>
@@ -245,7 +247,7 @@
           {{ downloadDatasetHTML }}
         </div>
         {% endif %}
-        {#- Searches without a location filter still page past the cap, so the 10,000+ count is enough. #}
+        {#- Searches without a location filter page up to the cap, so the 10,000+ count is enough. #}
 
         {% if data and data|count > 0 %}
         <div class="app-results-body">
@@ -324,7 +326,8 @@
         <!-- /.app-results-body -->
         {% elif search_too_broad %}
         <div class="app-results-body">
-          {{ tooManyResultsHTML }}
+          <p class="govuk-body">This search probably covers too much data. Try a smaller area or narrow your search using the filters.</p>
+          {{ downloadDatasetHTML }}
         </div>
         {% elif count == 0 %}
         <div class="app-results-body">
