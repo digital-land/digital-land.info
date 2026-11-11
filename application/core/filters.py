@@ -333,6 +333,7 @@ def get_os_oauth2_token():
                 data={"grant_type": "client_credentials"},
                 headers={},
                 auth=(settings.OS_CLIENT_KEY, settings.OS_CLIENT_SECRET),
+                timeout=10,
             )
             jsonResult = result.json()
             if result.status_code == 200:

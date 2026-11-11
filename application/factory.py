@@ -34,7 +34,7 @@ from application.routers import (
     local_plans,
     task,
     # Not added to /docs
-    osMapOAuth,
+    os_map_proxy,
     map_,
     guidance_,
     about_,
@@ -269,7 +269,7 @@ def add_routers(app):
     app.include_router(task.router, prefix="/task")
 
     # Not added to /docs
-    app.include_router(osMapOAuth.router, prefix="/os", include_in_schema=False)
+    app.include_router(os_map_proxy.router, prefix="/os", include_in_schema=False)
     app.include_router(map_.router, prefix="/map", include_in_schema=False)
     app.include_router(guidance_.router, prefix="/guidance", include_in_schema=False)
     app.include_router(about_.router, prefix="/about", include_in_schema=False)
