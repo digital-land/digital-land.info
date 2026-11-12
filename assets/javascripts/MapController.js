@@ -4,9 +4,8 @@ import DatasetZoomAlerts from "./DatasetZoomAlerts.js";
 import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
 import { capitalizeFirstLetter, preventScroll } from "./utils.js";
-import { getApiToken, getFreshApiToken } from "./osApiToken.js";
-import {defaultPaintOptions} from "./defaultPaintOptions.js";
-import {getDatasetMinZoom} from "./datasetMinZoomLevels.js";
+import { defaultPaintOptions } from "./defaultPaintOptions.js";
+import { getDatasetMinZoom } from "./datasetMinZoomLevels.js";
 
 // Colour/opacity used to highlight entities whose end-date are in the past (< today),
 // matching the "Show historical data" checkbox swatch in the side panel.
@@ -40,7 +39,7 @@ function withHistoricalOpacity(baseOpacity) {
 
 function zoomRestrictionForDataset(dataset) {
   const minZoom = getDatasetMinZoom(dataset);
-  return minZoom === null ? {} : {minzoom: minZoom};
+  return minZoom === null ? {} : { minzoom: minZoom };
 }
 
 function isFeatureExpired(feature) {
@@ -76,17 +75,16 @@ export default class MapController {
     this.baseTileStyleFilePath = params.baseTileStyleFilePath || '/static/javascripts/base-tile.json';
     this.popupWidth = params.popupWidth || '260px';
     this.popupMaxListLength = params.popupMaxListLength || 10;
-    this.LayerControlOptions = params.LayerControlOptions || {enabled: false};
-    this.ZoomControlsOptions = params.ZoomControlsOptions || {enabled: false};
-    this.FullscreenControl = params.FullscreenControl || {enabled: false};
+    this.LayerControlOptions = params.LayerControlOptions || { enabled: false };
+    this.ZoomControlsOptions = params.ZoomControlsOptions || { enabled: false };
+    this.FullscreenControl = params.FullscreenControl || { enabled: false };
     this.geojsons = params.geojsons || [];
-    this.images = params.images || [{src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256}];
+    this.images = params.images || [{ src: '/static/images/location-pointer-sdf-256.png', name: 'custom-marker-256', size: 256 }];
     this.paint_options = params.paint_options || null;
     this.customStyleJson = '/static/javascripts/OS_VTS_3857_3D.json';
     this.customStyleLayersToBringToFront = [
       'OS/Names/National/Country',
     ];
-    this.useOAuth2 = params.useOAuth2 || false;
     this.layers = params.layers || [];
     this.featuresHoveringOver = 0;
     this.baseLayerFilters = {};
@@ -95,18 +93,16 @@ export default class MapController {
   getViewFromUrl() {
     const urlObj = new URL(document.location)
     const hash = urlObj.hash
-    if(hash){
+    if (hash) {
       const [lat, lng, zoom] = hash.substring(1).split(',')
-      return {centre: [parseFloat(lng), parseFloat(lat)], zoom: parseFloat(zoom)}
+      return { centre: [parseFloat(lng), parseFloat(lat)], zoom: parseFloat(zoom) }
     }
-    return {centre: undefined, zoom: undefined}
+    return { centre: undefined, zoom: undefined }
   }
 
   async createMap() {
     // Define the custom JSON style.
     // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
-
-    await getFreshApiToken();
 
     const viewFromUrl = this.getViewFromUrl()
 
@@ -116,29 +112,11 @@ export default class MapController {
       maxZoom: 18,
       style: this.customStyleJson,
       maxBounds: [
-        [ -15, 49 ],
-        [ 13, 57 ]
+        [-15, 49],
+        [13, 57]
       ],
-      center: viewFromUrl.centre || [ -1, 52.9 ],
+      center: viewFromUrl.centre || [-1, 52.9],
       zoom: viewFromUrl.zoom || 6,
-      transformRequest: (url, resourceType) => {
-        if(url.indexOf('api.os.uk') > -1){
-          if(! /[?&]key=/.test(url) ) url += '?key=null'
-
-          const requestToMake = {
-            url: url + '&srs=3857',
-          }
-
-          if(this.useOAuth2){
-            const token = getApiToken();
-            requestToMake.headers = {
-              'Authorization': 'Bearer ' + token,
-            }
-          }
-
-          return requestToMake;
-        }
-      }
     });
 
     map.getCanvas().ariaLabel = `${this.mapId}`;
@@ -157,16 +135,16 @@ export default class MapController {
       return;
     }
 
-    try{
+    try {
       await this.loadImages(this.images);
-    }catch(e){
+    } catch (e) {
       console.log('error loading images: ' + e)
     }
 
     this.availableLayers = this.addVectorTileSources(this.vectorTileSources);
     this.geojsonLayers = this.addGeojsonSources(this.geojsons);
 
-    if(this.geojsonLayers.length == 1){
+    if (this.geojsonLayers.length == 1) {
       this.flyTo(this.geojsons[0]);
     }
 
@@ -185,22 +163,22 @@ export default class MapController {
     this.obscureScotland()
     this.obscureWales()
     this.addNeighbours()
-    this.map.on('moveend',handleMapMove)
+    this.map.on('moveend', handleMapMove)
   };
 
-  loadImages(imageSrc=[]) {
+  loadImages(imageSrc = []) {
     return new Promise((resolve, reject) => {
-      const promiseArray = imageSrc.map(({src, name}) => {
+      const promiseArray = imageSrc.map(({ src, name }) => {
         return new Promise((resolve, reject) => {
           this.map.loadImage(
             src,
             (error, image) => {
-              if (error){
+              if (error) {
                 console.log('error adding image: ' + error)
                 reject(error);
               }
               console.log('added image')
-              this.map.addImage(name, image, {sdf: true});
+              this.map.addImage(name, image, { sdf: true });
               resolve();
             }
           );
@@ -214,30 +192,30 @@ export default class MapController {
     })
   }
 
-	addVectorTileSources(vectorTileSources = []) {
+  addVectorTileSources(vectorTileSources = []) {
     let availableLayers = {};
-		// add vector tile sources to map
+    // add vector tile sources to map
     vectorTileSources.forEach(source => {
       let layers = this.addVectorTileSource(source);
       availableLayers[source.name] = layers;
     });
-		return availableLayers;
-	}
+    return availableLayers;
+  }
 
-  obscureWales(){
+  obscureWales() {
     this.obscure('Wales_simplified', '#FFFFFF', 0.6);
   }
 
-  obscureScotland(){
+  obscureScotland() {
     this.obscure('Scotland_simplified');
   }
 
-  addNeighbours(){
+  addNeighbours() {
     this.obscure('UK_neighbours', '#FFFFFF', 0.9);
   }
 
 
-  obscure(name, colour = '#FFFFFF', opacity = 0.8){
+  obscure(name, colour = '#FFFFFF', opacity = 0.8) {
     this.map.addSource(name, {
       type: 'geojson',
       data: `/static/javascripts/geojsons/${name}.json`,
@@ -254,7 +232,7 @@ export default class MapController {
         'fill-opacity': opacity,
       }
     })
-    this.map.moveLayer(layerId,'OS/Names/National/Country')
+    this.map.moveLayer(layerId, 'OS/Names/National/Country')
   }
 
 
@@ -273,9 +251,9 @@ export default class MapController {
     });
 
     uniqueGeojsons.forEach(geojson => {
-      if(geojson.data.type == 'Point')
+      if (geojson.data.type == 'Point')
         addedLayers.push(this.addPoint(geojson, this.images[0]));
-      else if(['Polygon', 'MultiPolygon'].includes(geojson.data.type))
+      else if (['Polygon', 'MultiPolygon'].includes(geojson.data.type))
         addedLayers.push(this.addPolygon(geojson));
       else
         throw new Error('Unsupported geometry type');
@@ -288,7 +266,7 @@ export default class MapController {
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
 
-    if(this.FullscreenControl.enabled){
+    if (this.FullscreenControl.enabled) {
       this.map.addControl(new maplibregl.FullscreenControl({
         container: document.getElementById(this.mapId)
       }), 'top-left');
@@ -300,7 +278,7 @@ export default class MapController {
 
     this.map.addControl(new CopyrightControl(), 'bottom-right');
 
-    if(this.LayerControlOptions.enabled){
+    if (this.LayerControlOptions.enabled) {
       this.layerControlsComponent = new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions);
       this.map.addControl(this.layerControlsComponent, 'top-right');
       this.datasetZoomAlerts = new DatasetZoomAlerts(this, this.layerControlsComponent);
@@ -310,18 +288,18 @@ export default class MapController {
   overwriteWheelEventsForControls() {
     const mapEl = document.getElementById(this.mapId)
     const mapControlsArray = mapEl.querySelectorAll('.maplibregl-control-container')
-    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content']), {passive: false}));
+    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content']), { passive: false }));
   }
 
   addClickHandlers() {
-    if(this.layerControlsComponent){
+    if (this.layerControlsComponent) {
       this.map.on('click', this.clickHandler.bind(this));
     }
   }
 
 
-  flyTo(geometry){
-    if(geometry.data.type == 'Point'){
+  flyTo(geometry) {
+    if (geometry.data.type == 'Point') {
       this.map.flyTo({
         center: geometry.data.coordinates,
         essential: true,
@@ -330,18 +308,18 @@ export default class MapController {
       });
     } else {
       var bbox = turf.extent(geometry.data);
-      this.map.fitBounds(bbox, {padding: 20, animate: false});
+      this.map.fitBounds(bbox, { padding: 20, animate: false });
     }
   }
 
   addLayer({
     sourceName,
     layerType,
-    paintOptions={},
-    layoutOptions={},
-    sourceLayer='',
-    additionalOptions={}
-  }){
+    paintOptions = {},
+    layoutOptions = {},
+    sourceLayer = '',
+    additionalOptions = {}
+  }) {
     const layerName = `${sourceName}-${layerType}`;
     this.baseLayerFilters[layerName] = additionalOptions.filter || null;
     this.map.addLayer({
@@ -354,14 +332,14 @@ export default class MapController {
       ...additionalOptions
     });
 
-    if(['fill', 'fill-extrusion', 'circle'].includes(layerType)){
+    if (['fill', 'fill-extrusion', 'circle'].includes(layerType)) {
       this.map.on('mouseover', layerName, () => {
         this.map.getCanvas().style.cursor = 'pointer'
         this.featuresHoveringOver++;
       })
       this.map.on('mouseout', layerName, () => {
         this.featuresHoveringOver--;
-        if(this.featuresHoveringOver == 0)
+        if (this.featuresHoveringOver == 0)
           this.map.getCanvas().style.cursor = ''
       })
     }
@@ -393,7 +371,7 @@ export default class MapController {
     });
 
     let colour = 'blue';
-    if(this.paint_options)
+    if (this.paint_options)
       colour = this.paint_options.colour;
 
     let layer = this.addLayer({
@@ -413,14 +391,14 @@ export default class MapController {
   }
 
   moveLayerBehindBuildings(layer, buildingsLayer = 'OS/TopographicArea_1/Building/1_3D') {
-    try{
+    try {
       this.map.moveLayer(layer, buildingsLayer);
     } catch (e) {
       console.error(`Could not move layer behind ${buildingsLayer}: `, e);
     }
   }
 
-  addPoint(geometry, image=undefined){
+  addPoint(geometry, image = undefined) {
     // Check if source already exists and remove it first
     if (this.map.getSource(geometry.name)) {
       // Remove potential layer types (symbol or circle)
@@ -449,13 +427,13 @@ export default class MapController {
     });
 
     let iconColor = 'blue';
-    if(this.paint_options)
+    if (this.paint_options)
       iconColor = this.paint_options.colour;
 
     let layerName
     // if an image is provided use that otherwise use a circle
-    if(image){
-      if(!this.map.hasImage(image.name)){
+    if (image) {
+      if (!this.map.hasImage(image.name)) {
         throw new Error('Image not loaded, imageName: ' + image.name + ' not found');
       }
       layerName = this.addLayer(
@@ -473,14 +451,14 @@ export default class MapController {
             // get the year from the source's "year" property
             'text-field': ['get', 'year'],
             'text-font': [
-                'Open Sans Semibold',
-                'Arial Unicode MS Bold'
+              'Open Sans Semibold',
+              'Arial Unicode MS Bold'
             ],
             'text-offset': [0, 1.25],
             'text-anchor': 'top'
           },
         })
-    }else{
+    } else {
       layerName = this.addLayer({
         sourceName: geometry.name,
         layerType: 'circle',
@@ -494,19 +472,19 @@ export default class MapController {
   }
 
   addVectorTileSource(source) {
-		// add source
-		this.map.addSource(`${source.name}-source`, {
-			type: 'vector',
-			tiles: [source.vectorSource],
-			minzoom: this.minMapZoom,
-			maxzoom: this.maxMapZoom
-		});
+    // add source
+    this.map.addSource(`${source.name}-source`, {
+      type: 'vector',
+      tiles: [source.vectorSource],
+      minzoom: this.minMapZoom,
+      maxzoom: this.maxMapZoom
+    });
 
-		const zoomRestriction = zoomRestrictionForDataset(source.name);
+    const zoomRestriction = zoomRestrictionForDataset(source.name);
 
-		// add layer
-		let layers;
-		if (source.dataType === 'point') {
+    // add layer
+    let layers;
+    if (source.dataType === 'point') {
       let layerName = this.addLayer({
         sourceName: `${source.name}-source`,
         layerType: 'circle',
@@ -520,9 +498,9 @@ export default class MapController {
         additionalOptions: zoomRestriction,
       });
 
-			layers = [layerName];
-		} else {
-			// create fill layer
+      layers = [layerName];
+    } else {
+      // create fill layer
       let fillLayerName = this.addLayer({
         sourceName: `${source.name}-source`,
         layerType: 'fill-extrusion',
@@ -541,7 +519,7 @@ export default class MapController {
 
       this.moveLayerBehindBuildings(fillLayerName)
 
-			// create line layer
+      // create line layer
       let lineLayerName = this.addLayer({
         sourceName: `${source.name}-source`,
         layerType: 'line',
@@ -564,14 +542,14 @@ export default class MapController {
           "circle-radius": defaultPaintOptions['circle-radius']
         },
         sourceLayer: `${source.name}`,
-        additionalOptions:{
+        additionalOptions: {
           ...zoomRestriction,
-          filter:[ "==", ["geometry-type"], "Point"]
+          filter: ["==", ["geometry-type"], "Point"]
         },
       });
-			layers = [fillLayerName, lineLayerName, pointLayerName];
-		}
-		return layers;
+      layers = [fillLayerName, lineLayerName, pointLayerName];
+    }
+    return layers;
   }
 
   clickHandler(e) {
@@ -671,13 +649,13 @@ export default class MapController {
   };
 
   getFillColour(feature) {
-    if(feature.layer.type === 'symbol')
+    if (feature.layer.type === 'symbol')
       return this.map.getLayer(feature.layer.id).getPaintProperty('icon-color');
-    else if(feature.layer.type === 'fill')
+    else if (feature.layer.type === 'fill')
       return this.map.getLayer(feature.layer.id).getPaintProperty('fill-color');
-      else if(feature.layer.type === 'fill-extrusion')
+    else if (feature.layer.type === 'fill-extrusion')
       return this.map.getLayer(feature.layer.id).getPaintProperty('fill-extrusion-color');
-    else if(feature.layer.type === 'circle')
+    else if (feature.layer.type === 'circle')
       return this.map.getLayer(feature.layer.id).getPaintProperty('circle-color');
     else
       throw new Error("could not get fill colour for feature of type " + feature.layer.type);
