@@ -131,13 +131,15 @@ export const getPopupMock = () => {
 
 export const stubGlobalMapLibre = () => {
     return vi.stubGlobal('maplibregl', {
-        Map: vi.fn().mockImplementation(() => {
+        // Mocks called with `new` need a regular function, not an arrow
+        // function: since Vitest 3, arrow implementations aren't constructible.
+        Map: vi.fn().mockImplementation(function () {
             return mapMock
         }),
         ScaleControl: vi.fn(),
         NavigationControl: vi.fn(),
         FullscreenControl: vi.fn(),
-        Popup: vi.fn().mockImplementation(() => {
+        Popup: vi.fn().mockImplementation(function () {
             return popupMock
         }),
     })
@@ -173,7 +175,8 @@ export const stubGlobalUrl = (urlParams = []) => {
     const appendMock = vi.fn().mockImplementation((name, value) => {
         urlParams.push({name, value})
     })
-    vi.stubGlobal('URL', vi.fn(() => {
+    // Regular function so `new URL(...)` works (see stubGlobalMapLibre).
+    vi.stubGlobal('URL', vi.fn(function () {
         return {
             searchParams: {
                 has: vi.fn().mockImplementation((key) => {

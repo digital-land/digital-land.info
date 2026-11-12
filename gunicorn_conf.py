@@ -42,6 +42,9 @@ workers = web_concurrency
 bind = use_bind
 errorlog = use_errorlog
 worker_tmp_dir = "/dev/shm"
+# Gunicorn's admin socket for the gunicornc tool. Unused, and it would write
+# to the home directory, which stops the container running read-only.
+control_socket_disable = True
 accesslog = use_accesslog
 graceful_timeout = int(graceful_timeout_str)
 timeout = int(timeout_str)

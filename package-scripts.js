@@ -19,8 +19,14 @@ scripts.build = {
   stylesheets: `npx sass ${configPaths.scssPath}:${configPaths.stylesheetsOutputPath} --load-path=node_modules`,
 }
 
+// Uses Node's built-in fs.cpSync rather than copyfiles, which is unmaintained
+// and pulls in the end-of-life glob@7. govuk-frontend v5 ships its assets
+// under dist/govuk.
+const govukSource = 'node_modules/govuk-frontend/dist/govuk'
+const govukDest = `${configPaths.govukOutputPath}govuk`
+
 scripts.copy = {
-  govukAssets: `npx copyfiles -u 2 "${configPaths.govukFrontendPath}govuk/assets/**" ${configPaths.govukOutputPath}`
+  govukAssets: `node -e "require('fs').cpSync('${govukSource}', '${govukDest}', { recursive: true })"`
 }
 
 scripts.watch = {
