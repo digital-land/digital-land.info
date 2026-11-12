@@ -62,7 +62,7 @@ def sample_sentry_error(event, hint):
     return 1.0
 
 
-SECONDS_IN_TWO_YEARS = timedelta(days=365 * 2).total_seconds()
+SECONDS_IN_TWO_YEARS = int(timedelta(days=365 * 2).total_seconds())
 
 # Add markdown here
 description = """
