@@ -130,6 +130,31 @@ def make_links(scheme, netloc, path, query, data):
     limit = data["params"].get("limit", 10)
     offset = data["params"].get("offset", 0)
 
+    if data.get("pagination_is_capped") or data.get("beyond_browse_limit"):
+        # The requested page is past what can be browsed above the cap, so offer a
+        # way back to the first page.
+        if limit <= 0 or offset == 0:
+            return {}
+        query_str = make_pagination_query_str(query, limit)
+        return {"first": urlunsplit((scheme, netloc, path, query_str, ""))}
+
+    if data.get("count_is_capped"):
+        # The count stopped at the cap, so the last page is unknown. Link to the
+        # first, previous and next pages only.
+        if limit <= 0:
+            return {}
+        query_str = make_pagination_query_str(query, limit)
+        links = {"first": urlunsplit((scheme, netloc, path, query_str, ""))}
+        if offset:
+            query_str = make_pagination_query_str(
+                query, limit, offset=max(offset - limit, 0)
+            )
+            links["prev"] = urlunsplit((scheme, netloc, path, query_str, ""))
+        if data.get("has_next_page"):
+            query_str = make_pagination_query_str(query, limit, offset=offset + limit)
+            links["next"] = urlunsplit((scheme, netloc, path, query_str, ""))
+        return links
+
     # note api validation ensures limit > 0 but handle ZeroDivisionError
     try:
         page_count = count / limit
@@ -208,11 +233,12 @@ def entity_attribute_sort_key(val, sort_order=ENTITY_ATTRIBUTE_ORDER):
         raise ValueError("Value provided is not a string")
 
 
-def log_slow_execution(threshold_seconds=1.0):
+def log_slow_execution(threshold_seconds=1.0, expected_exceptions=()):
     """
     Decorator that logs when a function's execution time exceeds `threshold_seconds`
     (default: 1.0s). Exceptions raised by the wrapped function are logged at error
-    level (with `exc_info`) and re-raised.
+    level (with `exc_info`) and re-raised, except `expected_exceptions`, which are
+    re-raised untouched for the caller to handle and report.
     """
 
     def decorator(func):
@@ -234,6 +260,8 @@ def log_slow_execution(threshold_seconds=1.0):
                         },
                     )
                 return result
+            except expected_exceptions:
+                raise
             except Exception as e:
                 elapsed_time = time.time() - start_time
                 logger.error(

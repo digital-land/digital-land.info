@@ -237,10 +237,13 @@ def test_fetch_linked_local_plans(db_session):
 
     # Ensure at least one timetable entity exists
     assert len(timetable_entities) == 2, "Expected 2 timetable entity in 'local-plan'"
-    assert isinstance(timetable_entities[0].local_plan_event, EntityModel)
-    assert timetable_entities[1].local_plan_event is None
+    # Both timetables share an event date, so their order is not defined.
+    by_reference = {entity.reference: entity for entity in timetable_entities}
+    published = by_reference["test-timetable"].local_plan_event
+    assert isinstance(published, EntityModel)
+    assert published.name == "Plan published"
     # Since it is estimated, it should not come in the list
-    assert timetable_entities[0].local_plan_event.name == "Plan published"
+    assert by_reference["test-timetable1"].local_plan_event is None
 
 
 def test_fetch_linked_local_plans_boundary(db_session):

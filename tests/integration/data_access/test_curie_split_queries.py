@@ -181,7 +181,9 @@ def test_search_fields_and_statement_count(
     connection = db_session.connection()
 
     def record(conn, cursor, statement, parameters, context, executemany):
-        statements.append(statement)
+        # Setting the search timeout is not a search query.
+        if "set_config" not in statement:
+            statements.append(statement)
 
     event.listen(connection, "before_cursor_execute", record)
     try:

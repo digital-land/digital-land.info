@@ -19,8 +19,11 @@ from application.data_access.digital_land_queries import (
 )
 
 from application.data_access.entity_queries import (
+    ENTITY_SEARCH_COUNT_CAP,
+    EntitySearchTooBroad,
     get_dataset_entity_counts,
     get_entity_search,
+    record_search_too_broad,
 )
 from application.core.templates import templates
 from application.core.models import AUTHORITATIVE_QUALITIES
@@ -168,9 +171,20 @@ def get_dataset(
         # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories
         if _dataset.typology == "category":
-            entity_query_params = {"dataset": [dataset]}
+            # Bound the page as well as the count, so a dataset with more categories
+            # than the cap doesn't load every row.
+            entity_query_params = {
+                "dataset": [dataset],
+                "limit": ENTITY_SEARCH_COUNT_CAP,
+            }
             try:
                 categories = get_entity_search(session, entity_query_params)["entities"]
+            except EntitySearchTooBroad:
+                # Show the dataset page without its category list.
+                record_search_too_broad(
+                    extension.value if extension is not None else "html", [dataset]
+                )
+                categories = []
             except SQLAlchemyError as e:
                 extension_tag = extension.value if extension is not None else "html"
                 error_tag = (

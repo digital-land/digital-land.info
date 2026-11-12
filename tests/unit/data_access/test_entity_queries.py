@@ -99,26 +99,6 @@ def test__apply_location_filters_for_both(mocker):
     assert "flood-risk-zone" not in entity_branch
 
 
-def test__apply_location_filters_pushes_dataset_into_entity_branch(mocker):
-    """
-    The requested dataset must be applied inside the spatial subquery, not only
-    by the outer query, otherwise every dataset's geometries are searched.
-    """
-    query = Query(EntityOrm)
-    result = _apply_location_filters(
-        mocker.MagicMock(),
-        query,
-        params={
-            "geometry": ["MULTIPOLYGON((-0.1 52.5, -0.5 52.3, 0.0 52.1, -0.1 52.5))"],
-            "dataset": ["conservation-area"],
-        },
-    )
-    sql_str = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-    spatial_subquery = sql_str.split("WHERE entity.entity IN")[1]
-    assert "conservation-area" in spatial_subquery
-    assert "NOT IN" not in spatial_subquery
-
-
 def test__apply_location_filters_without_dataset(mocker):
     query = Query(EntityOrm)
     params = {
@@ -130,17 +110,6 @@ def test__apply_location_filters_without_dataset(mocker):
     sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
 
     assert "ST_Contains" in sql
-
-
-def test__apply_location_filters_geometry_within(mocker):
-    query = Query(EntityOrm)
-    params = {"geometry": ["MULTIPOLYGON((-0.1 52.5, -0.5 52.3, 0.0 52.1, -0.1 52.5))"]}
-
-    result = _apply_location_filters(mocker.MagicMock(), query, params)
-    sql = str(result.statement.compile(compile_kwargs={"literal_binds": True}))
-
-    assert "MULTIPOLYGON" in sql
-    assert any(spatial_func in sql for spatial_func in "ST_Within")
 
 
 def test_get_entity_query_closes_session(mocker):
@@ -220,3 +189,345 @@ def test_get_entity_query_no_pool_exhaustion(mocker):
         f"Expected {num_calls} sessions closed, got {len(sessions_closed)}. "
         "Sessions not being closed will cause QueuePool exhaustion."
     )
+
+
+def _mock_search_settings(mocker):
+    mocker.patch("application.data_access.entity_queries.get_settings")
+
+
+def _compile_postgres(statement):
+    from sqlalchemy.dialects import postgresql
+
+    return str(
+        statement.compile(
+            dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
+        )
+    )
+
+
+def _capture_capped_search(mocker, parameters, *, matched_count=0, entity=None):
+    from sqlalchemy.orm import Session
+    from application.data_access.entity_queries import get_entity_search
+
+    _mock_search_settings(mocker)
+    session = mocker.Mock(spec=Session)
+    session.query.side_effect = lambda *columns: Query(columns)
+    captured = {}
+
+    def capture(query):
+        captured["sql"] = _compile_postgres(query.statement)
+        return [mocker.MagicMock(_search_count=matched_count, _matched_entity=entity)]
+
+    mocker.patch.object(Query, "all", capture)
+    mocker.patch(
+        "application.data_access.entity_queries.entity_factory",
+        side_effect=lambda row: "entity",
+    )
+    result = get_entity_search(session, parameters)
+    return result, captured.get("sql"), session
+
+
+BOX = "POLYGON((0 0,1 0,1 1,0 1,0 0))"
+
+
+def test_geometry_search_with_dataset_filters_geometry_or_point_directly(mocker):
+    _, sql, _ = _capture_capped_search(
+        mocker,
+        {
+            "dataset": ["title-boundary"],
+            "geometry": [BOX],
+            "geometry_relation": "intersects",
+            "limit": 500,
+        },
+    )
+    matches = sql[: sql.index("search_page AS")]
+    assert "AS MATERIALIZED" in matches
+    assert "LIMIT 10001" in matches
+    assert "ORDER BY" not in matches
+    assert "UNION ALL" not in matches
+    assert "IN (SELECT" not in matches
+    assert "entity_subdivided" not in sql
+    assert "ST_Intersects(entity.geometry" in matches
+    assert "ST_Intersects(entity.point" in matches
+    assert " OR " in matches
+
+
+def test_geometry_search_without_dataset_splits_geometry_and_point(mocker):
+    _, sql, _ = _capture_capped_search(
+        mocker,
+        {"geometry": [BOX], "geometry_relation": "intersects", "limit": 500},
+    )
+    matches = sql[: sql.index("search_page AS")]
+    geometry_branch, point_branch, subdivided_branch = matches.split("UNION ALL")
+    assert "ST_Intersects(entity.geometry" in geometry_branch
+    assert "entity.point" not in geometry_branch
+    assert "ST_Intersects(entity.point" in point_branch
+    # The point branch skips entities the geometry branch already returned.
+    assert "NOT (entity.geometry IS NOT NULL" in point_branch
+    assert "entity_subdivided" in subdivided_branch
+
+
+def test_geometry_search_without_dataset_keeps_subdivided_branch_separate(mocker):
+    _, sql, _ = _capture_capped_search(
+        mocker,
+        {"geometry": [BOX], "geometry_relation": "intersects", "limit": 500},
+    )
+    matches = sql[: sql.index("search_page AS")]
+    assert "UNION ALL" in matches
+    assert "entity_subdivided" in matches
+    assert "flood-risk-zone" in matches
+
+
+def test_geometry_search_on_complex_dataset_only_uses_subdivided_table(mocker):
+    _, sql, _ = _capture_capped_search(
+        mocker,
+        {
+            "dataset": ["flood-risk-zone"],
+            "geometry": [BOX],
+            "geometry_relation": "intersects",
+            "limit": 500,
+        },
+    )
+    matches = sql[: sql.index("search_page AS")]
+    assert "UNION ALL" not in matches
+    assert "entity_subdivided" in matches
+
+
+def test_multiple_geometries_are_all_applied(mocker):
+    other = "POLYGON((5 5,6 5,6 6,5 6,5 5))"
+    _, sql, _ = _capture_capped_search(
+        mocker,
+        {
+            "dataset": ["title-boundary"],
+            "geometry": [BOX, other],
+            "geometry_relation": "intersects",
+            "limit": 500,
+        },
+    )
+    assert BOX in sql and other in sql
+
+
+@pytest.mark.parametrize(
+    "filters",
+    [
+        {"latitude": 53.0, "longitude": -2.0},
+        {"geometry_curie": ["statistical-geography:E1"]},
+        {"geometry_entity": [123]},
+        {"geometry_reference": ["E1"]},
+    ],
+)
+def test_other_location_filters_are_capped(mocker, filters):
+    _, sql, _ = _capture_capped_search(
+        mocker, {"dataset": ["title-boundary"], "limit": 500, **filters}
+    )
+    assert "LIMIT 10001" in sql
+
+
+@pytest.mark.parametrize(
+    "matched_count, offset, expected_count, is_capped, expected_entities",
+    [
+        (0, 0, 0, False, []),
+        (9_999, 500, 9_999, False, ["entity"]),
+        (10_000, 500, 10_000, False, ["entity"]),
+        (10_001, 0, 10_000, True, ["entity"]),
+        (10_001, 500, 10_000, True, []),
+    ],
+)
+def test_capped_search_only_returns_one_page_above_the_cap(
+    mocker, matched_count, offset, expected_count, is_capped, expected_entities
+):
+    result, _, _ = _capture_capped_search(
+        mocker,
+        {"geometry": [BOX], "limit": 500, "offset": offset},
+        matched_count=matched_count,
+        entity=1 if matched_count else None,
+    )
+    assert result["count"] == expected_count
+    assert result["count_is_capped"] is is_capped
+    assert result["entities"] == expected_entities
+
+
+@pytest.mark.parametrize(
+    "cap, offset, expected_count, is_capped, expected_entities, has_next_page, "
+    "beyond_browse_limit",
+    [
+        # At or below the cap, pagination is unchanged.
+        (20, 10, 15, False, [11, 12, 13, 14, 15], None, None),
+        (15, 10, 15, False, [11, 12, 13, 14, 15], None, None),
+        # Above the cap, pages are read up to the cap.
+        (12, 0, 12, True, [1, 2, 3, 4, 5], True, None),
+        (12, 5, 12, True, [6, 7, 8, 9, 10], True, None),
+        # The last browsable page is trimmed at the cap, with no next page.
+        (12, 10, 12, True, [11, 12], False, None),
+        (10, 5, 10, True, [6, 7, 8, 9, 10], False, None),
+        # Past the cap nothing is returned.
+        (5, 5, 5, True, [], False, True),
+        (5, 10, 5, True, [], False, True),
+    ],
+)
+def test_search_without_location_filter_caps_count_and_pages_up_to_the_cap(
+    mocker,
+    cap,
+    offset,
+    expected_count,
+    is_capped,
+    expected_entities,
+    has_next_page,
+    beyond_browse_limit,
+):
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.orm import Session
+    from application.data_access.entity_queries import get_entity_search
+
+    # Exercise actual SQL counting and pagination without requiring PostGIS.
+    engine = create_engine("sqlite://")
+    with Session(engine) as session:
+        session.execute(
+            text("CREATE TABLE entity (entity INTEGER PRIMARY KEY, dataset TEXT)")
+        )
+        session.execute(
+            text("INSERT INTO entity (entity, dataset) VALUES (:entity, :dataset)"),
+            [{"entity": i, "dataset": "title-boundary"} for i in range(1, 16)],
+        )
+        mocker.patch(
+            "application.data_access.entity_queries.ENTITY_SEARCH_COUNT_CAP", cap
+        )
+        # SQLite has no statement timeout setting.
+        mocker.patch(
+            "application.data_access.entity_queries._set_local_statement_timeout"
+        )
+        mocker.patch("application.data_access.entity_queries.get_settings")
+        mocker.patch(
+            "application.data_access.entity_queries.entity_factory",
+            side_effect=lambda row: row.entity,
+        )
+        result = get_entity_search(
+            session,
+            {
+                "dataset": ["title-boundary"],
+                "field": ["entity"],
+                "limit": 5,
+                "offset": offset,
+            },
+        )
+    assert result["count"] == expected_count
+    assert result["count_is_capped"] is is_capped
+    assert result["entities"] == expected_entities
+    assert result.get("has_next_page") is has_next_page
+    assert result.get("beyond_browse_limit") is beyond_browse_limit
+    assert "pagination_is_capped" not in result
+    engine.dispose()
+
+
+def test_search_without_location_filter_uses_capped_count_and_timeout(mocker):
+    settings = mocker.MagicMock(
+        ENTITY_SEARCH_STATEMENT_TIMEOUT_MS=15000, DB_STATEMENT_TIMEOUT_MS=420000
+    )
+    mocker.patch(
+        "application.data_access.entity_queries.get_settings", return_value=settings
+    )
+    session = mocker.MagicMock()
+    session.query.return_value.select_from.return_value.all.return_value = [(3,)]
+    from application.data_access.entity_queries import _search_with_capped_count
+
+    basequery = mocker.MagicMock()
+    page_query = mocker.patch(
+        "application.data_access.entity_queries._apply_limit_and_pagination_filters"
+    )
+    mocker.patch(
+        "application.data_access.entity_queries._apply_field_filters",
+        return_value=page_query.return_value,
+    )
+    page_query.return_value.all.return_value = []
+    _search_with_capped_count(session, basequery, {"limit": 10}, None)
+
+    basequery.with_entities.return_value.limit.assert_called_once_with(10_001)
+    timeouts = [
+        str(call.args[0].compile(compile_kwargs={"literal_binds": True}))
+        for call in session.execute.call_args_list
+    ]
+    # The count and the page each run under the search timeout, then restore it.
+    assert len(timeouts) == 4
+    assert "15000" in timeouts[0] and "420000" in timeouts[1]
+    assert "15000" in timeouts[2] and "420000" in timeouts[3]
+
+
+def test_lookup_entity_link_returns_none_when_search_is_too_broad(mocker):
+    from application.data_access.entity_queries import (
+        EntitySearchTooBroad,
+        lookup_entity_link,
+    )
+
+    mocker.patch(
+        "application.data_access.entity_queries.get_entity_search",
+        side_effect=EntitySearchTooBroad(),
+    )
+    metrics = mocker.patch("sentry_sdk.metrics")
+    logger = mocker.patch("application.data_access.entity_queries.logger")
+
+    assert lookup_entity_link(mocker.MagicMock(), "CA1", "conservation-area") is None
+    assert metrics.count.call_args.kwargs["attributes"] == {
+        "error": "statement_timeout",
+        "extension": "entity_link",
+        "dataset": "conservation-area",
+    }
+    logger.warning.assert_called_once()
+    logger.exception.assert_not_called()
+
+
+def _operational_error(pgcode, message="database error"):
+    from sqlalchemy.exc import OperationalError
+
+    orig = Exception(message)
+    orig.pgcode = pgcode
+    return OperationalError("SELECT 1", {}, orig)
+
+
+def test_search_timeout_raises_too_broad_and_rolls_back(mocker):
+    from application.data_access.entity_queries import (
+        EntitySearchTooBroad,
+        _fetch_with_search_timeout,
+    )
+
+    _mock_search_settings(mocker)
+    session = mocker.MagicMock()
+    query = mocker.MagicMock()
+    query.all.side_effect = _operational_error(
+        "57014", "canceling statement due to statement timeout"
+    )
+    with pytest.raises(EntitySearchTooBroad):
+        _fetch_with_search_timeout(session, query)
+    session.rollback.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "canceling statement due to user request",
+        "canceling statement due to conflict with recovery",
+    ],
+)
+def test_other_cancels_are_not_reported_as_too_broad(mocker, message):
+    from sqlalchemy.exc import OperationalError
+    from application.data_access.entity_queries import _fetch_with_search_timeout
+
+    _mock_search_settings(mocker)
+    session = mocker.MagicMock()
+    query = mocker.MagicMock()
+    query.all.side_effect = _operational_error("57014", message)
+    with pytest.raises(OperationalError):
+        _fetch_with_search_timeout(session, query)
+    session.rollback.assert_not_called()
+
+
+def test_other_database_errors_are_not_reported_as_too_broad(mocker):
+    from sqlalchemy.exc import OperationalError
+    from application.data_access.entity_queries import _fetch_with_search_timeout
+
+    _mock_search_settings(mocker)
+    session = mocker.MagicMock()
+    query = mocker.MagicMock()
+    query.all.side_effect = _operational_error("08006")
+    with pytest.raises(OperationalError):
+        _fetch_with_search_timeout(session, query)
+    session.rollback.assert_not_called()

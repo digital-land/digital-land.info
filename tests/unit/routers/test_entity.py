@@ -1276,3 +1276,469 @@ def test_get_entity_with_linked_local_plans(
         else:
             logging.warning("result has no context")
         assert False, "template unable to render, missing variable(s) from context"
+
+
+@pytest.mark.parametrize(
+    "count, count_is_capped, expected_text",
+    [
+        (0, False, "0 results"),
+        (1, False, "1 result"),
+        (10_000, False, "10,000 results"),
+        (10_000, True, "10,000+ results"),
+    ],
+)
+def test_search_entities_displays_capped_count(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    count,
+    count_is_capped,
+    expected_text,
+):
+    query_filters = QueryFilters()
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": count,
+            "count_is_capped": count_is_capped,
+            "entities": [],
+        },
+    )
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=None,
+    )
+    soup = BeautifulSoup(response.body, "html.parser")
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == expected_text
+    )
+    # Without a location filter pagination still works, so the count is enough.
+    assert soup.select_one(".govuk-inset-text") is None
+
+
+DOWNLOAD_DATASET = (
+    "To download an individual dataset, go directly to the dataset page ."
+)
+TOO_MANY_RESULTS = (
+    "There are too many results to show for this query. "
+    "You can narrow your search using the filters. " + DOWNLOAD_DATASET
+)
+
+
+def _first_page_notice(limit):
+    return (
+        f"We can only display the first {limit:,} results for this query. "
+        "You can narrow your search using the filters. " + DOWNLOAD_DATASET
+    )
+
+
+def _flat_text(element):
+    return " ".join(element.get_text(" ", strip=True).split())
+
+
+def _capped_search_soup(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    pagination_is_capped,
+    beyond_browse_limit=False,
+    offset=0,
+    limit=10,
+):
+    query_filters = QueryFilters(limit=limit, offset=offset)
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": 10_000,
+            "count_is_capped": True,
+            "pagination_is_capped": pagination_is_capped,
+            "beyond_browse_limit": beyond_browse_limit,
+            "has_next_page": not beyond_browse_limit,
+            "entities": [],
+        },
+    )
+    response = search_entities(
+        request=_make_search_request(f"offset={offset}" if offset else ""),
+        search_query="",
+        query_filters=query_filters,
+        extension=None,
+    )
+    return BeautifulSoup(response.body, "html.parser")
+
+
+@pytest.mark.parametrize("limit", [10, 500])
+def test_search_entities_first_page_of_capped_location_search_says_only_one_page(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    limit,
+):
+    soup = _capped_search_soup(
+        mocker,
+        typologies,
+        local_authorities,
+        multiple_dataset_models,
+        organisation_list,
+        pagination_is_capped=True,
+        limit=limit,
+    )
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "10,000+ results"
+    )
+    notice = soup.select_one(".govuk-inset-text")
+    assert _flat_text(notice) == _first_page_notice(limit)
+    assert notice.select_one("a")["href"] == "/dataset/"
+
+
+def test_search_entities_capped_count_without_location_filter_has_no_notice(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+):
+    soup = _capped_search_soup(
+        mocker,
+        typologies,
+        local_authorities,
+        multiple_dataset_models,
+        organisation_list,
+        pagination_is_capped=False,
+    )
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "10,000+ results"
+    )
+    assert soup.select_one(".govuk-inset-text") is None
+    assert "too many results" not in soup.get_text()
+
+
+def test_search_entities_beyond_first_page_of_capped_location_search(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+):
+    soup = _capped_search_soup(
+        mocker,
+        typologies,
+        local_authorities,
+        multiple_dataset_models,
+        organisation_list,
+        pagination_is_capped=True,
+        offset=500,
+    )
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "This search has more than 10,000 results"
+    )
+    assert soup.select_one(".govuk-inset-text") is None
+    body = soup.select_one(".app-results-body")
+    assert _flat_text(body) == (
+        TOO_MANY_RESULTS + " Go back to the first page of results"
+    )
+    download_link, first_link = body.select("a")
+    assert download_link["href"] == "/dataset/"
+    assert "offset" not in first_link["href"]
+
+
+@pytest.mark.parametrize("extension", [None, SuffixEntity.json])
+def test_search_too_broad_is_reported_as_metric_and_warning_not_error(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+    extension,
+):
+    from fastapi import HTTPException
+    from application.data_access.entity_queries import (
+        EntitySearchTooBroad,
+        get_entity_search,
+    )
+
+    query_filters = QueryFilters()
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    # Raise from inside the real decorated function, so its error handling runs too.
+    mocker.patch(
+        "application.data_access.entity_queries.normalised_params",
+        side_effect=EntitySearchTooBroad(),
+    )
+    mocker.patch("application.routers.entity.get_entity_search", get_entity_search)
+    search_logger = mocker.patch("application.data_access.entity_queries.logger")
+    utils_logger = mocker.patch("application.core.utils.logger")
+    # Both modules share sentry_sdk.metrics, so one mock sees every metric.
+    metrics = mocker.patch("sentry_sdk.metrics")
+
+    call = lambda: search_entities(  # noqa: E731
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=extension,
+    )
+    if extension is None:
+        call()
+    else:
+        with pytest.raises(HTTPException):
+            call()
+
+    # Only the search error metric, not the decorator's function.exception metric.
+    metrics.count.assert_called_once()
+    assert metrics.count.call_args.args[0] == "entity.search.error"
+    assert metrics.count.call_args.kwargs["attributes"]["error"] == "statement_timeout"
+    search_logger.warning.assert_called_once()
+    search_logger.exception.assert_not_called()
+    search_logger.error.assert_not_called()
+    utils_logger.error.assert_not_called()
+
+
+def test_search_entities_html_explains_search_too_broad(
+    mocker, typologies, local_authorities, multiple_dataset_models, organisation_list
+):
+    from application.data_access.entity_queries import EntitySearchTooBroad
+
+    query_filters = QueryFilters()
+    _mock_search_entities_html_dependencies(
+        mocker,
+        query_filters,
+        typologies,
+        local_authorities,
+        organisation_list,
+        multiple_dataset_models,
+    )
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        side_effect=EntitySearchTooBroad(),
+    )
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=None,
+    )
+    soup = BeautifulSoup(response.body, "html.parser")
+    assert response.status_code == 422
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "Search took too long"
+    )
+    assert "No results found" not in soup.get_text()
+    assert _flat_text(soup.select_one(".app-results-body")) == (
+        "This search probably covers too much data. Try a smaller area or "
+        "narrow your search using the filters. " + DOWNLOAD_DATASET
+    )
+
+
+@pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
+def test_search_entities_api_returns_422_when_search_too_broad(mocker, extension):
+    from fastapi import HTTPException
+    from application.data_access.entity_queries import EntitySearchTooBroad
+
+    query_filters = QueryFilters()
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        side_effect=EntitySearchTooBroad(),
+    )
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    with pytest.raises(HTTPException) as error:
+        search_entities(
+            request=_make_search_request(""),
+            search_query="",
+            query_filters=query_filters,
+            extension=extension,
+        )
+    assert error.value.status_code == 422
+    assert "probably because it covers too much data" in error.value.detail
+
+
+def test_search_entities_beyond_browse_limit_without_location_filter(
+    mocker,
+    typologies,
+    local_authorities,
+    multiple_dataset_models,
+    organisation_list,
+):
+    soup = _capped_search_soup(
+        mocker,
+        typologies,
+        local_authorities,
+        multiple_dataset_models,
+        organisation_list,
+        pagination_is_capped=False,
+        beyond_browse_limit=True,
+        offset=10_000,
+    )
+    assert (
+        soup.select_one(".app-results-summary__title").get_text(strip=True)
+        == "This search has more than 10,000 results"
+    )
+    body = soup.select_one(".app-results-body")
+    assert _flat_text(body) == (
+        TOO_MANY_RESULTS + " Go back to the first page of results"
+    )
+    assert "offset" not in body.select("a")[-1]["href"]
+
+
+def _capped_api_search(
+    mocker, extension, offset, pagination_is_capped, beyond_browse_limit=False
+):
+    query_filters = QueryFilters(offset=offset) if offset else QueryFilters()
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": 10_000,
+            "count_is_capped": True,
+            "pagination_is_capped": pagination_is_capped,
+            "beyond_browse_limit": beyond_browse_limit,
+            "has_next_page": not beyond_browse_limit,
+            "entities": [],
+        },
+    )
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    return search_entities(
+        request=_make_search_request(f"offset={offset}" if offset else ""),
+        search_query="",
+        query_filters=query_filters,
+        extension=extension,
+    )
+
+
+@pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
+def test_search_entities_api_returns_400_beyond_first_page_of_capped_location_search(
+    mocker, extension
+):
+    from fastapi import HTTPException
+
+    with pytest.raises(HTTPException) as error:
+        _capped_api_search(mocker, extension, offset=500, pagination_is_capped=True)
+    assert error.value.status_code == 400
+    assert "only the first page is available" in error.value.detail
+
+
+@pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
+def test_search_entities_api_returns_400_beyond_browse_limit(mocker, extension):
+    from fastapi import HTTPException
+
+    with pytest.raises(HTTPException) as error:
+        _capped_api_search(
+            mocker,
+            extension,
+            offset=10_000,
+            pagination_is_capped=False,
+            beyond_browse_limit=True,
+        )
+    assert error.value.status_code == 400
+    assert "only the first 10,000 can be browsed" in error.value.detail
+
+
+@pytest.mark.parametrize("extension", [SuffixEntity.json, SuffixEntity.geojson])
+@pytest.mark.parametrize(
+    "offset, pagination_is_capped",
+    [
+        # The first page of a capped location search is still returned.
+        (0, True),
+        # Searches without a location filter can page up to the cap.
+        (500, False),
+    ],
+)
+def test_search_entities_api_allows_pages_that_exist_above_the_cap(
+    mocker, extension, offset, pagination_is_capped
+):
+    response = _capped_api_search(mocker, extension, offset, pagination_is_capped)
+    assert response["count"] == 10_000
+    assert response["count_is_capped"] is True
+
+
+@pytest.mark.parametrize("count_is_capped", [False, True])
+def test_search_entities_json_exposes_numeric_count_and_cap_flag(
+    mocker, count_is_capped
+):
+    query_filters = QueryFilters()
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": 10_000,
+            "count_is_capped": count_is_capped,
+            "entities": [],
+        },
+    )
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=SuffixEntity.json,
+    )
+    assert response["count"] == 10_000
+    assert isinstance(response["count"], int)
+    assert response["count_is_capped"] is count_is_capped
+    assert "last" not in response["links"] or not count_is_capped
+    assert "next" not in response["links"] or not count_is_capped
+
+
+@pytest.mark.parametrize("count_is_capped", [False, True])
+def test_search_entities_geojson_exposes_count_and_cap_flag(mocker, count_is_capped):
+    query_filters = QueryFilters()
+    mocker.patch(
+        "application.routers.entity.get_entity_search",
+        return_value={
+            "params": normalised_params(asdict(query_filters)),
+            "count": 10_000,
+            "count_is_capped": count_is_capped,
+            "entities": [],
+        },
+    )
+    mocker.patch("application.routers.entity.get_dataset_names", return_value=[])
+    mocker.patch("application.routers.entity.get_typology_names", return_value=[])
+    response = search_entities(
+        request=_make_search_request(""),
+        search_query="",
+        query_filters=query_filters,
+        extension=SuffixEntity.geojson,
+    )
+    assert response["type"] == "FeatureCollection"
+    assert response["count"] == 10_000
+    assert response["count_is_capped"] is count_is_capped
+    if count_is_capped:
+        assert "next" not in response["links"]

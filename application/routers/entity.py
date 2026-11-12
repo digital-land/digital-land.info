@@ -27,13 +27,16 @@ from application.data_access.digital_land_queries import (
 )
 from application.data_access.entity_queries import (
     get_entity_query,
+    EntitySearchTooBroad,
     get_entity_search,
     get_organisations,
     lookup_entity_link,
+    record_search_too_broad,
     get_linked_entities,
     fetchEntityFromReference,
 )
 from application.data_access.dataset_queries import get_dataset_names
+from application.data_access.entity_query_helpers import normalised_params
 from application.data_access.find_an_area_helpers import find_an_area
 
 from application.search.enum import SuffixEntity
@@ -52,6 +55,22 @@ from application.search.validators import validate_dataset
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+BEYOND_FIRST_PAGE_MESSAGE = (
+    "This search has more than 10,000 results, so only the first page is "
+    "available. Remove offset, narrow your search using the filters or "
+    "download the dataset."
+)
+BEYOND_BROWSE_LIMIT_MESSAGE = (
+    "This search has more than 10,000 results, so only the first 10,000 can be "
+    "browsed. Use an offset below 10,000, narrow your search using the filters "
+    "or download the dataset."
+)
+# A timeout usually means the search covers too much data, but a busy database
+# can cause one too, so the message says "probably".
+SEARCH_TOO_BROAD_MESSAGE = (
+    "This search took too long to complete, probably because it covers too much "
+    "data. Try a smaller area, choose a dataset or download the dataset."
+)
 
 
 @router.get(
@@ -412,6 +431,21 @@ def validate_typologies(typologies, typology_names):
     return
 
 
+def _record_search_error(error_tag, extension, query_params):
+    extension_tag = extension.value if extension is not None else "html"
+    dataset_filters = query_params.get("dataset") or []
+    sentry_sdk.metrics.count(
+        "entity.search.error",
+        1,
+        attributes={
+            "error": error_tag,
+            "extension": extension_tag,
+            "dataset": ",".join(dataset_filters) if dataset_filters else "all",
+        },
+    )
+    return extension_tag, dataset_filters
+
+
 def search_entities(
     request: Request,
     search_query: str = Query("", alias="q"),
@@ -463,23 +497,28 @@ def search_entities(
     # Run entity query
     try:
         data = get_entity_search(session, query_params, extension)
+    except EntitySearchTooBroad:
+        # Expected for very broad searches: a metric and a warning, not a Sentry error.
+        record_search_too_broad(
+            extension.value if extension is not None else "html",
+            query_params.get("dataset") or [],
+        )
+        if extension in (SuffixEntity.json, SuffixEntity.geojson):
+            raise HTTPException(status_code=422, detail=SEARCH_TOO_BROAD_MESSAGE)
+        data = {
+            "params": normalised_params(query_params),
+            "count": 0,
+            "entities": [],
+            "search_too_broad": True,
+        }
     except SQLAlchemyError as e:
-        extension_tag = extension.value if extension is not None else "html"
-        dataset_filters = query_params.get("dataset") or []
-        dataset_tag = ",".join(dataset_filters) if dataset_filters else "all"
         error_tag = (
             "ssl_syscall_eof"
             if "SSL SYSCALL error: EOF detected" in str(e)
             else "db_error"
         )
-        sentry_sdk.metrics.count(
-            "entity.search.error",
-            1,
-            attributes={
-                "error": error_tag,
-                "extension": extension_tag,
-                "dataset": dataset_tag,
-            },
+        extension_tag, dataset_filters = _record_search_error(
+            error_tag, extension, query_params
         )
 
         logger.exception(
@@ -494,6 +533,16 @@ def search_entities(
     # the query does some normalisation to remove empty
     # params and they get returned from search
     params = data["params"]
+
+    # Above the cap a location search only has a first page, and other searches
+    # can only be browsed up to the cap. Tell API clients instead of returning an
+    # empty page they could mistake for the end of the results. The HTML page
+    # explains this to the user instead.
+    if extension in (SuffixEntity.json, SuffixEntity.geojson):
+        if data.get("pagination_is_capped") and params.get("offset"):
+            raise HTTPException(status_code=400, detail=BEYOND_FIRST_PAGE_MESSAGE)
+        if data.get("beyond_browse_limit"):
+            raise HTTPException(status_code=400, detail=BEYOND_BROWSE_LIMIT_MESSAGE)
     scheme = request.url.scheme
     netloc = request.url.netloc
     path = request.url.path
@@ -514,7 +563,12 @@ def search_entities(
             entities = _get_entity_json(data["entities"], exclude=exclude_fields)
         else:
             entities = _get_entity_json(data["entities"])
-        return {"entities": entities, "links": links, "count": data["count"]}
+        return {
+            "entities": entities,
+            "links": links,
+            "count": data["count"],
+            "count_is_capped": data.get("count_is_capped", False),
+        }
 
     if extension == SuffixEntity.geojson:
         if params.get("exclude_field") is not None:
@@ -528,6 +582,8 @@ def search_entities(
         else:
             geojson = _get_geojson(data["entities"])
         geojson["links"] = links
+        geojson["count"] = data["count"]
+        geojson["count_is_capped"] = data.get("count_is_capped", False)
         return geojson
 
     db_session = DbSession(session=session, redis=redis)
@@ -572,6 +628,11 @@ def search_entities(
         "search.html",
         {
             "count": data["count"],
+            "count_is_capped": data.get("count_is_capped", False),
+            "pagination_is_capped": data.get("pagination_is_capped", False),
+            "beyond_browse_limit": data.get("beyond_browse_limit", False),
+            "search_too_broad": data.get("search_too_broad", False),
+            "first_url": links.get("first"),
             "limit": params["limit"],
             "data": data["entities"],
             "datasets": datasets,
@@ -594,6 +655,7 @@ def search_entities(
             "find_an_area_result": search_result,
             "feedback_form_footer": True,
         },
+        status_code=422 if data.get("search_too_broad") else 200,
     )
 
 

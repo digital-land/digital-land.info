@@ -341,6 +341,9 @@ offset=100  # page 2</code></pre>
       The response includes a <code class="app-code-block app-code-block--inline">links</code> object with pre-built <code class="app-code-block app-code-block--inline">next</code>, <code class="app-code-block app-code-block--inline">prev</code>, <code class="app-code-block app-code-block--inline">first</code>,
       and <code class="app-code-block app-code-block--inline">last</code> URLs, so you can follow pagination without calculating offsets manually.
     </p>
+    <p class="govuk-body">
+      Searches with more than 10,000 results return fewer links. See the <a class="govuk-link" href="#changelog">changelog</a> for details.
+    </p>
 
     <h3 class="govuk-heading-m" id="screen-portfolio-risk">5. Screen a portfolio against planning risk</h3>
     <p class="govuk-body">
@@ -386,6 +389,20 @@ limit=50</code></pre>
     <p class="govuk-body">Developers can use our APIs to explore our data and build services. As we are still in beta,
       you should be aware there may be changes to the API if you're building production-ready systems.</p>
     <p class="govuk-body">You can read about the API below. Get in touch with the team if you are interested in getting support using the planning data API.</p>
+
+    <h2 class="govuk-heading-l" id="changelog">Changelog</h2>
+
+    <h3 class="govuk-heading-m" id="changelog-2026-11-result-limit">November 2026: entity search results capped at 10,000</h3>
+    <p class="govuk-body">For <code class="app-code-block app-code-block--inline">/entity.json</code> and <code class="app-code-block app-code-block--inline">/entity.geojson</code> searches with more than 10,000 results:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li><code class="app-code-block app-code-block--inline">count</code> stops at 10,000 and a new field, <code class="app-code-block app-code-block--inline">count_is_capped</code>, is <code class="app-code-block app-code-block--inline">true</code></li>
+      <li><code class="app-code-block app-code-block--inline">links</code> has no <code class="app-code-block app-code-block--inline">last</code> link</li>
+      <li>without a location filter, you can page through the first 10,000 results</li>
+      <li>with a location filter, only the first page is available and any <code class="app-code-block app-code-block--inline">offset</code> returns HTTP <code class="app-code-block app-code-block--inline">400</code></li>
+    </ul>
+    <p class="govuk-body">
+      Searches that take too long now return HTTP <code class="app-code-block app-code-block--inline">422</code>. Narrow your search, or <a class="govuk-link" href="#downloading-the-data">download the data</a> instead.
+    </p>
 
     <hr class="govuk-section-break govuk-section-break--l">
 

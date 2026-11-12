@@ -123,6 +123,40 @@ class TestLogSlowExecution:
         mock_logger.error.assert_called()
 
 
+class ExpectedError(Exception):
+    pass
+
+
+@log_slow_execution(threshold_seconds=0.5, expected_exceptions=(ExpectedError,))
+def expected_error_function():
+    raise ExpectedError("Handled by the caller")
+
+
+@log_slow_execution(threshold_seconds=0.5, expected_exceptions=(ExpectedError,))
+def unexpected_error_function():
+    raise ValueError("Not expected")
+
+
+class TestLogSlowExecutionExpectedExceptions:
+    def test_expected_exception_is_reraised_without_error_log_or_metric(self, mocker):
+        mock_logger = mocker.patch("application.core.utils.logger")
+        mock_metrics = mocker.patch("application.core.utils.sentry_sdk.metrics")
+        with pytest.raises(ExpectedError):
+            expected_error_function()
+
+        mock_logger.error.assert_not_called()
+        mock_metrics.count.assert_not_called()
+
+    def test_other_exceptions_are_still_logged_as_errors(self, mocker):
+        mock_logger = mocker.patch("application.core.utils.logger")
+        mock_metrics = mocker.patch("application.core.utils.sentry_sdk.metrics")
+        with pytest.raises(ValueError):
+            unexpected_error_function()
+
+        mock_logger.error.assert_called_once()
+        mock_metrics.count.assert_called_once()
+
+
 class TestEntityQualityMapsToDescription:
     @pytest.mark.parametrize("entity_dict, expected", quality_test_data)
     def test_entity_quality_maps_to_description_successfully(

@@ -45,7 +45,14 @@
       <!-- /.govuk-grid-column-one-third -->
       <div class="govuk-grid-column-two-thirds" id="search-results" role="region" aria-label="Search results" aria-busy="false">
         <div class="app-results-summary">
-          <h2 class="app-results-summary__title">{{ count|commanum }} result{{ "" if count == 1 else "s" }}</h2>
+          {% set page_unavailable = (pagination_is_capped and first_url) or beyond_browse_limit %}
+          {% if search_too_broad %}
+          <h2 class="app-results-summary__title">Search took too long</h2>
+          {% elif page_unavailable %}
+          <h2 class="app-results-summary__title">This search has more than {{ count|commanum }} results</h2>
+          {% else %}
+          <h2 class="app-results-summary__title">{{ count|commanum }}{{ "+" if count_is_capped else "" }} result{{ "" if count == 1 else "s" }}</h2>
+          {% endif %}
           {% macro removeFilterButton(params) %}
           <a href="{{ params.url }}" class="app-applied-filter__button govuk-link" aria-label="Remove filter for {{ params.filter.name }}">
             <span class="app-facet-tag__icon" aria-hidden="true">
@@ -220,6 +227,28 @@
         </div>
         <!-- /.app-results-summary -->
 
+        {% set downloadDatasetHTML %}<p class="govuk-body">To download an individual dataset, go directly to the <a href="/dataset/" class="govuk-link">dataset page</a>.</p>{% endset %}
+        {% set tooManyResultsHTML %}
+          <p class="govuk-body">There are too many results to show for this query. You can narrow your search using the filters.</p>
+          {{ downloadDatasetHTML }}
+        {% endset %}
+
+        {% if page_unavailable %}
+        {#- A later page of a location search over the cap, or a page past the first
+            10,000 results of any other search: nothing can be shown. #}
+        <div class="app-results-body">
+          {{ tooManyResultsHTML }}
+          <p class="govuk-body"><a href="{{ first_url }}" class="govuk-link">Go back to the first page of results</a></p>
+        </div>
+        {% elif pagination_is_capped %}
+        {#- The first page of a location search over the cap: the only page there is. #}
+        <div class="govuk-inset-text">
+          <p class="govuk-body">We can only display the first {{ limit|commanum }} results for this query. You can narrow your search using the filters.</p>
+          {{ downloadDatasetHTML }}
+        </div>
+        {% endif %}
+        {#- Searches without a location filter page up to the cap, so the 10,000+ count is enough. #}
+
         {% if data and data|count > 0 %}
         <div class="app-results-body">
 
@@ -295,6 +324,11 @@
 
         </div>
         <!-- /.app-results-body -->
+        {% elif search_too_broad %}
+        <div class="app-results-body">
+          <p class="govuk-body">This search probably covers too much data. Try a smaller area or narrow your search using the filters.</p>
+          {{ downloadDatasetHTML }}
+        </div>
         {% elif count == 0 %}
         <div class="app-results-body">
           <p class="govuk-body">No results found</p>
