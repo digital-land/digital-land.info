@@ -12,6 +12,9 @@ import { getDatasetMinZoom } from "./datasetMinZoomLevels.js";
 const HISTORICAL_ENTITY_COLOUR = '#AA2A16';
 const HISTORICAL_ENTITY_OPACITY = 0.5;
 
+const CAMERA_MIN_ZOOM = 6;
+const CAMERA_MAX_ZOOM = 18;
+
 // Builds a MapLibre paint expression that uses the historical highlight
 // colour for any feature with a past end-date, and the layer's normal
 // colour otherwise
@@ -48,6 +51,18 @@ function isFeatureExpired(feature) {
 
   const today = new Date().toISOString().slice(0, 10);
   return endDate < today;
+}
+
+function isValidLatitude(lat) {
+  return Number.isFinite(lat) && lat >= -90 && lat <= 90;
+}
+
+function isValidLongitude(lng) {
+  return Number.isFinite(lng) && lng >= -180 && lng <= 180;
+}
+
+function isValidZoom(zoom, minZoom, maxZoom) {
+  return Number.isFinite(zoom) && zoom >= minZoom && zoom <= maxZoom;
 }
 
 export default class MapController {
@@ -90,33 +105,52 @@ export default class MapController {
   }
 
   getViewFromUrl() {
+    const defaultView = { centre: undefined, zoom: undefined }
     const urlObj = new URL(document.location)
     const hash = urlObj.hash
-    if (hash) {
-      const [lat, lng, zoom] = hash.substring(1).split(',')
-      return { centre: [parseFloat(lng), parseFloat(lat)], zoom: parseFloat(zoom) }
-    }
-    return { centre: undefined, zoom: undefined }
+    if (!hash) return defaultView
+
+    const parts = hash.substring(1).split(',')
+    if (parts.length !== 3) return defaultView
+
+    const [lat, lng, zoom] = parts.map(parseFloat)
+    if (!isValidLatitude(lat)) return defaultView
+    if (!isValidLongitude(lng)) return defaultView
+    if (!isValidZoom(zoom, CAMERA_MIN_ZOOM, CAMERA_MAX_ZOOM)) return defaultView
+
+    return { centre: [lng, lat], zoom }
   }
 
   async createMap() {
     // Define the custom JSON style.
     // More styles can be found at https://github.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets.
 
+    const defaultCentre = [-1, 52.9];
+    const defaultZoom = 6;
     const viewFromUrl = this.getViewFromUrl()
 
-    var map = new maplibregl.Map({
+    const mapOptions = {
       container: this.mapId,
-      minZoom: 6,
-      maxZoom: 18,
+      minZoom: CAMERA_MIN_ZOOM,
+      maxZoom: CAMERA_MAX_ZOOM,
       style: this.customStyleJson,
       maxBounds: [
         [-15, 49],
         [13, 57]
       ],
-      center: viewFromUrl.centre || [-1, 52.9],
-      zoom: viewFromUrl.zoom || 6,
-    });
+      center: viewFromUrl.centre || defaultCentre,
+      zoom: viewFromUrl.zoom || defaultZoom,
+    };
+
+    var map;
+    try {
+      map = new maplibregl.Map(mapOptions);
+    } catch (e) {
+      // Guard against any other unvalidated input reaching the constructor:
+      // retry once with the default view instead of leaving the page without a map.
+      console.error('Failed to create map with requested view, retrying with default view: ', e);
+      map = new maplibregl.Map({ ...mapOptions, center: defaultCentre, zoom: defaultZoom });
+    }
 
     map.getCanvas().ariaLabel = `${this.mapId}`;
     this.map = map;

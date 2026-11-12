@@ -610,4 +610,64 @@ describe('Map Controller - Unit', () => {
         expect(mapController.map.setLayoutProperty).toHaveBeenCalledTimes(1)
         expect(mapController.map.setLayoutProperty).toHaveBeenCalledWith('testLayer', 'visibility', true)
     })
+
+    describe('getViewFromUrl()', () => {
+        test('parses a valid "lat,lng,zoom" hash into a centre and zoom', () => {
+            stubGlobalDocument('http://localhost:3000/map/#52.5,-1.9,8z')
+            expect(mapController.getViewFromUrl()).toEqual({ centre: [-1.9, 52.5], zoom: 8 })
+        })
+
+        test('falls back to the default view when there is no hash', () => {
+            stubGlobalDocument('http://localhost:3000/map/')
+            expect(mapController.getViewFromUrl()).toEqual({ centre: undefined, zoom: undefined })
+        })
+
+        test('falls back to the default view when the hash is not a coordinate triple', () => {
+            stubGlobalDocument('http://localhost:3000/map/#abc')
+            expect(mapController.getViewFromUrl()).toEqual({ centre: undefined, zoom: undefined })
+        })
+
+        test('falls back to the default view when a coordinate overflows to Infinity', () => {
+            stubGlobalDocument('http://localhost:3000/map/#1e400,1e400,8z')
+            expect(mapController.getViewFromUrl()).toEqual({ centre: undefined, zoom: undefined })
+        })
+
+        test('falls back to the default view when latitude is out of range', () => {
+            stubGlobalDocument('http://localhost:3000/map/#91,0,8z')
+            expect(mapController.getViewFromUrl()).toEqual({ centre: undefined, zoom: undefined })
+        })
+
+        test('falls back to the default view when longitude is out of range', () => {
+            stubGlobalDocument('http://localhost:3000/map/#0,181,8z')
+            expect(mapController.getViewFromUrl()).toEqual({ centre: undefined, zoom: undefined })
+        })
+
+        test('falls back to the default view when zoom is outside minMapZoom/maxMapZoom', () => {
+            stubGlobalDocument('http://localhost:3000/map/#52.5,-1.9,999z')
+            expect(mapController.getViewFromUrl()).toEqual({ centre: undefined, zoom: undefined })
+        })
+    })
+
+    describe('createMap() fallback on invalid view', () => {
+        test('retries with the default view and logs an error if the first Map() attempt throws', async () => {
+            stubGlobalDocument('http://localhost:3000/map/')
+            const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+            maplibregl.Map.mockClear()
+            maplibregl.Map.mockImplementationOnce(() => {
+                throw new Error('Invalid LngLat object: (NaN, NaN)')
+            })
+
+            const controller = new MapController()
+            await waitForMapCreation(controller)
+
+            expect(maplibregl.Map).toHaveBeenCalledTimes(2)
+            expect(maplibregl.Map).toHaveBeenLastCalledWith(
+                expect.objectContaining({ center: [-1, 52.9], zoom: 6 })
+            )
+            expect(consoleErrorSpy).toHaveBeenCalled()
+            expect(controller.map).toBeTruthy()
+
+            consoleErrorSpy.mockRestore()
+        })
+    })
 })
