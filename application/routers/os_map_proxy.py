@@ -1,7 +1,8 @@
 import logging
+import re
 import threading
 import time
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 import requests
 from fastapi import APIRouter, HTTPException, Request, Response
@@ -19,6 +20,26 @@ TOKEN_EXPIRY_BUFFER_SECONDS = 30
 
 _token_cache = {"access_token": None, "expires_at": 0}
 _token_lock = threading.Lock()
+
+# The only OS Vector Tile API resources the map needs. Paths are matched
+# against the already-decoded path in full, and no pattern allows "." or "/"
+# inside a segment, so dot-segments (raw or percent-encoded) can never reach
+# upstream and the credential can't be pointed at other OS products.
+ALLOWED_PATHS = [
+    re.compile(r"vector/v1/vts"),
+    re.compile(r"vector/v1/vts/tile/\d{1,2}/\d{1,7}/\d{1,7}\.pbf"),
+    re.compile(r"vector/v1/vts/resources/sprites/sprite(@2x)?\.(json|png)"),
+    re.compile(
+        r"vector/v1/vts/resources/fonts/[A-Za-z0-9 ,-]{1,200}/\d{1,5}-\d{1,5}\.pbf"
+    ),
+]
+
+# Query parameters are fixed server-side; anything the client sends is dropped.
+UPSTREAM_PARAMS = {"srs": "3857", "key": "null"}
+
+
+def _is_allowed_path(path: str) -> bool:
+    return any(pattern.fullmatch(path) for pattern in ALLOWED_PATHS)
 
 
 def _is_same_origin(request: Request) -> bool:
@@ -98,20 +119,19 @@ def get_os_map_resource(request: Request, path: str):
     if not _is_same_origin(request):
         raise HTTPException(status_code=403, detail="Forbidden")
 
+    if not _is_allowed_path(path):
+        raise HTTPException(status_code=404, detail="Not Found")
+
     try:
         token = _get_cached_os_token()
     except ConnectionError as e:
         logger.error(f"Could not obtain OS OAuth2 token: {e}")
         raise HTTPException(status_code=502, detail="Upstream authentication failed")
 
-    params = dict(request.query_params)
-    params.setdefault("srs", "3857")
-    params.setdefault("key", "null")
-
     try:
         upstream = requests.get(
-            OS_MAPS_BASE_URL + path,
-            params=params,
+            OS_MAPS_BASE_URL + quote(path, safe="/,@"),
+            params=UPSTREAM_PARAMS,
             headers={"Authorization": f"Bearer {token}"},
             timeout=10,
         )
