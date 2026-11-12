@@ -59,7 +59,6 @@ describe('Map Controller', () => {
             expect(mapController.minMapZoom).toEqual(5);
             expect(mapController.maxMapZoom).toEqual(15);
             expect(mapController.baseURL).toEqual('https://digital-land.github.io');
-            expect(mapController.baseTileStyleFilePath).toEqual('/static/javascripts/base-tile.json');
             expect(mapController.popupWidth).toEqual('260px');
             expect(mapController.popupMaxListLength).toEqual(10);
             expect(mapController.LayerControlOptions).toEqual({enabled: false});
@@ -103,7 +102,6 @@ describe('Map Controller', () => {
             expect(mapController.minMapZoom).toEqual(5);
             expect(mapController.maxMapZoom).toEqual(15);
             expect(mapController.baseURL).toEqual('https://digital-land.github.io');
-            expect(mapController.baseTileStyleFilePath).toEqual('/static/javascripts/base-tile.json');
             expect(mapController.popupWidth).toEqual('260px');
             expect(mapController.popupMaxListLength).toEqual(10);
             expect(mapController.LayerControlOptions).toEqual({enabled: false});
