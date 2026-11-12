@@ -360,3 +360,38 @@ def test_get_dataset_html_shows_page_when_category_search_is_too_broad(
     )
     record.assert_called_once_with("html", [dataset.dataset])
     assert render.call_args.args[2]["categories"] == []
+
+
+def test_get_dataset_html_bounds_the_category_search(mocker, multiple_dataset_models):
+    from application.data_access.entity_queries import ENTITY_SEARCH_COUNT_CAP
+
+    dataset = multiple_dataset_models[0]
+    dataset.typology = "category"
+    mocker.patch("application.routers.dataset.get_dataset_query", return_value=dataset)
+    mocker.patch(
+        "application.routers.dataset.get_dataset_entity_counts", return_value={}
+    )
+    mocker.patch("application.routers.dataset.get_latest_resource", return_value=None)
+    mocker.patch(
+        "application.routers.dataset.get_dataset_coverage_status", return_value=None
+    )
+    mocker.patch(
+        "application.routers.dataset.get_providers_for_dataset", return_value=[]
+    )
+    search = mocker.patch(
+        "application.routers.dataset.get_entity_search",
+        return_value={"entities": []},
+    )
+    mocker.patch("application.routers.dataset.templates.TemplateResponse")
+    get_dataset(
+        request=MagicMock(),
+        dataset=dataset.dataset,
+        settings=MagicMock(),
+        session=MagicMock(),
+        redis=None,
+        exclude_field=None,
+    )
+    assert search.call_args.args[1] == {
+        "dataset": [dataset.dataset],
+        "limit": ENTITY_SEARCH_COUNT_CAP,
+    }

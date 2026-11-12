@@ -19,6 +19,7 @@ from application.data_access.digital_land_queries import (
 )
 
 from application.data_access.entity_queries import (
+    ENTITY_SEARCH_COUNT_CAP,
     EntitySearchTooBroad,
     get_dataset_entity_counts,
     get_entity_search,
@@ -170,7 +171,12 @@ def get_dataset(
         # TODO add test to check this table loads loads
         # for categoric datasets provide list of categories
         if _dataset.typology == "category":
-            entity_query_params = {"dataset": [dataset]}
+            # Bound the page as well as the count, so a dataset with more categories
+            # than the cap doesn't load every row.
+            entity_query_params = {
+                "dataset": [dataset],
+                "limit": ENTITY_SEARCH_COUNT_CAP,
+            }
             try:
                 categories = get_entity_search(session, entity_query_params)["entities"]
             except EntitySearchTooBroad:
