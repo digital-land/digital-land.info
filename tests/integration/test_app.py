@@ -1,6 +1,3 @@
-SECONDS_IN_TWO_YEARS = 63072000.0
-
-
 def test_response_cors_headers(client):
     """
     Test that the appropriate CORS headers are included in a simple GET request to server root
@@ -18,7 +15,11 @@ def test_response_cors_headers(client):
 
 def test_response_strict_transport_security_header(client):
     """
-    Test that the correct HSTS header is included in a simple GET request to server root
+    Test that the correct HSTS header is included in a simple GET request to server root.
+
+    max-age must be a whole number of seconds (RFC 6797): a value like "63072000.0"
+    is invalid and gets silently discarded by browsers, leaving the site with no
+    HSTS protection despite the header being present.
 
     We can't test any templated endpoint here due to:
     https://github.com/encode/starlette/issues/472
@@ -26,7 +27,7 @@ def test_response_strict_transport_security_header(client):
     so we pick an arbitrary JSON endpoint
     """
 
-    expected_header = f"max-age={SECONDS_IN_TWO_YEARS}; includeSubDomains; preload"
+    expected_header = "max-age=63072000; includeSubDomains; preload"
     response = client.get("/entity.json", headers={"Origin": "localhost"})
     assert "Strict-Transport-Security" in response.headers
     assert response.headers["Strict-Transport-Security"] == expected_header
