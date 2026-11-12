@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from application.routers import os_map_proxy
 from application.routers.os_map_proxy import (
     _get_cached_os_token,
+    _is_allowed_path,
     _is_same_origin,
     _rewrite_os_urls,
     get_os_map_resource,
@@ -179,3 +180,105 @@ def test_get_os_map_resource_returns_502_on_invalid_upstream_json():
             get_os_map_resource(fake_request(), "vector/v1/vts")
 
     assert exc_info.value.status_code == 502
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "vector/v1/vts",
+        "vector/v1/vts/tile/7/42/63.pbf",
+        "vector/v1/vts/resources/sprites/sprite.json",
+        "vector/v1/vts/resources/sprites/sprite@2x.png",
+        "vector/v1/vts/resources/fonts/Source Sans Pro Regular/0-255.pbf",
+        "vector/v1/vts/resources/fonts/Arial Bold,Arial Regular/256-511.pbf",
+    ],
+)
+def test_is_allowed_path_accepts_basemap_resources(path):
+    assert _is_allowed_path(path) is True
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "../search/places/v1/nearest",
+        "vector/v1/vts/../../search/places/v1/postcode",
+        "vector/v1/vts/tile/../../../../search/places/v1/nearest",
+        "vector/v1/vts/resources/fonts/../../../../search/0-255.pbf",
+        "vector/v1/vts/resources/fonts/a/../../0-255.pbf",
+        "search/places/v1/nearest",
+        "raster/v1/zxy/Light_3857/7/63/42.png",
+        "vector/v1/vts/resources/styles",
+        "vector/v1/vts/",
+        "",
+    ],
+)
+def test_is_allowed_path_rejects_everything_else(path):
+    assert _is_allowed_path(path) is False
+
+
+def test_get_os_map_resource_404s_disallowed_path_without_calling_upstream():
+    with patch.object(os_map_proxy, "_get_cached_os_token") as get_token, patch.object(
+        os_map_proxy.requests, "get"
+    ) as upstream_get:
+        with pytest.raises(HTTPException) as exc_info:
+            get_os_map_resource(fake_request(), "../search/places/v1/nearest")
+
+    assert exc_info.value.status_code == 404
+    get_token.assert_not_called()
+    upstream_get.assert_not_called()
+
+
+def test_get_os_map_resource_drops_client_query_params():
+    upstream_response = Mock(ok=True, status_code=200, content=b"tile")
+    upstream_response.headers = {"content-type": "application/x-protobuf"}
+    request = fake_request()
+    request.query_params = {"point": "1,2", "radius": "50", "srs": "EPSG:27700"}
+
+    with patch.object(
+        os_map_proxy, "_get_cached_os_token", return_value="token"
+    ), patch.object(
+        os_map_proxy.requests, "get", return_value=upstream_response
+    ) as upstream_get:
+        get_os_map_resource(request, "vector/v1/vts/tile/7/42/63.pbf")
+
+    upstream_get.assert_called_once()
+    args, kwargs = upstream_get.call_args
+    assert args[0] == "https://api.os.uk/maps/vector/v1/vts/tile/7/42/63.pbf"
+    assert kwargs["params"] == {"srs": "3857", "key": "null"}
+
+
+@pytest.mark.parametrize(
+    "raw_path",
+    [
+        "/os/maps/%2e%2e/search/places/v1/nearest?point=1,2&radius=55",
+        "/os/maps/%2E%2E/search/places/v1/postcode?postcode=ZZ99ZZ",
+        "/os/maps/vector/v1/vts/%2e%2e/%2e%2e/%2e%2e/search/places/v1/nearest",
+        "/os/maps/..%2fsearch/places/v1/nearest",
+        "/os/maps/%2e%2e%2fsearch/places/v1/nearest",
+    ],
+)
+def test_dot_segment_escape_never_reaches_upstream(raw_path):
+    """
+    Reproduces the reported exploit through the real router: an encoded
+    dot-segment after /os/maps/ must not be forwarded to api.os.uk.
+    """
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    app = FastAPI()
+    app.include_router(os_map_proxy.router, prefix="/os")
+    client = TestClient(app)
+
+    with patch.object(
+        os_map_proxy, "_get_cached_os_token", return_value="token"
+    ), patch.object(os_map_proxy.requests, "get") as upstream_get:
+        response = client.get(
+            raw_path,
+            headers={
+                "referer": "http://testserver/map/",
+                "sec-fetch-site": "same-origin",
+            },
+        )
+
+    assert response.status_code == 404
+    upstream_get.assert_not_called()
