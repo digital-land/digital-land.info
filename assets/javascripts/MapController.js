@@ -72,7 +72,6 @@ export default class MapController {
     this.minMapZoom = params.minMapZoom || 5;
     this.maxMapZoom = params.maxMapZoom || 15;
     this.baseURL = params.baseURL || 'https://digital-land.github.io';
-    this.baseTileStyleFilePath = params.baseTileStyleFilePath || '/static/javascripts/base-tile.json';
     this.popupWidth = params.popupWidth || '260px';
     this.popupMaxListLength = params.popupMaxListLength || 10;
     this.LayerControlOptions = params.LayerControlOptions || { enabled: false };
