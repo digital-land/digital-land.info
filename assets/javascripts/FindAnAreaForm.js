@@ -1,5 +1,3 @@
-import { trackEvent } from './analytics/trackEvent.js';
-
 export default class FindAnAreaForm {
   constructor(searchResult) {
     this.searchResult = searchResult;
@@ -88,12 +86,6 @@ export default class FindAnAreaForm {
 
       // Build final query string
       const queryString = params.toString();
-
-      this.sendAnalyticsEvent('search_term', {
-        'event_category': 'Search',
-        'event_label': 'Find an area form',
-        'value': inputValue
-      });
 
       // Redirect with merged query parameters
       window.location.href = `${url.pathname}?${queryString}`;
@@ -288,9 +280,5 @@ export default class FindAnAreaForm {
       clearTimeout(timeout)
       timeout = setTimeout(() => fn.apply(this, args), wait)
     }
-  }
-
-  sendAnalyticsEvent(action, params) {
-    trackEvent(action, params);
   }
 }
