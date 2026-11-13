@@ -97,6 +97,17 @@ def test_lasso_geo_search_finds_no_results(client):
     assert [] == data["features"]
 
 
+def test_geometry_relation_disjoint_is_rejected(client):
+    """
+    disjoint can't use the spatial index, so it forces a full table scan on every
+    request. It was removed from GeometryRelation for this reason; guard against
+    it being reintroduced.
+    """
+    params = {"geometry_relation": "disjoint", "geometry": random_location_lambeth}
+    response = client.get("/entity.json", params=params)
+    assert response.status_code == 422
+
+
 def test_old_entity_redirects_as_expected(test_data_old_entities, client):
     """
     Test entity endpoint returns a 302 response code when old_entity requested

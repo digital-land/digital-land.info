@@ -64,8 +64,6 @@ def get_spatial_function_for_relation(relation):
         return func.ST_Intersects
     if relation == GeometryRelation.equals:
         return func.ST_Equals
-    if relation == GeometryRelation.disjoint:
-        return func.ST_Disjoint
     if relation == GeometryRelation.touches:
         return func.ST_Touches
     if relation == GeometryRelation.contains:

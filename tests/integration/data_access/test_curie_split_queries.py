@@ -221,8 +221,6 @@ def test_search_fields_and_statement_count(
     [
         ("within", [1, 2, 5]),
         ("intersects", [1, 2, 5]),
-        # Entity 2 matches through its outside polygon despite its inside point.
-        ("disjoint", [2, 3]),
         ("equals", []),
     ],
 )

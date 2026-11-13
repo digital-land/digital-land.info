@@ -392,6 +392,12 @@ limit=50</code></pre>
 
     <h2 class="govuk-heading-l" id="changelog">Changelog</h2>
 
+    <h3 class="govuk-heading-m" id="changelog-2026-11-disjoint-removed">November 2026: <code class="app-code-block app-code-block--inline">disjoint</code> removed from geometry_relation</h3>
+    <p class="govuk-body">For <code class="app-code-block app-code-block--inline">/entity.json</code> and <code class="app-code-block app-code-block--inline">/entity.geojson</code> searches:</p>
+    <p class="govuk-body">
+      <code class="app-code-block app-code-block--inline">geometry_relation=disjoint</code> is no longer supported. Requesting it now returns HTTP <code class="app-code-block app-code-block--inline">422</code>.
+    </p>
+
     <h3 class="govuk-heading-m" id="changelog-2026-11-result-limit">November 2026: entity search results capped at 10,000</h3>
     <p class="govuk-body">For <code class="app-code-block app-code-block--inline">/entity.json</code> and <code class="app-code-block app-code-block--inline">/entity.geojson</code> searches with more than 10,000 results:</p>
     <ul class="govuk-list govuk-list--bullet">

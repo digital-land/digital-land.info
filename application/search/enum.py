@@ -35,7 +35,6 @@ class PointMatch(str, Enum):
 class GeometryRelation(str, Enum):
     within = "within"  # our default
     equals = "equals"
-    disjoint = "disjoint"
     intersects = "intersects"
     touches = "touches"
     contains = "contains"
