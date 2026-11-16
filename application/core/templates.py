@@ -70,7 +70,7 @@ templates.env.globals["enable_x_ref"] = True
 templates.env.globals["includeAutocomplete"] = True
 templates.env.globals["random_int"] = random_int
 templates.env.globals["templateVar"] = {"email": "digitalland@communities.gov.uk"}
-templates.env.globals["serviceStatus"] = False
+templates.env.globals["serviceStatus"] = True
 templates.env.globals["govUkLocalPlansUrl"] = GOV_UK_LOCAL_PLANS_URL
 
 
