@@ -61,6 +61,32 @@ function isValidLongitude(lng) {
   return Number.isFinite(lng) && lng >= -180 && lng <= 180;
 }
 
+// Make a style URL that starts with "/" absolute on the given origin.
+// MapLibre rejects a relative sprite URL ("must be absolute"), which leaves the
+// basemap without its icons, and it fetches fonts from a Web Worker where a
+// relative path is fragile. The origin is prefixed rather than resolved with
+// `new URL()`, which would percent-encode the {fontstack}/{range} placeholders.
+function absoluteStyleUrl(url, origin) {
+  if (typeof url === 'string' && url.startsWith('/') && !url.startsWith('//')) {
+    return origin + url;
+  }
+  return url;
+}
+
+// Our basemap style refers to the OS tile proxy by site-relative paths (so the
+// same file works on every environment). Make its sprite and fonts URLs
+// absolute before MapLibre uses the style.
+export function absoluteStyleUrls(style, origin) {
+  const sprite = Array.isArray(style.sprite)
+    ? style.sprite.map((entry) => ({ ...entry, url: absoluteStyleUrl(entry.url, origin) }))
+    : absoluteStyleUrl(style.sprite, origin);
+  return {
+    ...style,
+    ...(style.sprite !== undefined && { sprite }),
+    ...(style.glyphs !== undefined && { glyphs: absoluteStyleUrl(style.glyphs, origin) }),
+  };
+}
+
 function isValidZoom(zoom, minZoom, maxZoom) {
   return Number.isFinite(zoom) && zoom >= minZoom && zoom <= maxZoom;
 }
@@ -134,6 +160,8 @@ export default class MapController {
       minZoom: CAMERA_MIN_ZOOM,
       maxZoom: CAMERA_MAX_ZOOM,
       style: this.customStyleJson,
+      transformStyle: (previousStyle, nextStyle) =>
+        absoluteStyleUrls(nextStyle, window.location.origin),
       maxBounds: [
         [-15, 49],
         [13, 57]

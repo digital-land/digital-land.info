@@ -1,5 +1,5 @@
 import {describe, expect, test, vi, beforeEach} from 'vitest'
-import MapController from '../../../assets/javascripts/MapController'
+import MapController, { absoluteStyleUrls } from '../../../assets/javascripts/MapController'
 import {
     stubGlobalDocument,
     stubGlobalFetch,
@@ -668,6 +668,73 @@ describe('Map Controller - Unit', () => {
             expect(controller.map).toBeTruthy()
 
             consoleErrorSpy.mockRestore()
+        })
+    })
+
+    // The basemap style points at our OS tile proxy with site-relative paths.
+    // MapLibre rejects a relative sprite URL ("must be absolute"), which left
+    // every map without its basemap icons, so the URLs are made absolute.
+    describe('basemap style URLs', () => {
+        const origin = 'https://www.example.test'
+        const style = {
+            version: 8,
+            sprite: '/os/maps/vector/v1/vts/resources/sprites/sprite',
+            glyphs: '/os/maps/vector/v1/vts/resources/fonts/{fontstack}/{range}.pbf',
+            sources: { esri: { type: 'vector', url: '/os/maps/vector/v1/vts' } },
+            layers: [],
+        }
+
+        test('makes the sprite and fonts URLs absolute on the page origin', () => {
+            const result = absoluteStyleUrls(style, origin)
+            expect(result.sprite).toBe(`${origin}/os/maps/vector/v1/vts/resources/sprites/sprite`)
+            // The {fontstack} and {range} placeholders must survive unencoded.
+            expect(result.glyphs).toBe(`${origin}/os/maps/vector/v1/vts/resources/fonts/{fontstack}/{range}.pbf`)
+        })
+
+        test('leaves the rest of the style alone, without changing the original', () => {
+            const result = absoluteStyleUrls(style, origin)
+            expect(result.sources).toEqual(style.sources)
+            expect(result.layers).toBe(style.layers)
+            expect(style.sprite).toBe('/os/maps/vector/v1/vts/resources/sprites/sprite')
+        })
+
+        test('handles a list of sprites', () => {
+            const result = absoluteStyleUrls(
+                { sprite: [{ id: 'default', url: '/sprites/a' }, { id: 'other', url: 'https://cdn.test/b' }] },
+                origin
+            )
+            expect(result.sprite).toEqual([
+                { id: 'default', url: `${origin}/sprites/a` },
+                { id: 'other', url: 'https://cdn.test/b' },
+            ])
+        })
+
+        test.each([
+            ['an absolute URL', 'https://api.os.uk/sprite'],
+            ['a protocol-relative URL', '//cdn.test/sprite'],
+        ])('leaves %s unchanged', (_, url) => {
+            expect(absoluteStyleUrls({ sprite: url }, origin).sprite).toBe(url)
+        })
+
+        test('does not add sprite or fonts to a style without them', () => {
+            expect(absoluteStyleUrls({ version: 8 }, origin)).toEqual({ version: 8 })
+        })
+
+        test('createMap() passes MapLibre a transformStyle that uses the page origin', async () => {
+            const originalWindow = globalThis.window
+            globalThis.window = { ...originalWindow, location: { origin } }
+            try {
+                maplibregl.Map.mockClear()
+                const controller = new MapController()
+                await waitForMapCreation(controller)
+
+                const { transformStyle } = maplibregl.Map.mock.calls[0][0]
+                expect(transformStyle(undefined, style).sprite).toBe(
+                    `${origin}/os/maps/vector/v1/vts/resources/sprites/sprite`
+                )
+            } finally {
+                globalThis.window = originalWindow
+            }
         })
     })
 })
