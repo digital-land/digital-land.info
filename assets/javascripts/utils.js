@@ -4,18 +4,39 @@ import MapController from './MapController.js';
 // <noscript> message in components/map/macro.jinja.
 export const MAP_UNSUPPORTED_MESSAGE = 'To view this map, you need to use a more up-to-date browser.';
 
+// Whether the browser supports WebGL2, worked out once per page.
+let webGL2Supported;
+
+// For tests: forget the result of the WebGL2 check.
+export const resetMapSupportCheck = () => {
+  webGL2Supported = undefined;
+}
+
 // MapLibre needs WebGL2, and its script won't load at all in older browsers
 // (leaving `maplibregl` undefined), so check both before creating a map.
+//
+// The WebGL2 check creates a real WebGL context. Browsers cap how many a page
+// can hold (16 in Chrome) and drop the oldest beyond that, which blanks an
+// earlier map, so the check runs once per page rather than once per map, and
+// the test context is released straight away.
 export const isMapSupported = () => {
   if (typeof maplibregl === 'undefined') {
     return false;
   }
-  try {
-    const canvas = document.createElement('canvas');
-    return !!(canvas.getContext && canvas.getContext('webgl2'));
-  } catch (e) {
-    return false;
+  if (webGL2Supported === undefined) {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext && canvas.getContext('webgl2');
+      webGL2Supported = !!gl;
+      const loseContext = gl && gl.getExtension && gl.getExtension('WEBGL_lose_context');
+      if (loseContext) {
+        loseContext.loseContext();
+      }
+    } catch (e) {
+      webGL2Supported = false;
+    }
   }
+  return webGL2Supported;
 }
 
 export const showMapUnsupportedMessage = (mapId) => {
