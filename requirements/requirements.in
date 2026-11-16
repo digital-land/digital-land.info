@@ -26,3 +26,4 @@ python-slugify
 govuk-frontend-jinja==3.7.0
 validators
 redis
+email-validator
