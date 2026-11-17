@@ -18,13 +18,8 @@ router = APIRouter()
 OS_MAPS_BASE_URL = "https://api.os.uk/maps/"
 CACHE_CONTROL = "public, max-age=86400"
 TOKEN_EXPIRY_BUFFER_SECONDS = 30
-# (connect, read): fail fast if OS can't be reached, but give a slow tile
-# response time to arrive.
 UPSTREAM_TIMEOUT = (3.05, 10)
 
-# One shared session so tile requests reuse TLS connections to api.os.uk
-# rather than doing a fresh handshake per tile. The pool is sized to match
-# the threadpool this sync endpoint runs in (anyio's default of 40 threads).
 _session = requests.Session()
 _session.mount("https://", HTTPAdapter(pool_connections=1, pool_maxsize=40))
 
@@ -146,10 +141,6 @@ def get_os_map_resource(request: Request, path: str):
             timeout=UPSTREAM_TIMEOUT,
         )
     except requests.Timeout as e:
-        # OS being slow is transient and outside our control; MapLibre just
-        # leaves the tile blank. Return the 504 directly rather than raising
-        # HTTPException, so Sentry's Starlette integration doesn't report
-        # each slow tile as an error.
         logger.warning(f"OS maps proxy request timed out: {e}")
         return Response(
             content="Upstream request timed out",
