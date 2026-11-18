@@ -5,23 +5,23 @@
 }
 
 .dl-find-an-area-form .dl-find-an-area-controls {
-  display: inline-block;
-  margin-right: 15px;
-  // align-items: center;
-  // gap: govuk-spacing(3);
-  // flex-wrap: wrap;
+  display: flex;
+  align-items: flex-end;
+  gap: govuk-spacing(3);
+  flex-wrap: wrap;
 }
 
 .dl-find-an-area-form .dl-find-an-area-controls .govuk-select {
   min-width: 12rem;
 }
 
+.dl-find-an-area-form #select-method-container,
 .dl-find-an-area-form #postcode-container,
 .dl-find-an-area-form #uprn-container,
 .dl-find-an-area-form #lpa-container {
-  /* allow inputs to appear inline next to the select */
-  display: inline-block;
-  margin-left: 10px;
+  /* stack each control's label above its input, aligned as a row via the flex parent */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Suggestions container for LPA autocomplete: force a full-width row under controls */
