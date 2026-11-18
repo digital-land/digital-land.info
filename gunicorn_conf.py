@@ -35,6 +35,9 @@ use_errorlog = errorlog_var or None
 graceful_timeout_str = os.getenv("GRACEFUL_TIMEOUT", "120")
 timeout_str = os.getenv("TIMEOUT", "120")
 keepalive_str = os.getenv("KEEP_ALIVE", "5")
+# Restart each worker after it has handled this many requests, plus a random
+max_requests_str = os.getenv("MAX_REQUESTS", "2000")
+max_requests_jitter_str = os.getenv("MAX_REQUESTS_JITTER", "200")
 
 # Gunicorn config variables
 loglevel = use_loglevel
@@ -49,6 +52,8 @@ accesslog = use_accesslog
 graceful_timeout = int(graceful_timeout_str)
 timeout = int(timeout_str)
 keepalive = int(keepalive_str)
+max_requests = int(max_requests_str)
+max_requests_jitter = int(max_requests_jitter_str)
 preload_app = True
 reload = os.getenv("RELOAD", "false").lower() == "true"
 
@@ -61,6 +66,8 @@ log_data = {
     "graceful_timeout": graceful_timeout,
     "timeout": timeout,
     "keepalive": keepalive,
+    "max_requests": max_requests,
+    "max_requests_jitter": max_requests_jitter,
     "errorlog": errorlog,
     "accesslog": accesslog,
     # Additional, non-gunicorn variables

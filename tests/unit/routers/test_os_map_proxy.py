@@ -175,7 +175,7 @@ def test_get_os_map_resource_returns_502_on_invalid_upstream_json():
 
     with patch.object(
         os_map_proxy, "_get_cached_os_token", return_value="token"
-    ), patch.object(os_map_proxy.requests, "get", return_value=upstream_response):
+    ), patch.object(os_map_proxy._session, "get", return_value=upstream_response):
         with pytest.raises(HTTPException) as exc_info:
             get_os_map_resource(fake_request(), "vector/v1/vts")
 
@@ -218,7 +218,7 @@ def test_is_allowed_path_rejects_everything_else(path):
 
 def test_get_os_map_resource_404s_disallowed_path_without_calling_upstream():
     with patch.object(os_map_proxy, "_get_cached_os_token") as get_token, patch.object(
-        os_map_proxy.requests, "get"
+        os_map_proxy._session, "get"
     ) as upstream_get:
         with pytest.raises(HTTPException) as exc_info:
             get_os_map_resource(fake_request(), "../search/places/v1/nearest")
@@ -237,7 +237,7 @@ def test_get_os_map_resource_drops_client_query_params():
     with patch.object(
         os_map_proxy, "_get_cached_os_token", return_value="token"
     ), patch.object(
-        os_map_proxy.requests, "get", return_value=upstream_response
+        os_map_proxy._session, "get", return_value=upstream_response
     ) as upstream_get:
         get_os_map_resource(request, "vector/v1/vts/tile/7/42/63.pbf")
 
@@ -271,7 +271,7 @@ def test_dot_segment_escape_never_reaches_upstream(raw_path):
 
     with patch.object(
         os_map_proxy, "_get_cached_os_token", return_value="token"
-    ), patch.object(os_map_proxy.requests, "get") as upstream_get:
+    ), patch.object(os_map_proxy._session, "get") as upstream_get:
         response = client.get(
             raw_path,
             headers={
@@ -282,3 +282,78 @@ def test_dot_segment_escape_never_reaches_upstream(raw_path):
 
     assert response.status_code == 404
     upstream_get.assert_not_called()
+
+
+TILE_PATH = "vector/v1/vts/tile/15/10809/16391.pbf"
+
+
+@pytest.mark.parametrize(
+    "timeout_error",
+    [
+        os_map_proxy.requests.ReadTimeout("Read timed out"),
+        os_map_proxy.requests.ConnectTimeout("Connect timed out"),
+    ],
+)
+def test_get_os_map_resource_returns_uncached_504_on_upstream_timeout(timeout_error):
+    """
+    A slow OS response is returned as a 504 rather than raised as an
+    HTTPException, so Sentry doesn't report every slow tile as an error,
+    and the failure isn't cached by the browser.
+    """
+    with patch.object(
+        os_map_proxy, "_get_cached_os_token", return_value="token"
+    ), patch.object(os_map_proxy._session, "get", side_effect=timeout_error):
+        response = get_os_map_resource(fake_request(), TILE_PATH)
+
+    assert response.status_code == 504
+    assert response.headers["cache-control"] == "no-store"
+
+
+def test_get_os_map_resource_logs_timeout_as_warning_not_error(caplog):
+    """
+    ERROR logs become Sentry events, so a timeout must log below that level.
+    """
+    with patch.object(
+        os_map_proxy, "_get_cached_os_token", return_value="token"
+    ), patch.object(
+        os_map_proxy._session,
+        "get",
+        side_effect=os_map_proxy.requests.ReadTimeout("Read timed out"),
+    ), caplog.at_level(
+        "WARNING", logger=os_map_proxy.logger.name
+    ):
+        get_os_map_resource(fake_request(), TILE_PATH)
+
+    assert [r.levelname for r in caplog.records] == ["WARNING"]
+
+
+def test_get_os_map_resource_still_raises_502_on_other_request_errors():
+    """
+    Non-timeout failures (e.g. connection refused) are still reported as 502s.
+    """
+    with patch.object(
+        os_map_proxy, "_get_cached_os_token", return_value="token"
+    ), patch.object(
+        os_map_proxy._session,
+        "get",
+        side_effect=os_map_proxy.requests.ConnectionError("refused"),
+    ):
+        with pytest.raises(HTTPException) as exc_info:
+            get_os_map_resource(fake_request(), TILE_PATH)
+
+    assert exc_info.value.status_code == 502
+
+
+def test_get_os_map_resource_uses_split_connect_and_read_timeouts():
+    upstream_response = Mock(ok=True, status_code=200, content=b"tile")
+    upstream_response.headers = {"content-type": "application/x-protobuf"}
+
+    with patch.object(
+        os_map_proxy, "_get_cached_os_token", return_value="token"
+    ), patch.object(
+        os_map_proxy._session, "get", return_value=upstream_response
+    ) as upstream_get:
+        get_os_map_resource(fake_request(), TILE_PATH)
+
+    connect_timeout, read_timeout = upstream_get.call_args.kwargs["timeout"]
+    assert connect_timeout < read_timeout
