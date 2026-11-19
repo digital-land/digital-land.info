@@ -86,6 +86,8 @@ const domElementMock = {
     classList: {
         remove: vi.fn(),
         add: vi.fn(),
+        toggle: vi.fn(),
+        contains: vi.fn(),
     },
     style: {
 

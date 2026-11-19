@@ -88,6 +88,17 @@ export const convertNodeListToArray = (nl) => {
   return Array.prototype.slice.call(nl)
 }
 
+// Delays calling fn until wait ms after the last call to the debounced
+// function - e.g. for a resize listener, so it only runs once the user has
+// stopped resizing rather than on every intermediate frame.
+export const debounce = (fn, wait) => {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
+
 // Prevents scrolling of the page when the user triggers the wheel event on a div
 // while still allowing scrolling of any specified scrollable child elements.
 // Params:
