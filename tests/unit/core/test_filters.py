@@ -420,7 +420,7 @@ def test_hex_to_rgb_falls_back_rather_than_raising_on_non_hex():
     """Regression: safe_css_colour allows a plain colour name (e.g. "red")
     through as safe, but hex_to_rgb can only parse hex - it must fall back
     cleanly rather than raising when fed one, since the two are chained
-    together in map/macro.jinja's layerKeySymbol."""
+    together wherever a colour is rendered."""
     assert hex_to_rgb_string_filter("red", fallback="0,48,120") == "0,48,120"
 
 
@@ -464,6 +464,53 @@ def test_layer_control_item_escapes_name_and_rejects_unsafe_paint_options():
     # "onerror" legitimately appears here, harmlessly, as part of that text.
     assert "&lt;img src=x onerror=alert(1)&gt;" in item_html
     assert "evil.example" not in item_html
+
+
+def test_layer_key_symbol_escapes_name_and_rejects_unsafe_paint_options():
+    from application.core.templates import templates
+
+    env = templates.env
+    layer_key_symbol = env.get_template(
+        "components/map/macro.jinja"
+    ).module.layerKeySymbol
+
+    unsafe_layer = {
+        "dataset": "greenspace",
+        "name": "<img src=x onerror=alert(1)>",
+        "paint_options": {
+            "type": "fill",
+            "colour": "red; background: url(https://evil.example)",
+            "opacity": '0.5;" onclick="alert(1)',
+        },
+        "checked": False,
+    }
+
+    symbol_html = str(layer_key_symbol(unsafe_layer))
+    assert "evil.example" not in symbol_html
+    assert "onclick" not in symbol_html
+    assert "border-color: #003078;" in symbol_html
+
+
+def test_layer_key_symbol_point_type_rejects_unsafe_colour():
+    from application.core.templates import templates
+
+    env = templates.env
+    layer_key_symbol = env.get_template(
+        "components/map/macro.jinja"
+    ).module.layerKeySymbol
+
+    unsafe_layer = {
+        "dataset": "greenspace",
+        "name": "Greenspace",
+        "paint_options": {
+            "type": "point",
+            "colour": "red; background: url(https://evil.example)",
+        },
+    }
+
+    symbol_html = str(layer_key_symbol(unsafe_layer))
+    assert "evil.example" not in symbol_html
+    assert "fill: #003078;" in symbol_html
 
 
 def test_layer_control_item_renders_when_paint_options_omits_opacity():

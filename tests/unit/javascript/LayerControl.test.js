@@ -47,6 +47,21 @@ describe('Layer Controls', () => {
             // writing the default-checked state to the URL
             expect(layerControls.updateUrl).toHaveBeenCalled();
         })
+
+        test('wires up the key panel toggle/close buttons',() => {
+            layerControls.layers = [];
+            layerControls.availableLayers = {};
+            layerControls.updateUrl = vi.fn();
+            layerControls.toggleLayersBasedOnUrl = vi.fn();
+
+            layerControls.attach();
+
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-key-panel');
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-key-panel-toggle');
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-key-panel-close');
+            expect(layerControls.$keyPanelToggle.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+            expect(layerControls.$keyPanelClose.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+        })
     })
 
     test('toggleLayersBasedOnUrl() correctly executes',() => {
@@ -101,12 +116,120 @@ describe('Layer Controls', () => {
         const l3 = makeMockLayerOption('testLayer3');
 
         layerControls.layerOptions = [l1,l2,l3];
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.showEntitiesForLayers([l1, l2]);
 
         expect(l1.enable).toHaveBeenCalledTimes(1);
         expect(l2.enable).toHaveBeenCalledTimes(1);
         expect(l3.disable).toHaveBeenCalledTimes(1);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalledTimes(1);
+    })
+
+    describe('updateKeyPanel()', () => {
+        const makeKeyPanel = (querySelector) => ({
+            querySelector,
+            classList: { toggle: vi.fn() },
+            setAttribute: vi.fn(),
+            removeAttribute: vi.fn(),
+        })
+
+        test('shows only checked layers\' key rows, reveals the panel, and expands it',() => {
+            const row1 = { style: {} };
+            const row2 = { style: {} };
+            const querySelector = vi.fn((selector) => {
+                if (selector === '[data-layer-key="l1"]') return row1;
+                if (selector === '[data-layer-key="l2"]') return row2;
+                return null;
+            });
+
+            layerControls.$keyPanel = makeKeyPanel(querySelector);
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.layerOptions = [
+                { getDatasetName: () => 'l1', isChecked: () => true },
+                { getDatasetName: () => 'l2', isChecked: () => false },
+            ];
+
+            layerControls.updateKeyPanel();
+
+            expect(row1.style.display).toBe('flex');
+            expect(row2.style.display).toBe('none');
+            expect(layerControls.$keyPanel.removeAttribute).toHaveBeenCalledWith('hidden');
+            expect(layerControls.$keyPanel.setAttribute).not.toHaveBeenCalledWith('hidden', '');
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'true');
+        })
+
+        test('hides the panel entirely (not just collapsed to its "Key" pill) when nothing is checked',() => {
+            layerControls.$keyPanel = makeKeyPanel(vi.fn(() => null));
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.layerOptions = [{ getDatasetName: () => 'l1', isChecked: () => false }];
+
+            layerControls.updateKeyPanel();
+
+            expect(layerControls.$keyPanel.setAttribute).toHaveBeenCalledWith('hidden', '');
+            expect(layerControls.$keyPanel.removeAttribute).not.toHaveBeenCalledWith('hidden');
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', true);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'false');
+        })
+
+        test('does nothing when the key panel element is not present',() => {
+            layerControls.$keyPanel = null;
+            layerControls.layerOptions = [{ getDatasetName: () => 'l1', isChecked: () => true }];
+
+            expect(() => layerControls.updateKeyPanel()).not.toThrow();
+        })
+
+        test('shows the "Show historical data" row when it is checked, even with no layers selected',() => {
+            const historicalRow = { style: {} };
+            layerControls.$keyPanel = makeKeyPanel(
+                vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null))
+            );
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.$historicalDataCheckbox = { checked: true };
+            layerControls.layerOptions = [];
+
+            layerControls.updateKeyPanel();
+
+            expect(historicalRow.style.display).toBe('flex');
+            expect(layerControls.$keyPanel.removeAttribute).toHaveBeenCalledWith('hidden');
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
+        })
+
+        test('hides the "Show historical data" row when it is unchecked',() => {
+            const historicalRow = { style: {} };
+            layerControls.$keyPanel = makeKeyPanel(
+                vi.fn((selector) => (selector === '[data-layer-key="show-historical-data"]' ? historicalRow : null))
+            );
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+            layerControls.$historicalDataCheckbox = { checked: false };
+            layerControls.layerOptions = [];
+
+            layerControls.updateKeyPanel();
+
+            expect(historicalRow.style.display).toBe('none');
+            expect(layerControls.$keyPanel.setAttribute).toHaveBeenCalledWith('hidden', '');
+        })
+    })
+
+    describe('setKeyPanelExpanded()', () => {
+        test('toggles the collapsed class and aria-expanded together',() => {
+            layerControls.$keyPanel = { classList: { toggle: vi.fn() } };
+            layerControls.$keyPanelToggle = { setAttribute: vi.fn() };
+
+            layerControls.setKeyPanelExpanded(true);
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', false);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'true');
+
+            layerControls.setKeyPanelExpanded(false);
+            expect(layerControls.$keyPanel.classList.toggle).toHaveBeenCalledWith('dl-map-key-panel--collapsed', true);
+            expect(layerControls.$keyPanelToggle.setAttribute).toHaveBeenCalledWith('aria-expanded', 'false');
+        })
+
+        test('does nothing when the key panel element is not present',() => {
+            layerControls.$keyPanel = null;
+            expect(() => layerControls.setKeyPanelExpanded(true)).not.toThrow();
+        })
     })
 
     test('updateUrl() correctly executes',() => {
@@ -231,12 +354,14 @@ describe('Layer Controls', () => {
         layerControls.$settingsPanelContent = domElementMock;
         layerControls.$settingsErrorMessage = mockErrorMessage;
         layerControls.enabledLayers = vi.fn().mockReturnValue([]);
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.toggleHistoricalData({ target: mockCheckbox });
 
         expect(mockCheckbox.checked).toBe(false);
         expect(domElementMock.classList.add).toHaveBeenCalledWith('govuk-form-group--error');
         expect(domElementMock.prepend).toHaveBeenCalledWith(mockErrorMessage);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     test('correctly removes error message when a data layer is checked', () => {
@@ -259,11 +384,13 @@ describe('Layer Controls', () => {
         layerControls.$settingsErrorMessage = {};
         layerControls.enabledLayers = vi.fn().mockReturnValue([mockLayerOption]);
         layerControls.mapController = { setLayerCurrentEntityFilter: vi.fn() };
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.toggleHistoricalData({ target: { checked: true } });
 
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-fill', true);
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-line', true);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     test('removes historical data layers from the map upon un-checking the "Show historical data" checkbox', () => {
@@ -272,10 +399,12 @@ describe('Layer Controls', () => {
         layerControls.$settingsErrorMessage = {};
         layerControls.enabledLayers = vi.fn().mockReturnValue([mockLayerOption]);
         layerControls.mapController = { setLayerCurrentEntityFilter: vi.fn() };
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.toggleHistoricalData({ target: { checked: false } });
 
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-fill', false);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     test('resets "Show historical data" checkbox when no data layers are checked', () => {
@@ -286,11 +415,13 @@ describe('Layer Controls', () => {
         layerControls.enabledLayers = vi.fn().mockReturnValue([]);
         layerControls.layerOptions = [{ availableLayers: ['layer1-fill'] }];
         layerControls.mapController = { setLayerCurrentEntityFilter: vi.fn() };
+        layerControls.updateKeyPanel = vi.fn();
 
         layerControls.updateHistoricalCheckboxState();
 
         expect(mockCheckbox.checked).toBe(false);
         expect(layerControls.mapController.setLayerCurrentEntityFilter).toHaveBeenCalledWith('layer1-fill', false);
+        expect(layerControls.updateKeyPanel).toHaveBeenCalled();
     })
 
     describe('layer option', () => {
