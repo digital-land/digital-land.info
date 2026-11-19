@@ -166,6 +166,32 @@ $dl-map-controls-panel-width: 355px;
   }
 }
 
+@include govuk-media-query($until: tablet) {
+  .dl-map-with-controls {
+    height: auto;
+  }
+
+  .dl-map-controls-panel {
+    position: static;
+    width: auto;
+    border-right: 0;
+
+    &--collapsed {
+      width: auto;
+    }
+  }
+
+  .dl-map-controls-panel__content {
+    max-width: none;
+    height: auto;
+    margin: 0;
+  }
+
+  .dl-map-controls-panel__toggle {
+    display: none;
+  }
+}
+
 .dl-map__layer-list {
   height: 220px;
   overflow-y: auto;
@@ -174,6 +200,15 @@ $dl-map-controls-panel-width: 355px;
   margin: 0 -#{govuk-spacing(2)};
   padding: 0 govuk-spacing(2);
   @include dl-thin-scrollbar;
+}
+
+@include govuk-media-query($until: tablet) {
+  .dl-map__layer-list {
+    height: auto;
+    overflow-y: visible;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .dl-map-controls-panel {
