@@ -88,12 +88,14 @@
   <script type="module">
     import FindAnAreaForm from "{{ staticPath | default('/static') }}/javascripts/FindAnAreaForm.js";
     import MapControlsPanelToggle from "{{ staticPath | default('/static') }}/javascripts/MapControlsPanelToggle.js";
+    import AdaptiveLayerListHeight from "{{ staticPath | default('/static') }}/javascripts/AdaptiveLayerListHeight.js";
 
     const searchResult = {{ search_result | tojson }};
 
     document.addEventListener('DOMContentLoaded', function () {
       new FindAnAreaForm(searchResult)
       new MapControlsPanelToggle()
+      new AdaptiveLayerListHeight()
     })
   </script>
 
