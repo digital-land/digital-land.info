@@ -59,6 +59,12 @@ export default class LayerControls {
         this.$keyPanelClose.addEventListener('click', () => this.setKeyPanelExpanded(false));
       }
 
+      this.$clearFiltersWrapper = document.getElementById('dl-map-clear-filters-wrapper');
+      this.$clearFiltersButton = document.getElementById('dl-map-clear-filters-button');
+      if (this.$clearFiltersButton) {
+        this.$clearFiltersButton.addEventListener('click', this.clearAllFilters.bind(this));
+      }
+
       this.layerOptions = this.layers.map((layer) => {
         return new LayerOption(layer, this.availableLayers[layer.dataset], this);
       });
@@ -117,6 +123,7 @@ export default class LayerControls {
 
       this.mapController.datasetZoomAlerts?.update();
       this.updateKeyPanel();
+      this.updateClearFiltersLink();
     }
 
     /**
@@ -156,6 +163,30 @@ export default class LayerControls {
       if (this.$keyPanelToggle) {
         this.$keyPanelToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
       }
+    }
+
+    /** Shows the "Clear all filters" link once one or more layers are checked. */
+    updateClearFiltersLink() {
+      if (!this.$clearFiltersWrapper) return;
+
+      if (this.enabledLayers().length > 0) {
+        this.$clearFiltersWrapper.removeAttribute('hidden');
+      } else {
+        this.$clearFiltersWrapper.setAttribute('hidden', '');
+      }
+    }
+
+    /** Unchecks every layer and runs the same update pipeline a checkbox click would. */
+    clearAllFilters(e) {
+      if (e) e.preventDefault();
+
+      this.layerOptions.forEach(option => {
+        const $chkbx = option.element.querySelector('input[type="checkbox"]');
+        if ($chkbx) $chkbx.checked = false;
+      });
+      this.updateUrl();
+
+      if (this.$textbox) this.$textbox.focus();
     }
 
     enabledLayers() {
