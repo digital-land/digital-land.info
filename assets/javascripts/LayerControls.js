@@ -43,6 +43,21 @@ export default class LayerControls {
         this.$textbox.addEventListener('input', this.filterCheckboxes.bind(this));
       }
 
+      this.$keyPanel = document.getElementById('dl-map-key-panel');
+      this.$keyPanelToggle = document.getElementById('dl-map-key-panel-toggle');
+      this.$keyPanelClose = document.getElementById('dl-map-key-panel-close');
+
+      // Manual open/close doesn't stick - the next checkbox change
+      // re-syncs via updateKeyPanel().
+      if (this.$keyPanelToggle) {
+        this.$keyPanelToggle.addEventListener('click', () => {
+          this.setKeyPanelExpanded(!!(this.$keyPanel && this.$keyPanel.classList.contains('dl-map-key-panel--collapsed')));
+        });
+      }
+      if (this.$keyPanelClose) {
+        this.$keyPanelClose.addEventListener('click', () => this.setKeyPanelExpanded(false));
+      }
+
       this.layerOptions = this.layers.map((layer) => {
         return new LayerOption(layer, this.availableLayers[layer.dataset], this);
       });
@@ -100,6 +115,46 @@ export default class LayerControls {
       disabledLayers.forEach(layer => layer.disable());
 
       this.mapController.datasetZoomAlerts?.update();
+      this.updateKeyPanel();
+    }
+
+    /**
+     * Shows the Key panel row for each checked layer (plus "Show historical
+     * data"), and hides the panel entirely when nothing is checked.
+     */
+    updateKeyPanel() {
+      if (!this.$keyPanel) return;
+
+      let anyChecked = false;
+      this.layerOptions.forEach(option => {
+        const checked = option.isChecked();
+        if (checked) anyChecked = true;
+
+        const row = this.$keyPanel.querySelector('[data-layer-key="' + option.getDatasetName() + '"]');
+        if (row) row.style.display = checked ? 'flex' : 'none';
+      });
+
+      const historicalChecked = !!(this.$historicalDataCheckbox && this.$historicalDataCheckbox.checked);
+      if (historicalChecked) anyChecked = true;
+      const historicalRow = this.$keyPanel.querySelector('[data-layer-key="show-historical-data"]');
+      if (historicalRow) historicalRow.style.display = historicalChecked ? 'flex' : 'none';
+
+      if (anyChecked) {
+        this.$keyPanel.removeAttribute('hidden');
+      } else {
+        this.$keyPanel.setAttribute('hidden', '');
+      }
+
+      this.setKeyPanelExpanded(anyChecked);
+    }
+
+    setKeyPanelExpanded(expanded) {
+      if (!this.$keyPanel) return;
+
+      this.$keyPanel.classList.toggle('dl-map-key-panel--collapsed', !expanded);
+      if (this.$keyPanelToggle) {
+        this.$keyPanelToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      }
     }
 
     enabledLayers() {
@@ -114,6 +169,7 @@ export default class LayerControls {
           this.$settingsPanelContent.classList.add('govuk-form-group--error');
           this.$settingsPanelContent.prepend(this.$settingsErrorMessage);
         }
+        this.updateKeyPanel();
         return;
       }
 
@@ -123,6 +179,7 @@ export default class LayerControls {
           this.mapController.setLayerCurrentEntityFilter(layerId, showHistorical);
         });
       });
+      this.updateKeyPanel();
     };
 
     /** Resets "Show historical data" once no dataset layers are checked. */
@@ -143,6 +200,7 @@ export default class LayerControls {
             this.mapController.setLayerCurrentEntityFilter(layerId, false);
           });
         });
+        this.updateKeyPanel();
       }
     };
 
