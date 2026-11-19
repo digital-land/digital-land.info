@@ -20,6 +20,8 @@ from application.core.filters import (
     extract_component_key,
     is_list_filter,
     hex_to_rgb_string_filter,
+    safe_css_colour_filter,
+    safe_opacity_filter,
     make_link_filter,
     commanum_filter,
     get_entity_geometry,
@@ -93,6 +95,8 @@ templates.env.filters["make_link"] = make_link_filter
 templates.env.filters["geometry_reference_count"] = geometry_reference_count
 templates.env.filters["make_query_str"] = generate_query_param_str
 templates.env.filters["hex_to_rgb"] = hex_to_rgb_string_filter
+templates.env.filters["safe_css_colour"] = safe_css_colour_filter
+templates.env.filters["safe_opacity"] = safe_opacity_filter
 templates.env.filters["make_param_str"] = make_param_str_filter
 templates.env.filters["render_markdown"] = render_markdown
 templates.env.filters["get_entity_name"] = get_entity_name_filter

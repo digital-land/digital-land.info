@@ -14,6 +14,9 @@ from application.core.filters import (
     hash_file,
     is_past_date,
     is_safe_url,
+    hex_to_rgb_string_filter,
+    safe_css_colour_filter,
+    safe_opacity_filter,
 )
 
 
@@ -358,3 +361,129 @@ def test_get_entity_geometry_logs_cleanly_when_entity_has_no_geometry(caplog):
     assert "No geojson for entity that has a typology of geography: 900903" in (
         caplog.text
     )
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["#AABBCC", "#abc", "#AABBCCDD", "#abcd", "red", "DarkBlue"],
+)
+def test_safe_css_colour_accepts_hex_and_named_colours(value):
+    assert safe_css_colour_filter(value) == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        'red;" onmouseover="alert(1)',
+        "red; background: url(https://evil.example)",
+        "javascript:alert(1)",
+        "#003078; background-image: url(https://evil.example)",
+        None,
+        123,
+    ],
+)
+def test_safe_css_colour_rejects_unsafe_values(value):
+    """Regression: paint_options.colour comes from dataset data and gets
+    written into a style attribute - anything that isn't a plain hex/named
+    colour must fall back rather than being passed through."""
+    assert safe_css_colour_filter(value, fallback="#003078") == "#003078"
+
+
+@pytest.mark.parametrize("value,expected", [(0.5, 0.5), ("0.5", 0.5), (0, 0), (1, 1)])
+def test_safe_opacity_accepts_valid_numbers(value, expected):
+    assert safe_opacity_filter(value) == expected
+
+
+def test_safe_opacity_clamps_out_of_range_values():
+    assert safe_opacity_filter(2) == 1
+    assert safe_opacity_filter(-1) == 0
+
+
+@pytest.mark.parametrize("value", ['0.5;" onclick="alert(1)', "x", None, ""])
+def test_safe_opacity_rejects_unsafe_or_invalid_values(value):
+    assert safe_opacity_filter(value, fallback=0.6) == 0.6
+
+
+def test_hex_to_rgb_converts_valid_hex():
+    assert hex_to_rgb_string_filter("#0b0c0c") == "11,12,12"
+
+
+def test_hex_to_rgb_converts_shorthand_hex():
+    """Regression: safe_css_colour allows 3/4-digit shorthand hex (#rgb,
+    #rgba) through as safe, so hex_to_rgb must expand it rather than
+    falling back to the default colour."""
+    assert hex_to_rgb_string_filter("#0bc") == "0,187,204"
+    assert hex_to_rgb_string_filter("#0bcf") == "0,187,204"
+
+
+def test_hex_to_rgb_falls_back_rather_than_raising_on_non_hex():
+    """Regression: safe_css_colour allows a plain colour name (e.g. "red")
+    through as safe, but hex_to_rgb can only parse hex - it must fall back
+    cleanly rather than raising when fed one, since the two are chained
+    together in map/macro.jinja's layerKeySymbol."""
+    assert hex_to_rgb_string_filter("red", fallback="0,48,120") == "0,48,120"
+
+
+def test_safe_css_colour_and_safe_opacity_defaults_match_the_map_fill_defaults():
+    """Guards against the colour/opacity defaults drifting out of sync with
+    the map's own fill defaults (assets/javascripts/defaultPaintOptions.js)."""
+    import re
+
+    js_source = open("assets/javascripts/defaultPaintOptions.js").read()
+    js_colour = re.search(r"'fill-color':\s*'([^']+)'", js_source).group(1)
+    js_opacity = float(re.search(r"'fill-opacity':\s*([0-9.]+)", js_source).group(1))
+
+    assert safe_css_colour_filter(None) == js_colour
+    assert safe_opacity_filter(None) == js_opacity
+
+
+def test_layer_control_item_escapes_name_and_rejects_unsafe_paint_options():
+    """paint_options/name come from dataset data and are written into
+    data-style-options/HTML, so they aren't trusted as CSS/markup."""
+    from application.core.templates import templates
+
+    env = templates.env
+    layer_control_item = env.get_template(
+        "components/map/macro.jinja"
+    ).module.layerControlItem
+
+    unsafe_layer = {
+        "dataset": "greenspace",
+        "name": "<img src=x onerror=alert(1)>",
+        "paint_options": {
+            "type": "fill",
+            "colour": "red; background: url(https://evil.example)",
+            "opacity": '0.5;" onclick="alert(1)',
+        },
+        "checked": False,
+    }
+
+    item_html = str(layer_control_item(unsafe_layer))
+    assert "<img" not in item_html
+    # Escaped to inert text, not a live tag/attribute - the substring
+    # "onerror" legitimately appears here, harmlessly, as part of that text.
+    assert "&lt;img src=x onerror=alert(1)&gt;" in item_html
+    assert "evil.example" not in item_html
+
+
+def test_layer_control_item_renders_when_paint_options_omits_opacity():
+    """Regression: a dataset's paint_options commonly has no explicit
+    opacity/colour key at all - Jinja gives an Undefined sentinel for that,
+    not None, which float(Undefined) used to raise on (500 on every /map/
+    load, since layerControlItem renders unconditionally for every layer)."""
+    from application.core.templates import templates
+
+    env = templates.env
+    layer_control_item = env.get_template(
+        "components/map/macro.jinja"
+    ).module.layerControlItem
+
+    layer_without_opacity = {
+        "dataset": "greenspace",
+        "name": "Greenspace",
+        "paint_options": {"type": "fill"},
+        "checked": False,
+    }
+
+    html = str(layer_control_item(layer_without_opacity))
+    assert 'data-style-options="#003078,0.6"' in html
