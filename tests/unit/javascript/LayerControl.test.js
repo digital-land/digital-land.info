@@ -62,6 +62,19 @@ describe('Layer Controls', () => {
             expect(layerControls.$keyPanelToggle.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
             expect(layerControls.$keyPanelClose.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
         })
+
+        test('wires up the "Clear all filters" button',() => {
+            layerControls.layers = [];
+            layerControls.availableLayers = {};
+            layerControls.updateUrl = vi.fn();
+            layerControls.toggleLayersBasedOnUrl = vi.fn();
+
+            layerControls.attach();
+
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-clear-filters-wrapper');
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-clear-filters-button');
+            expect(layerControls.$clearFiltersButton.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+        })
     })
 
     test('toggleLayersBasedOnUrl() correctly executes',() => {
@@ -117,6 +130,7 @@ describe('Layer Controls', () => {
 
         layerControls.layerOptions = [l1,l2,l3];
         layerControls.updateKeyPanel = vi.fn();
+        layerControls.updateClearFiltersLink = vi.fn();
 
         layerControls.showEntitiesForLayers([l1, l2]);
 
@@ -124,6 +138,66 @@ describe('Layer Controls', () => {
         expect(l2.enable).toHaveBeenCalledTimes(1);
         expect(l3.disable).toHaveBeenCalledTimes(1);
         expect(layerControls.updateKeyPanel).toHaveBeenCalledTimes(1);
+        expect(layerControls.updateClearFiltersLink).toHaveBeenCalledTimes(1);
+    })
+
+    describe('updateClearFiltersLink()', () => {
+        test('reveals the link when one or more layers are checked',() => {
+            layerControls.$clearFiltersWrapper = { setAttribute: vi.fn(), removeAttribute: vi.fn() };
+            layerControls.layerOptions = [{ isChecked: () => false }, { isChecked: () => true }];
+
+            layerControls.updateClearFiltersLink();
+
+            expect(layerControls.$clearFiltersWrapper.removeAttribute).toHaveBeenCalledWith('hidden');
+            expect(layerControls.$clearFiltersWrapper.setAttribute).not.toHaveBeenCalled();
+        })
+
+        test('hides the link when nothing is checked',() => {
+            layerControls.$clearFiltersWrapper = { setAttribute: vi.fn(), removeAttribute: vi.fn() };
+            layerControls.layerOptions = [{ isChecked: () => false }];
+
+            layerControls.updateClearFiltersLink();
+
+            expect(layerControls.$clearFiltersWrapper.setAttribute).toHaveBeenCalledWith('hidden', '');
+            expect(layerControls.$clearFiltersWrapper.removeAttribute).not.toHaveBeenCalled();
+        })
+
+        test('does nothing when the link element is not present',() => {
+            layerControls.$clearFiltersWrapper = null;
+            layerControls.layerOptions = [{ isChecked: () => true }];
+
+            expect(() => layerControls.updateClearFiltersLink()).not.toThrow();
+        })
+    })
+
+    describe('clearAllFilters()', () => {
+        test('unchecks every layer checkbox, pushes the URL update, and moves focus off itself',() => {
+            const chkbx1 = { checked: true };
+            const chkbx2 = { checked: true };
+            const l1 = { element: { querySelector: vi.fn(() => chkbx1) } };
+            const l2 = { element: { querySelector: vi.fn(() => chkbx2) } };
+
+            layerControls.layerOptions = [l1, l2];
+            layerControls.updateUrl = vi.fn();
+            layerControls.$textbox = { focus: vi.fn() };
+
+            const event = { preventDefault: vi.fn() };
+            layerControls.clearAllFilters(event);
+
+            expect(event.preventDefault).toHaveBeenCalled();
+            expect(chkbx1.checked).toBe(false);
+            expect(chkbx2.checked).toBe(false);
+            expect(layerControls.updateUrl).toHaveBeenCalledTimes(1);
+            expect(layerControls.$textbox.focus).toHaveBeenCalledTimes(1);
+        })
+
+        test('does not throw when called without an event or without a filter textbox',() => {
+            layerControls.layerOptions = [];
+            layerControls.updateUrl = vi.fn();
+            layerControls.$textbox = null;
+
+            expect(() => layerControls.clearAllFilters()).not.toThrow();
+        })
     })
 
     describe('updateKeyPanel()', () => {

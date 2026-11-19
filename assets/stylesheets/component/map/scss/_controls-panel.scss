@@ -192,6 +192,29 @@ $dl-map-controls-panel-width: 355px;
   }
 }
 
+.dl-map__clear-filters {
+  margin: 0 0 govuk-spacing(2);
+}
+
+.dl-map__clear-filters-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: $govuk-link-colour;
+  text-decoration: underline;
+
+  &:hover {
+    color: $govuk-link-hover-colour;
+  }
+
+  &:focus {
+    @include govuk-focused-text;
+  }
+
+  @include govuk-font-size($size: 16);
+}
+
 .dl-map__layer-list {
   height: 220px;
   overflow-y: auto;

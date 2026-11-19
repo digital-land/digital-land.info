@@ -7,6 +7,7 @@
 {% set search_result = params.get("search_result") %}
 {% set search_query = params.get("search_query", "") %}
 {% set error = params.get("error") %}
+{% set any_layer_checked = layers | selectattr("checked") | list | length > 0 %}
 
 {% set findAnAreaContent %}
   {{ dlFindAnAreaForm({
@@ -17,6 +18,9 @@
 {% endset %}
 
 {% set dataLayersContent %}
+  <p class="dl-map__clear-filters" id="dl-map-clear-filters-wrapper" {{ 'hidden' if not any_layer_checked }}>
+    <button type="button" class="dl-map__clear-filters-button" id="dl-map-clear-filters-button">Clear all filters</button>
+  </p>
   <div class="dl-filter-group__auto-filter">
     <label for="layer-filter-input" class="govuk-label govuk-visually-hidden">Search data layers</label>
     <input id="layer-filter-input" class="govuk-input dl-filter-group__auto-filter__input" type="text" aria-controls="layer-toggles-list">
