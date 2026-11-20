@@ -9,3 +9,14 @@
 .dl-map__overlay {
   box-shadow: 0 0 3px rgba(govuk-colour("black"), .8);
 }
+
+// Overrides MapLibre's own vendored focus style (a #0096ff box-shadow,
+// borderline against WCAG 1.4.11 non-text contrast) on its native zoom/
+// compass/fullscreen controls with GOV.UK's standard focus style.
+// !important is needed because maplibre-gl.css loads after application.css.
+.maplibregl-ctrl-group button:focus:focus-visible {
+  outline: $govuk-focus-width solid transparent !important;
+  box-shadow:
+    0 0 0 4px $govuk-focus-colour,
+    0 0 0 8px $govuk-focus-text-colour !important;
+}

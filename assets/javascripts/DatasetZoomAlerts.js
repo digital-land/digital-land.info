@@ -70,7 +70,8 @@ export default class DatasetZoomAlerts {
 
     const alert = document.createElement('div');
     alert.classList.add('dl-zoom-alert');
-    alert.setAttribute('role', 'region');
+    alert.setAttribute('role', 'status');
+    alert.setAttribute('aria-atomic', 'true');
     alert.setAttribute('aria-label', `Information: zoom in to view ${layerName} data layer`);
     // Layer names come from dataset data, so escape them before using innerHTML.
     const safeLayerName = escapeHtml(layerName);
