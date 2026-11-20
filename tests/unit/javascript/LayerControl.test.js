@@ -63,6 +63,17 @@ describe('Layer Controls', () => {
             expect(layerControls.$keyPanelClose.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
         })
 
+        test('wires up the layer status element',() => {
+            layerControls.layers = [];
+            layerControls.availableLayers = {};
+            layerControls.updateUrl = vi.fn();
+            layerControls.toggleLayersBasedOnUrl = vi.fn();
+
+            layerControls.attach();
+
+            expect(document.getElementById).toHaveBeenCalledWith('dl-map-layer-status');
+        })
+
         test('wires up the "Clear all filters" button',() => {
             layerControls.layers = [];
             layerControls.availableLayers = {};
@@ -131,6 +142,7 @@ describe('Layer Controls', () => {
         layerControls.layerOptions = [l1,l2,l3];
         layerControls.updateKeyPanel = vi.fn();
         layerControls.updateClearFiltersLink = vi.fn();
+        layerControls.updateLayerStatus = vi.fn();
 
         layerControls.showEntitiesForLayers([l1, l2]);
 
@@ -139,6 +151,7 @@ describe('Layer Controls', () => {
         expect(l3.disable).toHaveBeenCalledTimes(1);
         expect(layerControls.updateKeyPanel).toHaveBeenCalledTimes(1);
         expect(layerControls.updateClearFiltersLink).toHaveBeenCalledTimes(1);
+        expect(layerControls.updateLayerStatus).toHaveBeenCalledTimes(1);
     })
 
     describe('updateClearFiltersLink()', () => {
@@ -283,6 +296,49 @@ describe('Layer Controls', () => {
 
             expect(historicalRow.style.display).toBe('none');
             expect(layerControls.$keyPanel.setAttribute).toHaveBeenCalledWith('hidden', '');
+        })
+    })
+
+    /**
+     * The Key panel and "Clear all filters" link both appear/disappear
+     * elsewhere on the page as a side effect of checking a layer box, with
+     * no indication near the checkbox itself - this status text is what
+     * announces that change to screen reader users, meeting WCAG 4.1.3
+     * Status Messages.
+     */
+    describe('updateLayerStatus()', () => {
+        test('announces a singular count when one layer is selected',() => {
+            layerControls.$layerStatus = { textContent: '' };
+            layerControls.enabledLayers = vi.fn().mockReturnValue([{}]);
+
+            layerControls.updateLayerStatus();
+
+            expect(layerControls.$layerStatus.textContent).toBe('1 data layer selected');
+        })
+
+        test('announces a plural count when more than one layer is selected',() => {
+            layerControls.$layerStatus = { textContent: '' };
+            layerControls.enabledLayers = vi.fn().mockReturnValue([{}, {}]);
+
+            layerControls.updateLayerStatus();
+
+            expect(layerControls.$layerStatus.textContent).toBe('2 data layers selected');
+        })
+
+        test('announces that nothing is selected when no layers are checked',() => {
+            layerControls.$layerStatus = { textContent: '' };
+            layerControls.enabledLayers = vi.fn().mockReturnValue([]);
+
+            layerControls.updateLayerStatus();
+
+            expect(layerControls.$layerStatus.textContent).toBe('No data layers selected');
+        })
+
+        test('does nothing when the status element is not present',() => {
+            layerControls.$layerStatus = null;
+            layerControls.enabledLayers = vi.fn().mockReturnValue([{}]);
+
+            expect(() => layerControls.updateLayerStatus()).not.toThrow();
         })
     })
 

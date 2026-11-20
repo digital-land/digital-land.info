@@ -150,6 +150,10 @@ $dl-map-controls-panel-width: 355px;
     background: govuk-colour("light-grey");
   }
 
+  &:focus {
+    @include govuk-focused-box;
+  }
+
   &--collapsed {
     left: 0;
 

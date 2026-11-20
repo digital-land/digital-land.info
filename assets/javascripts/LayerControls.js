@@ -59,6 +59,8 @@ export default class LayerControls {
         this.$keyPanelClose.addEventListener('click', () => this.setKeyPanelExpanded(false));
       }
 
+      this.$layerStatus = document.getElementById('dl-map-layer-status');
+
       this.$clearFiltersWrapper = document.getElementById('dl-map-clear-filters-wrapper');
       this.$clearFiltersButton = document.getElementById('dl-map-clear-filters-button');
       if (this.$clearFiltersButton) {
@@ -124,6 +126,22 @@ export default class LayerControls {
       this.mapController.datasetZoomAlerts?.update();
       this.updateKeyPanel();
       this.updateClearFiltersLink();
+      this.updateLayerStatus();
+    }
+
+    /**
+     * Announces the selected layer count to screen readers - the Key panel
+     * and "Clear all filters" link both appear/disappear elsewhere on the
+     * page as a side effect of this same change, with no other indication
+     * near the checkbox the user actually interacted with.
+     */
+    updateLayerStatus() {
+      if (!this.$layerStatus) return;
+
+      const count = this.enabledLayers().length;
+      this.$layerStatus.textContent = count > 0
+        ? `${count} data ${count === 1 ? 'layer' : 'layers'} selected`
+        : 'No data layers selected';
     }
 
     /**

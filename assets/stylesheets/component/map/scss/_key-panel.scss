@@ -31,6 +31,7 @@
   display: flex;
   align-items: center;
   gap: govuk-spacing(1);
+  min-height: 24px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -38,14 +39,26 @@
   font-weight: normal;
   @include govuk-font-size($size: 16);
   cursor: pointer;
+
+  &:focus {
+    @include govuk-focused-box;
+  }
 }
 
 .dl-map-key-panel__close {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
+
+  &:focus {
+    @include govuk-focused-box;
+  }
 }
 
 .dl-map-key-panel__list {
