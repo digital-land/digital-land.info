@@ -1,11 +1,7 @@
-// how can we import this from govuk
-// https://github.com/alphagov/govuk-frontend/blob/ecd839c3fcfb0468d8cecdb09cfb9f7f158c5fb8/src/govuk/components/checkboxes/_index.scss#L9
-$govuk-checkboxes-size: 40px;
+$govuk-checkboxes-size: 24px;
 
 .dl-map__layer-item {
   .govuk-checkboxes__item {
-    padding-right: 18px;
-    padding-left: 0;
     cursor: pointer;
 
     &:hover {
@@ -15,27 +11,10 @@ $govuk-checkboxes-size: 40px;
     }
   }
 
-  .govuk-checkboxes__input {
-    right: -10px;
-    left: unset;
-    position: absolute;
-  }
-
   .govuk-checkboxes__label {
-    padding-left: 0;
-
-    &:before {
-      top: 8px;
-      right: 0;
-      left: unset;
-      width: 24px;
-      height: 24px;
-    }
-
     &:after {
-      top: 14px;
-      right: 4px;
-      left: unset;
+      top: 16px;
+      left: 4px;
       width: 16px;
       height: 9px;
       border-width: 0 0 4px 4px;
@@ -43,24 +22,14 @@ $govuk-checkboxes-size: 40px;
   }
 }
 
-.dl-label__key {
-  display: block;
-  position: relative;
-  margin-left: 53px;
-  font-size: 1rem;
-  min-height: $govuk-checkboxes-size;
-}
-
-
 .dl-label__key__symbol {
   box-sizing: border-box;
   position: absolute;
-  top: 0;
+  top: -2px;
   left: 0;
   width: $govuk-checkboxes-size;
   height: $govuk-checkboxes-size;
-  margin-top: -8px;
-  margin-left: -53px;
+  margin-left: -34px;
   border: $govuk-border-width-form-element solid govuk-colour("mid-grey");
   background: rgba(govuk-colour("light-grey"), .5);
 }
@@ -68,8 +37,4 @@ $govuk-checkboxes-size: 40px;
   border: none;
   background: none;
   @extend .dl-label__key__symbol;
-}
-
-.dl-label__key__symbol--circle {
-  border-radius: 50%;
 }

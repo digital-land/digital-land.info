@@ -1,6 +1,7 @@
-import {defaultPaintOptions} from "./defaultPaintOptions.js";
-import { escapeHtml, safeCssColour, safeOpacity } from "./safeHtml.js";
-
+/**
+ * Wires behaviour onto the "Select a data layer" / "Advanced settings"
+ * controls panel markup, which is rendered server-side.
+ */
 export default class LayerControls {
     constructor (mapController, source, layers, availableLayers, options) {
       this.mapController = mapController;
@@ -8,16 +9,11 @@ export default class LayerControls {
       this.layers = layers;
       this.availableLayers = availableLayers;
 
-      this._container = document.createElement('div');
       this.layerOptions = [];
-
-		  const styleClasses = this._container.classList;
-      styleClasses.add('maplibregl-ctrl')
 
       this.layerURLParamName = options.layerURLParamName || 'dataset';
       this.redirectURLParamNames = options.redirectURLParamNames || [];
 
-      // listen for changes to URL
       var boundSetControls = this.toggleLayersBasedOnUrl.bind(this);
       window.addEventListener('popstate', function (event) {
         boundSetControls();
@@ -26,211 +22,64 @@ export default class LayerControls {
       this.replaceRedirectParamNames();
     }
 
-    onAdd(map) {
-      // Side panel
-      const sidePanel = document.createElement('div');
-      sidePanel.classList.add('dl-map__side-panel');
-      sidePanel.setAttribute('tabindex', '-1');
-      sidePanel.setAttribute('role', 'dialog');
-      sidePanel.setAttribute('aria-hidden', 'false');
-      sidePanel.setAttribute('open', 'true');
-      sidePanel.setAttribute('aria-modal', 'true');
-
-      // Settings panel
-      const settingsPanel = document.createElement('div');
-      settingsPanel.classList.add('dl-map__side-panel');
-      settingsPanel.classList.add('dl-map__side-panel--bottom');
-      settingsPanel.setAttribute('tabindex', '-1');
-      settingsPanel.setAttribute('role', 'dialog');
-      settingsPanel.setAttribute('aria-hidden', 'false');
-      settingsPanel.setAttribute('open', 'true');
-      settingsPanel.setAttribute('aria-modal', 'false');
-
-      // Side panel & settings panel headings
-      const heading = document.createElement('div');
-      const settingsPanelHeading = document.createElement('div');
-
-      heading.classList.add('dl-map__side-panel__heading');
-      settingsPanelHeading.classList.add('dl-map__side-panel__heading');
-
-      const primaryPanelHeadingElement = document.createElement('h2');
-      const settingsPanelHeadingElement = document.createElement('h2');
-
-      primaryPanelHeadingElement.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
-      primaryPanelHeadingElement.textContent = 'Data layers';
-      settingsPanelHeadingElement.classList.add('govuk-heading-s', 'govuk-!-margin-bottom-0');
-      settingsPanelHeadingElement.textContent = 'Settings';
-
-      heading.appendChild(primaryPanelHeadingElement);
-      settingsPanelHeading.appendChild(settingsPanelHeadingElement);
-
-      sidePanel.appendChild(heading);
-      settingsPanel.appendChild(settingsPanelHeading);
-
-      // Settings panel content
-      this.$settingsPanelContent = document.createElement('div');
-      this.$settingsPanelContent.classList.add('dl-map__side-panel__content');
-      this.$settingsPanelContent.style.cssText = 'margin-left: 8px; margin-top: 8px; margin-bottom: 8px;';
+    /**
+     * Attaches behaviour to the pre-rendered panel markup and sets the
+     * initial checkbox state from the URL (or the server-rendered default).
+     */
+    attach() {
+      this.$layerList = document.getElementById('layer-toggles-list');
+      this.$settingsPanelContent = document.getElementById('dl-map-settings-content');
 
       this.$settingsErrorMessage = document.createElement('p');
       this.$settingsErrorMessage.classList.add('govuk-error-message');
       this.$settingsErrorMessage.textContent = 'Select a data layer first';
 
-      const settingsList = document.createElement('ul');
-      settingsList.classList.add('govuk-list');
-      settingsList.setAttribute('role', 'group');
+      this.$historicalDataCheckbox = document.getElementById('show-historical-data');
+      if (this.$historicalDataCheckbox) {
+        this.$historicalDataCheckbox.addEventListener('change', this.toggleHistoricalData.bind(this));
+      }
 
-      const settingsListItem = document.createElement('li');
-      settingsListItem.classList.add('dl-map__layer-item', 'govuk-!-margin-bottom-1');
+      this.$textbox = document.getElementById('layer-filter-input');
+      if (this.$textbox) {
+        this.$textbox.addEventListener('input', this.filterCheckboxes.bind(this));
+      }
 
-      const historicalCheckBoxDiv = document.createElement('div');
-      historicalCheckBoxDiv.classList.add('govuk-checkboxes__item');
+      this.$keyPanel = document.getElementById('dl-map-key-panel');
+      this.$keyPanelToggle = document.getElementById('dl-map-key-panel-toggle');
+      this.$keyPanelClose = document.getElementById('dl-map-key-panel-close');
 
-      this.$historicalDataCheckbox = document.createElement('input');
-      this.$historicalDataCheckbox.classList.add('govuk-checkboxes__input');
-      this.$historicalDataCheckbox.setAttribute('id', 'show-historical-data');
-      this.$historicalDataCheckbox.setAttribute('name', 'show-historical-data');
-      this.$historicalDataCheckbox.setAttribute('type', 'checkbox');
-      this.$historicalDataCheckbox.setAttribute('value', 'show-historical-data');
-      this.$historicalDataCheckbox.addEventListener('change', this.toggleHistoricalData.bind(this));
+      // Manual open/close doesn't stick - the next checkbox change
+      // re-syncs via updateKeyPanel().
+      if (this.$keyPanelToggle) {
+        this.$keyPanelToggle.addEventListener('click', () => {
+          this.setKeyPanelExpanded(!!(this.$keyPanel && this.$keyPanel.classList.contains('dl-map-key-panel--collapsed')));
+        });
+      }
+      if (this.$keyPanelClose) {
+        this.$keyPanelClose.addEventListener('click', () => this.setKeyPanelExpanded(false));
+      }
 
-      const historicalCheckBoxLabel = document.createElement('label');
-      historicalCheckBoxLabel.classList.add('govuk-label', 'govuk-checkboxes__label');
-      historicalCheckBoxLabel.setAttribute('for', 'show-historical-data');
-      historicalCheckBoxLabel.innerHTML = `
-        <span class="dl-label__key">
-          <span class="dl-label__key__symbol" style="border-color: #AA2A16; background: #AA2A1680;"></span>
-          Show historical data
-        </span>
-      `;
+      this.$layerStatus = document.getElementById('dl-map-layer-status');
 
-      historicalCheckBoxDiv.appendChild(this.$historicalDataCheckbox);
-      historicalCheckBoxDiv.appendChild(historicalCheckBoxLabel);
-      settingsListItem.appendChild(historicalCheckBoxDiv);
-
-      settingsList.appendChild(settingsListItem);
-      this.$settingsPanelContent.appendChild(settingsList);
-      settingsPanel.appendChild(this.$settingsPanelContent);
-
-      const content = document.createElement('div');
-      content.classList.add('dl-map__side-panel__content');
-      this.$sidePanelContent = content;
-
-      const checkboxes = document.createElement('div');
-      checkboxes.classList.add('govuk-checkboxes');
-      checkboxes.setAttribute('data-module', `layer-controls-${this.mapController.mapId}`);
-
-      const filterGroup = document.createElement('div');
-      filterGroup.classList.add('dl-filter-group__auto-filter');
-
-      const filterLabel = document.createElement('label');
-      filterLabel.setAttribute('for', 'input-71108');
-      filterLabel.classList.add('govuk-label', 'govuk-visually-hidden');
-      filterLabel.textContent = 'Search data layers';
-
-      this.$textbox = document.createElement('input');
-      this.$textbox.setAttribute('id', 'input-71108');
-      this.$textbox.classList.add('govuk-input', 'dl-filter-group__auto-filter__input');
-      this.$textbox.setAttribute('type', 'text');
-      this.$textbox.setAttribute('aria-describedby', 'checkbox-filter-71108');
-      this.$textbox.setAttribute('aria-controls', 'checkboxes-71108');
-      this.$textbox.addEventListener('input', this.filterCheckboxes.bind(this));
-
-      filterGroup.appendChild(filterLabel);
-      filterGroup.appendChild(this.$textbox);
-      checkboxes.appendChild(filterGroup);
-
-      const list = document.createElement('ul');
-      list.classList.add('govuk-list');
-      list.setAttribute('style', 'height: 220px;')
-      list.setAttribute('data-module', 'layer-toggles');
-      list.setAttribute('role', 'group');
+      this.$clearFiltersWrapper = document.getElementById('dl-map-clear-filters-wrapper');
+      this.$clearFiltersButton = document.getElementById('dl-map-clear-filters-button');
+      if (this.$clearFiltersButton) {
+        this.$clearFiltersButton.addEventListener('click', this.clearAllFilters.bind(this));
+      }
 
       this.layerOptions = this.layers.map((layer) => {
         return new LayerOption(layer, this.availableLayers[layer.dataset], this);
       });
 
-      this.layerOptions.forEach(option => list.appendChild(option.element));
-
-      checkboxes.appendChild(list);
-      content.appendChild(checkboxes);
-      sidePanel.appendChild(content);
-
-      this.$sidePanel = sidePanel;
-
-      const closeButton = document.createElement('button');
-      closeButton.classList.add('dl-map__close-btn');
-      closeButton.dataset.action = 'close';
-      const closeLabel = document.createElement('span');
-      closeLabel.textContent = 'Close layer panel';
-      closeLabel.classList.add('govuk-visually-hidden');
-      closeButton.appendChild(closeLabel);
-      sidePanel.appendChild(closeButton);
-
-      const boundTogglePanel = this.togglePanel.bind(this);
-      closeButton.addEventListener('click', boundTogglePanel);
-      this.$closeBtn = closeButton;
-
-      const openButton = document.createElement('button');
-      openButton.classList.add('dl-map__open-btn', 'js-hidden');
-      openButton.dataset.action = 'open';
-      const openLabel = document.createElement('span');
-      openLabel.textContent = 'Open layer panel';
-      openLabel.classList.add('govuk-visually-hidden');
-      openButton.appendChild(openLabel);
-      this.mapController.map.getContainer().appendChild(openButton);
-
-      openButton.addEventListener('click', boundTogglePanel);
-      this.$openBtn = openButton;
-
-      this._container.appendChild(sidePanel);
-
-      // Create and configure open/close buttons for the settings panel
-      const settingsCloseButton = document.createElement('button');
-      settingsCloseButton.classList.add('dl-map__close-btn');
-
-      const settingsCloseLabel = document.createElement('span');
-      settingsCloseLabel.textContent = 'Close settings panel';
-      settingsCloseLabel.classList.add('govuk-visually-hidden');
-      settingsCloseButton.appendChild(settingsCloseLabel);
-
-      const boundToggleSettingsPanel = this.toggleSettingsPanel.bind(this);
-      settingsCloseButton.addEventListener('click', boundToggleSettingsPanel);
-      settingsPanel.appendChild(settingsCloseButton);
-      this.$settingsPanel = settingsPanel;
-
-      const settingsOpenButton = document.createElement('button');
-      settingsOpenButton.classList.add('dl-map__settings-open-btn', 'dl-map__open-btn', 'js-hidden');
-
-      const settingsOpenLabel = document.createElement('span');
-      settingsOpenLabel.textContent = 'Open settings panel';
-      settingsOpenLabel.classList.add('govuk-visually-hidden');
-      settingsOpenButton.appendChild(settingsOpenLabel);
-
-      const boundOpenSettingsPanel = this.openSettingsPanel.bind(this);
-      settingsOpenButton.addEventListener('click', boundOpenSettingsPanel);
-      this.mapController.map.getContainer().appendChild(settingsOpenButton);
-      this.$settingsOpenBtn = settingsOpenButton;
-      this._container.appendChild(settingsPanel);
-
-      // Position settings panel based on side panel visibility once rendered
-      requestAnimationFrame(() => {
-        this.positionSettingsPanel();
-      });
-
-      // initial set up of controls (default or urlParams)
       const urlParams = (new URL(document.location)).searchParams;
       if (!urlParams.has(this.layerURLParamName)) {
-        // if not set then use default checked controls
         this.updateUrl();
       } else {
-        // use URL params if available
         this.toggleLayersBasedOnUrl();
       }
-
-      return this._container;
     }
 
+    /** Migrates legacy URL param names (e.g. `layer`) to the current one. */
     replaceRedirectParamNames() {
       const urlParams = (new URL(document.location)).searchParams;
       this.redirectURLParamNames.forEach(param => {
@@ -248,92 +97,14 @@ export default class LayerControls {
       window.history.replaceState({}, '', newURL);
     }
 
-    onRemove() {
-
-    }
-
-    togglePanel(e) {
-      const action = e.currentTarget.dataset.action;
-      const opening = (action === 'open');
-      // set aria attributes
-      this.$sidePanelContent.setAttribute('aria-hidden', !opening);
-      this.$sidePanelContent.setAttribute('open', opening);
-      if (opening) {
-        this.$sidePanel.classList.remove('dl-map__side-panel--collapsed');
-        this.$openBtn.classList.add('js-hidden');
-        this.$closeBtn.classList.remove('js-hidden');
-        // focus on the panel when opening
-        this.$sidePanel.focus();
-      } else {
-        this.$sidePanel.classList.add('dl-map__side-panel--collapsed');
-        this.$openBtn.classList.remove('js-hidden');
-        this.$closeBtn.classList.add('js-hidden');
-        // focus on open btn when closing panel
-        this.$openBtn.focus();
-      }
-
-      this.positionSettingsPanel();
-    };
-
-    toggleSettingsPanel() {
-      this.$settingsPanel.classList.add('dl-map__side-panel--collapsed');
-      this.$settingsPanel.setAttribute('aria-hidden', 'true');
-      this.$settingsPanel.setAttribute('open', 'false');
-      this.$settingsOpenBtn.classList.remove('js-hidden');
-      this.positionSettingsPanel();
-      this.$settingsOpenBtn.focus();
-    }
-
-    openSettingsPanel() {
-      this.$settingsPanel.classList.remove('dl-map__side-panel--collapsed');
-      this.$settingsPanel.setAttribute('aria-hidden', 'false');
-      this.$settingsPanel.setAttribute('open', 'true');
-      this.$settingsOpenBtn.classList.add('js-hidden');
-      this.positionSettingsPanel();
-      this.$settingsPanel.focus();
-    }
-
-    positionSettingsPanel() {
-      const mapContainer = this.mapController.map.getContainer();
-      if (!mapContainer) {
-        return;
-      }
-
-      const mapTopGutter = 15;
-      const isCollapsed = this.$sidePanel.classList.contains('dl-map__side-panel--collapsed');
-
-      let topOffset;
-      let buttonTopOffset;
-
-      if (isCollapsed) {
-        const openBtnRect = this.$openBtn.getBoundingClientRect();
-        const containerRect = mapContainer.getBoundingClientRect();
-        topOffset = (openBtnRect.bottom - containerRect.top) + mapTopGutter;
-        buttonTopOffset = topOffset;
-      } else {
-        const sidePanelRect = this.$sidePanel.getBoundingClientRect();
-        const containerRect = mapContainer.getBoundingClientRect();
-        topOffset = (sidePanelRect.bottom - containerRect.top) + mapTopGutter;
-        buttonTopOffset = topOffset + 8;
-      }
-
-      this.$settingsPanel.style.top = topOffset + 'px';
-      this.$settingsPanel.style.bottom = 'auto';
-      this.$settingsOpenBtn.style.top = buttonTopOffset + 'px';
-    }
-
-    // toggles visibility of elements/entities based on URL params
     toggleLayersBasedOnUrl() {
       const enabledLayers = this.getEnabledLayersFromUrl();
       this.showEntitiesForLayers(enabledLayers);
     };
 
     getEnabledLayersFromUrl() {
-      // Get the URL parameters
       const urlParams = (new URL(document.location)).searchParams;
 
-      // Get the names of the enabled and disabled layers
-      // Only care about layers that exist
       let enabledLayerNames = [];
       if (urlParams.has(this.layerURLParamName)) {
           enabledLayerNames = urlParams
@@ -346,22 +117,101 @@ export default class LayerControls {
     }
 
     showEntitiesForLayers(enabledLayers) {
-
       const layerOptionsClone = [].concat(this.layerOptions);
       const disabledLayers = layerOptionsClone.filter(layer => enabledLayers.indexOf(layer) === -1);
 
-      // pass correct this arg
       enabledLayers.forEach(layer => layer.enable());
       disabledLayers.forEach(layer => layer.disable());
 
       this.mapController.datasetZoomAlerts?.update();
+      this.updateKeyPanel();
+      this.updateClearFiltersLink();
+      this.updateLayerStatus();
+    }
+
+    /**
+     * Announces the selected layer count to screen readers - the Key panel
+     * and "Clear all filters" link both appear/disappear elsewhere on the
+     * page as a side effect of this same change, with no other indication
+     * near the checkbox the user actually interacted with.
+     */
+    updateLayerStatus() {
+      if (!this.$layerStatus) return;
+
+      const count = this.enabledLayers().length;
+      this.$layerStatus.textContent = count > 0
+        ? `${count} data ${count === 1 ? 'layer' : 'layers'} selected`
+        : 'No data layers selected';
+    }
+
+    /**
+     * Shows the Key panel row for each checked layer (plus "Show historical
+     * data"), and hides the panel entirely when nothing is checked.
+     */
+    updateKeyPanel() {
+      if (!this.$keyPanel) return;
+
+      let anyChecked = false;
+      this.layerOptions.forEach(option => {
+        const checked = option.isChecked();
+        if (checked) anyChecked = true;
+
+        const row = this.$keyPanel.querySelector('[data-layer-key="' + option.getDatasetName() + '"]');
+        if (row) row.style.display = checked ? 'flex' : 'none';
+      });
+
+      const historicalChecked = !!(this.$historicalDataCheckbox && this.$historicalDataCheckbox.checked);
+      if (historicalChecked) anyChecked = true;
+      const historicalRow = this.$keyPanel.querySelector('[data-layer-key="show-historical-data"]');
+      if (historicalRow) historicalRow.style.display = historicalChecked ? 'flex' : 'none';
+
+      if (anyChecked) {
+        this.$keyPanel.removeAttribute('hidden');
+      } else {
+        this.$keyPanel.setAttribute('hidden', '');
+      }
+
+      this.setKeyPanelExpanded(anyChecked);
+    }
+
+    setKeyPanelExpanded(expanded) {
+      if (!this.$keyPanel) return;
+
+      this.$keyPanel.classList.toggle('dl-map-key-panel--collapsed', !expanded);
+      if (this.$keyPanelToggle) {
+        this.$keyPanelToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      }
+    }
+
+    /** Shows the "Clear all filters" link once one or more layers are checked. */
+    updateClearFiltersLink() {
+      if (!this.$clearFiltersWrapper) return;
+
+      if (this.enabledLayers().length > 0) {
+        this.$clearFiltersWrapper.removeAttribute('hidden');
+      } else {
+        this.$clearFiltersWrapper.setAttribute('hidden', '');
+      }
+    }
+
+    /** Unchecks every layer and runs the same update pipeline a checkbox click would. */
+    clearAllFilters(e) {
+      if (e) e.preventDefault();
+
+      this.layerOptions.forEach(option => {
+        const $chkbx = option.element.querySelector('input[type="checkbox"]');
+        if ($chkbx) $chkbx.checked = false;
+      });
+      this.updateUrl();
+
+      if (this.$textbox) this.$textbox.focus();
     }
 
     enabledLayers() {
       return this.layerOptions.filter(option => option.isChecked())
     };
 
-    // Checkbox handler for "Show historical data"
+    /** Handles changes to the "Show historical data" checkbox. */
     toggleHistoricalData(event) {
       if (this.enabledLayers().length === 0) {
         event.target.checked = false;
@@ -369,6 +219,7 @@ export default class LayerControls {
           this.$settingsPanelContent.classList.add('govuk-form-group--error');
           this.$settingsPanelContent.prepend(this.$settingsErrorMessage);
         }
+        this.updateKeyPanel();
         return;
       }
 
@@ -378,10 +229,10 @@ export default class LayerControls {
           this.mapController.setLayerCurrentEntityFilter(layerId, showHistorical);
         });
       });
+      this.updateKeyPanel();
     };
 
-    // Resets the "Show historical data" checkbox when no dataset checkboxes
-    // are checked, and clears the error state when a dataset becomes checked.
+    /** Resets "Show historical data" once no dataset layers are checked. */
     updateHistoricalCheckboxState() {
       if (!this.$historicalDataCheckbox) return;
 
@@ -392,7 +243,6 @@ export default class LayerControls {
         this.$settingsErrorMessage?.remove();
       }
 
-      // If no datasets are checked, uncheck and reset the historical filter
       if (!anyDatasetChecked && this.$historicalDataCheckbox.checked) {
         this.$historicalDataCheckbox.checked = false;
         this.layerOptions.forEach(layerOption => {
@@ -400,6 +250,7 @@ export default class LayerControls {
             this.mapController.setLayerCurrentEntityFilter(layerId, false);
           });
         });
+        this.updateKeyPanel();
       }
     };
 
@@ -414,9 +265,7 @@ export default class LayerControls {
     };
 
     displayMatchingCheckboxes(layerOptions, cb) {
-      // hide all
       this.layerOptions.forEach(layerOption => layerOption.setLayerCheckboxVisibility(false));
-      // re show those in filtered array
       layerOptions.forEach(layerOption => layerOption.setLayerCheckboxVisibility(true));
       if (cb) {
         cb();
@@ -424,7 +273,6 @@ export default class LayerControls {
     };
 
     updateUrl() {
-      // set the url params based on the enabled layers
       const urlParams = (new URL(document.location)).searchParams;
       urlParams.delete(this.layerURLParamName);
 
@@ -438,7 +286,8 @@ export default class LayerControls {
         urlParams.toString() +
         window.location.hash;
 
-      // add entry to history, does not fire event so need to call toggleLayersBasedOnUrl
+      // pushState doesn't fire popstate, so toggleLayersBasedOnUrl is
+      // called explicitly.
       window.history.pushState({}, '', newURL);
       this.toggleLayersBasedOnUrl();
     }
@@ -462,91 +311,19 @@ export default class LayerControls {
 export class LayerOption {
   constructor(layer, availableLayers, layerControls){
     this.layer = layer;
-    this.element = this.makeElement(layer);
+    this.element = this.findElement(layer);
     this.layerControls = layerControls;
     this.availableLayers = availableLayers;
-  }
 
-  makeElement(layer) {
-    const listItem = document.createElement('li');
-    listItem.classList.add("dl-map__layer-item");
-    listItem.classList.add("govuk-!-margin-bottom-1");
-
-    const checkBoxDiv = document.createElement('div');
-    checkBoxDiv.classList.add("govuk-checkboxes__item");
-
-    const checkBoxInput = document.createElement('input');
-    checkBoxInput.classList.add("govuk-checkboxes__input");
-    checkBoxInput.setAttribute('id', layer.dataset);
-    checkBoxInput.setAttribute('name', layer.dataset);
-    checkBoxInput.setAttribute('type', 'checkbox');
-    checkBoxInput.setAttribute('value', layer.dataset);
-    checkBoxInput.addEventListener('change', this.clickHandler.bind(this));
-
-    const checkBoxLabel = document.createElement('label');
-    checkBoxLabel.classList.add("govuk-label");
-    checkBoxLabel.classList.add("govuk-checkboxes__label");
-    checkBoxLabel.setAttribute('for', layer.dataset);
-    checkBoxLabel.innerHTML = this.makeLayerSymbol(layer);
-
-    checkBoxDiv.appendChild(checkBoxInput);
-    checkBoxDiv.appendChild(checkBoxLabel);
-    listItem.appendChild(checkBoxDiv);
-
-    return listItem;
-  }
-
-  makeLayerSymbol(layer) {
-    let symbolHtml = '';
-
-    // Paint options come from dataset data and are written into style
-    // attributes, so only allow known-safe colour and opacity formats.
-    const paintOptions = layer.paint_options || {};
-    const defaultOpacity = defaultPaintOptions["fill-opacity"];
-    const defaultColour = defaultPaintOptions["fill-color"];
-    let opacityNumber = paintOptions.opacity ? safeOpacity(paintOptions.opacity, defaultOpacity) : defaultOpacity;
-    let color = paintOptions.colour ? safeCssColour(paintOptions.colour, defaultColour) : defaultColour;
-
-    if(paintOptions.type == 'point') {
-      symbolHtml = `
-        <svg class="dl-label__key__symbol--pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" viewBox="0 0 90 90">
-          <defs>
-          </defs>
-          <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10;" >
-            <path
-              d="M 45 0 C 27.677 0 13.584 14.093 13.584 31.416 c 0 4.818 1.063 9.442 3.175 13.773 c 2.905 5.831 11.409 20.208 20.412 35.428 l 4.385 7.417 C 42.275 89.252 43.585 90 45 90 s 2.725 -0.748 3.444 -1.966 l 4.382 -7.413 c 8.942 -15.116 17.392 -29.4 20.353 -35.309 c 0.027 -0.051 0.055 -0.103 0.08 -0.155 c 2.095 -4.303 3.157 -8.926 3.157 -13.741 C 76.416 14.093 62.323 0 45 0 z M 45 42.81 c -6.892 0 -12.5 -5.607 -12.5 -12.5 c 0 -6.893 5.608 -12.5 12.5 -12.5 c 6.892 0 12.5 5.608 12.5 12.5 C 57.5 37.202 51.892 42.81 45 42.81 z"
-              style="
-                stroke: none;
-                stroke-width: 1;
-                stroke-dasharray: none;
-                stroke-linecap: butt;
-                stroke-linejoin: miter;
-                stroke-miterlimit: 10;
-                fill: ${color};
-                fill-rule: nonzero;
-                opacity: ${opacityNumber};"
-                transform=" matrix(1 0 0 1 0 0) "
-                stroke-linecap="round"
-              />
-          </g>
-        </svg>`
-    } else {
-      // Two-digit hex alpha, e.g. 0.02 -> "05" rather than "5".
-      const opacity = Math.floor(opacityNumber * 255).toString(16).padStart(2, '0');
-      symbolHtml = `
-        <span
-          class="dl-label__key__symbol"
-          style="
-            border-color: ${color};
-            background: ${color}${opacity};
-          "
-        >
-        </span>
-      `
+    const $chkbx = this.element && this.element.querySelector('input[type="checkbox"]');
+    if ($chkbx) {
+      $chkbx.addEventListener('change', this.clickHandler.bind(this));
     }
+  }
 
-    const html = `<span class="dl-label__key">${symbolHtml}${escapeHtml(layer.name)}</span>`;
-    return html;
+  /** Finds this layer's pre-rendered `<li data-layer-control>` checkbox row. */
+  findElement(layer) {
+    return document.querySelector('[data-layer-control="' + layer.dataset + '"]');
   }
 
   clickHandler(e) {
@@ -554,7 +331,6 @@ export class LayerOption {
   }
 
   enable() {
-    // Check the input, update UI classes, and set the map layer visibility to true
     const $chkbx = this.element.querySelector('input[type="checkbox"]');
     $chkbx.checked = true;
     this.element.dataset.layerControlActive = 'true';
@@ -564,7 +340,6 @@ export class LayerOption {
   };
 
   disable() {
-    // Uncheck the input, update UI classes, and set the map layer visibility to false
     const $chkbx = this.element.querySelector('input[type="checkbox"]');
     $chkbx.checked = false;
     this.element.dataset.layerControlActive = 'false';
@@ -574,7 +349,6 @@ export class LayerOption {
   };
 
   isChecked(){
-    // Return the checked status of the layer's checkbox
     return this.element.querySelector('input[type="checkbox"]').checked
   }
 
@@ -594,7 +368,6 @@ export class LayerOption {
   }
 
   getDatasetName(){
-    // Return the dataset identifier for this layer
     return this.layer.dataset;
   }
 }
