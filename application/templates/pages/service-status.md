@@ -3,16 +3,6 @@ Check this page for further updates.
 
 ## Updates
 
-### 23 November 2026
-
-Planning authorities can now use a temporary process to [provide data](https://provide.planning.data.gov.uk/) to the Planning Data Platform, including to [publish plan timetable data](https://www.gov.uk/government/publications/publish-your-plan-data/publish-your-plan-data) and [other datasets](https://www.planning.data.gov.uk/guidance/).
-
-The temporary process will be available until MHCLG has completed improvements to the Check and Provide service.
-
-Planning authorities can update datasets they are already providing by making changes at the endpoint URL.
-
-We cannot confirm an exact date when the service will be available again. We estimate this will be before the year’s end.
-
 ### 16 November 2026
 
 Public access to the **Planning Data Platform**, including the **Planning Data API** and navigation to **Extract,** has been restored with some minor changes.
