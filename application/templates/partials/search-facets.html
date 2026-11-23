@@ -204,20 +204,20 @@
 
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s govuk-visually-hidden">
-            Do you want to see entries since the date or after the date?
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+            Show data
           </legend>
           <div class="govuk-radios">
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" id="entry_date_match" name="entry_date_match" type="radio" value="since" {% if query.params.get('entry_date_match') and 'since' in query.params.get('entry_date_match') %}checked=checked{% endif %}>
               <label class="govuk-label govuk-radios__label" for="entry_date_match">
-                Since
+                From this date onwards
               </label>
             </div>
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" id="entry_date_match-2" name="entry_date_match" type="radio" value="before" {% if query.params.get('entry_date_match') and 'before' in query.params.get('entry_date_match') %}checked=checked{% endif %}>
               <label class="govuk-label govuk-radios__label" for="entry_date_match-2">
-                Before
+                Before this date
               </label>
             </div>
           </div>
