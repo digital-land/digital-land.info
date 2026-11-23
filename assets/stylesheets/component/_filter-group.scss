@@ -103,6 +103,16 @@
   display: block;
 }
 
+.app-filter-group__clear-button {
+  @include govuk-font($size: 19);
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: $govuk-link-colour;
+}
+
 .dl-filter-group__auto-filter__input {
   padding-left: 30px;
   // sass-lint:disable indentation

@@ -4,8 +4,14 @@ export default class SearchResultsPage {
     this.paginationLinks = (paginationElements || []).filter(Boolean);
     this.resultsSection = document.getElementById('search-results');
 
+    this.entryDateClearButton = document.getElementById('entry-date-clear');
+    this.entryDateInputs = Array.from(document.querySelectorAll('#entry-date .govuk-date-input__input'));
+    this.entryDateMatchRadios = Array.from(document.querySelectorAll('input[name="entry_date_match"]'));
+    this.entryDateClearStatus = document.getElementById('entry-date-clear-status');
+
     if (this.forms.length) this.initFormListener();
     if (this.paginationLinks.length) this.initPaginationListener();
+    this.initEntryDateClearListener();
   }
 
   initFormListener() {
@@ -72,5 +78,36 @@ export default class SearchResultsPage {
       this.resultsSection.classList.add('app-search--loading');
       this.resultsSection.setAttribute('aria-busy', 'true');
     }
+  }
+
+  initEntryDateClearListener() {
+    this.entryDateClearButton.addEventListener('click', this.clearEntryDate.bind(this));
+  }
+
+  clearEntryDate() {
+    this.resetEntryDateInputs();
+    this.resetEntryDateMatchRadios();
+    this.announceEntryDateCleared();
+    this.focusFirstEntryDateInput();
+  }
+
+  resetEntryDateInputs() {
+    this.entryDateInputs.forEach(input => {
+      input.value = '';
+    });
+  }
+
+  resetEntryDateMatchRadios() {
+    this.entryDateMatchRadios.forEach(radio => {
+      radio.checked = false;
+    });
+  }
+
+  announceEntryDateCleared() {
+    this.entryDateClearStatus.textContent = 'Entry date cleared';
+  }
+
+  focusFirstEntryDateInput() {
+    this.entryDateInputs[0].focus();
   }
 }
