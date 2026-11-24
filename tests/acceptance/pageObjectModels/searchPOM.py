@@ -46,9 +46,9 @@ class SearchPOM:
 
     def filter_by_entry_date(self, beforeOrAfter, year, month, day):
         if beforeOrAfter == "before":
-            self.page.get_by_label("Before").check()
+            self.page.locator('input[name="entry_date_match"][value="before"]').check()
         elif beforeOrAfter == "after":
-            self.page.get_by_label("Since").check()
+            self.page.locator('input[name="entry_date_match"][value="since"]').check()
         else:
             Exception("beforeOrAfter must be either 'before' or 'after'")
 
