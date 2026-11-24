@@ -107,6 +107,8 @@ export default class MapController {
     params = params || {};
     this.mapId = params.mapId || 'mapid';
     this.mapContainerSelector = params.mapContainerSelector || '.dl-map__wrapper';
+    // Element to fullscreen; defaults to the map's own div.
+    this.fullscreenContainerSelector = params.fullscreenContainerSelector || null;
     this.vectorTileSources = params.vectorTileSources || [];
     this.datasetVectorUrl = params.datasetVectorUrl || null;
     this.datasets = params.datasets || null;
@@ -162,6 +164,7 @@ export default class MapController {
       style: this.customStyleJson,
       transformStyle: (previousStyle, nextStyle) =>
         absoluteStyleUrls(nextStyle, window.location.origin),
+      attributionControl: false,
       maxBounds: [
         [-15, 49],
         [13, 57]
@@ -211,7 +214,6 @@ export default class MapController {
 
     this.addControls()
     this.addClickHandlers();
-    this.overwriteWheelEventsForControls();
     this._setupComplete = true;
 
     const handleMapMove = () => {
@@ -327,30 +329,28 @@ export default class MapController {
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
 
-    if (this.FullscreenControl.enabled) {
+    if(this.FullscreenControl.enabled){
+      const fullscreenContainer = this.fullscreenContainerSelector
+        ? document.querySelector(this.fullscreenContainerSelector)
+        : document.getElementById(this.mapId);
       this.map.addControl(new maplibregl.FullscreenControl({
-        container: document.getElementById(this.mapId)
-      }), 'top-left');
+        container: fullscreenContainer
+      }), 'top-right');
     }
-    this.map.addControl(new TiltControl(), 'top-left');
+    this.map.addControl(new TiltControl(), 'top-right');
     this.map.addControl(new maplibregl.NavigationControl({
       container: document.getElementById(this.mapId)
-    }), 'top-left');
+    }), 'top-right');
 
     this.map.addControl(new CopyrightControl(), 'bottom-right');
 
-    if (this.LayerControlOptions.enabled) {
+    if(this.LayerControlOptions.enabled){
       this.layerControlsComponent = new LayerControls(this, this.sourceName, this.layers, this.availableLayers, this.LayerControlOptions);
-      this.map.addControl(this.layerControlsComponent, 'top-right');
+      this.layerControlsComponent.attach();
       this.datasetZoomAlerts = new DatasetZoomAlerts(this, this.layerControlsComponent);
     }
   }
 
-  overwriteWheelEventsForControls() {
-    const mapEl = document.getElementById(this.mapId)
-    const mapControlsArray = mapEl.querySelectorAll('.maplibregl-control-container')
-    mapControlsArray.forEach((mapControls) => mapControls.addEventListener('wheel', preventScroll(['.dl-map__side-panel__content']), { passive: false }));
-  }
 
   addClickHandlers() {
     if (this.layerControlsComponent) {

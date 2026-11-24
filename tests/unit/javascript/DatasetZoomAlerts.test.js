@@ -77,6 +77,17 @@ describe('DatasetZoomAlerts', () => {
       expect(alert.attributes['aria-label']).toBe(`Information: zoom in to view ${layerName} data layer`)
     })
 
+    test('marks the alert as a status message so screen readers announce it automatically', () => {
+      const layerControls = {
+        layerOptions: [mockLayerOption('restricted-dataset', 'Restricted dataset', true)],
+      }
+      const alerts = new DatasetZoomAlerts(mockMapController(6), layerControls)
+
+      const alert = alerts.alertElements['restricted-dataset']
+      expect(alert.attributes['role']).toBe('status')
+      expect(alert.attributes['aria-atomic']).toBe('true')
+    })
+
     test('shows alert message for a checked dataset below zoom level at which dataset displays', () => {
       const layerControls = {
         layerOptions: [mockLayerOption('restricted-dataset', 'Restricted dataset', true)],

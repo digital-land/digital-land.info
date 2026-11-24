@@ -1,5 +1,5 @@
 from application.core.utils import NoneToEmptyStringEncoder
-from jinja2 import pass_eval_context
+from jinja2 import pass_eval_context, Undefined
 from markdown import markdown
 from markupsafe import Markup
 import nh3
@@ -9,6 +9,7 @@ from slugify import slugify
 from uritemplate import URITemplate
 import urllib.parse as urlparse
 from urllib.parse import urlencode
+import re
 import requests
 import os
 import hashlib
@@ -237,15 +238,69 @@ def is_list_filter(v):
     return isinstance(v, list)
 
 
-def hex_to_rgb_string_filter(hex):
+def hex_to_rgb_string_filter(hex, fallback="0,48,120"):
     """
     Given hex will return rgb string
 
     E.g. #0b0c0c ==> "11, 12, 12"
+    E.g. #0bc ==> "0, 187, 204"
+
+    Falls back rather than raising on a named colour (e.g. "red") or any
+    other non-hex value - callers should pass a colour through
+    safe_css_colour first, which allows those formats through as "safe",
+    so this must not crash on them.
     """
-    h = hex.lstrip("#")
-    rgb = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+    h = str(hex).lstrip("#")
+    if len(h) in (3, 4):
+        h = "".join(c * 2 for c in h)
+    try:
+        rgb = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+    except ValueError:
+        return fallback
     return f"{rgb[0]},{rgb[1]},{rgb[2]}"
+
+
+_SAFE_CSS_COLOUR_RE = re.compile(
+    r"^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$|^[a-z]+$", re.IGNORECASE
+)
+
+
+def safe_css_colour_filter(value, fallback="#003078"):
+    """
+    Only let a hex colour (#rgb, #rgba, #rrggbb, #rrggbbaa) or a plain
+    colour name through to a style attribute - anything else (including an
+    attempt to inject extra CSS declarations) falls back instead.
+
+    paint_options comes from dataset specification data, so it isn't
+    trusted as CSS. The default matches defaultPaintOptions.js's
+    fill-color - keep the two in sync.
+    """
+    if not isinstance(value, str):
+        return fallback
+    colour = value.strip()
+    return colour if _SAFE_CSS_COLOUR_RE.fullmatch(colour) else fallback
+
+
+def safe_opacity_filter(value, fallback=0.6):
+    """
+    Coerces an untrusted opacity value to a number between 0 and 1,
+    falling back on anything else. Needed because this value gets written
+    directly into a style attribute - an unvalidated string would be a
+    CSS-injection risk.
+
+    The default matches defaultPaintOptions.js's fill-opacity - keep the
+    two in sync.
+    """
+    # Jinja gives an Undefined sentinel (not None) for a missing
+    # paint_options.opacity key - float(Undefined) raises UndefinedError,
+    # which (TypeError, ValueError) below doesn't catch.
+    if isinstance(value, Undefined) or value is None or value == "":
+        return fallback
+    try:
+        opacity = float(value)
+    except (TypeError, ValueError):
+        return fallback
+    return min(1, max(0, opacity))
 
 
 @pass_eval_context
