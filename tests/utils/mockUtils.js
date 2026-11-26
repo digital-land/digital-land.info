@@ -101,7 +101,9 @@ const domElementMock = {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     setAttribute: vi.fn(),
-    focus: vi.fn()
+    focus: vi.fn(),
+    scrollIntoView: vi.fn(),
+    scrollTop: 0
 }
 
 const popupMock = {
@@ -224,6 +226,8 @@ export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=lay
         getElementById: vi.fn().mockImplementation(() => {
             return domElementMock
         }),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
         body: {
             removeChild: vi.fn(),
         }

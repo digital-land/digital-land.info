@@ -336,6 +336,17 @@ export default class MapController {
       this.map.addControl(new maplibregl.FullscreenControl({
         container: fullscreenContainer
       }), 'top-right');
+
+      const scrollMapIntoView = () => {
+        const isFullscreen = document.fullscreenElement === fullscreenContainer
+          || document.webkitFullscreenElement === fullscreenContainer;
+        if (!isFullscreen) return;
+
+        document.getElementById(this.mapId).scrollIntoView();
+        fullscreenContainer.scrollTop -= 48;
+      };
+      document.addEventListener('fullscreenchange', scrollMapIntoView);
+      document.addEventListener('webkitfullscreenchange', scrollMapIntoView);
     }
     this.map.addControl(new TiltControl(), 'top-right');
     this.map.addControl(new maplibregl.NavigationControl({

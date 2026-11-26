@@ -124,6 +124,47 @@ describe('Map Controller', () => {
             expect(mapController.map.addControl).toHaveBeenCalledWith(new CopyrightControl, 'bottom-right');
         })
 
+        /**
+         * A container only scrolls from its own top (0) once it becomes a
+         * fullscreen element - if the map isn't first in that container
+         * (e.g. a controls panel sits above it), entering fullscreen would
+         * otherwise show that instead of the map. The gap left above it
+         * matters too - if the map filled the entire screen, a touch
+         * starting on it would pan the map instead of scrolling the page,
+         * leaving no way to reach anything else.
+         */
+        test('scrolls the map into view once fullscreen is actually entered, leaving a gap above it', async () => {
+            const mapController = new MapController({
+                FullscreenControl: { enabled: true },
+            })
+            await waitForMapCreation(mapController)
+            await mapController.map.events.load()
+
+            const onFullscreenChange = document.addEventListener.mock.calls.find(call => call[0] === 'fullscreenchange')[1]
+
+            document.fullscreenElement = domElementMock
+            domElementMock.scrollTop = 200
+            onFullscreenChange()
+
+            expect(domElementMock.scrollIntoView).toHaveBeenCalled()
+            expect(domElementMock.scrollTop).toEqual(152)
+        })
+
+        test('does not scroll when some other element enters fullscreen', async () => {
+            const mapController = new MapController({
+                FullscreenControl: { enabled: true },
+            })
+            await waitForMapCreation(mapController)
+            await mapController.map.events.load()
+
+            const onFullscreenChange = document.addEventListener.mock.calls.find(call => call[0] === 'fullscreenchange')[1]
+
+            document.fullscreenElement = {}
+            onFullscreenChange()
+
+            expect(domElementMock.scrollIntoView).not.toHaveBeenCalled()
+        })
+
         test('Works with one geojson feature of type point', async () => {
             const params = {
                 geojsons: [
