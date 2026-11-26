@@ -173,6 +173,16 @@ $dl-map-controls-panel-width: 355px;
 @include govuk-media-query($until: tablet) {
   .dl-map-with-controls {
     height: auto;
+
+    &:fullscreen,
+    &:-webkit-full-screen {
+      height: 100vh;
+      overflow-y: auto;
+
+      > .dl-map__wrapper {
+        height: auto;
+      }
+    }
   }
 
   .dl-map-controls-panel {
