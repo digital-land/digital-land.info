@@ -150,6 +150,11 @@ export const stubGlobalMapLibre = () => {
 export const stubGlobalWindow = (pathname = 'http://localhost', hash = '') => {
     vi.stubGlobal('window', {
         addEventListener: vi.fn(),
+        matchMedia: vi.fn().mockImplementation(() => ({
+            matches: true,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+        })),
         location: {
             pathname: pathname,
             hash: hash,
@@ -211,6 +216,7 @@ export const stubGlobalUrl = (urlParams = []) => {
 
 export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=layer1&layers=layer2') => {
     vi.stubGlobal('document', {
+        documentElement: domElementMock,
         createElement: vi.fn().mockImplementation(() => {
             return domElementMock
         }),
@@ -228,6 +234,9 @@ export const stubGlobalDocument = (location = 'http://localhost:3000/?layers=lay
             removeChild: vi.fn(),
         }
     })
+    vi.stubGlobal('getComputedStyle', vi.fn().mockImplementation(() => ({
+        getPropertyValue: vi.fn().mockImplementation(() => '40.0625em'),
+    })));
 }
 
 export const stubGlobalTurf = (boundingBox) => {
