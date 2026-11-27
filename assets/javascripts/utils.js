@@ -99,6 +99,21 @@ export const debounce = (fn, wait) => {
   };
 }
 
+const GOVUK_BREAKPOINTS = Object.freeze({
+  MOBILE: 'mobile',
+  TABLET: 'tablet',
+  DESKTOP: 'desktop',
+});
+
+const govukBreakpointMediaQueryList = (name) => {
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(`--govuk-breakpoint-${name}`)
+    .trim();
+  return window.matchMedia(`(min-width: ${value})`);
+};
+
+export const isDesktop = () => govukBreakpointMediaQueryList(GOVUK_BREAKPOINTS.TABLET).matches;
+
 // Prevents scrolling of the page when the user triggers the wheel event on a div
 // while still allowing scrolling of any specified scrollable child elements.
 // Params:

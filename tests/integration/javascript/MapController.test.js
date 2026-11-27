@@ -1,6 +1,6 @@
 // integration tests for the map controller
 
-import {describe, expect, test, vi, beforeEach} from 'vitest'
+import {describe, expect, test, vi, beforeEach, afterEach} from 'vitest'
 import MapController from '../../../assets/javascripts/MapController'
 import TiltControl from '../../../assets/javascripts/TiltControl';
 import {
@@ -30,6 +30,14 @@ let popupMock = getPopupMock();
 
 beforeEach(() => {
     vi.clearAllMocks()
+})
+
+afterEach(() => {
+    window.matchMedia = vi.fn().mockImplementation(() => ({
+        matches: true,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+    }));
 })
 
 describe('Map Controller', () => {
@@ -122,6 +130,22 @@ describe('Map Controller', () => {
             expect(mapController.map.addControl).toHaveBeenCalledWith(new maplibregl.FullscreenControl, 'top-right');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new TiltControl, 'top-right');
             expect(mapController.map.addControl).toHaveBeenCalledWith(new CopyrightControl, 'bottom-right');
+        })
+
+        test('does not show the fullscreen button on mobile devices', async () => {
+            window.matchMedia = vi.fn().mockImplementation(() => ({
+                matches: false,
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+            }));
+
+            const mapController = new MapController({
+                FullscreenControl: { enabled: true },
+            });
+            await waitForMapCreation(mapController);
+            await mapController.map.events.load();
+
+            expect(maplibregl.FullscreenControl).not.toHaveBeenCalled();
         })
 
         test('Works with one geojson feature of type point', async () => {

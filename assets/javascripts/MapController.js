@@ -3,7 +3,7 @@ import CopyrightControl from "./CopyrightControl.js";
 import DatasetZoomAlerts from "./DatasetZoomAlerts.js";
 import LayerControls from "./LayerControls.js";
 import TiltControl from "./TiltControl.js";
-import { capitalizeFirstLetter, preventScroll } from "./utils.js";
+import { capitalizeFirstLetter, preventScroll, isDesktop } from "./utils.js";
 import { defaultPaintOptions } from "./defaultPaintOptions.js";
 import { getDatasetMinZoom } from "./datasetMinZoomLevels.js";
 
@@ -329,7 +329,7 @@ export default class MapController {
       container: document.getElementById(this.mapId)
     }), 'bottom-left');
 
-    if(this.FullscreenControl.enabled){
+    if(this.FullscreenControl.enabled && isDesktop()){
       const fullscreenContainer = this.fullscreenContainerSelector
         ? document.querySelector(this.fullscreenContainerSelector)
         : document.getElementById(this.mapId);
